@@ -28,3 +28,6 @@ Desktop.ini
 
 # extract_xboxkrnl_lib.zig output (not used by zig build)
 prebuilt/xboxkrnl_imports/
+
+# Python
+tools/__pycache__/

@@ -8,6 +8,7 @@ Build PEs in this repo with **`zig build`** only. Deploying to a devkit uses **e
 cd D:\Git\RXDK-LibsZig
 zig build verify-no-vs
 zig build kernel-smoke
+zig build kernel-api-smoke
 zig build hello-c
 zig build hello-cpp
 zig build conformance-c23
@@ -25,6 +26,7 @@ Artifacts:
 
 ```
 zig-out/samples/kernel-smoke/kernel-smoke.exe
+zig-out/samples/kernel-api-smoke/kernel-api-smoke.exe
 zig-out/samples/hello-c/hello-c.exe
 zig-out/samples/hello-cpp/hello-cpp.exe
 zig-out/samples/c23-stdbit-smoke/c23-stdbit-smoke.exe
@@ -46,6 +48,7 @@ This unpacks to `tools/rxdk-managed/win-x64/tools/imagebld.exe` (and `xbox-launc
 
 ```powershell
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-smoke\kernel-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-smoke\kernel-api-smoke.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-c\hello-c.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-cpp\hello-cpp.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\c23-stdbit-smoke\c23-stdbit-smoke.exe -XbeDebug -NoLibWarn
@@ -98,6 +101,7 @@ Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — ou
 | Sample | Expected `DbgPrint` / debug console line |
 |--------|----------------------------------------|
 | kernel-smoke | `RXDK-LibsZig kernel-smoke OK` |
+| kernel-api-smoke | `RXDK-LibsZig kernel-api-smoke OK` |
 | hello-c | `RXDK-LibsZig hello-c OK` |
 | hello-cpp | `RXDK-LibsZig hello-cpp OK` |
 | c23-stdbit-smoke | `RXDK-LibsZig c23-stdbit-smoke OK` |

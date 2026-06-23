@@ -10,7 +10,15 @@ No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the run
 - Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`), `vendor/xbox_leak_may_2020` (export ordinals reference only)
 
 ```powershell
-git submodule update --init --recursive
+.\scripts\init-submodules.ps1
+```
+
+Or manually:
+
+```powershell
+git submodule update --init vendor/picolibc vendor/xbox_leak_may_2020 vendor/llvm-project
+git -C vendor/llvm-project sparse-checkout init --cone
+git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
 ```
 
 ## Layout

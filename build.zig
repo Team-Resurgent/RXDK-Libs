@@ -93,6 +93,19 @@ pub fn build(b: *std.Build) void {
     sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
 
+    const kernel_api = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "kernel-api-smoke",
+        .src = "samples/kernel-api-smoke/main.c",
+        .objects = sample_objects.items,
+        .libs = &.{krnl},
+        .include_paths = &inc,
+        .entry = "start",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libxboxc.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const kernel_api_step = b.step("kernel-api-smoke", "Build KeQuerySystemTime + stdio smoke PE");
+    kernel_api_step.dependOn(kernel_api.install);
+
     var cpp_sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     cpp_sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     cpp_sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");

@@ -21,6 +21,7 @@ LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
 | Third-party C++ | `vendor/llvm-project/libcxx`, `libcxxabi` |
 | Public headers | staged to `zig-out/include/` |
 | Kernel import lib | `prebuilt/xboxkrnl.lib` (only prebuilt) |
+| Kernel headers | `include/xboxkrnl/` — umbrella `xboxkrnl.h`, base `xboxdef.h`, `types/*.h`, `api/*.h`, optional `winnt/{pe,xbe}.h` |
 
 ## Symbol / ABI notes (x86-windows-gnu)
 

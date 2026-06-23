@@ -7,7 +7,7 @@ No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the run
 ## Prerequisites
 
 - [Zig](https://ziglang.org/) **0.16+** (tested with 0.16.0)
-- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`)
+- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`), `vendor/xbox_leak_may_2020` (export ordinals reference only)
 
 ```powershell
 git submodule update --init --recursive
@@ -22,6 +22,8 @@ src/runtime/c23/         Small C23 gap-fill (e.g. stdbit)
 vendor/picolibc/         C library sources (submodule)
 vendor/llvm-project/     libc++ / libcxxabi sources (submodule, sparse)
 prebuilt/xboxkrnl.lib    Only committed prebuilt (kernel import lib)
+include/xboxkrnl/         Shipped kernel headers (xboxkrnl.h umbrella + api/*.h)
+vendor/xbox_leak_may_2020/ Reference submodule for header generation only
 zig-out/lib/             libxboxc.lib, libxboxcxx.lib
 zig-out/include/         Staged C/C++ headers (after `zig build`)
 samples/                 PE smokes linked with zig cc + lld
@@ -54,7 +56,7 @@ zig build conformance-cpp23
 |--------|----------|
 | `zig-out/lib/libxboxc.lib` | picolibc + minimal libm + `src/xbox/*` |
 | `zig-out/lib/libxboxcxx.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
-| `zig-out/include/` | picolibc + `include/xbox/` + `c++/v1/` |
+| `zig-out/include/` | picolibc + `include/xbox/` + `include/xboxkrnl/` + `c++/v1/` |
 
 Samples link via direct object response files (`zig-out/link/*.rsp`) because COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`. External consumers can link `libxboxc.lib` / `libxboxcxx.lib` or mirror the object-rsp pattern.
 

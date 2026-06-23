@@ -5,8 +5,6 @@
 #define _WIN32 1
 #define _X86_ 1
 
-#include "kernel.h"
-
 void xbox_runtime_init(void);
 void xbox_zero_uninitialized_data(void);
 void xbox_halt(void) __attribute__((noreturn));

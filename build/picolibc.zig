@@ -204,6 +204,11 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         .install_dir = .prefix,
         .install_subdir = "include/xbox",
     });
+    const xboxkrnl = b.addInstallDirectory(.{
+        .source_dir = b.path("include/xboxkrnl"),
+        .install_dir = .prefix,
+        .install_subdir = "include/xboxkrnl",
+    });
     const c23 = b.addInstallDirectory(.{
         .source_dir = b.path("src/runtime/c23"),
         .install_dir = .prefix,
@@ -219,6 +224,7 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     step.dependOn(&install.step);
     step.dependOn(&gen.step);
     step.dependOn(&xbox.step);
+    step.dependOn(&xboxkrnl.step);
     step.dependOn(&c23.step);
     return step;
 }

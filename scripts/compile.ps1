@@ -1,7 +1,12 @@
 # Build RXDK-LibsZig (Zig-only runtime, samples, optional XBE conversion).
 param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
-    [ValidateSet('all', 'libs', 'samples', 'kernel-smoke', 'hello-c', 'hello-cpp', 'conformance-c23', 'conformance-cpp23', 'verify-no-vs')]
+    [ValidateSet(
+        'all', 'libs', 'samples', 'verify-no-vs',
+        'kernel-smoke', 'hello-c', 'hello-cpp',
+        'conformance-c23', 'conformance-cpp23',
+        'c23-stdbit-smoke', 'cpp23-expected-smoke'
+    )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
     [string]$Optimize = 'Debug',
@@ -26,6 +31,7 @@ function Require-Submodules {
     $required = @(
         (Join-Path $RepoRoot 'vendor\picolibc\libc\include\stdio.h')
         (Join-Path $RepoRoot 'vendor\llvm-project\libcxx\include\iostream')
+        (Join-Path $RepoRoot 'vendor\xbox_leak_may_2020\xbox_leak_may_2020\xbox trunk\xbox\private\ntos\init\console\obj\i386\xboxkrnl.def')
     )
     foreach ($path in $required) {
         if (-not (Test-Path -LiteralPath $path)) {
@@ -78,12 +84,51 @@ if (-not $SkipSubmoduleCheck) {
     Require-Submodules -RepoRoot $Root
 }
 
-$sampleTargets = @(
-    'kernel-smoke'
-    'hello-c'
-    'hello-cpp'
-    'conformance-c23'
-    'conformance-cpp23'
+function Resolve-Sample {
+    param([string]$Target)
+    switch ($Target) {
+        'conformance-c23' { return @{ BuildStep = 'conformance-c23'; Artifact = 'c23-stdbit-smoke' } }
+        'c23-stdbit-smoke' { return @{ BuildStep = 'conformance-c23'; Artifact = 'c23-stdbit-smoke' } }
+        'conformance-cpp23' { return @{ BuildStep = 'conformance-cpp23'; Artifact = 'cpp23-expected-smoke' } }
+        'cpp23-expected-smoke' { return @{ BuildStep = 'conformance-cpp23'; Artifact = 'cpp23-expected-smoke' } }
+        default { return @{ BuildStep = $Target; Artifact = $Target } }
+    }
+}
+
+function Build-Sample {
+    param(
+        [string]$Target,
+        [string]$Opt,
+        [switch]$Xbe,
+        [switch]$Iso
+    )
+    $sample = Resolve-Sample -Target $Target
+    Invoke-ZigBuild -Step @('verify-no-vs', $sample.BuildStep) -Opt $Opt
+    if ($Xbe) {
+        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso
+    }
+}
+
+function Build-AllSamples {
+    param(
+        [string]$Opt,
+        [switch]$Xbe,
+        [switch]$Iso
+    )
+    Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Opt
+    foreach ($name in @('kernel-smoke', 'hello-c', 'hello-cpp', 'c23-stdbit-smoke', 'cpp23-expected-smoke')) {
+        $sample = Resolve-Sample -Target $name
+        Invoke-ZigBuild -Step @($sample.BuildStep) -Opt $Opt
+        if ($Xbe) {
+            Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso
+        }
+    }
+}
+
+$singleSampleTargets = @(
+    'kernel-smoke', 'hello-c', 'hello-cpp',
+    'conformance-c23', 'conformance-cpp23',
+    'c23-stdbit-smoke', 'cpp23-expected-smoke'
 )
 
 switch ($Target) {
@@ -94,23 +139,15 @@ switch ($Target) {
         Invoke-ZigBuild -Step @() -Opt $Optimize
     }
     'samples' {
-        Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Optimize
-        foreach ($name in $sampleTargets) {
-            Invoke-ZigBuild -Step @($name) -Opt $Optimize
-            if ($Xbe) { Convert-SampleXbe -SampleName $name -Iso:$Iso }
-        }
+        Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
     }
-    { $_ -in $sampleTargets } {
-        Invoke-ZigBuild -Step @('verify-no-vs', $Target) -Opt $Optimize
-        if ($Xbe) { Convert-SampleXbe -SampleName $Target -Iso:$Iso }
+    { $_ -in $singleSampleTargets } {
+        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
     }
     'all' {
         Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Optimize
         Invoke-ZigBuild -Step @() -Opt $Optimize
-        foreach ($name in $sampleTargets) {
-            Invoke-ZigBuild -Step @($name) -Opt $Optimize
-            if ($Xbe) { Convert-SampleXbe -SampleName $name -Iso:$Iso }
-        }
+        Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
     }
 }
 

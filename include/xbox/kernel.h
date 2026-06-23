@@ -1,14 +1,17 @@
-﻿#ifndef RXDK_XBOX_KERNEL_H
+#ifndef RXDK_XBOX_KERNEL_H
 #define RXDK_XBOX_KERNEL_H
+
+/*
+ * Full xboxkrnl import surface (clean headers under include/xboxkrnl/).
+ * Link prebuilt/xboxkrnl.lib — only referenced imports are pulled in.
+ */
+#include <xboxkrnl/xboxkrnl.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Kernel export from prebuilt/xboxkrnl.lib (cdecl, import by ordinal). */
-void DbgPrint(const char *fmt, ...);
-
-/* Implemented in libxboxc (src/xbox/kernel.c) — forwards to DbgPrint. */
+/* HAL helper in src/xbox/kernel.c — forwards to DbgPrint. */
 void OutputDebugStringA(const char *lpOutputString);
 
 #ifdef __cplusplus

@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include <stdbit.h>
 
 int main(void)
@@ -7,5 +8,7 @@ int main(void)
     unsigned x = 0x80000000u;
     assert(stdc_leading_zeros(x) == 0);
 #endif
-    return 0;
+    printf("RXDK-LibsZig c23-stdbit-smoke OK\n");
+    for (;;)
+        ;
 }

@@ -1,4 +1,5 @@
 #include <expected>
+#include <iostream>
 #include <string_view>
 
 int main(void)
@@ -7,5 +8,9 @@ int main(void)
     if (!ok || *ok != 42)
         return 1;
     std::string_view sv = "cpp23";
-    return sv.size() == 5 ? 0 : 2;
+    if (sv.size() != 5)
+        return 2;
+    std::cout << "RXDK-LibsZig cpp23-expected-smoke OK\n";
+    for (;;)
+        ;
 }

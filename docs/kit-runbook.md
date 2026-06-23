@@ -14,6 +14,13 @@ zig build conformance-c23
 zig build conformance-cpp23
 ```
 
+`compile.ps1` accepts either the zig step name or the artifact folder name:
+
+```powershell
+.\scripts\compile.ps1 -Target conformance-c23 -Iso
+.\scripts\compile.ps1 -Target c23-stdbit-smoke -Iso
+```
+
 Artifacts:
 
 ```
@@ -41,6 +48,8 @@ This unpacks to `tools/rxdk-managed/win-x64/tools/imagebld.exe` (and `xbox-launc
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-smoke\kernel-smoke.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-c\hello-c.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-cpp\hello-cpp.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\c23-stdbit-smoke\c23-stdbit-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\cpp23-expected-smoke\cpp23-expected-smoke.exe -XbeDebug -NoLibWarn
 ```
 
 Or call `imagebld` directly (after `.\scripts\Patch-PeXbox.ps1 -Path zig-out\samples\hello-c\hello-c.exe`):
@@ -91,8 +100,8 @@ Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — ou
 | kernel-smoke | `RXDK-LibsZig kernel-smoke OK` |
 | hello-c | `RXDK-LibsZig hello-c OK` |
 | hello-cpp | `RXDK-LibsZig hello-cpp OK` |
-| c23-stdbit-smoke | (silent success — returns 0) |
-| cpp23-expected-smoke | (silent success — returns 0) |
+| c23-stdbit-smoke | `RXDK-LibsZig c23-stdbit-smoke OK` |
+| cpp23-expected-smoke | `RXDK-LibsZig cpp23-expected-smoke OK` |
 
 `hello-c` / `hello-cpp` route stdio through `write` → `OutputDebugStringA` → `DbgPrint`.
 

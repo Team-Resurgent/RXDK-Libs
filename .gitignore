@@ -1,0 +1,30 @@
+# Zig build output
+.zig-cache/
+zig-out/
+
+# RXDK-Tools host bundle (downloaded by scripts/install-rxdk-tools.ps1)
+tools/rxdk-managed/*.zip
+tools/rxdk-managed/win-x64/
+tools/rxdk-managed/_extract/
+
+# XDVDFS-TR host bundle (downloaded by scripts/install-xdvdfs.ps1)
+tools/xdvdfs/*.zip
+tools/xdvdfs/win-x64/
+tools/xdvdfs/_extract/
+
+# Local scratch / OS noise
+.tmp-*
+*.tmp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Accidental bring-up scratch in repo root
+/*.o
+/*.exe
+/*.pdb
+/xboxkrnl.lib
+/.tmp-*.c
+
+# extract_xboxkrnl_lib.zig output (not used by zig build)
+prebuilt/xboxkrnl_imports/

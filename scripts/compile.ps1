@@ -3,7 +3,7 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'kernel-smoke', 'hello-c', 'hello-cpp',
+        'kernel-smoke', 'kernel-api-smoke', 'hello-c', 'hello-cpp',
         'conformance-c23', 'conformance-cpp23',
         'c23-stdbit-smoke', 'cpp23-expected-smoke'
     )]
@@ -116,7 +116,7 @@ function Build-AllSamples {
         [switch]$Iso
     )
     Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Opt
-    foreach ($name in @('kernel-smoke', 'hello-c', 'hello-cpp', 'c23-stdbit-smoke', 'cpp23-expected-smoke')) {
+    foreach ($name in @('kernel-smoke', 'kernel-api-smoke', 'hello-c', 'hello-cpp', 'c23-stdbit-smoke', 'cpp23-expected-smoke')) {
         $sample = Resolve-Sample -Target $name
         Invoke-ZigBuild -Step @($sample.BuildStep) -Opt $Opt
         if ($Xbe) {
@@ -126,7 +126,7 @@ function Build-AllSamples {
 }
 
 $singleSampleTargets = @(
-    'kernel-smoke', 'hello-c', 'hello-cpp',
+    'kernel-smoke', 'kernel-api-smoke', 'hello-c', 'hello-cpp',
     'conformance-c23', 'conformance-cpp23',
     'c23-stdbit-smoke', 'cpp23-expected-smoke'
 )

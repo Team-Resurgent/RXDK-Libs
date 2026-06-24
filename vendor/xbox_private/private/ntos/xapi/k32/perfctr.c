@@ -16,7 +16,7 @@ Abstract:
 
 __declspec(naked)
 BOOL
-WINAPI
+__stdcall
 QueryPerformanceCounter(
     LARGE_INTEGER *lpPerformanceCount
     )
@@ -58,7 +58,7 @@ QueryPerformanceCounter(
 
 __declspec(naked)
 BOOL
-WINAPI
+__stdcall
 QueryPerformanceFrequency(
     LARGE_INTEGER *lpFrequency
     )

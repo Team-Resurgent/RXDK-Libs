@@ -67,7 +67,7 @@ XapiFiberStartup(
 }
 
 LPVOID
-WINAPI
+__stdcall
 CreateFiber(
     IN DWORD dwStackSize,
     IN LPFIBER_START_ROUTINE lpStartAddress,
@@ -152,7 +152,7 @@ CreateFiber(
 }
 
 VOID
-WINAPI
+__stdcall
 DeleteFiber(
     IN LPVOID lpFiber
     )
@@ -206,7 +206,7 @@ DeleteFiber(
 }
 
 LPVOID
-WINAPI
+__stdcall
 ConvertThreadToFiber(
     IN LPVOID lpParameter
     )
@@ -275,7 +275,7 @@ ConvertThreadToFiber(
 
 __declspec(naked)
 VOID
-WINAPI
+__stdcall
 #if DBG
 XapiSwitchToFiberRetail(
 #else
@@ -358,7 +358,7 @@ SwitchToFiber(
 #if DBG
 
 VOID
-WINAPI
+__stdcall
 SwitchToFiber(
     LPVOID lpFiber
     )

@@ -3,7 +3,7 @@
 static LPVOID g_mainFiber;
 static DWORD g_fiberResult;
 
-static void WINAPI fiber_entry(LPVOID param)
+static void __stdcall fiber_entry(LPVOID param)
 {
     const DWORD* seed = (const DWORD*)param;
     g_fiberResult = *seed + 1u;
@@ -13,6 +13,7 @@ static void WINAPI fiber_entry(LPVOID param)
 int test_fiber(void)
 {
     g_fiberResult = 0;
+
     g_mainFiber = ConvertThreadToFiber(NULL);
     if (!g_mainFiber) {
         return XAPI_SKIP;

@@ -177,7 +177,9 @@ typedef DWORD (WINAPI *PTHREAD_START_ROUTINE)(
     );
 typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
 
-typedef VOID (WINAPI *PFIBER_START_ROUTINE)(
+/* __stdcall pinned explicitly (not WINAPI): fiber entry points are invoked by
+ * the asm switch / XapiFiberStartup which assume the Xbox stdcall ABI. */
+typedef VOID (__stdcall *PFIBER_START_ROUTINE)(
     LPVOID lpFiberParameter
     );
 typedef PFIBER_START_ROUTINE LPFIBER_START_ROUTINE;
@@ -705,7 +707,7 @@ extern __declspec(thread) PVOID XapiCurrentFiber;
 
 WINBASEAPI
 LPVOID
-WINAPI
+__stdcall
 CreateFiber(
     IN DWORD dwStackSize,
     IN LPFIBER_START_ROUTINE lpStartAddress,
@@ -714,21 +716,26 @@ CreateFiber(
 
 WINBASEAPI
 VOID
-WINAPI
+__stdcall
 DeleteFiber(
     IN LPVOID lpFiber
     );
 
 WINBASEAPI
 LPVOID
-WINAPI
+__stdcall
 ConvertThreadToFiber(
     IN LPVOID lpParameter
     );
 
 WINBASEAPI
 VOID
-WINAPI
+/* Pinned to __stdcall explicitly (not via the WINAPI macro, which can collapse
+ * to cdecl depending on _MSC_VER/_STDCALL_SUPPORTED and include order). The
+ * implementation is hand-written asm (xapi_fiber_switch.S) that ends in
+ * `ret 4`, so the C caller MUST treat the single arg as callee-cleaned;
+ * otherwise the stack drifts +4 per switch and a later ret lands in garbage. */
+__stdcall
 SwitchToFiber(
     IN LPVOID lpFiber
     );
@@ -1892,16 +1899,17 @@ IsBadStringPtrW(
 // Performance counter API's
 //
 
+/* __stdcall pinned explicitly: naked asm defs (perfctr.c) end in `ret 4`. */
 WINBASEAPI
 BOOL
-WINAPI
+__stdcall
 QueryPerformanceCounter(
     OUT LARGE_INTEGER *lpPerformanceCount
     );
 
 WINBASEAPI
 BOOL
-WINAPI
+__stdcall
 QueryPerformanceFrequency(
     OUT LARGE_INTEGER *lpFrequency
     );

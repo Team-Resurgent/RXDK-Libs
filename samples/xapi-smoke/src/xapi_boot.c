@@ -81,6 +81,7 @@ static DWORD WINAPI xapi_smoke_main_startup(LPVOID unused)
     xdk_xbox_crt_early_init();
     _cinit();
     xdk_xbox_crt_startup();
+
     DbgPrint("xapi-smoke: main\n");
     main(0, NULL, NULL);
     for (;;) {

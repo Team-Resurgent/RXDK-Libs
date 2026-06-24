@@ -60,7 +60,7 @@ XBAPI NTSTATUS NTAPI IoCheckShareAccess
     IN BOOLEAN Update
 );
 
-RXDK_XBOXKRNL_OBJECT_TYPE(IoCompletionObjectType);
+XBAPI OBJECT_TYPE IoCompletionObjectType[1];
 
 XBAPI NTSTATUS NTAPI IoCreateDevice
 (
@@ -102,7 +102,7 @@ XBAPI NTSTATUS NTAPI IoDeleteSymbolicLink
     IN POBJECT_STRING SymbolicLinkName
 );
 
-RXDK_XBOXKRNL_OBJECT_TYPE(IoDeviceObjectType);
+XBAPI OBJECT_TYPE IoDeviceObjectType[1];
 
 XBAPI NTSTATUS NTAPI IoDismountVolume
 (
@@ -126,7 +126,7 @@ XBAPI VOID FASTCALL IofCompleteRequest
     IN CCHAR PriorityBoost
 );
 
-RXDK_XBOXKRNL_OBJECT_TYPE(IoFileObjectType);
+XBAPI OBJECT_TYPE IoFileObjectType[1];
 
 XBAPI VOID NTAPI IoFreeIrp
 (

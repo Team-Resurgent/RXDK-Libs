@@ -313,6 +313,7 @@ XcCryptService(
 //
 // typedef's of all the ROM crypto exports
 //
+#if !defined(RXDK_LIBXAPI_BUILD) /* RXDK: defer crypto types to xboxkrnl/types/misc.h */
 typedef void (*pfXcSHAInit)(PUCHAR pbSHAContext);
 typedef void (*pfXcSHAUpdate)(PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
 typedef void (*pfXcSHAFinal)(PUCHAR pbSHAContext, PUCHAR pbDigest);
@@ -361,6 +362,7 @@ XcUpdateCrypto(
     IN PCRYPTO_VECTOR pNewVector,
     OUT OPTIONAL PCRYPTO_VECTOR pROMVector
     );
+#endif /* !RXDK_LIBXAPI_BUILD */
 
 #ifdef __cplusplus
 }      // extern "C"

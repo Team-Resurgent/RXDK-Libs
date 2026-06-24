@@ -34,6 +34,6 @@ XBAPI NTSTATUS NTAPI PsSetCreateThreadNotifyRoutine
     IN PCREATE_THREAD_NOTIFY_ROUTINE NotifyRoutine
 );
 
-RXDK_XBOXKRNL_OBJECT_TYPE(PsThreadObjectType);
+XBAPI OBJECT_TYPE PsThreadObjectType[1];
 
 #endif

@@ -9,7 +9,7 @@ XBAPI NTSTATUS NTAPI ObCreateObject
     OUT PVOID *Object
 );
 
-RXDK_XBOXKRNL_OBJECT_TYPE(ObDirectoryObjectType);
+XBAPI OBJECT_TYPE ObDirectoryObjectType[1];
 
 XBAPI VOID FASTCALL ObfDereferenceObject
 (
@@ -73,6 +73,6 @@ XBAPI NTSTATUS NTAPI ObReferenceObjectByPointer
     IN POBJECT_TYPE ObjectType
 );
 
-RXDK_XBOXKRNL_OBJECT_TYPE(ObSymbolicLinkObjectType);
+XBAPI OBJECT_TYPE ObSymbolicLinkObjectType[1];
 
 #endif

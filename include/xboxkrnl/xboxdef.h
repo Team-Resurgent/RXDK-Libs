@@ -5,7 +5,7 @@ typedef const void *LPCVOID;
 typedef void VOID, *PVOID, *LPVOID;
 typedef PVOID HANDLE, *PHANDLE;
 
-#define NtCurrentThread() ((HANDLE)-2)
+#define NtCurrentThread() ( (HANDLE) -2 )
 
 typedef unsigned char BOOLEAN, *PBOOLEAN;
 typedef signed char SCHAR, *PSCHAR;
@@ -38,20 +38,20 @@ typedef LONG LONG_PTR;
 typedef ULONG_PTR DWORD_PTR;
 
 typedef struct _FLOATING_SAVE_AREA {
-    WORD ControlWord;
-    WORD StatusWord;
-    WORD TagWord;
-    WORD ErrorOpcode;
-    DWORD ErrorOffset;
-    DWORD ErrorSelector;
-    DWORD DataOffset;
-    DWORD DataSelector;
-    DWORD MXCsr;
-    DWORD Reserved2;
-    BYTE RegisterArea[128];
-    BYTE XmmRegisterArea[128];
-    BYTE Reserved4[224];
-    DWORD Cr0NpxState;
+    WORD    ControlWord;
+    WORD    StatusWord;
+    WORD    TagWord;
+    WORD    ErrorOpcode;
+    DWORD   ErrorOffset;
+    DWORD   ErrorSelector;
+    DWORD   DataOffset;
+    DWORD   DataSelector;
+    DWORD   MXCsr;
+    DWORD   Reserved2;
+    BYTE    RegisterArea[128];
+    BYTE    XmmRegisterArea[128];
+    BYTE    Reserved4[224];
+    DWORD   Cr0NpxState;
 } __attribute__((packed)) FLOATING_SAVE_AREA;
 
 #define CONTEXT_X86                0x00010000
@@ -67,19 +67,19 @@ typedef struct _CONTEXT {
 
     FLOATING_SAVE_AREA FloatSave;
 
-    DWORD Edi;
-    DWORD Esi;
-    DWORD Ebx;
-    DWORD Edx;
-    DWORD Ecx;
-    DWORD Eax;
+    DWORD   Edi;
+    DWORD   Esi;
+    DWORD   Ebx;
+    DWORD   Edx;
+    DWORD   Ecx;
+    DWORD   Eax;
 
-    DWORD Ebp;
-    DWORD Eip;
-    DWORD SegCs;
-    DWORD EFlags;
-    DWORD Esp;
-    DWORD SegSs;
+    DWORD   Ebp;
+    DWORD   Eip;
+    DWORD   SegCs;
+    DWORD   EFlags;
+    DWORD   Esp;
+    DWORD   SegSs;
 
 } __attribute__((packed)) CONTEXT, *PCONTEXT;
 
@@ -105,17 +105,19 @@ typedef struct _EXCEPTION_RECORD {
 typedef struct _STRING {
     USHORT Length;
     USHORT MaximumLength;
-    PCHAR Buffer;
+    PCHAR  Buffer;
 } STRING, *PSTRING;
 
 typedef STRING ANSI_STRING, *PANSI_STRING;
 
 typedef union _LARGE_INTEGER {
-    struct {
+    struct
+    {
         ULONG LowPart;
         LONG HighPart;
     };
-    struct {
+    struct
+    {
         ULONG LowPart;
         LONG HighPart;
     } u;
@@ -123,11 +125,13 @@ typedef union _LARGE_INTEGER {
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
 typedef union _ULARGE_INTEGER {
-    struct {
+    struct
+    {
         ULONG LowPart;
         ULONG HighPart;
     };
-    struct {
+    struct
+    {
         ULONG LowPart;
         ULONG HighPart;
     } u;

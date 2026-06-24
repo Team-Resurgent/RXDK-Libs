@@ -142,7 +142,6 @@ typedef struct _HAL_SHUTDOWN_REGISTRATION {
     LIST_ENTRY ListEntry;
 } HAL_SHUTDOWN_REGISTRATION, *PHAL_SHUTDOWN_REGISTRATION;
 
-#if !defined(RXDK_LIBXAPI_BUILD)
 typedef VOID (NTAPI *pfXcSHAInit) (PUCHAR pbSHAContext);
 typedef VOID (NTAPI *pfXcSHAUpdate) (PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
 typedef VOID (NTAPI *pfXcSHAFinal) (PUCHAR pbSHAContext, PUCHAR pbDigest);
@@ -178,7 +177,6 @@ typedef struct {
     pfXcBlockCryptCBC pXcBlockCryptCBC;
     pfXcCryptService pXcCryptService;
 } CRYPTO_VECTOR, *PCRYPTO_VECTOR;
-#endif
 
 typedef struct _OBJECT_HANDLE_TABLE {
     LONG HandleCount;

@@ -6,7 +6,9 @@ param(
     [switch]$XbeDebug,
     [switch]$NoLibWarn,
     [switch]$BootDisc,
-    [switch]$SkipPePatch
+    [switch]$SkipPePatch,
+    [int]$MaxImportThunks = 0,
+    [int]$StackSize = 65536
 )
 
 $ErrorActionPreference = 'Stop'
@@ -27,7 +29,7 @@ if (-not $SkipPePatch) {
     & (Join-Path $PSScriptRoot 'Patch-PeXbox.ps1') -Path $inputFull
 }
 
-& (Join-Path $PSScriptRoot 'Invoke-PeVerify.ps1') -InputExe $inputFull
+& (Join-Path $PSScriptRoot 'Invoke-PeVerify.ps1') -InputExe $inputFull -MaxImportThunks $MaxImportThunks
 
 if (-not $OutputXbe) {
     $outDir = Join-Path $root 'zig-out\xbe'
@@ -45,13 +47,15 @@ $args = @(
 if ($XbeDebug) { $args += '/debug' }
 if ($NoLibWarn) { $args += '/nolibwarn' }
 if ($BootDisc) {
-    # Avoid utility-drive / HDD init when booting a bare default.xbe ISO.
-    $args += '/INITFLAGS:0'
+    # Boot-disc smoke: skip HDD setup (0x08) and per-title drive writes (0x10).
+    # /DONTMOUNTUD skips utility-drive mount; INITFLAGS must include NO_SETUP_HARD_DISK
+    # or XapiInitProcess still validates the HDD partition table.
+    $args += '/INITFLAGS:24'
     $args += '/DONTMOUNTUD'
     $args += '/DONTMODIFYHD'
 }
 # Match TriangleXDK / XDK default imagebld (BuildLog: /stack:65536 /debug /nolibwarn).
-$args += '/stack:65536'
+$args += "/stack:$StackSize"
 
 Write-Host "$imagebld $($args -join ' ')"
 & $imagebld @args

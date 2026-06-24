@@ -22,7 +22,7 @@ XBAPI PVOID NTAPI ExAllocatePoolWithTag
     IN ULONG Tag
 );
 
-XBAPI OBJECT_TYPE ExEventObjectType;
+RXDK_XBOXKRNL_OBJECT_TYPE(ExEventObjectType);
 
 XBAPI PLIST_ENTRY FASTCALL ExfInterlockedInsertHeadList
 (
@@ -54,7 +54,8 @@ XBAPI VOID NTAPI ExInitializeReadWriteLock
 XBAPI LARGE_INTEGER NTAPI ExInterlockedAddLargeInteger
 (
     IN OUT PLARGE_INTEGER Addend,
-    IN LARGE_INTEGER Increment
+    IN LARGE_INTEGER Increment,
+    IN PVOID Lock
 );
 
 XBAPI VOID FASTCALL ExInterlockedAddLargeStatistic
@@ -70,7 +71,7 @@ XBAPI LONGLONG FASTCALL ExInterlockedCompareExchange64
     IN PLONGLONG Comparand
 );
 
-XBAPI OBJECT_TYPE ExMutantObjectType;
+RXDK_XBOXKRNL_OBJECT_TYPE(ExMutantObjectType);
 
 XBAPI NTSTATUS NTAPI ExQueryNonVolatileSetting
 (
@@ -116,8 +117,8 @@ XBAPI NTSTATUS NTAPI ExSaveNonVolatileSetting
     IN ULONG ValueLength
 );
 
-XBAPI OBJECT_TYPE ExSemaphoreObjectType;
+RXDK_XBOXKRNL_OBJECT_TYPE(ExSemaphoreObjectType);
 
-XBAPI OBJECT_TYPE ExTimerObjectType;
+RXDK_XBOXKRNL_OBJECT_TYPE(ExTimerObjectType);
 
 #endif

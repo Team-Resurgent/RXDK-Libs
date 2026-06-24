@@ -1943,7 +1943,7 @@ XBAPI NTSTATUS NTAPI RtlUnicodeToMultiByteN
     ULONG BytesInUnicodeString
 );
 
-XBAPI NTSTATUS XBAPI RtlUnicodeStringToInteger
+XBAPI NTSTATUS NTAPI RtlUnicodeStringToInteger
 (
     PUNICODE_STRING String,
     ULONG Base,
@@ -4310,7 +4310,8 @@ XBAPI OBJECT_TYPE ExMutantObjectType;
 XBAPI LARGE_INTEGER NTAPI ExInterlockedAddLargeInteger
 (
     IN OUT PLARGE_INTEGER Addend,
-    IN LARGE_INTEGER Increment
+    IN LARGE_INTEGER Increment,
+    IN PVOID Lock
 );
 
 XBAPI VOID NTAPI ExInitializeReadWriteLock

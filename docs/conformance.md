@@ -1,0 +1,42 @@
+# C / libc conformance (kit + host)
+
+Runtime tests live in `samples/conformance/c/` and follow the header taxonomy from [winspool/stdtests](https://github.com/winspool/stdtests) (`vendor/stdtests/template/c_header.txt`).
+
+## Host — header availability
+
+Compile-only check against RXDK include paths (no autotools required):
+
+```powershell
+.\scripts\run-stdtests-headers.ps1
+python tools\check_c_headers.py --report zig-out\conformance\headers.tsv
+```
+
+Uses `vendor/stdtests/template/c_header.txt` as the manifest. Skips headers not expected on kit yet (`threads.h`, `signal.h`, …).
+
+## Kit — runtime libc tests
+
+1. Add or edit a test body in `tools/conformance_recipes.py`.
+2. Regenerate and build:
+
+```powershell
+python tools/generate_conformance_tests.py
+zig build conformance-c
+.\scripts\compile.ps1 -Target conformance-c -Iso
+```
+
+Expected serial output:
+
+```
+RXDK-LibsZig: conformance-c start
+RXDK-LibsZig conformance-c OK passed=16 failed=0 total=16
+```
+
+## Related samples
+
+| Step | Artifact | Role |
+|------|----------|------|
+| `conformance-c` | `conformance-c.exe` | libc + C23 runtime matrix |
+| `conformance-c23` | `c23-stdbit-smoke.exe` | single-header smoke |
+| `conformance-cpp23` | `cpp23-expected-smoke.exe` | libc++ smoke |
+
+Upstream stdtests autotools workflow (`configure && make`) can be used separately for host compiler matrices; RXDK integration starts with the manifest and grows runtime recipes here.

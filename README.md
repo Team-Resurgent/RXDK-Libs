@@ -54,6 +54,7 @@ Or invoke `zig build` directly:
 zig build verify-no-vs    # assert build/*.zig never invokes MSVC toolchain
 zig build                 # libs + headers + kernel-smoke + hello-c
 zig build hello-cpp       # iostream sample
+zig build conformance-c
 zig build conformance-c23
 zig build conformance-cpp23
 ```
@@ -73,7 +74,7 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 - Triple: `x86-windows-gnu`
 - C23 / C++23 (`-std=c23` / `-std=c++23`)
 - Entry: `_start` from `src/xbox/crt0.S` (link with `-e start`)
-- Debug output: `write` → `OutputDebugStringA` → kernel `DbgPrint`
+- Debug output: `write` → `DbgPrint` (direct kernel import via `include/xboxkrnl/`)
 
 ## Samples
 
@@ -82,6 +83,7 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 | `kernel-smoke` | `zig-out/samples/kernel-smoke/kernel-smoke.exe` | `DbgPrint` only; `xboxkrnl.lib` |
 | `hello-c` | `zig-out/samples/hello-c/hello-c.exe` | `printf` via picolibc |
 | `hello-cpp` | `zig-out/samples/hello-cpp/hello-cpp.exe` | `std::cout` via libc++ |
+| `conformance-c` | `conformance-c.exe` | libc/C23 runtime matrix (16 tests, see `docs/conformance.md`) |
 | `conformance-c23` | `c23-stdbit-smoke.exe` | `<stdbit.h>` smoke |
 | `conformance-cpp23` | `cpp23-expected-smoke.exe` | `<expected>`, `<string_view>` |
 

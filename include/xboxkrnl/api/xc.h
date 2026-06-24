@@ -111,11 +111,13 @@ XBAPI VOID NTAPI XcSHAUpdate
     IN ULONG dwInputLength
 );
 
+#if !defined(RXDK_LIBXAPI_BUILD)
 XBAPI VOID NTAPI XcUpdateCrypto
 (
     IN PCRYPTO_VECTOR pNewVector,
     OUT PCRYPTO_VECTOR pROMVector OPTIONAL
 );
+#endif
 
 XBAPI BOOLEAN NTAPI XcVerifyPKCS1Signature
 (
@@ -124,6 +126,7 @@ XBAPI BOOLEAN NTAPI XcVerifyPKCS1Signature
     IN PUCHAR pbDigest
 );
 
+#if !defined(RXDK_LIBXAPI_BUILD)
 XBAPI ANSI_STRING XeImageFileName[1];
 
 XBAPI NTSTATUS NTAPI XeLoadSection
@@ -137,5 +140,6 @@ XBAPI NTSTATUS NTAPI XeUnloadSection
 (
     IN OUT PXBE_SECTION_HEADER Section
 );
+#endif
 
 #endif

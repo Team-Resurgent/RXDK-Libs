@@ -328,7 +328,7 @@ XBAPI NTSTATUS NTAPI RtlUnicodeStringToAnsiString
     IN BOOLEAN AllocateDestinationString
 );
 
-XBAPI NTSTATUS XBAPI RtlUnicodeStringToInteger
+XBAPI NTSTATUS NTAPI RtlUnicodeStringToInteger
 (
     PUNICODE_STRING String,
     ULONG Base,

@@ -171,7 +171,6 @@ pub fn addXboxObjects(
     opt_flag: []const u8,
 ) compile_c.CompileBatch {
     const sources = [_][]const u8{
-        "src/xbox/kernel.c",
         "src/xbox/hal.c",
         "src/xbox/startup.c",
         "src/xbox/trace.c",

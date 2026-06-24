@@ -57,6 +57,8 @@ fn writeRsp(step: *std.Build.Step, options: std.Build.Step.MakeOptions) !void {
 pub const Options = struct {
     name: []const u8,
     src: []const u8,
+    /// Additional translation units compiled into the same sample (e.g. generated stubs).
+    extra_srcs: []const []const u8 = &.{},
     is_cpp: bool = false,
     libs: []const std.Build.LazyPath = &.{},
     objects: []const std.Build.LazyPath = &.{},
@@ -104,7 +106,8 @@ fn addLinkExe(
     sample_obj: []const u8,
     libs: []const std.Build.LazyPath,
     rsp: ?RspInfo,
-    extra_objs: []const []const u8,
+    extra_src_objs: []const []const u8,
+    bootstrap_objs: []const []const u8,
     entry: []const u8,
     deps: []const *std.Build.Step,
 ) *std.Build.Step {
@@ -117,15 +120,29 @@ fn addLinkExe(
     if (libs.len > 0) {
         link.addFileArg(b.path("prebuilt/xboxkrnl_xbld.obj"));
     }
-    for (libs) |lib| {
-        link.addFileArg(lib);
-    }
     if (rsp) |r| {
         link.addArg(b.fmt("@{s}", .{r.rsp_path}));
         link.step.dependOn(r.step);
     }
-    for (extra_objs) |obj| {
+    for (extra_src_objs) |obj| {
         link.addArg(obj);
+    }
+    for (bootstrap_objs) |obj| {
+        link.addArg(obj);
+    }
+    // libxapi (and other archives) before xboxkrnl.lib so objects pulled from
+    // libxapi can still resolve kernel imports from the krnl archive.
+    for (libs) |lib| {
+        const path = lib.getPath(b);
+        if (!std.mem.endsWith(u8, path, "xboxkrnl.lib")) {
+            link.addFileArg(lib);
+        }
+    }
+    for (libs) |lib| {
+        const path = lib.getPath(b);
+        if (std.mem.endsWith(u8, path, "xboxkrnl.lib")) {
+            link.addFileArg(lib);
+        }
     }
     link.addArgs(link_flags);
     link.addArg(opt_flag);
@@ -183,6 +200,41 @@ pub fn addPeSample(
     compile.setCwd(b.path("."));
     compile.step.dependOn(mkdir);
 
+    var extra_obj_paths = std.ArrayListUnmanaged([]const u8).empty;
+    defer extra_obj_paths.deinit(b.allocator);
+    var extra_compile_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    defer extra_compile_steps.deinit(b.allocator);
+
+    for (opts.extra_srcs, 0..) |src, i| {
+        const extra_obj = b.fmt("{s}/{s}_extra_{d}.o", .{ out_dir, opts.name, i });
+        extra_obj_paths.append(b.allocator, extra_obj) catch @panic("OOM");
+
+        const extra = b.addSystemCommand(&.{
+            b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
+        });
+        extra.addArgs(&.{ "-c", "-o" });
+        extra.addArg(extra_obj);
+        extra.addArgs(std_flags);
+        extra.addArg(opt_flag);
+        extra.addArgs(opts.extra_flags);
+        if (!opts.is_cpp) {
+            extra.addArg("-D_XBOX=1");
+            extra.addArg("-D_WIN32=1");
+        } else {
+            extra.addArg("-D_XBOX=1");
+        }
+        for (opts.include_paths) |inc| {
+            extra.addArg(b.fmt("-I{s}", .{inc.getPath(b)}));
+        }
+        extra.addFileArg(b.path(src));
+        extra.setCwd(b.path("."));
+        extra.step.dependOn(mkdir);
+        for (opts.deps) |dep| {
+            extra.step.dependOn(dep);
+        }
+        extra_compile_steps.append(b.allocator, &extra.step) catch @panic("OOM");
+    }
+
     const object_rsp: ?RspInfo = if (opts.objects.len > 0)
         addObjectRsp(b, opts.name, opts.objects)
     else
@@ -194,6 +246,9 @@ pub fn addPeSample(
     for (opts.deps) |dep| {
         compile.step.dependOn(dep);
         link_deps.append(b.allocator, dep) catch @panic("OOM");
+    }
+    for (extra_compile_steps.items) |step| {
+        link_deps.append(b.allocator, step) catch @panic("OOM");
     }
 
     const final_link = if (opts.bootstrap) blk: {
@@ -220,7 +275,7 @@ pub fn addPeSample(
 
         const probe_link = addLinkExe(
             b, xbox_target, opt_flag, link_flags, probe_exe, obj_path,
-            opts.libs, object_rsp, &.{probe_image_init_obj}, opts.entry, link_deps.items,
+            opts.libs, object_rsp, extra_obj_paths.items, &.{probe_image_init_obj}, opts.entry, link_deps.items,
         );
         probe_link.dependOn(&compile_probe_image_init.step);
         probe_link.dependOn(link_dir_mkdir);
@@ -265,7 +320,7 @@ pub fn addPeSample(
 
         const link = addLinkExe(
             b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
-            opts.libs, object_rsp, &.{image_init_obj}, opts.entry, link_deps.items,
+            opts.libs, object_rsp, extra_obj_paths.items, &.{image_init_obj}, opts.entry, link_deps.items,
         );
         link.dependOn(&compile_image_init.step);
         link.dependOn(link_dir_mkdir);
@@ -273,7 +328,7 @@ pub fn addPeSample(
     } else blk: {
         const link = addLinkExe(
             b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
-            opts.libs, object_rsp, &.{}, opts.entry, link_deps.items,
+            opts.libs, object_rsp, extra_obj_paths.items, &.{}, opts.entry, link_deps.items,
         );
         break :blk link;
     };

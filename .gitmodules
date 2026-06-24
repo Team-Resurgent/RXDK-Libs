@@ -7,3 +7,6 @@
 [submodule "vendor/xbox_leak_may_2020"]
 	path = vendor/xbox_leak_may_2020
 	url = https://github.com/xerohour/xbox_leak_may_2020
+[submodule "vendor/stdtests"]
+	path = vendor/stdtests
+	url = https://github.com/winspool/stdtests.git

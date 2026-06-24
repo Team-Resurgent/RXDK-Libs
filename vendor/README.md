@@ -9,6 +9,7 @@ Third-party sources only — no legacy CRT/STL/XDK copies.
 | `vendor/picolibc/` | https://github.com/picolibc/picolibc | C library (`libxboxc.lib`) |
 | `vendor/llvm-project/` | https://github.com/llvm/llvm-project | `libcxx/`, `libcxxabi/` (`libxboxcxx.lib`) |
 | `vendor/xbox_leak_may_2020/` | https://github.com/xerohour/xbox_leak_may_2020 | Leak reference for `tools/generate_xboxkrnl_headers.py` (do not `#include` in app code) |
+| `vendor/stdtests/` | https://github.com/winspool/stdtests | C/C++/POSIX conformance manifest + future upstream tests (`docs/conformance.md`) |
 
 Shipped kernel declarations live in `include/xboxkrnl/` (generated). See `include/xboxkrnl/README.md` and `tools/xboxkrnl_manifest/README.md`.
 
@@ -18,6 +19,7 @@ Shipped kernel declarations live in `include/xboxkrnl/` (generated). See `includ
 git submodule update --init vendor/picolibc
 git submodule update --init vendor/xbox_leak_may_2020
 git submodule update --init vendor/llvm-project
+git submodule update --init vendor/stdtests
 git -C vendor/llvm-project sparse-checkout init --cone
 git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
 ```

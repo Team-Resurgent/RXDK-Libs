@@ -6,7 +6,7 @@ $RepoRoot = Split-Path $PSScriptRoot -Parent
 Set-Location $RepoRoot
 
 Write-Host 'Initializing submodules...'
-git submodule update --init vendor/picolibc vendor/xbox_leak_may_2020 vendor/llvm-project
+git submodule update --init vendor/picolibc vendor/xbox_leak_may_2020 vendor/llvm-project vendor/stdtests
 
 $llvm = Join-Path $RepoRoot 'vendor/llvm-project'
 Write-Host 'Configuring llvm-project sparse checkout (libcxx + libcxxabi only)...'

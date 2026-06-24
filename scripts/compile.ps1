@@ -3,8 +3,10 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'kernel-smoke', 'kernel-api-smoke', 'hello-c', 'hello-cpp',
-        'conformance-c23', 'conformance-cpp23',
+        'kernel-smoke', 'kernel-api-smoke', 'kernel-api-link',
+        'kernel-api-probe', 'kernel-api-probe-debug',
+        'hello-c', 'hello-cpp',
+        'conformance-c', 'conformance-c23', 'conformance-cpp23',
         'c23-stdbit-smoke', 'cpp23-expected-smoke'
     )]
     [string]$Target = 'all',
@@ -62,14 +64,16 @@ function Invoke-ZigBuild {
 function Convert-SampleXbe {
     param(
         [string]$SampleName,
-        [switch]$Iso
+        [switch]$Iso,
+        [int]$MaxImportThunks = 0,
+        [int]$StackSize = 65536
     )
     $pe = Join-Path $Root "zig-out\samples\$SampleName\$SampleName.exe"
     if (-not (Test-Path -LiteralPath $pe)) {
         Write-Warning "Skip XBE: PE not found: $pe"
         return
     }
-    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso
+    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso -MaxImportThunks $MaxImportThunks -StackSize $StackSize
     if ($Iso) {
         & (Join-Path $PSScriptRoot 'Invoke-XbeIsoBuild.ps1') -InputXbe $xbe
     }
@@ -102,10 +106,21 @@ function Build-Sample {
         [switch]$Xbe,
         [switch]$Iso
     )
+    if ($Iso -and $Target -eq 'kernel-api-link') {
+        throw @"
+kernel-api-link is a host-only link test (367 xboxkrnl imports) — do not deploy to kit.
+Use: .\scripts\compile.ps1 -Target kernel-api-probe -Iso
+"@
+    }
     $sample = Resolve-Sample -Target $Target
     Invoke-ZigBuild -Step @('verify-no-vs', $sample.BuildStep) -Opt $Opt
     if ($Xbe) {
-        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso
+        $maxThunks = 0
+        $stackSize = 65536
+        if ($sample.Artifact -eq 'kernel-api-probe' -or $sample.Artifact -eq 'kernel-api-probe-debug') {
+            $stackSize = 1048576
+        }
+        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MaxImportThunks $maxThunks -StackSize $stackSize
     }
 }
 
@@ -116,18 +131,20 @@ function Build-AllSamples {
         [switch]$Iso
     )
     Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Opt
-    foreach ($name in @('kernel-smoke', 'kernel-api-smoke', 'hello-c', 'hello-cpp', 'c23-stdbit-smoke', 'cpp23-expected-smoke')) {
+    foreach ($name in @('kernel-smoke', 'kernel-api-smoke', 'kernel-api-link', 'kernel-api-probe', 'kernel-api-probe-debug', 'hello-c', 'hello-cpp', 'conformance-c', 'c23-stdbit-smoke', 'cpp23-expected-smoke')) {
         $sample = Resolve-Sample -Target $name
         Invoke-ZigBuild -Step @($sample.BuildStep) -Opt $Opt
         if ($Xbe) {
-            Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso
+            Build-Sample -Target $name -Opt $Opt -Xbe:$Xbe -Iso:$Iso
         }
     }
 }
 
 $singleSampleTargets = @(
-    'kernel-smoke', 'kernel-api-smoke', 'hello-c', 'hello-cpp',
-    'conformance-c23', 'conformance-cpp23',
+    'kernel-smoke', 'kernel-api-smoke', 'kernel-api-link',
+    'kernel-api-probe', 'kernel-api-probe-debug',
+    'hello-c', 'hello-cpp',
+    'conformance-c', 'conformance-c23', 'conformance-cpp23',
     'c23-stdbit-smoke', 'cpp23-expected-smoke'
 )
 

@@ -13,6 +13,7 @@ pub const Options = struct {
     flags: []const []const u8,
     include_dirs: []const []const u8,
     opt_flag: []const u8,
+    is_cpp: bool = false,
 };
 
 const MkdirContext = struct {
@@ -42,6 +43,20 @@ fn makeObjDir(step: *std.Build.Step, options: std.Build.Step.MakeOptions) !void 
     try ctx.b.build_root.handle.createDirPath(ctx.b.graph.io, ctx.out_dir);
 }
 
+fn uniqueStem(b: *std.Build, allocator: std.mem.Allocator, src: []const u8) []const u8 {
+    var sanitized = std.ArrayListUnmanaged(u8).empty;
+    defer sanitized.deinit(allocator);
+    for (src) |c| {
+        const ch: u8 = switch (c) {
+            '/', '\\' => '_',
+            '.', ':', ' ' => '_',
+            else => c,
+        };
+        sanitized.append(allocator, ch) catch @panic("OOM");
+    }
+    return b.dupe(sanitized.items);
+}
+
 pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
     const allocator = b.allocator;
     const out_dir = b.fmt("zig-out/obj/{s}", .{opts.out_subdir});
@@ -54,21 +69,31 @@ pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
     steps.append(allocator, mkdir) catch @panic("OOM");
 
     for (opts.sources) |src| {
-        const stem = std.fs.path.stem(src);
+        const ext = std.fs.path.extension(src);
+        if (ext.len != 0 and std.ascii.eqlIgnoreCase(ext, ".asm")) continue;
+
+        const stem = uniqueStem(b, allocator, src);
         const obj_rel = b.fmt("{s}/{s}.o", .{ out_dir, stem });
         outputs.append(allocator, b.path(obj_rel)) catch @panic("OOM");
 
-        const compile = b.addSystemCommand(&.{
-            b.graph.zig_exe, "cc", "-target", opts.target,
-        });
-        compile.addArgs(&.{ "-c", "-o" });
-        compile.addArg(obj_rel);
-        compile.addArgs(opts.flags);
-        compile.addArg(opts.opt_flag);
-        for (opts.include_dirs) |inc| {
-            compile.addArg(b.fmt("-I{s}", .{inc}));
+        const compile = b.addSystemCommand(&.{b.graph.zig_exe});
+        if (ext.len != 0 and std.ascii.eqlIgnoreCase(ext, ".s")) {
+            compile.addArg("cc");
+            compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
+            compile.addArg(obj_rel);
+            compile.addArg(opts.opt_flag);
+            compile.addFileArg(b.path(src));
+        } else {
+            compile.addArg(if (opts.is_cpp) "c++" else "cc");
+            compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
+            compile.addArg(obj_rel);
+            compile.addArgs(opts.flags);
+            compile.addArg(opts.opt_flag);
+            for (opts.include_dirs) |inc| {
+                compile.addArg(b.fmt("-I{s}", .{inc}));
+            }
+            compile.addFileArg(b.path(src));
         }
-        compile.addFileArg(b.path(src));
         compile.setCwd(b.path("."));
         compile.step.dependOn(mkdir);
         steps.append(allocator, &compile.step) catch @panic("OOM");

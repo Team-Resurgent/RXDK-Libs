@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 #include <xboxkrnl/types.h>
+#include <xapi/object_type_export.h>
 #include <xboxkrnl/api/av.h>
 #include <xboxkrnl/api/dbg.h>
 #include <xboxkrnl/api/ex.h>

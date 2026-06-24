@@ -9,11 +9,22 @@ cd D:\Git\RXDK-LibsZig
 zig build verify-no-vs
 zig build kernel-smoke
 zig build kernel-api-smoke
+zig build kernel-api-link
+zig build kernel-api-probe
 zig build hello-c
 zig build hello-cpp
+zig build conformance-c
 zig build conformance-c23
 zig build conformance-cpp23
 ```
+
+Host header matrix (stdtests manifest, compile-only):
+
+```powershell
+.\scripts\run-stdtests-headers.ps1
+```
+
+See `docs/conformance.md` for adding runtime tests.
 
 `compile.ps1` accepts either the zig step name or the artifact folder name:
 
@@ -27,8 +38,11 @@ Artifacts:
 ```
 zig-out/samples/kernel-smoke/kernel-smoke.exe
 zig-out/samples/kernel-api-smoke/kernel-api-smoke.exe
+zig-out/samples/kernel-api-link/kernel-api-link.exe
+zig-out/samples/kernel-api-probe/kernel-api-probe.exe
 zig-out/samples/hello-c/hello-c.exe
 zig-out/samples/hello-cpp/hello-cpp.exe
+zig-out/samples/conformance-c/conformance-c.exe
 zig-out/samples/c23-stdbit-smoke/c23-stdbit-smoke.exe
 zig-out/samples/cpp23-expected-smoke/cpp23-expected-smoke.exe
 ```
@@ -49,6 +63,8 @@ This unpacks to `tools/rxdk-managed/win-x64/tools/imagebld.exe` (and `xbox-launc
 ```powershell
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-smoke\kernel-smoke.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-smoke\kernel-api-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-link\kernel-api-link.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-probe\kernel-api-probe.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-c\hello-c.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-cpp\hello-cpp.exe -XbeDebug -NoLibWarn
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\c23-stdbit-smoke\c23-stdbit-smoke.exe -XbeDebug -NoLibWarn
@@ -102,12 +118,15 @@ Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — ou
 |--------|----------------------------------------|
 | kernel-smoke | `RXDK-LibsZig kernel-smoke OK` |
 | kernel-api-smoke | `RXDK-LibsZig kernel-api-smoke OK` |
+| kernel-api-link | Host link test only — **not for kit** (367 imports). `zig build kernel-api-link` on PC. |
+| kernel-api-probe | `kernel-api-probe OK passed=360 …` — **360** retail-safe semantic probes (1 MiB stack) |
+| kernel-api-probe-debug | `debug OK passed=7 …` — DbgLoad/UnLoad + `MmDbg*` (debug BIOS) |
 | hello-c | `RXDK-LibsZig hello-c OK` |
 | hello-cpp | `RXDK-LibsZig hello-cpp OK` |
 | c23-stdbit-smoke | `RXDK-LibsZig c23-stdbit-smoke OK` |
 | cpp23-expected-smoke | `RXDK-LibsZig cpp23-expected-smoke OK` |
 
-`hello-c` / `hello-cpp` route stdio through `write` → `OutputDebugStringA` → `DbgPrint`.
+`hello-c` / `hello-cpp` route stdio through `write` → `DbgPrint` (direct kernel import).
 
 ## 7. Troubleshooting
 
@@ -119,6 +138,20 @@ Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — ou
 | Link undefined `_write` | HAL must export `write`, not `_write` |
 | Huge PE / many undefined at link | Use object `.rsp` from `zig-out/link/` (same as build graph) |
 
-## 8. CI / non-Windows hosts
+## 8. Kernel API coverage
+
+Two samples exercise the generated headers against `prebuilt/xboxkrnl.lib`:
+
+1. **`kernel-api-link`** — references every export at link time on the **host PC** only (367 IAT slots; kit loader may reject this XBE). Catches header/lib mismatches before kit deploy.
+2. **`kernel-api-probe`** — **360** semantic runtime probes (all exports except debug-only). **`kernel-api-probe-debug`** — remaining **7** (DbgLoad/UnLoad + `MmDbg*`, debug BIOS only).
+
+```powershell
+python tools/generate_kernel_api_tests.py
+zig build kernel-api-probe
+.\scripts\compile.ps1 -Target kernel-api-probe -Iso
+.\scripts\compile.ps1 -Target kernel-api-probe-debug -Iso    # debug BIOS only
+```
+
+## 9. CI / non-Windows hosts
 
 `zig build` is designed to run on Linux/macOS/Windows with only Zig installed. Kit deploy steps require Windows host tools and hardware.

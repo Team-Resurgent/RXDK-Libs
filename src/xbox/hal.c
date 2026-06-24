@@ -27,7 +27,7 @@ int write(int fd, const void *buf, unsigned int count)
     for (unsigned int i = 0; i < n; ++i)
         line[i] = p[i];
     line[n] = '\0';
-    OutputDebugStringA(line);
+    DbgPrint("%s", line);
     return (int)count;
 }
 
@@ -48,7 +48,7 @@ void *sbrk(ptrdiff_t incr)
 void _exit(int status) /* x86-windows-gnu exports as __exit; crt0.S calls __exit */
 {
     (void)status;
-    OutputDebugStringA("RXDK-LibsZig: _exit\n");
+    DbgPrint("RXDK-LibsZig: _exit\n");
     for (;;)
         ;
 }

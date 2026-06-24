@@ -9,6 +9,7 @@ typedef void (*xbox_ctor_fn)(void);
 extern xbox_ctor_fn __CTOR_LIST__[];
 
 static int xbox_ctors_done;
+static int xbox_runtime_ready;
 
 static void xbox_run_global_ctors(void)
 {
@@ -26,8 +27,11 @@ static void xbox_run_global_ctors(void)
 
 void xbox_runtime_init(void)
 {
-    xbox_zero_uninitialized_data();
-    DbgPrint("RXDK-LibsZig: runtime init\n");
+    if (!xbox_runtime_ready) {
+        xbox_zero_uninitialized_data();
+        xbox_runtime_ready = 1;
+        DbgPrint("RXDK-LibsZig: runtime init\n");
+    }
 }
 
 void xbox_halt(void)

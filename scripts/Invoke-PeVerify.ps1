@@ -1,7 +1,8 @@
 # PE checks before imagebld (import descriptors + .XBLD for kernel-linked samples).
 param(
     [Parameter(Mandatory)]
-    [string]$InputExe
+    [string]$InputExe,
+    [int]$MaxImportThunks = 0
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,6 +31,7 @@ if ($subsystem -ne 14) {
 }
 
 $descCount = 0
+$importThunks = 0
 $dd = $opt + 96
 $imp = [BitConverter]::ToUInt32($bytes, $dd + 8)
 if ($imp -ne 0) {
@@ -49,10 +51,19 @@ if ($imp -ne 0) {
     $off = & $rvaToOff $imp
     for ($i = 0; $i -lt 32; $i++) {
         $d = $off + ($i * 20)
-        $oft = [BitConverter]::ToUInt32($bytes, $d)
-        $iat = [BitConverter]::ToUInt32($bytes, $d + 16)
-        if ($oft -eq 0 -and $iat -eq 0) { break }
+        $iltRva = [BitConverter]::ToUInt32($bytes, $d)
+        $iatRva = [BitConverter]::ToUInt32($bytes, $d + 16)
+        if ($iltRva -eq 0 -and $iatRva -eq 0) { break }
         $descCount++
+        $lookupRva = if ($iltRva -ne 0) { $iltRva } else { $iatRva }
+        $lookupOff = & $rvaToOff $lookupRva
+        if ($lookupOff -ge 0) {
+            for ($j = 0; $j -lt 4096; $j++) {
+                $entry = [BitConverter]::ToUInt32($bytes, $lookupOff + ($j * 4))
+                if ($entry -eq 0) { break }
+                $importThunks++
+            }
+        }
     }
 }
 
@@ -64,4 +75,9 @@ if ($names -notcontains '.XBLD') {
     throw "PE is missing .XBLD section (link prebuilt/xboxkrnl_xbld.obj)."
 }
 
-Write-Host "PE OK: subsystem=14, import descriptors=$descCount, sections=$($names -join ', ')" -ForegroundColor Green
+if ($MaxImportThunks -gt 0 -and $importThunks -gt $MaxImportThunks) {
+    throw "PE has $importThunks xboxkrnl import thunks (limit $MaxImportThunks)."
+}
+
+$thunkMsg = if ($importThunks -gt 0) { ", import thunks=$importThunks" } else { '' }
+Write-Host "PE OK: subsystem=14, import descriptors=$descCount$thunkMsg, sections=$($names -join ', ')" -ForegroundColor Green

@@ -57,6 +57,56 @@ pub fn peLinkFlags(_: *std.Build) []const []const u8 {
     return &.{
         "-nostdlib",
         "-nostartfiles",
+        // XBE loads at XBEIMAGE_STANDARD_BASE_ADDRESS (0x10000). Linking here keeps
+        // code/data VAs aligned with imagebld + runtime XeImageHeader().
+        "-Wl,--image-base=0x10000",
+    };
+}
+
+pub fn xapiCFlags(_: *std.Build) []const []const u8 {
+    return &.{
+        "-std=c17",
+        "-ffreestanding",
+        "-fno-stack-protector",
+        "-fno-zero-initialized-in-bss",
+        "-fdata-sections",
+        "-ffunction-sections",
+        "-fno-sanitize=undefined",
+        "-Wno-everything",
+        "-nostdinc",
+        "-fms-extensions",
+        "-fms-compatibility",
+        // Xbox xAPI copies the PE TLS image into KeGetCurrentThread()->TlsData;
+        // emutls would leave the template empty and break fixed slot offsets.
+        "-fno-emulated-tls",
+        "-include",
+        "picolibc.h",
+        "-include",
+        "xapi_site.h",
+        "-D_XAPI_",
+    };
+}
+
+pub fn xapiCppFlags(_: *std.Build) []const []const u8 {
+    return &.{
+        "-std=c++17",
+        "-ffreestanding",
+        "-fno-stack-protector",
+        "-fdata-sections",
+        "-ffunction-sections",
+        "-fno-exceptions",
+        "-frtti",
+        "-nostdinc",
+        "-nostdinc++",
+        "-fno-sanitize=undefined",
+        "-Wno-everything",
+        "-fms-extensions",
+        "-fms-compatibility",
+        "-include",
+        "picolibc.h",
+        "-include",
+        "xapi_site.h",
+        "-D_XAPI_",
     };
 }
 

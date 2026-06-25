@@ -31,12 +31,10 @@ Environment:
 #define EXTERNUSB extern "C"
 
 //
-// Shared USB/URB/HCD definitions. Included with C linkage to match the OHCD
-// (C) translation units that include hcdi.h directly.
+// Shared USB/URB/HCD definitions. hcdi.h self-guards its C linkage, so it can
+// be included directly here (C++) and by the OHCD (C) translation units.
 //
-extern "C" {
 #include "hcdi.h"
-}
 
 //------------------------------------------------------------------------------------
 //  Forward declaration of classes

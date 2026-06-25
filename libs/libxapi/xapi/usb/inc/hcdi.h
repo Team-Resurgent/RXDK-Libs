@@ -32,6 +32,10 @@ Environment:
 #pragma data_seg(".XPP$Data")
 #pragma const_seg(".XPPRDATA")
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <usb100.h>
 
 //
@@ -1170,4 +1174,6 @@ HCD_DisableRootHubPort(
     IN ULONG                    PortNumber
     );
 
-
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif

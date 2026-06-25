@@ -196,7 +196,6 @@ pub fn build(b: *std.Build) void {
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/xapi/internal"),
-        b.path("libs/libxapi/xapi/win32"),
         b.path("include"),
         b.path("build/generated"),
         b.path("vendor/picolibc/libc/include"),

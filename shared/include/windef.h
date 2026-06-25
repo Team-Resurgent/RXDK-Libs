@@ -162,6 +162,17 @@ typedef unsigned int        *PUINT;
 
 #ifndef NT_INCLUDED
 #include <winnt.h>
+#else
+/* winnt.h is skipped: the NT base types come from xboxkrnl. Provide the few
+   BaseTsd pointer types and the handle macro that winnt would otherwise supply,
+   so this header is self-sufficient for distribution (e.g. via xt.h). */
+#ifndef UINT_PTR
+typedef unsigned int UINT_PTR, *PUINT_PTR;
+typedef int          INT_PTR, *PINT_PTR;
+#endif
+#ifndef DECLARE_HANDLE
+#define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
+#endif
 #endif /* NT_INCLUDED */
 
 /* Types use for passing & returning polymorphic values */
@@ -189,13 +200,6 @@ typedef LONG_PTR            LRESULT;
 #define HIBYTE(w)           ((BYTE)((DWORD_PTR)(w) >> 8))
 
 
-#ifndef WIN_INTERNAL
-DECLARE_HANDLE            (HWND);
-DECLARE_HANDLE            (HHOOK);
-#ifdef WINABLE
-DECLARE_HANDLE            (HEVENT);
-#endif
-#endif
 
 typedef WORD                ATOM;
 
@@ -221,73 +225,6 @@ typedef int (CALLBACK *NEARPROC)();
 typedef int (CALLBACK *PROC)();
 #endif
 
-#if !defined(_MAC) || !defined(GDI_INTERNAL)
-#ifdef STRICT
-typedef void NEAR* HGDIOBJ;
-#else
-DECLARE_HANDLE(HGDIOBJ);
-#endif
-#endif
-
-DECLARE_HANDLE(HKEY);
-typedef HKEY *PHKEY;
-
-#if !defined(_MAC) || !defined(WIN_INTERNAL)
-DECLARE_HANDLE(HACCEL);
-#endif
-#if !defined(_MAC) || !defined(GDI_INTERNAL)
-DECLARE_HANDLE(HBITMAP);
-DECLARE_HANDLE(HBRUSH);
-#endif
-#if(WINVER >= 0x0400)
-DECLARE_HANDLE(HCOLORSPACE);
-#endif /* WINVER >= 0x0400 */
-#if !defined(_MAC) || !defined(GDI_INTERNAL)
-DECLARE_HANDLE(HDC);
-#endif
-DECLARE_HANDLE(HGLRC);          // OpenGL
-DECLARE_HANDLE(HDESK);
-DECLARE_HANDLE(HENHMETAFILE);
-#if !defined(_MAC) || !defined(GDI_INTERNAL)
-DECLARE_HANDLE(HFONT);
-#endif
-DECLARE_HANDLE(HICON);
-#if !defined(_MAC) || !defined(WIN_INTERNAL)
-DECLARE_HANDLE(HMENU);
-#endif
-DECLARE_HANDLE(HMETAFILE);
-DECLARE_HANDLE(HINSTANCE);
-typedef HINSTANCE HMODULE;      /* HMODULEs can be used in place of HINSTANCEs */
-#if !defined(_MAC) || !defined(GDI_INTERNAL)
-DECLARE_HANDLE(HPALETTE);
-DECLARE_HANDLE(HPEN);
-#endif
-DECLARE_HANDLE(HRGN);
-DECLARE_HANDLE(HRSRC);
-DECLARE_HANDLE(HSTR);
-DECLARE_HANDLE(HTASK);
-DECLARE_HANDLE(HWINSTA);
-DECLARE_HANDLE(HKL);
-
-#if(WINVER >= 0x0500)
-#ifndef _MAC
-DECLARE_HANDLE(HMONITOR);
-DECLARE_HANDLE(HWINEVENTHOOK);
-#endif
-#endif /* WINVER >= 0x0500 */
-
-#ifndef _MAC
-typedef int HFILE;
-typedef HICON HCURSOR;      /* HICONs & HCURSORs are polymorphic */
-#else
-typedef short HFILE;
-DECLARE_HANDLE(HCURSOR);    /* HICONs & HCURSORs are not polymorphic */
-#endif
-
-typedef DWORD   COLORREF;
-typedef DWORD   *LPCOLORREF;
-
-#define HFILE_ERROR ((HFILE)-1)
 
 typedef struct tagRECT
 {

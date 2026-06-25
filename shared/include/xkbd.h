@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "xbox.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

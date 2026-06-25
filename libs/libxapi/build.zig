@@ -9,7 +9,6 @@ pub fn includeDirs() []const []const u8 {
         "shared/include",
         XAPI ++ "/internal",
         XAPI ++ "/site",
-        XAPI ++ "/win32",
         XAPI ++ "/nt",
         XAPI ++ "/k32",
         XAPI ++ "/k32/inc",
@@ -107,7 +106,10 @@ pub fn addAllObjects(
                 const base = includeDirs();
                 var list = std.ArrayListUnmanaged([]const u8).empty;
                 for (base) |dir| {
-                    if (std.mem.eql(u8, dir, XAPI ++ "/win32")) {
+                    // uuid compiles against the full XDK SDK headers; place
+                    // include/sdk ahead of shared/include so its windef/winbase
+                    // shadow the slimmed shared copies.
+                    if (std.mem.eql(u8, dir, "shared/include")) {
                         list.append(b.allocator, "include/sdk") catch @panic("OOM");
                     }
                     list.append(b.allocator, dir) catch @panic("OOM");

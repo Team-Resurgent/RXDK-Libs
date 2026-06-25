@@ -1,0 +1,24 @@
+# clangd configuration for RXDK-LibsZig.
+#
+# Everything here compiles for the Xbox: 32-bit x86, MS-extensions, freestanding.
+# clangd otherwise analyzes opened files with host (x86_64) defaults, which trips
+# target guards in the headers — e.g. picolibc machine/x86 _tls.h does
+# `#if !defined(__i386__) && !defined(__x86_64__) #error`. Targeting i386 (and
+# defining __i386__ directly, in case clangd's driver ignores the triple) plus
+# the shared header roots makes standalone header analysis match the real build.
+CompileFlags:
+  Add:
+    - --target=i686-pc-windows-gnu
+    - -D__i386__
+    - -fms-extensions
+    - -fms-compatibility
+    - -D_X86_
+    - -Di386
+    - -D_M_IX86=600
+    - -D_XBOX
+    - -Ishared/include
+    - -Ishared/picolibc/include
+    - -Ishared/picolibc/machine/x86
+    - -Ishared/libcxx/include
+    - -Iinclude
+    - -Ibuild/generated

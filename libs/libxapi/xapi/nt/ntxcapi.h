@@ -96,10 +96,13 @@ typedef struct _EXCEPTION_RECORD64 {
 // Typedef for pointer returned by exception_info()
 //
 
+#ifndef RXDK_EXCEPTION_POINTERS_DEFINED
+#define RXDK_EXCEPTION_POINTERS_DEFINED
 typedef struct _EXCEPTION_POINTERS {
     PEXCEPTION_RECORD ExceptionRecord;
     PCONTEXT ContextRecord;
 } EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
+#endif
 // end_winnt
 
 // end_ntddk end_wdm end_nthal

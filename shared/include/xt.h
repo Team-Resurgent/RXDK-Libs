@@ -17,6 +17,7 @@
 #define NT_INCLUDED
 #endif
 
+#include <stdarg.h>   /* va_list, used by winbase.h (matches XDK XTL.h) */
 #include <windef.h>
 #include <winbase.h>
 #include <xbox.h>

@@ -24,18 +24,22 @@ typedef unsigned long ULONG, *PULONG;
 typedef unsigned long long ULONGLONG;
 typedef LONG NTSTATUS;
 typedef NTSTATUS *PNTSTATUS;
+typedef LONG HRESULT;
 
 #define MAXDWORD 0xffffffff
 
 typedef unsigned int SIZE_T, *PSIZE_T;
 typedef int BOOL, *PBOOL;
 typedef const char *PCSZ, *PCSTR, *LPCSTR;
-typedef char *PSZ, *PSTR;
+typedef char *PSZ, *PSTR, *LPSTR;
 typedef const WCHAR *LPCWSTR, *PCWSTR;
+typedef WCHAR *LPWSTR;
 typedef ULONGLONG QUAD;
 typedef ULONG ULONG_PTR;
 typedef LONG LONG_PTR;
 typedef ULONG_PTR DWORD_PTR;
+typedef ULONG_PTR *PULONG_PTR;
+typedef LONG_PTR *PLONG_PTR;
 
 typedef struct _FLOATING_SAVE_AREA {
     WORD    ControlWord;
@@ -101,6 +105,14 @@ typedef struct _EXCEPTION_RECORD {
     ULONG NumberParameters;
     ULONG_PTR ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
 } EXCEPTION_RECORD, *PEXCEPTION_RECORD;
+
+#ifndef RXDK_EXCEPTION_POINTERS_DEFINED
+#define RXDK_EXCEPTION_POINTERS_DEFINED
+typedef struct _EXCEPTION_POINTERS {
+    PEXCEPTION_RECORD ExceptionRecord;
+    PCONTEXT ContextRecord;
+} EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
+#endif
 
 typedef struct _STRING {
     USHORT Length;

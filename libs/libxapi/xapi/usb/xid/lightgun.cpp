@@ -1,3 +1,4 @@
+#include "bridge_usb.h"
 /*++
     XInput light gun helpers — ported from reference lightgun.obj disassembly.
 --*/

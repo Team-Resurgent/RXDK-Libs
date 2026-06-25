@@ -1,3 +1,4 @@
+#include "bridge_usb.h"
 /*
  * Cdecl facades for vendor ntos.h kernel calls (USB / OHCD objects).
  * xboxkrnl exports are NTAPI (__stdcall @N on x86).

@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*
  * RXDK: Clang emits __declspec(thread) via fs:[0x2C]; Xbox xAPI uses a different
  * TLS layout. Route GetLastError/SetLastError through the copied TLS template

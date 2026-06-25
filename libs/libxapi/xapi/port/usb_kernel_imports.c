@@ -1,3 +1,4 @@
+#include "bridge_usb.h"
 /*
  * Pointers to xboxkrnl NTAPI exports for build/xapi_usb_kernel_wrap.c.
  */

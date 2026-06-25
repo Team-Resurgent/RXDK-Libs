@@ -1,3 +1,4 @@
+#include "bridge_rtl.h"
 /*++
 
 Copyright (c) 1989  Microsoft Corporation

@@ -1,3 +1,4 @@
+#include "bridge_usb.h"
 /*
  * Native USBD pool allocator (vendor usbd tree declares but does not define).
  *

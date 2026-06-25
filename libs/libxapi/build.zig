@@ -98,42 +98,11 @@ pub fn addAllObjects(
     var all_outputs = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
-    // Each slice's defines now live in its force-included bridge header
-    // (bridge_rtl.h: NTOS_KERNEL_RUNTIME + _NTSYSTEM_; bridge_usb.h:
-    // NTOS_KERNEL_RUNTIME; bridge_uuid.h: XAPI_UUID_BUILD). The redundant
-    // USB_HOST_CONTROLLER_CONFIGURATION=1 was dropped — hcdi.h already defaults
-    // it to USB_SINGLE_HOST_CONTROLLER (==1) when SILVER is unset.
-    const k32_extra = [_][]const u8{ "-include", "bridge_k32.h" };
-    const rtl_extra = [_][]const u8{ "-include", "bridge_rtl.h" };
-    const ohcd_extra = [_][]const u8{ "-include", "bridge_usb.h" };
-    const usb_cpp_extra = [_][]const u8{ "-include", "bridge_usb.h" };
-    const uuid_extra = [_][]const u8{ "-include", "bridge_uuid.h" };
-
     for (xapi_sources.slices) |slice| {
-        const base_flags = if (slice.is_cpp) xapiCppFlags(b) else xapiCFlags(b);
-        const extra: []const []const u8 = extra_flags: {
-            if (std.mem.eql(u8, slice.name, "k32") or std.mem.eql(u8, slice.name, "dll") or std.mem.eql(u8, slice.name, "uuid")) {
-                break :extra_flags if (std.mem.eql(u8, slice.name, "uuid"))
-                    &uuid_extra
-                else if (std.mem.eql(u8, slice.name, "k32"))
-                    &k32_extra
-                else if (std.mem.eql(u8, slice.name, "dll"))
-                    &k32_extra
-                else
-                    &.{};
-            }
-            if (std.mem.eql(u8, slice.name, "rtl")) {
-                break :extra_flags &rtl_extra;
-            }
-            if (std.mem.eql(u8, slice.name, "ohcd")) {
-                break :extra_flags &ohcd_extra;
-            }
-            if (slice.is_cpp) {
-                break :extra_flags &usb_cpp_extra;
-            }
-            break :extra_flags &.{};
-        };
-        const flags = xbox_target.appendFlags(b, base_flags, extra);
+        // Bridges are #included by each source file now, so the build passes no
+        // per-slice -include or -D — only the base C/C++ flags differ by
+        // language, plus uuid's distinct SDK include path.
+        const flags = if (slice.is_cpp) xapiCppFlags(b) else xapiCFlags(b);
         const dirs = if (std.mem.eql(u8, slice.name, "uuid"))
             blk: {
                 const base = includeDirs();

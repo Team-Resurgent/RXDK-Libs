@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /* RXDK replacement for vendor k32/i386/muldiv.asm (MulDiv). */
 
 #include <xboxkrnl/xboxdef.h>

@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*
  * RXDK replacement for vendor k32/tls.c.
  *

@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /* RXDK libxapi link compat: TEB, string aliases, debug stubs. */
 
 #include <xboxkrnl/xboxkrnl.h>

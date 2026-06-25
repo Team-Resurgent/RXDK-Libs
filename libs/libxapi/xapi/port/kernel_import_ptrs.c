@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*
  * Kernel DATA imports are struct slots in the XBE IAT. Vendor NTOS headers
  * (ntos.h, !_NTSYSTEM_) treat them as POBJECT_TYPE pointer variables.

@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*
  *
  * xapi0dat.c

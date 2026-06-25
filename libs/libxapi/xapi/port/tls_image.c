@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*
  * RXDK: single PE TLS image template for Xbox xAPI (Clang/lld).
  *

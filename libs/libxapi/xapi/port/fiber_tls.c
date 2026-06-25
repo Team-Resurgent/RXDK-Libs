@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*
  * RXDK: per-thread fiber TLS for Clang/libxapi.
  *

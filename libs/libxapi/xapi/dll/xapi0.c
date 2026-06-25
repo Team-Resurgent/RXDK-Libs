@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 #include "dllp.h"
 #include <xcrypt.h>
 #include "dm.h"

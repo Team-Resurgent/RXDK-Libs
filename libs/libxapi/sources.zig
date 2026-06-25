@@ -131,14 +131,17 @@ pub const xid_sources = [_][]const u8{
     "libs/libxapi/xapi/usb/xid/lightgun.cpp",
 };
 
+// Build slices collapse to three: each source #includes its own bridge header
+// (so the build needs no per-slice -include/-D), leaving only language (C vs
+// C++) and uuid's distinct SDK include path as real differentiators.
+//   c    - k32 + dll + rtl + ohcd  (libxapi internal headers, C)
+//   cpp  - usbd + usbhub + mu + xid (C++)
+//   uuid - COM/RPC IDL against the full XDK SDK headers (include/sdk)
+pub const c_sources = k32_sources ++ dll_sources ++ rtl_sources ++ ohcd_sources;
+pub const cpp_sources = usbd_sources ++ usbhub_sources ++ mu_sources ++ xid_sources;
+
 pub const slices = [_]Slice{
-    .{ .name = "k32", .is_cpp = false, .sources = &k32_sources }, 
-    .{ .name = "dll", .is_cpp = false, .sources = &dll_sources }, 
-    .{ .name = "rtl", .is_cpp = false, .sources = &rtl_sources }, 
-    .{ .name = "uuid", .is_cpp = false, .sources = &uuid_sources }, 
-    .{ .name = "ohcd", .is_cpp = false, .sources = &ohcd_sources }, 
-    .{ .name = "usbd", .is_cpp = true, .sources = &usbd_sources }, 
-    .{ .name = "usbhub", .is_cpp = true, .sources = &usbhub_sources }, 
-    .{ .name = "mu", .is_cpp = true, .sources = &mu_sources }, 
-    .{ .name = "xid", .is_cpp = true, .sources = &xid_sources }, 
+    .{ .name = "c", .is_cpp = false, .sources = &c_sources },
+    .{ .name = "cpp", .is_cpp = true, .sources = &cpp_sources },
+    .{ .name = "uuid", .is_cpp = false, .sources = &uuid_sources },
 };

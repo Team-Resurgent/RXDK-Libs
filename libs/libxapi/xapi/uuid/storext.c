@@ -1,3 +1,4 @@
+#include "bridge_uuid.h"
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
 

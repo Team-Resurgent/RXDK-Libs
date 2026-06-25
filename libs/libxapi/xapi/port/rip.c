@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /* RXDK debug RIP stubs for retail libxapi (vendor xdbg.h macros). */
 
 #include <xboxkrnl/xboxdef.h>

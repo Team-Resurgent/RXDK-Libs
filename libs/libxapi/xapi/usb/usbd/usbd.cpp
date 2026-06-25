@@ -1,3 +1,4 @@
+#include "bridge_usb.h"
 /*++
 
 Copyright (c) Microsoft Corporation.  All rights reserved.

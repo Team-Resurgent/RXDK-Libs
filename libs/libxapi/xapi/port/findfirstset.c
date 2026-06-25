@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /* RXDK replacement for rtl/i386/bitmapa.asm (RtlFindFirstSetRightMember). */
 
 #include <xboxkrnl/xboxdef.h>

@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /* RXDK replacement for vendor i386/intrlock.c (clang ICE) and MASM intrlock.asm. */
 
 #include <xboxkrnl/xboxdef.h>

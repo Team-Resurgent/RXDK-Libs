@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 /*++
 
 Copyright (c) 1990  Microsoft Corporation

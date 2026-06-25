@@ -1,3 +1,4 @@
+#include "bridge_k32.h"
 #include "basedll.h"
 
 const OBJECT_STRING NickFile = CONSTANT_OBJECT_STRING(OTEXT("\\Device\\Harddisk0\\partition1\\UDATA\\NICKNAME.XBN"));

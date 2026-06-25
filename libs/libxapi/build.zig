@@ -104,19 +104,19 @@ pub fn addAllObjects(
         "-DNTOS_KERNEL_RUNTIME=1",
         "-D_NTSYSTEM_=1",
     };
+    // OHCD_XBOX_HARDWARE_ONLY / OHCD_ISOCHRONOUS_SUPPORTED are baked into the
+    // ohcd sources (the Xbox build is the only configuration); USE_DMA_MACROS
+    // was unreferenced. NTOS_KERNEL_RUNTIME stays (differentiates kernel slices).
     const ohcd_extra = [_][]const u8{
         "-include", "bridge_usb.h",
         "-DNTOS_KERNEL_RUNTIME=1",
-        "-DUSE_DMA_MACROS",
-        "-DOHCD_XBOX_HARDWARE_ONLY",
-        "-DOHCD_ISOCHRONOUS_SUPPORTED",
     };
+    // USB_ENABLE_DIRECT_CONNECT is baked into usbdev.cpp; XID_HAMMERHEAD_SUPPORT
+    // was unreferenced. USB_HOST_CONTROLLER_CONFIGURATION stays (still tested).
     const usb_cpp_extra = [_][]const u8{
         "-include", "bridge_usb.h",
         "-DNTOS_KERNEL_RUNTIME=1",
         "-DUSB_HOST_CONTROLLER_CONFIGURATION=1",
-        "-DUSB_ENABLE_DIRECT_CONNECT",
-        "-DXID_HAMMERHEAD_SUPPORT",
     };
     const uuid_extra = [_][]const u8{
         "-include", "bridge_uuid.h",

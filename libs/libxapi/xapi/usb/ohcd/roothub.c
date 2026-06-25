@@ -96,10 +96,6 @@ Return Value:
 {
     POHCI_OPERATIONAL_REGISTERS operationalRegisters = DeviceExtension->OperationalRegisters;
     POHCD_ROOT_HUB_OBJECT       rhObject = &DeviceExtension->RootHubObject;
-#ifndef OHCD_XBOX_HARDWARE_ONLY
-    HC_RH_DESCRIPTOR_A          rhDescriptorA;
-    HC_RH_DESCRIPTOR_B          rhDescriptorB;
-#endif //OHCD_XBOX_HARDWARE_ONLY    
     HC_RH_STATUS                rhStatus;
     HC_RH_PORT_STATUS           rhPortStatus;
     ULONG                       index;
@@ -122,127 +118,16 @@ Return Value:
         );
 
 
-#ifdef OHCD_XBOX_HARDWARE_ONLY
     #if (USB_HOST_CONTROLLER_CONFIGURATION==USB_SINGLE_HOST_CONTROLLER)
     rhObject->NumberOfPorts = 4;
     #else
     rhObject->NumberOfPorts = 2;
     #endif
     USB_DBG_TRACE_PRINT(("  NumberDownstreamPorts     : %d", (ULONG)rhObject->NumberOfPorts));
-#else
-    //
-    //  Get Information on root-hub, store number of ports.
-    //
-    rhDescriptorA.ul = READ_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorA.ul);
-    rhObject->NumberOfPorts = rhDescriptorA.NumberDownstreamPorts;
-    if(rhDescriptorA.NoPowerSwitch)
-    {
-        USB_DBG_WARN_PRINT(("USB Card Doesn't support power switching!!"));
-    } else
-    {
-    
-        //
-        //  Calculate the relative PowerOnToGoodTime in 100 ns.  The negative sign is
-        //  so the KeDelayExecutionThread will treat it as a relative time.
-        //
-        rhObject->PowerOnToGoodTime.QuadPart = -rhDescriptorA.PowerOnToPowerGoodTime*2*10000;
-    
-        //
-        //  Build changes to write back to descriptor A
-        //
-        if(!rhDescriptorA.PowerSwitchingMode || !rhDescriptorA.OverCurrentProtectionMode)
-        {
-            USB_DBG_TRACE_PRINT(("Switch to per-port power and overcurrent protection:"));
-            rhDescriptorA.PowerSwitchingMode = 1;   //  Switch the PowerSwitchingMode to Per-port
-            rhDescriptorA.OverCurrentProtectionMode = 1; // Per port overcurrent protection
-            WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorA.ul, rhDescriptorA.ul);
-        }
-
-        //
-        //  As a diagnostic make sure that our changes were accepted
-        //  we only support per-port power.
-        //
-        #if DBG
-        rhDescriptorA.ul = READ_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorA.ul);
-        if(!rhDescriptorA.PowerSwitchingMode || !rhDescriptorA.OverCurrentProtectionMode)
-        {
-            USB_DBG_ERROR_PRINT(("Root Hub didn't accept ganged -> per-port changes.  Incompatible hardware!"));
-        }
-        #endif
-    }    
-
-
-#if DBG
-    if(0xFF==rhDescriptorA.PowerOnToPowerGoodTime)
-    {
-        //
-        //  In truth, there may be other cards that require this long delay.
-        //  The Entrega with the CMD chip is just the one we are worried about.
-        //
-        USB_DBG_WARN_PRINT(("CMD USB CARD DETECTED(requires long power-on delay)!"));
-    }
-#endif 
-
-    USB_DBG_TRACE_PRINT(("Root Hub's Descriptor A:"));
-    USB_DBG_TRACE_PRINT(("  NumberDownstreamPorts     : %d", (ULONG)rhObject->NumberOfPorts));
-    USB_DBG_TRACE_PRINT(("  NoPowerSwitching          : %s", rhDescriptorA.NoPowerSwitch ? "TRUE" : "FALSE"));
-    USB_DBG_TRACE_PRINT(("  PowerSwitchingMode        : %s", rhDescriptorA.PowerSwitchingMode ? "Per-Port" : "Ganged"));
-    USB_DBG_TRACE_PRINT(("  DeviceType                : %s", rhDescriptorA.DeviceType ? "Compound" : "Simple"));
-    USB_DBG_TRACE_PRINT(("  OverCurrentProtectionMode : %s", rhDescriptorA.OverCurrentProtectionMode ? "Per-Port" : "Overall"));
-    USB_DBG_TRACE_PRINT(("  NoOverCurrentProtection   : %s", rhDescriptorA.NoOverCurrentProtection ? "TRUE" : "FALSE"));
-    USB_DBG_TRACE_PRINT(("  PowerOnToPowerGoodTime    : %d ms", (ULONG)rhDescriptorA.PowerOnToPowerGoodTime*2));
-#endif //OHCD_XBOX_HARDWARE_ONLY   
     
     //
     //  Display info in Descriptor B
     //
-#ifndef OHCD_XBOX_HARDWARE_ONLY
-    rhDescriptorB.ul = READ_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorB.ul);
-    if(!rhDescriptorA.NoPowerSwitch)
-    {
-        //
-        //  Make sure the PortPowerControlMask is set so that every port is per-port power.
-        //
-        mask = (rhObject->NumberOfPorts << 2) - 2;
-        if(mask != (rhDescriptorB.PortPowerControlMask & mask))
-        {
-            rhDescriptorB.PortPowerControlMask |= mask;
-            WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorB.ul, rhDescriptorB.ul);
-            //
-            //  As a diagnostic read back the changes, and make sure that they took.
-            //
-            #if DBG
-            rhDescriptorB.ul = READ_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorB.ul);
-            if(mask != (rhDescriptorB.PortPowerControlMask & mask))
-            {
-                USB_DBG_ERROR_PRINT(("Root Hub didn't accept PortPowerControlMask changes.  Incompatible hardware!"));
-            }
-            #endif
-        }
-
-        #if DBG 
-        USB_DBG_TRACE_PRINT(("Root Hub's Descriptor B:"));
-        for(index = 1, mask = 2; index <= (int)rhObject->NumberOfPorts; index++, mask <<= 1)
-        {
-            USB_DBG_TRACE_PRINT(("  DeviceRemovable(%d)      : %s", index, 
-                ((ULONG)rhDescriptorB.DeviceRemovable & mask)? "Not Removable" : "Removable" ));
-            USB_DBG_TRACE_PRINT(("  PortPowerControlMask(%d) : %s", index, 
-                ((ULONG)rhDescriptorB.PortPowerControlMask & mask)? "Per-port" : "Ganged" ));   
-        }
-        #endif
-
-        //
-        //  Power on ports
-        //
-        /*  Not necessary, everything is per-port.
-        ASSERT(!rhDescriptorA.NoPowerSwitch); //We don't support cards that are always powered.
-        rhStatus.HubStatus = HC_RH_STATUS_DeviceRemoteWakeupEnable; - we don't support remote wakeup.
-        rhStatus.HubStatus = 0;
-        rhStatus.HubStatusChange = HC_RH_STATUS_LocalPower;
-        WRITE_REGISTER_ULONG(&operationalRegisters->HcRhStatus.ul, rhStatus.ul);
-        */
-    }
-#endif //OHCD_XBOX_HARDWARE_ONLY
     //
     //  Get the hub status
     //
@@ -262,29 +147,6 @@ Return Value:
     rhStatus.HubStatus = 0;
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhStatus.ul, rhStatus.ul);
 
-#ifndef OHCD_XBOX_HARDWARE_ONLY    
-    //
-    //  Power on each port
-    //
-    if(!rhDescriptorA.NoPowerSwitch)
-    {
-        // 7 ms delay hack for some timing challenged cards
-        LARGE_INTEGER   prePowerDelayHack;
-        prePowerDelayHack.QuadPart = -7*10000;
-        KeDelayExecutionThread(KernelMode, FALSE, &prePowerDelayHack);
-
-        rhPortStatus.PortStatus = HC_RH_PORT_STATUS_SetPortPower;
-        rhPortStatus.PortStatusChange = 0x0000;
-        for(index=0; index < (int)rhObject->NumberOfPorts; index++)
-        {
-            WRITE_REGISTER_ULONG(&operationalRegisters->HcRhPortStatus[index].ul, rhPortStatus.ul);
-        }
-        //
-        //  Wait the PowerOnToGoodTime
-        //
-        KeDelayExecutionThread(KernelMode, FALSE, &rhObject->PowerOnToGoodTime);
-    }    
-#endif //OHCD_XBOX_HARDWARE_ONLY
 
     //
     //  Retrieve the status of each port

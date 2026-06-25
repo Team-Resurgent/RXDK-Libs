@@ -51,9 +51,7 @@ DEFINE_USB_DEBUG_FUNCTIONS("OHCD");
 //----------------------------------------------------------------------------
 //  Spew the build settings during compile
 //----------------------------------------------------------------------------
-#ifdef OHCD_XBOX_HARDWARE_ONLY
 #pragma message("OHCD: Xbox Hardware Only Build")
-#endif
 #if(USB_HOST_CONTROLLER_CONFIGURATION==USB_SINGLE_HOST_CONTROLLER)
 #pragma message("OHCD: Single Host Controller Support")
 #endif
@@ -336,11 +334,9 @@ Return Value:
 
     operationalRegisters = deviceExtension->OperationalRegisters;
 
-#ifdef OHCD_XBOX_HARDWARE_ONLY
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorA.ul, HC_RH_DESCRIPTOR_A_INIT_XBOX);
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorB.ul, HC_RH_DESCRIPTOR_B_INIT_XBOX);
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhStatus.ul, HC_RH_STATUS_INIT_XBOX);
-#endif
 
     KeInitializeDpc(&deviceExtension->IsrDpc, OHCD_IsrDpc, deviceExtension);
     

@@ -186,7 +186,6 @@ OHCD_fPoolInit(
     index = 0;  //we want index initialized, outside the conditionally compiled
                 //isochronous code.
     OHCD_GlobalPool.FreeEndpoints = NULL;
-#ifdef OHCD_ISOCHRONOUS_SUPPORTED
     OHCD_GlobalPool.IsochMaxBuffers = pResourceRequirements->IsochMaxBuffers;
     OHCD_GlobalPool.IsochFreeEndpoints = 0;
     for(; index < pResourceRequirements->IsochEndpointCount; index++)
@@ -208,7 +207,6 @@ OHCD_fPoolInit(
         poolMemory += sizeof(OHCD_ENDPOINT);
         ASSERT(poolEnd > poolMemory);
     }
-#endif //OHCD_ISOCHRONOUS_SUPPORTED
     
     //
     // OHCD_ENDPOINT - don't reset index, since it already 

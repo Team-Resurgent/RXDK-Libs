@@ -584,7 +584,6 @@ VOID OHCD_PoolEndDoubleBufferTransfer(PURB Urb);
 #endif
 
 //Isoch routines are conditionally compiled
-#ifdef  OHCD_ISOCHRONOUS_SUPPORTED
 __inline
 ULONG_PTR
 OHCD_IsochPoolAllocateEndpoint()
@@ -615,7 +614,6 @@ ULONG OHCD_IsochPoolGetMaxBuffers()
     return OHCD_GlobalPool.IsochMaxBuffers;
 }
 
-#endif //OHCD_ISOCHRONOUS_SUPPORTED
 
 
 #endif __OCHD_H__

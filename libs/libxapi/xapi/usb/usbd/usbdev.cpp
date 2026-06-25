@@ -1086,21 +1086,6 @@ void IUsbDevice::SetExternalPort()
     //  Exclude functions directly
     //  connected to the box.
     //
-    #ifndef USB_ENABLE_DIRECT_CONNECT
-    if(UDN_TYPE_ROOT_HUB == pParentArray[functionIndex-1]->m_Type)
-    {
-        m_ExternalPort = XDEVICE_ILLEGAL_PORT;
-        return;
-    }
-    if(UDN_TYPE_COMPOSITE_FUNCTION == pParentArray[functionIndex-1]->m_Type)
-    {
-        if(UDN_TYPE_ROOT_HUB == pParentArray[functionIndex-2]->m_Type)
-        {
-            m_ExternalPort = XDEVICE_ILLEGAL_PORT;
-        }
-        return;
-    }
-    #endif
 
     //
     //  We may be evaluating the parent of 

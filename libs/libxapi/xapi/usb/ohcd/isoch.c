@@ -22,7 +22,6 @@ Revision History:
     06-29-00 created by Mitchell Dernis (mitchd)
 
 --*/
-#ifdef  OHCD_ISOCHRONOUS_SUPPORTED
 //
 //  Pull in OS headers
 //
@@ -724,4 +723,3 @@ OHCD_fIsochProcessTD(
     transferComplete(&transferStatus, callbackContext);
 }
 
-#endif  //OHCD_ISOCHRONOUS_SUPPORTED

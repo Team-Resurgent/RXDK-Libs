@@ -31,7 +31,6 @@ Revision History:
 
 
 
-#ifdef  OHCD_ISOCHRONOUS_SUPPORTED
 
 //
 //  Forward declaration of pointer types.
@@ -187,100 +186,3 @@ OHCD_fIsochCompleteCloseEndpoint
      MaxAttachedBuffers*sizeof(OHCD_ISOCH_TRANSFER_DESCRIPTOR))
 #define OHCD_ISOCH_POOL ULONG_PTR IsochFreeEndpoints; ULONG IsochMaxBuffers;
 
-#else
-
-/*
-**  DEFINITIONS WHEN COMPILED WITHOUT ISOCHRONOUS
-**  AND CHECKED OR FREE DOESN'T MATTER
-*/
-#define HC_CONTROL_ISOCH_ENABLE_STATE   0
-#define OHCD_IS_ISOCH_CLOSE(urb) (FALSE)
-#define OHCD_ISOCH_COMPLETE_CLOSE_ENDPOINT(DeviceExtension, Urb)
-#define OHCD_ISOCH_ENDPOINT_SIZE(MaxAttachedBuffers) 0
-#define OHCD_ISOCH_FREE_ENDPOINTS
-
-#if DBG
-/*
-**  DEFINITIONS WHEN COMPILED WITHOUT
-**  ISOCHRONOUS SUPPORT AND CHECKED BUILD
-**  In the checked build, some macros spew debug information
-**  and/or break into the debugger if they are hit.
-*/  
-
-//
-//  Stub for Isochronous Support Error.
-//
-__inline USBD_STATUS OHCD_ErrorNoIsochSupport()
-{
-    DbgPrint("ERROR: THIS VERSION OF USBD.SYS WAS BUILT WITHOUT SUPPORT FOR USING ISOCHRONOUS DEVICES.\n");
-    DbgPrint("ERROR: THIS ERROR SHOULD NOT BE HIT MERELY BECAUSE AN ISOCHRONOUS DEVICE IS PLUGGED IN,\n");
-    DbgPrint("ERROR: BUT ONLY IF A CLASS DRIVER FOR THE DEVICE IS PRESENT AND IF AN OPEN ON THE DEVICE\n");
-    DbgPrint("ERROR: IS ATTEMPTED.\n");
-    DbgBreakPoint();
-    return USBD_STATUS_ISOCH_NOT_SUPPORTED;
-}
-
-//
-//  Macros definitons
-//  
-
-#define OHCD_ISOCH_OPEN_ENDPOINT(DeviceExtension, Urb)\
-                                OHCD_ErrorNoIsochSupport()
-
-#define OHCD_ISOCH_CLOSE_ENDPOINT(DeviceExtension, Urb)\
-                                OHCD_ErrorNoIsochSupport()
-
-#define OHCD_ISOCH_ATTACH_BUFFERS(DeviceExtension, Urb)\
-                                OHCD_ErrorNoIsochSupport()
-
-#define OHCD_ISOCH_START_TRANSFER(DeviceExtension, Urb)\
-                                OHCD_ErrorNoIsochSupport()
-
-#define OHCD_ISOCH_STOP_TRANSFER(DeviceExtension, Urb)\
-                                OHCD_ErrorNoIsochSupport()
-
-//
-//  Even though isochronous support is off, we keep track of the Format bit like in
-//  an isoch build.  If OHCD_PROCESS_ISOCHRONOUS_TD is ever hit as a result,
-//  it errors out and then calls OHCD_ProcessDoneTD, like it should anyway.
-//  This should help find problems with how the format bit is being used, and may
-//  reveal problems that would be hard to find or solve in the builds with isoch support.
-//
-#define OHCD_CLEAR_TD_ISOCH_FORMAT_BIT(TD) TD->HcTransferDescriptor.Format = 0;
-#define OHCD_IS_ISOCH_TD(TD) (TD->HcTransferDescriptor.Format)
-#define OHCD_PROCESS_ISOCHRONOUS_TD(deviceExtension, tempTD)\
-{\
-    DbgPrint("ERROR: Found TD with Format bit set in a build that does not support Isochronous transfers.\n");\
-    DbgPrint("ERROR: This indicates that the format bit is not being cleared properly for non-isoch transfers.\n");\
-    DbgPrint("ERROR: Hitting this suggests that builds which do support isochronous transfers may have undetected errors.\n");\
-    DbgPrint("ERROR: If you hit 'g' in the debugger, it will handle this properly as a non-isoch TD.\n");\
-    DbgBreakPoint();\
-    OHCD_fProcessDoneTD(deviceExtension, tempTD);\
-}
-
-/*
-**  DEFINITIONS WHEN COMPILED WITHOUT
-**  ISOCHRONOUS SUPPORT AND FREE BUILD
-**
-**  In the free build, we do not spew debug information.  Macros that shouldn't
-**  be hit simply return an ERROR.
-*/
-#else //DBG!=1
-
-#define OHCD_ISOCH_OPEN_ENDPOINT(DeviceExtension, Urb) USBD_STATUS_ISOCH_NOT_SUPPORTED
-
-#define OHCD_ISOCH_CLOSE_ENDPOINT(DeviceExtension, Urb) USBD_STATUS_ISOCH_NOT_SUPPORTED
-
-#define OHCD_ISOCH_ATTACH_BUFFERS(DeviceExtension, Urb) USBD_STATUS_ISOCH_NOT_SUPPORTED
-
-#define OHCD_ISOCH_START_TRANSFER(DeviceExtension, Urb) USBD_STATUS_ISOCH_NOT_SUPPORTED
-
-#define OHCD_ISOCH_STOP_TRANSFER(DeviceExtension, Urb) USBD_STATUS_ISOCH_NOT_SUPPORTED
-
-
-#define OHCD_CLEAR_TD_ISOCH_FORMAT_BIT(TD) //NOP, not necessary to clear the bit, if isoch not supported.
-#define OHCD_IS_ISOCH_TD(TD) (FALSE)       //We don't care.
-#define OHCD_PROCESS_ISOCHRONOUS_TD(deviceExtension, tempTD) //Should never be hit
-
-#endif //end of else DBG!=1
-#endif //end of else clause for ifdef OHCD_ISOCHRONOUS_SUPPORTED

@@ -150,20 +150,6 @@ Return Value:
     //
     //  Check the alignment requirments of HCCA
     //
-    #ifndef OHCD_XBOX_HARDWARE_ONLY
-    #if DBG
-    {
-        ULONG AlignmentCheck;
-        WRITE_REGISTER_ULONG(&DeviceExtension->OperationalRegisters->HcHCCA, 0xFFFFFFFF);
-        AlignmentCheck = READ_REGISTER_ULONG(&DeviceExtension->OperationalRegisters->HcHCCA);
-        if( (~AlignmentCheck)&((ULONG)(DeviceExtension->HCCA)) )
-        {
-            USB_DBG_ERROR_PRINT(("The 2nd USB host controller is not compatible with XSS as a second host controller.\
-You can try swapping the USB cards.\n XSS will most likely crash if you see this message.\n"));
-        }
-    }
-    #endif  //DBG
-    #endif //OHCD_XBOX_HARDWARE_ONLY
     
     
 

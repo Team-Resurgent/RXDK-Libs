@@ -307,6 +307,36 @@ Return Value:
         (uFlags & LMEM_ZEROINIT) ? HEAP_ZERO_MEMORY : 0, (DWORD)uBytes);
 }
 
+LPVOID
+WINAPI
+XMemAlloc(
+    SIZE_T dwSize,
+    DWORD dwAllocAttributes
+    )
+{
+    if (XALLOC_IS_PHYSICAL(dwAllocAttributes)) {
+        return XPhysicalAlloc(dwSize, MAXULONG_PTR, 0, PAGE_READWRITE);
+    }
+    return LocalAlloc(LMEM_FIXED, dwSize);
+}
+
+VOID
+WINAPI
+XMemFree(
+    PVOID pAddress,
+    DWORD dwAllocAttributes
+    )
+{
+    if (pAddress == NULL) {
+        return;
+    }
+    if (XALLOC_IS_PHYSICAL(dwAllocAttributes)) {
+        XPhysicalFree(pAddress);
+    } else {
+        LocalFree(pAddress);
+    }
+}
+
 HLOCAL
 WINAPI
 LocalReAlloc(

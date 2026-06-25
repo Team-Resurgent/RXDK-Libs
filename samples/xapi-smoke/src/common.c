@@ -224,3 +224,73 @@ void xapi_smoke_unmount_mu_port0(void)
 {
     (void)XUnmountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT);
 }
+
+static void xapi_smoke_format_hex8(char out[9], unsigned long value)
+{
+    static const char kHex[] = "0123456789ABCDEF";
+    for (int i = 7; i >= 0; --i) {
+        out[i] = kHex[value & 0xFu];
+        value >>= 4;
+    }
+    out[8] = '\0';
+}
+
+BOOL xapi_smoke_pick_content_root(char root_out[8])
+{
+    static const char kTRoot[] = "T:\\";
+
+    if (!root_out) {
+        return FALSE;
+    }
+    root_out[0] = '\0';
+
+    if (xapi_smoke_root_is_directory(kTRoot)) {
+        lstrcpynA(root_out, kTRoot, 8);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+BOOL xapi_smoke_build_content_package_path(
+    char* out,
+    int out_cap,
+    const char* t_root,
+    unsigned long offering_id,
+    unsigned long content_flags)
+{
+    char offering_hex[9];
+    char flags_hex[9];
+    char leaf[20];
+
+    if (!out || out_cap <= 0 || !t_root) {
+        return FALSE;
+    }
+
+    xapi_smoke_format_hex8(offering_hex, offering_id);
+    xapi_smoke_format_hex8(flags_hex, content_flags);
+
+    {
+        int n = 0;
+        const char* parts[] = { offering_hex, ".", flags_hex, "\\" };
+        for (unsigned p = 0; p < sizeof(parts) / sizeof(parts[0]); ++p) {
+            for (const char* s = parts[p]; *s != '\0' && n + 1 < (int)sizeof(leaf); ++s) {
+                leaf[n++] = *s;
+            }
+        }
+        leaf[n] = '\0';
+    }
+
+    if (!xapi_smoke_build_path(out, out_cap, t_root, "$C\\")) {
+        return FALSE;
+    }
+
+    {
+        int n = (int)lstrlenA(out);
+        for (const char* s = leaf; *s != '\0' && n + 1 < out_cap; ++s) {
+            out[n++] = *s;
+        }
+        out[n] = '\0';
+        return n > 0;
+    }
+}

@@ -24,3 +24,10 @@ BOOL xapi_smoke_try_mount_mu(char drive_out[4]);
 BOOL xapi_smoke_pick_save_root(char root_out[8]);
 BOOL xapi_smoke_save_root_uses_mu(const char* root);
 void xapi_smoke_unmount_mu_port0(void);
+BOOL xapi_smoke_pick_content_root(char root_out[8]);
+BOOL xapi_smoke_build_content_package_path(
+    char* out,
+    int out_cap,
+    const char* t_root,
+    unsigned long offering_id,
+    unsigned long content_flags);

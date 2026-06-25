@@ -7,10 +7,10 @@ const VENDOR = "vendor/xbox_private";
 pub fn includeDirs() []const []const u8 {
     return &.{
         "include",
+        "shared/include",
         "include/xapi",
         "include/xdk",
         "include/sdk",
-        "include/xboxkrnl",
         "build/generated",
         "vendor/picolibc/libc/include",
         "vendor/picolibc/libc/machine/x86",

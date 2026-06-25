@@ -113,6 +113,7 @@ pub fn build(b: *std.Build) void {
     const krnl = b.path("prebuilt/xboxkrnl.lib");
     const inc = [_]std.Build.LazyPath{
         b.path("include"),
+        b.path("shared/include"),
         b.path("build/generated"),
         b.path("vendor/picolibc/libc/include"),
         b.path("vendor/picolibc/libc/machine/x86"),
@@ -198,7 +199,6 @@ pub fn build(b: *std.Build) void {
         b.path("libs/libxapi/xapi/win32"),
         b.path("include"),
         b.path("build/generated"),
-        b.path("include/xboxkrnl"),
         b.path("vendor/picolibc/libc/include"),
         b.path("vendor/picolibc/libc/machine/x86"),
     };
@@ -228,6 +228,7 @@ pub fn build(b: *std.Build) void {
     };
     const xapi_standalone_inc = [_][]const u8{
         "include",
+        "shared/include",
         "build/generated",
         "vendor/picolibc/libc/include",
         "vendor/picolibc/libc/machine/x86",
@@ -336,6 +337,7 @@ pub fn build(b: *std.Build) void {
         b.path("vendor/llvm-project/libcxx/include"),
         b.path("build/generated"),
         b.path("include"),
+        b.path("shared/include"),
         b.path("vendor/picolibc/libc/include"),
         b.path("vendor/picolibc/libc/machine/x86"),
     };
@@ -365,7 +367,7 @@ pub fn build(b: *std.Build) void {
         .src = "samples/conformance/c23/stdbit_smoke.c",
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("vendor/picolibc/libc/include") },
+        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("vendor/picolibc/libc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
@@ -399,7 +401,7 @@ pub fn build(b: *std.Build) void {
         .extra_srcs = &.{"samples/conformance/c/generated_tests.c"},
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("vendor/picolibc/libc/include") },
+        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("vendor/picolibc/libc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },

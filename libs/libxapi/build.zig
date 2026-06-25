@@ -33,7 +33,6 @@ pub fn includeDirs() []const []const u8 {
         "include",
         "build/generated",
         XAPI ++ "/internal/shims",
-        "include/xboxkrnl",
         "vendor/picolibc/libc/include",
         "vendor/picolibc/libc/machine/x86",
     };

@@ -250,9 +250,7 @@ Routine Description:
 
     //Just return if this is Xbox MCP version A1.  USB cause interrupt storms on this
     //revision and doesn't work at all anyway.
-    RXDK_USB_TRACE_MSG("HCD_EnumHardware enter");
     if (XboxHardwareInfo->McpRevision == 0xa1) {
-        RXDK_USB_TRACE_MSG("HCD_EnumHardware skip MCP A1");
         return;
     }
 
@@ -260,7 +258,6 @@ Routine Description:
     pciDevice.ResourceData.Address[0].u.Memory.Length = XPCICFG_USB0_MEMORY_REGISTER_LENGTH_0;
     pciDevice.ResourceData.Address[0].u.Memory.TranslatedAddress = (PVOID)XPCICFG_USB0_MEMORY_REGISTER_BASE_0;
     pciDevice.ResourceData.Interrupt.Vector = HalGetInterruptVector(XPCICFG_USB0_IRQ, &pciDevice.ResourceData.Interrupt.Irql);
-    RXDK_USB_TRACE_MSG("HCD_EnumHardware USBD_NewHostController");
     USBD_NewHostController(&pciDevice, sizeof(OHCD_DEVICE_EXTENSION));
     if(1==HCD_MAX_HOST_CONTROLLERS) return;
 
@@ -311,7 +308,6 @@ Return Value:
 
     
     USB_DBG_ENTRY_PRINT(("Entering HCD_NewHostController"));
-    RXDK_USB_TRACE_MSG("HCD_NewHostController enter");
 
     PROFILE_DECLARE_TIME_STAMP(ResetTiming);
 
@@ -333,13 +329,10 @@ Return Value:
     //  Set the resources for the card.
     //
     OHCD_fSetResources(deviceExtension, PciDevice);
-    RXDK_USB_TRACE_MSG1("HCD_NewHostController opregs=%p", (void *)deviceExtension->OperationalRegisters);
 
     OHCD_DEVSYS_CHECK_HARDWARE(deviceExtension);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after DevSysCheck");
 
     OHCD_DEVSYS_TAKE_CONTROL(deviceExtension);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after DevSysTakeControl");
 
     operationalRegisters = deviceExtension->OperationalRegisters;
 
@@ -347,20 +340,16 @@ Return Value:
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorA.ul, HC_RH_DESCRIPTOR_A_INIT_XBOX);
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorB.ul, HC_RH_DESCRIPTOR_B_INIT_XBOX);
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhStatus.ul, HC_RH_STATUS_INIT_XBOX);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after RhInit");
 #endif
 
     KeInitializeDpc(&deviceExtension->IsrDpc, OHCD_IsrDpc, deviceExtension);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after KeInitializeDpc");
     
     deviceExtension->HCCA = OHCD_PoolGetHcca(HostControllerNumber);
-    RXDK_USB_TRACE_MSG1("HCD_NewHostController HCCA=%p", (void *)deviceExtension->HCCA);
     
     HcCommandStatus.ul = READ_REGISTER_ULONG(&operationalRegisters->HcCommandStatus.ul);
     HcCommandStatus.HostControllerReset = 1;
     PROFILE_BEGIN_TIMING(ResetTiming);
     oldIrql = KeRaiseIrqlToDpcLevel();
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after KeRaiseIrql");
     WRITE_REGISTER_ULONG(&operationalRegisters->HcCommandStatus.ul, HcCommandStatus.ul);
     
     //
@@ -369,7 +358,6 @@ Return Value:
     KeStallExecutionProcessor(10);
 
     OHCD_ScheduleInitialize(deviceExtension);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after ScheduleInitialize");
 
     WRITE_REGISTER_ULONG(&operationalRegisters->HcControl.ul,HC_CONTROL_REGISTER_START|HC_CONTROL_ISOCH_ENABLE_STATE);
     
@@ -418,7 +406,6 @@ Return Value:
         );
 
     interruptConnected = KeConnectInterrupt(&OHCD_InterruptObject[HostControllerNumber]);
-    RXDK_USB_TRACE_MSG1("HCD_NewHostController KeConnectInterrupt=%u", (unsigned)interruptConnected);
     
     ASSERT(interruptConnected && "Failed to connect to interrupt");
     
@@ -437,7 +424,6 @@ Return Value:
     deviceExtension->ShutdownRegistration.Priority = 1;
     InitializeListHead(&deviceExtension->ShutdownRegistration.ListEntry);
     HalRegisterShutdownNotification(&deviceExtension->ShutdownRegistration, TRUE);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after HalRegisterShutdownNotification");
 
     //
     //  Enable Interrupts
@@ -449,7 +435,6 @@ Return Value:
                             HCINT_FrameNumberOverflow |
                             HCINT_MasterInterruptEnable
                             );
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after HcInterruptEnable");
 
     //USB_DBG_WARN_PRINT(("frameIntervalSniff1 = 0x%0.8x", frameIntervalSniff1));
     //USB_DBG_WARN_PRINT(("frameIntervalSniff2 = 0x%0.8x", frameIntervalSniff2));
@@ -460,11 +445,8 @@ Return Value:
     //
     //  Now kick of detection of devices, by initializing the root hub.
     //
-    RXDK_USB_TRACE_MSG("HCD_NewHostController before RootHubInitialize");
     OHCD_RootHubInitialize(deviceExtension);
-    RXDK_USB_TRACE_MSG("HCD_NewHostController after RootHubInitialize");
 
-    RXDK_USB_TRACE_MSG("HCD_NewHostController leave");
     USB_DBG_EXIT_PRINT(("Exiting HCD_NewHostController"));
     return STATUS_SUCCESS;
 }

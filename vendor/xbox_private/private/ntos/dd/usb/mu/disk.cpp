@@ -319,8 +319,6 @@ MU_StartIo (
 
     deviceExtension = (PMU_DEVICE_EXTENSION) DeviceObject->DeviceExtension;
     irpStack = IoGetCurrentIrpStackLocation(Irp);
-    RXDK_USB_TRACE_MSG2("MU_StartIo enter major=%u irql=%u",
-        (unsigned)irpStack->MajorFunction, (unsigned)KeGetCurrentIrql());
 
     USB_DBG_ENTRY_PRINT(("MU_StartIo(0x%0.8x(0x%0.8x), 0x%0.8x)", DeviceObject, deviceExtension, Irp));
 
@@ -387,7 +385,6 @@ MU_StartIo (
         ASSERT("MU called with unsupported I/O Request.");
     }
 
-    RXDK_USB_TRACE_MSG("MU_StartIo returning");
     USB_DBG_EXIT_PRINT(("MU_StartIo returning"));
     return;
 }
@@ -643,7 +640,6 @@ MU_fDiskReadDriveCapacity(
     //
 
     MU_fStartMrb(DeviceExtension);
-    RXDK_USB_TRACE_MSG("MU_fDiskReadDriveCapacity after StartMrb");
 
     return STATUS_PENDING;
 } // end MuDiskReadDriveCapacity()
@@ -676,7 +672,6 @@ MU_DiskReadCapacityCompletion(
     ULONG logicalBlockCount;
     ULONGLONG totalCapacity;
 
-    RXDK_USB_TRACE_MSG1("MU_DiskReadCapacityCompletion enter status=%08x", (unsigned)Status);
 
     //
     //  If the Mrb failed, then fail the Irp.  The Mrb
@@ -695,8 +690,6 @@ MU_DiskReadCapacityCompletion(
                            ReverseEndian(readCapacityBuffer->LogicalBlocksPerMediaBlock);
     logicalBlockCount = ReverseEndian(readCapacityBuffer->LogicalBlockAddress) + 1;
     totalCapacity = ((ULONGLONG)logicalBlockCount) * bytesPerLogicalBlock ;
-    RXDK_USB_TRACE_MSG2("MU_RCC parsed bpb=%u mbs=%u", (unsigned)bytesPerLogicalBlock, (unsigned)mediaBlockSize);
-    RXDK_USB_TRACE_MSG2("MU_RCC parsed lbc=%u capLo=%u", (unsigned)logicalBlockCount, (unsigned)totalCapacity);
 
     // The LogicalBlocksPerMediaBlock was added after the original FW, so if it is zero
     // use the default value.
@@ -728,10 +721,8 @@ MU_DiskReadCapacityCompletion(
         DeviceExtension->PendingIrp->IoStatus.Information = 0;
         DeviceExtension->PendingIrp->IoStatus.Status = STATUS_UNRECOGNIZED_VOLUME;
         USB_DBG_WARN_PRINT(("The logical block configuration of an MU is outside supported parameter ranges."));
-        RXDK_USB_TRACE_MSG("MU_RCC validation FAILED -> unrecognized");
         goto MU_DiskReadCapacityCompletionCleanup;
     }
-    RXDK_USB_TRACE_MSG("MU_RCC validation passed");
 
     //
     //  Store media capacity and media block size
@@ -753,8 +744,6 @@ MU_DiskReadCapacityCompletion(
     DeviceExtension->DiskGeometry.TracksPerCylinder = 1; 
     DeviceExtension->DiskGeometry.SectorsPerTrack = mediaBlockSize / EMULATED_SECTOR_SIZE;
     DeviceExtension->DiskGeometry.BytesPerSector = EMULATED_SECTOR_SIZE;
-    RXDK_USB_TRACE_MSG1("MU_RCC geometry done, ioctl=%08x",
-        (unsigned)irpStack->Parameters.DeviceIoControl.IoControlCode);
 
     //
     // now fill the appropriate Irp buffer results
@@ -765,9 +754,7 @@ MU_DiskReadCapacityCompletion(
       case IOCTL_DISK_GET_DRIVE_GEOMETRY:
 
         diskGeometry = (PDISK_GEOMETRY)DeviceExtension->PendingIrp->UserBuffer;
-        RXDK_USB_TRACE_MSG1("MU_RCC GEOMETRY copy userbuf=%p", (void *)diskGeometry);
         RtlCopyMemory(diskGeometry, &DeviceExtension->DiskGeometry, sizeof(DISK_GEOMETRY));
-        RXDK_USB_TRACE_MSG("MU_RCC GEOMETRY copy done");
 
         DeviceExtension->PendingIrp->IoStatus.Information = sizeof(DISK_GEOMETRY);
         DeviceExtension->PendingIrp->IoStatus.Status = STATUS_SUCCESS;
@@ -822,34 +809,19 @@ MU_DiskReadCapacityCompletionCleanup: //error paths rejoin here for cleanup
     // Deallocate read capacity buffer.
     //
 
-    /* DIAGNOSTIC: does ExFreePool reboot on a FRESH alloc/free at this IRQL,
-     * or only on readCapacityBuffer? */
-    {
-        PVOID _t = RTL_ALLOCATE_HEAP(16);
-        RXDK_USB_TRACE_MSG1("MU_RCC test alloc=%p", (void *)_t);
-        RTL_FREE_HEAP(_t);
-        RXDK_USB_TRACE_MSG("MU_RCC test free OK");
-    }
-
-    RXDK_USB_TRACE_MSG1("MU_RCC before free buf=%p", (void *)readCapacityBuffer);
     RTL_FREE_HEAP(readCapacityBuffer);
-    RXDK_USB_TRACE_MSG("MU_RCC after free");
 
     //
     //  Complete the Irp
     //
 
-    RXDK_USB_TRACE_MSG1("MU_RCC before IoCompleteRequest irp=%p",
-        (void *)DeviceExtension->PendingIrp);
     MU_COMPLETE_REQUEST(DeviceExtension, DeviceExtension->PendingIrp, IO_NO_INCREMENT);
-    RXDK_USB_TRACE_MSG("MU_RCC after IoCompleteRequest");
 
     //
     //  Start processing the next Irp.
     //
 
     IoStartNextPacket(DeviceExtension->DeviceObject);
-    RXDK_USB_TRACE_MSG("MU_RCC after IoStartNextPacket");
 
    return;
 } 

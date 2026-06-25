@@ -52,7 +52,6 @@ XMountMU(
     OCHAR chDrive;
     OBJECT_STRING DeviceName, DosDevice;
 
-    RXDK_MU_TRACE_MSG("XMountMU enter");
     RIP_ON_NOT_TRUE_WITH_MESSAGE(XPP_XInitDevicesHasBeenCalled, "XMountMU: XInitDevices must be called first!");
 
     if (NULL != pchDrive)
@@ -101,27 +100,21 @@ XMountMU(
     //
     //  create the device object
     //
-    RXDK_MU_TRACE_MSG("XMountMU MU_CreateDeviceObject");
     Status = MU_CreateDeviceObject(
                 dwPort,
                 dwSlot,
                 &DeviceName
                 );
-    RXDK_MU_TRACE_MSG1("XMountMU MU_CreateDeviceObject status=%08x", (unsigned)Status);
 
     if(NT_SUCCESS(Status))
     {
-        RXDK_MU_TRACE_MSG("XMountMU map letter");
-        RXDK_MU_TRACE_MSG1("XMountMU map letter irql=%u", (unsigned)KeGetCurrentIrql());
         soprintf(szDosDevice,
                  OTEXT("\\??\\%c:"),
                  chDrive);
 
         RtlInitObjectString(&DosDevice, szDosDevice);
 
-        RXDK_MU_TRACE_MSG1("XMountMU cert=%p", (void *)XeImageHeader()->Certificate);
         DwordToStringO(XeImageHeader()->Certificate->TitleID, szTitleId);
-        RXDK_MU_TRACE_MSG("XMountMU titleid ok");
 
         //
         //  Tack on a '\\' to the end.  This way we are passing the MU's root directory,
@@ -133,14 +126,12 @@ XMountMU(
         ASSERT(DeviceName.Length+sizeof(OCHAR)<=DeviceName.MaximumLength);
         DeviceName.Buffer[DeviceName.Length++ / sizeof(OCHAR)] = OTEXT('\\');
 
-        RXDK_MU_TRACE_MSG("XMountMU before XapiMapLetterToDirectory");
         Status = XapiMapLetterToDirectory((PCOBJECT_STRING)&DosDevice,
                                           (PCOBJECT_STRING)&DeviceName,
                                           szTitleId,
                                           TRUE,
                                           XeImageHeader()->Certificate->TitleName,
                                           FALSE);
-        RXDK_MU_TRACE_MSG1("XMountMU map letter status=%08x", (unsigned)Status);
 
         if (NT_SUCCESS(Status))
         {
@@ -169,7 +160,6 @@ XMountMU(
 		
     LeaveCriticalSection(&XapiMountMUCriticalSection);
 
-    RXDK_MU_TRACE_MSG1("XMountMU leave err=%08x", (unsigned)RtlNtStatusToDosError(Status));
     return RtlNtStatusToDosError(Status);
 }
 

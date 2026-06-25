@@ -205,10 +205,8 @@ MU_fStartMrb(
 
         ASSERT(!TEST_FLAG(DeviceExtension->DeviceFlags, DF_ANY_URB_PENDING|DF_RESET_STEPS));
         MU_fCbwTransfer(DeviceExtension);
-        RXDK_USB_TRACE_MSG("MU_fStartMrb after CbwTransfer");
     }
     KeLowerIrql(oldIrql);
-    RXDK_USB_TRACE_MSG("MU_fStartMrb after LowerIrql");
     return;
 }
 
@@ -279,11 +277,7 @@ MU_fCbwTransfer(
     //  routine will handle them.
     //
     ASSERT(DeviceExtension->MuInstance);
-    RXDK_USB_TRACE_MSG2("MU_fCbwTransfer before SubmitRequest dev=%p bulkout=%p",
-        (void *)DeviceExtension->MuInstance->Device,
-        (void *)DeviceExtension->BulkOutEndpointHandle);
     DeviceExtension->MuInstance->Device->SubmitRequest(&DeviceExtension->Urb);
-    RXDK_USB_TRACE_MSG("MU_fCbwTransfer after SubmitRequest");
 
     USB_DBG_EXIT_PRINT(("MU_CbwTransfer returning"));
 
@@ -310,7 +304,6 @@ MU_CbwCompletion (
 
     USB_DBG_ENTRY_PRINT(("MU_CbwCompletion(Urb=0x%0.8x,Context=0x%0.8x)", Urb, Context));
 
-    RXDK_USB_TRACE_MSG1("MU_CbwCompletion enter irql=%u", (unsigned)KeGetCurrentIrql());
     deviceExtension = (PMU_DEVICE_EXTENSION) Context;
     ASSERT(Urb == &deviceExtension->Urb);
 
@@ -515,7 +508,6 @@ MU_DataCompletion (
 {
     PMU_DEVICE_EXTENSION    deviceExtension = (PMU_DEVICE_EXTENSION) Context;
     PMU_REQUEST_BLOCK       mrb;
-    RXDK_USB_TRACE_MSG("MU_DataCompletion enter");
 
     mrb = &deviceExtension->Mrb;
 
@@ -725,7 +717,6 @@ MU_CswCompletion (
     NTSTATUS status = STATUS_SUCCESS;
 
     USB_DBG_ENTRY_PRINT(("MU_CswCompletion(Urb=0x%0.8x,Context=0x%0.8x)", Urb, Context));
-    RXDK_USB_TRACE_MSG("MU_CswCompletion enter");
 
     //
     //  Cancel the timer
@@ -858,7 +849,6 @@ MU_MrbTimeout (
 {
     PMU_DEVICE_EXTENSION  deviceExtension = (PMU_DEVICE_EXTENSION) Context;
 
-    RXDK_USB_TRACE_MSG1("MU_MrbTimeout enter irql=%u", (unsigned)KeGetCurrentIrql());
     USB_DBG_WARN_PRINT(("MRB state machine timed out."));
 
     CLEAR_FLAG(deviceExtension->DeviceFlags, DF_MRB_TIMER_RUNNING);
@@ -866,10 +856,7 @@ MU_MrbTimeout (
     if(TEST_FLAG(deviceExtension->DeviceFlags,DF_PRIMARY_URB_PENDING))
     {
         ASSERT(deviceExtension->MuInstance);
-        RXDK_USB_TRACE_MSG1("MU_MrbTimeout before CancelRequest dev=%p",
-            (void *)deviceExtension->MuInstance->Device);
         deviceExtension->MuInstance->Device->CancelRequest(&deviceExtension->Urb);
-        RXDK_USB_TRACE_MSG("MU_MrbTimeout after CancelRequest");
     }
 
     if(TEST_FLAG(deviceExtension->DeviceFlags, DF_SECONDARY_URB_PENDING))

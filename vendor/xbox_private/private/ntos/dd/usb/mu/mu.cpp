@@ -131,7 +131,6 @@ EXTERNUSB VOID MU_Init (IUsbInit *pUsbInit)
     PMU_DEVICE_EXTENSION deviceExtension;
     PDEVICE_OBJECT deviceObject;
 
-    RXDK_USB_TRACE_MSG("MU_Init enter");
 
     USB_DBG_ENTRY_PRINT(("entering MU_Init\n"));
 
@@ -154,7 +153,6 @@ EXTERNUSB VOID MU_Init (IUsbInit *pUsbInit)
     //
 
     allocSize = sizeof(MU_INSTANCE)*maxDeviceCount;
-    RXDK_USB_TRACE_MSG1("MU_Init alloc nodes bytes=%u", allocSize);
     MU_DriverExtension.Nodes = (PMU_INSTANCE) RTL_ALLOCATE_HEAP(allocSize);
     ASSERT(MU_DriverExtension.Nodes);  //This allocation happens at boot, it better not fail.
     RtlZeroMemory(MU_DriverExtension.Nodes, allocSize);
@@ -183,7 +181,6 @@ EXTERNUSB VOID MU_Init (IUsbInit *pUsbInit)
         if(maxOpenCount > maxDeviceCount) maxOpenCount = maxDeviceCount;
     }
 
-    RXDK_USB_TRACE_MSG1("MU_Init maxOpenCount=%u", maxOpenCount);
 
     //
     //  Allocate all the device objects and place them on a free list
@@ -191,12 +188,10 @@ EXTERNUSB VOID MU_Init (IUsbInit *pUsbInit)
     // Writable stack buffer: RtlInitObjectString points at .rdata; MU mutates the
     // name suffix in place (MS XDK uses INITIALIZED_OBJECT_STRING for this).
     INITIALIZED_OBJECT_STRING(deviceObjectName, OTEXT("\\Device\\MU_0"));
-    RXDK_USB_TRACE_MSG1("MU_Init device name buf=%p", (void *)deviceObjectName.Buffer);
     for(index = 0; index < maxOpenCount; index++)
     {
         NTSTATUS status;
         deviceObjectName.Buffer[sizeof("\\Device\\MU")] = (index > 9) ? (index + OTEXT('A')) : (index + OTEXT('0'));
-        RXDK_USB_TRACE_MSG1("MU_Init IoCreateDevice index=%u", index);
         status = IoCreateDevice(
                     &MU_DriverObject,
                     sizeof(MU_DEVICE_EXTENSION),
@@ -234,7 +229,6 @@ EXTERNUSB VOID MU_Init (IUsbInit *pUsbInit)
     if(maxOpenCount > 1) MU_gResourceRequirements.MaxBulkTDperTransfer *= 2;
     pUsbInit->RegisterResources(&MU_gResourceRequirements);
 
-    RXDK_USB_TRACE_MSG("MU_Init leave");
     USB_DBG_EXIT_PRINT(("exiting MU_Init\n"));
 
     return;
@@ -469,16 +463,6 @@ MU_CreateDeviceObject(
     KIRQL                oldIrql;
 
     USB_DBG_ENTRY_PRINT(("MU_CreateDeviceObject(Port=0x%0.8x, Slot=0x%0.8x)", Port, Slot));
-    RXDK_USB_TRACE_MSG2("MU_CreateDeviceObject port=%u slot=%u", Port, Slot);
-
-    /* DIAGNOSTIC: does ExFreePool work at PASSIVE (here) vs DISPATCH (completion)? */
-    {
-        PVOID _t = RTL_ALLOCATE_HEAP(16);
-        RXDK_USB_TRACE_MSG2("MU_CDO passive-test alloc=%p irql=%u",
-            (void *)_t, (unsigned)KeGetCurrentIrql());
-        RTL_FREE_HEAP(_t);
-        RXDK_USB_TRACE_MSG("MU_CDO passive-test free OK");
-    }
 
     //
     //  ASSERT arguments.
@@ -493,8 +477,6 @@ MU_CreateDeviceObject(
 
     muInstance = &MU_DriverExtension.Nodes[NODE_INDEX_FROM_PORT_AND_SLOT(Port,Slot)];
 
-    RXDK_USB_TRACE_MSG2("MU_CreateDeviceObject instance=%p device=%p",
-        (void *)muInstance, (void *)muInstance->Device);
 
     oldIrql = KeRaiseIrqlToDpcLevel();
 
@@ -514,11 +496,9 @@ MU_CreateDeviceObject(
     {
         MU_ReleaseDeviceObject(deviceExtension);
         KeLowerIrql(oldIrql);
-        RXDK_USB_TRACE_MSG("MU_CreateDeviceObject not connected");
         return STATUS_DEVICE_NOT_CONNECTED;
     }
 
-    RXDK_USB_TRACE_MSG("MU_CreateDeviceObject open default endpoint");
     //  Point the MU_INSTANCE to the device extension
     //  and vice versa.  Now the failure processing
     //  can survive the normal close processing, even
@@ -555,7 +535,6 @@ MU_CreateDeviceObject(
     
     USB_BUILD_OPEN_DEFAULT_ENDPOINT(&deviceExtension->Urb.OpenEndpoint);
     usbdStatus = muInstance->Device->SubmitRequest(&deviceExtension->Urb);
-    RXDK_USB_TRACE_MSG1("MU_CreateDeviceObject default endpoint usbdStatus=%08x", (unsigned)usbdStatus);
     if(USBD_SUCCESS(usbdStatus))
     {
         SET_FLAG(deviceExtension->DeviceFlags,DF_DEFAULT_ENDPOINT_OPEN);
@@ -612,7 +591,6 @@ MU_CreateDeviceObject(
 
 SkipRemainingEndpointOpens:
 
-    RXDK_USB_TRACE_MSG1("MU_CreateDeviceObject status=%08x", (unsigned)status);
     KeLowerIrql(oldIrql);
 
     //

@@ -43,13 +43,13 @@
 #define CALLBACK __stdcall
 #endif
 
-#define RXDK_USB_TRACE 1
+#define RXDK_USB_TRACE 0
 
 #define RXDK_CLANG_TLS_IMAGE 1
 
 /* Staged DbgPrint for init + MU mount (set 1 when debugging kit). */
-#define RXDK_XAPI_INIT_TRACE 1
-#define RXDK_MU_TRACE 1
+#define RXDK_XAPI_INIT_TRACE 0
+#define RXDK_MU_TRACE 0
 
 #include "xapi_init_trace.h"
 

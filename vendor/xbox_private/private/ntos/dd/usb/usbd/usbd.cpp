@@ -118,7 +118,6 @@ Return Value:
 
 --*/
 {
-    RXDK_USB_TRACE_MSG("USBD_Init enter");
 
     USB_DBG_ENTRY_PRINT(("Entering USBD_Init"));
     USB_DBG_TRACE_PRINT(("Built on %s @%s", __DATE__,__TIME__));
@@ -126,17 +125,13 @@ Return Value:
     IUsbInit usbInit(NumDeviceTypes, DeviceTypes);
     IUsbInit *pUsbInit = &usbInit;
 
-    RXDK_USB_TRACE_MSG("USBD_Init IUsbInit ready");
 
     //
     //  Walk the class drivers and call their init functions
     //
 #ifdef RXDK_USB_CLASS_TABLE
     for (ULONG i = 0; rxdk_usb_class_pointers[i] != NULL; i++) {
-        RXDK_USB_TRACE_MSG2("USBD_Init class init i=%u desc=%p", i, (void *)rxdk_usb_class_pointers[i]);
-        RXDK_USB_TRACE_MSG1("USBD_Init class Init fn=%p", (void *)(ULONG_PTR)rxdk_usb_class_pointers[i]->Init);
         rxdk_usb_class_pointers[i]->Init(pUsbInit);
-        RXDK_USB_TRACE_MSG1("USBD_Init class init done i=%u", i);
     }
 #else
     PUSB_CLASS_DRIVER_DESCRIPTION *ppClassDriverDesc;
@@ -148,28 +143,23 @@ Return Value:
     }
 #endif
 
-    RXDK_USB_TRACE_MSG("USBD_Init Process");
     pUsbInit->Process();
     
     //
     //  Give the HCD a chance to initialize its globals.
     //
-    RXDK_USB_TRACE_MSG("USBD_Init HCD_DriverEntry");
     HCD_DriverEntry(pUsbInit->GetHcdResourcePtr());
 
     //
     // Initialize the device tree
     // 
-    RXDK_USB_TRACE_MSG("USBD_Init g_DeviceTree.Init");
     g_DeviceTree.Init(pUsbInit->GetNodeCount(), pUsbInit->GetMaxCompositeInterfaces());
 
     GLOBAL_HostControllerCount=0;
     //
     //  Call the HCD layer to enumerate the hardware.
     //
-    RXDK_USB_TRACE_MSG("USBD_Init HCD_EnumHardware");
     HCD_EnumHardware();
-    RXDK_USB_TRACE_MSG("USBD_Init leave");
     USB_DBG_EXIT_PRINT(("Exiting USBD_Init"));
 }
 
@@ -205,14 +195,12 @@ Return Value:
     PUSBD_HOST_CONTROLLER  hostController;
 
     USB_DBG_ENTRY_PRINT(("Entering USBD_NewHostController"));
-    RXDK_USB_TRACE_MSG("USBD_NewHostController enter");
 
     //
     //  Allocate the Host Controller
     //
     hostController = (PUSBD_HOST_CONTROLLER)USBD_AllocateMemory(
         sizeof(USBD_HOST_CONTROLLER) + HcdDeviceExtensionSize, MODULE_POOL_TAG);
-    RXDK_USB_TRACE_MSG1("USBD_NewHostController hostController=%p", (void *)hostController);
 
     if(hostController)
     {
@@ -244,9 +232,7 @@ Return Value:
         //
         //  Initialize the hardware
         //
-        RXDK_USB_TRACE_MSG("USBD_NewHostController HCD_NewHostController");
         HCD_NewHostController(USBD_GetHCDExtension(hostController), hostController->ControllerNumber, PciDevice);
-        RXDK_USB_TRACE_MSG("USBD_NewHostController leave");
     }
     USB_DBG_EXIT_PRINT(("Exiting USBD_NewHostController"));
 }

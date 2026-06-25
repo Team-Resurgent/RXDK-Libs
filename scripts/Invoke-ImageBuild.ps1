@@ -7,6 +7,7 @@ param(
     [switch]$NoLibWarn,
     [switch]$BootDisc,
     [switch]$MountHdd,
+    [switch]$FormatHdd,
     [switch]$SkipPePatch,
     [int]$MaxImportThunks = 0,
     [int]$StackSize = 65536
@@ -52,7 +53,10 @@ if ($BootDisc) {
         # Kit with HDD: validate disk, mount per-title U:/T:, utility cache (Z:).
         # XINIT_MOUNT_UTILITY_DRIVE (0x01); omit NO_SETUP / DONT_MODIFY so XapiInitProcess
         # can set up save-game paths on the utility partition.
-        $args += '/INITFLAGS:1'
+        # XINIT_FORMAT_UTILITY_DRIVE (0x02) reformats the utility drive at init.
+        $initFlags = 1
+        if ($FormatHdd) { $initFlags = $initFlags -bor 2 }
+        $args += "/INITFLAGS:$initFlags"
     } else {
         # Boot-disc smoke: skip HDD setup (0x08) and per-title drive writes (0x10).
         # /DONTMOUNTUD skips utility-drive mount; INITFLAGS must include NO_SETUP_HARD_DISK

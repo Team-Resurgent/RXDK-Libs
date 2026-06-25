@@ -16,6 +16,7 @@ param(
     [switch]$Xbe,
     [switch]$Iso,
     [switch]$NoHdd,
+    [switch]$FormatHdd,
     [switch]$SkipSubmoduleCheck
 )
 
@@ -68,6 +69,7 @@ function Convert-SampleXbe {
         [string]$SampleName,
         [switch]$Iso,
         [switch]$MountHdd,
+        [switch]$FormatHdd,
         [int]$MaxImportThunks = 0,
         [int]$StackSize = 65536
     )
@@ -76,7 +78,7 @@ function Convert-SampleXbe {
         Write-Warning "Skip XBE: PE not found: $pe"
         return
     }
-    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso -MountHdd:$MountHdd -MaxImportThunks $MaxImportThunks -StackSize $StackSize
+    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso -MountHdd:$MountHdd -FormatHdd:$FormatHdd -MaxImportThunks $MaxImportThunks -StackSize $StackSize
     if ($Iso) {
         & (Join-Path $PSScriptRoot 'Invoke-XbeIsoBuild.ps1') -InputXbe $xbe
     }
@@ -108,7 +110,8 @@ function Build-Sample {
         [string]$Opt,
         [switch]$Xbe,
         [switch]$Iso,
-        [switch]$NoHdd
+        [switch]$NoHdd,
+        [switch]$FormatHdd
     )
     if ($Iso -and $Target -eq 'kernel-api-link') {
         throw @"
@@ -131,7 +134,7 @@ Use: .\scripts\compile.ps1 -Target xapi-smoke -Iso
             $stackSize = 1048576
         }
         $mountHdd = ($sample.Artifact -eq 'xapi-smoke') -and -not $NoHdd
-        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MountHdd:$mountHdd -MaxImportThunks $maxThunks -StackSize $stackSize
+        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MountHdd:$mountHdd -FormatHdd:($mountHdd -and $FormatHdd) -MaxImportThunks $maxThunks -StackSize $stackSize
     }
 }
 
@@ -171,7 +174,7 @@ switch ($Target) {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
     }
     { $_ -in $singleSampleTargets } {
-        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso -NoHdd:$NoHdd
+        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso -NoHdd:$NoHdd -FormatHdd:$FormatHdd
     }
     'all' {
         Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Optimize

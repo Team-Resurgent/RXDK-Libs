@@ -221,14 +221,47 @@ XapiValidateAndSkipUnicodeSignature(
 {
     WCHAR wchSig;
     DWORD dwRead;
-    
+    DWORD dwUnicodeOffset;
+
     ASSERT(INVALID_HANDLE_VALUE != hMetaFile);
     ASSERT(hMetaFile);
 
+    //
+    // Two metadata layouts share this routine:
+    //   * savegame (xsaveapi.c) writes "<BOM>Name=...\r\n" - the 0xFEFF BOM is
+    //     at offset 0, immediately followed by the text.
+    //   * content (contsig.c) prefixes an XCONTENT_METADATA_HEADER; its Unicode
+    //     section ("<BOM>[Default]\r\nName=...") begins at dwUnicodeOffset, which
+    //     lives at byte 0x34 in the header (0x14-byte signature + 8 DWORDs).
+    // Read the first WCHAR: if it is already the BOM this is a savegame file and
+    // the pointer is now on the text. Otherwise skip the content header to the
+    // Unicode BOM. Either way leave the pointer on the text so
+    // XapiFindValueInMetaFile can read the "Name=..." tags.
+    //
+
     SetFilePointer(hMetaFile, 0, NULL, FILE_BEGIN);
+    if (!ReadFile(hMetaFile, &wchSig, sizeof(wchSig), &dwRead, NULL) ||
+        (dwRead != sizeof(wchSig)))
+    {
+        return FALSE;
+    }
+
+    if (wchSig == g_chUnicodeSignature)
+    {
+        return TRUE;
+    }
+
+    SetFilePointer(hMetaFile, 0x34, NULL, FILE_BEGIN);
+    if (!ReadFile(hMetaFile, &dwUnicodeOffset, sizeof(dwUnicodeOffset), &dwRead, NULL) ||
+        (dwRead != sizeof(dwUnicodeOffset)))
+    {
+        return FALSE;
+    }
+
+    SetFilePointer(hMetaFile, dwUnicodeOffset, NULL, FILE_BEGIN);
 
     return (ReadFile(hMetaFile, &wchSig, sizeof(wchSig), &dwRead, NULL) &&
-            (dwRead == sizeof(wchSig)) ||
+            (dwRead == sizeof(wchSig)) &&
             (wchSig == g_chUnicodeSignature));
 }
 

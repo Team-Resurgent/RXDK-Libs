@@ -873,12 +873,23 @@ XRemoveContent(
     )
 {
     CHAR szMetadataFileName[MAX_PATH];
+    CHAR szNtPath[4 + MAX_PATH];
     NTSTATUS Status;
 
     XapiComputeContentMetadataFileName(lpDirectoryName, szMetadataFileName);
     DeleteFileA(szMetadataFileName);
 
-    Status = XapiNukeDirectory(lpDirectoryName);
+    //
+    // XapiNukeDirectory issues NtOpenFile with a NULL root, so it needs a
+    // fully-qualified NT path. Prefix the DOS drive path with "\??\" exactly as
+    // XDeleteSaveGame does (drive letters such as T:\ live under the DOS devices
+    // directory, not the object-namespace root).
+    //
+
+    strcpy(szNtPath, "\\??\\");
+    lstrcpynA(szNtPath + 4, lpDirectoryName, ARRAYSIZE(szNtPath) - 4);
+
+    Status = XapiNukeDirectory(szNtPath);
     if (Status < 0)
     {
         XapiSetLastNTError(Status);

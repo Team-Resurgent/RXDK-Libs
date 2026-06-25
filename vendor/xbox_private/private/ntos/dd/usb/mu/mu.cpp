@@ -44,23 +44,27 @@ Revision History:
 //*****************************************************************************
 MU_DRIVER_EXTENSION MU_DriverExtension;
 
+/* MU_StartIo / MU_InternalIo are NTAPI (__stdcall) to match the kernel's
+ * stdcall invocation of DriverStartIo / MajorFunction handlers; the vendor
+ * PDRIVER_STARTIO/PDRIVER_DISPATCH typedefs are cdecl, so cast here (the cast
+ * is cosmetic — the runtime convention is what matters). */
 DRIVER_OBJECT MU_DriverObject = {
-    MU_StartIo,                         // DriverStartIo
+    (PDRIVER_STARTIO)MU_StartIo,        // DriverStartIo
     NULL,                               // DriverDeleteDevice
     NULL,                               // DriverDismountVolume
     {
         IoInvalidDeviceRequest,         // IRP_MJ_CREATE
         IoInvalidDeviceRequest,         // IRP_MJ_CLOSE
-        MU_InternalIo,                  // IRP_MJ_READ
-        MU_InternalIo,                  // IRP_MJ_WRITE
+        (PDRIVER_DISPATCH)MU_InternalIo,// IRP_MJ_READ
+        (PDRIVER_DISPATCH)MU_InternalIo,// IRP_MJ_WRITE
         IoInvalidDeviceRequest,         // IRP_MJ_QUERY_INFORMATION
         IoInvalidDeviceRequest,         // IRP_MJ_SET_INFORMATION
         IoInvalidDeviceRequest,         // IRP_MJ_FLUSH_BUFFERS
         IoInvalidDeviceRequest,         // IRP_MJ_QUERY_VOLUME_INFORMATION
         IoInvalidDeviceRequest,         // IRP_MJ_DIRECTORY_CONTROL
         IoInvalidDeviceRequest,         // IRP_MJ_FILE_SYSTEM_CONTROL
-        MU_InternalIo,                  // IRP_MJ_DEVICE_CONTROL
-        MU_InternalIo,                  // IRP_MJ_INTERNAL_DEVICE_CONTROL
+        (PDRIVER_DISPATCH)MU_InternalIo,// IRP_MJ_DEVICE_CONTROL
+        (PDRIVER_DISPATCH)MU_InternalIo,// IRP_MJ_INTERNAL_DEVICE_CONTROL
         IoInvalidDeviceRequest,         // IRP_MJ_SHUTDOWN
         IoInvalidDeviceRequest,         // IRP_MJ_CLEANUP
     }
@@ -519,7 +523,10 @@ MU_CreateDeviceObject(
     //  Initialize the DPC object and mrb timeouts
     //
 
-    KeInitializeDpc(&deviceExtension->Mrb.TimeoutDpcObject, MU_MrbTimeout, deviceExtension);
+    /* MU_MrbTimeout is NTAPI (__stdcall) to match how the kernel actually
+     * invokes DPCs; the vendor PKDEFERRED_ROUTINE typedef is cdecl (it relied
+     * on MSVC /Gz default-stdcall), so cast to satisfy the C++ type check. */
+    KeInitializeDpc(&deviceExtension->Mrb.TimeoutDpcObject, (PKDEFERRED_ROUTINE)MU_MrbTimeout, deviceExtension);
     KeInitializeTimer(&deviceExtension->Mrb.Timer);
 
     //

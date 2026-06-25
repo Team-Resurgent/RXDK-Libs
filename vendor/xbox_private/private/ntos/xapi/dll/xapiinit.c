@@ -239,6 +239,8 @@ XapiMapLetterToDirectory(
 
     ASSERT(pcDriveString && pcPathString && pcszTitleId);
 
+    DbgPrint("rxdk-mu: XMLD enter irql=%u\n", (unsigned)KeGetCurrentIrql());
+
     InitializeObjectAttributes(
         &Obja,
         (POBJECT_STRING) pcPathString,
@@ -255,6 +257,7 @@ XapiMapLetterToDirectory(
     //  recovery.
     //
 
+    DbgPrint("rxdk-mu: XMLD before NtCreateFile\n");
     Status = NtCreateFile(
                 &DirHandle,
                 FILE_LIST_DIRECTORY | SYNCHRONIZE,
@@ -266,6 +269,8 @@ XapiMapLetterToDirectory(
                 FILE_OPEN_IF,
                 FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT
                 );
+    DbgPrint("rxdk-mu: XMLD NtCreateFile status=%08x irql=%u\n",
+             (unsigned)Status, (unsigned)KeGetCurrentIrql());
 
     if (NT_SUCCESS(Status))
     {

@@ -1,31 +1,113 @@
 #include "common.h"
 
+/* Write a small file to the mounted MU drive and read it back. */
+static int mu_save_roundtrip(const char* drive)
+{
+    char path[16];
+    const char payload[] = "rxdk-mu-smoke";
+    char readbuf[sizeof(payload)] = { 0 };
+    DWORD n = 0;
+    HANDLE h;
+    int i;
+
+    lstrcpynA(path, drive, (int)sizeof(path));
+    lstrcatA(path, "\\smk.sav");
+
+    h = CreateFileA(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        xapi_smoke_trace_count("mu save create-w err", GetLastError());
+        return 10;
+    }
+    if (!WriteFile(h, payload, sizeof(payload), &n, NULL) || n != sizeof(payload)) {
+        CloseHandle(h);
+        return 11;
+    }
+    CloseHandle(h);
+
+    h = CreateFileA(path, GENERIC_READ, 0, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        xapi_smoke_trace_count("mu save create-r err", GetLastError());
+        return 12;
+    }
+    if (!ReadFile(h, readbuf, sizeof(payload), &n, NULL) || n != sizeof(payload)) {
+        CloseHandle(h);
+        return 13;
+    }
+    CloseHandle(h);
+
+    for (i = 0; i < (int)sizeof(payload); ++i) {
+        if (readbuf[i] != payload[i]) {
+            return 14;
+        }
+    }
+
+    DeleteFileA(path);
+    return XAPI_OK;
+}
+
 int test_mu(void)
 {
     char drive[4];
+    DWORD mus;
+    DWORD port = 0;
+    DWORD slot = 0;
+    int found = 0;
+    DWORD bit;
+    int i;
+    DWORD err;
+    int rc;
 
     xapi_smoke_trace_line("mu enter");
 
-    const DWORD err = XMountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT, drive);
-    xapi_smoke_trace_count("mu XMountMU err", err);
-
-    if (err == ERROR_DEVICE_NOT_CONNECTED) {
+    /* MUs connect asynchronously after XInitDevices; poll until one appears
+     * (or give up after ~1s) so we don't race the USB enumeration. */
+    mus = 0;
+    for (i = 0; i < 50; ++i) {
+        mus = XGetDevices(XDEVICE_TYPE_MEMORY_UNIT);
+        if (mus != 0) {
+            break;
+        }
+        Sleep(20);
+    }
+    xapi_smoke_trace_count("mu XGetDevices bitmask", mus);
+    if (mus == 0) {
+        xapi_smoke_trace_line("mu no MU connected");
         return XAPI_OK;
     }
+
+    /* Bit index == node index == (port << 1) | slot. Pick the first present MU. */
+    for (bit = 0; bit < 8; ++bit) {
+        if (mus & (1u << bit)) {
+            port = bit >> 1;
+            slot = bit & 1u;
+            found = 1;
+            break;
+        }
+    }
+    if (!found) {
+        return 1;
+    }
+    xapi_smoke_trace_count("mu port", port);
+    xapi_smoke_trace_count("mu slot", slot);
+
+    err = XMountMU(port, slot, drive);
+    xapi_smoke_trace_count("mu XMountMU err", err);
     if (err != ERROR_SUCCESS) {
+        /* Unformatted/raw or not connected: not a hard failure for the smoke. */
         return XAPI_SKIP;
     }
 
+    xapi_smoke_trace_line2("mu drive ", drive);
     if (drive[0] == '\0' || drive[1] != ':') {
-        (void)XUnmountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT);
-        return 1;
-    }
-
-    if (GetFileAttributesA(drive) == INVALID_FILE_ATTRIBUTES) {
-        (void)XUnmountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT);
+        XUnmountMU(port, slot);
         return 2;
     }
 
-    (void)XUnmountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT);
-    return XAPI_OK;
+    rc = mu_save_roundtrip(drive);
+    xapi_smoke_trace_count("mu save rc", (unsigned)rc);
+
+    XUnmountMU(port, slot);
+    return rc;
 }

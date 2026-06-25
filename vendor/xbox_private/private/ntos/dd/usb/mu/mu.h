@@ -676,7 +676,10 @@ MU_fStartMrb(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     );
 
-VOID
+/* DPC routine: must be NTAPI (__stdcall) to match PKDEFERRED_ROUTINE. The
+ * kernel invokes DPCs as stdcall (ret 16); a cdecl mismatch drifts the DPC
+ * dispatcher stack and crashes when the timer actually fires. */
+VOID NTAPI
 MU_MrbTimeout (
     IN PKDPC Dpc,
     IN PVOID fdoDeviceExtension,
@@ -688,13 +691,17 @@ MU_MrbTimeout (
 //  disk.cpp
 //
 
-NTSTATUS
+/* NTAPI (__stdcall): these are kernel-invoked driver callbacks (dispatch +
+ * DriverStartIo). The vendor PDRIVER_DISPATCH/PDRIVER_STARTIO typedefs are
+ * cdecl (they relied on MSVC /Gz default-stdcall); the kernel calls them
+ * stdcall, so a cdecl mismatch drifts the kernel stack on return -> EIP=0. */
+NTSTATUS NTAPI
 MU_InternalIo (
     IN PDEVICE_OBJECT   DeviceObject,
     IN PIRP             Irp
     );
 
-VOID
+VOID NTAPI
 MU_StartIo (
     IN PDEVICE_OBJECT   DeviceObject,
     IN PIRP             Irp

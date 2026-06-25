@@ -112,13 +112,16 @@ XMountMU(
     if(NT_SUCCESS(Status))
     {
         RXDK_MU_TRACE_MSG("XMountMU map letter");
+        RXDK_MU_TRACE_MSG1("XMountMU map letter irql=%u", (unsigned)KeGetCurrentIrql());
         soprintf(szDosDevice,
                  OTEXT("\\??\\%c:"),
                  chDrive);
 
         RtlInitObjectString(&DosDevice, szDosDevice);
 
+        RXDK_MU_TRACE_MSG1("XMountMU cert=%p", (void *)XeImageHeader()->Certificate);
         DwordToStringO(XeImageHeader()->Certificate->TitleID, szTitleId);
+        RXDK_MU_TRACE_MSG("XMountMU titleid ok");
 
         //
         //  Tack on a '\\' to the end.  This way we are passing the MU's root directory,
@@ -130,6 +133,7 @@ XMountMU(
         ASSERT(DeviceName.Length+sizeof(OCHAR)<=DeviceName.MaximumLength);
         DeviceName.Buffer[DeviceName.Length++ / sizeof(OCHAR)] = OTEXT('\\');
 
+        RXDK_MU_TRACE_MSG("XMountMU before XapiMapLetterToDirectory");
         Status = XapiMapLetterToDirectory((PCOBJECT_STRING)&DosDevice,
                                           (PCOBJECT_STRING)&DeviceName,
                                           szTitleId,

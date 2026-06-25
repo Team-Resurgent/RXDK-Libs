@@ -506,7 +506,7 @@ Return Value:
     POHCD_TRANSFER_DESCRIPTOR   setupBlock;
     BOOLEAN                     isLastTD;
     USB_DBG_ENTRY_PRINT(("Entering OHCD_ProcessDoneTD"));
-    
+
     //
     //  Success or failure, if this is a setup TD, we need to free the
     //  setupBlock.
@@ -811,7 +811,7 @@ OHCD_fCompleteRequest(
 --*/
 {
     Endpoint->ProgrammedUrbCount--;
-    
+
     //
     //  Unlock buffer pages if needed
     //

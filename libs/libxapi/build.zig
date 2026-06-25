@@ -32,8 +32,8 @@ pub fn includeDirs() []const []const u8 {
         "include",
         "build/generated",
         XAPI ++ "/internal/shims",
-        "vendor/picolibc/libc/include",
-        "vendor/picolibc/libc/machine/x86",
+        "shared/picolibc/include",
+        "shared/picolibc/machine/x86",
     };
 }
 

@@ -115,8 +115,8 @@ pub fn build(b: *std.Build) void {
         b.path("include"),
         b.path("shared/include"),
         b.path("build/generated"),
-        b.path("vendor/picolibc/libc/include"),
-        b.path("vendor/picolibc/libc/machine/x86"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
     };
 
     const kernel = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -198,8 +198,8 @@ pub fn build(b: *std.Build) void {
         b.path("libs/libxapi/xapi/internal"),
         b.path("include"),
         b.path("build/generated"),
-        b.path("vendor/picolibc/libc/include"),
-        b.path("vendor/picolibc/libc/machine/x86"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
     };
 
     const xapi_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -229,8 +229,8 @@ pub fn build(b: *std.Build) void {
         "include",
         "shared/include",
         "build/generated",
-        "vendor/picolibc/libc/include",
-        "vendor/picolibc/libc/machine/x86",
+        "shared/picolibc/include",
+        "shared/picolibc/machine/x86",
         "libs/libxapi/xapi/minilib",
     };
     const xapi_standalone_runtime = compile_c.addBatch(b, .{
@@ -333,12 +333,12 @@ pub fn build(b: *std.Build) void {
 
     const cxx_inc = [_]std.Build.LazyPath{
         b.path("build/generated/libcxx"),
-        b.path("vendor/llvm-project/libcxx/include"),
+        b.path("shared/libcxx/include"),
         b.path("build/generated"),
         b.path("include"),
         b.path("shared/include"),
-        b.path("vendor/picolibc/libc/include"),
-        b.path("vendor/picolibc/libc/machine/x86"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
     };
 
     const hello_cpp = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -366,7 +366,7 @@ pub fn build(b: *std.Build) void {
         .src = "samples/conformance/c23/stdbit_smoke.c",
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("vendor/picolibc/libc/include") },
+        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
@@ -400,7 +400,7 @@ pub fn build(b: *std.Build) void {
         .extra_srcs = &.{"samples/conformance/c/generated_tests.c"},
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("vendor/picolibc/libc/include") },
+        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },

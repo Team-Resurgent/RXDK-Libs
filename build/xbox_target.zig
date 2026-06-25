@@ -113,13 +113,13 @@ pub fn xapiCppFlags(_: *std.Build) []const []const u8 {
 pub fn addIncludeTree(mod: *std.Build.Module, b: *std.Build) void {
     mod.addIncludePath(b.path("include"));
     mod.addIncludePath(b.path("build/generated"));
-    mod.addIncludePath(b.path("vendor/picolibc/libc/include"));
-    mod.addIncludePath(b.path("vendor/picolibc/libc/machine/x86"));
+    mod.addIncludePath(b.path("shared/picolibc/include"));
+    mod.addIncludePath(b.path("shared/picolibc/machine/x86"));
 }
 
 pub fn addLibcxxIncludes(mod: *std.Build.Module, b: *std.Build) void {
     addIncludeTree(mod, b);
-    mod.addIncludePath(b.path("vendor/llvm-project/libcxx/include"));
+    mod.addIncludePath(b.path("shared/libcxx/include"));
     mod.addIncludePath(b.path("vendor/llvm-project/libcxxabi/include"));
 }
 

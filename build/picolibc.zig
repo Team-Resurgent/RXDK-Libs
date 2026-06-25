@@ -139,8 +139,8 @@ fn includeDirs(_: *std.Build) []const []const u8 {
         "include",
         "shared/include",
         "build/generated",
-        "vendor/picolibc/libc/include",
-        "vendor/picolibc/libc/machine/x86",
+        "shared/picolibc/include",
+        "shared/picolibc/machine/x86",
         "vendor/picolibc/libm/common",
         "vendor/picolibc/libm/ld",
         "vendor/picolibc/libc/locale",
@@ -194,7 +194,7 @@ pub fn addXboxObjects(
 
 pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     const install = b.addInstallDirectory(.{
-        .source_dir = b.path("vendor/picolibc/libc/include"),
+        .source_dir = b.path("shared/picolibc/include"),
         .install_dir = .prefix,
         .install_subdir = "include",
     });

@@ -60,7 +60,8 @@ extern "C" {
 #pragma once
 #endif
 #endif
-
+
+
 //
 // Current Directory Stuff
 //
@@ -864,7 +865,8 @@ RtlQueryProcessLockInformation(
     );
 
 
-
+
+
 //
 // Routines for manipulating user mode handle tables.  Used for Atoms
 // and Local/Global memory allocations.

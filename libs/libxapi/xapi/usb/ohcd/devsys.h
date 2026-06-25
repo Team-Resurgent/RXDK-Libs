@@ -1,5 +1,6 @@
-#ifndef __DEVSYS_H__
+#pragma once
 #define __DEVSYS_H__
+
 
 #ifdef PERFORM_DEVSYS_OPERATIONS
 //
@@ -34,6 +35,4 @@ OHCD_DevSysTakeControl(
 
 #endif
 
-
-#endif//__DEVSYS_H__
 

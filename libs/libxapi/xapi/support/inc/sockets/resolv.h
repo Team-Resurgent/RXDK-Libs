@@ -41,8 +41,9 @@
  *  @(#)resolv.h    5.10 (Berkeley) 6/1/90
  */
 
-#ifndef _RESOLV_INCLUDED
+#pragma once
 #define _RESOLV_INCLUDED
+
 
 /*
  * Global defines and variables for resolver stub.
@@ -153,4 +154,3 @@ res_mkquery(
     IN  int          buflen                  // size of buffer
     );
 
-#endif    // _RESOLV_INCLUDED

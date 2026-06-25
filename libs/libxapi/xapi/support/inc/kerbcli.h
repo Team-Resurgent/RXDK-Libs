@@ -13,8 +13,9 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef __KERBCLI_H__
+#pragma once
 #define __KERBCLI_H__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,4 +42,3 @@ KerbSetPasswordUser(
 }
 #endif
 
-#endif // __KERBCLI_H__

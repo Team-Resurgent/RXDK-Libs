@@ -277,7 +277,8 @@ typedef struct _REG_NOTIFY_INFORMATION {
     WCHAR           Key[1];     // Variable size
 } REG_NOTIFY_INFORMATION, *PREG_NOTIFY_INFORMATION;
 
-
+
+
 //
 // Nt level registry API calls
 //

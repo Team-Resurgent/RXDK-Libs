@@ -13,8 +13,10 @@ Abstract:
     component.
 
 --*/
-#ifndef _WINUSERP_
+
+#pragma once
 #define _WINUSERP_
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -2321,4 +2323,3 @@ GetWinStationInfo(
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */
-#endif  /* !_WINUSERP_ */

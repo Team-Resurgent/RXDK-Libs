@@ -16,12 +16,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTPOAPI_
-#define _NTPOAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTPOAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -532,4 +528,3 @@ typedef struct _SYSTEM_POWER_INFORMATION {
 }
 #endif
 
-#endif // _NTPOAPI_

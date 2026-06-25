@@ -44,8 +44,9 @@ Revision History:
  *	GSS 01/03/90	put in Pbrain
  */
 
-#ifndef _SYS_SNET_BSD_TYPE_
+#pragma once
 #define _SYS_SNET_BSD_TYPE_
+
 
 
 #ifndef u_char
@@ -86,4 +87,3 @@ typedef	struct fd_set {
 #define	FD_ISSET(n, p)	((p)->fds_bits[(n)/NFDBITS] & (1 << ((n) % NFDBITS)))
 #define FD_ZERO(p)	bzero((char *)(p), sizeof(*(p)))
 
-#endif /* _SYS_SNET_BSD_TYPE_ */

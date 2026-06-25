@@ -22,12 +22,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTI386_
-#define _NTI386_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTI386_
 
 #ifdef __cplusplus
 extern "C" {
@@ -491,4 +487,3 @@ RtlCaptureContext (
 }
 #endif
 
-#endif // _NTI386_

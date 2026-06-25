@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_NTOS_VENDOR_H
+#pragma once
 #define RXDK_XAPI_NTOS_VENDOR_H
+
 
 /*
  * Leak NTOS internal headers that libxapi still references for layout/IOCTL
@@ -63,4 +64,3 @@ extern POBJECT_TYPE ObSymbolicLinkObjectType;
 extern POBJECT_TYPE PsProcessObjectType;
 #endif
 
-#endif /* RXDK_XAPI_NTOS_VENDOR_H */

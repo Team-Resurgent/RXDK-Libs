@@ -1,5 +1,6 @@
-#ifndef _XCONFIG_H_
+#pragma once
 #define _XCONFIG_H_
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -252,6 +253,4 @@ ExReadWriteRefurbInfo(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // ! _XCONFIG_H_
 

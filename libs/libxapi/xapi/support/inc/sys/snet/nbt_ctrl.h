@@ -37,8 +37,9 @@ Notes:
  *		6 Feb 1991 (RAE)	Ported to SpiderTCP
  */
 
-#ifndef _NBT_CTRL_INCLUDED_
+#pragma once
 #define _NBT_CTRL_INCLUDED_
+
 
 
 typedef unsigned short word;
@@ -188,6 +189,4 @@ typedef struct confreq {
 #define NBT_UNLINK_ACK      3020
 #define NBT_UNLINK_NACK     3021
 
-
-#endif // _NBT_CTRL_INCLUDED_
 

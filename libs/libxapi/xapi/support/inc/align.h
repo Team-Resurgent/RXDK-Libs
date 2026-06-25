@@ -36,8 +36,9 @@ Revision History:
 
 --*/
 
-#ifndef _ALIGN_
+#pragma once
 #define _ALIGN_
+
 
 
 // BOOL
@@ -142,4 +143,3 @@ Revision History:
 
 #endif  // none of the above
 
-#endif  // _ALIGN_

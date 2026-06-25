@@ -31,7 +31,8 @@ Revision History:
 extern "C" {
 #endif
 
-
+
+
 //
 // Delay thread execution.
 //
@@ -52,7 +53,8 @@ NtDelayExecutionEx (
     IN BOOLEAN Alertable,
     IN PLARGE_INTEGER DelayInterval
     );
-
+
+
 // begin_ntifs begin_wdm begin_ntddk
 //
 // Event Specific Access Rights.
@@ -134,14 +136,16 @@ NtSetEvent (
     OUT PLONG PreviousState OPTIONAL
     );
 
-
+
+
 //
 // Event Specific Access Rights.
 //
 
 #define EVENT_PAIR_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE)
 
-
+
+
 //
 // Mutant Specific Access Rights.
 //
@@ -199,7 +203,8 @@ NtReleaseMutant (
     IN HANDLE MutantHandle,
     OUT PLONG PreviousCount OPTIONAL
     );
-
+
+
 // begin_ntifs begin_wdm begin_ntddk
 //
 // Semaphore Specific Access Rights.
@@ -260,7 +265,8 @@ NtReleaseSemaphore(
     OUT PLONG PreviousCount OPTIONAL
     );
 
-
+
+
 // begin_winnt
 //
 // Timer Specific Access Rights.
@@ -361,7 +367,8 @@ NtSetTimerEx (
     IN LONG Period OPTIONAL,
     OUT PBOOLEAN PreviousState OPTIONAL
     );
-
+
+
 //
 // System Time and Timer function definitions
 //
@@ -398,7 +405,8 @@ NtSetTimerResolution (
     IN BOOLEAN SetResolution,
     OUT PULONG ActualTime
     );
-
+
+
 //
 //  Locally Unique Identifier (LUID) allocation
 //
@@ -410,7 +418,8 @@ NtAllocateLocallyUniqueId(
     OUT PLUID Luid
     );
 
-
+
+
 //
 //  Universally Unique Identifier (UUID) time allocation
 //
@@ -431,7 +440,8 @@ NtAllocateUuids(
     OUT PCHAR Seed
     );
 
-
+
+
 //
 // Profile Object Definitions
 //
@@ -484,7 +494,8 @@ NtQueryIntervalProfile (
     OUT PULONG Interval
     );
 
-
+
+
 //
 // Performance Counter Definitions
 //
@@ -497,7 +508,8 @@ NtQueryPerformanceCounter (
     OUT PLARGE_INTEGER PerformanceFrequency OPTIONAL
     );
 
-
+
+
 //
 // Nt Api Profile Definitions
 //
@@ -543,7 +555,8 @@ NapResume (
     VOID
     );
 
-
+
+
 //
 //  Driver Verifier Definitions
 //
@@ -572,7 +585,8 @@ typedef struct _DRIVER_VERIFIER_THUNK_PAIRS {
 #define DRIVER_VERIFIER_TRACK_POOL_ALLOCATIONS      0x0008
 #define DRIVER_VERIFIER_IO_CHECKING                 0x0010
 
-
+
+
 //
 // System Information Classes.
 //
@@ -1298,7 +1312,8 @@ NTAPI
 NtShutdownSystem(
     IN SHUTDOWN_ACTION Action
     );
-
+
+
 
 //
 // Global flags that can be set to control system behavior.

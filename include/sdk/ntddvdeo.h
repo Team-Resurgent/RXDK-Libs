@@ -50,7 +50,8 @@ extern "C" {
 
 // DEFINE_GUID(GUID_DISPLAY_OUTPUT_INTERFACE_STANDARD, 0x96304D9F, 0x54b5, 0x11d1, 0x8b, 0x0f, 0x00, 0xa0, 0xc9, 0x06, 0x8f, 0xf3);
 
-
+
+
 //
 // The first set of IOCTLs are handle by the port driver and never seen
 // by the miniport.
@@ -86,7 +87,8 @@ extern "C" {
 #define IOCTL_VIDEO_IS_VGA_DEVICE \
     CTL_CODE(FILE_DEVICE_VIDEO, 0x09, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
-
+
+
 //
 // All these IOCTL's must be both handled by the port and miniport since
 // they require processing by both parties.
@@ -96,7 +98,8 @@ extern "C" {
 #define IOCTL_VIDEO_RESTORE_HARDWARE_STATE \
     CTL_CODE(FILE_DEVICE_VIDEO, 0x81, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
-
+
+
 //
 // All these IOCTL's are public and must/can be handled by the miniport
 // driver
@@ -213,7 +216,8 @@ extern "C" {
     CTL_CODE(FILE_DEVICE_FULLSCREEN_VIDEO, 0x205, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 
-
+
+
 //
 // Many of the video ICOTLs are modal. When ever the palette is set, or the
 // cursor is set or queried, it is done for the current mode.
@@ -300,7 +304,8 @@ extern "C" {
 //     to mode - so that information is modal.
 //
 
-
+
+
 //
 // Any IOCTL that returns information should return in the status block the
 // size of the data returned.
@@ -311,7 +316,8 @@ extern "C" {
 //
 
 
-
+
+
 //
 // IOCTL_VIDEO_ENABLE_VDM
 // IOCTL_VIDEO_DISABLE_VDM
@@ -398,7 +404,8 @@ typedef struct _VIDEO_WIN32K_CALLBACKS {
     HANDLE                pPhysDeviceObject;
 } VIDEO_WIN32K_CALLBACKS, *PVIDEO_WIN32K_CALLBACKS;
 
-
+
+
 //
 // Second set of structures
 //
@@ -585,7 +592,8 @@ typedef struct _VIDEO_HARDWARE_STATE {
 //
 //StateLength - Size of the VIDEO_HARDWARE_STATE_HEADER structure.
 //
-
+
+
 //
 // IOCTL_VIDEO_QUERY_NUM_AVAIL_MODES - Returns number of different modes
 //                                     available on the controller.
@@ -604,7 +612,8 @@ typedef struct _VIDEO_NUM_MODES {
 //ModeInformationLength - Length of the VIDEO_MODE_INFORMATION structure
 //    for the IOCTL_VIDEO QUERY_AVAILABLE_MODES IOCTL.
 
-
+
+
 //
 // IOCTL_VIDEO_SET_CURRENT_MODE - Is used to set the mode of the controller.
 //
@@ -634,7 +643,8 @@ typedef struct _VIDEO_MODE {
 //RequestedMode - Indicates in which mode the adapter should be initialized.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_RESET_DEVICE - Is used to reset the mode of the adapter when GDI
 //                            gives up control of the device to allow a VDM to
@@ -646,7 +656,8 @@ typedef struct _VIDEO_MODE {
 //
 
 
-
+
+
 //
 // IOCTL_VIDEO_QUERY_AVAIL_MODES - Returns information about each available
 //                                 mode on the controller.
@@ -757,7 +768,8 @@ typedef struct _VIDEO_MODE_INFORMATION {
 //   device that are private to the miniport\display driver.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_LOAD_AND_SET_FONT - Is used to load a user-defined font.
 //
@@ -781,7 +793,8 @@ typedef struct _VIDEO_LOAD_FONT_INFORMATION {
 //Font - Start of the font buffer.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_SET_PALETTE_REGISTERS - Takes buffer containing
 //                                     VIDEO_PALETTE_DATA where Colors[]
@@ -809,7 +822,8 @@ typedef struct _VIDEO_PALETTE_DATA {
 //
 //Colors - Array of color entries to copy into the device's color palette.
 //
-
+
+
 //
 // IOCTL_VIDEO_SET_COLOR_REGISTERS - Takes buffer containing VIDEO_CLUT.
 //
@@ -852,7 +866,8 @@ typedef struct {
 //    registers/palette. The color entries can be accessed as a genric 32 bit
 //    value or as Red/Green/Blue/Unused fields.
 //
-
+
+
 //
 // NOTE: Cursor vs. Pointer:
 //    A cursor is a rectangular set of pixels which are used to indicate the
@@ -883,7 +898,8 @@ typedef struct _VIDEO_CURSOR_POSITION {
 //Row - Row on which the cusor is located from the top left, in pixels.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_QUERY_CURSOR_ATTR - Returns all attributes of the cursor.
 //
@@ -920,7 +936,8 @@ typedef struct _VIDEO_CURSOR_ATTRIBUTES {
 //
 //Enable - Non-zero to display cursor, 0 not to display.
 //
-
+
+
 //
 // IOCTL_VIDEO_QUERY_POINTER_POSITION - Returns the location of the pointer
 //                                      on the screen
@@ -942,7 +959,8 @@ typedef struct _VIDEO_POINTER_POSITION {
 //Row - Row on which the cusor is located from the top left, in pixels.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_QUERY_POINTER_ATTR - Returns all attributes of the pointer.
 //
@@ -982,7 +1000,8 @@ typedef struct _VIDEO_POINTER_ATTRIBUTES {
 //    (Mask data is always in 1-bpp DIB format.)
 //
 
-
+
+
 //
 // IOCTL_VIDEO_QUERY_POINTER_CAPABILITIES - Returns capabilities of miniport
 //                                          hardware cursor
@@ -1030,7 +1049,8 @@ typedef struct _VIDEO_POINTER_CAPABILITIES {
 // Note: Miniport has options to reject any call to set a pointer.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_GET_BANK_SELECT_CODE - Called by the Windows display driver
 //                                    to get a block of executable code used
@@ -1222,7 +1242,8 @@ typedef enum _VIDEO_BANK_TYPE {
 //    ***To be filled in when we get to planar HC modes***
 //
 
-
+
+
 //
 // IOCTL_VIDEO_MAP_VIDEO_MEMORY - Maps the frame buffer into the callers
 //                                address space.
@@ -1301,7 +1322,8 @@ typedef struct _VIDEO_MEMORY_INFORMATION {
 //    This value must be equal to VisScreenWidth * ScreenStride
 //
 
-
+
+
 //
 // IOCTL_VIDEO_QUERY_PUBLIC_ACCESS_RANGES - Returns the access range used to
 //                                          program the hardware directly.
@@ -1332,7 +1354,8 @@ typedef struct _VIDEO_PUBLIC_ACCESS_RANGES {
 //    current architecture.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_QUERY_COLOR_CAPABILITIES - Returns the color information
 //                                        found in the monitors VDDPs
@@ -1408,7 +1431,8 @@ typedef struct _VIDEO_COLOR_CAPABILITIES {
 //
 
 
-
+
+
 //
 // IOCTL_VIDEO_SET_POWER_MANAGEMENT - Tells the device to change the power
 //                                    consumption level of the device to the
@@ -1464,7 +1488,8 @@ typedef struct _VIDEO_POWER_MANAGEMENT {
 // failiure, until the power on the device has been turned back on.
 //
 
-
+
+
 //
 // IOCTL_VIDEO_SET_COLOR_LUT_DATA - Confugure color look up table on video adaptor.
 //
@@ -1507,7 +1532,8 @@ typedef struct _VIDEO_LUT_RGB256WORDS {
 //     format.
 //
 
-
+
+
 //+----------------------------------------------------------------------------
 //
 //  Far East fullscreen support

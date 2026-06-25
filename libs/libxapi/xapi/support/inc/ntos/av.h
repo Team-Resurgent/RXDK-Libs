@@ -13,8 +13,9 @@ Abstract:
 
 --*/
 
-#ifndef _AV_H
+#pragma once
 #define _AV_H
+
 
 #if !defined(_NTSYSTEM_)
 #define NTKERNELAVAPI DECLSPEC_IMPORT
@@ -200,4 +201,3 @@ AvSMCVideoModeToAVPack(
     ULONG VideoMode
     );
 
-#endif // _AV_H

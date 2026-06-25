@@ -7,8 +7,9 @@
  *
  ***************************************************************************/
 
-#ifndef _D3D8CAPS_H
+#pragma once
 #define _D3D8CAPS_H
+
 
 #ifndef DIRECT3D_VERSION
 #define DIRECT3D_VERSION         0x0800
@@ -347,7 +348,4 @@ typedef struct _D3DCAPS8
 #define D3DVTXPCAPS_NO_VSDT_UBYTE4      0x00000080L /* device does not support D3DVSDT_UBYTE4 */
 
 #pragma pack()
-
-#endif /* _D3D8CAPS_H_ */
-
 

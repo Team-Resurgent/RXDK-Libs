@@ -14,8 +14,9 @@ Abstract:
 
 --*/
 
-#ifndef _WINNLSP_
+#pragma once
 #define _WINNLSP_
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -226,4 +227,3 @@ BOOL ValidateLCType(PNLS_USER_INFO pInfo, LCTYPE LCType, LPWSTR *ppwReg, LPWSTR 
 }
 #endif
 
-#endif // _WINNLSP_

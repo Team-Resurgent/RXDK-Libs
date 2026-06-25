@@ -18,12 +18,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTMMAPI_
-#define _NTMMAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTMMAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -215,4 +211,3 @@ NtQueryVirtualMemory(
 }
 #endif
 
-#endif  // _NTMMAPI_

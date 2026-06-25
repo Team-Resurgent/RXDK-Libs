@@ -1,5 +1,6 @@
-#ifndef __HMAC_H__
+#pragma once
 #define __HMAC_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -51,4 +52,3 @@ HMACMD5Final(
 #endif
 
 
-#endif // __HMAC_H__

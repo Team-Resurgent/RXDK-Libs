@@ -13,12 +13,8 @@ Abstract:
 
 --*/
 
-#ifndef __RPCNSIP_H__
-#define __RPCNSIP_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define __RPCNSIP_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,4 +83,3 @@ I_NsClientBindDone(
 }
 #endif
 
-#endif /* __RPCNSIP_H__ */

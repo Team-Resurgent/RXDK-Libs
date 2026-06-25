@@ -23,12 +23,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTSEAPI_
-#define _NTSEAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTSEAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -1897,4 +1893,3 @@ NtPrivilegedServiceAuditAlarm (
 }
 #endif
 
-#endif // _NTSEAPI_

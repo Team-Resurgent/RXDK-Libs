@@ -1,6 +1,7 @@
 
-#ifndef _WINSOCKP_H
+#pragma once
 #define _WINSOCKP_H
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -350,4 +351,3 @@ void    WSAAPI XNetNatXmit(void * pvNat, void * pvPkt, BOOL fDiscard);
 
 #endif
 
-#endif  /* _WINSOCKP_H */

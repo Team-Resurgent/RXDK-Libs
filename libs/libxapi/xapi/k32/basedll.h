@@ -13,8 +13,9 @@ Abstract:
 
 --*/
 
-#ifndef _BASEP_
+#pragma once
 #define _BASEP_
+
 
 #include "xapip.h"
 #include "winbasep.h"
@@ -157,6 +158,4 @@ typedef struct _SNDTRK_ENUMSTATE {
 #define MU_CLEAR_MOUNTED(d) (XapiMuInfo.MountedDrives &= ~(1 << ((d) - MU_FIRST_DRIVE)))
 #define MU_IS_MOUNTED(d) (XapiMuInfo.MountedDrives&(1 << ((d) - MU_FIRST_DRIVE)))
 
-
-#endif // _BASEP_
 

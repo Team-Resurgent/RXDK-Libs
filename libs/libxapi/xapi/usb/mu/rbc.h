@@ -20,8 +20,10 @@ Authors:
 Revision History:
 
 --*/
-#ifndef __RBC_H__
+
+#pragma once
 #define __RBC_H__
+
 
 //
 // Command Descriptor Block. Passed by SCSI controller chip over the SCSI bus
@@ -93,4 +95,3 @@ typedef struct _READ_CAPACITY_DATA {
     USHORT BytesPerLogicalBlock;
 } READ_CAPACITY_DATA, *PREAD_CAPACITY_DATA;
 
-#endif // !defined __RBC_H__

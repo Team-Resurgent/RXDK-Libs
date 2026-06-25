@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_NTURTL_H
+#pragma once
 #define RXDK_XAPI_NTURTL_H
+
 
 /*
  * Shadow of leak nturtl.h for libxapi (xAPI runtime, not user-mode NT).
@@ -52,4 +53,3 @@ typedef NTSTATUS (__stdcall *PRTL_HEAP_COMMIT_ROUTINE)(
 #endif
 
 #endif /* _NTURTL_ */
-#endif /* RXDK_XAPI_NTURTL_H */

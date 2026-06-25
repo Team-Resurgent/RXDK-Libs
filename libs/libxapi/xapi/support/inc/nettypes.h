@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _NETTYPES_
+#pragma once
 #define _NETTYPES_
+
 
 //
 // The following basic type is used to provide extensibility in request
@@ -78,4 +79,3 @@ typedef struct _HARDWARE_ADDRESS {
 #define NETMAN_VARTYPE_HARDWARE_ADDRESS 1       // type is a HARDWARE_ADDRESS.
 #define NETMAN_VARTYPE_STRING           2       // type is a FLAT_STRING.
 
-#endif // _NETTYPES_

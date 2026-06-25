@@ -67,8 +67,9 @@ Notes:
  *	@(#)nameser.h	5.24 (Berkeley) 6/1/90
  */
 
-#ifndef _NAMESER_INCLUDED
+#pragma once
 #define _NAMESER_INCLUDED
+
 
 
 /*
@@ -296,4 +297,3 @@ extern	unsigned long	_getlong();
 	(cp) += sizeof(unsigned long); \
 }
 
-#endif  // _NAMESER_INCLUDED

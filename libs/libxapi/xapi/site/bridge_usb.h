@@ -1,5 +1,6 @@
-#ifndef RXDK_USB_BRIDGE_H
+#pragma once
 #define RXDK_USB_BRIDGE_H
+
 
 /*
  * Force-included for libxapi USB slices (ohcd, usbd, hub, mu, xid).
@@ -72,4 +73,3 @@ unsigned long DbgPrint(const char *Format, ...);
 #define RtlZeroMemory(Destination, Length) memset((Destination), 0, (Length))
 #endif
 
-#endif /* RXDK_USB_BRIDGE_H */

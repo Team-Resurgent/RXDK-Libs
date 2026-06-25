@@ -105,7 +105,7 @@ static void setup_xapi_tls_index(void)
     *(PULONG)(_tls_used.AddressOfIndex) = _tls_index;
 }
 
-VOID XapiThreadStartup(
+VOID __stdcall XapiThreadStartup(
     PKSTART_ROUTINE StartRoutine,
     PVOID StartContext);
 

@@ -1,5 +1,6 @@
-#ifndef __MD2_H__
+#pragma once
 #define __MD2_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -44,6 +45,4 @@ void RSA32API MD2Transform(unsigned char [16], unsigned char [16],
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __MD2_H__
 

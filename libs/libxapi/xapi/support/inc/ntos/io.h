@@ -21,8 +21,9 @@ Revision History:
 
 --*/
 
-#ifndef _IO_
+#pragma once
 #define _IO_
+
 
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntndis
 //
@@ -1526,4 +1527,3 @@ IoIsNameInExpression(
 
 extern ULONG IoPendingMustCompletePackets;
 
-#endif // _IO_

@@ -1,5 +1,6 @@
-#ifndef __MODES_H__
+#pragma once
 #define __MODES_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -76,4 +77,3 @@ CFB(
 }
 #endif
 
-#endif // __MODES_H__

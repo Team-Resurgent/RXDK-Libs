@@ -24,8 +24,9 @@ Revision History:
  * @(#)stropts.h	1.19 (Spider) 91/11/27
  */
 
-#ifndef _SYS_STROPTS_
+#pragma once
 #define _SYS_STROPTS_
+
 
 #ifndef _NTDDSTRM_
 #include <ntddstrm.h>
@@ -215,4 +216,3 @@ struct str_list {
 #define FLUSHR		02	/* flush upstream */
 #define FLUSHRW		(FLUSHR | FLUSHW)
 
-#endif /* _SYS_STROPTS_ */

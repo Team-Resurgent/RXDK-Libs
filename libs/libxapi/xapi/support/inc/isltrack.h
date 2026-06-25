@@ -1,6 +1,7 @@
 
-#ifndef _ISLTRACK_H_
+#pragma once
 #define _ISLTRACK_H_
+
 
 #if defined(ENABLE_TRACK)
 
@@ -77,4 +78,3 @@ typedef IShellLinkTracker * LPSHELLLINKTRACKER;
 DEFINE_GUID(IID_IShellLinkTracker, 0x5E35D200L, 0xF3BB, 0x11CE, 0x9B, 0xDB, 0x00, 0xAA, 0x00, 0x4C, 0xD0, 0x1A);
 
 #endif  // _CAIRO_
-#endif  // _ISLTRACK_H_

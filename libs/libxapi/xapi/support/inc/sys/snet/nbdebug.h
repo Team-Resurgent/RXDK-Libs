@@ -10,8 +10,9 @@
  *		6 Feb 1991 (RAE)	Ported to SpiderTCP
  */
 
-#ifndef _NBDEBUG_INCLUDED
+#pragma once
 #define _NBDEBUG_INCLUDED
+
 
 extern int nbtraceflag;
 
@@ -38,4 +39,3 @@ struct nb_debug {
    int debugflag;
 };
 
-#endif // _NBDEBUG_INCLUDED

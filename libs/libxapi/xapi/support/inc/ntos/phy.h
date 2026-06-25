@@ -17,8 +17,9 @@ Revision History:
 
 --*/
 
-#ifndef _PHY_H_
+#pragma once
 #define _PHY_H_
+
 
 //
 // Initialize the PHY
@@ -582,4 +583,3 @@ typedef struct                              // base address 0xFEF00000
 
 #define PNicCsr() ((PNICCSR)XPCICFG_NIC_MEMORY_REGISTER_BASE_0)
 
-#endif // !_PHY_H_

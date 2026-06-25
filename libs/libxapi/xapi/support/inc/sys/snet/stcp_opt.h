@@ -45,8 +45,9 @@ Revision History:
  *			projects
  */
 
-#ifndef _SYS_SNET_STCP_OPT_
+#pragma once
 #define _SYS_SNET_STCP_OPT_
+
 
 
 /*
@@ -82,6 +83,4 @@ typedef struct tcp_opt {
 	int opt_data[1];
 
 } TOPT;
-
-#endif /*  _SYS_SNET_STCP_OPT_ */
 

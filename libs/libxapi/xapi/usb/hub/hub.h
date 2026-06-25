@@ -23,8 +23,9 @@ Revision History:
 
 --*/
 
-#ifndef __HUB_H__
+#pragma once
 #define __HUB_H__
+
 
 
 #define USB_HUB_DESCRIPTOR_TYPE		0x29
@@ -286,4 +287,3 @@ USBHUB_RelatchPortSpeedComplete(
     IUsbDevice *HubDevice
     );
 
-#endif	//__HUB_H__

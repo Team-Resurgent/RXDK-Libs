@@ -43,8 +43,9 @@ Revision History:
  *      @(#)netdb.h     5.11 (Berkeley) 5/21/90
  */
 
-#ifndef NETDB_INCLUDED
+#pragma once
 #define NETDB_INCLUDED
+
 
 #define _PATH_HEQUIV    "/etc/hosts.equiv"
 #define _PATH_HOSTS     "/etc/hosts"
@@ -206,4 +207,3 @@ endservent(
 #define NO_DATA         4 /* Valid name, no data record of requested type */
 #define NO_ADDRESS      NO_DATA         /* no address, look for MX record */
 
-#endif  //NETDB_INCLUDED

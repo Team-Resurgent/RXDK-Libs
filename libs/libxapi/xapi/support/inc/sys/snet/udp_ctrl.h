@@ -57,8 +57,9 @@ Notes:
  *	20/07/88 MV	New file for netstat protocol message.
  */
 
-#ifndef _SYS_SNET_UDP_CTRL_INCLUDED
+#pragma once
 #define _SYS_SNET_UDP_CTRL_INCLUDED
+
 
 
 struct udp_pcbinfo {
@@ -72,6 +73,4 @@ typedef union udp_proto {
 } S_UDP_PROTO;
 
 #define UDP_PCBINFO	1
-
-#endif  // _SYS_SNET_UDP_CTRL_INCLUDED
 

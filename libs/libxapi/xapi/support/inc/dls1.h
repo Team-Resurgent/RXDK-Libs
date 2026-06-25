@@ -13,8 +13,10 @@
 //
 //=========================================================================*/
 
-#ifndef _INC_DLS1
+#pragma once
 #define _INC_DLS1
+
+
 #ifdef XBOX
 #ifndef mmioFOURCC
 #define mmioFOURCC( ch0, ch1, ch2, ch3 )				\
@@ -269,6 +271,4 @@ typedef struct _rloop {
   ULONG ulStart;             /* Start of loop in samples */
   ULONG ulLength;            /* Length of loop in samples */
 } WLOOP, FAR *LPWLOOP;
-
-#endif /*_INC_DLS1 */
 

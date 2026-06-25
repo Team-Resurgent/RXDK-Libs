@@ -1,5 +1,6 @@
-#ifndef __RC2_H__
+#pragma once
 #define __RC2_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -88,4 +89,3 @@ void RSA32API RC2 (BYTE *pbIn, BYTE *pbOut, void *pwKT, int op);
 }
 #endif
 
-#endif // __RC2_H__

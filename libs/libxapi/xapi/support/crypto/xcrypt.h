@@ -13,8 +13,9 @@ Abstract:
 --*/
 
 
-#ifndef _XCRYPT_H
+#pragma once
 #define _XCRYPT_H
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -368,4 +369,3 @@ XcUpdateCrypto(
 }      // extern "C"
 #endif
 
-#endif // _XCRYPT_H

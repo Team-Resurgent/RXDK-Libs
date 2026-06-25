@@ -5,8 +5,7 @@
 // defined in this header file
 //
 
-#ifndef _XBOXP_
-#define _XBOXP_
+#pragma once
 
 #define XBOXAPI
 
@@ -418,4 +417,3 @@ XWriteTitleInfoAndRebootA(
 #ifdef __cplusplus
 }
 #endif
-#endif  // _XBOXP_

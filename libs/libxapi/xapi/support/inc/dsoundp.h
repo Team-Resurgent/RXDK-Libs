@@ -13,8 +13,9 @@
  *
  **************************************************************************/
 
-#ifndef __DSOUND_INCLUDED__
+#pragma once
 #define __DSOUND_INCLUDED__
+
 
 #include <xtl.h>
 //@@BEGIN_MSINTERNAL
@@ -2498,4 +2499,3 @@ EXTERN_C MMRESULT WINAPI timeKillEvent(UINT uTimerID);
 
 #pragma warning(default:4201)
 
-#endif // __DSOUND_INCLUDED__

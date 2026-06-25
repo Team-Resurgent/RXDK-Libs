@@ -9,8 +9,9 @@
 //  by debugger extensions.
 //
 
-#ifndef _HEAP_PAGE_I_
+#pragma once
 #define _HEAP_PAGE_I_
+
 
 #ifdef DEBUG_PAGE_HEAP
 
@@ -318,6 +319,4 @@ struct _DPH_HEAP_ROOT {
 
 
 #endif // DEBUG_PAGE_HEAP
-
-#endif // _HEAP_PAGE_I_
 

@@ -1659,7 +1659,8 @@ typedef SID_AND_ATTRIBUTES SID_AND_ATTRIBUTES_ARRAY[ANYSIZE_ARRAY];
 typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 
 
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 // Universal well-known SIDs                                               //
@@ -1750,7 +1751,8 @@ typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 
 
 
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 // well-known domain relative sub-authority values (RIDs)...               //
@@ -1834,7 +1836,8 @@ typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 // (None yet defined.)
 
 
-
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
@@ -2081,7 +2084,8 @@ typedef struct _SYSTEM_ALARM_OBJECT_ACE {
 #define ACE_OBJECT_TYPE_PRESENT           0x1
 #define ACE_INHERITED_OBJECT_TYPE_PRESENT 0x2
 
-
+
+
 //
 //  The following declarations are used for setting and querying information
 //  about and ACL.  First are the various information classes available to

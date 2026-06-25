@@ -18,12 +18,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTOBAPI_
-#define _NTOBAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTOBAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -234,4 +230,3 @@ NtQuerySymbolicLinkObject(
 }
 #endif
 
-#endif  // _NTOBAPI_

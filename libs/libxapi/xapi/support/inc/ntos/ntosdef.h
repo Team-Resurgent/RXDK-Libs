@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _NTOSDEF_
+#pragma once
 #define _NTOSDEF_
+
 
 //
 // Declare the data sections used inside the kernel so that __declspec(allocate)
@@ -302,4 +303,3 @@ typedef struct _KDPC {
 
 // end_ntddk end_nthal end_ntndis end_ntifs
 
-#endif // _NTOSDEF_

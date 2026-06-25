@@ -20,12 +20,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTEXAPI_
-#define _NTEXAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTEXAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -1383,4 +1379,3 @@ NtShutdownSystem(
 }
 #endif
 
-#endif // _NTEXAPI_

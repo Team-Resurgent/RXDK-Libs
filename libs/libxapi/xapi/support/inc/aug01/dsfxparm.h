@@ -7,8 +7,9 @@
  *
  ****************************************************************************/
 
-#ifndef __DSFXPARM_H__
+#pragma once
 #define __DSFXPARM_H__
+
 
 //
 // State flags
@@ -398,4 +399,3 @@ typedef struct _DSFX_IIR_PARAMS
 
 typedef const DSFX_IIR_PARAMS *LPCDSFX_IIR_PARAMS;
 
-#endif // __DSFXPARM_H__

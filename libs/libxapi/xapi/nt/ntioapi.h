@@ -20,12 +20,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTIOAPI_
-#define _NTIOAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTIOAPI_
 
 //
 // This file contains io definitions that must be portable across operating
@@ -1300,4 +1296,3 @@ typedef enum _BUS_DATA_TYPE {
 }
 #endif
 
-#endif // _NTIOAPI_

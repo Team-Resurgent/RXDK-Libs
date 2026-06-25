@@ -1,5 +1,6 @@
-#ifndef __DESCRYPT_H__
+#pragma once
 #define __DESCRYPT_H__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,6 +51,4 @@ DES_ECB_LM( unsigned            Option,
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __DESCRYPT_H__
 

@@ -25,8 +25,10 @@ Revision History:
     06-29-00 created by Mitchell Dernis (mitchd)
 
 --*/
-#ifndef __ISOCH_H__
+
+#pragma once
 #define __ISOCH_H__
+
 
 
 #ifdef  OHCD_ISOCHRONOUS_SUPPORTED
@@ -282,4 +284,3 @@ __inline USBD_STATUS OHCD_ErrorNoIsochSupport()
 
 #endif //end of else DBG!=1
 #endif //end of else clause for ifdef OHCD_ISOCHRONOUS_SUPPORTED
-#endif //__ISOCH_H__

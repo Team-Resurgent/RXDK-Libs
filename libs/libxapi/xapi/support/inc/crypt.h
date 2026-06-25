@@ -20,8 +20,9 @@ Revision History:
 
 --*/
 
-#ifndef _NTCRYPT_
+#pragma once
 #define _NTCRYPT_
+
 
 #ifndef MIDL_PASS    // Don't confuse MIDL
 
@@ -597,4 +598,3 @@ RtlGetUserSessionKeyServer(
 }   // extern "C"
 #endif
 
-#endif // _NTCRYPT_

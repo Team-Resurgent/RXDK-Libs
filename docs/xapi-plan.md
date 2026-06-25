@@ -40,7 +40,7 @@ This simplifies libxapi build flags (`build/generated/xapi_site.h`: `_XBOX`, `i3
 
 ## Goal
 
-Deliver **`libxapi.lib`** + public headers (`xtl.h`, `winbase.h`, `xbox.h`, …) with full xapilib parity, validated by ported **xapi-smoke** (27 tests).
+Deliver **`libxapi.lib`** + public headers (`xtl.h`, `winbase.h`, `xbox.h`, …) with full xapilib parity, validated by ported **xapi-smoke** (26 tests).
 
 **Keep the C/C++ runtimes:** `libc.lib` and `libcpp.lib` stay. They are not replaced by xAPI.
 
@@ -166,7 +166,7 @@ Because we are not preserving Windows portability:
 3. **Phase 2** — Title samples link libxapi where XDK APIs are needed (libc/libcpp already use xboxkrnl directly)
 4. **Phase 3** — USB C++ merge; **USBD pool alloc in usbd sources**
 5. **Phase 4** — Ship + xapi-link smoke
-6. **Phase 5** — xapi-smoke kit (27/27)
+6. **Phase 5** — xapi-smoke kit (26/26 passed on hardware; xinput + MU + savegame)
 
 ## Validation
 
@@ -174,7 +174,10 @@ Because we are not preserving Windows portability:
 |----------|---------|
 | `zig build libc` / `libcpp` / `libxapi` | Ship archives |
 | `zig build xapi-slices` | Compile-only xAPI slices |
-| `samples/xapi-smoke/` | 27 kit runtime tests |
+| `zig build xapi-link` | libc + libxapi link smoke |
+| `zig build xapi-standalone-link` | libxapi + minilib link smoke (no picolibc objects) |
+| `samples/xapi-smoke/` | 26 kit runtime tests |
+| `samples/xapi-standalone-link/` | libxapi + minilib link smoke (no libc) |
 
 ## Reference
 

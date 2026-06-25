@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _DLLP_
+#pragma once
 #define _DLLP_
+
 
 #include "xapip.h"
 #include <xboxp.h>
@@ -27,4 +28,3 @@ Abstract:
 
 #include "xapiver.h"
 
-#endif // _DLLP_

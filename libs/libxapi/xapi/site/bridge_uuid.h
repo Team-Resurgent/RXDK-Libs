@@ -1,5 +1,6 @@
-#ifndef RXDK_UUID_BRIDGE_H
+#pragma once
 #define RXDK_UUID_BRIDGE_H
+
 
 /*
  * Force-included for libxapi uuid slice (COM/RPC IDL objects).
@@ -10,4 +11,3 @@
 #define _NTOS_
 #endif
 
-#endif /* RXDK_UUID_BRIDGE_H */

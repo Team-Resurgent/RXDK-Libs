@@ -19,12 +19,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTREGAPI_
-#define _NTREGAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTREGAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -521,4 +517,3 @@ NtQueryOpenSubKeys(
 }
 #endif
 
-#endif // _NTREGAPI_

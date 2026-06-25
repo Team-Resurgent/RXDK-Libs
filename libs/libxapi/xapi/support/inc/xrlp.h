@@ -11,8 +11,9 @@
 // No protocol information is supplied or allowed.
 //
 
-#ifndef __XRL__
+#pragma once
 #define __XRL__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,4 +66,3 @@ HRESULT XRL_ParseHeaders( char* pHeaders, DWORD cbHeaderSize, XRL_KNOWN_HEADERS*
 }
 #endif
 
-#endif  //__XRL__

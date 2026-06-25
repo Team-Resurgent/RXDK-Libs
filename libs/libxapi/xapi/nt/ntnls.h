@@ -18,12 +18,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTNLS_
-#define _NTNLS_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTNLS_
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,4 +53,3 @@ typedef struct _NLSTABLEINFO {
 }
 #endif
 
-#endif // _NTNLS_

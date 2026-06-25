@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _XAPIDRV_H_
+#pragma once
 #define _XAPIDRV_H_
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,4 +46,3 @@ VOID XdReportDeviceInsertionRemoval(
 }
 #endif
 
-#endif //_XAPIDRV_H_

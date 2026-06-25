@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _KD_
+#pragma once
 #define _KD_
+
 
 // begin_nthal
 //
@@ -179,4 +180,3 @@ KdLogDbgPrint(
     IN PSTRING String
     );
 
-#endif  // _KD_

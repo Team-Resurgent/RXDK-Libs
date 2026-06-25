@@ -7,8 +7,9 @@
 ****************************************************************************/
 
 
-#ifndef _WINDEF_
+#pragma once
 #define _WINDEF_
+
 
 #ifndef NO_STRICT
 #ifndef STRICT
@@ -377,6 +378,4 @@ typedef struct tagPOINTS
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* _WINDEF_ */
 

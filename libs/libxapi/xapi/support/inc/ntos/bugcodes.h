@@ -23,8 +23,9 @@ Notes:
 
 --*/
 
-#ifndef _BUGCODES_
+#pragma once
 #define _BUGCODES_
+
 
 
 //
@@ -2378,4 +2379,3 @@ Notes:
 //
 #define ATTEMPTED_FPU_USE_FROM_DPC       ((ULONG)0x000000F0L)
 
-#endif // _BUGCODES_

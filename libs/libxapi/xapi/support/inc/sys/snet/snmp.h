@@ -43,8 +43,9 @@ Revision History:
  *	GSS 01/03/90	put in Pbrain
  */
 
-#ifndef _SYS_SNET_SNMP_
+#pragma once
 #define _SYS_SNET_SNMP_
+
 
 
 /*
@@ -127,6 +128,4 @@ struct snmp_trap
  * values for "specific_trap" are the same as the interface status field
  * i.e. up(1), down(2), testing(3).
  */
-
-#endif /* _SYS_SNET_SNMP_ */
 

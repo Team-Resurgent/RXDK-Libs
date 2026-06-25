@@ -30,8 +30,9 @@ Revision History:
 --*/
 
 
-#ifndef _DEBUGFMT_
+#pragma once
 #define _DEBUGFMT_
+
 
 
 //
@@ -74,4 +75,3 @@ Revision History:
 
 
 
-#endif // ndef _DEBUGFMT_

@@ -18,8 +18,9 @@ Revision History:
 
 --*/
 
-#ifndef _INIT_
+#pragma once
 #define _INIT_
+
 
 //
 // Define xbox kernel version structure.
@@ -149,6 +150,4 @@ extern XBOX_KEY_DATA XboxLANKey;
 extern XBOX_KEY_DATA XboxSignatureKey;
 extern XBOX_KEY_DATA XboxAlternateSignatureKeys[];
 #endif
-
-#endif // _INIT_
 

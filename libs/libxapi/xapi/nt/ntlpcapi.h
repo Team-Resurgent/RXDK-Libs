@@ -19,12 +19,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTLPCAPI_
-#define _NTLPCAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTLPCAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -355,4 +351,3 @@ NtQueryInformationPort(
 }
 #endif
 
-#endif  // _NTLPCAPI_

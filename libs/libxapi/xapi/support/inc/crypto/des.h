@@ -1,5 +1,6 @@
-#ifndef __DES_H__
+#pragma once
 #define __DES_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -87,4 +88,3 @@ extern int Asmversion;  /* 1 if we're linked with an asm version, 0 if C */
 }
 #endif
 
-#endif // __DES_H__

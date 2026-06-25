@@ -9,8 +9,9 @@
 //
 //----------------------------------------------------------------------------
 
-#ifndef __SWINCRYP_H__
+#pragma once
 #define __SWINCRYP_H__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -285,4 +286,3 @@ SCryptVerifySignatureW(
 }       // Balance extern "C" above
 #endif
 
-#endif // __SWINCRYP_H__

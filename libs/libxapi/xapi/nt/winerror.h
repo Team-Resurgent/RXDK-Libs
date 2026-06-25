@@ -6,8 +6,9 @@
 *                                                                       *
 ************************************************************************/
 
-#ifndef _WINERROR_
+#pragma once
 #define _WINERROR_
+
 
 
 //
@@ -21981,4 +21982,3 @@
 //
 #define COMQC_E_QUEUING_SERVICE_NOT_AVAILABLE _HRESULT_TYPEDEF_(0x80110602L)
 
-#endif//_WINERROR_

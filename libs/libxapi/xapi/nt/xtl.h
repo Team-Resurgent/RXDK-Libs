@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _XTL_
+#pragma once
 #define _XTL_
+
 
 #ifndef WINVER
 #define WINVER 0x0500
@@ -84,4 +85,3 @@ Abstract:
 #endif
 
 #endif /* _INC_XTL */
-#endif /* _XTL_ */

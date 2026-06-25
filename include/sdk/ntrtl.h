@@ -61,7 +61,8 @@ Revision History:
 extern "C" {
 #endif
 
-
+
+
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntndis
 //
 // If debugging support enabled, define an ASSERT macro that works.  Otherwise
@@ -113,7 +114,8 @@ RtlRip(
 #endif // DBG
 
 // end_ntddk end_wdm end_nthal end_ntifs end_ntndis
-
+
+
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntndis
 //
 //  Doubly-linked list manipulation routines.  Implemented as macros
@@ -252,7 +254,8 @@ RtlRip(
 
 // end_ntddk
 
-
+
+
 // begin_ntifs
 //
 //  Define the splay links and the associated manipuliation macros and
@@ -524,7 +527,8 @@ RtlRealPredecessor (
     PRTL_SPLAY_LINKS Links
     );
 
-
+
+
 //
 //  Define the generic table package.  Note a generic table should really
 //  be an opaque type.  We provide routines to manipulate the structure.
@@ -857,7 +861,8 @@ RtlIsGenericTableEmpty (
     );
 
 // end_ntifs
-
+
+
 //
 // The types PACQUIRE_LOCK_ROUTINE and PRELEASE_LOCK_ROUTINE are prototypes
 // for routines to acquire and release locks in kernel and user mode.
@@ -900,7 +905,8 @@ RtlGetNtGlobalFlags(
     VOID
     );
 
-
+
+
 //
 //  Functions to capture a stack back trace
 //
@@ -995,7 +1001,8 @@ typedef struct _RTL_PROCESS_BACKTRACES {
     RTL_PROCESS_BACKTRACE_INFORMATION BackTraces[ 1 ];
 } RTL_PROCESS_BACKTRACES, *PRTL_PROCESS_BACKTRACES;
 
-
+
+
 //
 //  Some simple Rtl routines for random number and
 //  hexadecimal conversion
@@ -1098,7 +1105,8 @@ RtlUnicodeStringToInteger (
     PULONG Value
     );
 
-
+
+
 //
 //  String manipulation routines
 //
@@ -1611,7 +1619,8 @@ VOID
 extern PRTL_ALLOCATE_STRING_ROUTINE RtlAllocateStringRoutine;
 extern PRTL_FREE_STRING_ROUTINE RtlFreeStringRoutine;
 
-
+
+
 //
 //  Defines and Routines for handling GUID's.
 //
@@ -1662,7 +1671,8 @@ RtlGUIDFromString(
     );
 
 // end_ntddk end_wdm end_nthal end_ntifs
-
+
+
 //
 //  Thread Context manipulation routines.
 //
@@ -1678,7 +1688,8 @@ RtlInitializeContext(
     PVOID InitialSp
     );
 
-
+
+
 //
 // Process/Thread Environment Block allocation functions.
 //
@@ -1767,7 +1778,8 @@ RtlExpandEnvironmentStrings_U(
     OUT PUNICODE_STRING Destination,
     OUT PULONG ReturnedLength OPTIONAL
     );
-
+
+
 // begin_ntifs
 //
 //  Prefix package types and procedures.
@@ -1894,7 +1906,8 @@ RtlNextUnicodePrefix (
     BOOLEAN Restart
     );
 // end_ntifs begin_ntsrv
-
+
+
 //
 //
 //  Compression package types and procedures.
@@ -2068,7 +2081,8 @@ RtlCompressChunks (
     );
 
 // end_ntsrv
-
+
+
 //
 //  Image loading functions
 //
@@ -2219,7 +2233,8 @@ RtlImageRvaToVa(
     IN OUT PIMAGE_SECTION_HEADER *LastRvaSection OPTIONAL
     );
 
-
+
+
 // begin_ntddk begin_wdm begin_nthal begin_ntifs
 //
 // Fast primitives to compare, move, and zero memory
@@ -2335,7 +2350,8 @@ RtlFillMemoryUlonglong (
    );
 
 #endif
-
+
+
 //
 //  Debugging support functions.
 //
@@ -2513,7 +2529,8 @@ DbgUnLoadImageSymbols(
     ULONG_PTR ProcessId
     );
 
-
+
+
 // begin_ntddk begin_wdm begin_nthal begin_ntifs
 //
 // Large integer arithmetic routines.
@@ -3016,7 +3033,8 @@ done:
     ((X).HighPart < 0) || !((X).LowPart | (X).HighPart) \
 )
 
-
+
+
 //
 //  Time conversion routines
 //
@@ -3148,7 +3166,8 @@ RtlSecondsSince1970ToTime (
     );
 
 // end_nthal end_ntifs
-
+
+
 //
 // Time Zone Information structure and procedures
 //
@@ -3184,7 +3203,8 @@ NTAPI
 RtlSetActiveTimeBias(
     IN LONG ActiveBias
     );
-
+
+
 // begin_ntddk begin_wdm begin_nthal begin_ntifs
 //
 // The following macros store and retrieve USHORTS and ULONGS from potentially
@@ -3495,7 +3515,8 @@ RtlSetActiveTimeBias(
 #define RtlPointerToOffset(B,P)  ((ULONG)( ((PCHAR)(P)) - ((PCHAR)(B))  ))
 
 // end_ntifs
-
+
+
 // begin_ntifs begin_ntddk
 //
 //  BitMap routines.  The following structure, routines, and macros are
@@ -3781,7 +3802,8 @@ RtlFindMostSignificantBit (
 
 // end_nthal end_ntifs end_ntddk
 
-
+
+
 //
 //  ACCESS_MASK RTL routine definitions
 //
@@ -3889,7 +3911,8 @@ RtlFormatMessage(
     OUT PULONG ReturnLength OPTIONAL
     );
 
-
+
+
 //
 // Routine for converting NT status codes to DOS/OS|2 equivalents.
 //

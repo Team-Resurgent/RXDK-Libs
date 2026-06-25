@@ -18,12 +18,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTIMAGE_
-#define _NTIMAGE_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTIMAGE_
 
 //
 // Define the linker version number.  This is temporary to aid
@@ -1640,4 +1636,3 @@ typedef enum IMPORT_OBJECT_NAME_TYPE
 
 // end_winnt
 
-#endif // _NTIMAGE_

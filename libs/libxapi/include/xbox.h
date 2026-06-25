@@ -5,9 +5,9 @@
 *   Copyright (c) 2000 - 2003 Microsoft Corp. All rights reserved.      *
 *                                                                       *
 ************************************************************************/
-#ifndef _XBOX_
-#define _XBOX_
 
+#pragma once
+#define _XBOX_
 
 //
 // Define API decoration for direct importing of DLL references.
@@ -495,16 +495,9 @@ extern XPP_DEVICE_TYPE XDEVICE_TYPE_HIGHFIDELITY_MICROPHONE_TABLE;
 #define     XDEVICE_TYPE_VOICE_HEADPHONE    (&XDEVICE_TYPE_VOICE_HEADPHONE_TABLE)
 #define     XDEVICE_TYPE_HIGHFIDELITY_MICROPHONE (&XDEVICE_TYPE_HIGHFIDELITY_MICROPHONE_TABLE)
 
-#ifdef DEBUG_MOUSE
 extern  XPP_DEVICE_TYPE            XDEVICE_TYPE_DEBUG_MOUSE_TABLE;
 #define XDEVICE_TYPE_DEBUG_MOUSE (&XDEVICE_TYPE_DEBUG_MOUSE_TABLE)
-#endif //DEBUG_MOUSE
 
-
-
-#ifdef DEBUG_KEYBOARD
-#include <xkbd.h>
-#endif
 
 #define     XDEVICE_PORT0               0
 #define     XDEVICE_PORT1               1
@@ -613,7 +606,6 @@ typedef struct _XINPUT_RUMBLE
    WORD   wRightMotorSpeed;
 } __attribute__((packed)) XINPUT_RUMBLE, *PXINPUT_RUMBLE;
 
-#ifdef DEBUG_MOUSE
 typedef struct _XINPUT_MOUSE
 {
     BYTE bButtons;
@@ -627,7 +619,6 @@ typedef struct _XINPUT_MOUSE
 #define XINPUT_DEBUG_MOUSE_MIDDLE_BUTTON  0x04
 #define XINPUT_DEBUG_MOUSE_XBUTTON1       0x08
 #define XINPUT_DEBUG_MOUSE_XBUTTON2       0x10
-#endif //DEBUG_MOUSE
 
 typedef struct _XINPUT_STATE
 {
@@ -635,9 +626,7 @@ typedef struct _XINPUT_STATE
     union
     {
         XINPUT_GAMEPAD Gamepad;
-#ifdef DEBUG_MOUSE
         XINPUT_MOUSE   DebugMouse;
-#endif //DEBUG_MOUSE
     };
 } __attribute__((packed)) XINPUT_STATE, *PXINPUT_STATE;
 
@@ -1408,6 +1397,4 @@ XClearStatStore(
 }
 #endif
 
-
-#endif // _XBOX_
 

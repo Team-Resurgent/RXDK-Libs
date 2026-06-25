@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _NTOS_
+#pragma once
 #define _NTOS_
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,4 +93,3 @@ extern OBJECT_TYPE ObSymbolicLinkObjectType;
 }
 #endif
 
-#endif // _NTOS_

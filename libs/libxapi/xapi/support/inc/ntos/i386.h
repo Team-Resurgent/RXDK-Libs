@@ -23,8 +23,9 @@ Revision History:
 
 --*/
 
-#ifndef _i386_
+#pragma once
 #define _i386_
+
 
 // begin_ntddk begin_wdm
 
@@ -1716,6 +1717,4 @@ typedef struct _MICROCODE_UPDATE_DATA_BLOCK {
 #define NtGetTickCount() KeQueryTickCount()
 
 #include <poppack.h>
-
-#endif // _i386_
 

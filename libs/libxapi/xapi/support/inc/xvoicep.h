@@ -11,8 +11,9 @@
  //@@END_MSINTERNAL
  ***************************************************************************/
 
-#ifndef __XVOICE__
+#pragma once
 #define __XVOICE__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,4 +138,3 @@ DECLARE_INTERFACE_(XVoiceQueueMediaObject, XMediaObject)
 }
 #endif
 
-#endif  // __XVOICE__

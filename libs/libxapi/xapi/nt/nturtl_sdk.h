@@ -25,12 +25,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTURTL_
-#define _NTURTL_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTURTL_
 
 //
 // Define API decoration for direct importing of DLL references.
@@ -1210,6 +1206,4 @@ RtlCallbackLpcClient(
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // _NTURTL_
 

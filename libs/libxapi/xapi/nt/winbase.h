@@ -5,8 +5,10 @@
 *   Copyright (c) 1990-2001, Microsoft Corp. All rights reserved.       *
 *                                                                       *
 ************************************************************************/
-#ifndef _WINBASE_
+
+#pragma once
 #define _WINBASE_
+
 
 
 //
@@ -2104,6 +2106,4 @@ PtInRect(
 }
 #endif
 
-
-#endif // _WINBASE_
 

@@ -24,8 +24,9 @@ Revision History:
 
 --*/
 
-#ifndef WINSOCK_INCLUDED
+#pragma once
 #define WINSOCK_INCLUDED
+
 
 
 // Windows includes
@@ -213,4 +214,3 @@ SetLastHError(
     );
 
 
-#endif //WINSOCK_INCLUDED

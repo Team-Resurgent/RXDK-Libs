@@ -18,8 +18,9 @@ Environment:
 
 --*/
 
-#ifndef __USB_X__
+#pragma once
 #define __USB_X__
+
 
 
 
@@ -1168,8 +1169,5 @@ HCD_DisableRootHubPort(
     IN PVOID                    HcdExtension,
     IN ULONG                    PortNumber
     );
-
-
-#endif //__USB_X__
 
 

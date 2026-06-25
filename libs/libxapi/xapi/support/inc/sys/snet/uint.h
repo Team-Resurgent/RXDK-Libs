@@ -44,8 +44,9 @@ Revision History:
 #endif
  */
 
-#ifndef _SYS_SNET_UINT_
+#pragma once
 #define _SYS_SNET_UINT_
+
 
 
 /*
@@ -60,4 +61,3 @@ typedef char   int8;
 typedef short  int16;
 typedef long   int32;
 
-#endif /* _SYS_SNET_UINT_ */

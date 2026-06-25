@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_NTRTL_H
+#pragma once
 #define RXDK_XAPI_NTRTL_H
+
 
 /*
  * Shadow of leak ntrtl.h — memory Rtl macros for libxapi, not full sdk/ntrtl.h.
@@ -52,4 +53,3 @@
     }
 
 #endif /* _NTRTL_ */
-#endif /* RXDK_XAPI_NTRTL_H */

@@ -7,8 +7,9 @@
 *                                                                       *
 ************************************************************************/
 
-#ifndef _DMPLUGIN_
+#pragma once
 #define _DMPLUGIN_
+
 
 #ifdef XBOX
 #include <xtl.h>
@@ -227,4 +228,3 @@ DEFINE_GUID(IID_IDirectMusicTrack8, 0xe674304, 0x3b05, 0x11d3, 0x9b, 0xd1, 0xf9,
 
 #include <poppack.h>
 
-#endif /* #ifndef _DMPLUGIN_ */

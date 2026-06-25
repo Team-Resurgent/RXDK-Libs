@@ -48,8 +48,9 @@ Notes:
  *
  */
 
-#ifndef _SYS_SNET_ARP_CTRL_INCLUDED
+#pragma once
 #define _SYS_SNET_ARP_CTRL_INCLUDED
+
 
 
 #define MAXHWLEN        6               /* max size of a hardware address */
@@ -148,6 +149,4 @@ typedef struct arp_type {
 
 #define MAX_EXPIRY      0xFFFFFFFF      /* expiry time for permanent entries */
 #define TIME_TIL_REUSE 15 /* time (secs) until entry reused */
-
-#endif // _SYS_SNET_ARP_CTRL_INCLUDED
 

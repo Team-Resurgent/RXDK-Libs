@@ -56,7 +56,8 @@ extern "C" {
 
 // end_winnt
 // end_ntddk end_wdm end_nthal
-
+
+
 // begin_ntddk begin_wdm begin_nthal
 //
 // Service Types (Bit Mask)
@@ -130,7 +131,8 @@ typedef enum _CM_ERROR_CONTROL_TYPE {
 } SERVICE_ERROR_TYPE;
 
 // end_ntddk end_wdm end_nthal
-
+
+
 // begin_ntddk begin_wdm begin_nthal
 
 //
@@ -477,7 +479,8 @@ typedef struct _CM_COMPONENT_INFORMATION {
 } CM_COMPONENT_INFORMATION, *PCM_COMPONENT_INFORMATION;
 
 // end_ntddk end_wdm end_nthal
-
+
+
 // begin_ntddk begin_wdm begin_nthal
 //
 // The following structures are used to interpret x86

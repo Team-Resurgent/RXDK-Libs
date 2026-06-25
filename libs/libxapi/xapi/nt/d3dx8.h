@@ -7,8 +7,9 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __D3DX8_H__
+#pragma once
 #define __D3DX8_H__
+
 
 #include <d3d8.h>
 #include <limits.h>
@@ -33,6 +34,4 @@
 #include "d3dx8shape.h"
 #include "d3dx8effect.h"
 
-
-#endif //__D3DX8_H__
 

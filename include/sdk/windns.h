@@ -110,7 +110,8 @@ DNS_IP6_ADDRESS, *PDNS_IP6_ADDRESS;
 
 
 
-
+
+
 //
 //  Basic DNS definitions
 //
@@ -160,7 +161,8 @@ DNS_IP6_ADDRESS, *PDNS_IP6_ADDRESS;
 
 
 
-
+
+
 //
 //  DNS On-The-Wire Structures
 //
@@ -352,7 +354,8 @@ DNS_WIRE_RECORD, *PDNS_WIRE_RECORD;
 #define DNS_RCLASS_ANY      0xff00      //  255
 
 
-
+
+
 //
 //  DNS Record Types
 //
@@ -516,7 +519,8 @@ DNS_WIRE_RECORD, *PDNS_WIRE_RECORD;
 
 
 
-
+
+
 //
 //  Record type specific definitions
 //
@@ -630,7 +634,8 @@ DNS_WIRE_RECORD, *PDNS_WIRE_RECORD;
 
 
 
-
+
+
 //
 //  DNS config API
 //
@@ -679,7 +684,8 @@ DnsQueryConfig(
     );
 
 
-
+
+
 //
 //  DNS resource record structure
 //
@@ -1010,7 +1016,8 @@ DNS_RECORD, *PDNS_RECORD;
 #define SIZEOF_DNS_RECORD_HEADER    DNS_RECORD_FIXED_SIZE
 
 
-
+
+
 //
 //  Resource record set building
 //
@@ -1177,7 +1184,8 @@ DnsRecordListFree(
     );
 
 
-
+
+
 //
 //  DNS Query API
 //
@@ -1240,7 +1248,8 @@ DnsQuery_W(
 
 
 
-
+
+
 //
 //  DNS Update API
 //
@@ -1387,7 +1396,8 @@ DnsReplaceRecordSetUTF8(
 
 
 
-
+
+
 //
 //  DNS name validation
 //

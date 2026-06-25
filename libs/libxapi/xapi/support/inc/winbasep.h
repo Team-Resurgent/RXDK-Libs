@@ -14,8 +14,11 @@ Abstract:
     component.
 
 --*/
-#ifndef _WINBASEP_
+
+#pragma once
 #define _WINBASEP_
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -126,4 +129,3 @@ typedef struct _FINDFILE_HANDLE {
 #ifdef __cplusplus
 }
 #endif
-#endif  // ndef _WINBASEP_

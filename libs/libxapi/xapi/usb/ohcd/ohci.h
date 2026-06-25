@@ -23,8 +23,10 @@ Revision History:
     01-13-00 created by Mitchell Dernis (mitchd)
 
 --*/
-#ifndef __OCHI_H__
+
+#pragma once
 #define __OCHI_H__
+
 
 //
 //  Program interface code for PCI configuration space.
@@ -569,4 +571,3 @@ typedef struct _OHCI_OPERATIONAL_REGISTERS
 //  Rather it is the address space that it occupies in memory.
 //
 #define OHCI_OPERATIONAL_REGISTER_SIZE 0x1000
-#endif //__OCHI_H__

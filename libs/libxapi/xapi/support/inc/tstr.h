@@ -70,8 +70,9 @@ Revision History:
 
 --*/
 
-#ifndef _TSTR_H_INCLUDED
+#pragma once
 #define _TSTR_H_INCLUDED
+
 
 #include <ctype.h>              // isdigit(), iswdigit() eventually, etc.
 #include <stdlib.h>             // atol(), _ultoa().
@@ -296,4 +297,3 @@ wtol (
 }
 #endif
 
-#endif  // _TSTR_H_INCLUDED

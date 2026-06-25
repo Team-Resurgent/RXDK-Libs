@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _RTL_HEAP_PRIVATE_
+#pragma once
 #define _RTL_HEAP_PRIVATE_
+
 
 #include "heappage.h"
 
@@ -695,4 +696,3 @@ RtlpFreeToHeapLookaside (
     IN PVOID Entry
     );
 
-#endif // _RTL_HEAP_PRIVATE_

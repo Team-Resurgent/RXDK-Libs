@@ -18,8 +18,9 @@ Revision History:
 
 --*/
 
-#ifndef SYS_POLL_INCLUDED
+#pragma once
 #define SYS_POLL_INCLUDED
+
 
 /*
  * Structure of file descriptor/event pairs supplied in
@@ -72,4 +73,3 @@ poll(
     IN int);
 
 
-#endif  //SYS_POLL_INCLUDED

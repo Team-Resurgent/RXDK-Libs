@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_NTOS_H
+#pragma once
 #define RXDK_XAPI_NTOS_H
+
 
 /*
  * Shadow of leak ntos.h for libxapi USB/driver slices.
@@ -29,4 +30,3 @@ extern "C" {
 #endif
 
 #endif /* _NTOS_ */
-#endif /* RXDK_XAPI_NTOS_H */

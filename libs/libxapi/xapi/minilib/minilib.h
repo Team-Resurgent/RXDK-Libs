@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_MINILIB_H
+#pragma once
 #define RXDK_XAPI_MINILIB_H
+
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -33,4 +34,3 @@ int __cdecl _snwprintf(wchar_t *buf, size_t n, const wchar_t *fmt, ...);
 }
 #endif
 
-#endif /* RXDK_XAPI_MINILIB_H */

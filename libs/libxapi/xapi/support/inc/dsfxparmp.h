@@ -13,8 +13,9 @@
  *
  ****************************************************************************/
 
-#ifndef __DSFXPARM_H__
+#pragma once
 #define __DSFXPARM_H__
+
 
 //
 // data structs describing effect state parameters
@@ -579,4 +580,3 @@ typedef struct _DSFX_SAMPLE_RATE_CONVERTER_PARAMS
 typedef const DSFX_SAMPLE_RATE_CONVERTER_PARAMS *LPCDSFX_SAMPLE_RATE_CONVERTER_PARAMS;
 
 
-#endif // __DSFXPARM_H__

@@ -5,6 +5,7 @@ const coff_lib = @import("build/coff_lib.zig");
 const picolibc = @import("build/picolibc.zig");
 const libcxx = @import("build/libcxx.zig");
 const libxapi_pkg = @import("libs/libxapi/build.zig");
+const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
 
@@ -215,6 +216,50 @@ pub fn build(b: *std.Build) void {
     });
     const xapi_link_step = b.step("xapi-link", "Build libc + libxapi.lib link smoke PE");
     xapi_link_step.dependOn(xapi_link.install);
+
+    const xapi_standalone_runtime_sources = [_][]const u8{
+        "src/xbox/crt0.S",
+        "src/xbox/startup.c",
+        "src/xbox/hal.c",
+        "src/xbox/trace.c",
+        "src/xbox/tls_stub.c",
+        "src/xbox/errno.c",
+        "libs/libxapi/xapi/minilib/minilib.c",
+    };
+    const xapi_standalone_inc = [_][]const u8{
+        "include",
+        "build/generated",
+        "vendor/picolibc/libc/include",
+        "vendor/picolibc/libc/machine/x86",
+        "libs/libxapi/xapi/minilib",
+    };
+    const xapi_standalone_runtime = compile_c.addBatch(b, .{
+        .name = "xapi-standalone-runtime",
+        .target = xbox_target.target_triple,
+        .out_subdir = "xapi-standalone-runtime",
+        .sources = &xapi_standalone_runtime_sources,
+        .flags = xbox_target.cFlags(b),
+        .include_dirs = &xapi_standalone_inc,
+        .opt_flag = opt_flag,
+    });
+    var xapi_standalone_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
+    xapi_standalone_objects.appendSlice(b.allocator, xapi_standalone_runtime.outputs) catch @panic("OOM");
+
+    const xapi_standalone_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "xapi-standalone-link",
+        .src = "samples/xapi-standalone-link/main.c",
+        .objects = xapi_standalone_objects.items,
+        .libs = &.{ libxapi_lib, krnl },
+        .include_paths = &xapi_inc,
+        .entry = "start",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libxapi.step, xapi_standalone_runtime.step },
+    });
+    const xapi_standalone_link_step = b.step(
+        "xapi-standalone-link",
+        "Build libxapi.lib link smoke PE without picolibc objects",
+    );
+    xapi_standalone_link_step.dependOn(xapi_standalone_link.install);
 
     const xapi_smoke_extra = [_][]const u8{
         "samples/xapi-smoke/src/xapi_boot.c",

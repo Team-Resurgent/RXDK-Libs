@@ -48,8 +48,9 @@ Revision History:
  *              GSS     23 May 89       New File
  */
 
-#ifndef BOOTP_INCLUDED
+#pragma once
 #define BOOTP_INCLUDED
+
 
 struct bootp {
         unchar  bp_op;          /* packet opcode type */
@@ -71,4 +72,3 @@ struct bootp {
         unchar  bp_vend[64];    /* vendor-specific area */
 };
 
-#endif  //BOOTP_INCLUDED

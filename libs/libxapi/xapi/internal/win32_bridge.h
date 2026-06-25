@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_XDK_BRIDGE_H
+#pragma once
 #define RXDK_XAPI_XDK_BRIDGE_H
+
 
 /*
  * Win32 typedefs windef expects from winnt.h when NT_INCLUDED skips it (leak xAPI
@@ -464,4 +465,3 @@ typedef PSTR POSTR;
 #define RtlDeleteCriticalSection(CriticalSection) ((void)(CriticalSection))
 #endif
 
-#endif /* RXDK_XAPI_XDK_BRIDGE_H */

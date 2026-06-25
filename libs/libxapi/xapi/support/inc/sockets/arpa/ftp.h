@@ -48,8 +48,9 @@ Revision History:
  *                      projects
  */
 
-#ifndef FTP_INCLUDED
+#pragma once
 #define FTP_INCLUDED
+
 
 /*
  * Reply codes.
@@ -106,4 +107,3 @@ Revision History:
 
 #define BLK_BYTECOUNT   2       /* Bytes in this block */
 
-#endif  //FTP_INCLUDED

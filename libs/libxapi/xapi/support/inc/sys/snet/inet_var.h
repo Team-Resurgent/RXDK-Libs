@@ -59,8 +59,9 @@ Revision History:
  */
 
 
-#ifndef _SYS_SNET_INET_VAR_
+#pragma once
 #define _SYS_SNET_INET_VAR_
+
 
 
 #ifndef SPIDER_ROUTER
@@ -482,4 +483,3 @@ struct mib_egpNeighEntry {
 
 #endif /* EGP_MIB */
 
-#endif /* _SYS_SNET_INET_VAR_ */

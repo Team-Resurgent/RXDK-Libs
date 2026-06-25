@@ -24,8 +24,9 @@ Revision History:
 
 --*/
 
-#ifndef NT_INCLUDED
+#pragma once
 #define NT_INCLUDED
+
 
 #if defined (_MSC_VER)
 #if ( _MSC_VER >= 800 )
@@ -92,4 +93,3 @@ Revision History:
 #endif
 #endif
 
-#endif // NT_INCLUDED

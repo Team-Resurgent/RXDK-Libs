@@ -49,8 +49,9 @@ Revision History:
  *       PR - 01/12/87  Integrated into Admin System II, all projects
  */
 
-#ifndef INET_INCLUDED
+#pragma once
 #define INET_INCLUDED
+
 
 /*
  * External definitions for
@@ -88,4 +89,3 @@ inet_makeaddr(
         IN unsigned long host
         );
 
-#endif  //INET_INCLUDED

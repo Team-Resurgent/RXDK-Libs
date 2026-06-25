@@ -22,8 +22,9 @@ Revision History:
 
 --*/
 
-#ifndef __RANDLIB_H__
+#pragma once
 #define __RANDLIB_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -225,4 +226,3 @@ rc4_safe_np(
 }
 #endif
 
-#endif // __RANDLIB_H__

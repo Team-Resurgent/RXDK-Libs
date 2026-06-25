@@ -8,7 +8,7 @@ param(
         'hello-c', 'hello-cpp',
         'conformance-c', 'conformance-c23', 'conformance-cpp23',
         'c23-stdbit-smoke', 'cpp23-expected-smoke',
-        'xapi-smoke', 'xapi-link'
+        'xapi-smoke', 'xapi-link', 'xapi-standalone-link'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -161,7 +161,7 @@ $singleSampleTargets = @(
     'hello-c', 'hello-cpp',
     'conformance-c', 'conformance-c23', 'conformance-cpp23',
     'c23-stdbit-smoke', 'cpp23-expected-smoke',
-    'xapi-smoke', 'xapi-link'
+    'xapi-smoke', 'xapi-link', 'xapi-standalone-link'
 )
 
 switch ($Target) {

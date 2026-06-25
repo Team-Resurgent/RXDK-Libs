@@ -23,8 +23,9 @@ Revision History:
 
 --*/
 
-#ifndef _MEMPRINT_
+#pragma once
 #define _MEMPRINT_
+
 
 #define MEM_PRINT_FLAG_CONSOLE     0x01
 #define MEM_PRINT_FLAG_FILE        0x02
@@ -78,4 +79,3 @@ MemPrintFlush (
 
 #define DbgPrint MemPrint
 
-#endif // def _MEMPRINT_

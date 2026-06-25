@@ -22,8 +22,10 @@ Facility:
 Revision History:
 
 --*/
-#ifndef __OAKRPC
+
+#pragma once
 #define __OAKRPC
+
 
 typedef unsigned long IPADDR, *PIPADDR;
 typedef LARGE_INTEGER COOKIE, *PCOOKIE;
@@ -253,4 +255,3 @@ typedef enum _DeleteMessage {
 
 
 
-#endif /* __OAKRPC */

@@ -19,8 +19,9 @@ Environment:
 
 --*/
 
-#ifndef __USB_X__
+#pragma once
 #define __USB_X__
+
 
 #ifndef __cplusplus
 #error "usb.h may only be included by C++ modules"
@@ -1680,7 +1681,4 @@ HCD_DisableRootHubPort(
     );
 
 } //end 'extern "C"'
-
-#endif //__USB_X__
-
 

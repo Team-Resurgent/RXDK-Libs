@@ -13,8 +13,11 @@ Abstract:
     component.
 
 --*/
-#ifndef _WINGDIP_
+
+#pragma once
 #define _WINGDIP_
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -687,4 +690,3 @@ GdiPrinterThunk(
 
 #define GPT_ERROR   0xffffffff
 
-#endif /* _WINGDIP_ */

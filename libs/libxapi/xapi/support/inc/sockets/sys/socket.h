@@ -37,8 +37,10 @@ Revision History:
  ******************************************************************/
 
 
-#ifndef SYS_SOCKET_INCLUDED
+#pragma once
 #define SYS_SOCKET_INCLUDED
+
+
 /*
  * Types
  */
@@ -155,4 +157,3 @@ struct sockproto {
 #define MSG_MAXIOVLEN   16
 
 
-#endif  //SYS_SOCKET_INCLUDED

@@ -1,5 +1,6 @@
-#ifndef RXDK_K32_BRIDGE_H
+#pragma once
 #define RXDK_K32_BRIDGE_H
+
 
 #include <xboxkrnl/xboxdef.h>
 #include <xboxkrnl/types/common.h>
@@ -169,4 +170,3 @@ typedef struct mmtime_tag {
 
 #include "heap_rtl.h"
 
-#endif /* RXDK_K32_BRIDGE_H */

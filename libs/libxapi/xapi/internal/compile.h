@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_H
+#pragma once
 #define RXDK_XAPI_H
+
 
 /*
  * RXDK libxapi umbrella (Xbox-only).
@@ -105,4 +106,3 @@ int sprintf(char *str, const char *format, ...);
 }
 #endif
 
-#endif /* RXDK_XAPI_H */

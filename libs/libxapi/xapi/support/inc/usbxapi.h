@@ -18,8 +18,9 @@ Environment:
 
 --*/
 
-#ifndef __USB_X__
+#pragma once
 #define __USB_X__
+
 
 
 #define EXTERNUSB extern
@@ -37,7 +38,4 @@ Environment:
 //  Entry Point XAPI must call
 //------------------------------------------------
 EXTERNUSB VOID USBD_Init(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes);
-
-#endif //__USB_X__
-
 

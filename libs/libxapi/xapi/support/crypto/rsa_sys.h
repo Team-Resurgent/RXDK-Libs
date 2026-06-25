@@ -6,8 +6,9 @@
  *
  */
 
-#ifndef __RSA_SYS_H__
+#pragma once
 #define __RSA_SYS_H__
+
 
 #ifndef KMODE_RSA32
 
@@ -21,4 +22,3 @@ void __stdcall RSA32Free( void *pv );
 
 #endif  // KMODE_RSA32
 
-#endif  // __RSA_SYS_H__

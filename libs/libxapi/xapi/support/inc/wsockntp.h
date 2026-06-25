@@ -1,6 +1,7 @@
 
-#ifndef _WSOCKPNT_H
+#pragma once
 #define _WSOCKPNT_H
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,4 +37,3 @@ typedef struct {
 }
 #endif
 
-#endif  /* _WSOCKPNT_H */

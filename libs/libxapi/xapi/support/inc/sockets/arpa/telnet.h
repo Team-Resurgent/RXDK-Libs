@@ -49,8 +49,9 @@ Revision History:
  *                      projects
  */
 
-#ifndef TELNET_INCLUDED
+#pragma once
 #define TELNET_INCLUDED
+
 
 /*
  * Definitions for the TELNET protocol.
@@ -145,4 +146,3 @@ char *telopts[] = {
 };
 #endif
 
-#endif  //TELNET_INCLUDED

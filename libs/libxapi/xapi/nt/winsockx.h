@@ -10,8 +10,10 @@
  * conditions for redistribution.
  */
 
-#ifndef _WINSOCK2API_
+#pragma once
 #define _WINSOCK2API_
+
+
 #define _WINSOCKAPI_   /* Prevent inclusion of winsock.h in windows.h */
 
 /*
@@ -1819,6 +1821,4 @@ INT WSAAPI WSACancelOverlappedIO(SOCKET s);
 #ifndef _WIN64
 #include <poppack.h>
 #endif
-
-#endif  /* _WINSOCK2API_ */
 

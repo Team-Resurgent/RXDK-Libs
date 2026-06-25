@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _BLDR_H
+#pragma once
 #define _BLDR_H
+
 
 //
 // size of romdec code
@@ -119,4 +120,3 @@ VOID
 
 
 
-#endif // _BLDR_H

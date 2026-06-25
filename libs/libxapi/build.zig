@@ -6,6 +6,7 @@ const XAPI = "libs/libxapi/xapi";
 
 pub fn includeDirs() []const []const u8 {
     return &.{
+        "libs/libxapi/include",
         XAPI ++ "/internal",
         XAPI ++ "/site",
         XAPI ++ "/win32",
@@ -192,14 +193,18 @@ pub fn addAllObjects(
 }
 
 pub fn stageHeaders(b: *std.Build) *std.Build.Step {
-    const install = b.addInstallFile(b.path("libs/libxapi/include/xapi.h"), "include/xapi.h");
+    const install_xapi = b.addInstallFile(b.path("libs/libxapi/include/xapi.h"), "include/xapi.h");
+    const install_xbox = b.addInstallFile(b.path("libs/libxapi/include/xbox.h"), "include/xbox.h");
+    const install_xkbd = b.addInstallFile(b.path("libs/libxapi/include/xkbd.h"), "include/xkbd.h");
     const step = b.allocator.create(std.Build.Step) catch @panic("OOM");
     step.* = std.Build.Step.init(.{
         .id = .custom,
         .name = "stage-libxapi-headers",
         .owner = b,
     });
-    step.dependOn(&install.step);
+    step.dependOn(&install_xapi.step);
+    step.dependOn(&install_xbox.step);
+    step.dependOn(&install_xkbd.step);
     return step;
 }
 

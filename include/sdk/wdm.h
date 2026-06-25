@@ -951,7 +951,8 @@ RtlUnicodeStringToInteger (
     PULONG Value
     );
 
-
+
+
 //
 //  String manipulation routines
 //
@@ -1820,7 +1821,8 @@ done:
     ((X).HighPart < 0) || !((X).LowPart | (X).HighPart) \
 )
 
-
+
+
 //
 //  Time conversion routines
 //

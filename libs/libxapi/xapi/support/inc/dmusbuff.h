@@ -7,8 +7,9 @@
 *                                                                          *
 ***************************************************************************/
 
-#ifndef _DMusBuff_
+#pragma once
 #define _DMusBuff_
+
 
 /* Format of DirectMusic events in a buffer
  *
@@ -34,8 +35,5 @@ typedef struct _DMUS_EVENTHEADER
  */ 
 #define QWORD_ALIGN(x) (((x) + 7) & ~7)
 #define DMUS_EVENT_SIZE(cb) QWORD_ALIGN(sizeof(DMUS_EVENTHEADER) + cb)
-
-
-#endif /* _DMusBuff_ */
 
 

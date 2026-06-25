@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _FAT_
+#pragma once
 #define _FAT_
+
 
 #include <pshpack1.h>
 
@@ -142,4 +143,3 @@ typedef struct _DIRENT {
 
 #include <poppack.h>
 
-#endif // _FAT_

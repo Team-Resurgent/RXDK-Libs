@@ -24,8 +24,9 @@
  *
  *****************************************************************************************/
  
-#ifndef _SAFEARRAY_H_
+#pragma once
 #define _SAFEARRAY_H_
+
 
 // Dim class encapsulates an array dimension
 //@B Dim
@@ -326,4 +327,3 @@ inline void CSafeArray<T,vt>::Unlock()
 }
 
 
-#endif // _SAFEARRAY_H_

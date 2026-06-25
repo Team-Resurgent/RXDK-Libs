@@ -20,8 +20,9 @@ Revision History:
 
 --*/
 
-#ifndef _HAL_
+#pragma once
 #define _HAL_
+
 
 VOID
 HalInitSystemPhase0(
@@ -399,4 +400,3 @@ extern STRING HalDiskSerialNumber;
 extern ULONG HalBootSMCVideoMode;
 #endif
 
-#endif // _HAL_

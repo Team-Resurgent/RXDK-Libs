@@ -12,8 +12,9 @@
 //
 //--------------------------------------------------------------------------
 
-#ifndef WINTRUSTP_H
+#pragma once
 #define WINTRUSTP_H
+
 
 #include    <wincrypt.h>
 
@@ -170,4 +171,3 @@ extern BOOL WINAPI TrustFreeDecode(DWORD dwModuleId, BYTE **pbAllocated);
 }
 #endif
 
-#endif // WINTRUSTP_H

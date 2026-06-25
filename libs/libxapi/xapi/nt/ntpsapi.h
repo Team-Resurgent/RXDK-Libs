@@ -19,12 +19,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTPSAPI_
-#define _NTPSAPI_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTPSAPI_
 
 #ifdef __cplusplus
 extern "C" {
@@ -1077,4 +1073,3 @@ NtQueueApcThread(
 }
 #endif
 
-#endif // _NTPSAPI_

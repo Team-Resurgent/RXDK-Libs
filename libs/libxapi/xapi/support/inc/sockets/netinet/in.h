@@ -47,8 +47,9 @@ Revision History:
  *
  */
 
-#ifndef IN_INCLUDED
+#pragma once
 #define IN_INCLUDED
+
 
 
 #ifdef PROJ8
@@ -431,6 +432,4 @@ extern long htonl();
 #define EBUF    4
 #define EMSG    5
 #endif /*~GENERICE*/
-
-#endif  //IN_INCLUDED
 

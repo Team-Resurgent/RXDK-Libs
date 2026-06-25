@@ -30,8 +30,9 @@ Revision History:
 
 --*/
 
-#ifndef DEBUG_H
+#pragma once
 #define DEBUG_H
+
 
 #pragma warning(push, 4)
 #pragma warning(disable:4244) //This warning seems to be broken.
@@ -274,4 +275,3 @@ static PVOID pvAllocateTemp;
 //          End
 //===========================================================================
 
-#endif  // DEBUG_H

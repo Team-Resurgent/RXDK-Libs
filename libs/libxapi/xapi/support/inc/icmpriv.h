@@ -13,8 +13,9 @@
 * Copyright (c) 1996, 1997  Microsoft Corporation
 \***********************************************************************/
 
-#ifndef _ICMPRIV_H_
+#pragma once
 #define _ICMPRIV_H_
+
 
 #include "icm.h"          // include external stuff first
 
@@ -297,6 +298,4 @@ typedef struct _DEVICESETTINGS {
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // ifndef _ICMPRIV_H_
 

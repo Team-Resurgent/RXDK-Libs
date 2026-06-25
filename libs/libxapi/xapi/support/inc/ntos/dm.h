@@ -6,8 +6,9 @@
  *
  */
 
-#ifndef _DM_
+#pragma once
 #define _DM_
+
 
 // Per thread debug monitor data
 typedef struct _DMTD {
@@ -186,4 +187,3 @@ typedef struct _DMDRIVE {
     POSTR Path;
 } DMDRIVE, *PDMDRIVE;
 
-#endif // _DM_

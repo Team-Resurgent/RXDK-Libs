@@ -353,7 +353,8 @@ extern "C" {
                                             FILE_DEVICE_SECURE_OPEN  )
 
 // end_ntddk end_nthal
-
+
+
 // begin_ntddk begin_wdm begin_nthal
 //
 // Define the base asynchronous I/O argument types
@@ -1081,7 +1082,8 @@ NtUserIoApcDispatcher(
     IN ULONG Reserved
     );
 
-
+
+
 // begin_ntifs
 //
 // Macro definition for defining IOCTL and FSCTL function control codes.  Note
@@ -1207,12 +1209,14 @@ NtRemoveIoCompletion (
     IN PLARGE_INTEGER Timeout
     );
 
-
+
+
 //
 // Defines that are used to access the registry, but are not registry
 // specific.
 //
-
+
+
 // begin_ntddk begin_wdm begin_nthal begin_ntminiport begin_ntndis begin_ntifs
 //
 // Define the I/O bus interface types.

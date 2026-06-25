@@ -18,8 +18,9 @@ Revision History:
 
 --*/
 
-#ifndef _KE_
+#pragma once
 #define _KE_
+
 
 //
 // Define the default quantum decrement values.
@@ -1423,4 +1424,3 @@ extern volatile KSYSTEM_TIME KeInterruptTime;
 extern volatile KSYSTEM_TIME KeSystemTime;
 #endif
 
-#endif // _KE_

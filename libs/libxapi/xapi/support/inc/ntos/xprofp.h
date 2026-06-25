@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _XPROFP_H
+#pragma once
 #define _XPROFP_H
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -179,6 +180,4 @@ NTSTATUS IrtSweep(HANDLE file);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // !_XPROFP_H
 

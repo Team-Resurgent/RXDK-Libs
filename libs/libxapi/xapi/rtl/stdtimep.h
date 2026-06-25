@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _STD_TIME_P_
+#pragma once
 #define _STD_TIME_P_
+
 
 //
 //  These are the magic numbers needed to do our extended division.  The
@@ -447,4 +448,3 @@ RtlpAbsTime(
    IN LARGE_INTEGER Time
    );
 
-#endif //_STD_TIME_P_

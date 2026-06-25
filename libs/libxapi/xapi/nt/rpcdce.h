@@ -12,12 +12,8 @@ Abstract:
 
 --*/
 
-#ifndef __RPCDCE_H__
-#define __RPCDCE_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define __RPCDCE_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -2060,4 +2056,3 @@ RpcMgmtSetAuthorizationFn (
 }
 #endif
 
-#endif /* __RPCDCE_H__ */

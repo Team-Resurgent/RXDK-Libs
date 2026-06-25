@@ -12,8 +12,9 @@
  *	05/16/2000	jtk		Derived from DNSP.h
  ***************************************************************************/
 
-#ifndef __DIRECT_PLAY_SERVICE_PROVIDER_8__
+#pragma once
 #define __DIRECT_PLAY_SERVICE_PROVIDER_8__
+
 
 #include <dplay8p.h>
 #include <dpaddrp.h>
@@ -563,6 +564,4 @@ DECLARE_INTERFACE_( IDP8ServiceProvider, IUnknown )
 #ifdef __cplusplus
 };
 #endif
-
-#endif	// __DIRECT_PLAY_SERVICE_PROVIDER_8__
 

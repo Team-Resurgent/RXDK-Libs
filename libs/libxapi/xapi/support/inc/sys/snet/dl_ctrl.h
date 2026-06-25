@@ -45,8 +45,9 @@ Revision History:
  *
  */
 
-#ifndef DL_CTRL_INCLUDED
+#pragma once
 #define DL_CTRL_INCLUDED
+
 
 #include <sys\snet\uint.h>
 
@@ -128,4 +129,3 @@ struct datal_ibind
 	char	buffer[80];	/* buffer to contain the name */
 };
 
-#endif //DL_CTRL_INCLUDED

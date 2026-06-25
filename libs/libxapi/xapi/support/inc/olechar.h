@@ -14,8 +14,9 @@
 //+======================================================
 
 
-#ifndef _OLECHAR_H_
+#pragma once
 #define _OLECHAR_H_
+
 
 //#include <objbase.h>
 
@@ -78,4 +79,3 @@
 
 #endif // !OLE2ANSI
 
-#endif // !_OLECHAR_H_

@@ -3,8 +3,9 @@
 //  heappage.h
 //
 
-#ifndef _HEAP_PAGE_H_
+#pragma once
 #define _HEAP_PAGE_H_
+
 
 //
 //  #defining DEBUG_PAGE_HEAP will cause the page heap manager
@@ -234,4 +235,3 @@ RtlpDebugPageHeapBreak(
 
 #endif // DEBUG_PAGE_HEAP
 
-#endif // _HEAP_PAGE_H_

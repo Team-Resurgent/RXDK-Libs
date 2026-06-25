@@ -6,8 +6,9 @@
 *                                                                       *
 ************************************************************************/
 
-#ifndef _DMUSICF_
+#pragma once
 #define _DMUSICF_
+
 
 #ifdef XBOX
 #include <xtl.h>
@@ -2379,4 +2380,3 @@ RIFF
 
 #include <poppack.h>
 
-#endif /* #ifndef _DMUSICF_ */

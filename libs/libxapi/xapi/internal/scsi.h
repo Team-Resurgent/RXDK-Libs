@@ -16,8 +16,10 @@ Authors:
 Revision History:
 
 --*/
-#ifndef _NTSCSI_
+
+#pragma once
 #define _NTSCSI_
+
 
 #if _MSC_VER >= 1200
 #pragma warning(push)
@@ -2376,4 +2378,3 @@ typedef union _TWO_BYTE {
 #pragma warning(default:4200)
 #endif
 
-#endif // !defined _NTSCSI_

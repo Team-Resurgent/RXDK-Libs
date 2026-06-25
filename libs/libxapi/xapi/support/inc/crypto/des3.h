@@ -1,5 +1,6 @@
-#ifndef __DES3_H__
+#pragma once
 #define __DES3_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -59,4 +60,3 @@ void RSA32API desparity(PBYTE pbKey, DWORD cbKey);
 }
 #endif
 
-#endif // __DES3_H__

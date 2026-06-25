@@ -23,8 +23,9 @@ Revision History:
 
 --*/
 
-#ifndef __XID_H__
+#pragma once
 #define __XID_H__
+
 
 //-----------------------------------------------
 // Byte align all the structures
@@ -335,4 +336,3 @@ XID_ProcessNewKeyboardData(
     PXID_OPEN_DEVICE OpenDevice
     );
 
-#endif  //__XID_H__

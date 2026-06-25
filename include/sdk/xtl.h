@@ -69,7 +69,9 @@ Abstract:
 #include <dsound.h>
 #endif  /* NODSOUND */
 
+#ifndef NOWINSOCK
 #include <winsockx.h>
+#endif  /* NOWINSOCK */
 
 #if     ( _MSC_VER >= 800 )
 #if _MSC_VER >= 1200

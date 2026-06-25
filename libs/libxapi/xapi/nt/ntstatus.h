@@ -25,8 +25,9 @@ Notes:
 
 --*/
 
-#ifndef _NTSTATUS_
+#pragma once
 #define _NTSTATUS_
+
 
 #ifndef WIN32_NO_STATUS // winnt
 // begin_ntsecapi
@@ -7523,4 +7524,3 @@ Notes:
 // end_ntsecapi
 
 #endif // WIN32_NO_STATUS // winnt
-#endif // _NTSTATUS_

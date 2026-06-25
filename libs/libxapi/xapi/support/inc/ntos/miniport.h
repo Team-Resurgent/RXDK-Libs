@@ -14,8 +14,9 @@ Revision History:
 
 --*/
 
-#ifndef _MINIPORT_
+#pragma once
 #define _MINIPORT_
+
 
 #include "stddef.h"
 
@@ -1748,4 +1749,3 @@ typedef struct _IO_RESOURCE_DESCRIPTOR {
 } IO_RESOURCE_DESCRIPTOR, *PIO_RESOURCE_DESCRIPTOR;
 
 
-#endif /* _MINIPORT_ */

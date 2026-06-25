@@ -15,12 +15,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTDDDISK_H_
-#define _NTDDDISK_H_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTDDDISK_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -950,6 +946,4 @@ typedef struct _MAPPED_ADDRESS {
 #ifdef __cplusplus
 }
 #endif
-
-#endif // _NTDDDISK_H_
 

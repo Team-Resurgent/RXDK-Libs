@@ -18,12 +18,8 @@ Revision History:
 
 --*/
 
-#ifndef _NTDEF_
-#define _NTDEF_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTDEF_
 
 // begin_ntminiport begin_ntndis begin_ntminitape
 
@@ -1782,4 +1778,3 @@ typedef enum _SUITE_TYPE {
 
 // end_winnt end_ntminiport end_ntndis end_ntminitape
 
-#endif // _NTDEF_

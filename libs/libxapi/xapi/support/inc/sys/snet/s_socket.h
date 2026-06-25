@@ -48,8 +48,9 @@ Revision History:
  */
 
 
-#ifndef _SYS_SNET_S_SOCKET_
+#pragma once
 #define _SYS_SNET_S_SOCKET_
+
 
 
 /*
@@ -102,4 +103,3 @@ struct acc_str {
 	int	*ptr;
 };
 
-#endif /* _SYS_SNET_S_SOCKET_ */

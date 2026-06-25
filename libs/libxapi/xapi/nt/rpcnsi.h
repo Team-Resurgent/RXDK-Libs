@@ -13,12 +13,8 @@ Abstract:
 
 --*/
 
-#ifndef __RPCNSI_H__
-#define __RPCNSI_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define __RPCNSI_H__
 
 typedef void __RPC_FAR * RPC_NS_HANDLE;
 
@@ -552,4 +548,3 @@ RpcNsBindingSelect(
 #define RpcNsBindingUnexportPnP RpcNsBindingUnexportPnPA
 #endif /* UNICODE */
 
-#endif /* __RPCNSI_H__ */

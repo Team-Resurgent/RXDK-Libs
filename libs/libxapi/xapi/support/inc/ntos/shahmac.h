@@ -13,8 +13,9 @@ Module Name:
 
 --*/
 
-#ifndef __SHAHMAC_H__
+#pragma once
 #define __SHAHMAC_H__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +56,4 @@ XShaHmacComputeFinal(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __SHAHMAC_H__
 

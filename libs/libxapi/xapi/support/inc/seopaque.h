@@ -23,8 +23,9 @@ Revision History:
 
 --*/
 
-#ifndef _SEOPAQUE_
+#pragma once
 #define _SEOPAQUE_
+
 
 ///////////////////////////////////////////////////////////////////////////
 //                                                                       //
@@ -306,4 +307,3 @@ typedef struct _KNOWN_COMPOUND_ACE {
 
 
 
-#endif // _SEOPAQUE_

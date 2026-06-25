@@ -1,5 +1,6 @@
-#ifndef _XLAUNCH_H_
+#pragma once
 #define _XLAUNCH_H_
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,4 +53,3 @@ extern PLAUNCH_DATA_PAGE LaunchDataPage;
 }
 #endif
 
-#endif // ! _XLAUNCH_H_

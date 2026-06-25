@@ -41,8 +41,9 @@ Notes:
  *      code
  */
 
-#ifndef SOCK_ERR_INCLUDED
+#pragma once
 #define SOCK_ERR_INCLUDED
+
 
 
 // in CRT #define ENOTBLK 54      /* Block device required                */
@@ -156,4 +157,3 @@ Notes:
 #define ENOTINIT        152             /* Sockets library not initialized */
 
 
-#endif  //SOCK_ERR_INCLUDED

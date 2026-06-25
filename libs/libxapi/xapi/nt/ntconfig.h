@@ -21,12 +21,8 @@ Revision History:
         Made changes to be consistent with win32 service controller APIs.
 --*/
 
-#ifndef _NTCONFIG_
-#define _NTCONFIG_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _NTCONFIG_
 
 #ifdef __cplusplus
 extern "C" {
@@ -1039,4 +1035,3 @@ typedef struct _IO_RESOURCE_REQUIREMENTS_LIST {
 }
 #endif
 
-#endif // _NTCONFIG_

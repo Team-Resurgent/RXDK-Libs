@@ -6,8 +6,9 @@
  *
  ****************************************************************************/
  
-#ifndef __XGMATH_H__
+#pragma once
 #define __XGMATH_H__
+
 
 #ifndef XGINLINE
 #ifdef __cplusplus
@@ -1123,6 +1124,4 @@ XGCOLOR* WINAPI XGColorAdjustContrast
 #define D3DXColorAdjustContrast XGColorAdjustContrast
 
 #endif // _USE_XGMATH
-
-#endif // __XGMATH_H__
 

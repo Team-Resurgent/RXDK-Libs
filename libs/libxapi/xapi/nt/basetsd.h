@@ -18,12 +18,8 @@ Revision History:
 
 --*/
 
-#ifndef _BASETSD_H_
-#define _BASETSD_H_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define _BASETSD_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -314,4 +310,3 @@ typedef unsigned __int64 UINT64,  *PUINT64;
 }
 #endif
 
-#endif // _BASETSD_H_

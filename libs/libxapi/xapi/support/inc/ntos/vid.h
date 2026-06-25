@@ -14,8 +14,9 @@ Abstract:
 
 --*/
 
-#ifndef _VID_H
+#pragma once
 #define _VID_H
+
 
 
 #define VID_NVNOTIFICATION_SIZE               (16)
@@ -52,4 +53,3 @@ VidSetVideoMode(
     );
 
 
-#endif // _VID_H 

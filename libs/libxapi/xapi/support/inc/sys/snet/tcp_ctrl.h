@@ -56,8 +56,9 @@ Notes:
  *	20/07/88 MV	Added tcp_proto to hold tcp_pcbinfo.
  */
 
-#ifndef _SYS_SNET_TCP_CTRL_INCLUDED
+#pragma once
 #define _SYS_SNET_TCP_CTRL_INCLUDED
+
 
 
 struct tcp_pcbinfo {
@@ -73,6 +74,4 @@ typedef union tcp_proto {
 #define TCP_PCBINFO	1
 #define TCP_TCBINFO 2
 
-
-#endif  // _SYS_SNET_TCP_CTRL_INCLUDED
 

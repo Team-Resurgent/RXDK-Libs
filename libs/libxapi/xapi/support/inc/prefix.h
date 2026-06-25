@@ -41,8 +41,9 @@ Revision History:
 --*/
 
 
-#ifndef _PREFIX_
+#pragma once
 #define _PREFIX_
+
 
 
 #define PREFIX_NETAPI       "NETAPI32: "
@@ -60,4 +61,3 @@ Revision History:
 
 
 
-#endif // ndef _PREFIX_

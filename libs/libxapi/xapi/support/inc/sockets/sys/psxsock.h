@@ -22,8 +22,9 @@ Revision History:
 
 --*/
 
-#ifndef PSXSOCK_INCLUDED
+#pragma once
 #define PSXSOCK_INCLUDED
+
 
 //
 // POSIX includes
@@ -219,4 +220,3 @@ SetLastHError(
     );
 
 
-#endif //PSXSOCK_INCLUDED

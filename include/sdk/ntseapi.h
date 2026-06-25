@@ -34,7 +34,8 @@ Revision History:
 extern "C" {
 #endif
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //                      Pointers to Opaque data types                 //
@@ -70,7 +71,8 @@ typedef PVOID PSID;     // winnt
 // end_ntddk end_wdm end_nthal end_ntifs
 
 
-
+
+
 // begin_winnt
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
@@ -117,7 +119,8 @@ typedef ACCESS_MASK *PACCESS_MASK;
 // end_winnt
 // end_ntddk end_wdm end_nthal end_ntifs
 
-
+
+
 // begin_winnt
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
@@ -183,7 +186,8 @@ typedef struct _GENERIC_MAPPING {
 typedef GENERIC_MAPPING *PGENERIC_MAPPING;
 
 // end_winnt end_ntddk end_wdm end_nthal end_ntifs
-
+
+
 // begin_ntddk begin_winnt begin_nthal begin_ntifs
 
 
@@ -208,7 +212,8 @@ typedef LUID_AND_ATTRIBUTES_ARRAY *PLUID_AND_ATTRIBUTES_ARRAY;
 #include <poppack.h>
 
 // end_winnt end_ntddk end_nthal end_ntifs
-
+
+
 // begin_winnt
 
 ////////////////////////////////////////////////////////////////////////
@@ -289,7 +294,8 @@ typedef SID_AND_ATTRIBUTES SID_AND_ATTRIBUTES_ARRAY[ANYSIZE_ARRAY];
 typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 
 
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 // Universal well-known SIDs                                               //
@@ -380,7 +386,8 @@ typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 
 
 
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 // well-known domain relative sub-authority values (RIDs)...               //
@@ -443,7 +450,8 @@ typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 #define SECURITY_INTERNETSITE_AUTHORITY  {0,0,0,0,0,7}
 #define SECURITY_EXCHANGE_AUTHORITY      {0,0,0,0,0,8}
 
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 //                                                                         //
 // obsolete well-known account RIDs.                                       //
@@ -508,7 +516,8 @@ typedef SID_AND_ATTRIBUTES_ARRAY *PSID_AND_ATTRIBUTES_ARRAY;
 // (None yet defined.)
 
 
-
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
@@ -801,7 +810,8 @@ typedef struct _SYSTEM_ALARM_OBJECT_ACE {
 #define ACE_OBJECT_TYPE_PRESENT           0x1
 #define ACE_INHERITED_OBJECT_TYPE_PRESENT 0x2
 
-
+
+
 //
 //  The following declarations are used for setting and querying information
 //  about and ACL.  First are the various information classes available to
@@ -836,7 +846,8 @@ typedef ACL_SIZE_INFORMATION *PACL_SIZE_INFORMATION;
 
 // end_winnt
 
-
+
+
 
 // begin_winnt
 
@@ -1037,7 +1048,8 @@ typedef struct _SECURITY_DESCRIPTOR {
 
 // end_winnt
 
-
+
+
 // begin_winnt begin_ntsrv
 
 ////////////////////////////////////////////////////////////////////////
@@ -1122,7 +1134,8 @@ typedef struct _PRIVILEGE_SET {
     } PRIVILEGE_SET, * PPRIVILEGE_SET;
 
 // end_winnt end_ntddk end_nthal end_ntifs
-
+
+
 // begin_winnt
 
 ////////////////////////////////////////////////////////////////////////
@@ -1219,7 +1232,8 @@ typedef struct _PRIVILEGE_SET {
 
 
 
-
+
+
 // begin_winnt
 
 
@@ -1252,7 +1266,8 @@ typedef enum _SECURITY_IMPERSONATION_LEVEL {
 
 // end_nthal end_ntddk end_ntifs end_winnt
 //
-
+
+
 // begin_winnt begin_ntifs
 
 ////////////////////////////////////////////////////////////////////
@@ -1487,7 +1502,8 @@ typedef struct _SE_IMPERSONATION_STATE {
 
 // end_winnt end_ntddk end_ntifs
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //                    Flags for NtFilerToken                          //
@@ -1496,7 +1512,8 @@ typedef struct _SE_IMPERSONATION_STATE {
 
 #define DISABLE_MAX_PRIVILEGE   0x1 // winnt
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //                    General Security definitions                    //
@@ -1537,7 +1554,8 @@ typedef struct _SECURITY_SEED_AND_LENGTH {
     UCHAR Seed;
 } SECURITY_SEED_AND_LENGTH, *PSECURITY_SEED_AND_LENGTH;
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //                      Security System Service Defnitions            //
@@ -1597,7 +1615,8 @@ NtAccessCheckByTypeResultList (
     );
 
 
-
+
+
 ///////////////////////////////////////////////////////////////////////
 //                                                                   //
 //               Token Object System Services                        //

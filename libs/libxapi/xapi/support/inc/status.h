@@ -18,8 +18,9 @@ Revision History:
 
 --*/
 
-#ifndef _STATUS_
+#pragma once
 #define _STATUS_
+
 
 
 
@@ -214,6 +215,4 @@ Revision History:
 
 #define STATUS_OS2_CANNOT_COPY \
         (NTSTATUS)(SRV_OS2_STATUS | ERROR_CANNOT_COPY)
-
-#endif // ndef _STATUS_
 

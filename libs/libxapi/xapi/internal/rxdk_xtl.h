@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_XTL_H
+#pragma once
 #define RXDK_XAPI_XTL_H
+
 
 /*
  * Minimal title-facing includes for libxapi translation units.
@@ -40,5 +41,5 @@
 #include <windef.h>
 #include <winbase.h>
 #include <xbox.h>
+#include <xkbd.h>
 
-#endif /* RXDK_XAPI_XTL_H */

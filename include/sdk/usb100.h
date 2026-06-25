@@ -2,7 +2,6 @@
 #define   __USB100_H__
 
 
-#include <PSHPACK1.H>
 
 #define MAXIMUM_USB_STRING_LENGTH 255
 
@@ -130,7 +129,7 @@ typedef struct _USB_DEVICE_DESCRIPTOR {
     UCHAR iProduct;
     UCHAR iSerialNumber;
     UCHAR bNumConfigurations;
-} USB_DEVICE_DESCRIPTOR, *PUSB_DEVICE_DESCRIPTOR;
+} __attribute__((packed)) USB_DEVICE_DESCRIPTOR, *PUSB_DEVICE_DESCRIPTOR;
 
 typedef struct _USB_ENDPOINT_DESCRIPTOR {
     UCHAR bLength;
@@ -139,7 +138,7 @@ typedef struct _USB_ENDPOINT_DESCRIPTOR {
     UCHAR bmAttributes;
     USHORT wMaxPacketSize;
     UCHAR bInterval;
-} USB_ENDPOINT_DESCRIPTOR, *PUSB_ENDPOINT_DESCRIPTOR;
+} __attribute__((packed)) USB_ENDPOINT_DESCRIPTOR, *PUSB_ENDPOINT_DESCRIPTOR;
 
 typedef struct _USB_CONFIGURATION_DESCRIPTOR {
     UCHAR bLength;
@@ -150,7 +149,7 @@ typedef struct _USB_CONFIGURATION_DESCRIPTOR {
     UCHAR iConfiguration;
     UCHAR bmAttributes;
     UCHAR MaxPower;
-} USB_CONFIGURATION_DESCRIPTOR, *PUSB_CONFIGURATION_DESCRIPTOR;
+} __attribute__((packed)) USB_CONFIGURATION_DESCRIPTOR, *PUSB_CONFIGURATION_DESCRIPTOR;
 
 typedef struct _USB_INTERFACE_DESCRIPTOR {
     UCHAR bLength;
@@ -162,18 +161,18 @@ typedef struct _USB_INTERFACE_DESCRIPTOR {
     UCHAR bInterfaceSubClass;
     UCHAR bInterfaceProtocol;
     UCHAR iInterface;
-} USB_INTERFACE_DESCRIPTOR, *PUSB_INTERFACE_DESCRIPTOR;
+} __attribute__((packed)) USB_INTERFACE_DESCRIPTOR, *PUSB_INTERFACE_DESCRIPTOR;
 
 typedef struct _USB_STRING_DESCRIPTOR {
     UCHAR bLength;
     UCHAR bDescriptorType;
     WCHAR bString[1];
-} USB_STRING_DESCRIPTOR, *PUSB_STRING_DESCRIPTOR;
+} __attribute__((packed)) USB_STRING_DESCRIPTOR, *PUSB_STRING_DESCRIPTOR;
 
 typedef struct _USB_COMMON_DESCRIPTOR {
     UCHAR bLength;
     UCHAR bDescriptorType;
-} USB_COMMON_DESCRIPTOR, *PUSB_COMMON_DESCRIPTOR;
+} __attribute__((packed)) USB_COMMON_DESCRIPTOR, *PUSB_COMMON_DESCRIPTOR;
 
 
 //
@@ -195,7 +194,7 @@ typedef struct _USB_HUB_DESCRIPTOR {
 	// 2) The largest hub we care to support is 7 devices.  We probably only
 	//	  need support 4 port hubs, but then 3 bits would go unused.
 	UCHAR		DeviceRemovable;		
-} USB_HUB_DESCRIPTOR, *PUSB_HUB_DESCRIPTOR;
+} __attribute__((packed)) USB_HUB_DESCRIPTOR, *PUSB_HUB_DESCRIPTOR;
 
 
 //
@@ -230,7 +229,7 @@ typedef struct _USB_CONFIGURATION_POWER_DESCRIPTOR {
     USHORT TransitionTimeFromD1;
     USHORT TransitionTimeFromD2;
     USHORT TransitionTimeFromD3;
-} USB_CONFIGURATION_POWER_DESCRIPTOR, *PUSB_CONFIGURATION_POWER_DESCRIPTOR;
+} __attribute__((packed)) USB_CONFIGURATION_POWER_DESCRIPTOR, *PUSB_CONFIGURATION_POWER_DESCRIPTOR;
 
 
 typedef struct _USB_INTERFACE_POWER_DESCRIPTOR {
@@ -246,10 +245,9 @@ typedef struct _USB_INTERFACE_POWER_DESCRIPTOR {
     USHORT TransitionTimeFromD1;
     USHORT TransitionTimeFromD2;
     USHORT TransitionTimeFromD3;
-} USB_INTERFACE_POWER_DESCRIPTOR, *PUSB_INTERFACE_POWER_DESCRIPTOR;
+} __attribute__((packed)) USB_INTERFACE_POWER_DESCRIPTOR, *PUSB_INTERFACE_POWER_DESCRIPTOR;
 
 
-#include <POPPACK.H>
 
 
 #endif   /* __USB100_H__ */

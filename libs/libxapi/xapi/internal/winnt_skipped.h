@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPI_WINNT_SKIPPED_H
+#pragma once
 #define RXDK_XAPI_WINNT_SKIPPED_H
+
 
 /*
  * Typedefs windef.h normally pulls from winnt.h when NT_INCLUDED is set.
@@ -38,4 +39,3 @@
 #define RtlInitObjectString RtlInitAnsiString
 #endif
 
-#endif /* RXDK_XAPI_WINNT_SKIPPED_H */

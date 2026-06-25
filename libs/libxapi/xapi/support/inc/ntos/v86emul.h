@@ -20,8 +20,9 @@ Revision History:
 
 --*/
 
-#ifndef _V86EMUL_
+#pragma once
 #define _V86EMUL_
+
 
 
 // begin_ntminiport
@@ -117,4 +118,3 @@ NTSTATUS
     IN ULONG DataLength  // number of dwords
     );
 
-#endif // _V86EMUL_

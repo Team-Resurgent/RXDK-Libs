@@ -14,8 +14,9 @@ Abstract:
 --*/
 
 
-#ifndef _WINNLS_
+#pragma once
 #define _WINNLS_
+
 
 
 #ifdef __cplusplus
@@ -1603,4 +1604,3 @@ EnumSystemCodePagesW(
 }
 #endif
 
-#endif // _WINNLS_

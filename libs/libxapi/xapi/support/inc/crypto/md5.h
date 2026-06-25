@@ -1,5 +1,6 @@
-#ifndef __MD5_H__
+#pragma once
 #define __MD5_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -75,4 +76,3 @@ void RSA32API MD5Final PROTO_LIST ((MD5_CTX *));
 }
 #endif
 
-#endif // __MD5_H__

@@ -13,8 +13,9 @@ Abstract:
 --*/
 
 
-#ifndef _XDBG_H
+#pragma once
 #define _XDBG_H
+
 
 #ifndef ASSERT
 #if DBG
@@ -244,4 +245,3 @@ XDebugExit(
 }   // extern "C"
 #endif
 
-#endif // _XDBG_H

@@ -7,8 +7,9 @@
  *
  ****************************************************************************/
 
-#ifndef _XGRAPHICS_H_
+#pragma once
 #define _XGRAPHICS_H_
+
 
 /*****************************************************************************
  * 
@@ -1126,6 +1127,4 @@ VOID WINAPI XGSetFixupHeader(
 #ifdef __cplusplus
 }
 #endif //__cplusplus
-
-#endif /* _XGRAPHICS_H_ */
 

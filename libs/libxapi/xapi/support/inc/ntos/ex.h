@@ -18,8 +18,9 @@ Revision History:
 
 --*/
 
-#ifndef _EX_
+#pragma once
 #define _EX_
+
 
 //
 // Empty struct def so we can forward reference ETHREAD
@@ -321,4 +322,3 @@ typedef GUID UUID;
 
 // end_ntddk
 
-#endif /* _EX_ */

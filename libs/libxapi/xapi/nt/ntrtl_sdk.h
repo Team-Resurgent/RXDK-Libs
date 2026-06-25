@@ -25,8 +25,9 @@ Revision History:
 
 --*/
 
-#ifndef _NTRTL_
+#pragma once
 #define _NTRTL_
+
 
 #if defined (_MSC_VER)
 #if ( _MSC_VER >= 800 )
@@ -4518,4 +4519,3 @@ RtlVsprintf(
 #endif
 #endif
 
-#endif  // _NTRTL_

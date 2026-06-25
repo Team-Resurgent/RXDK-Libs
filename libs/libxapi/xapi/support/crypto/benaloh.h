@@ -1,5 +1,6 @@
-#ifndef __BENALOH_H__
+#pragma once
 #define __BENALOH_H__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,4 +28,3 @@ DWORD BenalohEstimateQuotient(DWORD a1, DWORD a2, DWORD m1);
 }
 #endif
 
-#endif // __BENALOH_H__

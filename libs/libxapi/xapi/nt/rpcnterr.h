@@ -10,12 +10,8 @@
 If you change this file, you must also change rpcerr.h.
 */
 
-#ifndef __RPCNTERR_H__
-#define __RPCNTERR_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif
+#define __RPCNTERR_H__
 
 #define RPC_S_OK                          ERROR_SUCCESS
 #define RPC_S_INVALID_ARG                 ERROR_INVALID_PARAMETER
@@ -39,4 +35,3 @@ If you change this file, you must also change rpcerr.h.
 #define RPC_X_PIPE_APP_MEMORY             ERROR_OUTOFMEMORY
 #define RPC_X_INVALID_PIPE_OPERATION      RPC_X_WRONG_PIPE_ORDER
 
-#endif /* __RPCNTERR_H__ */

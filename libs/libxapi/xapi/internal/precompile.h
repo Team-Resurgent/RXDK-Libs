@@ -1,5 +1,6 @@
-#ifndef RXDK_XAPIP_H
+#pragma once
 #define RXDK_XAPIP_H
+
 
 /*
  * Internal libxapi precompile header (replaces leak private/ntos/xapi/inc/xapip.h).
@@ -105,4 +106,3 @@ extern ULONG MU_MaxUserDevices;
 
 #endif /* _XAPIP_ */
 
-#endif /* RXDK_XAPIP_H */

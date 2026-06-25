@@ -19,8 +19,9 @@ Revision History:
 
 --*/
 
-#ifndef _PS_
+#pragma once
 #define _PS_
+
 
 //
 // Specifies the base address of XBOXKRNL.EXE.
@@ -193,4 +194,3 @@ PsQueryStatistics(
     IN OUT PPS_STATISTICS ProcessStatistics
     );
 
-#endif // _PS_

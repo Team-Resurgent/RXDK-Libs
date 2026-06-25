@@ -12,8 +12,9 @@ Abstract:
 
 --*/
 
-#ifndef _XFIBER_H
+#pragma once
 #define _XFIBER_H
+
 
 //
 // Structure to hold the per fiber instance data.
@@ -26,4 +27,3 @@ typedef struct _XFIBER {
     PVOID KernelStack;
 } XFIBER, *PXFIBER;
 
-#endif // _XFIBER_H

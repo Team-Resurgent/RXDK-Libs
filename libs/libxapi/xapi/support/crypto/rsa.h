@@ -1,5 +1,6 @@
-#ifndef __RSA_H__
+#pragma once
 #define __RSA_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -423,4 +424,3 @@ BSafeGetPubKeyModulus(
 #endif
 
 
-#endif // __RSA_H__

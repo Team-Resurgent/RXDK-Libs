@@ -1,10 +1,11 @@
-#ifndef RXDK_XAPI_H
+#pragma once
 #define RXDK_XAPI_H
+
 
 /*
  * Public libxapi title surface (Xbox-only).
  *
- * Kernel types/APIs from xboxkrnl; Win32/Xbox user APIs from xapi/win32.
+ * Kernel types/APIs from xboxkrnl; Win32 shims from xapi/win32; Xbox/XInput from xbox.h + xkbd.h.
  * Internal compile headers (precompile.h, site/profile.h) are not exposed.
  */
 
@@ -114,9 +115,9 @@ SIZE_T __stdcall RtlSizeHeap(PVOID HeapHandle, ULONG Flags, PVOID BaseAddress);
 #include <windef.h>
 #include <winbase.h>
 #include <xbox.h>
+#include <xkbd.h>
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* RXDK_XAPI_H */

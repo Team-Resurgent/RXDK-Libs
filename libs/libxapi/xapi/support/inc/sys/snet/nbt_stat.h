@@ -37,8 +37,9 @@ Notes:
  *              6 Feb 1991 (RAE)        Ported to SpiderTCP
  */
 
-#ifndef _NBT_STAT_INCLUDED_
+#pragma once
 #define _NBT_STAT_INCLUDED_
+
 
 #define MAX_XEB 32              /* max. no. of xebinfos in a message */
 
@@ -124,6 +125,4 @@ struct cacheinfo
 #define DEREGISTERING    3
 #define REGISTERED       4
 
-
-#endif // _NBT_STAT_INCLUDED_
 

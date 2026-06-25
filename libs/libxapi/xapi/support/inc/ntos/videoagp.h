@@ -15,8 +15,9 @@ Revision History:
 
 --*/
 
-#ifndef __VIDEOAGP_H__
+#pragma once
 #define __VIDEOAGP_H__
+
 
 typedef
 PHYSICAL_ADDRESS
@@ -107,4 +108,3 @@ VideoPortGetAgpServices(
     IN PVIDEO_PORT_AGP_SERVICES AgpServices
     );
 
-#endif // ifndef __VIDEOAGP_H__

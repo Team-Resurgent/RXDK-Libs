@@ -1,5 +1,6 @@
-#ifndef RXDK_KERNEL_IMPORT_PTRS_H
+#pragma once
 #define RXDK_KERNEL_IMPORT_PTRS_H
+
 
 /*
  * Included from init.h / ntos.h when RXDK_USB_LINK is set.
@@ -36,4 +37,3 @@ void RxdkInitKernelImportPtrs(void);
 #define ObSymbolicLinkObjectType (Rxdk_p_ObSymbolicLinkObjectType)
 #define XboxHardwareInfo (Rxdk_p_XboxHardwareInfo)
 
-#endif /* RXDK_KERNEL_IMPORT_PTRS_H */

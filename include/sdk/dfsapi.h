@@ -46,7 +46,8 @@ extern "C" {
 #define DFS_PKT_CHANGE_EVENT_A  L"DfsPktChangeA"
 #define DFS_PKT_CHANGE_EVENT_B  L"DfsPktChangeB"
 
-
+
+
 //+----------------------------------------------------------------------------
 //
 //  Function:   DfsSetDomainInfo
@@ -70,7 +71,8 @@ DFSAPI STDAPI DfsSetDomainInfo(
     IN PDS_GLUON pglDomain,
     IN USHORT iConnectedDC);
 
-
+
+
 //+----------------------------------------------------------------------------
 //
 //  Function:   DfsRegisterSCM
@@ -187,7 +189,8 @@ DFSAPI STDAPI DfsUpdateDomainKnowledge(
     IN const USHORT iConnectedDC,
     IN const DWORD dwFlags);
 
-
+
+
 //+----------------------------------------------------------------------------
 //
 //  Function:   DfsUpdateSiteCosts
@@ -212,7 +215,8 @@ DfsUpdateSiteCosts(
     IN ULONG cSiteCost,
     IN DFS_SITE_COST *prgSiteCost);
 
-
+
+
 //------------------------------------------------------------------------
 //
 // Function:    DfsGetReplicaSpecificPath, public
@@ -247,7 +251,8 @@ DFSAPI STDAPI DfsGetReplicaSpecificPath(
     PWSTR       *ppwszReplSpecificPath
 );
 
-
+
+
 //------------------------------------------------------------------------
 //
 // Function:    DfsPathFromReplSpecificPath, public
@@ -275,7 +280,8 @@ DFSAPI STDAPI DfsPathFromReplSpecificPath(
     PWSTR       *ppwszPath
 );
 
-
+
+
 //+----------------------------------------------------------------------------
 //
 //  Function:   DfsGetActiveVolumeList, public
@@ -306,7 +312,8 @@ DFSAPI STDAPI DfsGetActiveVolumeList(
 // BUGBUG: This Function to be removed once transition to new model is complete.
 //
 
-
+
+
 //+----------------------------------------------------------------------------
 //
 //  Function:   DfsEnumVolumeChildren, public

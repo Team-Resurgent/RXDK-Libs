@@ -32,7 +32,8 @@ Revision History:
 #endif
 
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //  #defines                                                          //
@@ -216,7 +217,8 @@ typedef struct _WLX_SC_NOTIFICATION_INFO {
 
 
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //  #data types                                                       //
@@ -491,7 +493,8 @@ typedef struct _WLX_CLIENT_CREDENTIALS_INFO {
 
 
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //  Services that replacement GINAs   ** MUST ** provide              //
@@ -651,7 +654,8 @@ WlxRemoveStatusMessage(
     );
 
 
-
+
+
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //  Services that Winlogon provides                                   //

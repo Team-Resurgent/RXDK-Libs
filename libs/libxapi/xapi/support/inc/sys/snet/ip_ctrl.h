@@ -39,8 +39,9 @@ Revision History:
  *
  ******************************************************************/
 
-#ifndef _SYS_SNET_IP_CTRL_
+#pragma once
 #define _SYS_SNET_IP_CTRL_
+
 
 #ifndef SYSOBJLEN
 #define SYSOBJLEN       32
@@ -250,4 +251,3 @@ typedef struct net_interface_data {
 
 #endif  /* COMPILE_UP_TCPIP */
 
-#endif /* _SYS_SNET_IP_CTRL_ */

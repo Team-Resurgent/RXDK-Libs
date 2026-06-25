@@ -22,8 +22,9 @@ Revision History:
 
 --*/
 
-#ifndef _RTL_HEAP_
+#pragma once
 #define _RTL_HEAP_
+
 
 #define HEAP_LARGE_TAG_MASK 0xFF000000
 
@@ -470,4 +471,3 @@ RtlpHeapIsLocked(
 
 #endif // NTOS_KERNEL_RUNTIME
 
-#endif //  _RTL_HEAP_

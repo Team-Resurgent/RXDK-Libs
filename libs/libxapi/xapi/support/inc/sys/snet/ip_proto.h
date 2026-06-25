@@ -38,8 +38,9 @@ Revision History:
  *
  ******************************************************************/
 
-#ifndef _SYS_SNET_IP_PROTO_
+#pragma once
 #define _SYS_SNET_IP_PROTO_
+
 
 
 #ifndef IPOPTS
@@ -312,6 +313,4 @@ struct ip_flow_info {
 
 #define MASK_REQ                17              /* address mask request */
 #define MASK_REPLY              18              /* address mask reply */
-
-#endif /* _SYS_SNET_IP_PROTO_ */
 

@@ -1,5 +1,6 @@
-#ifndef __RC4_H__
+#pragma once
 #define __RC4_H__
+
 
 #ifndef RSA32API
 #define RSA32API __stdcall
@@ -50,4 +51,3 @@ void RSA32API rc4(struct RC4_KEYSTRUCT *pKS, unsigned int dwLen, unsigned char *
 }
 #endif
 
-#endif // __RC4_H__

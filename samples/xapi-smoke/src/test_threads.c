@@ -2,7 +2,7 @@
 
 static volatile DWORD g_thread_done;
 
-static DWORD WINAPI thread_proc(LPVOID param)
+static DWORD __stdcall thread_proc(LPVOID param)
 {
     (void)param;
     g_thread_done = 42;

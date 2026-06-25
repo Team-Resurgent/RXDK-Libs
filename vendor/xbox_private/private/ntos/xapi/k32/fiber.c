@@ -27,18 +27,8 @@ Abstract:
 //
 // Per thread fiber data pointer.
 //
-#ifdef RXDK_CLANG_FIBER_TLS
 extern PVOID *rxdk_xapi_current_fiber_slot(void);
 extern XFIBER *rxdk_xapi_thread_fiber_data_slot(void);
-#else
-__declspec(thread) LPVOID XapiCurrentFiber;
-
-//
-// For threads that have been converted to fibers, this per thread structure
-// holds its fiber data.
-//
-__declspec(thread) XFIBER XapiThreadFiberData;
-#endif
 
 VOID
 XapiFiberStartup(
@@ -218,11 +208,7 @@ ConvertThreadToFiber(
     //
 
     if (
-#ifdef RXDK_CLANG_FIBER_TLS
         *rxdk_xapi_current_fiber_slot() != NULL
-#else
-        XapiCurrentFiber != NULL
-#endif
     ) {
         RIP("ConvertThreadToFiber() - Cannot convert a thread to a fiber multiple times.");
     }
@@ -231,12 +217,7 @@ ConvertThreadToFiber(
     // Initialize the fiber state.
     //
 
-#ifdef RXDK_CLANG_FIBER_TLS
     Fiber = rxdk_xapi_thread_fiber_data_slot();
-#else
-    Fiber = &XapiThreadFiberData;
-#endif
-
     Fiber->FiberData = lpParameter;
     Fiber->StackBase = KeGetCurrentThread()->StackBase;
     Fiber->StackLimit = NULL;
@@ -262,11 +243,7 @@ ConvertThreadToFiber(
     // Make this fiber the current fiber for the thread.
     //
 
-#ifdef RXDK_CLANG_FIBER_TLS
     *rxdk_xapi_current_fiber_slot() = Fiber;
-#else
-    XapiCurrentFiber = Fiber;
-#endif
 
     return Fiber;
 }
@@ -372,11 +349,7 @@ SwitchToFiber(
     //
 
     if (
-#ifdef RXDK_CLANG_FIBER_TLS
         *rxdk_xapi_current_fiber_slot() == NULL
-#else
-        XapiCurrentFiber == NULL
-#endif
     ) {
         RIP("SwitchToFiber() - Thread hasn't called ConvertThreadToFiber().");
     }
@@ -390,11 +363,7 @@ SwitchToFiber(
     Fiber = (PXFIBER)lpFiber;
 
     if ((Fiber->KernelStack == NULL) &&
-#ifdef RXDK_CLANG_FIBER_TLS
         (*rxdk_xapi_current_fiber_slot() != Fiber)
-#else
-        (XapiCurrentFiber != Fiber)
-#endif
     ) {
         RIP("SwitchToFiber() - Fiber is already active on another thread.");
     }

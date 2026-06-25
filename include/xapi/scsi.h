@@ -31,7 +31,6 @@ Revision History:
 // Command Descriptor Block. Passed by SCSI controller chip over the SCSI bus
 //
 
-#include <PshPack1.h>
 typedef union _CDB {
 
     //
@@ -881,8 +880,7 @@ typedef union _CDB {
     ULONG AsUlong[4];
     UCHAR AsByte[16];
 
-} CDB, *PCDB;
-#include <PopPack.h>
+} __attribute__((packed)) CDB, *PCDB;
 
 //
 // C/DVD CDB Constants & Structures.

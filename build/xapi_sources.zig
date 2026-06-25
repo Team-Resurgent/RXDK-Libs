@@ -63,6 +63,7 @@ pub const k32_sources = [_][]const u8{
     "build/xapi_lasterror.c",
     "build/xapi_tls.c",
     "build/xapi_fiber_tls.c",
+    "build/xapi_kernel_import_ptrs.c",
 };
 
 pub const dll_sources = [_][]const u8{
@@ -99,6 +100,9 @@ pub const ohcd_sources = [_][]const u8{
     "vendor/xbox_private/private/ntos/dd/usb/ohcd/transfer.c",
     "vendor/xbox_private/private/ntos/dd/usb/ohcd/roothub.c",
     "vendor/xbox_private/private/ntos/dd/usb/ohcd/isoch.c",
+    "build/xapi_usb_kernel_imports.c",
+    "build/xapi_usb_kernel_wrap.c",
+    "build/xapi_usbd_pool.c",
 };
 
 pub const usbd_sources = [_][]const u8{

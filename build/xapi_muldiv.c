@@ -2,11 +2,7 @@
 
 #include <xboxkrnl/xboxdef.h>
 
-#ifndef WINAPI
-#define WINAPI __stdcall
-#endif
-
-LONG WINAPI MulDiv(LONG nNumber, LONG nNumerator, LONG nDenominator)
+LONG __stdcall MulDiv(LONG nNumber, LONG nNumerator, LONG nDenominator)
 {
     LONGLONG product;
     LONGLONG half;

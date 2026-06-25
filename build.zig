@@ -200,7 +200,6 @@ pub fn build(b: *std.Build) void {
     kernel_api_probe_step.dependOn(kernel_api_probe_debug_step);
 
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
-    const libxapi_core_lib = b.path("zig-out/lib/libxapi_core.lib");
 
     const xapi_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
         .name = "xapi-link",
@@ -229,7 +228,6 @@ pub fn build(b: *std.Build) void {
 
     const xapi_smoke_extra = [_][]const u8{
         "samples/xapi-smoke/src/xapi_boot.c",
-        "samples/xapi-smoke/src/link_stubs.c",
         "samples/xapi-smoke/src/common.c",
         "samples/xapi-smoke/src/test_content.c",
         "samples/xapi-smoke/src/test_copyfile.c",
@@ -264,7 +262,7 @@ pub fn build(b: *std.Build) void {
         .src = "samples/xapi-smoke/src/main.c",
         .extra_srcs = &xapi_smoke_extra,
         .objects = sample_objects.items,
-        .libs = &.{ libxapi_core_lib, krnl },
+        .libs = &.{ libxapi_lib, krnl },
         .include_paths = &xapi_inc,
         .extra_flags = &.{
             "-D_XAPI_",
@@ -277,7 +275,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi_core.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_smoke_step = b.step("xapi-smoke", "Build xAPI category smoke tests (27 tests, kit hardware)");
     xapi_smoke_step.dependOn(xapi_smoke.install);

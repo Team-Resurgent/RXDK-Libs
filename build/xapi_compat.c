@@ -1,19 +1,17 @@
 /* RXDK libxapi link compat: TEB, string aliases, debug stubs. */
 
 #include <xboxkrnl/xboxkrnl.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 #ifndef FASTCALL
 #define FASTCALL __attribute__((fastcall))
 #endif
 
-#ifndef WINAPI
-#define WINAPI __stdcall
-#endif
-
 typedef struct _TEB *PTEB;
 
-extern char *WINAPI lstrcpynA(char *dst, const char *src, int cap);
+extern char *__stdcall lstrcpynA(char *dst, const char *src, int cap);
 
 PTEB NTAPI NtCurrentTeb(void)
 {
@@ -90,16 +88,42 @@ VOID NTAPI RtlInitObjectString(POBJECT_STRING dst, PCSTR src)
 
 int __cdecl _snwprintf(wchar_t *buf, size_t n, const wchar_t *fmt, ...)
 {
-    (void)buf;
-    (void)n;
-    (void)fmt;
-    return 0;
+    va_list ap;
+    int r;
+
+    if (!buf || n == 0) {
+        return 0;
+    }
+    va_start(ap, fmt);
+    r = vswprintf(buf, n, fmt, ap);
+    va_end(ap);
+    if (r < 0) {
+        buf[0] = L'\0';
+        return -1;
+    }
+    if ((size_t)r >= n) {
+        buf[n - 1] = L'\0';
+    }
+    return r;
 }
 
 int __cdecl _snprintf(char *buf, size_t n, const char *fmt, ...)
 {
-    (void)buf;
-    (void)n;
-    (void)fmt;
-    return 0;
+    va_list ap;
+    int r;
+
+    if (!buf || n == 0) {
+        return 0;
+    }
+    va_start(ap, fmt);
+    r = vsnprintf(buf, n, fmt, ap);
+    va_end(ap);
+    if (r < 0) {
+        buf[0] = '\0';
+        return -1;
+    }
+    if ((size_t)r >= n) {
+        buf[n - 1] = '\0';
+    }
+    return r;
 }

@@ -6,6 +6,7 @@ param(
     [switch]$XbeDebug,
     [switch]$NoLibWarn,
     [switch]$BootDisc,
+    [switch]$MountHdd,
     [switch]$SkipPePatch,
     [int]$MaxImportThunks = 0,
     [int]$StackSize = 65536
@@ -47,12 +48,19 @@ $args = @(
 if ($XbeDebug) { $args += '/debug' }
 if ($NoLibWarn) { $args += '/nolibwarn' }
 if ($BootDisc) {
-    # Boot-disc smoke: skip HDD setup (0x08) and per-title drive writes (0x10).
-    # /DONTMOUNTUD skips utility-drive mount; INITFLAGS must include NO_SETUP_HARD_DISK
-    # or XapiInitProcess still validates the HDD partition table.
-    $args += '/INITFLAGS:24'
-    $args += '/DONTMOUNTUD'
-    $args += '/DONTMODIFYHD'
+    if ($MountHdd) {
+        # Kit with HDD: validate disk, mount per-title U:/T:, utility cache (Z:).
+        # XINIT_MOUNT_UTILITY_DRIVE (0x01); omit NO_SETUP / DONT_MODIFY so XapiInitProcess
+        # can set up save-game paths on the utility partition.
+        $args += '/INITFLAGS:1'
+    } else {
+        # Boot-disc smoke: skip HDD setup (0x08) and per-title drive writes (0x10).
+        # /DONTMOUNTUD skips utility-drive mount; INITFLAGS must include NO_SETUP_HARD_DISK
+        # or XapiInitProcess still validates the HDD partition table.
+        $args += '/INITFLAGS:24'
+        $args += '/DONTMOUNTUD'
+        $args += '/DONTMODIFYHD'
+    }
 }
 # Match TriangleXDK / XDK default imagebld (BuildLog: /stack:65536 /debug /nolibwarn).
 $args += "/stack:$StackSize"

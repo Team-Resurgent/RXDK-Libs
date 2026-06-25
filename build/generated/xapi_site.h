@@ -35,9 +35,23 @@
 #define _XAPI_ 1
 #endif
 
-#define RXDK_CLANG_FIBER_TLS 1
+/* Clang x86-windows-gnu leaves windef.h WINAPI empty; xAPI is stdcall throughout. */
+#ifdef __clang__
+#undef WINAPI
+#define WINAPI __stdcall
+#undef CALLBACK
+#define CALLBACK __stdcall
+#endif
+
+#define RXDK_USB_TRACE 1
 
 #define RXDK_CLANG_TLS_IMAGE 1
+
+/* Staged DbgPrint for init + MU mount (set 1 when debugging kit). */
+#define RXDK_XAPI_INIT_TRACE 1
+#define RXDK_MU_TRACE 1
+
+#include "xapi_init_trace.h"
 
 #define NT_UP 1
 #define XBOX 1

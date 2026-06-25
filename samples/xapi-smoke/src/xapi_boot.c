@@ -39,7 +39,7 @@ extern ULONG _tls_index;
 
 void xbox_runtime_init(void);
 
-VOID WINAPI XapiApplyKernelPatches(VOID);
+VOID __stdcall XapiApplyKernelPatches(VOID);
 VOID XapiInitProcess(VOID);
 void _rtinit(void);
 void _cinit(void);
@@ -68,12 +68,15 @@ static void xapi_smoke_fixup_object_strings(void)
     RtlInitAnsiString((PANSI_STRING)&MainVol, k_mainvol);
 }
 
-static DWORD WINAPI xapi_smoke_main_startup(LPVOID unused)
+void RxdkInitKernelImportPtrs(void);
+
+static DWORD __stdcall xapi_smoke_main_startup(LPVOID unused)
 {
     (void)unused;
 
     XapiApplyKernelPatches();
     xapi_smoke_fixup_object_strings();
+    RxdkInitKernelImportPtrs();
     DbgPrint("xapi-smoke: init process\n");
     XapiInitProcess();
     DbgPrint("xapi-smoke: crt init\n");

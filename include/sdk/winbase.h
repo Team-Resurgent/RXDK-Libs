@@ -172,7 +172,7 @@ typedef struct _SYSTEMTIME {
 } SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
 
 
-typedef DWORD (WINAPI *PTHREAD_START_ROUTINE)(
+typedef DWORD (__stdcall *PTHREAD_START_ROUTINE)(
     LPVOID lpThreadParameter
     );
 typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
@@ -821,14 +821,14 @@ GetExitCodeThread(
 
 WINBASEAPI
 DWORD
-WINAPI
+__stdcall
 GetLastError(
     VOID
     );
 
 WINBASEAPI
 VOID
-WINAPI
+__stdcall
 SetLastError(
     IN DWORD dwErrCode
     );

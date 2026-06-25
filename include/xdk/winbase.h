@@ -172,7 +172,7 @@ typedef struct _SYSTEMTIME {
 } SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
 
 
-typedef DWORD (WINAPI *PTHREAD_START_ROUTINE)(
+typedef DWORD (__stdcall *PTHREAD_START_ROUTINE)(
     LPVOID lpThreadParameter
     );
 typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
@@ -696,13 +696,9 @@ SetUnhandledExceptionFilter(
     IN LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter
     );
 
-#ifdef RXDK_CLANG_FIBER_TLS
+
 PVOID *rxdk_xapi_current_fiber_slot(void);
 #define GetCurrentFiber() (*rxdk_xapi_current_fiber_slot())
-#else
-extern __declspec(thread) PVOID XapiCurrentFiber;
-#define GetCurrentFiber() XapiCurrentFiber
-#endif
 #define GetFiberData() (*(PVOID *)(GetCurrentFiber()))
 
 WINBASEAPI
@@ -749,7 +745,7 @@ SwitchToThread(
 
 WINBASEAPI
 HANDLE
-WINAPI
+__stdcall
 CreateThread(
     IN LPSECURITY_ATTRIBUTES lpThreadAttributes,
     IN DWORD dwStackSize,
@@ -833,14 +829,14 @@ GetExitCodeThread(
 
 WINBASEAPI
 DWORD
-WINAPI
+__stdcall
 GetLastError(
     VOID
     );
 
 WINBASEAPI
 VOID
-WINAPI
+__stdcall
 SetLastError(
     IN DWORD dwErrCode
     );

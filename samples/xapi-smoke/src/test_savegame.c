@@ -6,8 +6,10 @@ int test_savegame(void)
 {
     char root[8];
     if (!xapi_smoke_pick_save_root(root)) {
+        xapi_smoke_trace_line("savegame no U: or MU");
         return XAPI_SKIP;
     }
+    xapi_smoke_trace_line2("savegame root ", root);
 
     char savePath[MAX_PATH];
     const DWORD createErr = XCreateSaveGame(

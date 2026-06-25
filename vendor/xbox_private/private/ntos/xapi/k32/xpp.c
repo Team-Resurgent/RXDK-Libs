@@ -157,6 +157,12 @@ XPeekDevices(
 //  Public API
 //------------------------------------------------------------------
 
+//------------------------------------------------------------------
+//  Public API
+//------------------------------------------------------------------
+
+void RxdkInitKernelImportPtrs(void);
+
 VOID
 WINAPI
 XInitDevices(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes)
@@ -166,13 +172,11 @@ XInitDevices(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes)
     {
         RIP("XInitDevices() is called more than once.  Fatal Error.");
     }
-    else
-    {
-        XPP_XInitDevicesHasBeenCalled = TRUE;
-    }
 #endif
 
+    RxdkInitKernelImportPtrs();
     USBD_Init(NumDeviceTypes, DeviceTypes);
+    XPP_XInitDevicesHasBeenCalled = TRUE;
 }
 
 

@@ -56,7 +56,22 @@ pub fn addAllObjects(
         "-DNTOS_KERNEL_RUNTIME=1",
         "-D_NTSYSTEM_=1",
     };
-    const ohcd_extra = [_][]const u8{ "-DNTOS_KERNEL_RUNTIME=1", "-DUSE_DMA_MACROS", "-DPERFORM_DEVSYS_OPERATIONS", "-DOHCD_XBOX_HARDWARE_ONLY", "-DOHCD_ISOCHRONOUS_SUPPORTED" };
+    const ohcd_extra = [_][]const u8{
+        "-include", "usb_bridge.h",
+        "-DNTOS_KERNEL_RUNTIME=1",
+        "-DUSE_DMA_MACROS",
+        "-DOHCD_XBOX_HARDWARE_ONLY",
+        "-DOHCD_ISOCHRONOUS_SUPPORTED",
+    };
+    const usb_cpp_extra = [_][]const u8{
+        "-include", "usb_bridge.h",
+        "-DNTOS_KERNEL_RUNTIME=1",
+        "-DUSB_HOST_CONTROLLER_CONFIGURATION=1",
+        "-DUSB_ENABLE_DIRECT_CONNECT",
+        "-DDEBUG_KEYBOARD",
+        "-DDEBUG_MOUSE",
+        "-DXID_HAMMERHEAD_SUPPORT",
+    };
 
     for (xapi_sources.slices) |slice| {
         const base_flags = if (slice.is_cpp) xbox_target.xapiCppFlags(b) else xbox_target.xapiCFlags(b);
@@ -78,7 +93,7 @@ pub fn addAllObjects(
                 break :extra_flags &ohcd_extra;
             }
             if (slice.is_cpp) {
-                break :extra_flags &[_][]const u8{ "-DNTOS_KERNEL_RUNTIME=1", "-DUSB_HOST_CONTROLLER_CONFIGURATION=1", "-DUSB_ENABLE_DIRECT_CONNECT", "-DDEBUG_KEYBOARD", "-DDEBUG_MOUSE", "-DXID_HAMMERHEAD_SUPPORT" };
+                break :extra_flags &usb_cpp_extra;
             }
             break :extra_flags &.{};
         };

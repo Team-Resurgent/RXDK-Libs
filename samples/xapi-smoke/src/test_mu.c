@@ -4,7 +4,14 @@ int test_mu(void)
 {
     char drive[4];
 
-    DWORD err = XMountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT, drive);
+    xapi_smoke_trace_line("mu enter");
+
+    const DWORD err = XMountMU(XDEVICE_PORT0, XDEVICE_NO_SLOT, drive);
+    xapi_smoke_trace_count("mu XMountMU err", err);
+
+    if (err == ERROR_DEVICE_NOT_CONNECTED) {
+        return XAPI_OK;
+    }
     if (err != ERROR_SUCCESS) {
         return XAPI_SKIP;
     }

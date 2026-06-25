@@ -2,7 +2,9 @@
 
 int test_devices(void)
 {
+    xapi_smoke_trace_line("devices XInitDevices enter");
     XInitDevices(0, NULL);
+    xapi_smoke_trace_line("devices XInitDevices done");
 
     (void)XGetDevices(XDEVICE_TYPE_GAMEPAD);
 

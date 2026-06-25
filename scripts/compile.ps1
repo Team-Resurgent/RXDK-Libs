@@ -7,13 +7,15 @@ param(
         'kernel-api-probe', 'kernel-api-probe-debug',
         'hello-c', 'hello-cpp',
         'conformance-c', 'conformance-c23', 'conformance-cpp23',
-        'c23-stdbit-smoke', 'cpp23-expected-smoke'
+        'c23-stdbit-smoke', 'cpp23-expected-smoke',
+        'xapi-smoke', 'xapi-link'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
     [string]$Optimize = 'Debug',
     [switch]$Xbe,
     [switch]$Iso,
+    [switch]$NoHdd,
     [switch]$SkipSubmoduleCheck
 )
 
@@ -65,6 +67,7 @@ function Convert-SampleXbe {
     param(
         [string]$SampleName,
         [switch]$Iso,
+        [switch]$MountHdd,
         [int]$MaxImportThunks = 0,
         [int]$StackSize = 65536
     )
@@ -73,7 +76,7 @@ function Convert-SampleXbe {
         Write-Warning "Skip XBE: PE not found: $pe"
         return
     }
-    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso -MaxImportThunks $MaxImportThunks -StackSize $StackSize
+    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso -MountHdd:$MountHdd -MaxImportThunks $MaxImportThunks -StackSize $StackSize
     if ($Iso) {
         & (Join-Path $PSScriptRoot 'Invoke-XbeIsoBuild.ps1') -InputXbe $xbe
     }
@@ -104,12 +107,19 @@ function Build-Sample {
         [string]$Target,
         [string]$Opt,
         [switch]$Xbe,
-        [switch]$Iso
+        [switch]$Iso,
+        [switch]$NoHdd
     )
     if ($Iso -and $Target -eq 'kernel-api-link') {
         throw @"
 kernel-api-link is a host-only link test (367 xboxkrnl imports) — do not deploy to kit.
 Use: .\scripts\compile.ps1 -Target kernel-api-probe -Iso
+"@
+    }
+    if ($Iso -and $Target -eq 'xapi-link') {
+        throw @"
+xapi-link is a host-only link smoke — do not deploy to kit.
+Use: .\scripts\compile.ps1 -Target xapi-smoke -Iso
 "@
     }
     $sample = Resolve-Sample -Target $Target
@@ -120,7 +130,8 @@ Use: .\scripts\compile.ps1 -Target kernel-api-probe -Iso
         if ($sample.Artifact -eq 'kernel-api-probe' -or $sample.Artifact -eq 'kernel-api-probe-debug') {
             $stackSize = 1048576
         }
-        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MaxImportThunks $maxThunks -StackSize $stackSize
+        $mountHdd = ($sample.Artifact -eq 'xapi-smoke') -and -not $NoHdd
+        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MountHdd:$mountHdd -MaxImportThunks $maxThunks -StackSize $stackSize
     }
 }
 
@@ -145,7 +156,8 @@ $singleSampleTargets = @(
     'kernel-api-probe', 'kernel-api-probe-debug',
     'hello-c', 'hello-cpp',
     'conformance-c', 'conformance-c23', 'conformance-cpp23',
-    'c23-stdbit-smoke', 'cpp23-expected-smoke'
+    'c23-stdbit-smoke', 'cpp23-expected-smoke',
+    'xapi-smoke', 'xapi-link'
 )
 
 switch ($Target) {
@@ -159,7 +171,7 @@ switch ($Target) {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
     }
     { $_ -in $singleSampleTargets } {
-        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
+        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso -NoHdd:$NoHdd
     }
     'all' {
         Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Optimize

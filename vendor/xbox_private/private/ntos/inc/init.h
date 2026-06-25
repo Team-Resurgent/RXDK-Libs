@@ -48,8 +48,10 @@ typedef struct _XBOX_HARDWARE_INFO {
     UCHAR reserved[2];
 } XBOX_HARDWARE_INFO;
 
-#if !defined(_NTSYSTEM_)
+#if !defined(_NTSYSTEM_) && !defined(RXDK_USB_LINK)
 extern const XBOX_HARDWARE_INFO* XboxHardwareInfo;
+#elif !defined(_NTSYSTEM_) && defined(RXDK_USB_LINK)
+#include "rxdk_kernel_import_ptrs.h"
 #else
 extern XBOX_HARDWARE_INFO XboxHardwareInfo;
 #endif

@@ -111,6 +111,7 @@ OHCD_fCleanEndpointTDs(
 //      OHCD_Get32BitFrameNumber
 //----------------------------------------------------------------------------
 BOOLEAN 
+__stdcall
 OHCD_InterruptService( 
     IN PKINTERRUPT Interrupt, 
     IN PVOID ServiceContext 
@@ -212,6 +213,7 @@ OHCD_InterruptService(
 }
 
 VOID
+__stdcall
 OHCD_IsrDpc(
     PKDPC Dpc,
     PVOID DeviceExtensionPtr,

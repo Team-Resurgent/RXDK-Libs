@@ -31,6 +31,11 @@
 #define NT_INCLUDED
 #endif
 
-#define RXDK_CLANG_FIBER_TLS 1
+#ifdef __clang__
+#undef WINAPI
+#define WINAPI __stdcall
+#undef CALLBACK
+#define CALLBACK __stdcall
+#endif
 
 #endif /* RXDK_XAPI_TITLE_SITE_H */

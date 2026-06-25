@@ -491,6 +491,8 @@ XapiSelectCachePartition(
 
             CachePartitionCount = HalDiskCachePartitionCount;
 
+            RXDK_INIT_TRACE1("HalDiskCachePartitionCount=%u", CachePartitionCount);
+
             ASSERT(CachePartitionCount > 0);
 
             if (CachePartitionCount > XBOX_CACHE_DB_MAX_ENTRY_COUNT)
@@ -644,6 +646,7 @@ XMountUtilityDrive(
     ULONG nPartition;
     NTSTATUS Status;
 
+    RXDK_INIT_TRACE("XMountUtilityDrive enter");
 #if DBG
     if (g_fMountedUtilityDrive)
     {
@@ -652,6 +655,7 @@ XMountUtilityDrive(
 #endif // DBG
 
     Status = XapiSelectCachePartition(fFormatClean, &nPartition, &fForceFormat);
+    RXDK_INIT_TRACE2("cache partition n=%u forceFmt=%u", nPartition, (unsigned)fForceFormat);
 
     if (NT_SUCCESS(Status))
     {
@@ -665,6 +669,8 @@ XMountUtilityDrive(
                    CacheDriveFormat,
                    nPartition);
 
+        RXDK_INIT_TRACE1("cache path %s", szCacheDrive);
+
         RtlInitObjectString(&VolString, szCacheDrive);
 
         //
@@ -677,12 +683,15 @@ XMountUtilityDrive(
 
         if (fDoFormat)
         {
+            RXDK_INIT_TRACE("format utility");
             fRet = XapiFormatFATVolumeEx(&DriveString, BytesPerCluster);
         }
 
         if (fRet)
         {
+            RXDK_INIT_TRACE("validate utility");
             Status = XapiValidateDiskPartitionEx(&VolString, BytesPerCluster);
+            RXDK_INIT_TRACE1("validate utility status=%08x", (unsigned)Status);
 
             if (!NT_SUCCESS(Status) && !fDoFormat)
             {
@@ -700,6 +709,7 @@ XMountUtilityDrive(
 
             if (NT_SUCCESS(Status))
             {
+                RXDK_INIT_TRACE("Z: link");
                 // Give the cache partition a drive letter
                 Status = IoCreateSymbolicLink((POBJECT_STRING) &ZDrive, &DriveString);
             }

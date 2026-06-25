@@ -87,8 +87,8 @@ UCHAR FASTCALL USBD_AllocateUsbAddress(PUSBD_HOST_CONTROLLER HostController);
 VOID FASTCALL USBD_FreeUsbAddress(PUSBD_HOST_CONTROLLER HostController, UCHAR DeviceAddress);
 
 extern "C" {
-PVOID WINAPI USBD_AllocateMemory(ULONG cb, ULONG Tag);
-VOID WINAPI USBD_FreeMemory(PVOID pv);
+PVOID USBD_AllocateMemory(ULONG cb, ULONG Tag);
+VOID USBD_FreeMemory(PVOID pv);
 }
 //--------------------------------------------
 // Declare device tree. (Don't worry about

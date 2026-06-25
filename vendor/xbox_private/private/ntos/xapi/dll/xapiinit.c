@@ -796,8 +796,11 @@ Return Value:
     DWORD dwParameter2 = 0;
     NTSTATUS status;
 
+    RXDK_INIT_TRACE("enter");
+
     // Initialize the auto-power-down feature.
     XapiInitAutoPowerDown();
+    RXDK_INIT_TRACE("auto power down");
 
     RtlZeroMemory( &HeapParameters, sizeof( HeapParameters ) );
     ProcessHeapFlags = HEAP_GROWABLE | HEAP_CLASS_0;
@@ -819,6 +822,7 @@ Return Value:
         dwParameter1 = XLD_ERROR_INVALID_XBE;
         goto handle_error;
     }
+    RXDK_INIT_TRACE("heap ok");
 
     if ((XeImageHeader()->Certificate->AllowedMediaTypes & XBEIMAGE_MEDIA_TYPE_MEDIA_MASK)
         == XBEIMAGE_MEDIA_TYPE_DVD_X2)
@@ -843,6 +847,7 @@ Return Value:
 
     if (!(XeImageHeader()->InitFlags & XINIT_NO_SETUP_HARD_DISK))
     {
+        RXDK_INIT_TRACE("validate disk");
         // Get the hard disk ready
         if (!NT_SUCCESS(XapiValidateDiskPartition((POBJECT_STRING) &MainVol)))
         {
@@ -850,6 +855,7 @@ Return Value:
             dwParameter1 = XLD_ERROR_INVALID_HARD_DISK;
             goto handle_error;
         }
+        RXDK_INIT_TRACE("validate disk ok");
     }
 
     // Give the DVD/CD drive a drive letter
@@ -872,10 +878,12 @@ Return Value:
             goto handle_error;
         }
     }
+    RXDK_INIT_TRACE("D: link ok");
 
     if ((!(XeImageHeader()->InitFlags & XINIT_NO_SETUP_HARD_DISK)) &&
         (!(XeImageHeader()->InitFlags & XINIT_DONT_MODIFY_HARD_DISK)))
     {
+        RXDK_INIT_TRACE("per-title drives");
         // After we've initialized everything, start the process
         if (!NT_SUCCESS(status = XapiSetupPerTitleDriveLetters(
                 XeImageHeader()->Certificate->TitleID,
@@ -896,17 +904,20 @@ Return Value:
             }
             goto handle_error;
         }
+        RXDK_INIT_TRACE("per-title drives ok");
     }
 
     if ((!(XeImageHeader()->InitFlags & XINIT_NO_SETUP_HARD_DISK)) &&
         (XeImageHeader()->InitFlags & XINIT_MOUNT_UTILITY_DRIVE))
     {
+        RXDK_INIT_TRACE("utility drive");
         if (!XMountUtilityDrive(XeImageHeader()->InitFlags & XINIT_FORMAT_UTILITY_DRIVE))
         {
             XapiBootToDash(XLD_LAUNCH_DASHBOARD_ERROR,
                            XLD_ERROR_INVALID_HARD_DISK,
                            0);
         }
+        RXDK_INIT_TRACE("utility drive ok");
     }
 
     //
@@ -926,6 +937,7 @@ Return Value:
     }
 
     XDBGTRC("XAPI", "InitProcess: SizeOfStack=%d", XeImageHeader()->SizeOfStackCommit);
+    RXDK_INIT_TRACE("done");
 
 handle_error:
     if (XLD_LAUNCH_DASHBOARD_MAIN_MENU != dwReason)

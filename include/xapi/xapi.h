@@ -46,6 +46,7 @@ extern "C" {
 #endif
 
 #include <xboxkrnl/xboxkrnl.h>
+#include <xapi/hal_data_bridge.h>
 
 #ifndef NT_INCLUDED
 #define NT_INCLUDED

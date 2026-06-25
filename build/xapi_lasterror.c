@@ -17,7 +17,7 @@ static DWORD *rxdk_last_error_ptr(void)
 
 BOOL XapiIsXapiThread(void);
 
-DWORD WINAPI GetLastError(void)
+DWORD __stdcall GetLastError(void)
 {
     if (!XapiIsXapiThread()) {
         XDBGERR("XAPI", "GetLastError() called on non-XAPI thread");
@@ -25,7 +25,7 @@ DWORD WINAPI GetLastError(void)
     return *rxdk_last_error_ptr();
 }
 
-VOID WINAPI SetLastError(DWORD dwErrCode)
+VOID __stdcall SetLastError(DWORD dwErrCode)
 {
     if (!XapiIsXapiThread()) {
         XDBGERR("XAPI", "SetLastError() called on non-XAPI thread");

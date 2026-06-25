@@ -63,6 +63,7 @@ __inline ULONG PortNumberToRootHubPort(ULONG PortNumber)
 
 
 VOID
+__stdcall
 OHCD_RootHubResetDpc(
     PKDPC Dpc,
     PVOID DeviceExtensionPtr,
@@ -685,6 +686,7 @@ HCD_DisableRootHubPort(
 
 
 VOID
+__stdcall
 OHCD_RootHubResetDpc(
     PKDPC Dpc,
     PVOID DeviceExtensionPtr,

@@ -250,7 +250,11 @@ typedef struct _KDPC {
 //
 // end_wdm
 
-#if !defined(_NTSYSTEM_)
+#if defined(RXDK_USB_LINK)
+
+#define NTKERNELAPI
+
+#elif !defined(_NTSYSTEM_)
 
 #define NTKERNELAPI DECLSPEC_IMPORT         // wdm
 

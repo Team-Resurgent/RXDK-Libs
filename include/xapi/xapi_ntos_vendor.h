@@ -46,7 +46,7 @@ typedef struct _TIME_FIELDS {
 
 #define _NTDDK_
 
-#if !defined(_NTSYSTEM_)
+#if !defined(_NTSYSTEM_) && !defined(RXDK_USB_LINK)
 extern POBJECT_TYPE ExEventObjectType;
 extern POBJECT_TYPE ExMutantObjectType;
 extern POBJECT_TYPE ExSemaphoreObjectType;
@@ -58,6 +58,9 @@ extern POBJECT_TYPE IoDeviceObjectType;
 extern POBJECT_TYPE IoFileObjectType;
 extern POBJECT_TYPE ObDirectoryObjectType;
 extern POBJECT_TYPE ObSymbolicLinkObjectType;
+#elif !defined(_NTSYSTEM_) && defined(RXDK_USB_LINK)
+#include "rxdk_kernel_import_ptrs.h"
+extern POBJECT_TYPE PsProcessObjectType;
 #endif
 
 #endif /* RXDK_XAPI_NTOS_VENDOR_H */

@@ -324,12 +324,14 @@ OHCD_ScheduleRemoveEndpointControlOrBulk(
 //------------------------------------------------------------
 
 BOOLEAN
+__stdcall
 OHCD_InterruptService( 
     IN PKINTERRUPT Interrupt, 
     IN PVOID ServiceContext 
     );
 
 VOID
+__stdcall
 OHCD_IsrDpc(
     PKDPC Dpc,
     PVOID DeviceExtensionPtr,

@@ -571,8 +571,6 @@ WINAPI
 XGetDeviceEnumerationStatus();
 
 
-#include <PSHPACK1.H>
-
 typedef struct _XINPUT_GAMEPAD
 {
     WORD    wButtons;
@@ -581,7 +579,7 @@ typedef struct _XINPUT_GAMEPAD
     SHORT   sThumbLY;
     SHORT   sThumbRX;
     SHORT   sThumbRY;
-} XINPUT_GAMEPAD, *PXINPUT_GAMEPAD;
+} __attribute__((packed)) XINPUT_GAMEPAD, *PXINPUT_GAMEPAD;
 
 #define XINPUT_GAMEPAD_DPAD_UP           0x0001
 #define XINPUT_GAMEPAD_DPAD_DOWN         0x0002
@@ -613,7 +611,7 @@ typedef struct _XINPUT_RUMBLE
 {
    WORD   wLeftMotorSpeed;
    WORD   wRightMotorSpeed;
-} XINPUT_RUMBLE, *PXINPUT_RUMBLE;
+} __attribute__((packed)) XINPUT_RUMBLE, *PXINPUT_RUMBLE;
 
 #ifdef DEBUG_MOUSE
 typedef struct _XINPUT_MOUSE
@@ -622,7 +620,7 @@ typedef struct _XINPUT_MOUSE
     char cMickeysX;
     char cMickeysY;
     char cWheel;
-} XINPUT_MOUSE, *PXINPUT_MOUSE;
+} __attribute__((packed)) XINPUT_MOUSE, *PXINPUT_MOUSE;
 
 #define XINPUT_DEBUG_MOUSE_LEFT_BUTTON    0x01
 #define XINPUT_DEBUG_MOUSE_RIGHT_BUTTON   0x02
@@ -641,7 +639,7 @@ typedef struct _XINPUT_STATE
         XINPUT_MOUSE   DebugMouse;
 #endif //DEBUG_MOUSE
     };
-} XINPUT_STATE, *PXINPUT_STATE;
+} __attribute__((packed)) XINPUT_STATE, *PXINPUT_STATE;
 
 
 #define XINPUT_FEEDBACK_HEADER_INTERNAL_SIZE 58
@@ -650,7 +648,7 @@ typedef struct _XINPUT_FEEDBACK_HEADER
     DWORD           dwStatus;
     HANDLE OPTIONAL hEvent;
     BYTE            Reserved[XINPUT_FEEDBACK_HEADER_INTERNAL_SIZE];
-} XINPUT_FEEDBACK_HEADER, *PXINPUT_FEEDBACK_HEADER;
+} __attribute__((packed)) XINPUT_FEEDBACK_HEADER, *PXINPUT_FEEDBACK_HEADER;
 
 typedef struct _XINPUT_FEEDBACK
 {
@@ -659,7 +657,7 @@ typedef struct _XINPUT_FEEDBACK
     {
       XINPUT_RUMBLE Rumble;
     };
-} XINPUT_FEEDBACK, *PXINPUT_FEEDBACK;
+} __attribute__((packed)) XINPUT_FEEDBACK, *PXINPUT_FEEDBACK;
 
 typedef struct _XINPUT_CAPABILITIES
 {
@@ -673,9 +671,7 @@ typedef struct _XINPUT_CAPABILITIES
     {
       XINPUT_RUMBLE Rumble;
     } Out;
-} XINPUT_CAPABILITIES, *PXINPUT_CAPABILITIES;
-
-#include <POPPACK.H>
+} __attribute__((packed)) XINPUT_CAPABILITIES, *PXINPUT_CAPABILITIES;
 
 #define XINPUT_DEVSUBTYPE_GC_GAMEPAD              0x01
 #define XINPUT_DEVSUBTYPE_GC_GAMEPAD_ALT          0x02

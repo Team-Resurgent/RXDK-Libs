@@ -65,6 +65,21 @@ extern "C" DWORD USBD_EndClassDescriptionTable = 0;
 //
 #include <usbd.h>
 
+#ifdef RXDK_USB_CLASS_TABLE
+extern USB_CLASS_DRIVER_DESCRIPTION XID_Description;
+extern USB_CLASS_DRIVER_DESCRIPTION XID_1Description;
+extern USB_CLASS_DRIVER_DESCRIPTION MU_Description;
+extern USB_CLASS_DRIVER_DESCRIPTION USBHUB_Description;
+
+static PUSB_CLASS_DRIVER_DESCRIPTION rxdk_usb_class_pointers[] = {
+    &XID_Description,
+    &XID_1Description,
+    &MU_Description,
+    &USBHUB_Description,
+    NULL,
+};
+#endif
+
 
 //----------------------------------------------------------------------------------
 // Globals - all of which must be initialized in DriverEntry
@@ -75,8 +90,8 @@ UCHAR  GLOBAL_HostControllerCount;
 //  USB pool allocator (usbmem.obj); do not call ExAllocatePool directly from USBD C++ code.
 //----------------------------------------------------------------------------------------------
 extern "C" {
-PVOID WINAPI USBD_AllocateMemory(ULONG cb, ULONG Tag);
-VOID WINAPI USBD_FreeMemory(PVOID pv);
+PVOID USBD_AllocateMemory(ULONG cb, ULONG Tag);
+VOID USBD_FreeMemory(PVOID pv);
 }
 
 //----------------------------------------------------------------------------------
@@ -103,15 +118,27 @@ Return Value:
 
 --*/
 {
+    RXDK_USB_TRACE_MSG("USBD_Init enter");
+
     USB_DBG_ENTRY_PRINT(("Entering USBD_Init"));
     USB_DBG_TRACE_PRINT(("Built on %s @%s", __DATE__,__TIME__));
 
     IUsbInit usbInit(NumDeviceTypes, DeviceTypes);
     IUsbInit *pUsbInit = &usbInit;
 
+    RXDK_USB_TRACE_MSG("USBD_Init IUsbInit ready");
+
     //
     //  Walk the class drivers and call their init functions
     //
+#ifdef RXDK_USB_CLASS_TABLE
+    for (ULONG i = 0; rxdk_usb_class_pointers[i] != NULL; i++) {
+        RXDK_USB_TRACE_MSG2("USBD_Init class init i=%u desc=%p", i, (void *)rxdk_usb_class_pointers[i]);
+        RXDK_USB_TRACE_MSG1("USBD_Init class Init fn=%p", (void *)(ULONG_PTR)rxdk_usb_class_pointers[i]->Init);
+        rxdk_usb_class_pointers[i]->Init(pUsbInit);
+        RXDK_USB_TRACE_MSG1("USBD_Init class init done i=%u", i);
+    }
+#else
     PUSB_CLASS_DRIVER_DESCRIPTION *ppClassDriverDesc;
     ppClassDriverDesc = (PUSB_CLASS_DRIVER_DESCRIPTION *)((&USBD_BeginClassDescriptionTable)+1);
     while( (ULONG_PTR)ppClassDriverDesc < (ULONG_PTR)&USBD_EndClassDescriptionTable  )
@@ -119,24 +146,30 @@ Return Value:
         if(*ppClassDriverDesc) (*ppClassDriverDesc)->Init(pUsbInit);
         ppClassDriverDesc++;
     }
+#endif
 
+    RXDK_USB_TRACE_MSG("USBD_Init Process");
     pUsbInit->Process();
     
     //
     //  Give the HCD a chance to initialize its globals.
     //
+    RXDK_USB_TRACE_MSG("USBD_Init HCD_DriverEntry");
     HCD_DriverEntry(pUsbInit->GetHcdResourcePtr());
 
     //
     // Initialize the device tree
     // 
+    RXDK_USB_TRACE_MSG("USBD_Init g_DeviceTree.Init");
     g_DeviceTree.Init(pUsbInit->GetNodeCount(), pUsbInit->GetMaxCompositeInterfaces());
 
     GLOBAL_HostControllerCount=0;
     //
     //  Call the HCD layer to enumerate the hardware.
     //
+    RXDK_USB_TRACE_MSG("USBD_Init HCD_EnumHardware");
     HCD_EnumHardware();
+    RXDK_USB_TRACE_MSG("USBD_Init leave");
     USB_DBG_EXIT_PRINT(("Exiting USBD_Init"));
 }
 
@@ -172,13 +205,15 @@ Return Value:
     PUSBD_HOST_CONTROLLER  hostController;
 
     USB_DBG_ENTRY_PRINT(("Entering USBD_NewHostController"));
+    RXDK_USB_TRACE_MSG("USBD_NewHostController enter");
 
     //
     //  Allocate the Host Controller
     //
     hostController = (PUSBD_HOST_CONTROLLER)USBD_AllocateMemory(
         sizeof(USBD_HOST_CONTROLLER) + HcdDeviceExtensionSize, MODULE_POOL_TAG);
-    
+    RXDK_USB_TRACE_MSG1("USBD_NewHostController hostController=%p", (void *)hostController);
+
     if(hostController)
     {
         //
@@ -209,7 +244,9 @@ Return Value:
         //
         //  Initialize the hardware
         //
+        RXDK_USB_TRACE_MSG("USBD_NewHostController HCD_NewHostController");
         HCD_NewHostController(USBD_GetHCDExtension(hostController), hostController->ControllerNumber, PciDevice);
+        RXDK_USB_TRACE_MSG("USBD_NewHostController leave");
     }
     USB_DBG_EXIT_PRINT(("Exiting USBD_NewHostController"));
 }
@@ -314,6 +351,17 @@ Return Value:
 
 PUSB_CLASS_DRIVER_DESCRIPTION USBD_FindClassDriver(PNP_CLASS_ID ClassId)
 {
+#ifdef RXDK_USB_CLASS_TABLE
+    for (ULONG i = 0; rxdk_usb_class_pointers[i] != NULL; i++) {
+        PUSB_CLASS_DRIVER_DESCRIPTION match = rxdk_usb_class_pointers[i];
+        if ((ClassId.USB.bClass == match->ClassId.USB.bClass) &&
+            (ClassId.USB.bClassSpecificType == match->ClassId.USB.bClassSpecificType))
+        {
+            return match;
+        }
+    }
+    return NULL;
+#else
 	PUSB_CLASS_DRIVER_DESCRIPTION *ppMatch;
 
     //
@@ -341,5 +389,6 @@ PUSB_CLASS_DRIVER_DESCRIPTION USBD_FindClassDriver(PNP_CLASS_ID ClassId)
 found_match:
 
     return (*ppMatch);
+#endif
 }
 

@@ -92,6 +92,8 @@ int test_mu(void)
     xapi_smoke_trace_count("mu port", port);
     xapi_smoke_trace_count("mu slot", slot);
 
+    /* XMountMU writes a single drive LETTER to *pchDrive (not a "X:" string). */
+    drive[0] = 0;
     err = XMountMU(port, slot, drive);
     xapi_smoke_trace_count("mu XMountMU err", err);
     if (err != ERROR_SUCCESS) {
@@ -99,11 +101,14 @@ int test_mu(void)
         return XAPI_SKIP;
     }
 
-    xapi_smoke_trace_line2("mu drive ", drive);
-    if (drive[0] == '\0' || drive[1] != ':') {
+    if (drive[0] < 'A' || drive[0] > 'Z') {
         XUnmountMU(port, slot);
         return 2;
     }
+    /* Build a "<letter>:" root from the returned drive letter. */
+    drive[1] = ':';
+    drive[2] = '\0';
+    xapi_smoke_trace_line2("mu drive ", drive);
 
     rc = mu_save_roundtrip(drive);
     xapi_smoke_trace_count("mu save rc", (unsigned)rc);

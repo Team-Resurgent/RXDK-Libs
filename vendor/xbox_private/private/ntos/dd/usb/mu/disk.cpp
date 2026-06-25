@@ -822,6 +822,15 @@ MU_DiskReadCapacityCompletionCleanup: //error paths rejoin here for cleanup
     // Deallocate read capacity buffer.
     //
 
+    /* DIAGNOSTIC: does ExFreePool reboot on a FRESH alloc/free at this IRQL,
+     * or only on readCapacityBuffer? */
+    {
+        PVOID _t = RTL_ALLOCATE_HEAP(16);
+        RXDK_USB_TRACE_MSG1("MU_RCC test alloc=%p", (void *)_t);
+        RTL_FREE_HEAP(_t);
+        RXDK_USB_TRACE_MSG("MU_RCC test free OK");
+    }
+
     RXDK_USB_TRACE_MSG1("MU_RCC before free buf=%p", (void *)readCapacityBuffer);
     RTL_FREE_HEAP(readCapacityBuffer);
     RXDK_USB_TRACE_MSG("MU_RCC after free");

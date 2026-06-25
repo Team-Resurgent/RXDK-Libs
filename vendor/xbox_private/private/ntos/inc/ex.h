@@ -40,6 +40,8 @@ InitializePool(
 
 NTKERNELAPI
 PVOID
+__cdecl                     /* explicitly cdecl: this kernel export is cdecl
+                             * (stdcall on it crashed early in USBD_Init). */
 ExAllocatePool(
     IN SIZE_T NumberOfBytes
     );
@@ -58,7 +60,8 @@ ExAllocatePoolWithTag(
 
 NTKERNELAPI
 VOID
-NTAPI
+__cdecl                     /* explicitly cdecl to match ExAllocatePool (same
+                             * kernel pool family); NTAPI/stdcall here #DF'd. */
 ExFreePool(
     IN PVOID P
     );

@@ -471,6 +471,15 @@ MU_CreateDeviceObject(
     USB_DBG_ENTRY_PRINT(("MU_CreateDeviceObject(Port=0x%0.8x, Slot=0x%0.8x)", Port, Slot));
     RXDK_USB_TRACE_MSG2("MU_CreateDeviceObject port=%u slot=%u", Port, Slot);
 
+    /* DIAGNOSTIC: does ExFreePool work at PASSIVE (here) vs DISPATCH (completion)? */
+    {
+        PVOID _t = RTL_ALLOCATE_HEAP(16);
+        RXDK_USB_TRACE_MSG2("MU_CDO passive-test alloc=%p irql=%u",
+            (void *)_t, (unsigned)KeGetCurrentIrql());
+        RTL_FREE_HEAP(_t);
+        RXDK_USB_TRACE_MSG("MU_CDO passive-test free OK");
+    }
+
     //
     //  ASSERT arguments.
     //

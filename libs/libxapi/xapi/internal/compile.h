@@ -47,7 +47,17 @@ extern "C" {
 #endif
 
 #include <xboxkrnl/xboxkrnl.h>
-#include "hal_data_bridge.h"
+
+/*
+ * xboxkrnl DATA imports: the XBE IAT slot holds a pointer to the kernel variable,
+ * not the value itself. Vendor xAPI uses HalDiskCachePartitionCount as ULONG.
+ */
+static __inline ULONG RxdkReadHalDiskCachePartitionCount(void)
+{
+    return *(PULONG)(void *)&HalDiskCachePartitionCount;
+}
+#undef HalDiskCachePartitionCount
+#define HalDiskCachePartitionCount RxdkReadHalDiskCachePartitionCount()
 
 #ifndef NT_INCLUDED
 #define NT_INCLUDED
@@ -58,8 +68,59 @@ extern "C" {
 #endif
 
 #include "win32_bridge.h"
-#include "kpcrb_bridge.h"
-#include "pe32.h"
+
+/*
+ * Minimal KPRCB / KeGetCurrentPrcb for vendor dm.h (DebugMonitorData @ 0x250).
+ * Public xboxkrnl headers omit this internal layout.
+ */
+#include "nt_bridge.h"
+
+typedef struct _KPRCB {
+    UCHAR Padding[0x250];
+    PVOID DebugMonitorData;
+} KPRCB, *PKPRCB;
+
+typedef struct _KPCR {
+    NT_TIB NtTib;
+    struct _KPCR *SelfPcr;
+    PKPRCB Prcb;
+    KIRQL Irql;
+    KPRCB PrcbData;
+} KPCR, *PKPCR;
+
+static __inline PKPRCB KeGetCurrentPrcb(void)
+{
+    PKPCR pcr;
+    __asm__ volatile ("movl %%fs:0, %0" : "=r"(pcr));
+    return &pcr->PrcbData;
+}
+
+/*
+ * PE32 layout types xbeimage.h needs from winnt.h (Xbox is i386 only).
+ */
+typedef struct _IMAGE_THUNK_DATA32 {
+    union {
+        DWORD ForwarderString;
+        DWORD Function;
+        DWORD Ordinal;
+        DWORD AddressOfData;
+    } u1;
+} IMAGE_THUNK_DATA32, *PIMAGE_THUNK_DATA32;
+
+typedef IMAGE_THUNK_DATA32 IMAGE_THUNK_DATA;
+typedef PIMAGE_THUNK_DATA32 PIMAGE_THUNK_DATA;
+
+typedef struct _IMAGE_TLS_DIRECTORY32 {
+    DWORD StartAddressOfRawData;
+    DWORD EndAddressOfRawData;
+    DWORD AddressOfIndex;
+    DWORD AddressOfCallBacks;
+    DWORD SizeOfZeroFill;
+    DWORD Characteristics;
+} IMAGE_TLS_DIRECTORY32, *PIMAGE_TLS_DIRECTORY32;
+
+typedef IMAGE_TLS_DIRECTORY32 IMAGE_TLS_DIRECTORY;
+typedef PIMAGE_TLS_DIRECTORY32 PIMAGE_TLS_DIRECTORY;
 
 #ifndef PCOBJECT_STRING
 typedef POBJECT_STRING PCOBJECT_STRING;

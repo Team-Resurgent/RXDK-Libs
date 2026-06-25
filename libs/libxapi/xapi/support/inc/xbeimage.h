@@ -16,7 +16,7 @@ Abstract:
 #ifndef _XBEIMAGE_
 #define _XBEIMAGE_
 
-#include <crypto\xcrypt.h>
+#include <xcrypt.h>
 
 #include <pshpack1.h>
 

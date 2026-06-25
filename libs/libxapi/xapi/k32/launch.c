@@ -9,7 +9,7 @@ static const CHAR g_szDVDDevicePrefix[] =        "\\Device\\Cdrom0";
 static const int  g_cchDVDDevicePrefix =         ARRAYSIZE(g_szDVDDevicePrefix) - 1;
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XLaunchNewImage(
     LPCSTR lpTitlePath,
     PLAUNCH_DATA pLaunchData
@@ -100,7 +100,7 @@ XLaunchNewImage(
 }
 
 NTSTATUS
-WINAPI
+__attribute__((__stdcall__))
 XWriteTitleInfoNoReboot(
     PCOSTR pszLaunchPath,
     PCOSTR pszDDrivePath,
@@ -177,7 +177,7 @@ XWriteTitleInfoNoReboot(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XWriteTitleInfoAndReboot(
     LPCSTR pszLaunchPath,
     LPCSTR pszDDrivePath,
@@ -213,7 +213,7 @@ XWriteTitleInfoAndReboot(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetLaunchInfo(
     OUT PDWORD pdwLaunchDataType,
     OUT PLAUNCH_DATA pLaunchData

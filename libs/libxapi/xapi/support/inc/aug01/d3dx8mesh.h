@@ -334,7 +334,7 @@ DECLARE_INTERFACE_(ID3DXSkinMesh, IUnknown)
 extern "C" {
 #endif //__cplusplus
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateMesh(
         DWORD NumFaces,
         DWORD NumVertices,
@@ -343,7 +343,7 @@ HRESULT WINAPI
         LPDIRECT3DDEVICE8 pD3D,
         LPD3DXMESH* ppMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateMeshFVF(
         DWORD NumFaces,
         DWORD NumVertices,
@@ -352,7 +352,7 @@ HRESULT WINAPI
         LPDIRECT3DDEVICE8 pD3D,
         LPD3DXMESH* ppMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateSPMesh(
         LPD3DXMESH pMesh,
         CONST DWORD* pAdjacency,
@@ -361,18 +361,18 @@ HRESULT WINAPI
         LPD3DXSPMESH* ppSMesh);
 
 // clean a mesh up for simplification, try to make manifold
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCleanMesh(
     LPD3DXMESH pMeshIn,
     CONST DWORD* pAdjacency,
     LPD3DXMESH* ppMeshOut);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXValidMesh(
     LPD3DXMESH pMeshIn,
     CONST DWORD* pAdjacency);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXGeneratePMesh(
         LPD3DXMESH pMesh,
         CONST DWORD* pAdjacency,
@@ -382,7 +382,7 @@ HRESULT WINAPI
         DWORD Options,
         LPD3DXPMESH* ppPMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXSimplifyMesh(
         LPD3DXMESH pMesh,
         CONST DWORD* pAdjacency,
@@ -392,7 +392,7 @@ HRESULT WINAPI
         DWORD Options,
         LPD3DXMESH* ppMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXComputeBoundingSphere(
         PVOID pPointsFVF,
         DWORD NumVertices,
@@ -400,7 +400,7 @@ HRESULT WINAPI
         D3DXVECTOR3 *pCenter,
         FLOAT *pRadius);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXComputeBoundingBox(
         PVOID pPointsFVF,
         DWORD NumVertices,
@@ -408,17 +408,17 @@ HRESULT WINAPI
         D3DXVECTOR3 *pMin,
         D3DXVECTOR3 *pMax);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXComputeNormals(
         LPD3DXBASEMESH pMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateBuffer(
         DWORD NumBytes,
         LPD3DXBUFFER *ppBuffer);
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadMeshFromX(
         LPSTR pFilename,
         DWORD Options,
@@ -428,7 +428,7 @@ HRESULT WINAPI
         PDWORD pNumMaterials,
         LPD3DXMESH *ppMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXSaveMeshToX(
         LPSTR pFilename,
         LPD3DXMESH pMesh,
@@ -438,7 +438,7 @@ HRESULT WINAPI
         DWORD Format
         );
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreatePMeshFromStream(
         IStream *pStream,
     DWORD Options,
@@ -447,7 +447,7 @@ HRESULT WINAPI
         DWORD* pNumMaterials,
         LPD3DXPMESH *ppPMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateSkinMesh(
         DWORD numFaces,
         DWORD numVertices,
@@ -457,7 +457,7 @@ HRESULT WINAPI
         LPDIRECT3DDEVICE8 pD3D,
         LPD3DXSKINMESH* ppSkinMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateSkinMeshFVF(
         DWORD numFaces,
         DWORD numVertices,
@@ -467,13 +467,13 @@ HRESULT WINAPI
         LPDIRECT3DDEVICE8 pD3D,
         LPD3DXSKINMESH* ppSkinMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateSkinMeshFromMesh(
         LPD3DXMESH pMesh,
         DWORD numBones,
         LPD3DXSKINMESH* ppSkinMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadMeshFromXof(
         LPDIRECTXFILEDATA pXofObjMesh,
         DWORD Options,
@@ -483,7 +483,7 @@ HRESULT WINAPI
         PDWORD pNumMaterials,
         LPD3DXMESH *ppMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadSkinMeshFromXof(
         LPDIRECTXFILEDATA pxofobjMesh,
         DWORD options,
@@ -495,7 +495,7 @@ HRESULT WINAPI
         LPD3DXBUFFER* ppBoneTransforms,
         LPD3DXSKINMESH* ppMesh);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXTesselateMesh(
         LPD3DXMESH pMeshIn,
         CONST DWORD* pAdjacency,
@@ -503,17 +503,17 @@ HRESULT WINAPI
         BOOL  QuadraticInterpNormals,     // if false use linear intrep for normals, if true use quadratic
         LPD3DXMESH *ppMeshOut);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXDeclaratorFromFVF(
         DWORD FVF,
         DWORD Declaration[MAX_FVF_DECL_SIZE]);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXFVFFromDeclarator(
         CONST DWORD *pDeclarator,
         DWORD *pFVF);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXWeldVertices(
         CONST LPD3DXMESH pMesh,
         float fEpsilon,
@@ -522,7 +522,7 @@ HRESULT WINAPI
         DWORD* pFaceRemap,
         LPD3DXBUFFER *ppbufVertexRemap);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXIntersect(
         LPD3DXBASEMESH pMesh,
         CONST D3DXVECTOR3 *pRayPos,
@@ -533,14 +533,14 @@ HRESULT WINAPI
         FLOAT   *pV,
         FLOAT   *pDist);
 
-BOOL WINAPI
+BOOL __attribute__((__stdcall__))
     D3DXSphereBoundProbe(
         CONST D3DXVECTOR3 *pvCenter,
         FLOAT fRadius,
         D3DXVECTOR3 *pvRayPosition,
         D3DXVECTOR3 *pvRayDirection);
 
-BOOL WINAPI
+BOOL __attribute__((__stdcall__))
     D3DXBoxBoundProbe(
         CONST D3DXVECTOR3 *pvMin,
         CONST D3DXVECTOR3 *pvMax,

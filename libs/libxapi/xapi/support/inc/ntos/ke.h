@@ -1182,7 +1182,7 @@ KeWaitForSingleObject (
 
 NTKERNELAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 KiUnlockDispatcherDatabase (
     IN KIRQL OldIrql
     );
@@ -1194,7 +1194,7 @@ KiUnlockDispatcherDatabase (
     ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL)
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 KiSetPriorityThread (
     IN PRKTHREAD Thread,
     IN KPRIORITY Priority
@@ -1227,14 +1227,14 @@ KiSetPriorityThread (
 
 NTHALAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 KfLowerIrql (
     IN KIRQL NewIrql
     );
 
 NTHALAPI
 KIRQL
-FASTCALL
+__attribute__((fastcall))
 KfRaiseIrql (
     IN KIRQL NewIrql
     );
@@ -1376,7 +1376,7 @@ KeQuickRebootSystem(
 
 typedef
 VOID
-(FASTCALL *PSWAP_CONTEXT_NOTIFY_ROUTINE)(
+(__attribute__((fastcall)) *PSWAP_CONTEXT_NOTIFY_ROUTINE)(
     IN HANDLE OldThreadId,
     IN HANDLE NewThreadId
     );
@@ -1387,7 +1387,7 @@ VOID
 
 typedef
 LOGICAL
-(FASTCALL *PTHREAD_SELECT_NOTIFY_ROUTINE)(
+(__attribute__((fastcall)) *PTHREAD_SELECT_NOTIFY_ROUTINE)(
     IN HANDLE ThreadId
     );
 
@@ -1397,7 +1397,7 @@ LOGICAL
 
 typedef
 VOID
-(FASTCALL *PTIME_UPDATE_NOTIFY_ROUTINE)(
+(__attribute__((fastcall)) *PTIME_UPDATE_NOTIFY_ROUTINE)(
     IN HANDLE ThreadId,
     IN KPROCESSOR_MODE Mode
     );

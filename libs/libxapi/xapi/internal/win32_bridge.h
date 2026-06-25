@@ -220,9 +220,6 @@ typedef LPSTR LPTCH, PTSTR, POSTR;
 typedef LPWSTR PTWSTR;
 typedef LPWSTR LPTSTR, PTCHAR;
 
-#ifndef WINAPI
-#define WINAPI __stdcall
-#endif
 
 #ifndef FAR
 #define FAR

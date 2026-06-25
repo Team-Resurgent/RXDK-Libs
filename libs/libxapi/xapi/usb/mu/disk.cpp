@@ -121,7 +121,7 @@ MU_fDiskDeviceControl(
     );
 
 NTSTATUS
-FASTCALL
+__attribute__((fastcall))
 MU_fDiskReadDriveCapacity(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     PIRP Irp
@@ -134,7 +134,7 @@ MU_DiskReadCapacityCompletion(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fDiskVerify(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     IN PIRP Irp
@@ -153,7 +153,7 @@ MU_DiskIoComplete(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fDiskReadWrite(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     IN PIRP Irp
@@ -178,7 +178,7 @@ MU_DiskWriteBuildMiddlePartialRequest(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fMarkWriteBufferCorrupt(
     IN PMU_REQUEST_BLOCK Mrb
     );
@@ -197,7 +197,7 @@ MU_DiskWriteStartNextPartialRequest();
 #ifdef MU_DIAGNOSTIC_IOCTLS
 
 NTSTATUS
-FASTCALL         
+__attribute__((fastcall))         
 MU_fVscCommand(
  IN PMU_DEVICE_EXTENSION DeviceExtension,
  IN PIRP Irp,
@@ -589,7 +589,7 @@ Return Value:
 
 
 NTSTATUS
-FASTCALL
+__attribute__((fastcall))
 MU_fDiskReadDriveCapacity(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     PIRP Irp
@@ -827,7 +827,7 @@ MU_DiskReadCapacityCompletionCleanup: //error paths rejoin here for cleanup
 } 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fDiskVerify(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     IN PIRP Irp
@@ -1031,7 +1031,7 @@ MU_DiskIoComplete(
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fDiskReadWrite(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     IN PIRP Irp
@@ -1902,7 +1902,7 @@ VOID MU_DiskWriteStartNextPartialRequest()
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fMarkWriteBufferCorrupt(
     IN PMU_REQUEST_BLOCK Mrb
     )
@@ -1941,7 +1941,7 @@ MU_fMarkWriteBufferCorrupt(
 #ifdef MU_DIAGNOSTIC_IOCTLS
 
 NTSTATUS
-FASTCALL         
+__attribute__((fastcall))         
 MU_fVscCommand(
  IN PMU_DEVICE_EXTENSION DeviceExtension,
  IN PIRP Irp,

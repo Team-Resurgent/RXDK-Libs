@@ -152,7 +152,7 @@ XapiFillInContentData(
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstContent(
     IN PCSTR lpRootPathName,
     IN DWORD dwFlagFilter,
@@ -272,7 +272,7 @@ XFindFirstContent(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextContent(
     IN HANDLE hFindContent,
     OUT PXCONTENT_FIND_DATA pFindContentData

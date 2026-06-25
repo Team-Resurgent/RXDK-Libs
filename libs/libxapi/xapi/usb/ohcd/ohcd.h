@@ -282,7 +282,7 @@ typedef struct _OHCD_PORT_INFO
 //  Implemented in OHCD.C
 //------------------------------------------------------
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fPauseEndpoint(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT  endpoint
@@ -291,34 +291,34 @@ OHCD_fPauseEndpoint(
 // Implemented in Schedule.c
 //--------------------------------------------------------
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleInitialize(
     IN POHCD_DEVICE_EXTENSION DeviceExtension
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleAddEndpointPeriodic(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN POHCD_ENDPOINT Endpoint
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleRemoveEndpointPeriodic(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN POHCD_ENDPOINT Endpoint
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleAddEndpointControlOrBulk(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN POHCD_ENDPOINT Endpoint
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleRemoveEndpointControlOrBulk(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN POHCD_ENDPOINT Endpoint
@@ -345,7 +345,7 @@ OHCD_IsrDpc(
     );
 
 ULONG
-FASTCALL
+__attribute__((fastcall))
 OHCD_Get32BitFrameNumber(
     IN POHCD_DEVICE_EXTENSION DeviceExtension
     );
@@ -354,27 +354,27 @@ OHCD_Get32BitFrameNumber(
 // Implemented in transfer.c
 //------------------------------------------------------------
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueTransferRequest(
     POHCD_DEVICE_EXTENSION  DeviceExtension,
     PURB                    HcdUrb
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramInterruptTransfer(
     POHCD_DEVICE_EXTENSION  DeviceExtension,
     POHCD_ENDPOINT          Endpoint
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramBulkTransfer(
     POHCD_DEVICE_EXTENSION  DeviceExtension
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramControlTransfer(
     POHCD_DEVICE_EXTENSION  DeviceExtension
     );
@@ -383,18 +383,18 @@ OHCD_fProgramControlTransfer(
 // Implemented in roothub.c
 //------------------------------------------------------------
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_RootHubInitialize(
     POHCD_DEVICE_EXTENSION  DeviceExtension
     );
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_RootHubProcessInterrupt(
     POHCD_DEVICE_EXTENSION      DeviceExtension
 );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_RootHubProcessHotPlug(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN POHCD_PORT_INFO          PortInfo
@@ -430,14 +430,14 @@ extern OHCD_POOL OHCD_GlobalPool;
 #define OHCD_INTERRUPT_TD_QUOTA  3 //Per endpoint quota
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fPoolInit(
     IN PHCD_RESOURCE_REQUIREMENTS pResourceRequirements
     );
 
 #ifdef SILVER
 ULONG
-FASTCALL
+__attribute__((fastcall))
 OHCD_fPoolFindLostDoneHead(
     POHCD_DEVICE_EXTENSION DeviceExtension
     );

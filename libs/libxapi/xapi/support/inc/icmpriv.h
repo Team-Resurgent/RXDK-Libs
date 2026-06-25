@@ -148,34 +148,34 @@ typedef struct tagCMMFNS {
     // Required functions
     //
 
-    DWORD          (WINAPI *pCMGetInfo)(DWORD);
-    HCMTRANSFORM   (WINAPI *pCMCreateTransform)(LPLOGCOLORSPACE, PVOID, PVOID);
-    HCMTRANSFORM   (WINAPI *pCMCreateTransformExt)(LPLOGCOLORSPACE, PVOID, PVOID, DWORD);
-    BOOL           (WINAPI *pCMDeleteTransform)(HCMTRANSFORM);
-    BOOL           (WINAPI *pCMTranslateRGBs)(HCMTRANSFORM, PVOID, BMFORMAT,
+    DWORD          (__attribute__((__stdcall__)) *pCMGetInfo)(DWORD);
+    HCMTRANSFORM   (__attribute__((__stdcall__)) *pCMCreateTransform)(LPLOGCOLORSPACE, PVOID, PVOID);
+    HCMTRANSFORM   (__attribute__((__stdcall__)) *pCMCreateTransformExt)(LPLOGCOLORSPACE, PVOID, PVOID, DWORD);
+    BOOL           (__attribute__((__stdcall__)) *pCMDeleteTransform)(HCMTRANSFORM);
+    BOOL           (__attribute__((__stdcall__)) *pCMTranslateRGBs)(HCMTRANSFORM, PVOID, BMFORMAT,
                        DWORD, DWORD, DWORD, PVOID, BMFORMAT, DWORD);
-    BOOL           (WINAPI *pCMTranslateRGBsExt)(HCMTRANSFORM, PVOID, BMFORMAT,
+    BOOL           (__attribute__((__stdcall__)) *pCMTranslateRGBsExt)(HCMTRANSFORM, PVOID, BMFORMAT,
                        DWORD, DWORD, DWORD, PVOID, BMFORMAT, DWORD, PBMCALLBACKFN, LPARAM);
-    BOOL           (WINAPI *pCMCheckRGBs)(HCMTRANSFORM, PVOID, BMFORMAT,
+    BOOL           (__attribute__((__stdcall__)) *pCMCheckRGBs)(HCMTRANSFORM, PVOID, BMFORMAT,
                        DWORD, DWORD, DWORD, PBYTE, PBMCALLBACKFN, LPARAM);
-    HCMTRANSFORM   (WINAPI *pCMCreateMultiProfileTransform)(PHPROFILE, DWORD, PDWORD, DWORD, DWORD);
-    BOOL           (WINAPI *pCMTranslateColors)(HCMTRANSFORM, PCOLOR, DWORD,
+    HCMTRANSFORM   (__attribute__((__stdcall__)) *pCMCreateMultiProfileTransform)(PHPROFILE, DWORD, PDWORD, DWORD, DWORD);
+    BOOL           (__attribute__((__stdcall__)) *pCMTranslateColors)(HCMTRANSFORM, PCOLOR, DWORD,
                        COLORTYPE, PCOLOR, COLORTYPE);
-    BOOL           (WINAPI *pCMCheckColors)(HCMTRANSFORM, PCOLOR, DWORD,
+    BOOL           (__attribute__((__stdcall__)) *pCMCheckColors)(HCMTRANSFORM, PCOLOR, DWORD,
                        COLORTYPE, PBYTE);
     //
     // Optional functions
     //
 
-    BOOL           (WINAPI *pCMCreateProfile)(LPLOGCOLORSPACE, PPBYTE);
-    BOOL           (WINAPI *pCMGetNamedProfileInfo)(HPROFILE, PNAMED_PROFILE_INFO);
-    BOOL           (WINAPI *pCMConvertColorNameToIndex)(HPROFILE, LPCOLOR_NAME, LPDWORD, DWORD);
-    BOOL           (WINAPI *pCMConvertIndexToColorName)(HPROFILE, LPDWORD, LPCOLOR_NAME, DWORD);
-    BOOL           (WINAPI *pCMCreateDeviceLinkProfile)(PHPROFILE, DWORD, PDWORD, DWORD, DWORD, PPBYTE);
-    BOOL           (WINAPI *pCMIsProfileValid)(HPROFILE, PBOOL);
-    BOOL           (WINAPI *pCMGetPS2ColorSpaceArray)(HPROFILE, DWORD, DWORD, PBYTE, PDWORD, PBOOL);
-    BOOL           (WINAPI *pCMGetPS2ColorRenderingIntent)(HPROFILE, DWORD, PBYTE, PDWORD);
-    BOOL           (WINAPI *pCMGetPS2ColorRenderingDictionary)(HPROFILE, DWORD,
+    BOOL           (__attribute__((__stdcall__)) *pCMCreateProfile)(LPLOGCOLORSPACE, PPBYTE);
+    BOOL           (__attribute__((__stdcall__)) *pCMGetNamedProfileInfo)(HPROFILE, PNAMED_PROFILE_INFO);
+    BOOL           (__attribute__((__stdcall__)) *pCMConvertColorNameToIndex)(HPROFILE, LPCOLOR_NAME, LPDWORD, DWORD);
+    BOOL           (__attribute__((__stdcall__)) *pCMConvertIndexToColorName)(HPROFILE, LPDWORD, LPCOLOR_NAME, DWORD);
+    BOOL           (__attribute__((__stdcall__)) *pCMCreateDeviceLinkProfile)(PHPROFILE, DWORD, PDWORD, DWORD, DWORD, PPBYTE);
+    BOOL           (__attribute__((__stdcall__)) *pCMIsProfileValid)(HPROFILE, PBOOL);
+    BOOL           (__attribute__((__stdcall__)) *pCMGetPS2ColorSpaceArray)(HPROFILE, DWORD, DWORD, PBYTE, PDWORD, PBOOL);
+    BOOL           (__attribute__((__stdcall__)) *pCMGetPS2ColorRenderingIntent)(HPROFILE, DWORD, PBYTE, PDWORD);
+    BOOL           (__attribute__((__stdcall__)) *pCMGetPS2ColorRenderingDictionary)(HPROFILE, DWORD,
                        PBYTE, PDWORD, PBOOL);
 } CMMFNS;
 typedef CMMFNS *PCMMFNS;

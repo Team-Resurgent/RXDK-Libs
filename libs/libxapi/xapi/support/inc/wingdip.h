@@ -61,24 +61,24 @@ extern "C" {
 #define DISPLAY_DEVICE_POWERED_OFF         0x80000000
 #define DISPLAY_DEVICE_ACPI                0x40000000
 
-WINGDIAPI int  WINAPI GetTextFaceAliasW(HDC hdc,int c,LPWSTR pwsz);
+WINGDIAPI int  __attribute__((__stdcall__)) GetTextFaceAliasW(HDC hdc,int c,LPWSTR pwsz);
 
 /* DC_MANUFACTURER is DC_ICC_MANUFACTURER in 16 bit PRINT.H */
 /* DC_MODEL is DC_ICC_MODEL in 16 bit PRINT.H               */
-HANDLE WINAPI SetObjectOwner( IN HGDIOBJ, IN HANDLE);
+HANDLE __attribute__((__stdcall__)) SetObjectOwner( IN HGDIOBJ, IN HANDLE);
 // Mirroring APIs (RTL_MIRRORING)
 #if(WINVER >= 0x0500)
-WINGDIAPI BOOL  WINAPI MirrorRgn(IN HWND, IN HRGN);
-WINGDIAPI DWORD WINAPI SetLayoutWidth(IN HDC, IN LONG, IN DWORD);
+WINGDIAPI BOOL  __attribute__((__stdcall__)) MirrorRgn(IN HWND, IN HRGN);
+WINGDIAPI DWORD __attribute__((__stdcall__)) SetLayoutWidth(IN HDC, IN LONG, IN DWORD);
 #endif /* WINVER >= 0x0500 */
 
 #if (_WIN32_WINNT >= 0x0500)
 
-WINGDIAPI BOOL  WINAPI GdiAlphaBlend( IN HDC, IN int, IN int, IN int, IN int, IN HDC, IN int, IN int, IN int, IN int, IN BLENDFUNCTION);
+WINGDIAPI BOOL  __attribute__((__stdcall__)) GdiAlphaBlend( IN HDC, IN int, IN int, IN int, IN int, IN HDC, IN int, IN int, IN int, IN int, IN BLENDFUNCTION);
 
-WINGDIAPI BOOL  WINAPI GdiTransparentBlt(IN HDC,IN int,IN int,IN int,IN int,IN HDC,IN int,IN int,IN int,IN int,IN UINT);
+WINGDIAPI BOOL  __attribute__((__stdcall__)) GdiTransparentBlt(IN HDC,IN int,IN int,IN int,IN int,IN HDC,IN int,IN int,IN int,IN int,IN UINT);
 
-WINGDIAPI BOOL  WINAPI GdiGradientFill( IN HDC, IN PTRIVERTEX, IN ULONG, IN PVOID, IN ULONG, IN ULONG);
+WINGDIAPI BOOL  __attribute__((__stdcall__)) GdiGradientFill( IN HDC, IN PTRIVERTEX, IN ULONG, IN PVOID, IN ULONG, IN ULONG);
 
 #endif
 
@@ -235,7 +235,7 @@ typedef int (CALLBACK* EMFPLAYPROC)( HDC, INT, HANDLE );
 
 // User Mode Driver Unload
 
-BOOL WINAPI GdiArtificialDecrementDriver(
+BOOL __attribute__((__stdcall__)) GdiArtificialDecrementDriver(
     LPWSTR       pDriverDllName,
     DWORD        dwDriverAttributes
 );
@@ -247,7 +247,7 @@ BOOL WINAPI GdiArtificialDecrementDriver(
 
 #define  EMF_PP_COLOR_OPTIMIZATION  0x01
 
-BOOL WINAPI GdiPlayEMF(
+BOOL __attribute__((__stdcall__)) GdiPlayEMF(
     LPWSTR      pwszPrinterName,
     LPDEVMODEW  pDevmode,
     LPWSTR      pwszDocName,
@@ -255,58 +255,58 @@ BOOL WINAPI GdiPlayEMF(
     HANDLE      hPageQuery
 );
 
-HANDLE WINAPI GdiGetSpoolFileHandle(
+HANDLE __attribute__((__stdcall__)) GdiGetSpoolFileHandle(
     LPWSTR     pwszPrinterName,
     LPDEVMODEW pDevmode,
     LPWSTR     pwszDocName);
 
-BOOL WINAPI GdiDeleteSpoolFileHandle(
+BOOL __attribute__((__stdcall__)) GdiDeleteSpoolFileHandle(
     HANDLE     SpoolFileHandle);
 
-DWORD WINAPI GdiGetPageCount(
+DWORD __attribute__((__stdcall__)) GdiGetPageCount(
     HANDLE     SpoolFileHandle);
 
-HDC WINAPI GdiGetDC(
+HDC __attribute__((__stdcall__)) GdiGetDC(
     HANDLE     SpoolFileHandle);
 
-HANDLE WINAPI GdiGetPageHandle(
+HANDLE __attribute__((__stdcall__)) GdiGetPageHandle(
     HANDLE     SpoolFileHandle,
     DWORD      Page,
     LPDWORD    pdwPageType);
 
-BOOL WINAPI GdiStartDocEMF(
+BOOL __attribute__((__stdcall__)) GdiStartDocEMF(
     HANDLE     SpoolFileHandle,
     DOCINFOW   *pDocInfo);
 
-BOOL WINAPI GdiStartPageEMF(
+BOOL __attribute__((__stdcall__)) GdiStartPageEMF(
     HANDLE     SpoolFileHandle);
 
-BOOL WINAPI GdiPlayPageEMF(
+BOOL __attribute__((__stdcall__)) GdiPlayPageEMF(
     HANDLE     SpoolFileHandle,
     HANDLE     hemf,
     RECT       *prectDocument,
     RECT       *prectBorder,
     RECT       *prectClip);
 
-BOOL WINAPI GdiPlayPrivatePageEMF(
+BOOL __attribute__((__stdcall__)) GdiPlayPrivatePageEMF(
     HANDLE       SpoolFileHandle,
     HENHMETAFILE hEnhMetaFile,
     RECT         *prectDocument);
 
-BOOL WINAPI GdiEndPageEMF(
+BOOL __attribute__((__stdcall__)) GdiEndPageEMF(
     HANDLE     SpoolFileHandle,
     DWORD      dwOptimization);
 
-BOOL WINAPI GdiEndDocEMF(
+BOOL __attribute__((__stdcall__)) GdiEndDocEMF(
     HANDLE     SpoolFileHandle);
 
-BOOL WINAPI GdiGetDevmodeForPage(
+BOOL __attribute__((__stdcall__)) GdiGetDevmodeForPage(
     HANDLE     SpoolFileHandle,
     DWORD      dwPageNumber,
     PDEVMODEW  *pCurrDM,
     PDEVMODEW  *pLastDM);
 
-BOOL WINAPI GdiResetDCEMF(
+BOOL __attribute__((__stdcall__)) GdiResetDCEMF(
     HANDLE     SpoolFileHandle,
     PDEVMODEW  pCurrDM);
 
@@ -334,7 +334,7 @@ typedef struct tagREALIZATION_INFO {
 } REALIZATION_INFO, *PREALIZATION_INFO;
 
 BOOL APIENTRY GdiRealizationInfo(HDC, PREALIZATION_INFO);
-WINGDIAPI BOOL  WINAPI GetTextExtentExPointWPri(HDC, LPCWSTR, int, int, LPINT, LPINT, LPSIZE);
+WINGDIAPI BOOL  __attribute__((__stdcall__)) GetTextExtentExPointWPri(HDC, LPCWSTR, int, int, LPINT, LPINT, LPSIZE);
 BOOL APIENTRY GdiIsPlayMetafileDC(HDC hdc);
 #endif
 
@@ -348,7 +348,7 @@ BOOL APIENTRY GdiIsPlayMetafileDC(HDC hdc);
 #define FE_SET_AA           4L
 
 ULONG
-WINAPI SetFontEnumeration (
+__attribute__((__stdcall__)) SetFontEnumeration (
     ULONG   ulType);
 
 
@@ -372,14 +372,14 @@ WINAPI SetFontEnumeration (
 
 
 WINGDIAPI BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetFontResourceInfoW(
     LPWSTR  lpPathname,
     LPDWORD lpBytes,
     LPVOID  lpBuffer,
     DWORD   iType);
 
-BOOL WINAPI GdiGetMessage(VOID *pv);
+BOOL __attribute__((__stdcall__)) GdiGetMessage(VOID *pv);
 
 
 typedef enum _GdiCallId {
@@ -444,7 +444,7 @@ typedef struct _GDICALL {
     };
 } GDICALL;
 
-BOOL WINAPI GdiCall(GDICALL *pCall);
+BOOL __attribute__((__stdcall__)) GdiCall(GDICALL *pCall);
 
 typedef struct  _CHWIDTHINFO
 {
@@ -596,7 +596,7 @@ int GdiAddFontResourceW( LPWSTR, DWORD, DESIGNVECTOR *);
 
 
 LPDEVMODEW
-WINAPI
+__attribute__((__stdcall__))
 GdiConvertToDevmodeW(
     LPDEVMODEA pdma
     );
@@ -611,7 +611,7 @@ typedef struct _UNIVERSAL_FONT_ID {
 
 WINGDIAPI
 INT
-WINAPI
+__attribute__((__stdcall__))
 GdiQueryFonts(
     PUNIVERSAL_FONT_ID,
     ULONG,
@@ -621,7 +621,7 @@ GdiQueryFonts(
 
 WINGDIAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GdiConsoleTextOut(
     HDC hdc,
     POLYTEXTW *lpto,
@@ -654,7 +654,7 @@ typedef enum _FULLSCREENCONTROL {
 
 WINGDIAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GdiFullscreenControl(
     FULLSCREENCONTROL FullscreenCommand,
     PVOID  FullscreenInuut,
@@ -681,7 +681,7 @@ typedef struct _UMTHDR {
 
 WINGDIAPI
 ULONG
-WINAPI
+__attribute__((__stdcall__))
 GdiPrinterThunk(
     UMTHDR *pumth,
     PVOID pvOut,

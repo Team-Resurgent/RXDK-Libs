@@ -63,7 +63,7 @@ typedef struct WINTRUST_ADV_INFO_
 //      *** DO NOT USE ***
 //
 //
-extern HRESULT WINAPI WinVerifyTrustEx(HWND hwnd, GUID *pgActionID, 
+extern HRESULT __attribute__((__stdcall__)) WinVerifyTrustEx(HWND hwnd, GUID *pgActionID, 
                                        WINTRUST_DATA *pWinTrustData);
 
 //////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ extern HRESULT WINAPI WinVerifyTrustEx(HWND hwnd, GUID *pgActionID,
 //      the dwFlags parameter is reserved for future use and MUST be set 
 //      to NULL.
 //
-extern PCCERT_CONTEXT WINAPI TrustFindIssuerCertificate(IN PCCERT_CONTEXT pChildContext,
+extern PCCERT_CONTEXT __attribute__((__stdcall__)) TrustFindIssuerCertificate(IN PCCERT_CONTEXT pChildContext,
                                                         IN DWORD dwEncoding,
                                                         IN DWORD chStores,
                                                         IN HCERTSTORE  *pahStores,
@@ -105,7 +105,7 @@ extern PCCERT_CONTEXT WINAPI TrustFindIssuerCertificate(IN PCCERT_CONTEXT pChild
 //      the dwFlags parameter is reserved for future use and MUST be set 
 //      to NULL.
 //
-extern BOOL WINAPI TrustOpenStores(IN HCRYPTPROV hProv,
+extern BOOL __attribute__((__stdcall__)) TrustOpenStores(IN HCRYPTPROV hProv,
                                    IN OUT DWORD *chStores,
                                    IN OUT OPTIONAL HCERTSTORE *pahStores,
                                    IN DWORD dwFlags);
@@ -126,7 +126,7 @@ extern BOOL WINAPI TrustOpenStores(IN HCRYPTPROV hProv,
 //      the dwFlags parameter is reserved for future use and MUST be set 
 //      to NULL.
 //
-extern BOOL WINAPI TrustIsCertificateSelfSigned(IN PCCERT_CONTEXT pContext,
+extern BOOL __attribute__((__stdcall__)) TrustIsCertificateSelfSigned(IN PCCERT_CONTEXT pContext,
                                                 IN DWORD dwEncoding, 
                                                 IN DWORD dwFlags);
 
@@ -136,22 +136,22 @@ extern BOOL WINAPI TrustIsCertificateSelfSigned(IN PCCERT_CONTEXT pContext,
 //----------------------------------------------------------------------------
 //  
 
-extern BOOL WINAPI WTHelperOpenKnownStores(CRYPT_PROVIDER_DATA *pProvData);
+extern BOOL __attribute__((__stdcall__)) WTHelperOpenKnownStores(CRYPT_PROVIDER_DATA *pProvData);
 
 #define     WTH_ALLOC                       0x00000001
 #define     WTH_FREE                        0x00000002
-extern BOOL WINAPI                      WTHelperGetKnownUsages(DWORD fdwAction, 
+extern BOOL __attribute__((__stdcall__))                      WTHelperGetKnownUsages(DWORD fdwAction, 
                                                                PCCRYPT_OID_INFO **ppOidInfo);
 
-extern HANDLE WINAPI                    WTHelperGetFileHandle(WINTRUST_DATA *pWintrustData);
-extern WCHAR * WINAPI                   WTHelperGetFileName(WINTRUST_DATA *pWintrustData);
-extern BOOL WINAPI                      WTHelperCertIsSelfSignedEx(DWORD dwEncoding, PCCERT_CONTEXT pContext);
-extern BOOL WINAPI                      WTHelperOpenKnownStores(CRYPT_PROVIDER_DATA *pProvData);
-extern BOOL WINAPI                      WTHelperCheckCertUsage(PCCERT_CONTEXT pCertContext, 
+extern HANDLE __attribute__((__stdcall__))                    WTHelperGetFileHandle(WINTRUST_DATA *pWintrustData);
+extern WCHAR * __attribute__((__stdcall__))                   WTHelperGetFileName(WINTRUST_DATA *pWintrustData);
+extern BOOL __attribute__((__stdcall__))                      WTHelperCertIsSelfSignedEx(DWORD dwEncoding, PCCERT_CONTEXT pContext);
+extern BOOL __attribute__((__stdcall__))                      WTHelperOpenKnownStores(CRYPT_PROVIDER_DATA *pProvData);
+extern BOOL __attribute__((__stdcall__))                      WTHelperCheckCertUsage(PCCERT_CONTEXT pCertContext, 
                                                                LPCSTR pszRequestedUsageOID);
-extern BOOL WINAPI                      WTHelperIsInRootStore(CRYPT_PROVIDER_DATA *pProvData, 
+extern BOOL __attribute__((__stdcall__))                      WTHelperIsInRootStore(CRYPT_PROVIDER_DATA *pProvData, 
                                                               PCCERT_CONTEXT pCertContext);
-extern BOOL WINAPI                      WTHelperGetAgencyInfo(PCCERT_CONTEXT pCert, 
+extern BOOL __attribute__((__stdcall__))                      WTHelperGetAgencyInfo(PCCERT_CONTEXT pCert, 
                                                               DWORD *pcbAgencyInfo, 
                                                               struct _SPC_SP_AGENCY_INFO *psAgencyInfo);
 
@@ -159,10 +159,10 @@ extern BOOL WINAPI                      WTHelperGetAgencyInfo(PCCERT_CONTEXT pCe
 #define WVT_MODID_WINTRUST              0x00000001
 #define WVT_MODID_SOFTPUB               0x00010000
 #define WVT_MODID_MSSIP                 0x00001000
-extern BOOL WINAPI TrustDecode(DWORD dwModuleId, BYTE **ppbRet, DWORD *pcbRet, DWORD cbHint,
+extern BOOL __attribute__((__stdcall__)) TrustDecode(DWORD dwModuleId, BYTE **ppbRet, DWORD *pcbRet, DWORD cbHint,
                                DWORD dwEncoding, const char *pcszOID, const BYTE *pbEncoded, DWORD cbEncoded,
                                DWORD dwDecodeFlags);
-extern BOOL WINAPI TrustFreeDecode(DWORD dwModuleId, BYTE **pbAllocated);
+extern BOOL __attribute__((__stdcall__)) TrustFreeDecode(DWORD dwModuleId, BYTE **pbAllocated);
 
 
 

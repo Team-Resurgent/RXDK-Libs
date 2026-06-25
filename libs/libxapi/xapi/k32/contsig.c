@@ -111,7 +111,7 @@ typedef struct _XCONTENT_SIGNATURES
 } XCONTENT_SIGNATURES, *PXCONTENT_SIGNATURES;
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XapiComputeContentMetadataFileName(
     IN PCSTR pszDirectory,
     OUT PSTR pszMetadataFileName
@@ -141,7 +141,7 @@ XapiComputeContentMetadataFileName(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XComputeContentSignatureKey(
     IN DWORD dwTitleId,
     OUT PBYTE pbKey
@@ -157,7 +157,7 @@ XComputeContentSignatureKey(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiComputeContentHeaderSignature(
     IN HANDLE hFile,
     IN PXCONTENT_METADATA_HEADER pHeader,
@@ -236,7 +236,7 @@ XapiComputeContentHeaderSignature(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiLoadContentMetadataHeader(
     IN HANDLE hFile,
     IN BOOL fVerifySignature,
@@ -330,7 +330,7 @@ XapiLoadContentMetadataHeader(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiVerifyAndLoadOptionalSectionData(
     IN HANDLE hFile,
     IN PXCONTENT_METADATA_HEADER pHeader,
@@ -392,7 +392,7 @@ Error:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipGetAlternateTitleID(
     VOID
     )
@@ -465,7 +465,7 @@ XapipGetAlternateTitleID(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetContentInstallLocationFromIDs(
     IN DWORD dwTitleID,
     IN XOFFERING_ID xOfferingID,
@@ -500,7 +500,7 @@ XGetContentInstallLocationFromIDs(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetContentInstallLocation(
     IN DWORD dwTitleID,
     IN LPCSTR lpSourceMetadataFileName,
@@ -545,7 +545,7 @@ XGetContentInstallLocation(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XInstallContentSignaturesWithFileName(
     IN DWORD dwTitleID,
     IN DWORD dwInstallFlags,
@@ -727,7 +727,7 @@ Exit:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XInstallContentSignaturesEx(
     IN DWORD dwTitleID,
     IN DWORD dwInstallFlags,
@@ -746,7 +746,7 @@ XInstallContentSignaturesEx(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XInstallContentSignatures(
     IN DWORD dwTitleID,
     IN LPCSTR lpSourceMetadataFileName,
@@ -760,7 +760,7 @@ XInstallContentSignatures(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XCreateContentSimple(
     IN DWORD dwTitleID,
     IN XOFFERING_ID xOfferingID,
@@ -867,7 +867,7 @@ Exit:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XRemoveContent(
     IN LPCSTR lpDirectoryName
     )
@@ -900,7 +900,7 @@ XRemoveContent(
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XLoadContentSignaturesWithFileName(
     IN DWORD dwTitleID,
     IN LPCSTR lpMetadataFileName
@@ -1017,7 +1017,7 @@ Error:
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XLoadContentSignaturesEx(
     IN DWORD dwTitleID,
     IN LPCSTR lpDirectoryName
@@ -1030,7 +1030,7 @@ XLoadContentSignaturesEx(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateSignatureByIndex(
     IN HANDLE hSignature,
     IN DWORD dwSignatureIndex,
@@ -1074,7 +1074,7 @@ XLocateSignatureByIndex(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateSignatureByNameEx(
     IN HANDLE hSignature,
     IN LPCSTR lpFileName,
@@ -1171,7 +1171,7 @@ XLocateSignatureByNameEx(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateSignatureByName(
     IN HANDLE hSignature,
     IN LPCSTR lpFileName,
@@ -1190,7 +1190,7 @@ XLocateSignatureByName(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateNextSignature(
     IN OUT HANDLE hSignature,
     OUT PSTR *ppszFileName,
@@ -1265,7 +1265,7 @@ XLocateNextSignature(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XCalculateContentSignature(
     IN LPBYTE pbData,
     IN DWORD dwDataSize,
@@ -1298,7 +1298,7 @@ XCalculateContentSignature(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateLiveSignature(
     IN HANDLE hSignature,
     OUT PBYTE pbLiveDigest,
@@ -1325,7 +1325,7 @@ XLocateLiveSignature(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XCloseContentSignatures(
     IN HANDLE hSignature
     )

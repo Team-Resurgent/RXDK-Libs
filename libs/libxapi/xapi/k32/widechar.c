@@ -16,7 +16,7 @@ UTF8ToUnicode(
     IN int cchWideChar
     );
 
-int WINAPI MultiByteToWideChar(
+int __attribute__((__stdcall__)) MultiByteToWideChar(
     IN UINT     CodePage,
     IN DWORD    dwFlags,
     IN LPCSTR   lpMultiByteStr,
@@ -71,7 +71,7 @@ int WINAPI MultiByteToWideChar(
     }
 }
 
-int WINAPI WideCharToMultiByte(
+int __attribute__((__stdcall__)) WideCharToMultiByte(
     IN UINT     CodePage,
     IN DWORD    dwFlags,
     IN LPCWSTR  lpWideCharStr,

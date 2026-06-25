@@ -57,7 +57,7 @@ Return Value:
 #ifndef RXDK_CLANG_LASTERROR
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 GetLastError(
     VOID
     )
@@ -94,7 +94,7 @@ Return Value:
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 SetLastError(
     DWORD dwErrCode
     )
@@ -143,7 +143,7 @@ Return Value:
 #endif /* RXDK_CLANG_LASTERROR */
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 CreateIoCompletionPort(
     HANDLE FileHandle,
     HANDLE ExistingCompletionPort,
@@ -274,7 +274,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 PostQueuedCompletionStatus(
     HANDLE CompletionPort,
     DWORD dwNumberOfBytesTransferred,
@@ -337,7 +337,7 @@ Return Value:
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetQueuedCompletionStatus(
     HANDLE CompletionPort,
     LPDWORD lpNumberOfBytesTransferred,
@@ -471,7 +471,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetOverlappedResult(
     HANDLE hFile,
     LPOVERLAPPED lpOverlapped,

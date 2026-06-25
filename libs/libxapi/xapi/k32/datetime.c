@@ -206,7 +206,7 @@ XboxTimeZoneDateToSystemTime(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipQueryTimeZoneInformation(
     OUT PTIME_ZONE_INFORMATION TimeZoneInformation,
     OUT PBOOL pfUseDST
@@ -243,7 +243,7 @@ XapipQueryTimeZoneInformation(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapipUseDaylightSavingTime()
 {
     ULONG type, size;
@@ -277,7 +277,7 @@ VOID XapipGetTimeZoneBias(LARGE_INTEGER* bias)
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 GetLocalTime(
     LPSYSTEMTIME lpLocalTime
     )
@@ -343,7 +343,7 @@ Return Value:
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 GetSystemTime(
     LPSYSTEMTIME lpSystemTime
     )
@@ -546,7 +546,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 FileTimeToLocalFileTime(
     CONST FILETIME *lpFileTime,
     LPFILETIME lpLocalFileTime
@@ -593,7 +593,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 LocalFileTimeToFileTime(
     CONST FILETIME *lpLocalFileTime,
     LPFILETIME lpFileTime
@@ -689,7 +689,7 @@ Return Value:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 GetTimeZoneInformation(
     LPTIME_ZONE_INFORMATION lpTimeZoneInformation
     )
@@ -884,7 +884,7 @@ SystemTimeToXboxTimeZoneDate(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipSetTimeZoneInformation(
     IN PTIME_ZONE_INFORMATION TimeZoneInformation
     )
@@ -915,7 +915,7 @@ XapipSetTimeZoneInformation(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiSetSystemTime(
     CONST SYSTEMTIME *lpSystemTime
     )
@@ -974,7 +974,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiSetLocalTime(
     CONST SYSTEMTIME *lpLocalTime
     )
@@ -1043,7 +1043,7 @@ Return Value:
 // xbox doesn't allow you to set the time (at least, for now)
 #if 0
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetTimeZoneInformation(
     CONST TIME_ZONE_INFORMATION *lpTimeZoneInformation
     )
@@ -1185,7 +1185,7 @@ Return Value:
 #if 0
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetSystemTimeAdjustment(
     PDWORD lpTimeAdjustment,
     PDWORD lpTimeIncrement,
@@ -1265,7 +1265,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetSystemTimeAdjustment(
     DWORD dwTimeAdjustment,
     BOOL  bTimeAdjustmentDisabled
@@ -1342,7 +1342,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SystemTimeToTzSpecificLocalTime(
     LPTIME_ZONE_INFORMATION lpTimeZoneInformation,
     LPSYSTEMTIME lpUniversalTime,

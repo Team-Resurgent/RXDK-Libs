@@ -26,7 +26,7 @@ Revision History:
 #ifdef XAPILIBP
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCleanMUFromRoot(
     IN OCHAR chDrive,
     PCOSTR pszPreserveDir OPTIONAL
@@ -73,7 +73,7 @@ XCleanMUFromRoot(
 }
 
 DWORD 
-WINAPI
+__attribute__((__stdcall__))
 XCleanDrive(
     IN OCHAR chDrive
 )

@@ -24,7 +24,7 @@
 //
 //-------------------------------------------------------------------------
 
-void WINAPI D3DXSetDXT3DXT5(BOOL Set);
+void __attribute__((__stdcall__)) D3DXSetDXT3DXT5(BOOL Set);
 
 //-------------------------------------------------------------------------
 // D3DXGetDXT3DXT5
@@ -36,7 +36,7 @@ void WINAPI D3DXSetDXT3DXT5(BOOL Set);
 //
 //-------------------------------------------------------------------------
 
-BOOL WINAPI D3DXGetDXT3DXT5(void);
+BOOL __attribute__((__stdcall__)) D3DXGetDXT3DXT5(void);
 
 //-------------------------------------------------------------------------
 // D3DX_FILTER flags:
@@ -186,7 +186,7 @@ extern "C" {
 //      description of the data in the source image file, or NULL.
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadSurfaceFromFileA(
         LPDIRECT3DSURFACE8    pDestSurface,
         CONST PALETTEENTRY*   pDestPalette,
@@ -200,7 +200,7 @@ HRESULT WINAPI
 #define D3DXLoadSurfaceFromFile D3DXLoadSurfaceFromFileA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadSurfaceFromResourceA(
         LPDIRECT3DSURFACE8    pDestSurface,
         CONST PALETTEENTRY*   pDestPalette,
@@ -215,7 +215,7 @@ HRESULT WINAPI
 #define D3DXLoadSurfaceFromResource
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadSurfaceFromFileInMemory(
         LPDIRECT3DSURFACE8    pDestSurface,
         CONST PALETTEENTRY*   pDestPalette,
@@ -257,7 +257,7 @@ HRESULT WINAPI
 //      opaque colorkeys.  (ex. Opaque black == 0xff000000)
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadSurfaceFromSurface(
         LPDIRECT3DSURFACE8    pDestSurface,
         CONST PALETTEENTRY*   pDestPalette,
@@ -302,7 +302,7 @@ HRESULT WINAPI
 //      opaque colorkeys.  (ex. Opaque black == 0xff000000)
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadSurfaceFromMemory(
         LPDIRECT3DSURFACE8    pDestSurface,
         CONST PALETTEENTRY*   pDestPalette,
@@ -351,7 +351,7 @@ HRESULT WINAPI
 //      opaque colorkeys.  (ex. Opaque black == 0xff000000)
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadVolumeFromVolume(
         LPDIRECT3DVOLUME8     pDestVolume,
         CONST PALETTEENTRY*   pDestPalette,
@@ -399,7 +399,7 @@ HRESULT WINAPI
 //      opaque colorkeys.  (ex. Opaque black == 0xff000000)
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXLoadVolumeFromMemory(
         LPDIRECT3DVOLUME8     pDestVolume,
         CONST PALETTEENTRY*   pDestPalette,
@@ -446,7 +446,7 @@ HRESULT WINAPI
 //      Memory pool to be used to create texture
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCheckTextureRequirements(
         LPDIRECT3DDEVICE8     pDevice,
         UINT*                 pWidth,
@@ -483,7 +483,7 @@ HRESULT WINAPI
 //      The texture object that will be created
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTexture(
         LPDIRECT3DDEVICE8     pDevice,
         UINT                  Width,
@@ -551,7 +551,7 @@ HRESULT WINAPI
 //
 //-------------------------------------------------------------------------
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTextureFromFileA(
         LPDIRECT3DDEVICE8     pDevice,
         LPCSTR                pSrcFile,
@@ -560,7 +560,7 @@ HRESULT WINAPI
 #define D3DXCreateTextureFromFile D3DXCreateTextureFromFileA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTextureFromResourceA(
         LPDIRECT3DDEVICE8     pDevice,
         HMODULE               hSrcModule,
@@ -570,7 +570,7 @@ HRESULT WINAPI
 #define D3DXCreateTextureFromResource D3DXCreateTextureFromResourceA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTextureFromFileExA(
         LPDIRECT3DDEVICE8     pDevice,
         LPCSTR                pSrcFile,
@@ -590,7 +590,7 @@ HRESULT WINAPI
 #define D3DXCreateTextureFromFileEx D3DXCreateTextureFromFileExA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTextureFromResourceExA(
         LPDIRECT3DDEVICE8     pDevice,
         HMODULE               hSrcModule,
@@ -611,7 +611,7 @@ HRESULT WINAPI
 #define D3DXCreateTextureFromResourceEx D3DXCreateTextureFromResourceExA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTextureFromFileInMemory(
         LPDIRECT3DDEVICE8     pDevice,
         LPCVOID               pSrcData,
@@ -619,7 +619,7 @@ HRESULT WINAPI
         LPDIRECT3DTEXTURE8*   ppTexture);
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTextureFromFileInMemoryEx(
         LPDIRECT3DDEVICE8     pDevice,
         LPCVOID               pSrcData,
@@ -656,7 +656,7 @@ HRESULT WINAPI
 //      Or D3DX_DEFAULT for D3DX_FILTER_BOX,
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXFilterTexture(
         LPDIRECT3DTEXTURE8    pTexture,
         CONST PALETTEENTRY*   pPalette,
@@ -698,7 +698,7 @@ HRESULT WINAPI
 //      Memory pool to be used to create texture
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCheckCubeTextureRequirements(
         LPDIRECT3DDEVICE8     pDevice,
         UINT*                 pSize,
@@ -732,7 +732,7 @@ HRESULT WINAPI
 //      The cube texture object that will be created
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateCubeTexture(
         LPDIRECT3DDEVICE8         pDevice,
         UINT                      Size,
@@ -787,7 +787,7 @@ HRESULT WINAPI
 //      The cube texture object that will be created
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateCubeTextureFromFileA(
         LPDIRECT3DDEVICE8         pDevice,
         LPCSTR                    pSrcFile,
@@ -796,7 +796,7 @@ HRESULT WINAPI
 #define D3DXCreateCubeTextureFromFile D3DXCreateCubeTextureFromFileA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateCubeTextureFromFileExA(
         LPDIRECT3DDEVICE8         pDevice,
         LPCSTR                    pSrcFile,
@@ -815,7 +815,7 @@ HRESULT WINAPI
 #define D3DXCreateCubeTextureFromFileEx D3DXCreateCubeTextureFromFileExA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateCubeTextureFromFileInMemory(
         LPDIRECT3DDEVICE8         pDevice,
         LPCVOID                   pSrcData,
@@ -823,7 +823,7 @@ HRESULT WINAPI
         LPDIRECT3DCUBETEXTURE8*   ppCubeTexture);
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateCubeTextureFromFileInMemoryEx(
         LPDIRECT3DDEVICE8         pDevice,
         LPCVOID                   pSrcData,
@@ -858,7 +858,7 @@ HRESULT WINAPI
 //      Or D3DX_DEFAULT for D3DX_FILTER_BOX,
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXFilterCubeTexture(
         LPDIRECT3DCUBETEXTURE8    pCubeTexture,
         CONST PALETTEENTRY*       pPalette,
@@ -898,7 +898,7 @@ HRESULT WINAPI
 //      Desired pixel format, or NULL.  Returns corrected format.
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCheckVolumeTextureRequirements(
         LPDIRECT3DDEVICE8     pDevice,
         UINT*                 pWidth,
@@ -934,7 +934,7 @@ HRESULT WINAPI
 //      The volume texture object that will be created
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateVolumeTexture(
         LPDIRECT3DDEVICE8         pDevice,
         UINT                      Width,
@@ -964,7 +964,7 @@ HRESULT WINAPI
 //      Or D3DX_DEFAULT for D3DX_FILTER_BOX,
 //
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXFilterVolumeTexture(
         LPDIRECT3DVOLUMETEXTURE8  pVolumeTexture,
         CONST PALETTEENTRY*       pPalette,

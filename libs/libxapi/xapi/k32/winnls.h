@@ -907,37 +907,37 @@ typedef FARPROC CALINFO_ENUMPROCEXW;
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsValidCodePage(
     IN UINT  CodePage);
 
 WINBASEAPI
 UINT
-WINAPI
+__attribute__((__stdcall__))
 GetACP(void);
 
 WINBASEAPI
 UINT
-WINAPI
+__attribute__((__stdcall__))
 GetOEMCP(void);
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetCPInfo(
     IN UINT       CodePage,
     OUT LPCPINFO  lpCPInfo);
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetCPInfoExA(
     IN UINT          CodePage,
     IN DWORD         dwFlags,
     OUT LPCPINFOEXA  lpCPInfoEx);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetCPInfoExW(
     IN UINT          CodePage,
     IN DWORD         dwFlags,
@@ -950,20 +950,20 @@ GetCPInfoExW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsDBCSLeadByte(
     IN BYTE  TestChar);
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsDBCSLeadByteEx(
     IN UINT  CodePage,
     IN BYTE  TestChar);
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 MultiByteToWideChar(
     IN UINT     CodePage,
     IN DWORD    dwFlags,
@@ -974,7 +974,7 @@ MultiByteToWideChar(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 WideCharToMultiByte(
     IN UINT     CodePage,
     IN DWORD    dwFlags,
@@ -992,7 +992,7 @@ WideCharToMultiByte(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 CompareStringA(
     IN LCID     Locale,
     IN DWORD    dwCmpFlags,
@@ -1002,7 +1002,7 @@ CompareStringA(
     IN int      cchCount2);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 CompareStringW(
     IN LCID     Locale,
     IN DWORD    dwCmpFlags,
@@ -1018,7 +1018,7 @@ CompareStringW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 LCMapStringA(
     IN LCID     Locale,
     IN DWORD    dwMapFlags,
@@ -1028,7 +1028,7 @@ LCMapStringA(
     IN int      cchDest);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 LCMapStringW(
     IN LCID     Locale,
     IN DWORD    dwMapFlags,
@@ -1044,7 +1044,7 @@ LCMapStringW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetLocaleInfoA(
     IN LCID     Locale,
     IN LCTYPE   LCType,
@@ -1052,7 +1052,7 @@ GetLocaleInfoA(
     IN int      cchData);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetLocaleInfoW(
     IN LCID     Locale,
     IN LCTYPE   LCType,
@@ -1066,14 +1066,14 @@ GetLocaleInfoW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetLocaleInfoA(
     IN LCID     Locale,
     IN LCTYPE   LCType,
     IN LPCSTR  lpLCData);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetLocaleInfoW(
     IN LCID     Locale,
     IN LCTYPE   LCType,
@@ -1087,7 +1087,7 @@ SetLocaleInfoW(
 #if (WINVER >= 0x040A)
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetCalendarInfoA(
     LCID     Locale,
     CALID    Calendar,
@@ -1097,7 +1097,7 @@ GetCalendarInfoA(
     LPDWORD  lpValue);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetCalendarInfoW(
     LCID     Locale,
     CALID    Calendar,
@@ -1113,7 +1113,7 @@ GetCalendarInfoW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetCalendarInfoA(
     LCID     Locale,
     CALID    Calendar,
@@ -1121,7 +1121,7 @@ SetCalendarInfoA(
     LPCSTR  lpCalData);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetCalendarInfoW(
     LCID     Locale,
     CALID    Calendar,
@@ -1136,7 +1136,7 @@ SetCalendarInfoW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetTimeFormatA(
     IN LCID             Locale,
     IN DWORD            dwFlags,
@@ -1146,7 +1146,7 @@ GetTimeFormatA(
     IN int              cchTime);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetTimeFormatW(
     IN LCID             Locale,
     IN DWORD            dwFlags,
@@ -1162,7 +1162,7 @@ GetTimeFormatW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetDateFormatA(
     IN LCID             Locale,
     IN DWORD            dwFlags,
@@ -1172,7 +1172,7 @@ GetDateFormatA(
     IN int              cchDate);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetDateFormatW(
     IN LCID             Locale,
     IN DWORD            dwFlags,
@@ -1188,7 +1188,7 @@ GetDateFormatW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetNumberFormatA(
     IN LCID             Locale,
     IN DWORD            dwFlags,
@@ -1198,7 +1198,7 @@ GetNumberFormatA(
     IN int              cchNumber);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetNumberFormatW(
     IN LCID             Locale,
     IN DWORD            dwFlags,
@@ -1214,7 +1214,7 @@ GetNumberFormatW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetCurrencyFormatA(
     IN LCID               Locale,
     IN DWORD              dwFlags,
@@ -1224,7 +1224,7 @@ GetCurrencyFormatA(
     IN int                cchCurrency);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 GetCurrencyFormatW(
     IN LCID               Locale,
     IN DWORD              dwFlags,
@@ -1240,7 +1240,7 @@ GetCurrencyFormatW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumCalendarInfoA(
     IN CALINFO_ENUMPROCA lpCalInfoEnumProc,
     IN LCID              Locale,
@@ -1248,7 +1248,7 @@ EnumCalendarInfoA(
     IN CALTYPE           CalType);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumCalendarInfoW(
     IN CALINFO_ENUMPROCW lpCalInfoEnumProc,
     IN LCID              Locale,
@@ -1263,7 +1263,7 @@ EnumCalendarInfoW(
 #if(WINVER >= 0x0500)
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumCalendarInfoExA(
     IN CALINFO_ENUMPROCEXA lpCalInfoEnumProcEx,
     IN LCID                Locale,
@@ -1271,7 +1271,7 @@ EnumCalendarInfoExA(
     IN CALTYPE             CalType);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumCalendarInfoExW(
     IN CALINFO_ENUMPROCEXW lpCalInfoEnumProcEx,
     IN LCID                Locale,
@@ -1286,14 +1286,14 @@ EnumCalendarInfoExW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumTimeFormatsA(
     IN TIMEFMT_ENUMPROCA lpTimeFmtEnumProc,
     IN LCID              Locale,
     IN DWORD             dwFlags);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumTimeFormatsW(
     IN TIMEFMT_ENUMPROCW lpTimeFmtEnumProc,
     IN LCID              Locale,
@@ -1306,14 +1306,14 @@ EnumTimeFormatsW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumDateFormatsA(
     IN DATEFMT_ENUMPROCA lpDateFmtEnumProc,
     IN LCID              Locale,
     IN DWORD             dwFlags);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumDateFormatsW(
     IN DATEFMT_ENUMPROCW lpDateFmtEnumProc,
     IN LCID              Locale,
@@ -1327,14 +1327,14 @@ EnumDateFormatsW(
 #if(WINVER >= 0x0500)
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumDateFormatsExA(
     IN DATEFMT_ENUMPROCEXA lpDateFmtEnumProcEx,
     IN LCID                Locale,
     IN DWORD               dwFlags);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumDateFormatsExW(
     IN DATEFMT_ENUMPROCEXW lpDateFmtEnumProcEx,
     IN LCID                Locale,
@@ -1349,7 +1349,7 @@ EnumDateFormatsExW(
 #if(WINVER >= 0x0500)
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsValidLanguageGroup(
     IN LGRPID  LanguageGroup,
     IN DWORD   dwFlags);
@@ -1357,25 +1357,25 @@ IsValidLanguageGroup(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsValidLocale(
     IN LCID   Locale,
     IN DWORD  dwFlags);
 
 WINBASEAPI
 LCID
-WINAPI
+__attribute__((__stdcall__))
 ConvertDefaultLocale(
     IN OUT LCID   Locale);
 
 WINBASEAPI
 LCID
-WINAPI
+__attribute__((__stdcall__))
 GetThreadLocale(void);
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetThreadLocale(
     IN LCID  Locale
     );
@@ -1383,33 +1383,33 @@ SetThreadLocale(
 #if(WINVER >= 0x0500)
 WINBASEAPI
 LANGID
-WINAPI
+__attribute__((__stdcall__))
 GetSystemDefaultUILanguage(void);
 
 WINBASEAPI
 LANGID
-WINAPI
+__attribute__((__stdcall__))
 GetUserDefaultUILanguage(void);
 #endif /* WINVER >= 0x0500 */
 
 WINBASEAPI
 LANGID
-WINAPI
+__attribute__((__stdcall__))
 GetSystemDefaultLangID(void);
 
 WINBASEAPI
 LANGID
-WINAPI
+__attribute__((__stdcall__))
 GetUserDefaultLangID(void);
 
 WINBASEAPI
 LCID
-WINAPI
+__attribute__((__stdcall__))
 GetSystemDefaultLCID(void);
 
 WINBASEAPI
 LCID
-WINAPI
+__attribute__((__stdcall__))
 GetUserDefaultLCID(void);
 
 
@@ -1419,7 +1419,7 @@ GetUserDefaultLCID(void);
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetStringTypeExA(
     IN LCID     Locale,
     IN DWORD    dwInfoType,
@@ -1428,7 +1428,7 @@ GetStringTypeExA(
     OUT LPWORD  lpCharType);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetStringTypeExW(
     IN LCID     Locale,
     IN DWORD    dwInfoType,
@@ -1454,7 +1454,7 @@ GetStringTypeExW(
 //
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetStringTypeA(
     IN LCID     Locale,
     IN DWORD    dwInfoType,
@@ -1464,7 +1464,7 @@ GetStringTypeA(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetStringTypeW(
     IN DWORD    dwInfoType,
     IN LPCWSTR  lpSrcStr,
@@ -1474,7 +1474,7 @@ GetStringTypeW(
 
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 FoldStringA(
     IN DWORD    dwMapFlags,
     IN LPCSTR  lpSrcStr,
@@ -1483,7 +1483,7 @@ FoldStringA(
     IN int      cchDest);
 WINBASEAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 FoldStringW(
     IN DWORD    dwMapFlags,
     IN LPCWSTR  lpSrcStr,
@@ -1499,14 +1499,14 @@ FoldStringW(
 #if(WINVER >= 0x0500)
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumSystemLanguageGroupsA(
     IN LANGUAGEGROUP_ENUMPROCA lpLanguageGroupEnumProc,
     IN DWORD                   dwFlags,
     IN LONG_PTR                lParam);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumSystemLanguageGroupsW(
     IN LANGUAGEGROUP_ENUMPROCW lpLanguageGroupEnumProc,
     IN DWORD                   dwFlags,
@@ -1519,7 +1519,7 @@ EnumSystemLanguageGroupsW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumLanguageGroupLocalesA(
     IN LANGGROUPLOCALE_ENUMPROCA lpLangGroupLocaleEnumProc,
     IN LGRPID                    LanguageGroup,
@@ -1527,7 +1527,7 @@ EnumLanguageGroupLocalesA(
     IN LONG_PTR                  lParam);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumLanguageGroupLocalesW(
     IN LANGGROUPLOCALE_ENUMPROCW lpLangGroupLocaleEnumProc,
     IN LGRPID                    LanguageGroup,
@@ -1541,14 +1541,14 @@ EnumLanguageGroupLocalesW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumUILanguagesA(
     IN UILANGUAGE_ENUMPROCA lpUILanguageEnumProc,
     IN DWORD                dwFlags,
     IN LONG_PTR             lParam);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumUILanguagesW(
     IN UILANGUAGE_ENUMPROCW lpUILanguageEnumProc,
     IN DWORD                dwFlags,
@@ -1562,13 +1562,13 @@ EnumUILanguagesW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumSystemLocalesA(
     IN LOCALE_ENUMPROCA lpLocaleEnumProc,
     IN DWORD            dwFlags);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumSystemLocalesW(
     IN LOCALE_ENUMPROCW lpLocaleEnumProc,
     IN DWORD            dwFlags);
@@ -1580,13 +1580,13 @@ EnumSystemLocalesW(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumSystemCodePagesA(
     IN CODEPAGE_ENUMPROCA lpCodePageEnumProc,
     IN DWORD              dwFlags);
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EnumSystemCodePagesW(
     IN CODEPAGE_ENUMPROCW lpCodePageEnumProc,
     IN DWORD              dwFlags);

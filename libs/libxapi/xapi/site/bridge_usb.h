@@ -57,7 +57,7 @@ unsigned long DbgPrint(const char *Format, ...);
 
 /*
  * xboxkrnl NTAPI entry points use x86 __stdcall. Vendor USB sources spell that
- * explicitly on kernel callbacks (ISR/DPC/HAL); do not rely on empty NTAPI/WINAPI
+ * explicitly on kernel callbacks (ISR/DPC/HAL); do not rely on empty NTAPI/__attribute__((__stdcall__))
  * from windef.h — see build/generated/xapi_site.h (libxapi) / xapi_title_site.h.
  */
 

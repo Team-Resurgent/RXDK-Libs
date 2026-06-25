@@ -700,7 +700,7 @@ extern DRIVER_OBJECT FatxDriverObject;
 
 extern
 UCHAR
-FASTCALL
+__attribute__((fastcall))
 RtlFindFirstSetRightMember(
     IN ULONG Set
     );

@@ -135,7 +135,7 @@ extern "C" {
 //
 // Callback Function Type Definition
 //
-typedef HRESULT (WINAPI *PFNDPNMESSAGEHANDLER)(PVOID,DWORD,PVOID);
+typedef HRESULT (__attribute__((__stdcall__)) *PFNDPNMESSAGEHANDLER)(PVOID,DWORD,PVOID);
 
 /****************************************************************************
  *
@@ -763,10 +763,10 @@ typedef struct IDP8ServiceProvider  IDP8ServiceProvider;
  *
  ****************************************************************************/
 
-extern HRESULT WINAPI DPlayInitialize(DWORD dwMaxMemUsage);
-extern HRESULT WINAPI DPlayCleanup(void);
+extern HRESULT __attribute__((__stdcall__)) DPlayInitialize(DWORD dwMaxMemUsage);
+extern HRESULT __attribute__((__stdcall__)) DPlayCleanup(void);
 
-extern HRESULT WINAPI DirectPlay8Create(DWORD dwIID, void **ppvInterface, void **pUnknown);
+extern HRESULT __attribute__((__stdcall__)) DirectPlay8Create(DWORD dwIID, void **ppvInterface, void **pUnknown);
 
 /****************************************************************************
  *
@@ -779,30 +779,30 @@ extern HRESULT WINAPI DirectPlay8Create(DWORD dwIID, void **ppvInterface, void *
 // COM definition for DirectPlay8 Client interface
 //
 // IUnknown methods
-ULONG WINAPI IDirectPlay8Client_AddRef(LPDIRECTPLAY8CLIENT pDirectPlay8Client);
-ULONG WINAPI IDirectPlay8Client_Release(LPDIRECTPLAY8CLIENT pDirectPlay8Client);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Client_AddRef(LPDIRECTPLAY8CLIENT pDirectPlay8Client);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Client_Release(LPDIRECTPLAY8CLIENT pDirectPlay8Client);
 
 // IDirectPlay8Client methods
-HRESULT WINAPI IDirectPlay8Client_Initialize(LPDIRECTPLAY8CLIENT pDirectPlay8Client, PVOID const pvUserContext, const PFNDPNMESSAGEHANDLER pfn, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_EnumServiceProviders(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const GUID *const pguidServiceProvider, const GUID *const pguidApplication, DPN_SERVICE_PROVIDER_INFO *const pSPInfoBuffer, PDWORD const pcbEnumData, PDWORD const pcReturned, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_EnumHosts(LPDIRECTPLAY8CLIENT pDirectPlay8Client, PDPN_APPLICATION_DESC const pApplicationDesc,IDirectPlay8Address *const pAddrHost,IDirectPlay8Address *const pDeviceInfo,PVOID const pUserEnumData,const DWORD dwUserEnumDataSize,const DWORD dwEnumCount,const DWORD dwRetryInterval,const DWORD dwTimeOut,PVOID const pvUserContext,DPNHANDLE *const pAsyncHandle,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_CancelAsyncOperation(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPNHANDLE hAsyncHandle, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_Connect(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address *const pHostAddr,IDirectPlay8Address *const pDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,const void *const pvUserConnectData,const DWORD dwUserConnectDataSize,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_Send(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_BUFFER_DESC *const prgBufferDesc,const DWORD cBufferDesc,const DWORD dwTimeOut,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetSendQueueInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DWORD *const pdwNumMsgs, DWORD *const pdwNumBytes, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetApplicationDesc(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_APPLICATION_DESC *const pAppDescBuffer, DWORD *const pcbDataSize, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_SetClientInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_PLAYER_INFO *const pdpnPlayerInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetServerInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_PLAYER_INFO *const pdpnPlayerInfo,DWORD *const pdwSize,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetServerAddress(LPDIRECTPLAY8CLIENT pDirectPlay8Client, IDirectPlay8Address **const pAddress,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_Close(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_ReturnBuffer(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPNHANDLE hBufferHandle,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_CAPS *const pdpCaps,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_SetCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_CAPS *const pdpCaps, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_SetSPCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const GUID *const pguidSP, const DPN_SP_CAPS *const pdpspCaps, const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetSPCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const GUID *const pguidSP,DPN_SP_CAPS *const pdpspCaps,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_GetConnectionInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_CONNECTION_INFO *const pdpConnectionInfo,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_RegisterLobby(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPNHANDLE dpnHandle, PVOID const pIDP8LobbiedApplication,const DWORD dwFlags);
-HRESULT WINAPI IDirectPlay8Client_DoWork(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_Initialize(LPDIRECTPLAY8CLIENT pDirectPlay8Client, PVOID const pvUserContext, const PFNDPNMESSAGEHANDLER pfn, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_EnumServiceProviders(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const GUID *const pguidServiceProvider, const GUID *const pguidApplication, DPN_SERVICE_PROVIDER_INFO *const pSPInfoBuffer, PDWORD const pcbEnumData, PDWORD const pcReturned, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_EnumHosts(LPDIRECTPLAY8CLIENT pDirectPlay8Client, PDPN_APPLICATION_DESC const pApplicationDesc,IDirectPlay8Address *const pAddrHost,IDirectPlay8Address *const pDeviceInfo,PVOID const pUserEnumData,const DWORD dwUserEnumDataSize,const DWORD dwEnumCount,const DWORD dwRetryInterval,const DWORD dwTimeOut,PVOID const pvUserContext,DPNHANDLE *const pAsyncHandle,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_CancelAsyncOperation(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPNHANDLE hAsyncHandle, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_Connect(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address *const pHostAddr,IDirectPlay8Address *const pDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,const void *const pvUserConnectData,const DWORD dwUserConnectDataSize,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_Send(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_BUFFER_DESC *const prgBufferDesc,const DWORD cBufferDesc,const DWORD dwTimeOut,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetSendQueueInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DWORD *const pdwNumMsgs, DWORD *const pdwNumBytes, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetApplicationDesc(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_APPLICATION_DESC *const pAppDescBuffer, DWORD *const pcbDataSize, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_SetClientInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_PLAYER_INFO *const pdpnPlayerInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetServerInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_PLAYER_INFO *const pdpnPlayerInfo,DWORD *const pdwSize,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetServerAddress(LPDIRECTPLAY8CLIENT pDirectPlay8Client, IDirectPlay8Address **const pAddress,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_Close(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_ReturnBuffer(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPNHANDLE hBufferHandle,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_CAPS *const pdpCaps,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_SetCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPN_CAPS *const pdpCaps, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_SetSPCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const GUID *const pguidSP, const DPN_SP_CAPS *const pdpspCaps, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetSPCaps(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const GUID *const pguidSP,DPN_SP_CAPS *const pdpspCaps,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_GetConnectionInfo(LPDIRECTPLAY8CLIENT pDirectPlay8Client, DPN_CONNECTION_INFO *const pdpConnectionInfo,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_RegisterLobby(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DPNHANDLE dpnHandle, PVOID const pIDP8LobbiedApplication,const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Client_DoWork(LPDIRECTPLAY8CLIENT pDirectPlay8Client, const DWORD dwFlags);
 
 #ifdef __cplusplus
 
@@ -928,45 +928,45 @@ struct IDirectPlay8Client
 // COM definition for DirectPlay8 Server interface
 //
 // IUnknown methods
-ULONG WINAPI IDirectPlay8Server_AddRef(LPDIRECTPLAY8SERVER pDirectPlay8Server);
-ULONG WINAPI IDirectPlay8Server_Release(LPDIRECTPLAY8SERVER pDirectPlay8Server);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Server_AddRef(LPDIRECTPLAY8SERVER pDirectPlay8Server);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Server_Release(LPDIRECTPLAY8SERVER pDirectPlay8Server);
 
 // IDirectPlay8Server methods
-HRESULT WINAPI IDirectPlay8Server_Initialize(LPDIRECTPLAY8SERVER pDirectPlay8Server, PVOID const pvUserContext, const PFNDPNMESSAGEHANDLER pfn, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_EnumServiceProviders(LPDIRECTPLAY8SERVER pDirectPlay8Server, const GUID *const pguidServiceProvider,const GUID *const pguidApplication,DPN_SERVICE_PROVIDER_INFO *const pSPInfoBuffer,PDWORD const pcbEnumData,PDWORD const pcReturned,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_CancelAsyncOperation(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNHANDLE hAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetSendQueueInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DWORD *const pdwNumMsgs, DWORD *const pdwNumBytes, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetApplicationDesc(LPDIRECTPLAY8SERVER pDirectPlay8Server, DPN_APPLICATION_DESC *const pAppDescBuffer, DWORD *const pcbDataSize, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_SetServerInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_PLAYER_INFO *const pdpnPlayerInfo,PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetClientInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DPN_PLAYER_INFO *const pdpnPlayerInfo,DWORD *const pdwSize,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetClientAddress(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,IDirectPlay8Address **const pAddress,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetLocalHostAddresses(LPDIRECTPLAY8SERVER pDirectPlay8Server, IDirectPlay8Address **const prgpAddress,DWORD *const pcAddress,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_SetApplicationDesc(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_APPLICATION_DESC *const pad, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_Host(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address **const prgpDeviceInfo,const DWORD cDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,void *const pvPlayerContext,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_SendTo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,const DPN_BUFFER_DESC *const prgBufferDesc,const DWORD cBufferDesc,const DWORD dwTimeOut,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_CreateGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_GROUP_INFO *const pdpnGroupInfo,void *const pvGroupContext,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_DestroyGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID idGroup, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_AddPlayerToGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_RemovePlayerFromGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_SetGroupInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetGroupInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,DWORD *const pdwSize,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_EnumPlayersAndGroups(LPDIRECTPLAY8SERVER pDirectPlay8Server, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_EnumGroupMembers(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_Close(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_DestroyClient(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnidClient, const void *const pvDestroyData, const DWORD dwDestroyDataSize, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_ReturnBuffer(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNHANDLE hBufferHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetPlayerContext(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,PVOID *const ppvPlayerContext,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetGroupContext(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,PVOID *const ppvGroupContext,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, DPN_CAPS *const pdpCaps,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_SetCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_CAPS *const pdpCaps, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_SetSPCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, const GUID *const pguidSP, const DPN_SP_CAPS *const pdpspCaps, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetSPCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, const GUID *const pguidSP, DPN_SP_CAPS *const pdpspCaps,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_GetConnectionInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid, DPN_CONNECTION_INFO *const pdpConnectionInfo,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Server_RegisterLobby(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNHANDLE dpnHandle, PVOID const pIDP8LobbiedApplication,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_Initialize(LPDIRECTPLAY8SERVER pDirectPlay8Server, PVOID const pvUserContext, const PFNDPNMESSAGEHANDLER pfn, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_EnumServiceProviders(LPDIRECTPLAY8SERVER pDirectPlay8Server, const GUID *const pguidServiceProvider,const GUID *const pguidApplication,DPN_SERVICE_PROVIDER_INFO *const pSPInfoBuffer,PDWORD const pcbEnumData,PDWORD const pcReturned,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_CancelAsyncOperation(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNHANDLE hAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetSendQueueInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DWORD *const pdwNumMsgs, DWORD *const pdwNumBytes, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetApplicationDesc(LPDIRECTPLAY8SERVER pDirectPlay8Server, DPN_APPLICATION_DESC *const pAppDescBuffer, DWORD *const pcbDataSize, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_SetServerInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_PLAYER_INFO *const pdpnPlayerInfo,PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetClientInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DPN_PLAYER_INFO *const pdpnPlayerInfo,DWORD *const pdwSize,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetClientAddress(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,IDirectPlay8Address **const pAddress,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetLocalHostAddresses(LPDIRECTPLAY8SERVER pDirectPlay8Server, IDirectPlay8Address **const prgpAddress,DWORD *const pcAddress,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_SetApplicationDesc(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_APPLICATION_DESC *const pad, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_Host(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address **const prgpDeviceInfo,const DWORD cDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,void *const pvPlayerContext,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_SendTo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,const DPN_BUFFER_DESC *const prgBufferDesc,const DWORD cBufferDesc,const DWORD dwTimeOut,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_CreateGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_GROUP_INFO *const pdpnGroupInfo,void *const pvGroupContext,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_DestroyGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID idGroup, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_AddPlayerToGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_RemovePlayerFromGroup(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_SetGroupInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetGroupInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,DWORD *const pdwSize,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_EnumPlayersAndGroups(LPDIRECTPLAY8SERVER pDirectPlay8Server, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_EnumGroupMembers(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_Close(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_DestroyClient(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnidClient, const void *const pvDestroyData, const DWORD dwDestroyDataSize, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_ReturnBuffer(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNHANDLE hBufferHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetPlayerContext(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,PVOID *const ppvPlayerContext,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetGroupContext(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid,PVOID *const ppvGroupContext,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, DPN_CAPS *const pdpCaps,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_SetCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPN_CAPS *const pdpCaps, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_SetSPCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, const GUID *const pguidSP, const DPN_SP_CAPS *const pdpspCaps, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetSPCaps(LPDIRECTPLAY8SERVER pDirectPlay8Server, const GUID *const pguidSP, DPN_SP_CAPS *const pdpspCaps,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_GetConnectionInfo(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNID dpnid, DPN_CONNECTION_INFO *const pdpConnectionInfo,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_RegisterLobby(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DPNHANDLE dpnHandle, PVOID const pIDP8LobbiedApplication,const DWORD dwFlags );
 //@@BEGIN_MSINTERNAL
-HRESULT WINAPI IDirectPlay8Server_DumpNameTable(LPDIRECTPLAY8SERVER pDirectPlay8Server, char *const Buffer );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_DumpNameTable(LPDIRECTPLAY8SERVER pDirectPlay8Server, char *const Buffer );
 //@@END_MSINTERNAL
-HRESULT WINAPI IDirectPlay8Server_DoWork(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Server_DoWork(LPDIRECTPLAY8SERVER pDirectPlay8Server, const DWORD dwFlags);
 
 
 #ifdef __cplusplus
@@ -1158,48 +1158,48 @@ struct IDirectPlay8Server
 // COM definition for DirectPlay8 Peer interface
 //
 // IUnknown methods
-ULONG WINAPI IDirectPlay8Peer_AddRef(LPDIRECTPLAY8PEER pDirectPlay8Peer);
-ULONG WINAPI IDirectPlay8Peer_Release(LPDIRECTPLAY8PEER pDirectPlay8Peer);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Peer_AddRef(LPDIRECTPLAY8PEER pDirectPlay8Peer);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Peer_Release(LPDIRECTPLAY8PEER pDirectPlay8Peer);
 
 // IDirectPlay8Peer methods
-HRESULT WINAPI IDirectPlay8Peer_Initialize(LPDIRECTPLAY8PEER pDirectPlay8Peer, PVOID const pvUserContext, const PFNDPNMESSAGEHANDLER pfn, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_EnumServiceProviders(LPDIRECTPLAY8PEER pDirectPlay8Peer, const GUID *const pguidServiceProvider, const GUID *const pguidApplication, DPN_SERVICE_PROVIDER_INFO *const pSPInfoBuffer, DWORD *const pcbEnumData, DWORD *const pcReturned, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_CancelAsyncOperation(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNHANDLE hAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_Connect(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address *const pHostAddr,IDirectPlay8Address *const pDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,const void *const pvUserConnectData,const DWORD dwUserConnectDataSize,void *const pvPlayerContext,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_SendTo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,const DPN_BUFFER_DESC *const prgBufferDesc,const DWORD cBufferDesc,const DWORD dwTimeOut,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetSendQueueInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid, DWORD *const pdwNumMsgs, DWORD *const pdwNumBytes, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_Host(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address **const prgpDeviceInfo,const DWORD cDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,void *const pvPlayerContext,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetApplicationDesc(LPDIRECTPLAY8PEER pDirectPlay8Peer, DPN_APPLICATION_DESC *const pAppDescBuffer, DWORD *const pcbDataSize, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_SetApplicationDesc(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_APPLICATION_DESC *const pad, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_CreateGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_GROUP_INFO *const pdpnGroupInfo,void *const pvGroupContext,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_DestroyGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID idGroup, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_AddPlayerToGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_RemovePlayerFromGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_SetGroupInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetGroupInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,DWORD *const pdwSize,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_EnumPlayersAndGroups(LPDIRECTPLAY8PEER pDirectPlay8Peer, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_EnumGroupMembers(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_SetPeerInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_PLAYER_INFO *const pdpnPlayerInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetPeerInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,DPN_PLAYER_INFO *const pdpnPlayerInfo,DWORD *const pdwSize,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetPeerAddress(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,IDirectPlay8Address **const pAddress,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetLocalHostAddresses(LPDIRECTPLAY8PEER pDirectPlay8Peer, IDirectPlay8Address **const prgpAddress,DWORD *const pcAddress,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_Close(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_EnumHosts(LPDIRECTPLAY8PEER pDirectPlay8Peer, PDPN_APPLICATION_DESC const pApplicationDesc,IDirectPlay8Address *const pAddrHost,IDirectPlay8Address *const pDeviceInfo,PVOID const pUserEnumData,const DWORD dwUserEnumDataSize,const DWORD dwEnumCount,const DWORD dwRetryInterval,const DWORD dwTimeOut,PVOID const pvUserContext,DPNHANDLE *const pAsyncHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_DestroyPeer(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnidClient, const void *const pvDestroyData, const DWORD dwDestroyDataSize, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_ReturnBuffer(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNHANDLE hBufferHandle,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetPlayerContext(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,PVOID *const ppvPlayerContext,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetGroupContext(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,PVOID *const ppvGroupContext,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, DPN_CAPS *const pdpCaps,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_SetCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_CAPS *const pdpCaps, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_SetSPCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, const GUID *const pguidSP, const DPN_SP_CAPS *const pdpspCaps, const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetSPCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, const GUID *const pguidSP, DPN_SP_CAPS *const pdpspCaps,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_GetConnectionInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid, DPN_CONNECTION_INFO *const pdpConnectionInfo,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_RegisterLobby(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNHANDLE dpnHandle, PVOID const pIDP8LobbiedApplication,const DWORD dwFlags );
-HRESULT WINAPI IDirectPlay8Peer_TerminateSession(LPDIRECTPLAY8PEER pDirectPlay8Peer, void *const pvTerminateData,const DWORD dwTerminateDataSize,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_Initialize(LPDIRECTPLAY8PEER pDirectPlay8Peer, PVOID const pvUserContext, const PFNDPNMESSAGEHANDLER pfn, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_EnumServiceProviders(LPDIRECTPLAY8PEER pDirectPlay8Peer, const GUID *const pguidServiceProvider, const GUID *const pguidApplication, DPN_SERVICE_PROVIDER_INFO *const pSPInfoBuffer, DWORD *const pcbEnumData, DWORD *const pcReturned, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_CancelAsyncOperation(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNHANDLE hAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_Connect(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address *const pHostAddr,IDirectPlay8Address *const pDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,const void *const pvUserConnectData,const DWORD dwUserConnectDataSize,void *const pvPlayerContext,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_SendTo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,const DPN_BUFFER_DESC *const prgBufferDesc,const DWORD cBufferDesc,const DWORD dwTimeOut,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetSendQueueInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid, DWORD *const pdwNumMsgs, DWORD *const pdwNumBytes, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_Host(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_APPLICATION_DESC *const pdnAppDesc,IDirectPlay8Address **const prgpDeviceInfo,const DWORD cDeviceInfo,const DPN_SECURITY_DESC *const pdnSecurity,const DPN_SECURITY_CREDENTIALS *const pdnCredentials,void *const pvPlayerContext,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetApplicationDesc(LPDIRECTPLAY8PEER pDirectPlay8Peer, DPN_APPLICATION_DESC *const pAppDescBuffer, DWORD *const pcbDataSize, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_SetApplicationDesc(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_APPLICATION_DESC *const pad, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_CreateGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_GROUP_INFO *const pdpnGroupInfo,void *const pvGroupContext,void *const pvAsyncContext,DPNHANDLE *const phAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_DestroyGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID idGroup, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_AddPlayerToGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_RemovePlayerFromGroup(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID idGroup, const DPNID idClient, PVOID const pvAsyncContext, DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_SetGroupInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetGroupInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,DPN_GROUP_INFO *const pdpnGroupInfo,DWORD *const pdwSize,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_EnumPlayersAndGroups(LPDIRECTPLAY8PEER pDirectPlay8Peer, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_EnumGroupMembers(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid, DPNID *const prgdpnid, DWORD *const pcdpnid, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_SetPeerInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_PLAYER_INFO *const pdpnPlayerInfo,PVOID const pvAsyncContext,DPNHANDLE *const phAsyncHandle, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetPeerInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,DPN_PLAYER_INFO *const pdpnPlayerInfo,DWORD *const pdwSize,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetPeerAddress(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,IDirectPlay8Address **const pAddress,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetLocalHostAddresses(LPDIRECTPLAY8PEER pDirectPlay8Peer, IDirectPlay8Address **const prgpAddress,DWORD *const pcAddress,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_Close(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_EnumHosts(LPDIRECTPLAY8PEER pDirectPlay8Peer, PDPN_APPLICATION_DESC const pApplicationDesc,IDirectPlay8Address *const pAddrHost,IDirectPlay8Address *const pDeviceInfo,PVOID const pUserEnumData,const DWORD dwUserEnumDataSize,const DWORD dwEnumCount,const DWORD dwRetryInterval,const DWORD dwTimeOut,PVOID const pvUserContext,DPNHANDLE *const pAsyncHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_DestroyPeer(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnidClient, const void *const pvDestroyData, const DWORD dwDestroyDataSize, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_ReturnBuffer(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNHANDLE hBufferHandle,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetPlayerContext(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,PVOID *const ppvPlayerContext,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetGroupContext(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid,PVOID *const ppvGroupContext,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, DPN_CAPS *const pdpCaps,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_SetCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPN_CAPS *const pdpCaps, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_SetSPCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, const GUID *const pguidSP, const DPN_SP_CAPS *const pdpspCaps, const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetSPCaps(LPDIRECTPLAY8PEER pDirectPlay8Peer, const GUID *const pguidSP, DPN_SP_CAPS *const pdpspCaps,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_GetConnectionInfo(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNID dpnid, DPN_CONNECTION_INFO *const pdpConnectionInfo,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_RegisterLobby(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DPNHANDLE dpnHandle, PVOID const pIDP8LobbiedApplication,const DWORD dwFlags );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_TerminateSession(LPDIRECTPLAY8PEER pDirectPlay8Peer, void *const pvTerminateData,const DWORD dwTerminateDataSize,const DWORD dwFlags );
 //@@BEGIN_MSINTERNAL
-HRESULT WINAPI IDirectPlay8Peer_DumpNameTable(LPDIRECTPLAY8PEER pDirectPlay8Peer, char *const Buffer );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_DumpNameTable(LPDIRECTPLAY8PEER pDirectPlay8Peer, char *const Buffer );
 //@@END_MSINTERNAL
-HRESULT WINAPI IDirectPlay8Peer_DoWork(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DWORD dwFlags);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Peer_DoWork(LPDIRECTPLAY8PEER pDirectPlay8Peer, const DWORD dwFlags);
 
 #ifdef __cplusplus
 
@@ -1409,23 +1409,23 @@ struct IDirectPlay8Peer
 // COM definition for DirectPlay8 Protocol interface
 //
 // IUnknown methods
-ULONG WINAPI IDirectPlay8Protocol_AddRef(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol);
-ULONG WINAPI IDirectPlay8Protocol_Release(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Protocol_AddRef(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Protocol_Release(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol);
 
 // IDirectPlay8Protocol methods
-HRESULT WINAPI IDirectPlay8Protocol_Initialize(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol );
-HRESULT WINAPI IDirectPlay8Protocol_AddServiceProvider(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, IDP8ServiceProvider *const );
-HRESULT WINAPI IDirectPlay8Protocol_Connect(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, IDirectPlay8Address *const, IDirectPlay8Address *const, DWORD, ULONG, PVOID, PHANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_Listen(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, IDirectPlay8Address *const, ULONG, PVOID, PHANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_SendData(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE, UINT, PBUFFERDESC, UINT, UINT, ULONG, PVOID, PHANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_Disconnect(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE, PVOID, PHANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_Abort(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_Cancel(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_Terminate(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol );
-HRESULT WINAPI IDirectPlay8Protocol_Debug(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, UINT, HANDLE, PVOID );
-HRESULT WINAPI IDirectPlay8Protocol_EnumAdapters(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, PVOID );
-HRESULT WINAPI IDirectPlay8Protocol_ReturnReceiveBuffers(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE );
-HRESULT WINAPI IDirectPlay8Protocol_GetEndpointCaps(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE, PVOID );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Initialize(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_AddServiceProvider(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, IDP8ServiceProvider *const );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Connect(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, IDirectPlay8Address *const, IDirectPlay8Address *const, DWORD, ULONG, PVOID, PHANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Listen(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, IDirectPlay8Address *const, ULONG, PVOID, PHANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_SendData(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE, UINT, PBUFFERDESC, UINT, UINT, ULONG, PVOID, PHANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Disconnect(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE, PVOID, PHANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Abort(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Cancel(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Terminate(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_Debug(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, UINT, HANDLE, PVOID );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_EnumAdapters(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, PVOID );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_ReturnReceiveBuffers(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE );
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Protocol_GetEndpointCaps(LPDIRECTPLAY8PROTOCOL pDirectPlay8Protocol, HANDLE, PVOID );
 
 //@@END_MSINTERNAL
 

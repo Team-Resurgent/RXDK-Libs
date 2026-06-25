@@ -61,7 +61,7 @@ typedef struct _XBOX_CACHE_DB_SECTOR {
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetDiskFreeSpaceEx(
     PCOSTR lpDirectoryName,
     PULARGE_INTEGER lpFreeBytesAvailableToCaller,
@@ -636,7 +636,7 @@ XapiSelectCachePartition(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XMountUtilityDrive(
     BOOL fFormatClean
     )
@@ -740,7 +740,7 @@ XMountUtilityDrive(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFormatUtilityDrive(
     VOID
     )
@@ -791,7 +791,7 @@ XFormatUtilityDrive(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMountAlternateTitle(
     IN PCOSTR lpRootPath,
     IN DWORD dwAltTitleId,
@@ -925,7 +925,7 @@ XMountAlternateTitle(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XUnmountAlternateTitle(
     IN OCHAR chDrive
     )
@@ -972,7 +972,7 @@ XUnmountAlternateTitle(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDiskClusterSize(
     PCOSTR lpRootPathName
     )
@@ -1039,7 +1039,7 @@ XGetDiskClusterSize(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDiskSectorSize(
     PCOSTR lpRootPathName
     )
@@ -1107,7 +1107,7 @@ XGetDiskSectorSize(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUNameFromDriveLetter(
     IN CHAR chDrive,
     OUT LPWSTR lpName,
@@ -1417,7 +1417,7 @@ XapiGetCachePartitions(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUWriteNameToDriveLetter(
     IN CHAR chDrive,
     IN LPCWSTR lpName

@@ -38,7 +38,7 @@ ULONG g_XapiCurrentUserDevices = 0;
 #ifndef XAPILIBP
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMountMU(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -165,7 +165,7 @@ XMountMU(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMountMURoot(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -323,7 +323,7 @@ XMountMURoot(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XUnmountMU(
     IN DWORD dwPort,
     IN DWORD dwSlot
@@ -442,7 +442,7 @@ XUnmountMU(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XReadMUMetaData(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -613,7 +613,7 @@ XReadMUMetaData(
 #ifdef XAPILIBP
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUNameFromPortSlot(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -640,7 +640,7 @@ XMUNameFromPortSlot(
 #ifndef XAPILIBP
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUPortFromDriveLetter(
     OCHAR chDrive
     )
@@ -656,7 +656,7 @@ XMUPortFromDriveLetter(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUSlotFromDriveLetter(
     OCHAR chDrive
     )

@@ -696,7 +696,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexMediaBoardStartReadWrite(
     IN PIRP Irp
     )

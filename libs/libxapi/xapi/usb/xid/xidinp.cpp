@@ -87,7 +87,7 @@ VOID XidCheckHandle(PCHAR ApiName, PXID_OPEN_DEVICE OpenDevice);
 //--------------------------------------------------------------
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XInputOpen(
     IN PXPP_DEVICE_TYPE XppDeviceType,
     IN DWORD dwPort,
@@ -180,7 +180,7 @@ XInputOpen(
 
 XBOXAPI
 void
-WINAPI
+__attribute__((__stdcall__))
 XInputClose(
     IN HANDLE hDevice
     )
@@ -227,7 +227,7 @@ XInputClose(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputGetCapabilities(
     IN HANDLE hDevice,
     OUT PXINPUT_CAPABILITIES pCapabilities
@@ -426,7 +426,7 @@ exit_input_get_caps:
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputGetState(
     IN HANDLE hDevice,
     OUT PXINPUT_STATE  pState
@@ -462,14 +462,12 @@ XInputGetState(
     //
     //  Don't allow keyboards to work
     //
-#ifdef DEBUG_KEYBOARD
     if(XDEVICE_TYPE_DEBUG_KEYBOARD == openDevice->TypeInformation->XppType)
     {
         KeLowerIrql(oldIrql);
         RIP("XInputGetState does not work for keyboards.");
         return ERROR_INVALID_PARAMETER;
     }
-#endif //DEBUG_KEYBOARD
 
     //
     //  If the device is not connected, mark it, but copy the
@@ -502,7 +500,7 @@ XInputGetState(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputSetState(
     IN HANDLE hDevice,
     OUT PXINPUT_FEEDBACK pFeedback
@@ -550,13 +548,11 @@ XInputSetState(
     //
     //  Don't allow keyboards to work
     //
-#ifdef DEBUG_KEYBOARD
     if(XDEVICE_TYPE_DEBUG_KEYBOARD == openDevice->TypeInformation->XppType)
     {
         RIP("XInputSetState does not work for keyboards.");
         return ERROR_INVALID_PARAMETER;
     }
-#endif //DEBUG_KEYBOARD
 
     //
     //  Check Handle the report ID, before
@@ -570,7 +566,7 @@ XInputSetState(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputPoll(
         IN HANDLE hDevice
         )

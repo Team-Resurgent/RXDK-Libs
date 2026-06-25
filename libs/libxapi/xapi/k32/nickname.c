@@ -3,7 +3,7 @@
 const OBJECT_STRING NickFile = CONSTANT_OBJECT_STRING(OTEXT("\\Device\\Harddisk0\\partition1\\UDATA\\NICKNAME.XBN"));
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XSetNicknameW(
     IN LPCWSTR lpNickname,
     IN BOOL fPreserveCase)
@@ -267,7 +267,7 @@ GetNextNickname(
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstNicknameW(
     IN BOOL fThisTitleOnly,
     OUT LPWSTR lpNickname,
@@ -351,7 +351,7 @@ XFindFirstNicknameW(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextNicknameW(
     IN HANDLE hFindNickname,
     OUT LPWSTR lpNickname,

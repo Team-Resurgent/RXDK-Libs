@@ -83,7 +83,7 @@ ExQueryPoolBlockSize (                          // ntifs
 
 NTKERNELAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 ExInterlockedAddLargeStatistic (
     IN PLARGE_INTEGER Addend,
     IN ULONG Increment
@@ -102,7 +102,7 @@ ExInterlockedAddLargeInteger (
 
 NTKERNELAPI
 LONGLONG
-FASTCALL
+__attribute__((fastcall))
 ExInterlockedCompareExchange64 (
     IN PLONGLONG Destination,
     IN PLONGLONG Exchange,
@@ -111,7 +111,7 @@ ExInterlockedCompareExchange64 (
 
 NTKERNELAPI
 PLIST_ENTRY
-FASTCALL
+__attribute__((fastcall))
 ExInterlockedInsertHeadList (
     IN PLIST_ENTRY ListHead,
     IN PLIST_ENTRY ListEntry
@@ -119,7 +119,7 @@ ExInterlockedInsertHeadList (
 
 NTKERNELAPI
 PLIST_ENTRY
-FASTCALL
+__attribute__((fastcall))
 ExInterlockedInsertTailList (
     IN PLIST_ENTRY ListHead,
     IN PLIST_ENTRY ListEntry
@@ -127,7 +127,7 @@ ExInterlockedInsertTailList (
 
 NTKERNELAPI
 PLIST_ENTRY
-FASTCALL
+__attribute__((fastcall))
 ExInterlockedRemoveHeadList (
     IN PLIST_ENTRY ListHead
     );
@@ -202,14 +202,14 @@ Return Value:
 
 NTKERNELAPI
 PSINGLE_LIST_ENTRY
-FASTCALL
+__attribute__((fastcall))
 InterlockedPopEntrySList (
     IN PSLIST_HEADER ListHead
     );
 
 NTKERNELAPI
 PSINGLE_LIST_ENTRY
-FASTCALL
+__attribute__((fastcall))
 InterlockedPushEntrySList (
     IN PSLIST_HEADER ListHead,
     IN PSINGLE_LIST_ENTRY ListEntry
@@ -217,7 +217,7 @@ InterlockedPushEntrySList (
 
 NTKERNELAPI
 PSINGLE_LIST_ENTRY
-FASTCALL
+__attribute__((fastcall))
 InterlockedFlushSList (
     IN PSLIST_HEADER ListHead
     );

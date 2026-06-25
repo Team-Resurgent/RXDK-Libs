@@ -242,7 +242,7 @@ ObMakeTemporaryObject(
 
 NTKERNELAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 ObfReferenceObject(
     IN PVOID Object
     );
@@ -258,7 +258,7 @@ ObReferenceObjectByPointer(
 
 NTKERNELAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 ObfDereferenceObject(
     IN PVOID Object
     );

@@ -418,13 +418,13 @@ Return Value:
 
 #ifndef NTOS_KERNEL_RUNTIME
 PVOID
-FASTCALL
+__attribute__((fastcall))
 RtlpInterlockedPopEntrySList (
     IN PSLIST_HEADER ListHead
     );
 
 PVOID
-FASTCALL
+__attribute__((fastcall))
 RtlpInterlockedPushEntrySList (
     IN PSLIST_HEADER ListHead,
     IN PVOID ListEntry

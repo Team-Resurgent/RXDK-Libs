@@ -22,7 +22,7 @@ Revision History:
 #pragma hdrstop
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 ReadFile(
     HANDLE hFile,
     LPVOID lpBuffer,
@@ -177,7 +177,7 @@ Return Value:
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 WriteFile(
     HANDLE hFile,
     LPCVOID lpBuffer,
@@ -317,7 +317,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetEndOfFile(
     HANDLE hFile
     )
@@ -414,7 +414,7 @@ Return Value:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 SetFilePointer(
     HANDLE hFile,
     LONG lDistanceToMove,
@@ -601,7 +601,7 @@ Return Value:
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetFilePointerEx(
     HANDLE hFile,
     LARGE_INTEGER liDistanceToMove,
@@ -756,7 +756,7 @@ Return Value:
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetFileInformationByHandle(
     HANDLE hFile,
     LPBY_HANDLE_FILE_INFORMATION lpFileInformation
@@ -944,7 +944,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetFileTime(
     HANDLE hFile,
     CONST FILETIME *lpCreationTime,
@@ -1046,7 +1046,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 FlushFileBuffers(
     HANDLE hFile
     )
@@ -1092,7 +1092,7 @@ Return Value:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 GetFileSize(
     HANDLE hFile,
     LPDWORD lpFileSizeHigh
@@ -1157,7 +1157,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetFileSizeEx(
     HANDLE hFile,
     PLARGE_INTEGER lpFileSize
@@ -1213,7 +1213,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 ReadFileEx(
     HANDLE hFile,
     LPVOID lpBuffer,
@@ -1315,7 +1315,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 WriteFileEx(
     HANDLE hFile,
     LPCVOID lpBuffer,
@@ -1418,7 +1418,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 DeviceIoControl(
     HANDLE hDevice,
     DWORD dwIoControlCode,
@@ -1602,7 +1602,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 ReadFileScatter(
     HANDLE hFile,
     FILE_SEGMENT_ELEMENT aSegementArray[],
@@ -1755,7 +1755,7 @@ Return Value:
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 WriteFileGather(
     HANDLE hFile,
     FILE_SEGMENT_ELEMENT aSegementArray[],

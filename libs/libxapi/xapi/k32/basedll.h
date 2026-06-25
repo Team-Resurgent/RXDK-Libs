@@ -28,7 +28,7 @@ Abstract:
 #include "xapiver.h"
 
 UCHAR
-FASTCALL
+__attribute__((fastcall))
 RtlFindFirstSetRightMember(
     IN ULONG Set
     );

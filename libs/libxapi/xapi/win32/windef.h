@@ -106,9 +106,8 @@ typedef char *PSZ;
 
 #ifdef _MAC
 #define CALLBACK    PASCAL
-#define WINAPI      CDECL
 #define WINAPIV     CDECL
-#define APIENTRY    WINAPI
+#define APIENTRY    __attribute__((__stdcall__))
 #define APIPRIVATE  CDECL
 #ifdef _68K_
 #define PASCAL      __pascal
@@ -117,16 +116,14 @@ typedef char *PSZ;
 #endif
 #elif (_MSC_VER >= 800) || defined(_STDCALL_SUPPORTED)
 #define CALLBACK    __stdcall
-#define WINAPI      __stdcall
 #define WINAPIV     __cdecl
-#define APIENTRY    WINAPI
+#define APIENTRY    __attribute__((__stdcall__))
 #define APIPRIVATE  __stdcall
 #define PASCAL      __stdcall
 #else
 #define CALLBACK    __stdcall
-#define WINAPI      __stdcall
 #define WINAPIV     __cdecl
-#define APIENTRY    WINAPI
+#define APIENTRY    __attribute__((__stdcall__))
 #define APIPRIVATE  __stdcall
 #define PASCAL      __stdcall
 #endif
@@ -210,13 +207,13 @@ typedef HANDLE              GLOBALHANDLE;
 typedef HANDLE              LOCALHANDLE;
 #ifndef _MAC
 #ifdef _WIN64
-typedef INT_PTR (FAR WINAPI *FARPROC)();
-typedef INT_PTR (NEAR WINAPI *NEARPROC)();
-typedef INT_PTR (WINAPI *PROC)();
+typedef INT_PTR (FAR __attribute__((__stdcall__)) *FARPROC)();
+typedef INT_PTR (NEAR __attribute__((__stdcall__)) *NEARPROC)();
+typedef INT_PTR (__attribute__((__stdcall__)) *PROC)();
 #else
-typedef int (FAR WINAPI *FARPROC)();
-typedef int (NEAR WINAPI *NEARPROC)();
-typedef int (WINAPI *PROC)();
+typedef int (FAR __attribute__((__stdcall__)) *FARPROC)();
+typedef int (NEAR __attribute__((__stdcall__)) *NEARPROC)();
+typedef int (__attribute__((__stdcall__)) *PROC)();
 #endif  // _WIN64
 #else
 typedef int (CALLBACK *FARPROC)();

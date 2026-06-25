@@ -93,7 +93,7 @@ HalSetRealTimeClock(
 
 NTHALAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 HalRequestSoftwareInterrupt(
     KIRQL RequestIrql
     );

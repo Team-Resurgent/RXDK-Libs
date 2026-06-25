@@ -48,7 +48,7 @@ XapiDpcForCancelIo(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 CancelIo(
     HANDLE hFile
     )

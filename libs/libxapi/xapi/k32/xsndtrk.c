@@ -201,7 +201,7 @@ Notes:
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextSoundtrack (
     IN HANDLE FindHandle,
     OUT PXSOUNDTRACK_DATA SoundtrackData
@@ -249,7 +249,7 @@ Notes:
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstSoundtrack (
     OUT PXSOUNDTRACK_DATA SoundtrackData
     )
@@ -340,7 +340,7 @@ Notes:
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetSoundtrackSongInfo (
     IN DWORD SoundtrackId,
     IN UINT Index,
@@ -549,7 +549,7 @@ Revision History:
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XOpenSoundtrackSong (
     IN DWORD SongId,
     IN BOOL Asynchronous

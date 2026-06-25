@@ -520,7 +520,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexDiskStartVerify(
     IN PIRP Irp
     )
@@ -739,7 +739,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexDiskStartReadWrite(
     IN PIRP Irp
     )
@@ -970,7 +970,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexDiskStartFlushBuffers(
     IN PIRP Irp
     )

@@ -68,23 +68,23 @@ DEFINE_USB_DEBUG_FUNCTIONS("USBD");
 //---------------------------------------------------------------------
 VOID USBD_DeviceEnumStage0();
 VOID USBD_DeviceEnumStagePre1(USBD_STATUS UsbdStatus, PVOID Context);
-VOID FASTCALL USBD_fDeviceEnumStage1(IUsbDevice  *Device);
+VOID __attribute__((fastcall)) USBD_fDeviceEnumStage1(IUsbDevice  *Device);
 VOID USBD_DeviceEnumStage2(PURB Urb, IUsbDevice *Device);
 VOID USBD_DeviceEnumStage3(PURB Urb, IUsbDevice *Device);
 VOID USBD_DeviceEnumStagePre4(PURB Urb, IUsbDevice *Device);
-VOID FASTCALL USBD_fDeviceEnumStage4(PURB Urb, IUsbDevice *Device);
+VOID __attribute__((fastcall)) USBD_fDeviceEnumStage4(PURB Urb, IUsbDevice *Device);
 VOID USBD_DeviceEnumStage5(PURB Urb, IUsbDevice *Device);
 VOID USBD_DeviceEnumStage6(PURB Urb, IUsbDevice *Device);
 VOID USBD_DeviceAbortEnum(PURB Unreferenced, IUsbDevice *Device);
-VOID FASTCALL USBD_fDeviceAbortEnum2(IUsbDevice  *Device);
+VOID __attribute__((fastcall)) USBD_fDeviceAbortEnum2(IUsbDevice  *Device);
 VOID USBD_DeviceEnumNextPending(PURB Urb, IUsbDevice *Device);
 VOID USBD_CompleteDeviceDisconnected(IUsbDevice *Device);
 VOID USBD_SetEnumWatchDog();
 VOID USBD_ClearEnumWatchDog();
 
-VOID FASTCALL USBD_LoadClassDriver(IUsbDevice *Device, PNP_CLASS_ID ClassId);
-UCHAR FASTCALL USBD_AllocateUsbAddress(PUSBD_HOST_CONTROLLER HostController);
-VOID FASTCALL USBD_FreeUsbAddress(PUSBD_HOST_CONTROLLER HostController, UCHAR DeviceAddress);
+VOID __attribute__((fastcall)) USBD_LoadClassDriver(IUsbDevice *Device, PNP_CLASS_ID ClassId);
+UCHAR __attribute__((fastcall)) USBD_AllocateUsbAddress(PUSBD_HOST_CONTROLLER HostController);
+VOID __attribute__((fastcall)) USBD_FreeUsbAddress(PUSBD_HOST_CONTROLLER HostController, UCHAR DeviceAddress);
 
 extern "C" {
 PVOID USBD_AllocateMemory(ULONG cb, ULONG Tag);
@@ -492,7 +492,7 @@ USBD_DeviceEnumStagePre1(
 }
 
 void
-FASTCALL
+__attribute__((fastcall))
 USBD_fDeviceEnumStage1(
     IUsbDevice  *Device
     )
@@ -848,7 +848,7 @@ USBD_DeviceEnumStagePre4(
 }
 
 VOID  
-FASTCALL  
+__attribute__((fastcall))  
 USBD_fDeviceEnumStage4(
             PURB        Urb,
             IUsbDevice  *Device
@@ -1567,7 +1567,7 @@ void IUsbDevice::DisableComplete(USBD_STATUS UsbdStatus, PVOID Context)
     USBD_fDeviceAbortEnum2(device);
 }
 
-VOID FASTCALL USBD_fDeviceAbortEnum2(IUsbDevice  *Device)
+VOID __attribute__((fastcall)) USBD_fDeviceAbortEnum2(IUsbDevice  *Device)
 /*++
 *   Finish up abort
 *   
@@ -2074,7 +2074,7 @@ Context:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 USBD_LoadClassDriver(IUsbDevice *Device, PNP_CLASS_ID ClassId)
 /*++
 Routine Description:
@@ -2134,7 +2134,7 @@ Context:
 }
 
 UCHAR
-FASTCALL
+__attribute__((fastcall))
 USBD_AllocateUsbAddress(
     IN PUSBD_HOST_CONTROLLER HostController
     )
@@ -2194,7 +2194,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 USBD_FreeUsbAddress(
     IN PUSBD_HOST_CONTROLLER HostController,
     IN UCHAR DeviceAddress

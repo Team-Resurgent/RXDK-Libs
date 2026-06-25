@@ -81,7 +81,7 @@ extern "C" ULONG MU_MaxUserDevices = MU_DEFAULT_MAX_MOUNTED;
 DEFINE_USB_DEBUG_FUNCTIONS("MU");
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fCloseEndpoints (
     IN PMU_DEVICE_EXTENSION   DeviceExtension
     );
@@ -749,7 +749,7 @@ MU_GetExistingDeviceObject(
 //      MU_CloseEndpointCompletion
 //*****************************************************************************
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fCloseEndpoints (
     IN PMU_DEVICE_EXTENSION   DeviceExtension
     )

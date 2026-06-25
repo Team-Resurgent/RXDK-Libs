@@ -75,7 +75,7 @@ typedef struct _XINPUT_DEBUG_KEYQUEUE_PARAMETERS
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputDebugInitKeyboardQueue(
     IN PXINPUT_DEBUG_KEYQUEUE_PARAMETERS pParameters OPTIONAL
     );
@@ -100,7 +100,7 @@ XInputDebugInitKeyboardQueue(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputDebugGetKeystroke(
 #ifndef SINGLE_KEYBOARD_ONLY
     IN HANDLE hDevice,

@@ -1852,8 +1852,8 @@ DEFINE_GUID(IID_IDirectMusicAudioPath,0x242ed927, 0xf094, 0x42e4, 0x9b, 0xb9, 0x
 // Special GUID meaning "select all objects" for use in GetObjectInPath()
 DEFINE_GUID(GUID_All_Objects, 0xaa114de5, 0xc262, 0x4169, 0xa1, 0xc8, 0x23, 0xd6, 0x98, 0xcc, 0x73, 0xb5);
 
-HRESULT WINAPI DirectMusicCreateInstance(REFCLSID clsid, LPUNKNOWN pUnkOuter, REFIID iid, LPVOID *ppvInterface);
-void WINAPI DirectMusicDoWork(DWORD dwQuantum);
+HRESULT __attribute__((__stdcall__)) DirectMusicCreateInstance(REFCLSID clsid, LPUNKNOWN pUnkOuter, REFIID iid, LPVOID *ppvInterface);
+void __attribute__((__stdcall__)) DirectMusicDoWork(DWORD dwQuantum);
 
 typedef HRESULT (CALLBACK* LPDIRECTMUSICFACTORYFN)(REFCLSID clsid, LPUNKNOWN pUnkOuter, REFIID iid, LPVOID *ppvInterface);
 HRESULT CALLBACK DirectMusicDefaultFactory(REFCLSID clsid, LPUNKNOWN pUnkOuter, REFIID iid, LPVOID *ppvInterface);
@@ -1873,22 +1873,22 @@ DECLARE_INTERFACE_(IDirectMusicHeap, IUnknown)
     STDMETHOD(Free)   (THIS_ PVOID pData) PURE;
 };
 
-void* WINAPI DirectMusicAlloc(size_t cb);
-void  WINAPI DirectMusicFree(void *pv);
-void* WINAPI DirectMusicPhysicalAlloc(size_t dwSize);
-void WINAPI DirectMusicPhysicalFree(void* lpAddress);
+void* __attribute__((__stdcall__)) DirectMusicAlloc(size_t cb);
+void  __attribute__((__stdcall__)) DirectMusicFree(void *pv);
+void* __attribute__((__stdcall__)) DirectMusicPhysicalAlloc(size_t dwSize);
+void __attribute__((__stdcall__)) DirectMusicPhysicalFree(void* lpAddress);
 
-HRESULT WINAPI DirectMusicCreateDefaultHeap(IDirectMusicHeap** ppHeap);
-HRESULT WINAPI DirectMusicCreateDefaultPhysicalHeap(IDirectMusicHeap** ppHeap);
+HRESULT __attribute__((__stdcall__)) DirectMusicCreateDefaultHeap(IDirectMusicHeap** ppHeap);
+HRESULT __attribute__((__stdcall__)) DirectMusicCreateDefaultPhysicalHeap(IDirectMusicHeap** ppHeap);
 
-HRESULT WINAPI DirectMusicCreateFixedSizeHeap(DWORD cbSize, IDirectMusicHeap** ppHeap);
-HRESULT WINAPI DirectMusicCreateFixedSizePhysicalHeap(DWORD cbSize, IDirectMusicHeap** ppHeap);
+HRESULT __attribute__((__stdcall__)) DirectMusicCreateFixedSizeHeap(DWORD cbSize, IDirectMusicHeap** ppHeap);
+HRESULT __attribute__((__stdcall__)) DirectMusicCreateFixedSizePhysicalHeap(DWORD cbSize, IDirectMusicHeap** ppHeap);
 
-HRESULT WINAPI DirectMusicInitialize();
-HRESULT WINAPI DirectMusicInitializeEx(IDirectMusicHeap* pNormalHeap, 
+HRESULT __attribute__((__stdcall__)) DirectMusicInitialize();
+HRESULT __attribute__((__stdcall__)) DirectMusicInitializeEx(IDirectMusicHeap* pNormalHeap, 
     IDirectMusicHeap* pPhysicalHeap,
     LPDIRECTMUSICFACTORYFN pFactory);
-HRESULT WINAPI DirectMusicInitializeFixedSizeHeaps(DWORD cbNormalHeapSize, 
+HRESULT __attribute__((__stdcall__)) DirectMusicInitializeFixedSizeHeaps(DWORD cbNormalHeapSize, 
     DWORD cbPhysicalHeapSize,
     LPDIRECTMUSICFACTORYFN pFactory);
 
@@ -1898,9 +1898,9 @@ HRESULT WINAPI DirectMusicInitializeFixedSizeHeaps(DWORD cbNormalHeapSize,
 
 #include <poppack.h>
 
-long WINAPI DirectMusicMemCheck(DWORD dwMemType, char **ppName);
-void WINAPI DirectMusicMemDump();
-void WINAPI DirectMusicSetDebugLevel(int iDebugLevel, int iRIPLevel);
+long __attribute__((__stdcall__)) DirectMusicMemCheck(DWORD dwMemType, char **ppName);
+void __attribute__((__stdcall__)) DirectMusicMemDump();
+void __attribute__((__stdcall__)) DirectMusicSetDebugLevel(int iDebugLevel, int iRIPLevel);
 
 #endif /* #ifndef _DMUSICI_ */
 

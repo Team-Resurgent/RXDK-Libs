@@ -1269,7 +1269,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartReadTOC(
     IN PIRP Irp
     )
@@ -1354,7 +1354,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartCheckVerify(
     IN PIRP Irp
     )
@@ -1469,7 +1469,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartGetDriveGeometry(
     IN PIRP Irp
     )
@@ -1517,7 +1517,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartRawRead(
     IN PIRP Irp
     )
@@ -1642,7 +1642,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartSetSpindleSpeed(
     IN PIRP Irp
     )
@@ -1768,7 +1768,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartStartSession(
     IN PIRP Irp
     )
@@ -1951,7 +1951,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartReadKey(
     IN PIRP Irp
     )
@@ -2045,7 +2045,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartSendKey(
     IN PIRP Irp
     )
@@ -2138,7 +2138,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartEndSession(
     IN PIRP Irp
     )
@@ -2369,7 +2369,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexCdRomStartScsiPassThrough(
     IN PIRP Irp
     )

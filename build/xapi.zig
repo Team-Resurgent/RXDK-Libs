@@ -68,8 +68,6 @@ pub fn addAllObjects(
         "-DNTOS_KERNEL_RUNTIME=1",
         "-DUSB_HOST_CONTROLLER_CONFIGURATION=1",
         "-DUSB_ENABLE_DIRECT_CONNECT",
-        "-DDEBUG_KEYBOARD",
-        "-DDEBUG_MOUSE",
         "-DXID_HAMMERHEAD_SUPPORT",
     };
 

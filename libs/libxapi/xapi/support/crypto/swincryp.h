@@ -19,7 +19,7 @@ extern "C" {
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptAcquireContextA(
     HCRYPTPROV *phProv,
     LPCSTR pszContainer,
@@ -27,7 +27,7 @@ SCryptAcquireContextA(
     DWORD dwProvType,
     DWORD dwFlags);
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptAcquireContextW(
     HCRYPTPROV *phProv,
     LPCWSTR pszContainer,
@@ -42,14 +42,14 @@ SCryptAcquireContextW(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptReleaseContext(
     HCRYPTPROV hProv,
     DWORD dwFlags);
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGenKey(
     HCRYPTPROV hProv,
     ALG_ID Algid,
@@ -57,7 +57,7 @@ SCryptGenKey(
     HCRYPTKEY *phKey);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptDuplicateKey(
     HCRYPTKEY hKey,
     DWORD *pdwReserved,
@@ -65,7 +65,7 @@ SCryptDuplicateKey(
     HCRYPTKEY * phKey);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptDeriveKey(
     HCRYPTPROV hProv,
     ALG_ID Algid,
@@ -75,12 +75,12 @@ SCryptDeriveKey(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptDestroyKey(
     HCRYPTKEY hKey);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptSetKeyParam(
     HCRYPTKEY hKey,
     DWORD dwParam,
@@ -88,7 +88,7 @@ SCryptSetKeyParam(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGetKeyParam(
     HCRYPTKEY hKey,
     DWORD dwParam,
@@ -97,7 +97,7 @@ SCryptGetKeyParam(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptSetHashParam(
     HCRYPTHASH hHash,
     DWORD dwParam,
@@ -105,7 +105,7 @@ SCryptSetHashParam(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGetHashParam(
     HCRYPTHASH hHash,
     DWORD dwParam,
@@ -114,7 +114,7 @@ SCryptGetHashParam(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptSetProvParam(
     HCRYPTPROV hProv,
     DWORD dwParam,
@@ -122,7 +122,7 @@ SCryptSetProvParam(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGetProvParam(
     HCRYPTPROV hProv,
     DWORD dwParam,
@@ -131,21 +131,21 @@ SCryptGetProvParam(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGenRandom(
     HCRYPTPROV hProv,
     DWORD dwLen,
     BYTE *pbBuffer);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGetUserKey(
     HCRYPTPROV hProv,
     DWORD dwKeySpec,
     HCRYPTKEY *phUserKey);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptExportKey(
     HCRYPTKEY hKey,
     HCRYPTKEY hExpKey,
@@ -155,7 +155,7 @@ SCryptExportKey(
     DWORD *pdwDataLen);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptImportKey(
     HCRYPTPROV hProv,
     CONST BYTE *pbData,
@@ -165,7 +165,7 @@ SCryptImportKey(
     HCRYPTKEY *phKey);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptEncrypt(
     HCRYPTKEY hKey,
     HCRYPTHASH hHash,
@@ -176,7 +176,7 @@ SCryptEncrypt(
     DWORD dwBufLen);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptDecrypt(
     HCRYPTKEY hKey,
     HCRYPTHASH hHash,
@@ -186,7 +186,7 @@ SCryptDecrypt(
     DWORD *pdwDataLen);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptCreateHash(
     HCRYPTPROV hProv,
     ALG_ID Algid,
@@ -195,7 +195,7 @@ SCryptCreateHash(
     HCRYPTHASH *phHash);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptDuplicateHash(
     HCRYPTHASH hHash,
     DWORD *pdwReserved,
@@ -203,7 +203,7 @@ SCryptDuplicateHash(
     HCRYPTHASH * phHash);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptHashData(
     HCRYPTHASH hHash,
     CONST BYTE *pbData,
@@ -211,14 +211,14 @@ SCryptHashData(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptHashSessionKey(
     HCRYPTHASH hHash,
     HCRYPTKEY hKey,
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptGetHashValue(
     HCRYPTHASH hHash,
     DWORD dwFlags,
@@ -226,12 +226,12 @@ SCryptGetHashValue(
     DWORD *pdwHashLen);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptDestroyHash(
     HCRYPTHASH hHash);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptSignHashA(
     HCRYPTHASH hHash,
     DWORD dwKeySpec,
@@ -241,7 +241,7 @@ SCryptSignHashA(
     DWORD *pdwSigLen);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptSignHashW(
     HCRYPTHASH hHash,
     DWORD dwKeySpec,
@@ -257,7 +257,7 @@ SCryptSignHashW(
 #endif // !UNICODE
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptVerifySignatureA(
     HCRYPTHASH hHash,
     CONST BYTE *pbSignature,
@@ -267,7 +267,7 @@ SCryptVerifySignatureA(
     DWORD dwFlags);
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SCryptVerifySignatureW(
     HCRYPTHASH hHash,
     CONST BYTE *pbSignature,

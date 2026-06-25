@@ -5,7 +5,7 @@
 #ifdef _DEBUG
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDebugGetSystemVersion(
     PSTR pszVersionString,
     UINT cchVersionString
@@ -25,7 +25,7 @@ XDebugGetSystemVersion(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDebugGetXTLVersion(
     PSTR pszVersionString,
     UINT cchVersionString

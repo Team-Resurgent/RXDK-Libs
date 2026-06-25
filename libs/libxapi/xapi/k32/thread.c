@@ -80,7 +80,7 @@ Return Value:
 }
 
 LONG
-WINAPI
+__attribute__((__stdcall__))
 UnhandledExceptionFilter(
     IN PEXCEPTION_POINTERS ExceptionPointers
     )
@@ -509,7 +509,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetThreadPriorityBoost(
     HANDLE hThread,
     BOOL bDisablePriorityBoost
@@ -533,7 +533,7 @@ SetThreadPriorityBoost(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetThreadPriorityBoost(
     HANDLE hThread,
     PBOOL pDisablePriorityBoost
@@ -795,7 +795,7 @@ XapiDispatchAPC(
 
 WINBASEAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 QueueUserAPC(
     PAPCFUNC pfnAPC,
     HANDLE hThread,
@@ -844,7 +844,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SwitchToThread(
     VOID
     )
@@ -972,7 +972,7 @@ Return Value:
 }
 
 LPTOP_LEVEL_EXCEPTION_FILTER
-WINAPI
+__attribute__((__stdcall__))
 SetUnhandledExceptionFilter(
     LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter
     )
@@ -1038,7 +1038,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 GetThreadTimes(
     HANDLE hThread,
     LPFILETIME lpCreationTime,
@@ -1118,7 +1118,7 @@ Return Value:
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XRegisterThreadNotifyRoutine(
     PXTHREAD_NOTIFICATION pThreadNotification,
     BOOL fRegister

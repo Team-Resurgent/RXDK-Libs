@@ -826,7 +826,7 @@ rewait:
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 SignalObjectAndWait(
     HANDLE hObjectToSignal,
     HANDLE hObjectToWaitOn,
@@ -1140,7 +1140,7 @@ rewait:
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 CreateWaitableTimer(
     LPSECURITY_ATTRIBUTES lpTimerAttributes,
     BOOL bManualReset,
@@ -1182,7 +1182,7 @@ CreateWaitableTimer(
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 OpenWaitableTimer(
     DWORD dwDesiredAccess,
     BOOL bInheritHandle,
@@ -1221,7 +1221,7 @@ OpenWaitableTimer(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetWaitableTimer(
     HANDLE hTimer,
     const LARGE_INTEGER *lpDueTime,
@@ -1260,7 +1260,7 @@ SetWaitableTimer(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 CancelWaitableTimer(
     HANDLE hTimer
     )

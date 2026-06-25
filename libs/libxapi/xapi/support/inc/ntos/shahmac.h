@@ -27,7 +27,7 @@ typedef BYTE XSHAHMAC_CONTEXT[XC_SERVICE_SHA_CONTEXT_SIZE];
 
 XBOXAPI
 VOID 
-WINAPI 
+__attribute__((__stdcall__)) 
 XShaHmacInitialize(
 	IN PBYTE				pbKey,
 	IN DWORD				cbKey,
@@ -36,7 +36,7 @@ XShaHmacInitialize(
 
 XBOXAPI
 VOID
-WINAPI 
+__attribute__((__stdcall__)) 
 XShaHmacUpdate(
 	IN XSHAHMAC_CONTEXT	Shactx,
 	IN PBYTE			pbData,
@@ -45,7 +45,7 @@ XShaHmacUpdate(
 
 XBOXAPI
 VOID 
-WINAPI 
+__attribute__((__stdcall__)) 
 XShaHmacComputeFinal(
 	IN XSHAHMAC_CONTEXT	Shactx,
 	IN PBYTE			pbKey,

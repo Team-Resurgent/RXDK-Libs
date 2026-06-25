@@ -1,7 +1,7 @@
 #include "basedll.h"
 
 LPSTR
-WINAPI
+__attribute__((__stdcall__))
 CharUpperA(
     LPSTR psz
     )
@@ -23,7 +23,7 @@ CharUpperA(
 }
 
 LPSTR
-WINAPI
+__attribute__((__stdcall__))
 CharLowerA(
     LPSTR psz
     )
@@ -45,7 +45,7 @@ CharLowerA(
 }
 
 LPWSTR
-WINAPI
+__attribute__((__stdcall__))
 CharUpperW(
     LPWSTR psz
     )
@@ -67,7 +67,7 @@ CharUpperW(
 }
 
 LPWSTR
-WINAPI
+__attribute__((__stdcall__))
 CharLowerW(
     LPWSTR psz
     )

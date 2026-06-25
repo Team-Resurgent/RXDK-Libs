@@ -569,12 +569,12 @@ typedef struct _DVEVENTMSG_SENDCOMPLETE
 #define IID_IDirectPlayVoiceClient 1
 #define IID_IDirectPlayVoiceServer 2
 
-extern HRESULT WINAPI DirectPlayVoiceCreate(
+extern HRESULT __attribute__((__stdcall__)) DirectPlayVoiceCreate(
     DWORD dwIID,
     void **ppvInterface,
     void *pUnknown);
 
-extern HRESULT WINAPI XDirectPlayVoiceCreate(
+extern HRESULT __attribute__((__stdcall__)) XDirectPlayVoiceCreate(
 	DWORD dwIID, 
 	void** ppvInterface);
 
@@ -587,21 +587,21 @@ extern HRESULT WINAPI XDirectPlayVoiceCreate(
 extern "C" {
 #endif // __cplusplus
 
-ULONG WINAPI IDirectPlayVoiceClient_AddRef(LPDIRECTPLAYVOICECLIENT pArg1);
-ULONG WINAPI IDirectPlayVoiceClient_Release(LPDIRECTPLAYVOICECLIENT pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceClient_AddRef(LPDIRECTPLAYVOICECLIENT pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceClient_Release(LPDIRECTPLAYVOICECLIENT pArg1);
 
-HRESULT WINAPI IDirectPlayVoiceClient_Initialize(LPDIRECTPLAYVOICECLIENT pArg0, PVOID pArg1, PDVMESSAGEHANDLER pArg2, PVOID pArg3, LPDWORD pArg4, DWORD Arg5);
-HRESULT WINAPI IDirectPlayVoiceClient_Connect(LPDIRECTPLAYVOICECLIENT pArg0, PDVCLIENTCONFIG pArg1, DWORD Arg2 );
-HRESULT WINAPI IDirectPlayVoiceClient_Disconnect(LPDIRECTPLAYVOICECLIENT pArg0, DWORD Arg1 );
-HRESULT WINAPI IDirectPlayVoiceClient_DoWork(LPDIRECTPLAYVOICECLIENT pArg0);
-HRESULT WINAPI IDirectPlayVoiceClient_GetSessionDesc(LPDIRECTPLAYVOICECLIENT pArg0, PDVSESSIONDESC pArg1 );
-HRESULT WINAPI IDirectPlayVoiceClient_GetClientConfig(LPDIRECTPLAYVOICECLIENT pArg0, PDVCLIENTCONFIG pArg1 );
-HRESULT WINAPI IDirectPlayVoiceClient_SetClientConfig(LPDIRECTPLAYVOICECLIENT pArg0, PDVCLIENTCONFIG pArg1 );
-HRESULT WINAPI IDirectPlayVoiceClient_CreateSoundTarget(LPDIRECTPLAYVOICECLIENT pArg0, DVID dvidID, PWAVEFORMATEX *ppwfxMediaFormat, XMediaObject **ppMediaObject);
-HRESULT WINAPI IDirectPlayVoiceClient_DeleteSoundTarget(LPDIRECTPLAYVOICECLIENT pArg0, DVID dvidID, XMediaObject **ppMediaObject);
-HRESULT WINAPI IDirectPlayVoiceClient_SetTransmitTargets(LPDIRECTPLAYVOICECLIENT pArg0, PDVID pArg1, DWORD Arg2, DWORD Arg3 );
-HRESULT WINAPI IDirectPlayVoiceClient_GetTransmitTargets(LPDIRECTPLAYVOICECLIENT pArg0, PDVID pArg1, PDWORD pArg2, DWORD Arg3 );
-HRESULT WINAPI IDirectPlayVoiceClient_SetNotifyMask(LPDIRECTPLAYVOICECLIENT pArg0, PDWORD pArg1, DWORD Arg2 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_Initialize(LPDIRECTPLAYVOICECLIENT pArg0, PVOID pArg1, PDVMESSAGEHANDLER pArg2, PVOID pArg3, LPDWORD pArg4, DWORD Arg5);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_Connect(LPDIRECTPLAYVOICECLIENT pArg0, PDVCLIENTCONFIG pArg1, DWORD Arg2 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_Disconnect(LPDIRECTPLAYVOICECLIENT pArg0, DWORD Arg1 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_DoWork(LPDIRECTPLAYVOICECLIENT pArg0);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_GetSessionDesc(LPDIRECTPLAYVOICECLIENT pArg0, PDVSESSIONDESC pArg1 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_GetClientConfig(LPDIRECTPLAYVOICECLIENT pArg0, PDVCLIENTCONFIG pArg1 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_SetClientConfig(LPDIRECTPLAYVOICECLIENT pArg0, PDVCLIENTCONFIG pArg1 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_CreateSoundTarget(LPDIRECTPLAYVOICECLIENT pArg0, DVID dvidID, PWAVEFORMATEX *ppwfxMediaFormat, XMediaObject **ppMediaObject);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_DeleteSoundTarget(LPDIRECTPLAYVOICECLIENT pArg0, DVID dvidID, XMediaObject **ppMediaObject);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_SetTransmitTargets(LPDIRECTPLAYVOICECLIENT pArg0, PDVID pArg1, DWORD Arg2, DWORD Arg3 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_GetTransmitTargets(LPDIRECTPLAYVOICECLIENT pArg0, PDVID pArg1, PDWORD pArg2, DWORD Arg3 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceClient_SetNotifyMask(LPDIRECTPLAYVOICECLIENT pArg0, PDWORD pArg1, DWORD Arg2 );
 
 
 #ifdef __cplusplus
@@ -701,12 +701,12 @@ struct IDirectPlayVoiceClient
 extern "C" {
 #endif // __cplusplus
 
-ULONG WINAPI IDirectPlayVoiceNotify_AddRef(LPDIRECTPLAYVOICENOTIFY pArg1);
-ULONG WINAPI IDirectPlayVoiceNotify_Release(LPDIRECTPLAYVOICENOTIFY pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceNotify_AddRef(LPDIRECTPLAYVOICENOTIFY pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceNotify_Release(LPDIRECTPLAYVOICENOTIFY pArg1);
 
-HRESULT WINAPI IDirectPlayVoiceNotify_Initialize(LPDIRECTPLAYVOICENOTIFY pArg1);
-HRESULT WINAPI IDirectPlayVoiceNotify_NotifyEvent(LPDIRECTPLAYVOICENOTIFY pArg0, DWORD Arg1, DWORD Arg2, DWORD Arg3);
-HRESULT WINAPI IDirectPlayVoiceNotify_ReceiveSpeechMessage(LPDIRECTPLAYVOICENOTIFY pArg0, DVID Arg1, DVID Arg2, PVOID pArg3, DWORD Arg4);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceNotify_Initialize(LPDIRECTPLAYVOICENOTIFY pArg1);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceNotify_NotifyEvent(LPDIRECTPLAYVOICENOTIFY pArg0, DWORD Arg1, DWORD Arg2, DWORD Arg3);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceNotify_ReceiveSpeechMessage(LPDIRECTPLAYVOICENOTIFY pArg0, DVID Arg1, DVID Arg2, PVOID pArg3, DWORD Arg4);
 
 #ifdef __cplusplus
 }
@@ -778,19 +778,19 @@ struct IDirectPlayVoiceNotify
 extern "C" {
 #endif // __cplusplus
 
-ULONG WINAPI IDirectPlayVoiceTransport_AddRef(LPDIRECTPLAYVOICETRANSPORT pArg1);
-ULONG WINAPI IDirectPlayVoiceTransport_Release(LPDIRECTPLAYVOICETRANSPORT pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceTransport_AddRef(LPDIRECTPLAYVOICETRANSPORT pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceTransport_Release(LPDIRECTPLAYVOICETRANSPORT pArg1);
 
-HRESULT WINAPI IDirectPlayVoiceTransport_DoWork(LPDIRECTPLAYVOICETRANSPORT pArg0, DWORD Arg1);
-HRESULT WINAPI IDirectPlayVoiceTransport_Advise(LPDIRECTPLAYVOICETRANSPORT pArg0, LPUNKNOWN pArg1, DWORD pArg2);
-HRESULT WINAPI IDirectPlayVoiceTransport_UnAdvise(LPDIRECTPLAYVOICETRANSPORT pArg0, DWORD Arg1);
-HRESULT WINAPI IDirectPlayVoiceTransport_IsGroupMember(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, DVID Arg2);
-HRESULT WINAPI IDirectPlayVoiceTransport_SendSpeech(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, DVID Arg2, PVOID pArg3, PVOID pArg4, DWORD Arg5);
-HRESULT WINAPI IDirectPlayVoiceTransport_GetSessionInfo(LPDIRECTPLAYVOICETRANSPORT pArg0, PDVTRANSPORTINFO pArg1);
-HRESULT WINAPI IDirectPlayVoiceTransport_IsValidEntity(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, PBOOL pArg2);
-HRESULT WINAPI IDirectPlayVoiceTransport_SendSpeechEx(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, DWORD Arg2, PDVID pArg3, PVOID pArg4, PVOID Arg5, DWORD Arg6);
-HRESULT WINAPI IDirectPlayVoiceTransport_IsValidGroup(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, PBOOL pArg2);
-HRESULT WINAPI IDirectPlayVoiceTransport_IsValidPlayer(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, PBOOL pArg2);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_DoWork(LPDIRECTPLAYVOICETRANSPORT pArg0, DWORD Arg1);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_Advise(LPDIRECTPLAYVOICETRANSPORT pArg0, LPUNKNOWN pArg1, DWORD pArg2);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_UnAdvise(LPDIRECTPLAYVOICETRANSPORT pArg0, DWORD Arg1);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_IsGroupMember(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, DVID Arg2);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_SendSpeech(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, DVID Arg2, PVOID pArg3, PVOID pArg4, DWORD Arg5);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_GetSessionInfo(LPDIRECTPLAYVOICETRANSPORT pArg0, PDVTRANSPORTINFO pArg1);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_IsValidEntity(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, PBOOL pArg2);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_SendSpeechEx(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, DWORD Arg2, PDVID pArg3, PVOID pArg4, PVOID Arg5, DWORD Arg6);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_IsValidGroup(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, PBOOL pArg2);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceTransport_IsValidPlayer(LPDIRECTPLAYVOICETRANSPORT pArg0, DVID Arg1, PBOOL pArg2);
 
 #ifdef __cplusplus
 }
@@ -963,16 +963,16 @@ struct IDirectPlayVoiceTransport
 extern "C" {
 #endif // __cplusplus
 
-ULONG WINAPI IDirectPlayVoiceServer_AddRef(LPDIRECTPLAYVOICESERVER pArg1);
-ULONG WINAPI IDirectPlayVoiceServer_Release(LPDIRECTPLAYVOICESERVER pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceServer_AddRef(LPDIRECTPLAYVOICESERVER pArg1);
+ULONG __attribute__((__stdcall__)) IDirectPlayVoiceServer_Release(LPDIRECTPLAYVOICESERVER pArg1);
 
-HRESULT WINAPI IDirectPlayVoiceServer_Initialize(LPDIRECTPLAYVOICESERVER pArg0,PVOID pArg1, PDVMESSAGEHANDLER pArg2, PVOID pArg3, LPDWORD pArg4, DWORD Arg5 );
-HRESULT WINAPI IDirectPlayVoiceServer_StartSession(LPDIRECTPLAYVOICESERVER pArg0,PDVSESSIONDESC pArg1, DWORD Arg2);
-HRESULT WINAPI IDirectPlayVoiceServer_StopSession(LPDIRECTPLAYVOICESERVER pArg0,DWORD Arg1);
-HRESULT WINAPI IDirectPlayVoiceServer_GetSessionDesc(LPDIRECTPLAYVOICESERVER pArg0,PDVSESSIONDESC pArg1 );
-HRESULT WINAPI IDirectPlayVoiceServer_SetTransmitTargets(LPDIRECTPLAYVOICESERVER pArg0,DVID Arg1, PDVID pArg2, DWORD Arg3, DWORD Arg4 );
-HRESULT WINAPI IDirectPlayVoiceServer_GetTransmitTargets(LPDIRECTPLAYVOICESERVER pArg0,DVID Arg1, PDVID pArg2, PDWORD Arg3, DWORD Arg4 );
-HRESULT WINAPI IDirectPlayVoiceServer_SetNotifyMask(LPDIRECTPLAYVOICESERVER pArg0,PDWORD pArg1, DWORD Arg2 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_Initialize(LPDIRECTPLAYVOICESERVER pArg0,PVOID pArg1, PDVMESSAGEHANDLER pArg2, PVOID pArg3, LPDWORD pArg4, DWORD Arg5 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_StartSession(LPDIRECTPLAYVOICESERVER pArg0,PDVSESSIONDESC pArg1, DWORD Arg2);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_StopSession(LPDIRECTPLAYVOICESERVER pArg0,DWORD Arg1);
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_GetSessionDesc(LPDIRECTPLAYVOICESERVER pArg0,PDVSESSIONDESC pArg1 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_SetTransmitTargets(LPDIRECTPLAYVOICESERVER pArg0,DVID Arg1, PDVID pArg2, DWORD Arg3, DWORD Arg4 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_GetTransmitTargets(LPDIRECTPLAYVOICESERVER pArg0,DVID Arg1, PDVID pArg2, PDWORD Arg3, DWORD Arg4 );
+HRESULT __attribute__((__stdcall__)) IDirectPlayVoiceServer_SetNotifyMask(LPDIRECTPLAYVOICESERVER pArg0,PDWORD pArg1, DWORD Arg2 );
 
 #ifdef __cplusplus
 }

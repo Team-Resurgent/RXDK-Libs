@@ -35,14 +35,6 @@
 #define _XAPI_ 1
 #endif
 
-/* Clang x86-windows-gnu leaves windef.h WINAPI empty; xAPI is stdcall throughout. */
-#ifdef __clang__
-#undef WINAPI
-#define WINAPI __stdcall
-#undef CALLBACK
-#define CALLBACK __stdcall
-#endif
-
 #define RXDK_USB_TRACE 0
 
 #define RXDK_CLANG_TLS_IMAGE 1

@@ -479,7 +479,7 @@ WRITE_PORT_BUFFER_ULONG(
 #else
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 KiAcquireSpinLock (
     IN PKSPIN_LOCK SpinLock
     );
@@ -493,7 +493,7 @@ KiAcquireSpinLock (
 #else
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 KiReleaseSpinLock (
     IN PKSPIN_LOCK SpinLock
     );
@@ -1198,21 +1198,21 @@ ExInterlockedExchangeAddLargeInteger (
 
 NTKERNELAPI
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedIncrement(
     IN PLONG Addend
     );
 
 NTKERNELAPI
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedDecrement(
     IN PLONG Addend
     );
 
 NTKERNELAPI
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedExchange(
     IN OUT PLONG Target,
     IN LONG Value
@@ -1223,7 +1223,7 @@ InterlockedExchange(
 
 NTKERNELAPI
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedExchangeAdd(
     IN OUT PLONG Addend,
     IN LONG Increment
@@ -1231,7 +1231,7 @@ InterlockedExchangeAdd(
 
 NTKERNELAPI
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedCompareExchange(
     IN OUT PLONG Destination,
     IN LONG ExChange,
@@ -1250,7 +1250,7 @@ InterlockedCompareExchange(
 //
 // UP/MP versions of interlocked intrinsics for use within ntoskrnl.exe.
 //
-// N.B. FASTCALL does NOT work with inline functions.
+// N.B. __attribute__((fastcall)) does NOT work with inline functions.
 //
 
 #if !defined(_NTDDK_) && !defined(_NTIFS_) && !defined(_NTHAL_) && !defined(_WINBASE_)
@@ -1265,7 +1265,7 @@ InterlockedCompareExchange(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedIncrement(
     IN PLONG Addend
     )
@@ -1280,7 +1280,7 @@ InterlockedIncrement(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedDecrement(
     IN PLONG Addend
     )
@@ -1295,7 +1295,7 @@ InterlockedDecrement(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedExchange(
     IN OUT PLONG Target,
     IN LONG Value
@@ -1315,7 +1315,7 @@ ie:     cmpxchg [ecx], edx
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedExchangeAdd(
     IN OUT PLONG Addend,
     IN LONG Increment
@@ -1330,7 +1330,7 @@ InterlockedExchangeAdd(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedCompareExchange(
     IN OUT PLONG Destination,
     IN LONG Exchange,
@@ -1352,7 +1352,7 @@ InterlockedCompareExchange(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedIncrement(
     IN PLONG Addend
     )
@@ -1367,7 +1367,7 @@ InterlockedIncrement(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedDecrement(
     IN PLONG Addend
     )
@@ -1382,7 +1382,7 @@ InterlockedDecrement(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedExchange(
     IN OUT PLONG Target,
     IN LONG Value
@@ -1402,7 +1402,7 @@ InterlockedExchange(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedExchangeAdd(
     IN OUT PLONG Addend,
     IN LONG Increment
@@ -1420,7 +1420,7 @@ InterlockedExchangeAdd(
 
 FORCEINLINE
 LONG
-FASTCALL
+__attribute__((fastcall))
 InterlockedCompareExchange(
     IN OUT PLONG Destination,
     IN LONG Exchange,
@@ -1664,7 +1664,7 @@ KeClockInterrupt(
 //
 
 ULONGLONG
-FASTCALL
+__attribute__((fastcall))
 RDMSR (
     IN ULONG MsrRegister
     );

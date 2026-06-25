@@ -40,7 +40,7 @@ static BOOL LightgunIsValidOpenDevice(PXID_OPEN_DEVICE OpenDevice)
     return TRUE;
 }
 
-extern "C" DWORD WINAPI XInputGetDeviceDescription(
+extern "C" DWORD __attribute__((__stdcall__)) XInputGetDeviceDescription(
     HANDLE hDevice,
     PXINPUT_DEVICE_DESCRIPTION pDescription)
 {
@@ -111,7 +111,7 @@ extern "C" DWORD WINAPI XInputGetDeviceDescription(
     return errorCode;
 }
 
-extern "C" DWORD WINAPI XInputSetLightgunCalibration(
+extern "C" DWORD __attribute__((__stdcall__)) XInputSetLightgunCalibration(
     HANDLE hDevice,
     PXINPUT_LIGHTGUN_CALIBRATION_OFFSETS pCalibrationOffsets)
 {

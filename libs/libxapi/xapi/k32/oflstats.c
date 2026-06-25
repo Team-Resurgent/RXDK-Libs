@@ -434,7 +434,7 @@ Cleanup:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCreateStatStore(
     DWORD cbMaxSize,
     DWORD dwOpenMode
@@ -444,7 +444,7 @@ XCreateStatStore(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XWriteStatStore(
     LPCWSTR lpLocalUserName,
     DWORD dwLeaderBoardIndex,
@@ -471,7 +471,7 @@ XWriteStatStore(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XClearStatStore(
     LPCWSTR lpLocalUserName
     )

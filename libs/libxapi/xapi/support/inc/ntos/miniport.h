@@ -217,11 +217,6 @@ typedef void * POINTER_64 PVOID64;
 
 // end_winnt
 
-#if defined(_M_IX86)
-#define FASTCALL __fastcall
-#else
-#define FASTCALL
-#endif
 
 #if (_MSC_VER >= 1200) && defined(_M_IX86)
 #define FORCEINLINE static __forceinline

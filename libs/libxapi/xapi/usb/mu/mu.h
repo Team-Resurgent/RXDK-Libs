@@ -671,7 +671,7 @@ MU_GetExistingDeviceObject(
 //
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fStartMrb(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     );

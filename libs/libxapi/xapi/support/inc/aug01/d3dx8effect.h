@@ -172,7 +172,7 @@ extern "C" {
 //
 //----------------------------------------------------------------------------
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCompileEffectFromFileA(
         LPCSTR            pSrcFile,
         LPD3DXBUFFER*     ppCompiledEffect,
@@ -181,7 +181,7 @@ HRESULT WINAPI
 #define D3DXCompileEffectFromFile D3DXCompileEffectFromFileA
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCompileEffect(
         LPCVOID           pSrcData,
         UINT              SrcDataSize,
@@ -209,7 +209,7 @@ HRESULT WINAPI
 //----------------------------------------------------------------------------
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateEffect(
         LPDIRECT3DDEVICE8 pDevice,
         LPCVOID           pCompiledEffect,

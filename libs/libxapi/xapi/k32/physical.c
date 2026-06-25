@@ -16,7 +16,7 @@ Abstract:
 #pragma hdrstop
 
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalAlloc(
     IN SIZE_T dwSize,
     IN ULONG_PTR ulPhysicalAddress,
@@ -63,7 +63,7 @@ XPhysicalAlloc(
 }
 
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalAllocEx(
     IN SIZE_T dwSize,
     IN ULONG_PTR ulLowestAcceptableAddress,
@@ -90,7 +90,7 @@ XPhysicalAllocEx(
 }
 
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalSize(
     IN LPVOID lpAddress
     )
@@ -101,7 +101,7 @@ XPhysicalSize(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalProtect(
     IN LPVOID lpAddress,
     IN SIZE_T dwSize,
@@ -118,7 +118,7 @@ XPhysicalProtect(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalFree(
     IN LPVOID lpAddress
     )
@@ -129,7 +129,7 @@ XPhysicalFree(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XQueryMemoryProtect(
     IN LPVOID lpAddress
     )

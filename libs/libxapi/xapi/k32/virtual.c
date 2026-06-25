@@ -17,7 +17,7 @@ Abstract:
 
 
 PVOID
-WINAPI
+__attribute__((__stdcall__))
 VirtualAlloc(
     PVOID lpAddress,
     SIZE_T dwSize,
@@ -51,7 +51,7 @@ VirtualAlloc(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 VirtualFree(
     LPVOID lpAddress,
     SIZE_T dwSize,
@@ -81,7 +81,7 @@ VirtualFree(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 VirtualProtect(
     PVOID lpAddress,
     SIZE_T dwSize,
@@ -107,7 +107,7 @@ VirtualProtect(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 VirtualQuery(
     LPCVOID lpAddress,
     PMEMORY_BASIC_INFORMATION lpBuffer,
@@ -129,7 +129,7 @@ VirtualQuery(
 }
 
 PVOID
-WINAPI
+__attribute__((__stdcall__))
 VirtualAllocEx(
     HANDLE hProcess,
     PVOID lpAddress,
@@ -150,7 +150,7 @@ VirtualAllocEx(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 VirtualFreeEx(
     HANDLE hProcess,
     LPVOID lpAddress,
@@ -163,7 +163,7 @@ VirtualFreeEx(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 VirtualProtectEx(
     HANDLE hProcess,
     PVOID lpAddress,
@@ -182,7 +182,7 @@ VirtualProtectEx(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 VirtualQueryEx(
     HANDLE hProcess,
     LPCVOID lpAddress,
@@ -199,7 +199,7 @@ VirtualQueryEx(
 
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 GlobalMemoryStatus(
     LPMEMORYSTATUS lpBuffer
     )

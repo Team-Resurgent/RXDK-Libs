@@ -362,12 +362,12 @@ typedef struct _D3DWAITINFO
 
 // function callback declaration for cycle time threshold callback
 //
-typedef void (WINAPI *PFNCycleThresholdHandler)(D3DPERF_PerformanceCounters perfctr,
+typedef void (__attribute__((__stdcall__)) *PFNCycleThresholdHandler)(D3DPERF_PerformanceCounters perfctr,
     ULONGLONG Cycles);
 
 // function callback declaration for spewing framerate information
 //
-typedef void (WINAPI *PFNDumpFrameRateInfoHandler)(void);
+typedef void (__attribute__((__stdcall__)) *PFNDumpFrameRateInfoHandler)(void);
 
 // m_dwDumpFPSInfoMask flags which specify what data to display during default
 // m_pfnDumpFrameRateInfoHandler callback. By default everything is enabled
@@ -538,27 +538,27 @@ typedef struct _D3DPUSHBUFFERINFO
 // Returns the performance structure which is statically allocated and should
 // never be freed.
 //
-D3DPERF * WINAPI D3DPERF_GetStatistics();
+D3DPERF * __attribute__((__stdcall__)) D3DPERF_GetStatistics();
 
 // Returns an array of names which is statically allocated.
 //
-D3DPERFNAMES * WINAPI D3DPERF_GetNames();
+D3DPERFNAMES * __attribute__((__stdcall__)) D3DPERF_GetNames();
 
 // Returns information on the pushbuffer
 //
-void WINAPI D3DPERF_GetPushBufferInfo(D3DPUSHBUFFERINFO *pPushBufferInfo);
+void __attribute__((__stdcall__)) D3DPERF_GetPushBufferInfo(D3DPUSHBUFFERINFO *pPushBufferInfo);
 
 // Dumps current frame rate information.
 //
-void WINAPI D3DPERF_DumpFrameRateInfo();
+void __attribute__((__stdcall__)) D3DPERF_DumpFrameRateInfo();
 
 // Reset all of the perf counters to zero.
 //
-void WINAPI D3DPERF_Reset();
+void __attribute__((__stdcall__)) D3DPERF_Reset();
 
 // Trivial dumper of all statistics to the debug output.
 //
-void WINAPI D3DPERF_Dump();
+void __attribute__((__stdcall__)) D3DPERF_Dump();
 
 
 // D3D Perf states
@@ -574,15 +574,15 @@ typedef enum _D3DPERFSTATETYPE
 // the vertex cache and/or file. This can be useful to determine
 // how well you're currently, or not, using vertex caching.
 //
-HRESULT WINAPI D3DPERF_SetState(D3DPERFSTATETYPE State, DWORD Value);
+HRESULT __attribute__((__stdcall__)) D3DPERF_SetState(D3DPERFSTATETYPE State, DWORD Value);
 
 // GPU Profile control routines. Enabling the PerfProfiler starts
 // profiler interrupt run every 100ns which checks the current busy/idle
 // status of the gpu.
 //
-BOOL WINAPI D3DPERF_StartPerfProfile();
-void WINAPI D3DPERF_StopPerfProfile();
-void WINAPI D3DPERF_DumpPerfProfCounts();
+BOOL __attribute__((__stdcall__)) D3DPERF_StartPerfProfile();
+void __attribute__((__stdcall__)) D3DPERF_StopPerfProfile();
+void __attribute__((__stdcall__)) D3DPERF_DumpPerfProfCounts();
 
 /*
  * Helper routines to set up various d3dperf members to dump
@@ -591,7 +591,7 @@ void WINAPI D3DPERF_DumpPerfProfCounts();
 
 // Sets a breakpoint on a specified performance counter number
 //
-__inline void WINAPI D3DPERF_SetBreakPerfCount(D3DPERF_PerformanceCounters perfctr,
+__inline void __attribute__((__stdcall__)) D3DPERF_SetBreakPerfCount(D3DPERF_PerformanceCounters perfctr,
     DWORD BreakCount)
 {
     D3DPERF *pPerf = D3DPERF_GetStatistics();
@@ -601,7 +601,7 @@ __inline void WINAPI D3DPERF_SetBreakPerfCount(D3DPERF_PerformanceCounters perfc
 
 // Sets frame rate interval (in ms) to call D3DPERF_DumpFrameRateInfo()
 //
-__inline void WINAPI D3DPERF_SetShowFrameRateInterval(DWORD FrameRateIntervalTime)
+__inline void __attribute__((__stdcall__)) D3DPERF_SetShowFrameRateInterval(DWORD FrameRateIntervalTime)
 {
     D3DPERF *pPerf = D3DPERF_GetStatistics();
     pPerf->m_FrameRateIntervalTime = FrameRateIntervalTime;
@@ -609,11 +609,11 @@ __inline void WINAPI D3DPERF_SetShowFrameRateInterval(DWORD FrameRateIntervalTim
 
 // Default handler for DumpWaitCycleTimesThreshold which just spews
 // PERF_OBJECTLOCK_WAITS count and time
-void WINAPI D3DPERF_DumpCounterCycleInfo(D3DPERF_PerformanceCounters perfctr,
+void __attribute__((__stdcall__)) D3DPERF_DumpCounterCycleInfo(D3DPERF_PerformanceCounters perfctr,
     ULONGLONG Cycles);
 
 // Sets threshold Cycle count and handler function for hitting wait time thresholds
-__inline void WINAPI D3DPERF_SetWaitCycleTimeThreshold(
+__inline void __attribute__((__stdcall__)) D3DPERF_SetWaitCycleTimeThreshold(
     PFNCycleThresholdHandler pfnCycleThresholdHandler,
     DWORD DumpWaitCycleTimesThreshold)
 {

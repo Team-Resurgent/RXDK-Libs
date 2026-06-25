@@ -56,7 +56,7 @@ typedef struct
 //
 // Function to initialize a piecemeal SHA1-Hmac evaluation
 //
-VOID WINAPI XShaHmacInitialize(
+VOID __attribute__((__stdcall__)) XShaHmacInitialize(
             IN PBYTE                pbKey,
             IN DWORD                cbKey,
             IN OUT XSHAHMAC_CONTEXT Shactx
@@ -94,7 +94,7 @@ VOID WINAPI XShaHmacInitialize(
 //
 // Function to update the Hmac
 //
-VOID WINAPI XShaHmacUpdate(
+VOID __attribute__((__stdcall__)) XShaHmacUpdate(
             IN XSHAHMAC_CONTEXT Shactx,
             IN PBYTE            pbData,
             IN DWORD            cbData
@@ -110,7 +110,7 @@ VOID WINAPI XShaHmacUpdate(
 //
 // Function to calculate the final Hmac
 //
-VOID WINAPI XShaHmacComputeFinal(
+VOID __attribute__((__stdcall__)) XShaHmacComputeFinal(
             IN XSHAHMAC_CONTEXT Shactx,
             IN PBYTE            pbKey,
             IN DWORD            cbKey,
@@ -177,7 +177,7 @@ BOOL XapiConvertSignatureToNonRoamable(
 // Wrapper to XCalculateSignatureBeginEx() that does not take a
 // title ID parameter (uses the current title's ID implicitly)
 //
-HANDLE WINAPI XCalculateSignatureBegin(
+HANDLE __attribute__((__stdcall__)) XCalculateSignatureBegin(
             IN DWORD dwFlags
             )
 {
@@ -208,7 +208,7 @@ HANDLE WINAPI XCalculateSignatureBegin(
 //    XCalculateSignatureEnd to free the handle resources,
 //    regardless of any intermediate failures.
 //
-HANDLE WINAPI XCalculateSignatureBeginEx(
+HANDLE __attribute__((__stdcall__)) XCalculateSignatureBeginEx(
             IN DWORD dwFlags,
             IN DWORD dwAltTitleId
             )
@@ -297,7 +297,7 @@ Error:
 //    Either case, XCalculateSignatureEnd must be called to free 
 //    any resources associated with the HANDLE.
 //
-DWORD WINAPI XCalculateSignatureUpdate(
+DWORD __attribute__((__stdcall__)) XCalculateSignatureUpdate(
             IN HANDLE hCalcSig,
             IN const BYTE *pbData,
             IN ULONG cbData
@@ -340,7 +340,7 @@ DWORD WINAPI XCalculateSignatureUpdate(
 //    This function can be used to just free the context. In
 //    this case, NULL should be specified for the Signature argument.
 //
-DWORD WINAPI XCalculateSignatureEnd(
+DWORD __attribute__((__stdcall__)) XCalculateSignatureEnd(
             IN HANDLE hCalcSig,
             OUT PVOID pSignature
             )

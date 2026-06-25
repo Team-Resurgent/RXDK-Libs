@@ -55,7 +55,7 @@ USHORT XapiMmTimerSerialNumber;
 PMMTIMER_THREAD_STATE XapiMmTimerThreadState;
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapiMmTimerThread(
     LPVOID lpThreadParameter
     )
@@ -264,7 +264,7 @@ RecomputeWaitObjects:
 }
 
 UINT
-WINAPI
+__attribute__((__stdcall__))
 timeSetEvent(
     UINT uDelay,
     UINT uResolution,
@@ -376,7 +376,7 @@ timeSetEvent(
 }
 
 MMRESULT
-WINAPI
+__attribute__((__stdcall__))
 timeKillEvent(
     UINT uTimerID
     )
@@ -429,7 +429,7 @@ timeKillEvent(
 }
 
 MMRESULT
-WINAPI
+__attribute__((__stdcall__))
 timeGetSystemTime(
     LPMMTIME lpTime,
     UINT wSize

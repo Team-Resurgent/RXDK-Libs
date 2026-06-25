@@ -72,7 +72,7 @@ Revision History:
 //*****************************************************************************
 DEFINE_USB_DEBUG_FUNCTIONS("MU");
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fCbwTransfer(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     );
@@ -84,7 +84,7 @@ MU_CbwCompletion (
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fDataTransfer (
     PURB Urb,
     PMU_DEVICE_EXTENSION DeviceExtension
@@ -97,7 +97,7 @@ MU_DataCompletion (
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fCswTransfer (
     IN PMU_DEVICE_EXTENSION DeviceExtension
     );
@@ -122,7 +122,7 @@ MU_MrbTimeout (
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fMrbErrorHandler(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     IN NTSTATUS Status
@@ -137,7 +137,7 @@ MU_ResetDeviceCompletionRoutine (
 
 #if DBG
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fValidateMrb(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     );
@@ -151,7 +151,7 @@ MU_fValidateMrb(
 //*****************************************************************************
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fStartMrb(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     )
@@ -211,7 +211,7 @@ MU_fStartMrb(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fCbwTransfer(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     )
@@ -363,7 +363,7 @@ MU_CbwCompletion (
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fDataTransfer (
     PURB Urb,
     PMU_DEVICE_EXTENSION DeviceExtension
@@ -655,7 +655,7 @@ MU_DataCompletion (
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fCswTransfer (
     IN PMU_DEVICE_EXTENSION DeviceExtension
     )
@@ -867,7 +867,7 @@ MU_MrbTimeout (
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fMrbErrorHandler(
     IN PMU_DEVICE_EXTENSION DeviceExtension,
     IN NTSTATUS Status
@@ -1222,7 +1222,7 @@ MU_ResetDeviceCompletionRoutine (
 
 #if DBG
 VOID
-FASTCALL
+__attribute__((fastcall))
 MU_fValidateMrb(
     IN PMU_DEVICE_EXTENSION DeviceExtension
     )

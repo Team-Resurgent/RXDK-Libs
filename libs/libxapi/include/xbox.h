@@ -1,11 +1,3 @@
-/************************************************************************
-*                                                                       *
-*   Xbox.h -- This module defines the Xbox APIs                         *
-*                                                                       *
-*   Copyright (c) 2000 - 2003 Microsoft Corp. All rights reserved.      *
-*                                                                       *
-************************************************************************/
-
 #pragma once
 #define _XBOX_
 
@@ -21,7 +13,7 @@ extern "C" {
 
 XBOXAPI
 PVOID
-WINAPI
+__attribute__((__stdcall__))
 XLoadSectionA(
     IN LPCSTR pSectionName
     );
@@ -29,7 +21,7 @@ XLoadSectionA(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFreeSectionA(
     IN LPCSTR pSectionName
     );
@@ -37,7 +29,7 @@ XFreeSectionA(
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XGetSectionHandleA(
     IN LPCSTR pSectionName
     );
@@ -45,21 +37,21 @@ XGetSectionHandleA(
 
 XBOXAPI
 PVOID
-WINAPI
+__attribute__((__stdcall__))
 XLoadSectionByHandle(
     IN HANDLE hSection
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFreeSectionByHandle(
     HANDLE hSection
     );
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetSectionSize(
     HANDLE hSection
     );
@@ -68,7 +60,7 @@ XGetSectionSize(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDisplayBlocks(
     IN LPCSTR lpPathName
     );
@@ -78,7 +70,7 @@ XGetDisplayBlocks(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCreateSaveGame(
     IN LPCSTR lpRootPathName,
     IN LPCWSTR lpSaveGameName,
@@ -90,7 +82,7 @@ XCreateSaveGame(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDeleteSaveGame(
     IN LPCSTR lpRootPathName,
     IN LPCWSTR lpSaveGameName
@@ -106,7 +98,7 @@ typedef struct _XGAME_FIND_DATA {
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstSaveGame(
     IN LPCSTR lpRootPathName,
     OUT PXGAME_FIND_DATA pFindGameData
@@ -114,7 +106,7 @@ XFindFirstSaveGame(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextSaveGame(
     IN HANDLE hFindGame,
     OUT PXGAME_FIND_DATA pFindGameData
@@ -122,7 +114,7 @@ XFindNextSaveGame(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindClose(
     IN HANDLE hFind
     );
@@ -131,7 +123,7 @@ XFindClose(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XSetNicknameW(
     IN LPCWSTR lpNickname,
     IN BOOL fPreserveCase
@@ -140,7 +132,7 @@ XSetNicknameW(
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstNicknameW(
     IN BOOL fThisTitleOnly,
     OUT LPWSTR lpNickname,
@@ -150,7 +142,7 @@ XFindFirstNicknameW(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextNicknameW(
     IN HANDLE hFindNickname,
     OUT LPWSTR lpNickname,
@@ -172,7 +164,7 @@ typedef struct _XCONTENT_FIND_DATA {
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstContent(
     IN LPCSTR lpRootPathName,
     IN DWORD dwFlagFilter,
@@ -181,7 +173,7 @@ XFindFirstContent(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextContent(
     IN HANDLE hFindContent,
     OUT PXCONTENT_FIND_DATA pFindContentData
@@ -189,7 +181,7 @@ XFindNextContent(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetContentInstallLocation(
     IN DWORD dwTitleID,
     IN LPCSTR lpSourceMetadataFileName,
@@ -198,7 +190,7 @@ XGetContentInstallLocation(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetContentInstallLocationFromIDs(
     IN DWORD dwTitleID,
     IN XOFFERING_ID xOfferingID,
@@ -207,7 +199,7 @@ XGetContentInstallLocationFromIDs(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XInstallContentSignatures(
     IN DWORD dwTitleID,
     IN LPCSTR lpSourceMetadataFileName,
@@ -216,7 +208,7 @@ XInstallContentSignatures(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XCreateContentSimple(
     IN DWORD dwTitleID,
     IN XOFFERING_ID xOfferingID,
@@ -227,7 +219,7 @@ XCreateContentSimple(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XRemoveContent(
     IN LPCSTR lpDirectoryName
     );
@@ -235,7 +227,7 @@ XRemoveContent(
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XLoadContentSignaturesEx(
     IN DWORD dwTitleID,
     IN LPCSTR lpDirectoryName
@@ -246,7 +238,7 @@ XLoadContentSignaturesEx(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateSignatureByIndex(
     IN HANDLE hSignature,
     IN DWORD dwSignatureIndex,
@@ -256,7 +248,7 @@ XLocateSignatureByIndex(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XLocateSignatureByName(
     IN HANDLE hSignature,
     IN LPCSTR lpFileName,
@@ -268,7 +260,7 @@ XLocateSignatureByName(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XCalculateContentSignature(
     IN LPBYTE pbData,
     IN DWORD dwDataSize,
@@ -278,7 +270,7 @@ XCalculateContentSignature(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XCloseContentSignatures(
     IN HANDLE hSignature
     );
@@ -298,14 +290,14 @@ typedef struct _XSOUNDTRACK_DATA {
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstSoundtrack(
     OUT PXSOUNDTRACK_DATA pSoundtrackData
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextSoundtrack(
     IN HANDLE hFindHandle,
     OUT PXSOUNDTRACK_DATA pSoundtrackData
@@ -313,7 +305,7 @@ XFindNextSoundtrack(
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XOpenSoundtrackSong(
     IN DWORD dwSongId,
     IN BOOL fAsyncMode
@@ -321,7 +313,7 @@ XOpenSoundtrackSong(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetSoundtrackSongInfo(
     IN DWORD dwSoundtrackId,
     IN UINT uIndex,
@@ -333,7 +325,7 @@ XGetSoundtrackSongInfo(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XAddSoundtrack(
     IN  LPCWSTR pszSoundtrackName,
     OUT PUINT pdwSoundtrackId
@@ -341,7 +333,7 @@ XAddSoundtrack(
 
 typedef
 DWORD
-(WINAPI *LP_SOUNDTRACK_PROGRESS_ROUTINE)(
+(__attribute__((__stdcall__)) *LP_SOUNDTRACK_PROGRESS_ROUTINE)(
     IN PCWSTR pszSoundtrackName,
     IN PCWSTR pszSongName,
     IN LARGE_INTEGER TotalFileSize,
@@ -351,7 +343,7 @@ DWORD
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XAddSongToSoundtrack(
     IN  UINT dwSoundtrackId,
     IN  LPCSTR pszSongPath,
@@ -374,7 +366,7 @@ XAddSongToSoundtrack(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetLanguage(
     VOID
     );
@@ -385,7 +377,7 @@ XGetLanguage(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetAutoLogonFlag(
     VOID
     );
@@ -400,7 +392,7 @@ XGetAutoLogonFlag(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetAVPack(
     VOID
     );
@@ -411,7 +403,7 @@ XGetAVPack(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetVideoStandard(
     VOID
     );
@@ -425,7 +417,7 @@ XGetVideoStandard(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetVideoFlags(
     VOID
     );
@@ -445,7 +437,7 @@ XGetVideoFlags(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetAudioFlags(
     VOID
     );
@@ -460,7 +452,7 @@ XGetAudioFlags(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetParentalControlSetting(
     VOID
     );
@@ -472,7 +464,7 @@ XGetParentalControlSetting(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetGameRegion(
     VOID
     );
@@ -532,7 +524,7 @@ typedef struct _XDEVICE_PREALLOC_TYPE
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XInitDevices(
     DWORD                  dwPreallocTypeCount,
     PXDEVICE_PREALLOC_TYPE PreallocTypes
@@ -540,14 +532,14 @@ XInitDevices(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDevices(
     IN PXPP_DEVICE_TYPE DeviceType
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetDeviceChanges(
     IN PXPP_DEVICE_TYPE DeviceType,
     OUT PDWORD pdwInsertions,
@@ -560,7 +552,7 @@ XGetDeviceChanges(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDeviceEnumerationStatus();
 
 
@@ -686,7 +678,7 @@ typedef struct _XINPUT_POLLING_PARAMETERS
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XInputOpen(
     IN PXPP_DEVICE_TYPE DeviceType,
     IN DWORD dwPort,
@@ -696,14 +688,14 @@ XInputOpen(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XInputClose(
     IN HANDLE hDevice
     );
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputGetState(
     IN HANDLE hDevice,
     OUT PXINPUT_STATE  pState
@@ -711,14 +703,14 @@ XInputGetState(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputPoll(
     IN HANDLE hDevice
     );
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputSetState(
     IN HANDLE hDevice,
     IN OUT PXINPUT_FEEDBACK pFeedback
@@ -726,7 +718,7 @@ XInputSetState(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputGetCapabilities(
     IN HANDLE hDevice,
     OUT PXINPUT_CAPABILITIES pCapabilities
@@ -742,7 +734,7 @@ typedef struct _XINPUT_DEVICE_DESCRIPTION
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputGetDeviceDescription(
  IN  HANDLE hDevice,
  OUT PXINPUT_DEVICE_DESCRIPTION pDescription
@@ -763,7 +755,7 @@ typedef struct _XINPUT_LIGHTGUN_CALIBRATION_OFFSETS
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XInputSetLightgunCalibration(
     IN HANDLE hDevice,
     IN PXINPUT_LIGHTGUN_CALIBRATION_OFFSETS pCalibrationOffsets
@@ -771,7 +763,7 @@ XInputSetLightgunCalibration(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMountMUA(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -782,7 +774,7 @@ XMountMUA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XUnmountMU(
     IN DWORD dwPort,
     IN DWORD dwSlot
@@ -790,7 +782,7 @@ XUnmountMU(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUPortFromDriveLetterA(
     IN CHAR chDrive
     );
@@ -798,7 +790,7 @@ XMUPortFromDriveLetterA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUSlotFromDriveLetterA(
     IN CHAR chDrive
     );
@@ -808,7 +800,7 @@ XMUSlotFromDriveLetterA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUNameFromDriveLetter(
     IN CHAR chDrive,
     OUT LPWSTR lpName,
@@ -828,28 +820,28 @@ XMUNameFromDriveLetter(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XMountUtilityDrive(
     IN BOOL fFormatClean
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFormatUtilityDrive(
     VOID
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XMountSecondaryUtilityDrive(
     VOID
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XSwapUtilityDrives(
     VOID
     );
@@ -857,7 +849,7 @@ XSwapUtilityDrives(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFormatSecondaryUtilityDrive(
     VOID
     );
@@ -865,7 +857,7 @@ XFormatSecondaryUtilityDrive(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMountAlternateTitleA(
     IN LPCSTR lpRootPath,
     IN DWORD dwAltTitleId,
@@ -875,7 +867,7 @@ XMountAlternateTitleA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XUnmountAlternateTitleA(
     IN CHAR chDrive
     );
@@ -883,7 +875,7 @@ XUnmountAlternateTitleA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDiskSectorSizeA(
     IN LPCSTR lpRootPathName
     );
@@ -895,7 +887,7 @@ XGetDiskSectorSizeA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDiskClusterSizeA(
     IN LPCSTR lpRootPathName
     );
@@ -994,7 +986,7 @@ typedef struct _LD_FROM_UPDATE  // Required for launching out of auto-updates, d
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XLaunchNewImageA(
     IN LPCSTR lpImagePath,
     IN PLAUNCH_DATA pLaunchData
@@ -1009,14 +1001,14 @@ XLaunchNewImageA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetLaunchInfo(
     OUT PDWORD pdwLaunchDataType,
     OUT PLAUNCH_DATA pLaunchData
     );
 
 
-typedef VOID (WINAPI *XTHREAD_NOTIFY_PROC)(BOOL fCreate);
+typedef VOID (__attribute__((__stdcall__)) *XTHREAD_NOTIFY_PROC)(BOOL fCreate);
 typedef struct _XTHREAD_NOTIFICATION {
     LIST_ENTRY ListEntry;
     XTHREAD_NOTIFY_PROC pfnNotifyRoutine;
@@ -1024,7 +1016,7 @@ typedef struct _XTHREAD_NOTIFICATION {
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XRegisterThreadNotifyRoutine(
     IN OUT PXTHREAD_NOTIFICATION pThreadNotification,
     IN BOOL fRegister
@@ -1032,55 +1024,55 @@ XRegisterThreadNotifyRoutine(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XSetProcessQuantumLength(
     IN DWORD dwMilliseconds
     );
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetProcessQuantumLength(
     VOID
     );
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XSetFileCacheSize(
     IN SIZE_T dwCacheSize
     );
 
 XBOXAPI
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 XGetFileCacheSize(
     VOID
     );
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetFilePhysicalSortKey(
     HANDLE hFile
     );
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XSaveFloatingPointStateForDpc(
     VOID
     );
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XRestoreFloatingPointStateForDpc(
     VOID
     );
 
 XBOXAPI
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalAlloc(
     IN SIZE_T dwSize,
     IN ULONG_PTR ulPhysicalAddress,
@@ -1090,7 +1082,7 @@ XPhysicalAlloc(
 
 XBOXAPI
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalAllocEx(
     IN SIZE_T dwSize,
     IN ULONG_PTR ulLowestAcceptableAddress,
@@ -1101,14 +1093,14 @@ XPhysicalAllocEx(
 
 XBOXAPI
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalSize(
     IN LPVOID lpAddress
     );
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalProtect(
     IN LPVOID lpAddress,
     IN SIZE_T dwSize,
@@ -1117,14 +1109,14 @@ XPhysicalProtect(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XPhysicalFree(
     IN LPVOID lpAddress
     );
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XQueryMemoryProtect(
     IN LPVOID lpAddress
     );
@@ -1222,7 +1214,7 @@ typedef struct _XALLOC_ATTRIBUTES {
 
 XBOXAPI
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XMemAlloc(
     IN SIZE_T dwSize,
     IN DWORD dwAllocAttributes
@@ -1230,7 +1222,7 @@ XMemAlloc(
 
 XBOXAPI
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XMemAllocDefault(
     IN SIZE_T dwSize,
     IN DWORD dwAllocAttributes
@@ -1238,7 +1230,7 @@ XMemAllocDefault(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XMemFree(
     IN PVOID pAddress,
     IN DWORD dwAllocAttributes
@@ -1246,7 +1238,7 @@ XMemFree(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XMemFreeDefault(
     IN PVOID pAddress,
     IN DWORD dwAllocAttributes
@@ -1254,7 +1246,7 @@ XMemFreeDefault(
 
 XBOXAPI
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 XMemSize(
     IN PVOID pAddress,
     IN DWORD dwAllocAttributes
@@ -1262,7 +1254,7 @@ XMemSize(
 
 XBOXAPI
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 XMemSizeDefault(
     IN PVOID pAddress,
     IN DWORD dwAllocAttributes
@@ -1270,14 +1262,14 @@ XMemSizeDefault(
 
 XBOXAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XSetAttributesOnHeapAlloc(
     PVOID pBaseAddress,
     DWORD dwAllocAttributes);
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetAttributesOnHeapAlloc(
     PVOID pBaseAddress);
 
@@ -1289,7 +1281,7 @@ XGetAttributesOnHeapAlloc(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDebugGetSystemVersionA(
     OUT LPSTR pszVersionString,
     IN UINT cchVersionString
@@ -1298,7 +1290,7 @@ XDebugGetSystemVersionA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDebugGetXTLVersionA(
     OUT LPSTR pszVersionString,
     IN UINT cchVersionString
@@ -1321,21 +1313,21 @@ typedef struct {
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCalculateSignatureGetSize(
     IN DWORD dwFlags
     );
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XCalculateSignatureBegin(
     IN DWORD dwFlags
     );
 
 XBOXAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XCalculateSignatureBeginEx(
     IN DWORD dwFlags,
     IN DWORD dwAltTitleId
@@ -1343,7 +1335,7 @@ XCalculateSignatureBeginEx(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCalculateSignatureUpdate(
     IN HANDLE hCalcSig,
     IN const BYTE *pbData,
@@ -1352,7 +1344,7 @@ XCalculateSignatureUpdate(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCalculateSignatureEnd(
     IN HANDLE hCalcSig,
     OUT PVOID pSignature
@@ -1360,7 +1352,7 @@ XCalculateSignatureEnd(
 
 XBOXAPI
 ULONG
-WINAPI
+__attribute__((__stdcall__))
 XAutoPowerDownTimeRemaining();
 
 
@@ -1376,7 +1368,7 @@ typedef enum _XOFFLINE_STAT_TYPE {
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XWriteStatStore(
     IN LPCWSTR lpLocalUserName,
     IN DWORD dwLeaderBoardIndex,
@@ -1387,7 +1379,7 @@ XWriteStatStore(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XClearStatStore(
     IN LPCWSTR lpLocalUserName
     );

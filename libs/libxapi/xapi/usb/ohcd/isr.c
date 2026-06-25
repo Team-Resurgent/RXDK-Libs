@@ -48,21 +48,21 @@ int IsrEntryCount=0;
 // Forward declaration of functions defined and used only this in this module
 //----------------------------------------------------------------------------
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessDoneTD(
     POHCD_DEVICE_EXTENSION      DeviceExtension,
     POHCD_TRANSFER_DESCRIPTOR   TD
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessFailedTD(
     POHCD_DEVICE_EXTENSION      DeviceExtension,
     POHCD_TRANSFER_DESCRIPTOR   TD
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCompleteRequest(
     IN POHCD_DEVICE_EXTENSION DeviceExtension, 
     IN POHCD_ENDPOINT Endpoint,
@@ -70,35 +70,35 @@ OHCD_fCompleteRequest(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCreditTDQuota(
     IN POHCD_DEVICE_EXTENSION DeviceExtension, 
     IN POHCD_ENDPOINT Endpoint
     );
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessCancelPendingList(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     ULONG                  CurrentFrame
     );
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessAbortPendingList(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     ULONG                  CurrentFrame
     );
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessClosePendingList(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     ULONG                  CurrentFrame
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCleanEndpointTDs(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN POHCD_ENDPOINT           Endpoint
@@ -454,7 +454,7 @@ Return Value:
 }
 
 ULONG
-FASTCALL
+__attribute__((fastcall))
 OHCD_Get32BitFrameNumber(
     POHCD_DEVICE_EXTENSION DeviceExtension
     )
@@ -477,7 +477,7 @@ OHCD_Get32BitFrameNumber(
 //----------------------------------------------------------------------------
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessDoneTD(
     POHCD_DEVICE_EXTENSION      DeviceExtension,
     POHCD_TRANSFER_DESCRIPTOR   TD
@@ -601,7 +601,7 @@ Return Value:
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessFailedTD(
     POHCD_DEVICE_EXTENSION      DeviceExtension,
     POHCD_TRANSFER_DESCRIPTOR   TD
@@ -788,7 +788,7 @@ Return Value:
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCompleteRequest(
     IN POHCD_DEVICE_EXTENSION DeviceExtension, 
     IN POHCD_ENDPOINT Endpoint,
@@ -891,7 +891,7 @@ OHCD_fCompleteRequest(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCreditTDQuota(
     IN POHCD_DEVICE_EXTENSION DeviceExtension, 
     IN POHCD_ENDPOINT Endpoint
@@ -929,7 +929,7 @@ OHCD_fCreditTDQuota(
 }
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessCancelPendingList(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     ULONG                  CurrentFrame
@@ -1087,7 +1087,7 @@ Arguments:
 }
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProcessAbortPendingList(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     ULONG                  CurrentFrame
@@ -1180,7 +1180,7 @@ Arguments:
 }
 
 BOOLEAN
-FASTCALL    
+__attribute__((fastcall))    
 OHCD_fProcessClosePendingList(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     ULONG                     CurrentFrame
@@ -1274,7 +1274,7 @@ OHCD_fProcessClosePendingList(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCleanEndpointTDs(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN POHCD_ENDPOINT           Endpoint

@@ -71,63 +71,63 @@ KINTERRUPT OHCD_InterruptObject[HCD_MAX_HOST_CONTROLLERS];
 // Forward declaration of functions defined and used only this in this module
 //----------------------------------------------------------------------------
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fOpenEndpoint(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCloseEndpoint(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
     );
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fGetEndpointState(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fSetEndpointState(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
     );
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fAbortEndpoint(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
     );
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fSetResources(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     PPCI_DEVICE_DESCRIPTOR      PciDevice
     );
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fDequeueControlTransfer(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN PURB Urb
     );
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fDequeueBulkTransfer(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN PURB Urb
     );
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fDequeueInterruptTransfer(
     IN POHCD_ENDPOINT Endpoint,
     IN PURB Urb
     );
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCancelQueuedUrbs(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT Endpoint
@@ -692,7 +692,7 @@ ExitHCD_CancelRequest:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fOpenEndpoint(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
@@ -869,7 +869,7 @@ ExitOpenEndpoint:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCloseEndpoint(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
@@ -930,7 +930,7 @@ OHCD_fCloseEndpoint(
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fGetEndpointState(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
@@ -983,7 +983,7 @@ Arguments:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fSetEndpointState(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
@@ -1034,7 +1034,7 @@ Arguments:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fAbortEndpoint(
     IN      POHCD_DEVICE_EXTENSION  DeviceExtension,
     IN OUT  PURB                    Urb
@@ -1091,7 +1091,7 @@ Arguments:
 
 #pragma code_seg(".XPPCINIT")
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fSetResources(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     PPCI_DEVICE_DESCRIPTOR      PciDevice
@@ -1140,7 +1140,7 @@ Failures:
 #pragma code_seg(".XPPCODE")
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fDequeueControlTransfer(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN PURB Urb
@@ -1184,7 +1184,7 @@ OHCD_fDequeueControlTransfer(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fDequeueBulkTransfer(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN PURB Urb
@@ -1228,7 +1228,7 @@ OHCD_fDequeueBulkTransfer(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fDequeueInterruptTransfer(
     IN POHCD_ENDPOINT Endpoint,
     IN PURB Urb
@@ -1272,7 +1272,7 @@ OHCD_fDequeueInterruptTransfer(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fCancelQueuedUrbs(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT Endpoint
@@ -1396,7 +1396,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fPauseEndpoint(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT  Endpoint

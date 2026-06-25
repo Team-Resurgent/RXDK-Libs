@@ -21,7 +21,7 @@ Abstract:
 HANDLE XapiProcessHeap;
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 HeapCreate(
     DWORD flOptions,
     SIZE_T dwInitialSize,
@@ -85,7 +85,7 @@ Return Value:
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapDestroy(
     HANDLE hHeap
     )
@@ -101,7 +101,7 @@ HeapDestroy(
 
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapFree(
     HANDLE hHeap,
     DWORD  dwFlags,
@@ -114,7 +114,7 @@ HeapFree(
 #if DBG
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapValidate(
     HANDLE hHeap,
     DWORD dwFlags,
@@ -127,7 +127,7 @@ HeapValidate(
 #endif // DBG
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 GetProcessHeap( VOID )
 /*++
 
@@ -150,7 +150,7 @@ Return Value:
 
 WINBASEAPI
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 HeapCompact(
     HANDLE hHeap,
     DWORD dwFlags
@@ -162,7 +162,7 @@ HeapCompact(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapLock(
     HANDLE hHeap
     )
@@ -173,7 +173,7 @@ HeapLock(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapUnlock(
     HANDLE hHeap
     )
@@ -183,7 +183,7 @@ HeapUnlock(
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapWalk(
     HANDLE hHeap,
     LPPROCESS_HEAP_ENTRY lpEntry
@@ -270,7 +270,7 @@ HeapWalk(
 #endif // DBG
 
 HLOCAL
-WINAPI
+__attribute__((__stdcall__))
 LocalAlloc(
     UINT uFlags,
     SIZE_T uBytes
@@ -308,7 +308,7 @@ Return Value:
 }
 
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XMemAlloc(
     SIZE_T dwSize,
     DWORD dwAllocAttributes
@@ -321,7 +321,7 @@ XMemAlloc(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XMemFree(
     PVOID pAddress,
     DWORD dwAllocAttributes
@@ -338,7 +338,7 @@ XMemFree(
 }
 
 HLOCAL
-WINAPI
+__attribute__((__stdcall__))
 LocalReAlloc(
     HLOCAL hMem,
     SIZE_T uBytes,
@@ -383,7 +383,7 @@ Return Value:
 }
 
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 LocalSize(
     HLOCAL hMem
     )
@@ -407,7 +407,7 @@ Return Value:
 }
 
 HLOCAL
-WINAPI
+__attribute__((__stdcall__))
 LocalFree(
     HLOCAL hMem
     )
@@ -437,7 +437,7 @@ Return Value:
 
 WINBASEAPI
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 LocalLock(
     IN HLOCAL hMem
     )
@@ -464,7 +464,7 @@ Return Value:
 
 WINBASEAPI
 HLOCAL
-WINAPI
+__attribute__((__stdcall__))
 LocalHandle(
     IN LPCVOID pMem
     )
@@ -491,7 +491,7 @@ Return Value:
 
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 LocalUnlock(
     IN HLOCAL hMem
     )
@@ -515,7 +515,7 @@ Return Value:
 }
 
 HGLOBAL
-WINAPI
+__attribute__((__stdcall__))
 GlobalAlloc(
     UINT uFlags,
     SIZE_T dwBytes
@@ -555,7 +555,7 @@ Return Value:
 }
 
 HGLOBAL
-WINAPI
+__attribute__((__stdcall__))
 GlobalReAlloc(
     HANDLE hMem,
     SIZE_T uBytes,

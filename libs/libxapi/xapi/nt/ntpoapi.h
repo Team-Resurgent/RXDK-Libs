@@ -192,7 +192,7 @@ typedef struct {
 
 typedef
 BOOLEAN
-(FASTCALL *PPROCESSOR_IDLE_HANDLER) (
+(__attribute__((fastcall)) *PPROCESSOR_IDLE_HANDLER) (
     IN OUT PPROCESSOR_IDLE_TIMES IdleTimes
     );
 
@@ -203,7 +203,7 @@ typedef struct {
 
 typedef
 VOID
-(FASTCALL *PSET_PROCESSOR_THROTTLE) (
+(__attribute__((fastcall)) *PSET_PROCESSOR_THROTTLE) (
     IN UCHAR                    Throttle
     );
 
@@ -471,7 +471,7 @@ struct _PROCESSOR_POWER_STATE;      // forward ref
 
 typedef
 VOID
-(FASTCALL *PPROCESSOR_IDLE_FUNCTION) (
+(__attribute__((fastcall)) *PPROCESSOR_IDLE_FUNCTION) (
     struct _PROCESSOR_POWER_STATE   *PState
     );
 

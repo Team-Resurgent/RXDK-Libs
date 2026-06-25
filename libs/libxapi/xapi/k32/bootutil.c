@@ -21,7 +21,7 @@ Module Name:
 #include <dm.h>
 
 NTSTATUS
-WINAPI
+__attribute__((__stdcall__))
 XWriteTitleInfoNoReboot(
     PCOSTR pszLaunchPath,
     PCOSTR pszDDrivePath,
@@ -50,7 +50,7 @@ static const CHAR g_szDVDDevicePrefix[] = "\\Device\\Cdrom0";
 extern POBJECT_STRING XeImageFileName;
 
 NTSTATUS
-WINAPI
+__attribute__((__stdcall__))
 XWriteTitleInfoNoReboot(
     PCOSTR pszLaunchPath,
     PCOSTR pszDDrivePath,
@@ -60,7 +60,7 @@ XWriteTitleInfoNoReboot(
     );
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiLoadContentMetadataHeader(
     IN HANDLE hFile,
     IN BOOL fVerifySignature,
@@ -146,7 +146,7 @@ BuildUpdateFilePath(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipUpdateMountDashPartition(
     VOID
     )
@@ -171,7 +171,7 @@ XapipUpdateMountDashPartition(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XoUpdateLoadXBEInfo(
     IN PCSTR pszXbePath,
     OUT PXBEIMAGE_CERTIFICATE pCertificate
@@ -253,7 +253,7 @@ Exit:
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XoRebootToUpdaterWhilePreservingDDrive(
     IN PCSTR pszUpdaterPath,
     IN PLAUNCH_DATA pLaunchData,
@@ -311,7 +311,7 @@ XoRebootToUpdaterWhilePreservingDDrive(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XoUpdateGetSavedDataFromLaunchPage(
     OUT PSTR *ppszDDrivePath,
     OUT PDWORD pdwTitleId,
@@ -352,7 +352,7 @@ XoUpdateGetSavedDataFromLaunchPage(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XapipUpdateGetCurrentDDriveMapping(
     OUT PSTR pszDDrivePath,
     IN DWORD cchDDrivePathMax
@@ -402,7 +402,7 @@ XapipUpdateGetCurrentDDriveMapping(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XapipUpdateSaveDDriveMappingToLaunchPage(
     IN PCSTR pszLaunchPath,
     IN PCSTR pszDDrivePath
@@ -451,7 +451,7 @@ typedef struct _XCONTENT_METADATA_HEADER_MIN
 } XCONTENT_METADATA_HEADER_MIN, *PXCONTENT_METADATA_HEADER_MIN;
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipUpdateDetectAndVerify(
     IN DWORD dwTitleId,
     IN PCSTR pszFileName,
@@ -570,7 +570,7 @@ Exit:
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XapipUpdateDashIfNecessary(
     IN PLAUNCH_DATA pLaunchData
     )
@@ -615,7 +615,7 @@ RebootToUpdater:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipLaunchNewImageInternal(
     IN PCSTR pszLaunchPath,
     IN PLAUNCH_DATA pLaunchData,
@@ -720,7 +720,7 @@ XapipLaunchNewImageInternal(
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XapipUpdateRebootIfNecessary(
     VOID
     )

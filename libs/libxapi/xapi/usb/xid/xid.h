@@ -98,7 +98,7 @@ typedef struct _XINPUT_KEYBOARD_LEDS
 //-----------------------------------------------------------------------
 // Structures for the device information table
 //-----------------------------------------------------------------------
-typedef void (FASTCALL *PFN_PROCESS_NEWDATA)(PXID_OPEN_DEVICE OpenDevice);
+typedef void (__attribute__((fastcall)) *PFN_PROCESS_NEWDATA)(PXID_OPEN_DEVICE OpenDevice);
 
 typedef struct _XID_REPORT_TYPE_INFO
 {
@@ -256,20 +256,20 @@ extern XID_GLOBALS XID_Globals;
 //--------------------------------------------------------------------------------------
 
 PXID_TYPE_INFORMATION
-FASTCALL
+__attribute__((fastcall))
 GetTypeInformation(
     UCHAR XidType,
     UCHAR *TypeIndex
     );
 
 PXID_TYPE_INFORMATION 
-FASTCALL
+__attribute__((fastcall))
 GetTypeInformation(
     PXPP_DEVICE_TYPE XppType
     );
 
 DWORD
-FASTCALL
+__attribute__((fastcall))
 XID_fOpenDevice(
     PXID_TYPE_INFORMATION TypeInformation,
     ULONG Port,
@@ -278,14 +278,14 @@ XID_fOpenDevice(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fCloseDevice(
     IN PXID_OPEN_DEVICE OpenDevice
     );
 
 
 DWORD
-FASTCALL
+__attribute__((fastcall))
 XID_fSendDeviceReport(
         IN      PXID_OPEN_DEVICE           OpenDevice,
         IN      PXINPUT_FEEDBACK_INTERNAL   OutputReport
@@ -319,19 +319,19 @@ XID_FreeHandle(PXID_OPEN_DEVICE DeviceHandle)
 //  Type Specific Functions
 //--------------------------------------------------------------------------------------
 void
-FASTCALL
+__attribute__((fastcall))
 XID_ProcessGamepadData(
     PXID_OPEN_DEVICE OpenDevice
     );
 
 void
-FASTCALL
+__attribute__((fastcall))
 XID_ProcessIRRemoteData(
     PXID_OPEN_DEVICE OpenDevice
     );
 
 void
-FASTCALL
+__attribute__((fastcall))
 XID_ProcessNewKeyboardData(
     PXID_OPEN_DEVICE OpenDevice
     );

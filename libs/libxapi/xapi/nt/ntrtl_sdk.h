@@ -4186,19 +4186,19 @@ RtlInvertRangeList(
 //
 
 USHORT
-FASTCALL
+__attribute__((fastcall))
 RtlUshortByteSwap(
     IN USHORT Source
     );
 
 ULONG
-FASTCALL
+__attribute__((fastcall))
 RtlUlongByteSwap(
     IN ULONG Source
     );
 
 ULONGLONG
-FASTCALL
+__attribute__((fastcall))
 RtlUlonglongByteSwap(
     IN ULONGLONG Source
     );

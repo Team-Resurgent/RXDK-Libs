@@ -433,7 +433,7 @@ DMHRAPI DmUnregisterPerformanceCounter(LPCSTR szName);
 #define DM_PROFILE_START    1
 #define DM_PROFILE_STOP     2
 
-DWORD WINAPI DmProfileControl(DWORD Action, DWORD Parameter);
+DWORD __attribute__((__stdcall__)) DmProfileControl(DWORD Action, DWORD Parameter);
 
 
 

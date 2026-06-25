@@ -2491,9 +2491,9 @@ typedef const MMTIME *LPCMMTIME;
 
 typedef UINT MMRESULT;
 
-EXTERN_C MMRESULT WINAPI timeGetSystemTime(LPMMTIME pmmt, UINT cbmmt);
-EXTERN_C MMRESULT WINAPI timeSetEvent(UINT uDelay, UINT uResolution, LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent);
-EXTERN_C MMRESULT WINAPI timeKillEvent(UINT uTimerID);
+EXTERN_C MMRESULT __attribute__((__stdcall__)) timeGetSystemTime(LPMMTIME pmmt, UINT cbmmt);
+EXTERN_C MMRESULT __attribute__((__stdcall__)) timeSetEvent(UINT uDelay, UINT uResolution, LPTIMECALLBACK fptc, DWORD dwUser, UINT fuEvent);
+EXTERN_C MMRESULT __attribute__((__stdcall__)) timeKillEvent(UINT uTimerID);
 
 #define timeGetTime GetTickCount
 

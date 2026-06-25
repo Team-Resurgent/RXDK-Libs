@@ -24,7 +24,7 @@ extern "C" {
 #endif
 WINBASEAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 HeapCreateTagsW(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
@@ -41,7 +41,7 @@ typedef PHEAP_TAG_INFO LPHEAP_TAG_INFO;
 
 WINBASEAPI
 LPCWSTR
-WINAPI
+__attribute__((__stdcall__))
 HeapQueryTagW(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
@@ -60,7 +60,7 @@ typedef struct _HEAP_SUMMARY {
 typedef PHEAP_SUMMARY LPHEAP_SUMMARY;
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapSummary(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
@@ -68,7 +68,7 @@ HeapSummary(
     );
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapExtend(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
@@ -96,7 +96,7 @@ typedef struct _HEAP_USAGE {
 } HEAP_USAGE, *PHEAP_USAGE;
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 HeapUsage(
     IN HANDLE hHeap,
     IN DWORD dwFlags,

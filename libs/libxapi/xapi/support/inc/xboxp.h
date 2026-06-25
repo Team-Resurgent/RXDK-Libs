@@ -123,7 +123,7 @@ typedef enum _XC_VALUE_INDEX
 //
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XSetValue(
     IN ULONG ulValueIndex,
     IN ULONG ulType,
@@ -133,7 +133,7 @@ XSetValue(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XQueryValue(
     IN ULONG ulValueIndex,
     OUT PULONG pulType,
@@ -174,7 +174,7 @@ extern BOOL XPP_XInitDevicesHasBeenCalled;
 #ifdef _XBOX_ //only define this if xbox.h was already included.
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XPeekDevices(
     IN  PXPP_DEVICE_TYPE DeviceType,
     IN  OUT PDWORD pLastGotten,
@@ -202,7 +202,7 @@ typedef struct _XINPUT_STATE_INTERNAL
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMountMURootA(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -213,7 +213,7 @@ XMountMURootA(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUNameFromPortSlot(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -223,7 +223,7 @@ XMUNameFromPortSlot(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XReadMUMetaData(
     IN DWORD dwPort,
     IN DWORD dwSlot,
@@ -234,7 +234,7 @@ XReadMUMetaData(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XMUWriteNameToDriveLetter(
     IN CHAR chDrive,
     IN LPCWSTR lpName
@@ -242,7 +242,7 @@ XMUWriteNameToDriveLetter(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCleanMUFromRoot(
     IN CHAR chDrive,
     PCSTR pszPreserveDir OPTIONAL
@@ -250,7 +250,7 @@ XCleanMUFromRoot(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCleanDrive(
     IN CHAR chDrive
     );
@@ -281,7 +281,7 @@ typedef struct _XDCS_ASYNC_DOWNLOAD_REQUEST
 } XDCS_ASYNC_DOWNLOAD_REQUEST, *PXDCS_ASYNC_DOWNLOAD_REQUEST;
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDCSGetInformation(
     IN  DWORD  dwPort,
     OUT PDWORD pdwDeviceInstance,
@@ -289,7 +289,7 @@ XDCSGetInformation(
     );
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDCSDownloadCode(
     DWORD   dwDeviceInstance,
     PVOID   pvBuffer,
@@ -299,7 +299,7 @@ XDCSDownloadCode(
     );
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDCSDownloadCodeAsync(
     IN OUT PXDCS_ASYNC_DOWNLOAD_REQUEST pXDCSDownloadRequest
     );
@@ -307,50 +307,50 @@ XDCSDownloadCodeAsync(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XAutoPowerDownSet(
     BOOL fAutoPowerDown
     );
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XAutoPowerDownGet(
     BOOL *pfAutoPowerDown
     );
 
 void
-WINAPI
+__attribute__((__stdcall__))
 XAutoPowerDownResetTimer();
 
 #if DBG
 void
-WINAPI
+__attribute__((__stdcall__))
 XAutoPowerDownDebugSetTimeout(
     LONGLONG llTimeout
     );
 #endif //DBG
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiSetLocalTime(
     IN CONST SYSTEMTIME *lpLocalTime
     );
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipQueryTimeZoneInformation(
     OUT PTIME_ZONE_INFORMATION TimeZoneInformation,
     OUT PBOOL pfUseDST
     );
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XapipSetTimeZoneInformation(
     IN PTIME_ZONE_INFORMATION TimeZoneInformation
     );
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapipUseDaylightSavingTime();
 
 
@@ -394,7 +394,7 @@ typedef struct _LD_FROM_TITLE_UPDATE
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XWriteTitleInfoAndRebootA(
     IN LPCSTR pszLaunchPath,
     IN LPCSTR pszDDrivePath,

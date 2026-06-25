@@ -27,14 +27,14 @@ typedef struct {
 
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineStartup(
     IN PXONLINE_STARTUP_PARAMS  pxosp
     );
 
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineCleanup();
 
 //@@BEGIN_MSINTERNAL
@@ -235,14 +235,14 @@ typedef XONLINETASK_HANDLE* PXONLINETASK_HANDLE;
 
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineTaskContinue(
     IN XONLINETASK_HANDLE hTask
     );
 
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineTaskClose(
     IN XONLINETASK_HANDLE hTask
     );
@@ -357,7 +357,7 @@ typedef struct {
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineGetUsers (
     OUT PXONLINE_USER pUsers,
     OUT DWORD *pcUsers
@@ -365,14 +365,14 @@ XOnlineGetUsers (
 
 XBOXAPI
 XPININPUTHANDLE
-WINAPI
+__attribute__((__stdcall__))
 XOnlinePINStartInput(
     IN PXINPUT_STATE pInputState
     );
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlinePINDecodeInput(
     IN XPININPUTHANDLE handle,
     IN PXINPUT_STATE pInputState,
@@ -381,14 +381,14 @@ XOnlinePINDecodeInput(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlinePINEndInput (
     IN XPININPUTHANDLE handle
     );
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLogon(
     IN PXONLINE_USER pUsers,
     IN DWORD* pdwServiceIDs,
@@ -399,19 +399,19 @@ XOnlineLogon(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLogonTaskGetResults(
     IN XONLINETASK_HANDLE hLogonTask
     );
     
 XBOXAPI
 PXONLINE_USER
-WINAPI
+__attribute__((__stdcall__))
 XOnlineGetLogonUsers();
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineGetServiceInfo(
     IN DWORD dwServiceID,
     OUT PXONLINE_SERVICE_INFO pServiceInfo
@@ -447,7 +447,7 @@ typedef struct {
 
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineOfferingPurchase( 
     IN DWORD dwUserIndex, 
     IN XONLINEOFFERING_ID OfferingId, 
@@ -457,7 +457,7 @@ XOnlineOfferingPurchase(
 
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineOfferingCancel( 
     IN DWORD dwUserIndex, 
     IN XONLINEOFFERING_ID OfferingId, 
@@ -467,7 +467,7 @@ XOnlineOfferingCancel(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineOfferingGetDetails ( 
     IN DWORD dwUserIndex,
     IN XONLINEOFFERING_ID OfferingId,
@@ -481,7 +481,7 @@ XOnlineOfferingGetDetails (
 
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineOfferingDetailsGetResults ( 
     IN XONLINETASK_HANDLE hTask,
     OUT PBYTE *pDetailsBuffer,
@@ -492,14 +492,14 @@ XOnlineOfferingDetailsGetResults (
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XOnlineOfferingDetailsMaxSize(
     IN DWORD cbTitleSpecificDataMaxSize
     );
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineOfferingPriceFormat( 
     IN XONLINE_PRICE *Price,
     IN OUT LPWSTR    lpwszFormattedPrice,
@@ -528,7 +528,7 @@ XOnlineOfferingPriceFormat(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineOfferingVerifyLicense( 
     DWORD dwOfferingId, 
     DWORD dwUserAccounts,
@@ -542,7 +542,7 @@ XOnlineOfferingVerifyLicense(
 //
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineContentInstallFromDVD(
     IN PSTR szResourcePath,
     IN DWORD dwTitleId,
@@ -583,7 +583,7 @@ typedef struct
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLaunchNewImage(
     IN LPCSTR lpImagePath,
     IN PLAUNCH_DATA pLaunchData
@@ -591,14 +591,14 @@ XOnlineLaunchNewImage(
     
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineTitleUpdate(
     IN DWORD dwContext
     );
 
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineTitleUpdateFromDVD(
     IN DWORD dwContext,
     IN PSTR szUpdatePath,
@@ -611,7 +611,7 @@ XOnlineTitleUpdateFromDVD(
 
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineTitleUpdateInternal(
     DWORD dwTitleId,
     DWORD dwTitleOldVersion,
@@ -622,7 +622,7 @@ XOnlineTitleUpdateInternal(
 
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineTitleUpdateFromDVDInternal(
     PSTR szUpdatePath,
     DWORD dwTitleId,
@@ -638,7 +638,7 @@ XOnlineTitleUpdateFromDVDInternal(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineTitleUpdateGetProgress(
     IN XONLINETASK_HANDLE hTask,
     OUT DWORD *pdwPercentDone,
@@ -748,7 +748,7 @@ typedef struct {
 //
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineOfferingEnumerate(
     IN XONLINEOFFERING_ENUM_DEVICE Device,
     IN DWORD dwUserIndex,
@@ -776,7 +776,7 @@ XOnlineOfferingEnumerate(
 //
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineOfferingEnumerateGetResults(
     IN XONLINETASK_HANDLE hTask,
     OUT PXONLINEOFFERING_INFO **prgpOfferingInfo,
@@ -797,7 +797,7 @@ XOnlineOfferingEnumerateGetResults(
 //
 XBOXAPI
 DWORD 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineOfferingEnumerateMaxSize(
     IN PXONLINEOFFERING_ENUM_PARAMS pEnumParams,
     IN OPTIONAL DWORD cbTitleSpecificDataMaxSize
@@ -809,7 +809,7 @@ XOnlineOfferingEnumerateMaxSize(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineContentInstall(
     IN XONLINEOFFERING_ID OfferingId,
     IN OPTIONAL HANDLE hWorkEvent,
@@ -821,7 +821,7 @@ XOnlineContentInstall(
 //
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineContentInstallGetProgress(
     IN XONLINETASK_HANDLE hTask,
     OUT OPTIONAL DWORD *pdwPercentDone,
@@ -834,7 +834,7 @@ XOnlineContentInstallGetProgress(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineContentVerify(
     IN XONLINEOFFERING_ID OfferingId,
     IN OPTIONAL PBYTE pbBuffer,
@@ -850,7 +850,7 @@ XOnlineContentVerify(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineContentRemove(
     IN XONLINEOFFERING_ID OfferingId,
     IN OPTIONAL HANDLE hWorkEvent,
@@ -863,7 +863,7 @@ XOnlineContentRemove(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineContentGetRootDirectory(
     IN XONLINEOFFERING_ID OfferingId,
     IN BOOL fUserData,
@@ -957,7 +957,7 @@ typedef struct
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSessionCreate(
     IN DWORD dwPublicCurrent,
     IN DWORD dwPublicAvailable,
@@ -971,7 +971,7 @@ XOnlineMatchSessionCreate(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSessionUpdate(
     IN XNKID SessionID,
     IN DWORD dwPublicCurrent,
@@ -986,7 +986,7 @@ XOnlineMatchSessionUpdate(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSessionGetInfo(
     IN XONLINETASK_HANDLE hTask,
     OUT XNKID *pSessionID,
@@ -995,7 +995,7 @@ XOnlineMatchSessionGetInfo(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSessionDelete(
     IN XNKID SessionID,
     IN HANDLE hWorkEvent,
@@ -1004,7 +1004,7 @@ XOnlineMatchSessionDelete(
     
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSessionFindFromID(
     IN XNKID SessionID,
     IN HANDLE hWorkEvent,
@@ -1013,7 +1013,7 @@ XOnlineMatchSessionFindFromID(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSearch(
     IN DWORD dwProcedureIndex,
     IN DWORD dwNumResults,
@@ -1026,7 +1026,7 @@ XOnlineMatchSearch(
 
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSearchGetResults(
     IN XONLINETASK_HANDLE hTask,
     OUT PXMATCH_SEARCHRESULT **prgpSearchResults,
@@ -1035,7 +1035,7 @@ XOnlineMatchSearchGetResults(
  
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineMatchSearchParse(
     IN PXMATCH_SEARCHRESULT pSearchResult,
     IN DWORD dwNumSessionAttributes,
@@ -1087,7 +1087,7 @@ typedef struct {
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XOnlineNotificationSetState(
     IN DWORD dwUserIndex,
     IN DWORD dwStateFlags,
@@ -1098,7 +1098,7 @@ XOnlineNotificationSetState(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineNotificationSetUserData(
     IN DWORD dwUserIndex,
     IN DWORD cbUserData,
@@ -1109,7 +1109,7 @@ XOnlineNotificationSetUserData(
 
 XBOXAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XOnlineNotificationIsPending(
     IN DWORD dwUserIndex,
     IN DWORD dwType
@@ -1117,7 +1117,7 @@ XOnlineNotificationIsPending(
     
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineNotificationEnumerate(
     IN DWORD dwUserIndex,
     IN PXONLINE_NOTIFICATION_MSG pbBuffer,
@@ -1188,7 +1188,7 @@ typedef struct {
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsStartup(
     IN HANDLE hEvent,
     OUT PXONLINETASK_HANDLE phTask
@@ -1197,7 +1197,7 @@ XOnlineFriendsStartup(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsGetResults(
     OUT DWORD *pdwUserIndex,
     OUT XUID *pxuidTargetUser
@@ -1205,7 +1205,7 @@ XOnlineFriendsGetResults(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsEnumerate(
     IN DWORD dwUserIndex,
     IN HANDLE hEvent,
@@ -1214,7 +1214,7 @@ XOnlineFriendsEnumerate(
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsGetLatest(
     IN DWORD dwUserIndex,
     IN DWORD dwFriendBufferCount,
@@ -1223,7 +1223,7 @@ XOnlineFriendsGetLatest(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsRemove(
     IN DWORD dwUserIndex,
     IN PXONLINE_FRIEND pFriend
@@ -1231,7 +1231,7 @@ XOnlineFriendsRemove(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsRequest(
     IN DWORD dwUserIndex,
     IN XUID xuidToUser
@@ -1240,7 +1240,7 @@ XOnlineFriendsRequest(
 //@@BEGIN_MSINTERNAL
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsRequestByName(
     IN DWORD dwUserIndex,
     IN PSTR pszUserName
@@ -1248,7 +1248,7 @@ XOnlineFriendsRequestByName(
 //@@END_MSINTERNAL
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsGameInvite(
     IN DWORD dwUserIndex,
     IN XNKID SessionID,
@@ -1258,7 +1258,7 @@ XOnlineFriendsGameInvite(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsRevokeGameInvite(
     IN DWORD dwUserIndex,
     IN XNKID SessionID,
@@ -1268,7 +1268,7 @@ XOnlineFriendsRevokeGameInvite(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsAnswerRequest(
     IN DWORD dwUserIndex,
     IN PXONLINE_FRIEND pToFriend,
@@ -1277,7 +1277,7 @@ XOnlineFriendsAnswerRequest(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsAnswerGameInvite(
     IN DWORD dwUserIndex,
     IN PXONLINE_FRIEND pToFriend,
@@ -1286,7 +1286,7 @@ XOnlineFriendsAnswerGameInvite(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsGetAcceptedGameInvite(
     IN HANDLE hEvent,
     OUT PXONLINETASK_HANDLE phTask
@@ -1294,7 +1294,7 @@ XOnlineFriendsGetAcceptedGameInvite(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFriendsGetAcceptedGameInviteResult(
     IN XONLINETASK_HANDLE hTask,
     OUT PXONLINE_ACCEPTED_GAMEINVITE pAcceptedGameInvite
@@ -1313,7 +1313,7 @@ typedef struct {
 
 XBOXAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLockoutlistGet(
     IN DWORD dwUserIndex,
     IN DWORD dwLockoutUserBufferCount,
@@ -1322,7 +1322,7 @@ XOnlineLockoutlistGet(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLockoutlistStartup(
     IN HANDLE hEvent,
     OUT PXONLINETASK_HANDLE phTask
@@ -1330,7 +1330,7 @@ XOnlineLockoutlistStartup(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLockoutlistAdd(
     IN DWORD dwUserIndex,
     IN XUID xUserID,
@@ -1339,7 +1339,7 @@ XOnlineLockoutlistAdd(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineLockoutlistRemove(
     IN DWORD dwUserIndex,
     IN XUID xUserID
@@ -1347,7 +1347,7 @@ XOnlineLockoutlistRemove(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineVerifyNickname(
     IN LPCWSTR lpNickname,
     IN HANDLE hEvent,
@@ -1371,7 +1371,7 @@ typedef enum {
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineFeedbackSend(
             IN DWORD dwUserIndex,
             IN XUID xTargetUser,
@@ -1426,7 +1426,7 @@ typedef struct _XONLINE_STAT_USER {
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineStatSet(
 	IN DWORD dwNumStatSpecs,
 	IN PXONLINE_STAT_SPEC pStatSpecs,
@@ -1436,7 +1436,7 @@ XOnlineStatSet(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineStatGet(
     IN DWORD dwNumStatSpecs,
     IN OUT PXONLINE_STAT_SPEC pStatSpecs,
@@ -1446,7 +1446,7 @@ XOnlineStatGet(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineStatLeaderEnumerate(
 	IN XUID* pxuidPagePivot,                           
 	IN DWORD dwPageStart,                                              
@@ -1462,7 +1462,7 @@ XOnlineStatLeaderEnumerate(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineStatLeaderEnumerateGetResults(
     IN XONLINETASK_HANDLE hTask,
     OUT DWORD *pdwReturnedResults
@@ -1574,7 +1574,7 @@ USER_XNAME, *PUSER_XNAME;
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineAccountTempCreate(
     IN PXONLINE_USER pUser, 
     IN HANDLE hWorkEvent,
@@ -1583,7 +1583,7 @@ _XOnlineAccountTempCreate(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineAccountTempCreateGetResults(
     IN  XONLINETASK_HANDLE hTask,
     OUT PXONLINE_USER pUser
@@ -1591,7 +1591,7 @@ _XOnlineAccountTempCreateGetResults(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineGetTags(
     IN WORD wCountryId, 
     IN WORD wMaxTags, 
@@ -1602,7 +1602,7 @@ _XOnlineGetTags(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineGetTagsResults(
     IN  XONLINETASK_HANDLE hTask,
     OUT LPWSTR* pszTags,
@@ -1612,7 +1612,7 @@ _XOnlineGetTagsResults(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineReserveName(
     IN LPCWSTR pwsGamerName,
     IN LPCWSTR pwsKingdom,
@@ -1626,7 +1626,7 @@ _XOnlineReserveName(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineGetReserveNameResults(
     IN  XONLINETASK_HANDLE hTask,
     OUT PUSER_XNAME *ppNames,
@@ -1635,7 +1635,7 @@ _XOnlineGetReserveNameResults(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineCreateAccount(
     IN  USER_ACCOUNT_INFO* pAccountInfo,
     IN  HANDLE hWorkEvent, 
@@ -1645,7 +1645,7 @@ _XOnlineCreateAccount(
 
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 _XOnlineGetCreateAccountResults(
     IN  XONLINETASK_HANDLE hTask,
     OUT PXONLINE_USER pUser
@@ -1742,7 +1742,7 @@ typedef XC_ONLINE_USER_ACCOUNT_STRUCT XC_ONLINE_MACHINE_ACCOUNT_STRUCT, *PXC_ONL
 //
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineEnumerateTitlesBegin(
     IN DWORD dwMaxResults,
     IN OPTIONAL HANDLE hWorkEvent,
@@ -1751,7 +1751,7 @@ XOnlineEnumerateTitlesBegin(
 
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineEnumerateTitlesContinue(
     IN XONLINETASK_HANDLE hTask
     );
@@ -1761,7 +1761,7 @@ XOnlineEnumerateTitlesContinue(
 //
 XBOXAPI
 HRESULT 
-WINAPI
+__attribute__((__stdcall__))
 XOnlineEnumerateTitlesGetResults(
     IN XONLINETASK_HANDLE hTask,
     OUT DWORD **prgTitleID,
@@ -1802,7 +1802,7 @@ XOnlineEnumerateTitlesGetResults(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineDownloadToMemory(
     IN DWORD dwServiceID,
     IN LPCSTR szResourcePath, 
@@ -1821,7 +1821,7 @@ XOnlineDownloadToMemory(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineDownloadFile(
     IN DWORD dwServiceID,
     IN LPCSTR szResourcePath, 
@@ -1841,7 +1841,7 @@ XOnlineDownloadFile(
 //
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineDownloadGetProgress(
     IN XONLINETASK_HANDLE hTask,
     OUT OPTIONAL DWORD *pdwPercentDone,
@@ -1854,7 +1854,7 @@ XOnlineDownloadGetProgress(
 //
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineDownloadGetResults(
     IN XONLINETASK_HANDLE hTask,
     OUT OPTIONAL LPBYTE *ppbBuffer,
@@ -1871,7 +1871,7 @@ XOnlineDownloadGetResults(
 //
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineUploadFromMemory(
     IN DWORD dwServiceID,
     IN LPCSTR szTargetPath, 
@@ -1891,7 +1891,7 @@ XOnlineUploadFromMemory(
 //
 XBOXAPI
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineUploadFile(
     IN DWORD dwServiceID,
     IN LPCSTR szTargetPath, 
@@ -1910,7 +1910,7 @@ XOnlineUploadFile(
 //
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XOnlineUploadGetProgress(
     IN XONLINETASK_HANDLE hTask,
     OUT OPTIONAL DWORD *pdwPercentDone,
@@ -1923,7 +1923,7 @@ XOnlineUploadGetProgress(
 //
 XBOXAPI
 HRESULT
-WINAPI
+__attribute__((__stdcall__))
 XOnlineUploadGetResults(
     IN XONLINETASK_HANDLE hTask,
     OUT OPTIONAL LPBYTE *ppbBuffer,
@@ -3280,9 +3280,9 @@ struct CSgMsgXbToXbForward : public CSgMsgHdr
 // of the prototypes defined in this file is out of sync with the prototype in XONLINEAPILIST.
 
 #undef  XONAPI
-#define XONAPI(ret, fname, arglist, paramlist) XBOXAPI ret WINAPI fname arglist;
+#define XONAPI(ret, fname, arglist, paramlist) XBOXAPI ret __attribute__((__stdcall__)) fname arglist;
 #undef  XONAPI_
-#define XONAPI_(ret, fname, arglist, paramlist) XBOXAPI ret WINAPI fname arglist;
+#define XONAPI_(ret, fname, arglist, paramlist) XBOXAPI ret __attribute__((__stdcall__)) fname arglist;
 
 XONLINEAPILIST()
 
@@ -3302,7 +3302,7 @@ public:
 
     #ifdef _XBOX
         __forceinline CXOnline(char * pszXbox = NULL) : CXNet(pszXbox) {}
-        #define _XONAPI_ WINAPI
+        #define _XONAPI_ __attribute__((__stdcall__))
     #else
         __forceinline CXOnline(char * pszXbox = NULL) : CXNet(pszXbox) { _pXo = NULL; }
         __forceinline CXo *  GetXo()    { return(_pXo); }

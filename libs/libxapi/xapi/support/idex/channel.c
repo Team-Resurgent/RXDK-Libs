@@ -44,7 +44,7 @@ BOOLEAN IdexChannelQuickRebooting;
 #endif
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 IdexChannelSpinWhileBusy(
     OUT PUCHAR IdeStatus
     )
@@ -89,7 +89,7 @@ Return Value:
 }
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 IdexChannelSpinWhileBusyAndNotDrq(
     OUT PUCHAR IdeStatus
     )
@@ -164,7 +164,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexChannelPrepareBufferTransfer(
     IN PUCHAR Buffer,
     IN ULONG ByteCount
@@ -1076,7 +1076,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexChannelInvalidParameterRequest(
     IN PIRP Irp
     )

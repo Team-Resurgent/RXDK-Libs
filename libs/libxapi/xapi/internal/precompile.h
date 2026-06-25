@@ -10,7 +10,6 @@
 #ifndef _XAPIP_
 #define _XAPIP_
 
-#include "shims/windef_compat.h"
 #include "compile.h"
 #include <ntrtl.h>
 
@@ -59,8 +58,8 @@ static __inline BOOL XapiIsXapiThread(void)
 VOID XapiInitProcess(VOID);
 VOID XapiBootToDash(DWORD dwReason, DWORD dwParameter1, DWORD dwParameter2);
 
-BOOL WINAPI XapiFormatFATVolume(IN POBJECT_STRING pcVolume);
-BOOL WINAPI XapiFormatFATVolumeEx(IN POBJECT_STRING pcVolume, IN ULONG BytesPerCluster);
+BOOL __attribute__((__stdcall__)) XapiFormatFATVolume(IN POBJECT_STRING pcVolume);
+BOOL __attribute__((__stdcall__)) XapiFormatFATVolumeEx(IN POBJECT_STRING pcVolume, IN ULONG BytesPerCluster);
 
 NTSTATUS XapiGetCachePartitions(
     IN PX_CACHE_DB_ENTRY pCacheEntriesBuffer,

@@ -5675,7 +5675,7 @@ Notes:
 //
 //  {Invalid DLL Entrypoint}
 //  The dynamic link library %hs is not written correctly. The stack pointer has been left in an inconsistent state.
-//  The entrypoint should be declared as WINAPI or STDCALL. Select YES to fail the DLL load. Select NO to continue
+//  The entrypoint should be declared as __attribute__((__stdcall__)) or STDCALL. Select YES to fail the DLL load. Select NO to continue
 //  execution. Selecting NO may cause the application to operate incorrectly.
 //
 #define STATUS_BAD_DLL_ENTRYPOINT        ((NTSTATUS)0xC0000251L)
@@ -5687,7 +5687,7 @@ Notes:
 //
 //  {Invalid Service Callback Entrypoint}
 //  The %hs service is not written correctly. The stack pointer has been left in an inconsistent state.
-//  The callback entrypoint should be declared as WINAPI or STDCALL. Selecting OK will cause the
+//  The callback entrypoint should be declared as __attribute__((__stdcall__)) or STDCALL. Selecting OK will cause the
 //  service to continue operation. However, the service process may operate incorrectly.
 //
 #define STATUS_BAD_SERVICE_ENTRYPOINT    ((NTSTATUS)0xC0000252L)

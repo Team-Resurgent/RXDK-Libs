@@ -477,13 +477,13 @@ IdexDriverIrpReturnSuccess(
 //
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 IdexChannelSpinWhileBusy(
     OUT PUCHAR IdeStatus
     );
 
 BOOLEAN
-FASTCALL
+__attribute__((fastcall))
 IdexChannelSpinWhileBusyAndNotDrq(
     OUT PUCHAR IdeStatus
     );
@@ -494,7 +494,7 @@ IdexChannelSetTimerPeriod(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexChannelPrepareBufferTransfer(
     IN PUCHAR Buffer,
     IN ULONG ByteCount
@@ -518,7 +518,7 @@ IdexChannelAbortCurrentPacket(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 IdexChannelInvalidParameterRequest(
     IN PIRP Irp
     );

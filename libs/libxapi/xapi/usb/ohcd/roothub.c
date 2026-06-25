@@ -73,7 +73,7 @@ OHCD_RootHubResetDpc(
 
 #pragma code_seg(".XPPCINIT")
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_RootHubInitialize(
     POHCD_DEVICE_EXTENSION      DeviceExtension
 )
@@ -349,7 +349,7 @@ Return Value:
 #pragma code_seg(".XPPCODE")
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_RootHubProcessInterrupt(
     POHCD_DEVICE_EXTENSION      DeviceExtension
 )
@@ -481,7 +481,7 @@ Return Value:
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_RootHubProcessHotPlug(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN POHCD_PORT_INFO          PortInfo

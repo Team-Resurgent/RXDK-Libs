@@ -868,7 +868,7 @@ IoBuildSynchronousFsdRequest(
 
 NTKERNELAPI
 NTSTATUS
-FASTCALL
+__attribute__((fastcall))
 IofCallDriver(
     IN PDEVICE_OBJECT DeviceObject,
     IN OUT PIRP Irp
@@ -900,7 +900,7 @@ IoCheckShareAccess(
 
 NTKERNELAPI
 VOID
-FASTCALL
+__attribute__((fastcall))
 IofCompleteRequest(
     IN PIRP Irp,
     IN CCHAR PriorityBoost

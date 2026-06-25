@@ -378,12 +378,12 @@ typedef struct _XGPOINT3D
 } XGPOINT3D;
 
 // Returns whether a texture format is swizzled or not.
-BOOL WINAPI XGIsSwizzledFormat(
+BOOL __attribute__((__stdcall__)) XGIsSwizzledFormat(
     D3DFORMAT Format
     );
 
 // Returns the byte per texel of a format.
-DWORD WINAPI XGBytesPerPixelFromFormat(
+DWORD __attribute__((__stdcall__)) XGBytesPerPixelFromFormat(
     D3DFORMAT Format
     );
 
@@ -396,7 +396,7 @@ DWORD WINAPI XGBytesPerPixelFromFormat(
 // texture and will swizzle the whole thing.  This routine will run
 // considerably faster in that case.
 //
-VOID WINAPI XGSwizzleRect(
+VOID __attribute__((__stdcall__)) XGSwizzleRect(
     LPCVOID  pSource,      // The buffer that contains the source rectangle
     DWORD    Pitch,        // The pitch of the buffer that contains the source
     LPCRECT  pRect,        // The rectangle within the buffer to copy.
@@ -414,7 +414,7 @@ VOID WINAPI XGSwizzleRect(
 // buffer and will unswizzle the whole thing.  This routine will run
 // considerably faster in that case.
 //
-VOID WINAPI XGUnswizzleRect(
+VOID __attribute__((__stdcall__)) XGUnswizzleRect(
     LPCVOID  pSource,      // The source texture.
     DWORD    Width,        // The width of the entire source texture.
     DWORD    Height,       // The height of the entire source texture.
@@ -428,7 +428,7 @@ VOID WINAPI XGUnswizzleRect(
 // Swizzle a box from a buffer into a larger texture.  The destination box 
 // must be completely contained within the destination texture (no clipping).
 //
-VOID WINAPI XGSwizzleBox(
+VOID __attribute__((__stdcall__)) XGSwizzleBox(
     LPCVOID     pSource,      // The buffer that contains the source rectangle
     DWORD       RowPitch,     // Byte offset from the left edge of one row to
                                 // the left edge of the next row
@@ -445,7 +445,7 @@ VOID WINAPI XGSwizzleBox(
 
 // Unswizzle a box from a texture into a buffer.
 //
-void WINAPI XGUnswizzleBox(
+void __attribute__((__stdcall__)) XGUnswizzleBox(
     LPCVOID     pSource,      // The source texture.
     DWORD       Width,        // The width of the entire source texture.
     DWORD       Height,       // The height of the entire source texture.
@@ -484,7 +484,7 @@ extern "C"
  *   the indices every time.
  */
 
-HRESULT WINAPI XGCompileDrawIndexedVertices(
+HRESULT __attribute__((__stdcall__)) XGCompileDrawIndexedVertices(
     void *pBuffer,
     DWORD *pSize, // In: total size of buffer, Out: size of resulting push-buffer
     D3DPRIMITIVETYPE PrimitiveType,
@@ -511,14 +511,14 @@ typedef XGBuffer *LPXGBUFFER, *PXGBUFFER;
 extern "C" {
 #endif // __cplusplus
 
-HRESULT WINAPI XGBufferCreate(DWORD numBytes, LPXGBUFFER* ppBuffer);
+HRESULT __attribute__((__stdcall__)) XGBufferCreate(DWORD numBytes, LPXGBUFFER* ppBuffer);
 
 /* XGBuffer */
 
-ULONG   WINAPI XGBuffer_AddRef(XGBuffer *pThis);
-ULONG   WINAPI XGBuffer_Release(XGBuffer *pThis);
-LPVOID  WINAPI XGBuffer_GetBufferPointer(XGBuffer *pThis);
-DWORD   WINAPI XGBuffer_GetBufferSize(XGBuffer *pThis);
+ULONG   __attribute__((__stdcall__)) XGBuffer_AddRef(XGBuffer *pThis);
+ULONG   __attribute__((__stdcall__)) XGBuffer_Release(XGBuffer *pThis);
+LPVOID  __attribute__((__stdcall__)) XGBuffer_GetBufferPointer(XGBuffer *pThis);
+DWORD   __attribute__((__stdcall__)) XGBuffer_GetBufferSize(XGBuffer *pThis);
 
 #ifdef __cplusplus
 }
@@ -531,12 +531,12 @@ struct XGBuffer
     DWORD  size;                // The size of the buffer
 #ifdef __cplusplus
     // IUnknown
-    ULONG WINAPI AddRef() { return XGBuffer_AddRef(this); }
-    ULONG WINAPI Release(){ return XGBuffer_Release(this); }
+    ULONG __attribute__((__stdcall__)) AddRef() { return XGBuffer_AddRef(this); }
+    ULONG __attribute__((__stdcall__)) Release(){ return XGBuffer_Release(this); }
 
     // IXGBuffer methods
-    LPVOID WINAPI GetBufferPointer() { return XGBuffer_GetBufferPointer(this); }
-    DWORD  WINAPI GetBufferSize() { return XGBuffer_GetBufferSize(this); }
+    LPVOID __attribute__((__stdcall__)) GetBufferPointer() { return XGBuffer_GetBufferPointer(this); }
+    DWORD  __attribute__((__stdcall__)) GetBufferSize() { return XGBuffer_GetBufferSize(this); }
 #endif // __cplusplus
 };
 
@@ -751,7 +751,7 @@ typedef HRESULT (*SASM_ResolverCallback)(LPVOID pResolverUserData,
 extern "C" {
 #endif //__cplusplus
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
 XGAssembleShader(
     LPCSTR pSourceFileName,
     LPCVOID pSrcData,
@@ -775,7 +775,7 @@ XGAssembleShader(
 //		pNewShader can be NULL in this case. If pcbNewShaderBufferSize is NULL or points to a non-zero size, pNewShader must not be NULL.
 //	The return value will be S_OK or S_FALSE. If optimizing in low-mem conditions, it can run out of memory, and will return an error code.
 //	If bad params are passed, it will assert.
-HRESULT WINAPI XGSpliceVertexShaders (
+HRESULT __attribute__((__stdcall__)) XGSpliceVertexShaders (
 	/*			   OUT  */  DWORD*   pNewShader,			  //pointer to buffer to fill with output
 	/* OPTIONAL IN OUT  */  DWORD*   pcbNewShaderBufferSize, //How many bytes long the shader buffer is
  	/* OPTIONAL    OUT  */  DWORD*   pNewInstructionCount,   //how many instrucitons are in the newly-spliced shader
@@ -802,7 +802,7 @@ HRESULT WINAPI XGSpliceVertexShaders (
 //
 //      If the microcode is invalid, the result is SASMT_INVALIDSHADER.
 
-DWORD WINAPI XGSUCode_GetVertexShaderType(
+DWORD __attribute__((__stdcall__)) XGSUCode_GetVertexShaderType(
     LPCVOID pMicrocode
     );
 
@@ -818,7 +818,7 @@ DWORD WINAPI XGSUCode_GetVertexShaderType(
 //      Returns the length of the vertex shader in microinstructions.
 //      If the microcode is not a valid vertex shader, the result is undefined.
 
-DWORD WINAPI XGSUCode_GetVertexShaderLength(
+DWORD __attribute__((__stdcall__)) XGSUCode_GetVertexShaderLength(
     LPCVOID pMicrocode
     );
 
@@ -840,7 +840,7 @@ DWORD WINAPI XGSUCode_GetVertexShaderLength(
 //
 //      If either microcode program is not valid vertex shader, the result is undefined.
 
-HRESULT WINAPI XGSUCode_CompareVertexShaders(
+HRESULT __attribute__((__stdcall__)) XGSUCode_CompareVertexShaders(
     LPCVOID pMicrocodeA,
     LPCVOID pMicrocodeB,
     LPXGBUFFER* ppErrorLog
@@ -874,7 +874,7 @@ HRESULT WINAPI XGSUCode_CompareVertexShaders(
  *
  ****************************************************************************/
 
-HRESULT WINAPI XGWriteSurfaceToFile(
+HRESULT __attribute__((__stdcall__)) XGWriteSurfaceToFile(
     IDirect3DSurface8 *pSurf,
     const char *cPath
     );
@@ -921,7 +921,7 @@ typedef struct {
  *   AGP memory.
  *
  ****************************************************************************/
-HRESULT WINAPI XGWriteSurfaceOrTextureToXPR(
+HRESULT __attribute__((__stdcall__)) XGWriteSurfaceOrTextureToXPR(
     IDirect3DResource8 *pResource, 
     const char *cPath,
     BOOL bWriteSurfaceAsTexture
@@ -967,7 +967,7 @@ HRESULT WINAPI XGWriteSurfaceOrTextureToXPR(
 #define XGCOMPRESS_NEEDALPHA1       0x4
 #define XGCOMPRESS_PROTECTNONZERO   0x8
 
-HRESULT WINAPI XGCompressRect(
+HRESULT __attribute__((__stdcall__)) XGCompressRect(
     LPVOID pDestBuf,
     D3DFORMAT DestFormat,
     DWORD dwDestPitch, 
@@ -987,7 +987,7 @@ HRESULT WINAPI XGCompressRect(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetSurfaceHeader(
+VOID __attribute__((__stdcall__)) XGSetSurfaceHeader(
     UINT Width,
     UINT Height,
     D3DFORMAT Format,
@@ -1003,7 +1003,7 @@ VOID WINAPI XGSetSurfaceHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetTextureHeader(
+VOID __attribute__((__stdcall__)) XGSetTextureHeader(
     UINT Width,
     UINT Height,
     UINT Levels,
@@ -1022,7 +1022,7 @@ VOID WINAPI XGSetTextureHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetCubeTextureHeader(
+VOID __attribute__((__stdcall__)) XGSetCubeTextureHeader(
     UINT EdgeLength,
     UINT Levels,
     DWORD Usage,
@@ -1040,7 +1040,7 @@ VOID WINAPI XGSetCubeTextureHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetVolumeTextureHeader(
+VOID __attribute__((__stdcall__)) XGSetVolumeTextureHeader(
     UINT Width,
     UINT Height,
     UINT Depth,
@@ -1059,7 +1059,7 @@ VOID WINAPI XGSetVolumeTextureHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetVertexBufferHeader(
+VOID __attribute__((__stdcall__)) XGSetVertexBufferHeader(
     UINT Length,
     DWORD Usage,
     DWORD FVF,
@@ -1074,7 +1074,7 @@ VOID WINAPI XGSetVertexBufferHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetIndexBufferHeader(
+VOID __attribute__((__stdcall__)) XGSetIndexBufferHeader(
     UINT Length,
     DWORD Usage,
     D3DFORMAT Format,
@@ -1091,7 +1091,7 @@ VOID WINAPI XGSetIndexBufferHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetPaletteHeader(
+VOID __attribute__((__stdcall__)) XGSetPaletteHeader(
     D3DPALETTESIZE Size, 
     IDirect3DPalette8 *pPalette,
     UINT Data
@@ -1103,7 +1103,7 @@ VOID WINAPI XGSetPaletteHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetPushBufferHeader(
+VOID __attribute__((__stdcall__)) XGSetPushBufferHeader(
     UINT Size,
     BOOL RunUsingCpuCopy,
     IDirect3DPushBuffer8 *pPushBuffer,
@@ -1116,7 +1116,7 @@ VOID WINAPI XGSetPushBufferHeader(
  *
  ****************************************************************************/
 
-VOID WINAPI XGSetFixupHeader(
+VOID __attribute__((__stdcall__)) XGSetFixupHeader(
     UINT Size,
     IDirect3DFixup8 *pFixup,
     UINT Data

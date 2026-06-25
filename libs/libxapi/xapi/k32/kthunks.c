@@ -3,14 +3,14 @@
 
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 DebugBreak()
 {
     DbgBreakPoint();
 }
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 GetSystemTimeAsFileTime(LPFILETIME lpSystemTimeAsFileTime)
 {
     KeQuerySystemTime((PLARGE_INTEGER) lpSystemTimeAsFileTime);
@@ -50,7 +50,7 @@ wsprintfA(LPSTR lpOut, LPCSTR lpFmt, ...)
 //
 
 int
-WINAPI
+__attribute__((__stdcall__))
 wvsprintfW(
     OUT LPWSTR lpOut,
     IN LPCWSTR lpFmt,
@@ -60,7 +60,7 @@ wvsprintfW(
 }
 
 int
-WINAPI
+__attribute__((__stdcall__))
 wvsprintfA(
     OUT LPSTR lpOut,
     IN LPCSTR lpFmt,

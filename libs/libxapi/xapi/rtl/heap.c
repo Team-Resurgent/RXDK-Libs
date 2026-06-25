@@ -85,7 +85,7 @@ UCHAR CheckHeapFillPattern[ CHECK_HEAP_TAIL_SIZE ] = {
 #if i386
 
 CCHAR
-FASTCALL
+__attribute__((fastcall))
 RtlFindFirstSetRightMember(
     ULONG Set
     );

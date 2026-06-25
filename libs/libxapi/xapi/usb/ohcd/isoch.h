@@ -97,49 +97,49 @@ typedef struct _OHCD_ISOCH_ENDPOINT
 //  Isochronous function definitions
 //
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochOpenEndpoint(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochCloseEndpoint(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochAttachBuffer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochStartTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochStopTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochProcessTD(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN POHCD_TRANSFER_DESCRIPTOR TransferDescriptor
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochCompleteCloseEndpoint
     (
     IN POHCD_DEVICE_EXTENSION       DeviceExtension,

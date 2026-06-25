@@ -90,7 +90,7 @@ Parameters:
 //  Internal API
 //------------------------------------------------------------------
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XPeekDevices(
     IN  PXPP_DEVICE_TYPE DeviceType,
     IN  OUT PDWORD pLastGotten,
@@ -164,7 +164,7 @@ XPeekDevices(
 void RxdkInitKernelImportPtrs(void);
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 XInitDevices(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes)
 {
 #if DBG
@@ -181,7 +181,7 @@ XInitDevices(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes)
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDevices(
     IN  PXPP_DEVICE_TYPE DeviceType
     )
@@ -215,7 +215,7 @@ XGetDevices(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XGetDeviceChanges(
     IN  IN  PXPP_DEVICE_TYPE DeviceType,
     OUT PDWORD pInsertions,

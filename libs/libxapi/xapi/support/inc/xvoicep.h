@@ -28,7 +28,7 @@ const HRESULT QUEUE_E_FULL           = 0x8000000C;
 
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XVoiceCreateMediaObject(
        IN PXPP_DEVICE_TYPE XppDeviceType, 
 	   IN DWORD dwPort, 
@@ -39,7 +39,7 @@ XVoiceCreateMediaObject(
 
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XVoiceEncoderCreateMediaObject(
        IN BOOL fAutoMode, 
 	   IN DWORD dwCodecTag, 
@@ -50,7 +50,7 @@ XVoiceEncoderCreateMediaObject(
 
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XVoiceDecoderCreateMediaObject(
 	   IN DWORD dwCodecTag, 
 	   IN LPWAVEFORMATEX pwfxDecoded, 
@@ -80,7 +80,7 @@ typedef struct XVoiceQueueMediaObject XVoiceQueueMediaObject , *LPXVOICEQUEUEMED
 
 XBOXAPI 
 HRESULT 
-WINAPI 
+__attribute__((__stdcall__)) 
 XVoiceQueueCreateMediaObject(
        IN LPQUEUE_XMO_CONFIG pConfig , 
 	   OUT LPXVOICEQUEUEMEDIAOBJECT *ppVoiceQueueMediaObject
@@ -88,7 +88,7 @@ XVoiceQueueCreateMediaObject(
 
 XBOXAPI
 HRESULT
-WINAPI 
+__attribute__((__stdcall__)) 
 XVoiceGetCodecBufferSize( 
        IN const LPXMEDIAOBJECT pCodecMediaObject, 
 	   IN WORD wPCMBufferSize , 

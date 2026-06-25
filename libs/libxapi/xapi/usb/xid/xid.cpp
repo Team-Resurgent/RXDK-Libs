@@ -78,27 +78,27 @@ XID_EnumStage1(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fRemoveDeviceComplete(
     IN PXID_DEVICE_NODE XidNode
     );
 
 PXID_DEVICE_NODE
-FASTCALL
+__attribute__((fastcall))
 XID_fFindNode(
     IN PXID_TYPE_INFORMATION TypeInformation,
     IN ULONG  Port
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 XID_fOpenEndpoints(
     PXID_OPEN_DEVICE OpenDevice,
     PXINPUT_POLLING_PARAMETERS PollingParameters
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fCloseEndpoints(
     PXID_OPEN_DEVICE OpenDevice
     );
@@ -128,7 +128,7 @@ XID_OutputComplete(
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fOutputComplete1(
     PURB Urb,
     PXINPUT_FEEDBACK_INTERNAL OutputReport
@@ -520,12 +520,10 @@ XID_RemoveDevice(
         //
         // Notify keyboard services of device removal.
         //
-        #ifdef DEBUG_KEYBOARD
         if((XDEVICE_TYPE_DEBUG_KEYBOARD==xidNode->TypeInformation->XppType) && XID_pKeyboardServices)
         {
           XID_pKeyboardServices->pfnRemove(xidNode->OpenDevice);
         }
-        #endif DEBUG_KEYBOARD
         XID_fCloseEndpoints(xidNode->OpenDevice);
     } else
     //
@@ -537,7 +535,7 @@ XID_RemoveDevice(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fRemoveDeviceComplete(
     IN PXID_DEVICE_NODE XidNode
     )
@@ -564,7 +562,7 @@ XID_fRemoveDeviceComplete(
 }
 
 PXID_DEVICE_NODE
-FASTCALL
+__attribute__((fastcall))
 XID_fFindNode(
     IN PXID_TYPE_INFORMATION TypeInformation,
     IN ULONG  Port
@@ -600,7 +598,7 @@ XID_fFindNode(
 }
 
 DWORD
-FASTCALL
+__attribute__((fastcall))
 XID_fOpenDevice(
     PXID_TYPE_INFORMATION TypeInformation,
     ULONG                 Port,
@@ -845,7 +843,7 @@ exit_open_device:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 XID_fOpenEndpoints(
     IN PXID_OPEN_DEVICE OpenDevice,
     PXINPUT_POLLING_PARAMETERS PollingParameters
@@ -922,7 +920,7 @@ XID_fOpenEndpoints(
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fCloseDevice(
     IN PXID_OPEN_DEVICE OpenDevice
     )
@@ -947,13 +945,10 @@ XID_fCloseDevice(
         //
         // Notify keyboard services of device closing.
         //
-        #ifdef DEBUG_KEYBOARD
-        
         if((XDEVICE_TYPE_DEBUG_KEYBOARD==OpenDevice->TypeInformation->XppType) && XID_pKeyboardServices)
         {
            XID_pKeyboardServices->pfnClose(OpenDevice);
         }
-        #endif DEBUG_KEYBOARD
 
         //
         //  Setup event to synchronize close
@@ -993,7 +988,7 @@ XID_fCloseDevice(
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fCloseEndpoints(
     PXID_OPEN_DEVICE OpenDevice
     )
@@ -1319,7 +1314,7 @@ XID_ClearInputStallComplete(
 }
 
 void
-FASTCALL
+__attribute__((fastcall))
 XID_ProcessGamepadData(
     PXID_OPEN_DEVICE OpenDevice
     )
@@ -1366,7 +1361,7 @@ XID_ProcessGamepadData(
 }
 
 void
-FASTCALL
+__attribute__((fastcall))
 XID_ProcessIRRemoteData(
     PXID_OPEN_DEVICE OpenDevice
     )
@@ -1386,7 +1381,7 @@ XID_ProcessIRRemoteData(
 }
 
 void
-FASTCALL
+__attribute__((fastcall))
 XID_ProcessNewKeyboardData(
     PXID_OPEN_DEVICE OpenDevice
     )
@@ -1404,7 +1399,7 @@ XID_ProcessNewKeyboardData(
 }
 
 DWORD
-FASTCALL
+__attribute__((fastcall))
 XID_fSendDeviceReport(
         IN      PXID_OPEN_DEVICE           OpenDevice,
         IN      PXINPUT_FEEDBACK_INTERNAL  OutputReport
@@ -1595,7 +1590,7 @@ XID_OutputComplete(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 XID_fOutputComplete1(
     PURB Urb,
     PXINPUT_FEEDBACK_INTERNAL OutputReport

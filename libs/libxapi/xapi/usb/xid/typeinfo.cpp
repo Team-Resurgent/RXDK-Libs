@@ -57,7 +57,7 @@ DEFINE_USB_DEBUG_FUNCTIONS("INPUT");
 // Functions to walk the type tables.
 //----------------------------------------------
 
-PXID_TYPE_INFORMATION FASTCALL GetTypeInformation(UCHAR XidType, UCHAR *TypeIndex)
+PXID_TYPE_INFORMATION __attribute__((fastcall)) GetTypeInformation(UCHAR XidType, UCHAR *TypeIndex)
 {
     *TypeIndex = 0;
     for (ULONG i = 0; i < RxdkXidTypeTableCount; i++) {
@@ -70,7 +70,7 @@ PXID_TYPE_INFORMATION FASTCALL GetTypeInformation(UCHAR XidType, UCHAR *TypeInde
     return NULL;
 }
 
-PXID_TYPE_INFORMATION FASTCALL GetTypeInformation(PXPP_DEVICE_TYPE XppType)
+PXID_TYPE_INFORMATION __attribute__((fastcall)) GetTypeInformation(PXPP_DEVICE_TYPE XppType)
 {
     for (ULONG i = 0; i < RxdkXidTypeTableCount; i++) {
         XID_TYPE_INFORMATION *typeInformation = RxdkXidTypeTable[i];

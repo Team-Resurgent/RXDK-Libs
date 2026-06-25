@@ -11,9 +11,6 @@
 #define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
 #endif
 
-#ifndef WINAPI
-#define WINAPI __stdcall
-#endif
 
 #ifndef CALLBACK
 #define CALLBACK __stdcall

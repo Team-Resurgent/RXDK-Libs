@@ -23,7 +23,7 @@ Revision History:
 #define BASE_COPY_FILE_CHUNK (64*1024)
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 CreateFile(
     PCOSTR lpFileName,
     DWORD dwDesiredAccess,
@@ -328,7 +328,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 CopyFile(
     PCOSTR lpExistingFileName,
     PCOSTR lpNewFileName,

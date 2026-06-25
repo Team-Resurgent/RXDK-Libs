@@ -570,7 +570,7 @@ XapiTouchDirectoryTimestamp(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XCreateSaveGame(
     IN PCOSTR lpRootPathName,
     IN LPCWSTR lpSaveGameName,
@@ -841,7 +841,7 @@ XCreateSaveGame(
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XDeleteSaveGame(
     IN PCOSTR lpRootPathName,
     IN LPCWSTR lpSaveGameName)
@@ -918,7 +918,7 @@ XDeleteSaveGame(
 }
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XFindFirstSaveGame(
     IN PCOSTR lpRootPathName,
     OUT PXGAME_FIND_DATA pFindGameData)
@@ -1021,7 +1021,7 @@ XFindFirstSaveGame(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindNextSaveGame(
     IN HANDLE hFindGame,
     OUT PXGAME_FIND_DATA pFindGameData)
@@ -1054,7 +1054,7 @@ XFindNextSaveGame(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFindClose(
     IN HANDLE hFindGame)
 {

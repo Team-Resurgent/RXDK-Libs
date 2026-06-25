@@ -21,7 +21,7 @@ Abstract:
     ((PVOID)hSection < (PVOID)(XeImageHeader()->SectionHeaders + XeImageHeader()->NumberOfSections)))
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 XGetSectionHandle(
     IN LPCSTR lpSectionName
     )
@@ -79,7 +79,7 @@ Return Value:
 }
 
 LPVOID
-WINAPI
+__attribute__((__stdcall__))
 XLoadSectionByHandle(
     IN HANDLE hSection
     )
@@ -119,7 +119,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFreeSectionByHandle(
     HANDLE hSection
     )
@@ -159,7 +159,7 @@ Return Value:
 }
 
 PVOID
-WINAPI
+__attribute__((__stdcall__))
 XLoadSection(
     IN LPCSTR lpSectionName
     )
@@ -195,7 +195,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XFreeSection(
     IN LPCSTR lpSectionName
     )
@@ -231,7 +231,7 @@ Return Value:
 }
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetSectionSize(
     IN HANDLE hSection
     )

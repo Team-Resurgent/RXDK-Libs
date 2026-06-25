@@ -101,7 +101,7 @@ extern "C" {
 #endif //__cplusplus
 
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateSprite(
         LPDIRECT3DDEVICE8   pDevice,
         LPD3DXSPRITE*       ppSprite);
@@ -162,7 +162,7 @@ DECLARE_INTERFACE_(ID3DXRenderToSurface, IUnknown)
 extern "C" {
 #endif //__cplusplus
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateRenderToSurface(
         LPDIRECT3DDEVICE8       pDevice,
         UINT                    Width,
@@ -234,7 +234,7 @@ DECLARE_INTERFACE_(ID3DXRenderToEnvMap, IUnknown)
 extern "C" {
 #endif //__cplusplus
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateRenderToEnvMap(
         LPDIRECT3DDEVICE8       pDevice,
         UINT                    Size,
@@ -262,7 +262,7 @@ extern "C" {
 // Returns the size (in bytes) of a vertex for a given FVF.
 //-------------------------------------------------------------------------
 
-UINT WINAPI
+UINT __attribute__((__stdcall__))
     D3DXGetFVFVertexSize(DWORD FVF);
 
 
@@ -281,13 +281,13 @@ UINT WINAPI
 //      Count of characters in buffer.  Any error message longer than this
 //      length will be truncated to fit.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXGetErrorStringA(
         HRESULT             hr,
         LPSTR               pBuffer,
         UINT                BufferLen);
 
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXGetErrorStringW(
         HRESULT             hr,
         LPWSTR              pBuffer,

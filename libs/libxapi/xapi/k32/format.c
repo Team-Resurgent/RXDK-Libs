@@ -16,7 +16,7 @@ Abstract:
 #include "fat.h"
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiFormatFATVolume(
     IN POBJECT_STRING VolumePath
     )
@@ -25,7 +25,7 @@ XapiFormatFATVolume(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XapiFormatFATVolumeEx(
     IN POBJECT_STRING VolumePath,
     IN ULONG BytesPerCluster

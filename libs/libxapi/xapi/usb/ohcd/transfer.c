@@ -49,14 +49,14 @@ DEFINE_USB_DEBUG_FUNCTIONS("OHCD");
 // Forward declaration of functions defined and used only this in this module
 //----------------------------------------------------------------------------
 USHORT
-FASTCALL
+__attribute__((fastcall))
 OHCD_fGetTDsRequired(
     PURB            Urb,
     POHCD_ENDPOINT  Endpoint
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueInterruptTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN POHCD_ENDPOINT           Endpoint,
@@ -64,21 +64,21 @@ OHCD_fQueueInterruptTransfer(
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueBulkTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueControlTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
     );
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramTransfer(
         POHCD_DEVICE_EXTENSION  DeviceExtension,
         POHCD_ENDPOINT          Endpoint,
@@ -86,7 +86,7 @@ OHCD_fProgramTransfer(
     );
 
 ULONG
-FASTCALL
+__attribute__((fastcall))
 OHCD_fMapTransfer(
     IN OUT  PVOID   *CurrentVa,
     IN OUT  PULONG  BytesRemaining,
@@ -98,7 +98,7 @@ OHCD_fMapTransfer(
 //      OHCD_fQueueTransferRequest
 //----------------------------------------------------------------------------
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueTransferRequest(
     POHCD_DEVICE_EXTENSION  DeviceExtension,
     PURB                    Urb
@@ -204,7 +204,7 @@ Return Value:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueInterruptTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN POHCD_ENDPOINT           Endpoint,
@@ -244,7 +244,7 @@ OHCD_fQueueInterruptTransfer(
 
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramInterruptTransfer(
     POHCD_DEVICE_EXTENSION  DeviceExtension,
     POHCD_ENDPOINT          Endpoint
@@ -324,7 +324,7 @@ Return Value:
 
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueBulkTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -361,7 +361,7 @@ OHCD_fQueueBulkTransfer(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramBulkTransfer(
     POHCD_DEVICE_EXTENSION  DeviceExtension
     )
@@ -410,7 +410,7 @@ OHCD_fProgramBulkTransfer(
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fQueueControlTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -447,7 +447,7 @@ OHCD_fQueueControlTransfer(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramControlTransfer(
     POHCD_DEVICE_EXTENSION  DeviceExtension
     )
@@ -504,7 +504,7 @@ OHCD_fProgramControlTransfer(
 
 
 USHORT
-FASTCALL
+__attribute__((fastcall))
 OHCD_fGetTDsRequired(
     PURB            Urb,
     POHCD_ENDPOINT  Endpoint
@@ -566,7 +566,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fProgramTransfer(
         POHCD_DEVICE_EXTENSION  DeviceExtension,
         POHCD_ENDPOINT          Endpoint,
@@ -959,7 +959,7 @@ Return Value:
 
 
 ULONG
-FASTCALL
+__attribute__((fastcall))
 OHCD_fMapTransfer(
     IN OUT  PVOID   *CurrentVa,
     IN OUT  PULONG  BytesRemaining,

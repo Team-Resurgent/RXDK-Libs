@@ -35,7 +35,7 @@ extern "C" {
 //  ppMesh      The mesh object which will be created
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreatePolygon(
         LPDIRECT3DDEVICE8   pDevice,
         FLOAT               Length,
@@ -59,7 +59,7 @@ HRESULT WINAPI
 //  ppMesh      The mesh object which will be created
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateBox(
         LPDIRECT3DDEVICE8   pDevice,
         FLOAT               Width,
@@ -86,7 +86,7 @@ HRESULT WINAPI
 //  ppMesh      The mesh object which will be created
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateCylinder(
         LPDIRECT3DDEVICE8   pDevice,
         FLOAT               Radius1,
@@ -113,7 +113,7 @@ HRESULT WINAPI
 //  ppMesh      The mesh object which will be created
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateSphere(
         LPDIRECT3DDEVICE8  pDevice,
         FLOAT              Radius,
@@ -139,7 +139,7 @@ HRESULT WINAPI
 //  ppMesh      The mesh object which will be created
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTorus(
         LPDIRECT3DDEVICE8   pDevice,
         FLOAT               InnerRadius,
@@ -161,7 +161,7 @@ HRESULT WINAPI
 //  ppMesh      The mesh object which will be created
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
-HRESULT WINAPI
+HRESULT __attribute__((__stdcall__))
     D3DXCreateTeapot(
         LPDIRECT3DDEVICE8   pDevice,
         LPD3DXMESH*         ppMesh,

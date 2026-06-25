@@ -192,7 +192,7 @@ typedef struct
 
 WINUSERAPI
 HKL
-WINAPI
+__attribute__((__stdcall__))
 LoadKeyboardLayoutEx(
     IN HKL hkl,
     IN LPCWSTR pwszKLID,
@@ -211,7 +211,7 @@ BOOL IsHungAppWindow( IN HWND hwnd);
 
 BOOL WowWaitForMsgAndEvent( IN HANDLE hevent);
 
-WINUSERAPI VOID WINAPI RegisterSystemThread( IN DWORD flags, IN DWORD reserved);
+WINUSERAPI VOID __attribute__((__stdcall__)) RegisterSystemThread( IN DWORD flags, IN DWORD reserved);
 #define RST_DONTATTACHQUEUE       0x00000001
 #define RST_DONTJOURNALATTACH     0x00000002
 #define RST_ALWAYSFOREGROUNDABLE  0x00000004
@@ -495,7 +495,7 @@ WINUSERAPI VOID WINAPI RegisterSystemThread( IN DWORD flags, IN DWORD reserved);
 #define DC_NC               (DC_CAPTION | DC_FRAME)
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 DrawCaptionTempA(
     IN HWND,
     IN HDC,
@@ -506,7 +506,7 @@ DrawCaptionTempA(
     IN UINT);
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 DrawCaptionTempW(
     IN HWND,
     IN HDC,
@@ -579,7 +579,7 @@ typedef struct tagMEASUREITEMSTRUCT_EX {
 
 WINUSERAPI
 ULONG
-WINAPI
+__attribute__((__stdcall__))
 DeviceEventWorker(
     IN HWND    hWnd,
     IN WPARAM  wParam,
@@ -779,14 +779,14 @@ typedef LPDLGITEMTEMPLATE2A LPDLGITEMTEMPLATE2;
  */
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 DrawMenuBarTemp(
     IN HWND,
     IN HDC,
     IN LPCRECT,
     IN HMENU,
     IN HFONT);
-WINUSERAPI BOOL WINAPI SetSystemMenu( IN HWND, IN HMENU);
+WINUSERAPI BOOL __attribute__((__stdcall__)) SetSystemMenu( IN HWND, IN HMENU);
 /*
  * MNS_ values are stored in pMenu->fFlags.
  * Low order bits are used for internal MF* flags defined in user.h
@@ -883,7 +883,7 @@ typedef struct _dropfilestruct {
 #define DST_GRAYSTRING  0x0008
 #define DSS_DEFAULT     0x0040
 #define DSS_INACTIVE    0x0100
-WINUSERAPI VOID WINAPI SwitchToThisWindow( IN HWND hwnd, IN BOOL fUnknown);
+WINUSERAPI VOID __attribute__((__stdcall__)) SwitchToThisWindow( IN HWND hwnd, IN BOOL fUnknown);
 #define DCX_INVALID          0x00000800L
 #define DCX_INUSE            0x00001000L
 #define DCX_SAVEDRGNINVALID  0x00002000L
@@ -939,7 +939,7 @@ WINUSERAPI VOID WINAPI SwitchToThisWindow( IN HWND hwnd, IN BOOL fUnknown);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 AlignRects(
     IN OUT LPRECT arc,
     IN DWORD cCount,
@@ -1048,7 +1048,7 @@ typedef struct {
 #define COLOR_MAX               (COLOR_ENDCOLORS+1)
 WINUSERAPI
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 SetSysColorsTemp(
     IN CONST COLORREF *,
     IN CONST HBRUSH *,
@@ -1059,13 +1059,13 @@ SetSysColorsTemp(
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetDeskWallpaper(
     IN LPCSTR lpString);
 
 WINUSERAPI
 HWND
-WINAPI
+__attribute__((__stdcall__))
 CreateDialogIndirectParamAorW(
     IN HANDLE hmod,
     IN LPCDLGTEMPLATE lpDlgTemplate,
@@ -1076,7 +1076,7 @@ CreateDialogIndirectParamAorW(
 
 WINUSERAPI
 INT_PTR
-WINAPI
+__attribute__((__stdcall__))
 DialogBoxIndirectParamAorW(
     IN HINSTANCE hmod,
     IN LPCDLGTEMPLATEW lpDlgTemplate,
@@ -1087,25 +1087,25 @@ DialogBoxIndirectParamAorW(
 
 WINUSERAPI
 void
-WINAPI
+__attribute__((__stdcall__))
 LoadLocalFonts(void);
 
 WINUSERAPI
 UINT
-WINAPI
+__attribute__((__stdcall__))
 UserRealizePalette(IN HDC hdc);
 
-WINUSERAPI HWND    WINAPI  GetShellWindow(void);
-WINUSERAPI BOOL    WINAPI  SetShellWindow( IN HWND);
-WINUSERAPI BOOL    WINAPI  SetShellWindowEx( IN HWND, IN HWND);
-WINUSERAPI HWND    WINAPI  GetProgmanWindow(void);
-WINUSERAPI BOOL    WINAPI  SetProgmanWindow( IN HWND);
-WINUSERAPI HWND    WINAPI  GetTaskmanWindow(void);
-WINUSERAPI BOOL    WINAPI  SetTaskmanWindow( IN HWND);
-WINUSERAPI BOOL    WINAPI  RegisterShellHookWindow( IN HWND);
-WINUSERAPI BOOL    WINAPI  DeregisterShellHookWindow( IN HWND);
+WINUSERAPI HWND    __attribute__((__stdcall__))  GetShellWindow(void);
+WINUSERAPI BOOL    __attribute__((__stdcall__))  SetShellWindow( IN HWND);
+WINUSERAPI BOOL    __attribute__((__stdcall__))  SetShellWindowEx( IN HWND, IN HWND);
+WINUSERAPI HWND    __attribute__((__stdcall__))  GetProgmanWindow(void);
+WINUSERAPI BOOL    __attribute__((__stdcall__))  SetProgmanWindow( IN HWND);
+WINUSERAPI HWND    __attribute__((__stdcall__))  GetTaskmanWindow(void);
+WINUSERAPI BOOL    __attribute__((__stdcall__))  SetTaskmanWindow( IN HWND);
+WINUSERAPI BOOL    __attribute__((__stdcall__))  RegisterShellHookWindow( IN HWND);
+WINUSERAPI BOOL    __attribute__((__stdcall__))  DeregisterShellHookWindow( IN HWND);
 
-WINUSERAPI HWND WINAPI GetNextQueueWindow ( IN HWND hWnd, IN INT nCmd);
+WINUSERAPI HWND __attribute__((__stdcall__)) GetNextQueueWindow ( IN HWND hWnd, IN INT nCmd);
 #define MF_CHANGE_VALID   (MF_INSERT          | \
                            MF_CHANGE          | \
                            MF_APPEND          | \
@@ -1353,7 +1353,7 @@ typedef struct _tagCSStatistics {
 #endif // USER_PERFORMANCE
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 QueryUserCounters(
     IN  DWORD   dwQueryType,
     IN  LPVOID  pvIn,
@@ -1434,12 +1434,12 @@ void LoadRemoteFonts(void);
 #define SSF_VALID           0x00000007
 #define TKF_VALID           0x0000003F
 
-WINUSERAPI VOID WINAPI RegisterNetworkCapabilities( IN DWORD dwBitsToSet, IN DWORD dwValues);
+WINUSERAPI VOID __attribute__((__stdcall__)) RegisterNetworkCapabilities( IN DWORD dwBitsToSet, IN DWORD dwValues);
 #define RNC_NETWORKS              0x00000001
 #define RNC_LOGON                 0x00000002
 
 #if !defined(WINNT)     // Win95 version of EndTask
-WINUSERAPI DWORD WINAPI EndTask( IN HWND hwnd, IN DWORD idProcess, IN LPSTR lpszCaption, IN DWORD dwFlags);
+WINUSERAPI DWORD __attribute__((__stdcall__)) EndTask( IN HWND hwnd, IN DWORD idProcess, IN LPSTR lpszCaption, IN DWORD dwFlags);
 #define ET_ALLOWFORWAIT     0x00000001
 #define ET_TRYTOKILLNICELY  0x00000002
 #define ET_NOUI             0x00000004
@@ -1542,31 +1542,31 @@ DWORD DdeGetCallbackInstance(VOID);
 #define LPK_EDIT_CONTROL    3
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 InitializeLpkHooks(
     IN CONST FARPROC *lpfpLpkHooks
 );
 
 WINUSERAPI
 HWND
-WINAPI
+__attribute__((__stdcall__))
 WOWFindWindow(
     IN LPCSTR lpClassName,
     IN LPCSTR lpWindowName);
 
 int
-WINAPI
+__attribute__((__stdcall__))
 InternalDoEndTaskDlg(
     IN TCHAR* pszTitle);
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 InternalWaitCancel(
     IN HANDLE handle,
     IN DWORD dwMilliseconds);
 
 HANDLE
-WINAPI
+__attribute__((__stdcall__))
 InternalCreateCallbackThread(
     IN HANDLE hProcess,
     IN ULONG_PTR lpfn,
@@ -1574,7 +1574,7 @@ InternalCreateCallbackThread(
 
 WINUSERAPI
 UINT
-WINAPI
+__attribute__((__stdcall__))
 GetInternalWindowPos(
     IN HWND hWnd,
     OUT LPRECT lpRect,
@@ -1582,7 +1582,7 @@ GetInternalWindowPos(
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetInternalWindowPos(
     IN HWND hWnd,
     IN UINT cmdShow,
@@ -1591,34 +1591,34 @@ SetInternalWindowPos(
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 CalcChildScroll(
     IN HWND hWnd,
     IN UINT sb);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 RegisterTasklist(
     IN HWND hWndTasklist);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 CascadeChildWindows(
     IN HWND hWndParent,
     IN UINT flags);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 TileChildWindows(
     IN HWND hWndParent,
     IN UINT flags);
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 InternalGetWindowText(
     IN HWND hWnd,
     OUT LPWSTR lpString,
@@ -1630,7 +1630,7 @@ InternalGetWindowText(
  */
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 RegisterServicesProcess(
     IN DWORD dwProcessId);
 
@@ -1639,26 +1639,26 @@ RegisterServicesProcess(
  */
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 RegisterLogonProcess(
     IN DWORD dwProcessId,
     IN BOOL fSecure);
 
 WINUSERAPI
 UINT
-WINAPI
+__attribute__((__stdcall__))
 LockWindowStation(
     IN HWINSTA hWindowStation);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 UnlockWindowStation(
     IN HWINSTA hWindowStation);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetWindowStationUser(
     IN HWINSTA hWindowStation,
     IN PLUID pLuidUser,
@@ -1667,7 +1667,7 @@ SetWindowStationUser(
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetDesktopBitmap(
     IN HDESK hdesk,
     IN HBITMAP hbmWallpaper,
@@ -1675,38 +1675,38 @@ SetDesktopBitmap(
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetLogonNotifyWindow(
     IN HWND    hWndNotify);
 
 WINUSERAPI
 UINT
-WINAPI
+__attribute__((__stdcall__))
 GetIconId(
     IN HANDLE hRes,
     IN LPSTR lpszType);
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 CriticalNullCall(
     VOID);
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 NullCall(
     VOID);
 
 WINUSERAPI
 VOID
-WINAPI
+__attribute__((__stdcall__))
 UserNotifyConsoleApplication(
     IN DWORD dwProcessId);
 
 WINUSERAPI
 HBRUSH
-WINAPI
+__attribute__((__stdcall__))
 GetConsoleWindowBrush(
     IN PVOID pWnd);
 
@@ -1736,7 +1736,7 @@ VOID vLoadRemoteT1Fonts();
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 TranslateMessageEx(
     IN CONST MSG *lpMsg,
     IN UINT flags);
@@ -1758,7 +1758,7 @@ TranslateMessageEx(
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 WCSToMBEx(
     IN WORD wCodePage,
     IN LPCWSTR pUnicodeString,
@@ -1769,7 +1769,7 @@ WCSToMBEx(
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 MBToWCSEx(
     IN WORD wCodePage,
     IN LPCSTR pAnsiString,
@@ -1781,7 +1781,7 @@ MBToWCSEx(
 #if defined(WINNT)      // NT version of EndTask
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 EndTask(
     IN HWND hWnd,
     IN BOOL fShutDown,
@@ -1790,7 +1790,7 @@ EndTask(
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 UpdatePerUserSystemParameters(
     IN HANDLE hToken,
     IN BOOL   bUserLoggedOn);
@@ -1799,34 +1799,34 @@ typedef VOID  (APIENTRY *PFNW32ET)(VOID);
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 RegisterUserHungAppHandlers(
     IN PFNW32ET pfnW32EndTask,
     IN HANDLE   hEventWowExec);
 
 WINUSERAPI
 ATOM
-WINAPI
+__attribute__((__stdcall__))
 RegisterClassWOWA(
     IN PVOID   lpWndClass,
     IN LPDWORD pdwWOWstuff);
 
 WINUSERAPI
 LONG
-WINAPI
+__attribute__((__stdcall__))
 GetClassWOWWords(
     IN HINSTANCE hInstance,
     OUT LPCTSTR pString);
 
 WINUSERAPI
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 CurrentTaskLock(
     IN DWORD hlck);
 
 WINUSERAPI
 HDESK
-WINAPI
+__attribute__((__stdcall__))
 GetInputDesktop(
     VOID);
 
@@ -1865,7 +1865,7 @@ MBToWCSEx(0, pAnsiString, nAnsiChar, ppUnicodeString, cbUnicodeChar, bAllocateMe
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 CsDrawTextA(
     IN HDC hDC,
     IN LPCSTR lpString,
@@ -1874,7 +1874,7 @@ CsDrawTextA(
     IN UINT uFormat);
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 CsDrawTextW(
     IN HDC hDC,
     IN LPCWSTR lpString,
@@ -1889,7 +1889,7 @@ CsDrawTextW(
 
 WINUSERAPI
 LONG
-WINAPI
+__attribute__((__stdcall__))
 CsTabbedTextOutA(
     IN HDC hDC,
     IN int X,
@@ -1901,7 +1901,7 @@ CsTabbedTextOutA(
     IN int nTabOrigin);
 WINUSERAPI
 LONG
-WINAPI
+__attribute__((__stdcall__))
 CsTabbedTextOutW(
     IN HDC hDC,
     IN int X,
@@ -1919,7 +1919,7 @@ CsTabbedTextOutW(
 
 WINUSERAPI
 int
-WINAPI
+__attribute__((__stdcall__))
 CsFrameRect(
     IN HDC hDC,
     IN CONST RECT *lprc,
@@ -1938,7 +1938,7 @@ CsFrameRect(
  */
 WINUSERAPI
 HCURSOR
-WINAPI
+__attribute__((__stdcall__))
 GetCursorFrameInfo( // Obsolete? - IanJa
     IN HCURSOR hcur,
     OUT LPWSTR id,
@@ -1953,7 +1953,7 @@ GetCursorFrameInfo( // Obsolete? - IanJa
 
 WINUSERAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 SetCursorContents( IN HCURSOR hCursor, IN HCURSOR hCursorNew);
 
 
@@ -2179,7 +2179,7 @@ typedef struct _ANIHEADER {     /* anih */
 #define MAX_TAGS_TO_FAIL        256
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 Win32PoolAllocationStats(
     IN  LPDWORD parrTags,
     IN  SIZE_T  tagCount,
@@ -2196,7 +2196,7 @@ Win32PoolAllocationStats(
 #define WHF_VALID               WHF_ALL
 
 VOID
-WINAPI
+__attribute__((__stdcall__))
 DbgWin32HeapFail(
     DWORD    dwFlags,
     BOOL     bFail
@@ -2209,7 +2209,7 @@ typedef struct tagDBGHEAPSTAT {
 } DBGHEAPSTAT, *PDBGHEAPSTAT;
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 DbgWin32HeapStat(
     PDBGHEAPSTAT    phs,
     DWORD    dwLen,

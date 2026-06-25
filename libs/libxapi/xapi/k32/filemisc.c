@@ -612,7 +612,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 XSetFileCacheSize(
     SIZE_T dwCacheSize
     )
@@ -664,7 +664,7 @@ Return Value:
 }
 
 SIZE_T
-WINAPI
+__attribute__((__stdcall__))
 XGetFileCacheSize(
     VOID
     )
@@ -845,7 +845,7 @@ XapiGetDirectoryDisplayBlocks(
 
 
 DWORD
-WINAPI
+__attribute__((__stdcall__))
 XGetDisplayBlocks(
     PCOSTR lpPathName
     )

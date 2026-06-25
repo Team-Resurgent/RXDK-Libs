@@ -66,7 +66,7 @@ DEFINE_USB_DEBUG_FUNCTIONS("OHCD");
 // Forward declaration of functions defined and used only this in this module
 //----------------------------------------------------------------------------
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_HookNewEndpointToChildren(
     POHCD_DEVICE_EXTENSION  DeviceExtension,
     ULONG                   EndpointPhysicalAddress,
@@ -74,7 +74,7 @@ OHCD_HookNewEndpointToChildren(
     );
 
 ULONG 
-FASTCALL
+__attribute__((fastcall))
 OHCD_ReverseBits(
     ULONG NumBits,
     ULONG Value
@@ -90,7 +90,7 @@ OHCD_ReverseBits(
 //----------------------------------------------------------------------------
 #pragma code_seg(".XPPCINIT")
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleInitialize(
     POHCD_DEVICE_EXTENSION DeviceExtension
     )
@@ -210,7 +210,7 @@ You can try swapping the USB cards.\n XSS will most likely crash if you see this
 #pragma code_seg(".XPPCODE")
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleAddEndpointPeriodic(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT Endpoint
@@ -506,7 +506,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleRemoveEndpointPeriodic(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT Endpoint
@@ -714,7 +714,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleAddEndpointControlOrBulk(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT Endpoint
@@ -779,7 +779,7 @@ Return Value:
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_ScheduleRemoveEndpointControlOrBulk(
     POHCD_DEVICE_EXTENSION DeviceExtension,
     POHCD_ENDPOINT Endpoint
@@ -871,7 +871,7 @@ Return Value:
 //----------------------------------------------------------------------------
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_HookNewEndpointToChildren(
     POHCD_DEVICE_EXTENSION  DeviceExtension,
     ULONG                   EndpointPhysicalAddress,
@@ -957,7 +957,7 @@ Return Value:
 }
 
 ULONG 
-FASTCALL
+__attribute__((fastcall))
 OHCD_ReverseBits(
     ULONG NumBits,
     ULONG Value)

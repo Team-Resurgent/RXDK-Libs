@@ -4,7 +4,7 @@
 
 extern ULONG XapiTlsSize;
 
-VOID WINAPI XapiApplyKernelPatches(VOID);
+VOID __attribute__((__stdcall__)) XapiApplyKernelPatches(VOID);
 
 void _cinit(void);
 void _rtinit(void);
@@ -13,7 +13,7 @@ void __cdecl xdk_xbox_crt_startup(void);
 
 int __cdecl main(int argc, ...);
 
-DWORD WINAPI mainXapiStartup(
+DWORD __attribute__((__stdcall__)) mainXapiStartup(
     LPVOID lpvParameter
     )
 /*++

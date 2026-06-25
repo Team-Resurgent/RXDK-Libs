@@ -135,7 +135,7 @@ typedef struct sockaddr SOCKADDR;
  *
  ****************************************************************************/
 
-extern HRESULT WINAPI DirectPlay8AddressCreate( DWORD dwIID, void ** ppvInterface, void **pUnknown);
+extern HRESULT __attribute__((__stdcall__)) DirectPlay8AddressCreate( DWORD dwIID, void ** ppvInterface, void **pUnknown);
 
 /****************************************************************************
  *
@@ -144,37 +144,37 @@ extern HRESULT WINAPI DirectPlay8AddressCreate( DWORD dwIID, void ** ppvInterfac
  ****************************************************************************/
 
 // IUnknown methods
-ULONG WINAPI IDirectPlay8Address_AddRef(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
-ULONG WINAPI IDirectPlay8Address_Release(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Address_AddRef(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
+ULONG __attribute__((__stdcall__)) IDirectPlay8Address_Release(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
 
 // IDirectPlay8Address methods
-HRESULT WINAPI IDirectPlay8Address_BuildFromURLW(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, WCHAR *pwszSourceURL);
-HRESULT WINAPI IDirectPlay8Address_BuildFromURLA(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, CHAR *pszSourceURL);
-HRESULT WINAPI IDirectPlay8Address_Duplicate(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDIRECTPLAY8ADDRESS *ppdpaNewAddress);
-HRESULT WINAPI IDirectPlay8Address_SetEqual(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDIRECTPLAY8ADDRESS pdpaAddress);
-HRESULT WINAPI IDirectPlay8Address_IsEqual(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDIRECTPLAY8ADDRESS pdpaAddress);
-HRESULT WINAPI IDirectPlay8Address_Clear(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
-HRESULT WINAPI IDirectPlay8Address_GetURLW(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, WCHAR *pwszURL, PDWORD pdwNumChars);
-HRESULT WINAPI IDirectPlay8Address_GetURLA(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, CHAR *pszURL, PDWORD pdwNumChars);
-HRESULT WINAPI IDirectPlay8Address_GetSP(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, GUID *pguidSP);
-HRESULT WINAPI IDirectPlay8Address_GetUserData(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, void *pvUserData, PDWORD pdwBufferSize);
-HRESULT WINAPI IDirectPlay8Address_SetSP(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const GUID *const pguidSP);
-HRESULT WINAPI IDirectPlay8Address_SetUserData(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const void * const pvUserData, const DWORD dwDataSize);
-HRESULT WINAPI IDirectPlay8Address_GetNumComponents(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDWORD pdwNumComponents);
-HRESULT WINAPI IDirectPlay8Address_GetComponentByName(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const WCHAR * const pwszName, void *pvBuffer, PDWORD pdwBufferSize, PDWORD pdwDataType);
-HRESULT WINAPI IDirectPlay8Address_GetComponentByIndex(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const DWORD dwComponentID, WCHAR * pwszName, PDWORD pdwNameLen, void *pvBuffer, PDWORD pdwBufferSize, PDWORD pdwDataType);
-HRESULT WINAPI IDirectPlay8Address_AddComponent(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const WCHAR * const pwszName, const void * const lpvData, const DWORD dwDataSize, const DWORD dwDataType);
-HRESULT WINAPI IDirectPlay8Address_GetDevice(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, GUID *pGUID);
-HRESULT WINAPI IDirectPlay8Address_SetDevice(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const GUID * const pGUID);
-HRESULT WINAPI IDirectPlay8Address_BuildFromSockAddr(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const SOCKADDR * const pSockAddr);
-HRESULT WINAPI IDirectPlay8Address_BuildAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const WCHAR * const wszAddress, const USHORT usPort);
-HRESULT WINAPI IDirectPlay8Address_BuildLocalAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const GUID * const pguidAdapter, const USHORT usPort);
-HRESULT WINAPI IDirectPlay8Address_GetSockAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, SOCKADDR *pSockAddr, PDWORD pDword);
-HRESULT WINAPI IDirectPlay8Address_GetLocalAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, GUID *pguidAdapter, USHORT *pusPort);
-HRESULT WINAPI IDirectPlay8Address_GetAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, WCHAR *wszAddress, PDWORD pdwAddressLength, USHORT *psPort);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_BuildFromURLW(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, WCHAR *pwszSourceURL);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_BuildFromURLA(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, CHAR *pszSourceURL);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_Duplicate(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDIRECTPLAY8ADDRESS *ppdpaNewAddress);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_SetEqual(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDIRECTPLAY8ADDRESS pdpaAddress);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_IsEqual(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDIRECTPLAY8ADDRESS pdpaAddress);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_Clear(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetURLW(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, WCHAR *pwszURL, PDWORD pdwNumChars);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetURLA(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, CHAR *pszURL, PDWORD pdwNumChars);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetSP(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, GUID *pguidSP);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetUserData(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, void *pvUserData, PDWORD pdwBufferSize);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_SetSP(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const GUID *const pguidSP);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_SetUserData(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const void * const pvUserData, const DWORD dwDataSize);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetNumComponents(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, PDWORD pdwNumComponents);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetComponentByName(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const WCHAR * const pwszName, void *pvBuffer, PDWORD pdwBufferSize, PDWORD pdwDataType);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetComponentByIndex(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const DWORD dwComponentID, WCHAR * pwszName, PDWORD pdwNameLen, void *pvBuffer, PDWORD pdwBufferSize, PDWORD pdwDataType);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_AddComponent(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const WCHAR * const pwszName, const void * const lpvData, const DWORD dwDataSize, const DWORD dwDataType);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetDevice(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, GUID *pGUID);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_SetDevice(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const GUID * const pGUID);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_BuildFromSockAddr(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const SOCKADDR * const pSockAddr);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_BuildAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const WCHAR * const wszAddress, const USHORT usPort);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_BuildLocalAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, const GUID * const pguidAdapter, const USHORT usPort);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetSockAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, SOCKADDR *pSockAddr, PDWORD pDword);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetLocalAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, GUID *pguidAdapter, USHORT *pusPort);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_GetAddress(LPDIRECTPLAY8ADDRESS pDirectPlay8Address, WCHAR *wszAddress, PDWORD pdwAddressLength, USHORT *psPort);
 //@@BEGIN_MSINTERNAL
-HRESULT WINAPI IDirectPlay8Address_Lock(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
-HRESULT WINAPI IDirectPlay8Address_UnLock(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_Lock(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
+HRESULT __attribute__((__stdcall__)) IDirectPlay8Address_UnLock(LPDIRECTPLAY8ADDRESS pDirectPlay8Address);
 //@@END_MSINTERNAL
 
 #ifdef __cplusplus

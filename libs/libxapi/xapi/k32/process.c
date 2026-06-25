@@ -16,7 +16,7 @@ Abstract:
 #pragma hdrstop
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsBadReadPtr(
     CONST VOID *lp,
     UINT_PTR cb
@@ -105,7 +105,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsBadWritePtr(
     LPVOID lp,
     UINT_PTR cb
@@ -194,7 +194,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsBadCodePtr(
     FARPROC lpfn
     )
@@ -210,7 +210,7 @@ IsBadCodePtr(
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsBadStringPtrW(
     LPCWSTR lpsz,
     UINT_PTR cchMax
@@ -297,7 +297,7 @@ Return Value:
 }
 
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 IsBadStringPtrA(
     LPCSTR lpsz,
     UINT_PTR cchMax

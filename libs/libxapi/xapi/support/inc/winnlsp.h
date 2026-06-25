@@ -43,7 +43,7 @@ extern "C" {
 #define DATE_ADDHIJRIDATETEMP     0x80000000  // use AddHijriDateTemp reg value
 WINBASEAPI
 BOOL
-WINAPI
+__attribute__((__stdcall__))
 InvalidateNLSCache(void);
 
 
@@ -52,7 +52,7 @@ InvalidateNLSCache(void);
 //  Language Pack (CSLPK).
 //
 ULONG
-WINAPI NlsGetCacheUpdateCount(void);
+__attribute__((__stdcall__)) NlsGetCacheUpdateCount(void);
 
 
 //
@@ -60,7 +60,7 @@ WINAPI NlsGetCacheUpdateCount(void);
 // locale changes.
 //
 void
-WINAPI
+__attribute__((__stdcall__))
 NlsResetProcessLocale(void);
 //
 // These definitions are used by both winnls and base\server
@@ -195,9 +195,9 @@ GetNlsSectionName(
 
 
 typedef WINBASEAPI BOOL
-(WINAPI *PIS_VALID_CODEPAGE)(
+(__attribute__((__stdcall__)) *PIS_VALID_CODEPAGE)(
     UINT CodePage);
-WINBASEAPI BOOL WINAPI
+WINBASEAPI BOOL __attribute__((__stdcall__))
 IsValidCodePage(
     UINT CodePage);
 

@@ -43,7 +43,7 @@ DEFINE_USB_DEBUG_FUNCTIONS("OHCD");
 #include "ohcd.h"       //Private OHCD stuff
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochOpenEndpoint(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -180,7 +180,7 @@ ExitOpenIsochEndpoint:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochCloseEndpoint(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -237,7 +237,7 @@ OHCD_fIsochCloseEndpoint(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochCompleteCloseEndpoint(
     IN POHCD_DEVICE_EXTENSION      DeviceExtension,
     IN PURB_ISOCH_CLOSE_ENDPOINT   Urb
@@ -284,7 +284,7 @@ OHCD_fIsochCompleteCloseEndpoint(
 
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochAttachBuffer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -434,7 +434,7 @@ ExitIsochAttachBuffers:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochStartTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -567,7 +567,7 @@ ExitIsochStartTransfer:
 }
 
 USBD_STATUS
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochStopTransfer(
     IN POHCD_DEVICE_EXTENSION   DeviceExtension,
     IN PURB                     Urb
@@ -622,7 +622,7 @@ OHCD_fIsochStopTransfer(
 }
 
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fIsochProcessTD(
     IN POHCD_DEVICE_EXTENSION DeviceExtension,
     IN POHCD_TRANSFER_DESCRIPTOR TransferDescriptor

@@ -77,7 +77,7 @@ OHCD_POOL OHCD_GlobalPool;
 //  Initialize Pool
 //------------------------------------------
 VOID
-FASTCALL
+__attribute__((fastcall))
 OHCD_fPoolInit(
     IN PHCD_RESOURCE_REQUIREMENTS pResourceRequirements
     )
@@ -286,7 +286,7 @@ OHCD_fPoolInit(
 #ifdef SILVER
 
 ULONG
-FASTCALL
+__attribute__((fastcall))
 OHCD_fPoolFindLostDoneHead(
     POHCD_DEVICE_EXTENSION DeviceExtension
     )

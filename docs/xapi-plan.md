@@ -2,6 +2,17 @@
 
 > Living plan for xAPI work in RXDK-LibsZig. Supersedes earlier `libxbox*` naming.
 
+## Phase 1 package (`libs/libxapi/`)
+
+The self-contained libxapi tree is the **build source of truth**:
+
+- Public header: `libs/libxapi/include/xapi.h` → `zig-out/include/xapi.h`
+- Internal code: `libs/libxapi/xapi/` (site, win32, nt, internal, k32, dll, rtl, uuid, usb, port, support)
+- Build: root [`build.zig`](../build.zig) imports [`libs/libxapi/build.zig`](../libs/libxapi/build.zig)
+- Legacy paths (`include/xapi/`, `build/xapi.zig`, `vendor/xbox_private/private/`) remain as reference copies
+
+See [`libs/libxapi/README.md`](../libs/libxapi/README.md).
+
 ## Shipped library names
 
 | Library | Output | Contents | Replaces (internal codename) |

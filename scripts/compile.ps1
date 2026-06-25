@@ -134,7 +134,8 @@ Use: .\scripts\compile.ps1 -Target xapi-smoke -Iso
             $stackSize = 1048576
         }
         $mountHdd = ($sample.Artifact -eq 'xapi-smoke') -and -not $NoHdd
-        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MountHdd:$mountHdd -FormatHdd:($mountHdd -and $FormatHdd) -MaxImportThunks $maxThunks -StackSize $stackSize
+        $formatHdd = $mountHdd -and (($sample.Artifact -eq 'xapi-smoke' -and $Iso) -or $FormatHdd)
+        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MountHdd:$mountHdd -FormatHdd:$formatHdd -MaxImportThunks $maxThunks -StackSize $stackSize
     }
 }
 

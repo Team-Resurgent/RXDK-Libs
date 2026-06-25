@@ -1,4 +1,6 @@
-# libxapi headers
+# libxapi headers (legacy reference)
+
+> **Superseded by [`libs/libxapi/`](../../libs/libxapi/).** The build and samples use `libs/libxapi/include/xapi.h` and the unified `libs/libxapi/xapi/` tree. This directory is kept for side-by-side diff only.
 
 | Header | Role |
 |--------|------|

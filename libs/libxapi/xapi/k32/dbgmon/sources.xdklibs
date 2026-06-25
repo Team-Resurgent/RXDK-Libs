@@ -1,0 +1,12 @@
+# XDKLibs: dmxapi sources (files live in parent k32\)
+TARGETNAME=dmxapi
+
+SOURCES=\
+    ..\error.c \
+    ..\process.c \
+    ..\lcompata.c \
+    ..\compstra.c \
+    ..\debug.c \
+    ..\format.c \
+    ..\xvalue.c \
+    ..\launch.c

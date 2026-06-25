@@ -1,9 +1,7 @@
-#include <xapi/pe32.h>
-#include <xboxkrnl/xboxkrnl.h>
+#include <xapi.h>
 #include <xboxkrnl/api/ps.h>
 
 #include "common.h"
-#include "xapi_tls_layout.h"
 
 extern const IMAGE_TLS_DIRECTORY _tls_used;
 extern char _tls_start;

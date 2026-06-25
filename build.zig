@@ -4,7 +4,7 @@ const xbox_target = @import("build/xbox_target.zig");
 const coff_lib = @import("build/coff_lib.zig");
 const picolibc = @import("build/picolibc.zig");
 const libcxx = @import("build/libcxx.zig");
-const xapi = @import("build/xapi.zig");
+const libxapi_pkg = @import("libs/libxapi/build.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
 
@@ -65,7 +65,7 @@ pub fn build(b: *std.Build) void {
     const stage_cxx_headers = libcxx.stageHeaders(b);
     stage_cxx_headers.dependOn(&install_libcpp.step);
 
-    const xapi_objs = xapi.addAllObjects(b, xbox_target, opt_flag);
+    const xapi_objs = libxapi_pkg.addAllObjects(b, xbox_target, opt_flag);
     var xapi_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     xapi_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
     xapi_deps.append(b.allocator, xapi_objs.step) catch @panic("OOM");
@@ -76,16 +76,7 @@ pub fn build(b: *std.Build) void {
     var xapi_core_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     for (xapi_objs.outputs) |obj| {
         const path = obj.getPath(b);
-        const in_core =
-            std.mem.indexOf(u8, path, "/xapi/k32/") != null or
-            std.mem.indexOf(u8, path, "\\xapi\\k32\\") != null or
-            std.mem.indexOf(u8, path, "/xapi/dll/") != null or
-            std.mem.indexOf(u8, path, "\\xapi\\dll\\") != null or
-            std.mem.indexOf(u8, path, "/xapi/rtl/") != null or
-            std.mem.indexOf(u8, path, "\\xapi\\rtl\\") != null or
-            std.mem.indexOf(u8, path, "/xapi/uuid/") != null or
-            std.mem.indexOf(u8, path, "\\xapi\\uuid\\") != null;
-        if (in_core) {
+        if (libxapi_pkg.isCoreObjectPath(path)) {
             xapi_core_objects.append(b.allocator, obj) catch @panic("OOM");
         }
     }
@@ -96,7 +87,7 @@ pub fn build(b: *std.Build) void {
     const install_libxapi_core = b.addInstallFile(libxapi_core.path, "lib/libxapi_core.lib");
     install_libxapi_core.step.dependOn(libxapi_core.step);
 
-    const stage_xapi_headers = xapi.stageHeaders(b);
+    const stage_xapi_headers = libxapi_pkg.stageHeaders(b);
     stage_xapi_headers.dependOn(&install_libxapi.step);
 
     b.getInstallStep().dependOn(&install_libc.step);
@@ -200,13 +191,23 @@ pub fn build(b: *std.Build) void {
     kernel_api_probe_step.dependOn(kernel_api_probe_debug_step);
 
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
+    const xapi_inc = [_]std.Build.LazyPath{
+        b.path("libs/libxapi/include"),
+        b.path("libs/libxapi/xapi/internal"),
+        b.path("libs/libxapi/xapi/win32"),
+        b.path("include"),
+        b.path("build/generated"),
+        b.path("include/xboxkrnl"),
+        b.path("vendor/picolibc/libc/include"),
+        b.path("vendor/picolibc/libc/machine/x86"),
+    };
 
     const xapi_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
         .name = "xapi-link",
         .src = "samples/xapi-link/main.c",
         .objects = sample_objects.items,
         .libs = &.{ libxapi_lib, krnl },
-        .include_paths = &inc,
+        .include_paths = &xapi_inc,
         .extra_flags = &.{},
         .entry = "start",
         .bootstrap = true,
@@ -214,17 +215,6 @@ pub fn build(b: *std.Build) void {
     });
     const xapi_link_step = b.step("xapi-link", "Build libc + libxapi.lib link smoke PE");
     xapi_link_step.dependOn(xapi_link.install);
-
-    const xapi_inc = [_]std.Build.LazyPath{
-        b.path("include"),
-        b.path("include/xapi"),
-        b.path("include/xdk"),
-        b.path("include/sdk"),
-        b.path("include/xboxkrnl"),
-        b.path("build/generated"),
-        b.path("vendor/picolibc/libc/include"),
-        b.path("vendor/picolibc/libc/machine/x86"),
-    };
 
     const xapi_smoke_extra = [_][]const u8{
         "samples/xapi-smoke/src/xapi_boot.c",
@@ -269,9 +259,7 @@ pub fn build(b: *std.Build) void {
             "-fms-extensions",
             "-fms-compatibility",
             "-include",
-            "picolibc.h",
-            "-include",
-            "xapi_title_site.h",
+            "build/generated/picolibc.h",
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,

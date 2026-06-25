@@ -53,17 +53,6 @@ DEFINE_USB_DEBUG_FUNCTIONS("INPUT");
 //
 #include "xid.h"
 
-//This will create a table of subtypes that we can find to walk
-#pragma data_seg(".XID$A")
-extern DWORD XID_BeginTypeDescriptionTable = 0;
-#pragma data_seg(".XID$ZZZ")
-extern DWORD XID_EndTypeDescriptionTable = 0;
-#pragma data_seg(".XPP$Data")
-#pragma code_seg(".XPPCODE")
-
-//  Tells the linker to merge the USB sections together
-#pragma comment(linker, "/merge:.XID=.XPP")
-
 //----------------------------------------------
 // Functions to walk the type tables.
 //----------------------------------------------
@@ -71,36 +60,23 @@ extern DWORD XID_EndTypeDescriptionTable = 0;
 PXID_TYPE_INFORMATION FASTCALL GetTypeInformation(UCHAR XidType, UCHAR *TypeIndex)
 {
     *TypeIndex = 0;
-    UCHAR ucTypeIndex = 0;
-    PXID_TYPE_INFORMATION *ppTypeInformation;
-    ppTypeInformation = (PXID_TYPE_INFORMATION *)((&XID_BeginTypeDescriptionTable)+1);
-    while( (ULONG_PTR)ppTypeInformation < (ULONG_PTR)&XID_EndTypeDescriptionTable )
-    {
-        if(*ppTypeInformation)
-        {
-            if((*ppTypeInformation)->ucType == XidType)
-            {
-                *TypeIndex = ucTypeIndex;
-                return *ppTypeInformation;
-            }
-            ucTypeIndex++;
+    for (ULONG i = 0; i < RxdkXidTypeTableCount; i++) {
+        XID_TYPE_INFORMATION *typeInformation = RxdkXidTypeTable[i];
+        if (typeInformation && typeInformation->ucType == XidType) {
+            *TypeIndex = (UCHAR)i;
+            return typeInformation;
         }
-        ppTypeInformation++;
     }
     return NULL;
 }
 
 PXID_TYPE_INFORMATION FASTCALL GetTypeInformation(PXPP_DEVICE_TYPE XppType)
 {
-    PXID_TYPE_INFORMATION *ppTypeInformation;
-    ppTypeInformation = (PXID_TYPE_INFORMATION *)((&XID_BeginTypeDescriptionTable)+1);
-    while( (ULONG_PTR)ppTypeInformation < (ULONG_PTR)&XID_EndTypeDescriptionTable )
-    {
-        if(*ppTypeInformation && ((*ppTypeInformation)->XppType == XppType))
-        {
-            return *ppTypeInformation;
+    for (ULONG i = 0; i < RxdkXidTypeTableCount; i++) {
+        XID_TYPE_INFORMATION *typeInformation = RxdkXidTypeTable[i];
+        if (typeInformation && typeInformation->XppType == XppType) {
+            return typeInformation;
         }
-        ppTypeInformation++;
     }
     return NULL;
 }
@@ -133,10 +109,6 @@ XINPUT_POLLING_PARAMETERS GameDefaultPolling = {TRUE,FALSE,0,8,0,0}; //AutoPoll 
 XID_TYPE_INFORMATION  GamepadTypeInfo = 
  {XID_DEVTYPE_GAMECONTROLLER, XID_DEFAULT_MAX_GAMEPAD, XID_INPUT_REPORT_ID_MAX_GAME, XID_OUTPUT_REPORT_ID_MAX_GAME,
  XDEVICE_TYPE_GAMEPAD, GameInputReportInfoList, GameOutputReportInfoList, &GameDefaultPolling, XID_ProcessGamepadData, 0};
-     
-#pragma data_seg(".XID$Gamepad")
-extern "C" ULONG_PTR GamepadTypeInfoENTRY = (ULONG_PTR)&GamepadTypeInfo;
-#pragma data_seg(".XPP$Data")
 
 //----------------------------------------------
 //  Keyboard Reports
@@ -163,10 +135,6 @@ XID_TYPE_INFORMATION  KeyboardTypeInfo =
  XDEVICE_TYPE_DEBUG_KEYBOARD, KeyboardReportInfoList, KeyboardLEDReportInfoList, &KeyboardDefaultPolling, XID_ProcessNewKeyboardData,
  XID_BSF_NO_CAPABILITIES|XID_BSF_NO_OUTPUT_HEADER};
 
-#pragma data_seg(".XID$Keyboard")
-extern "C" ULONG_PTR KeyboardTypeInfoENTRY = (ULONG_PTR)&KeyboardTypeInfo;
-#pragma data_seg(".XPP$Data")
-
 //----------------------------------------------
 //  IR Remote Reports
 //----------------------------------------------
@@ -185,6 +153,9 @@ XID_TYPE_INFORMATION  IrRemoteTypeInfo =
  {XID_DEVTYPE_IRREMOTE, XID_DEFAULT_MAX_IRREMOTE, XID_INPUT_REPORT_ID_MAX_IRREMOTE, XID_OUTPUT_REPORT_ID_MAX_IRREMOTE,
  XDEVICE_TYPE_IR_REMOTE, IrRemoteReportInfoList, NULL, &IrRemoteDefaultPolling, XID_ProcessIRRemoteData, 0};
 
-#pragma data_seg(".XID$IrRemote")
-extern "C" ULONG_PTR IrRemoteTypeInfoENTRY = (ULONG_PTR)&IrRemoteTypeInfo;
-#pragma data_seg(".XPP$Data")
+XID_TYPE_INFORMATION * const RxdkXidTypeTable[] = {
+    &GamepadTypeInfo,
+    &KeyboardTypeInfo,
+    &IrRemoteTypeInfo,
+};
+const ULONG RxdkXidTypeTableCount = sizeof(RxdkXidTypeTable) / sizeof(RxdkXidTypeTable[0]);

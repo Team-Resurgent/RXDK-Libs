@@ -1,8 +1,14 @@
 #include "common.h"
 
+static DWORD xapi_smoke_last_xinput_open_error;
+
 static HANDLE xapi_smoke_try_open_gamepad_on_port(DWORD port)
 {
-    return XInputOpen(XDEVICE_TYPE_GAMEPAD, port, XDEVICE_NO_SLOT, NULL);
+    HANDLE device = XInputOpen(XDEVICE_TYPE_GAMEPAD, port, XDEVICE_NO_SLOT, NULL);
+    if (!device) {
+        xapi_smoke_last_xinput_open_error = GetLastError();
+    }
+    return device;
 }
 
 static HANDLE xapi_smoke_open_gamepad(void)
@@ -49,7 +55,14 @@ int test_xinput(void)
 {
     HANDLE device = xapi_smoke_wait_for_gamepad(5000);
     if (!device) {
-        xapi_smoke_trace_fail("xinput open", GetLastError());
+        const DWORD gamepad_mask = XGetDevices(XDEVICE_TYPE_GAMEPAD);
+        xapi_smoke_trace_count("xinput gamepad mask", gamepad_mask);
+        if (xapi_smoke_last_xinput_open_error == 87u) {
+            xapi_smoke_trace_line("xinput err 87 invalid type (XID type table)");
+        } else if (xapi_smoke_last_xinput_open_error == 116u) {
+            xapi_smoke_trace_line("xinput err 116 no gamepad on port");
+        }
+        xapi_smoke_trace_fail("xinput open", xapi_smoke_last_xinput_open_error);
         return XAPI_SKIP;
     }
 

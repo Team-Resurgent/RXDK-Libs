@@ -181,7 +181,6 @@ EXTERNUSB VOID XID_Init(IUsbInit *UsbInit)
     
     PXPP_DEVICE_TYPE  devicesTypes[DEVICE_TYPE_STACK_SIZE];
     BOOL fUseDefaultCount;
-    PXID_TYPE_INFORMATION *ppTypeInformation;
     DWORD dwTypeIndex = 0;
     
     //
@@ -205,28 +204,27 @@ EXTERNUSB VOID XID_Init(IUsbInit *UsbInit)
     //  Walk the Device Type Table (and properly register each type)
     //
     fUseDefaultCount = UsbInit->UseDefaultCount();
-    ppTypeInformation = (PXID_TYPE_INFORMATION *)((&XID_BeginTypeDescriptionTable)+1);
-    while( (ULONG_PTR)ppTypeInformation < (ULONG_PTR)&XID_EndTypeDescriptionTable )
+    for (ULONG typeTableIndex = 0; typeTableIndex < RxdkXidTypeTableCount; typeTableIndex++)
     {
-        if(*ppTypeInformation)
+        XID_TYPE_INFORMATION *typeInformation = RxdkXidTypeTable[typeTableIndex];
+        if(typeInformation)
         {
             // Recorder the XPP type in the temporary table.
             ASSERT(dwTypeIndex < DEVICE_TYPE_STACK_SIZE);
-            devicesTypes[dwTypeIndex++] = (*ppTypeInformation)->XppType;
+            devicesTypes[dwTypeIndex++] = typeInformation->XppType;
 
             // Count how many  handles we need, and record the user's
             // XInitDevices choice for count
             if(!fUseDefaultCount)
             {
-                (*ppTypeInformation)->bRemainingHandles = 
-                    UsbInit->GetMaxDeviceTypeCount((*ppTypeInformation)->XppType);
+                typeInformation->bRemainingHandles =
+                    UsbInit->GetMaxDeviceTypeCount(typeInformation->XppType);
                 RIP_ON_NOT_TRUE_WITH_MESSAGE(
-                    (*ppTypeInformation)->bRemainingHandles <= XGetPortCount(),
+                    typeInformation->bRemainingHandles <= XGetPortCount(),
                     "XInitDevices: requested more XDEVICE_TYPE_GAMEPAD than available ports.");
             }
-            handleCount += (*ppTypeInformation)->bRemainingHandles;
+            handleCount += typeInformation->bRemainingHandles;
         }
-        ppTypeInformation++;
     }
     
     //

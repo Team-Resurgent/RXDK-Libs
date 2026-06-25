@@ -121,8 +121,8 @@ typedef struct _XID_TYPE_INFORMATION
 #define XID_BSF_NO_CAPABILITIES  0x00000001
 #define XID_BSF_NO_OUTPUT_HEADER 0x00000002
 
-extern DWORD XID_BeginTypeDescriptionTable;
-extern DWORD XID_EndTypeDescriptionTable;
+extern XID_TYPE_INFORMATION * const RxdkXidTypeTable[];
+extern const ULONG RxdkXidTypeTableCount;
 //----------------------------------------------------------------------
 //  This the XID Descriptor has defined in the XID Specification
 //----------------------------------------------------------------------

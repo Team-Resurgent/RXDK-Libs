@@ -98,30 +98,16 @@ pub fn addAllObjects(
     var all_outputs = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
+    // Each slice's defines now live in its force-included bridge header
+    // (bridge_rtl.h: NTOS_KERNEL_RUNTIME + _NTSYSTEM_; bridge_usb.h:
+    // NTOS_KERNEL_RUNTIME; bridge_uuid.h: XAPI_UUID_BUILD). The redundant
+    // USB_HOST_CONTROLLER_CONFIGURATION=1 was dropped — hcdi.h already defaults
+    // it to USB_SINGLE_HOST_CONTROLLER (==1) when SILVER is unset.
     const k32_extra = [_][]const u8{ "-include", "bridge_k32.h" };
-    const rtl_extra = [_][]const u8{
-        "-include", "bridge_rtl.h",
-        "-DNTOS_KERNEL_RUNTIME=1",
-        "-D_NTSYSTEM_=1",
-    };
-    // OHCD_XBOX_HARDWARE_ONLY / OHCD_ISOCHRONOUS_SUPPORTED are baked into the
-    // ohcd sources (the Xbox build is the only configuration); USE_DMA_MACROS
-    // was unreferenced. NTOS_KERNEL_RUNTIME stays (differentiates kernel slices).
-    const ohcd_extra = [_][]const u8{
-        "-include", "bridge_usb.h",
-        "-DNTOS_KERNEL_RUNTIME=1",
-    };
-    // USB_ENABLE_DIRECT_CONNECT is baked into usbdev.cpp; XID_HAMMERHEAD_SUPPORT
-    // was unreferenced. USB_HOST_CONTROLLER_CONFIGURATION stays (still tested).
-    const usb_cpp_extra = [_][]const u8{
-        "-include", "bridge_usb.h",
-        "-DNTOS_KERNEL_RUNTIME=1",
-        "-DUSB_HOST_CONTROLLER_CONFIGURATION=1",
-    };
-    const uuid_extra = [_][]const u8{
-        "-include", "bridge_uuid.h",
-        "-DXAPI_UUID_BUILD=1",
-    };
+    const rtl_extra = [_][]const u8{ "-include", "bridge_rtl.h" };
+    const ohcd_extra = [_][]const u8{ "-include", "bridge_usb.h" };
+    const usb_cpp_extra = [_][]const u8{ "-include", "bridge_usb.h" };
+    const uuid_extra = [_][]const u8{ "-include", "bridge_uuid.h" };
 
     for (xapi_sources.slices) |slice| {
         const base_flags = if (slice.is_cpp) xapiCppFlags(b) else xapiCFlags(b);

@@ -1,6 +1,12 @@
 #pragma once
 #define RXDK_USB_BRIDGE_H
 
+/* USB driver slices run in the kernel runtime (was -DNTOS_KERNEL_RUNTIME). */
+#ifndef NTOS_KERNEL_RUNTIME
+#define NTOS_KERNEL_RUNTIME 1
+#endif
+
+
 
 /*
  * Force-included for libxapi USB slices (ohcd, usbd, hub, mu, xid).

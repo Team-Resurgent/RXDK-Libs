@@ -1,6 +1,12 @@
 #pragma once
 #define RXDK_UUID_BRIDGE_H
 
+/* uuid slice builds COM/RPC IDL against the SDK (was -DXAPI_UUID_BUILD). */
+#ifndef XAPI_UUID_BUILD
+#define XAPI_UUID_BUILD 1
+#endif
+
+
 
 /*
  * Force-included for libxapi uuid slice (COM/RPC IDL objects).

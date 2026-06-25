@@ -1,6 +1,16 @@
 #ifndef RXDK_RTL_BRIDGE_H
 #define RXDK_RTL_BRIDGE_H
 
+/* rtl implements the NT runtime library: kernel-runtime + exports NTSYSAPI.
+   (was -DNTOS_KERNEL_RUNTIME -D_NTSYSTEM_ in build.zig) */
+#ifndef NTOS_KERNEL_RUNTIME
+#define NTOS_KERNEL_RUNTIME 1
+#endif
+#ifndef _NTSYSTEM_
+#define _NTSYSTEM_ 1
+#endif
+
+
 /* Force-included for libxapi rtl slice (sdk nt.h path, not xboxkrnl). */
 
 #ifndef NTKERNELAPI

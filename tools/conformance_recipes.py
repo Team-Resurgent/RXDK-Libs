@@ -796,6 +796,66 @@ static int hk_exec(const char *p, char *const a[], char *const e[])
 """,
     ),
     (
+        "rxdk",
+        "exec_args",
+        """
+    /* verify path, argv (count + values) and envp reach the exec handler */
+    char *args[] = { "prog", "arg1", NULL };
+    char *env[] = { "K=V", NULL };
+    int r;
+
+    g_xa_argc = -1;
+    g_xa_path[0] = '\\0';
+    g_xa_a0[0] = '\\0';
+    g_xa_a1[0] = '\\0';
+    g_xa_env_ok = 0;
+
+    rxdk_set_exec_handler(hk_exec_args);
+    r = execve("game.xbe", args, env);
+    rxdk_set_exec_handler(NULL);
+
+    RXDK_TEST_EQ(r, 7);
+    RXDK_TEST_STR_EQ(g_xa_path, "game.xbe");
+    RXDK_TEST_EQ(g_xa_argc, 2);
+    RXDK_TEST_STR_EQ(g_xa_a0, "prog");
+    RXDK_TEST_STR_EQ(g_xa_a1, "arg1");
+    RXDK_TEST_TRUE(g_xa_env_ok);
+    return 0;
+""",
+        """
+static int g_xa_argc;
+static int g_xa_env_ok;
+static char g_xa_path[16];
+static char g_xa_a0[16];
+static char g_xa_a1[16];
+
+static int hk_exec_args(const char *path, char *const argv[], char *const envp[])
+{
+    int i = 0;
+    if (path) {
+        strncpy(g_xa_path, path, sizeof(g_xa_path) - 1);
+        g_xa_path[sizeof(g_xa_path) - 1] = '\\0';
+    }
+    if (argv) {
+        while (argv[i])
+            i++;
+        if (argv[0]) {
+            strncpy(g_xa_a0, argv[0], sizeof(g_xa_a0) - 1);
+            g_xa_a0[sizeof(g_xa_a0) - 1] = '\\0';
+        }
+        if (i > 1 && argv[1]) {
+            strncpy(g_xa_a1, argv[1], sizeof(g_xa_a1) - 1);
+            g_xa_a1[sizeof(g_xa_a1) - 1] = '\\0';
+        }
+    }
+    g_xa_argc = i;
+    if (envp && envp[0] && !envp[1] && strcmp(envp[0], "K=V") == 0)
+        g_xa_env_ok = 1;
+    return 7;
+}
+""",
+    ),
+    (
         "c23",
         "stdckdint",
         """

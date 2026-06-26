@@ -335,29 +335,103 @@ void call_once(once_flag *flag, void (*func)(void))
     RtlLeaveCriticalSection(&g_once_lock);
 }
 
-/* ---- thread-specific storage (Phase 2: needs per-thread TLS) --------------- */
+/* ---- thread-specific storage ----------------------------------------------- */
+/* Per-thread values keyed by (KTHREAD, key) in a flat table — no kernel TLS
+   needed. Keys are 1-based; 0 is invalid. Destructors are not yet run at thread
+   exit. Guarded by the same registry lock. */
+
+#define RXDK_TSS_KEYS  32
+#define RXDK_TSS_SLOTS 256
+
+static struct {
+    int used;
+    tss_dtor_t dtor;
+} g_tss_keys[RXDK_TSS_KEYS];
+
+static struct {
+    int inuse;
+    PKTHREAD kt;
+    tss_t key;
+    void *val;
+} g_tss_slots[RXDK_TSS_SLOTS];
 
 int tss_create(tss_t *key, tss_dtor_t dtor)
 {
-    (void)key;
-    (void)dtor;
+    if (!key)
+        return thrd_error;
+    reg_lock();
+    for (unsigned i = 0; i < RXDK_TSS_KEYS; ++i) {
+        if (!g_tss_keys[i].used) {
+            g_tss_keys[i].used = 1;
+            g_tss_keys[i].dtor = dtor;
+            *key = i + 1;
+            reg_unlock();
+            return thrd_success;
+        }
+    }
+    reg_unlock();
+    return thrd_error;
+}
+
+int tss_set(tss_t key, void *val)
+{
+    PKTHREAD kt = KeGetCurrentThread();
+    int free_slot = -1;
+
+    if (key == 0 || key > RXDK_TSS_KEYS)
+        return thrd_error;
+    reg_lock();
+    for (int i = 0; i < RXDK_TSS_SLOTS; ++i) {
+        if (g_tss_slots[i].inuse && g_tss_slots[i].kt == kt &&
+            g_tss_slots[i].key == key) {
+            g_tss_slots[i].val = val;
+            reg_unlock();
+            return thrd_success;
+        }
+        if (!g_tss_slots[i].inuse && free_slot < 0)
+            free_slot = i;
+    }
+    if (free_slot >= 0) {
+        g_tss_slots[free_slot].inuse = 1;
+        g_tss_slots[free_slot].kt = kt;
+        g_tss_slots[free_slot].key = key;
+        g_tss_slots[free_slot].val = val;
+        reg_unlock();
+        return thrd_success;
+    }
+    reg_unlock();
     return thrd_error;
 }
 
 void *tss_get(tss_t key)
 {
-    (void)key;
-    return NULL;
-}
+    PKTHREAD kt = KeGetCurrentThread();
+    void *v = NULL;
 
-int tss_set(tss_t key, void *val)
-{
-    (void)key;
-    (void)val;
-    return thrd_error;
+    if (key == 0 || key > RXDK_TSS_KEYS)
+        return NULL;
+    reg_lock();
+    for (int i = 0; i < RXDK_TSS_SLOTS; ++i) {
+        if (g_tss_slots[i].inuse && g_tss_slots[i].kt == kt &&
+            g_tss_slots[i].key == key) {
+            v = g_tss_slots[i].val;
+            break;
+        }
+    }
+    reg_unlock();
+    return v;
 }
 
 void tss_delete(tss_t key)
 {
-    (void)key;
+    if (key == 0 || key > RXDK_TSS_KEYS)
+        return;
+    reg_lock();
+    g_tss_keys[key - 1].used = 0;
+    g_tss_keys[key - 1].dtor = NULL;
+    for (int i = 0; i < RXDK_TSS_SLOTS; ++i) {
+        if (g_tss_slots[i].inuse && g_tss_slots[i].key == key)
+            g_tss_slots[i].inuse = 0;
+    }
+    reg_unlock();
 }

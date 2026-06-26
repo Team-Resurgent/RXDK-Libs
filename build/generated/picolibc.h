@@ -6,7 +6,6 @@
 #define __GLOBAL_ERRNO 1
 #define __PREFER_SIZE_OVER_SPEED 1
 #define __TINY_STDIO 1
-#define __SINGLE_THREAD 1
 #define __HAVE_COMPLEX 1
 #define __IO_C99_FORMATS 1
 #define __IO_LONG_LONG 1

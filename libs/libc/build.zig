@@ -39,6 +39,7 @@ const picolibc_exclude = [_][]const u8{
     "tls.c",
     "interrupt.c",
     "clock.c", // replaced by libs/libc/xbox/timeio.c (KeQueryPerformanceCounter)
+    "lock.c",  // replaced by libs/libc/xbox/locks.c (RTL critical sections)
     "posix_locale.c",
     "posixiob_stdin.c",
     "posixiob_stdout.c",
@@ -178,6 +179,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/fileio.c",
         "libs/libc/xbox/timeio.c",
         "libs/libc/xbox/threads.c",
+        "libs/libc/xbox/locks.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/trace.c",
         "libs/libc/xbox/stubs.c",

@@ -406,4 +406,81 @@ static int sum_ints(int n, ...)
     return 0;
 """,
     ),
+    (
+        "threads",
+        "malloc_safety",
+        """
+    /* Hammer the now thread-safe picolibc allocator from four threads at once;
+       each verifies its own buffer survived. Exercises the retargeted locks. */
+    thrd_t th[4];
+    int i, r;
+
+    for (i = 0; i < 4; ++i)
+        RXDK_TEST_EQ(thrd_create(&th[i], worker_malloc, NULL), thrd_success);
+    for (i = 0; i < 4; ++i) {
+        RXDK_TEST_EQ(thrd_join(th[i], &r), thrd_success);
+        RXDK_TEST_EQ(r, 0);
+    }
+    return 0;
+""",
+        """
+static int worker_malloc(void *arg)
+{
+    (void)arg;
+    for (int i = 0; i < 2000; ++i) {
+        unsigned char *p = (unsigned char *)malloc(64);
+        if (!p)
+            return 1;
+        for (int j = 0; j < 64; ++j)
+            p[j] = (unsigned char)(j ^ i);
+        for (int j = 0; j < 64; ++j)
+            if (p[j] != (unsigned char)(j ^ i)) {
+                free(p);
+                return 2;
+            }
+        free(p);
+    }
+    return 0;
+}
+""",
+    ),
+    (
+        "threads",
+        "tss",
+        """
+    /* Each thread stores a distinct value under one key and reads its own back;
+       the main thread's slot must be unaffected. */
+    thrd_t th[2];
+    int i, r;
+
+    RXDK_TEST_EQ(tss_create(&g_key, NULL), thrd_success);
+    RXDK_TEST_EQ(tss_set(g_key, (void *)(intptr_t)100), thrd_success);
+
+    for (i = 0; i < 2; ++i)
+        RXDK_TEST_EQ(thrd_create(&th[i], tss_worker, (void *)(intptr_t)(i + 1)),
+                     thrd_success);
+    for (i = 0; i < 2; ++i) {
+        RXDK_TEST_EQ(thrd_join(th[i], &r), thrd_success);
+        RXDK_TEST_EQ(r, 0);
+    }
+
+    RXDK_TEST_EQ((int)(intptr_t)tss_get(g_key), 100);
+    tss_delete(g_key);
+    return 0;
+""",
+        """
+static tss_t g_key;
+
+static int tss_worker(void *arg)
+{
+    int want = (int)(intptr_t)arg;
+    if (tss_set(g_key, arg) != thrd_success)
+        return 1;
+    thrd_yield(); /* interleave with the other worker */
+    if ((int)(intptr_t)tss_get(g_key) != want)
+        return 2;
+    return 0;
+}
+""",
+    ),
 ]

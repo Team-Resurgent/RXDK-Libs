@@ -50,7 +50,6 @@ pub fn picolibcFlags(_: *std.Build) []const []const u8 {
         // how the first-party cFlags / libxapi / libcxx batches are compiled.
         "-Wno-everything",
         "-D__Picolibc__",
-        "-D__SINGLE_THREAD",
         "-D__TINY_STDIO",
         "-include",
         "picolibc.h",

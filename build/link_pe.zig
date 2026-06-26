@@ -269,7 +269,7 @@ pub fn addPeSample(
         compile_probe_image_init.addArg("-Ibuild/generated");
         compile_probe_image_init.addArg("-include");
         compile_probe_image_init.addArg("build/generated/xbox_image_init_stub.h");
-        compile_probe_image_init.addFileArg(b.path("src/xbox/image_init.c"));
+        compile_probe_image_init.addFileArg(b.path("libs/libc/xbox/image_init.c"));
         compile_probe_image_init.setCwd(b.path("."));
         compile_probe_image_init.step.dependOn(link_dir_mkdir);
 
@@ -313,7 +313,7 @@ pub fn addPeSample(
         compile_image_init.addArg("-Izig-out/link");
         compile_image_init.addArg("-include");
         compile_image_init.addArg(b.fmt("zig-out/link/{s}_image_init.h", .{opts.name}));
-        compile_image_init.addFileArg(b.path("src/xbox/image_init.c"));
+        compile_image_init.addFileArg(b.path("libs/libc/xbox/image_init.c"));
         compile_image_init.setCwd(b.path("."));
         compile_image_init.step.dependOn(&gen_header.step);
         compile_image_init.step.dependOn(link_dir_mkdir);

@@ -7,7 +7,7 @@ RXDK-Libs is a **reference** for behavior (startup order, printf path, kernel ex
 ```
 picolibc (C) + minimal libm
         +
-src/xbox/* (HAL, crt0, kernel, stubs)
+libs/libc/xbox/* (HAL, crt0, kernel, stubs)
         = libc.lib
 
 LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
@@ -16,7 +16,7 @@ LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
 
 | Layer | Location |
 |-------|----------|
-| First-party Xbox glue | `src/xbox/`, `src/runtime/c23/` |
+| First-party Xbox glue | `libs/libc/xbox/`, `libs/libc/c23/` |
 | Third-party C | `vendor/picolibc/` |
 | Third-party C++ | `vendor/llvm-project/libcxx`, `libcxxabi` |
 | Public headers | staged to `zig-out/include/` |
@@ -29,8 +29,8 @@ LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
 - Asm `crt0.S` defines `_start`; link with `-e start` (not `-e _start`).
 - After link, `scripts/Patch-PeXbox.ps1` sets PE **subsystem 14** (`IMAGE_SUBSYSTEM_XBOX`) — required for valid `imagebld` output (Zig/lld only emits Windows subsystem 3 today).
 - `imagebld` only embeds part of `.data` in the XBE (see `SizeOfRawData` in `imagebld /DUMP`, often less than the PE `SizeOfRawData`). `Write-XboxImageInit.ps1` probe-links, converts to XBE, and emits `zig-out/link/<sample>_image_init.h` with the **XBE** tail size; `image_init.c` clears that range at startup before `printf`.
-- lld on PE does not honour picolibc `__weak_reference` for `stdin`/`stdout`/`stderr`. Vendor `posixiob_*.c` is excluded; `src/xbox/posix_stdio_streams.c` defines strong `FILE *const stdin/stdout/stderr` alongside `__posix_*`.
-- `___main` comes from C `__main` in `src/xbox/startup.c`; it walks MinGW/lld `__CTOR_LIST__` so libc++ global ctors (including `std::cout` init) run before C++ `main` body executes.
+- lld on PE does not honour picolibc `__weak_reference` for `stdin`/`stdout`/`stderr`. Vendor `posixiob_*.c` is excluded; `libs/libc/xbox/posix_stdio_streams.c` defines strong `FILE *const stdin/stdout/stderr` alongside `__posix_*`.
+- `___main` comes from C `__main` in `libs/libc/xbox/startup.c`; it walks MinGW/lld `__CTOR_LIST__` so libc++ global ctors (including `std::cout` init) run before C++ `main` body executes.
 - `prebuilt/xboxkrnl.lib` with **no** `--whole-archive` (duplicate import descriptors break the kit loader). `DbgPrint` is import ordinal **8** per OpenXDK `xboxkrnl.exe.def`.
 
 ## libc++ freestanding profile

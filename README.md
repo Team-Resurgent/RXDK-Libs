@@ -29,9 +29,9 @@ shared/include/            Public distributed headers (xt.h umbrella, xapi.h, xb
                            xkbd.h, windef/winbase, xboxkrnl/, xbox/)
 shared/picolibc/           picolibc C headers (headers-only distribution)
 shared/libcxx/             LLVM libc++ headers (headers-only distribution)
+libs/libc/                 First-party libc runtime — xbox/ (HAL, crt0, kernel glue) + c23/ gap-fill (→ libc.lib)
+libs/libcpp/               libc++ build orchestration over vendored libcxx (→ libcpp.lib)
 libs/libxapi/              Clean-room xAPI port (→ libxapi.lib)
-src/xbox/                  Xbox HAL, crt0, kernel glue (first-party runtime → libc)
-src/runtime/c23/           Small C23 gap-fill (stdbit)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
 vendor/xbox_leak_may_2020/ XDK SDK headers (uuid) + kernel export reference (submodule)
@@ -60,16 +60,15 @@ zig build verify-no-vs    # assert build/*.zig never invokes MSVC toolchain
 zig build                 # libs + staged headers
 zig build libxapi         # libxapi.lib only
 zig build xapi-smoke      # 27-test xAPI smoke PE
-zig build conformance-c
-zig build conformance-c23
-zig build conformance-cpp23
+zig build libc-smoke      # libc / C23 runtime matrix
+zig build libcpp-smoke    # libc++ / C++23 smoke
 ```
 
 ### Ship artifacts
 
 | Output | Contents |
 |--------|----------|
-| `zig-out/lib/libc.lib` | picolibc + minimal libm + `src/xbox/*` runtime |
+| `zig-out/lib/libc.lib` | picolibc + minimal libm + `libs/libc/xbox/*` runtime |
 | `zig-out/lib/libcpp.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
 | `zig-out/lib/libxapi.lib` | Clean-room xAPI (k32 + dll + rtl + uuid + USB) |
 | `zig-out/lib/libxapi_core.lib` | xAPI without the USB stack (k32 + dll + rtl + uuid) |
@@ -83,7 +82,7 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 
 - Triple: `x86-windows-gnu`
 - C23 / C++23 (`-std=c23` / `-std=c++23`)
-- Entry: `_start` from `src/xbox/crt0.S` (link with `-e start`)
+- Entry: `_start` from `libs/libc/xbox/crt0.S` (link with `-e start`)
 - Debug output: `write` → `DbgPrint` (direct kernel import via `shared/include/xboxkrnl/`)
 
 ## Samples
@@ -91,9 +90,8 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 | Step | PE | Notes |
 |------|-----|-------|
 | `xapi-smoke` | `zig-out/samples/xapi-smoke/xapi-smoke.exe` | 27 xAPI category tests (kit hardware + HDD) |
-| `conformance-c` | `zig-out/samples/conformance-c/conformance-c.exe` | libc / C23 runtime matrix (see `docs/conformance.md`) |
-| `conformance-c23` | `zig-out/samples/conformance-c23/conformance-c23.exe` | `<stdbit.h>` smoke |
-| `conformance-cpp23` | `zig-out/samples/conformance-cpp23/conformance-cpp23.exe` | `<expected>`, `<string_view>` |
+| `libc-smoke` | `zig-out/samples/libc-smoke/libc-smoke.exe` | libc / C23 runtime matrix incl. `<stdbit.h>` (see `docs/conformance.md`) |
+| `libcpp-smoke` | `zig-out/samples/libcpp-smoke/libcpp-smoke.exe` | libc++ / C++23 — `<expected>`, `<string_view>`, `<iostream>` |
 
 Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build-iso.ps1`](build-iso.ps1).
 

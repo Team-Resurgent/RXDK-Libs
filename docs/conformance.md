@@ -20,23 +20,22 @@ Uses `vendor/stdtests/template/c_header.txt` as the manifest. Skips headers not 
 
 ```powershell
 python tools/generate_conformance_tests.py
-zig build conformance-c
-.\scripts\compile.ps1 -Target conformance-c -Iso
+zig build libc-smoke
+.\scripts\compile.ps1 -Target libc-smoke -Iso
 ```
 
 Expected serial output:
 
 ```
-RXDK-LibsZig: conformance-c start
-RXDK-LibsZig conformance-c OK passed=16 failed=0 total=16
+RXDK-LibsZig: libc-smoke start
+RXDK-LibsZig libc-smoke OK passed=16 failed=0 total=16
 ```
 
 ## Related samples
 
 | Step | Artifact | Role |
 |------|----------|------|
-| `conformance-c` | `conformance-c.exe` | libc + C23 runtime matrix |
-| `conformance-c23` | `conformance-c23.exe` | single-header smoke |
-| `conformance-cpp23` | `conformance-cpp23.exe` | libc++ smoke |
+| `libc-smoke` | `libc-smoke.exe` | libc + C23 runtime matrix (incl. `<stdbit.h>`) |
+| `libcpp-smoke` | `libcpp-smoke.exe` | libc++ / C++23 smoke |
 
 Upstream stdtests autotools workflow (`configure && make`) can be used separately for host compiler matrices; RXDK integration starts with the manifest and grows runtime recipes here.

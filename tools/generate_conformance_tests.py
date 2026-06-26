@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from conformance_recipes import CONFORMANCE_TESTS  # noqa: E402
 
-OUT = ROOT / "samples" / "conformance" / "c" / "generated_tests.c"
+OUT = ROOT / "samples" / "libc-smoke" / "generated_tests.c"
 HEADER_MANIFEST = ROOT / "vendor" / "stdtests" / "template" / "c_header.txt"
 
 
@@ -41,7 +41,7 @@ def write_generated(tests: list[tuple[str, str, str]]) -> None:
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif
-#include "conformance/minitest.h"
+#include "minitest.h"
 
 typedef struct conformance_test {{
     const char *group;

@@ -10,7 +10,7 @@
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif
-#include "conformance/minitest.h"
+#include "minitest.h"
 
 typedef struct conformance_test {
     const char *group;

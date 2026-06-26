@@ -2,8 +2,8 @@ const std = @import("std");
 
 const xbox_target = @import("build/xbox_target.zig");
 const coff_lib = @import("build/coff_lib.zig");
-const picolibc = @import("build/picolibc.zig");
-const libcxx = @import("build/libcxx.zig");
+const picolibc = @import("libs/libc/build.zig");
+const libcxx = @import("libs/libcpp/build.zig");
 const libxapi_pkg = @import("libs/libxapi/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
@@ -191,22 +191,25 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
 
-    const c23 = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "conformance-c23",
-        .src = "samples/conformance/c23/stdbit_smoke.c",
+    const libc_smoke = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "libc-smoke",
+        .src = "samples/libc-smoke/main.c",
+        .extra_srcs = &.{"samples/libc-smoke/generated_tests.c"},
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
+        .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("shared/picolibc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
     });
-    const c23_step = b.step("conformance-c23", "Build C23 conformance smokes");
-    c23_step.dependOn(c23.install);
+    const libc_smoke_step = b.step("libc-smoke", "Build libc / C23 runtime smoke (kit ISO)");
+    libc_smoke_step.dependOn(libc_smoke.install);
 
-    const cpp23 = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "conformance-cpp23",
-        .src = "samples/conformance/cpp23/expected_smoke.cpp",
+    // libcpp-smoke links the libc objects too (libc++ -> libc): cpp_sample_objects
+    // already bundles picolibc + xbox (libc) alongside the libcxx objects.
+    const libcpp_smoke = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "libcpp-smoke",
+        .src = "samples/libcpp-smoke/main.cpp",
         .is_cpp = true,
         .objects = cpp_sample_objects.items,
         .libs = &.{krnl},
@@ -221,20 +224,6 @@ pub fn build(b: *std.Build) void {
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step },
     });
-    const cpp23_step = b.step("conformance-cpp23", "Build C++23 conformance smokes");
-    cpp23_step.dependOn(cpp23.install);
-
-    const conformance_c = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "conformance-c",
-        .src = "samples/conformance/c/main.c",
-        .extra_srcs = &.{"samples/conformance/c/generated_tests.c"},
-        .objects = sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const conformance_c_step = b.step("conformance-c", "Build C libc/runtime conformance runner (kit ISO)");
-    conformance_c_step.dependOn(conformance_c.install);
+    const libcpp_smoke_step = b.step("libcpp-smoke", "Build libc++ / C++23 runtime smoke (kit ISO)");
+    libcpp_smoke_step.dependOn(libcpp_smoke.install);
 }

@@ -17,7 +17,7 @@ tools/rxdk-managed/win-x64/tools/imagebld.exe
 Convert a sample PE:
 
 ```powershell
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\conformance-c\conformance-c.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\libc-smoke\libc-smoke.exe -XbeDebug -NoLibWarn
 ```
 
 Output defaults to `zig-out/xbe/<sample>.xbe`.

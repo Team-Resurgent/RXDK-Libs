@@ -21,7 +21,7 @@ python tools/generate_xboxkrnl_headers.py
 Link with `prebuilt/xboxkrnl.lib`.
 
 These headers are exercised by being compiled and linked into `libc`, `libxapi`,
-and the `xapi-smoke` / `conformance` samples (all of which link
+and the `xapi-smoke` / `libc-smoke` / `libcpp-smoke` samples (all of which link
 `prebuilt/xboxkrnl.lib`). The standalone full-export probe samples
 (`kernel-api-link` / `-probe`) were retired in the tree cleanup.
 

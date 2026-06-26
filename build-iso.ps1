@@ -13,7 +13,7 @@
 
 .PARAMETER Sample
     Skip the menu and build this sample directly, then exit
-    (xapi-smoke | conformance-c | conformance-c23 | conformance-cpp23).
+    (xapi-smoke | libc-smoke | libcpp-smoke).
 
 .PARAMETER Optimize
     Zig optimize mode. Defaults to Debug (prompts if not given interactively).
@@ -32,7 +32,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'conformance-c', 'conformance-c23', 'conformance-cpp23')]
+    [ValidateSet('xapi-smoke', 'libc-smoke', 'libcpp-smoke')]
     [string]$Sample,
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
     [string]$Optimize,
@@ -49,10 +49,9 @@ if (-not (Test-Path -LiteralPath $compile)) {
 # Buildable sample ISO targets (the samples kept after the tree cleanup).
 # Iso = the artifact filename compile.ps1 produces under zig-out\iso\.
 $samples = @(
-    [pscustomobject]@{ Target = 'xapi-smoke';        Iso = 'xapi-smoke.iso';          Desc = 'xAPI category smoke - 27 tests, kit hardware + HDD' }
-    [pscustomobject]@{ Target = 'conformance-c';     Iso = 'conformance-c.iso';        Desc = 'C libc/runtime conformance runner (kit ISO)' }
-    [pscustomobject]@{ Target = 'conformance-c23';   Iso = 'conformance-c23.iso';   Desc = 'C23 <stdbit.h> conformance smoke' }
-    [pscustomobject]@{ Target = 'conformance-cpp23'; Iso = 'conformance-cpp23.iso'; Desc = 'C++23 std::expected conformance smoke' }
+    [pscustomobject]@{ Target = 'xapi-smoke';   Iso = 'xapi-smoke.iso';   Desc = 'xAPI category smoke - 27 tests, kit hardware + HDD' }
+    [pscustomobject]@{ Target = 'libc-smoke';   Iso = 'libc-smoke.iso';   Desc = 'libc / C23 runtime conformance matrix' }
+    [pscustomobject]@{ Target = 'libcpp-smoke'; Iso = 'libcpp-smoke.iso'; Desc = 'libc++ / C++23 smoke (expected, string_view, iostream)' }
 )
 
 function Select-Sample {

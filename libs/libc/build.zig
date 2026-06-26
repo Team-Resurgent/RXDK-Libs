@@ -1,5 +1,5 @@
 const std = @import("std");
-const compile_c = @import("compile_c.zig");
+const compile_c = @import("../../build/compile_c.zig");
 
 const picolibc_exclude = [_][]const u8{
     "conv_flt.c",
@@ -102,7 +102,7 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     for (libm_sources) |src| {
         try list.append(allocator, src);
     }
-    try list.append(allocator, "src/xbox/posix_stdio_streams.c");
+    try list.append(allocator, "libs/libc/xbox/posix_stdio_streams.c");
 
     return try list.toOwnedSlice(allocator);
 }
@@ -150,7 +150,7 @@ fn includeDirs(_: *std.Build) []const []const u8 {
 
 pub fn addPicolibcObjects(
     b: *std.Build,
-    xbox_target: @TypeOf(@import("xbox_target.zig")),
+    xbox_target: @TypeOf(@import("../../build/xbox_target.zig")),
     opt_flag: []const u8,
 ) !compile_c.CompileBatch {
     const sources = try collectSources(b, b.allocator);
@@ -167,18 +167,18 @@ pub fn addPicolibcObjects(
 
 pub fn addXboxObjects(
     b: *std.Build,
-    xbox_target: @TypeOf(@import("xbox_target.zig")),
+    xbox_target: @TypeOf(@import("../../build/xbox_target.zig")),
     opt_flag: []const u8,
 ) compile_c.CompileBatch {
     const sources = [_][]const u8{
-        "src/xbox/hal.c",
-        "src/xbox/startup.c",
-        "src/xbox/trace.c",
-        "src/xbox/stubs.c",
-        "src/xbox/tls_stub.c",
-        "src/xbox/picolibc_aliases.c",
-        "src/runtime/c23/stdbit.c",
-        "src/xbox/crt0.S",
+        "libs/libc/xbox/hal.c",
+        "libs/libc/xbox/startup.c",
+        "libs/libc/xbox/trace.c",
+        "libs/libc/xbox/stubs.c",
+        "libs/libc/xbox/tls_stub.c",
+        "libs/libc/xbox/picolibc_aliases.c",
+        "libs/libc/c23/stdbit.c",
+        "libs/libc/xbox/crt0.S",
     };
     return compile_c.addBatch(b, .{
         .name = "xbox",
@@ -209,7 +209,7 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         .install_subdir = "include/xboxkrnl",
     });
     const c23 = b.addInstallDirectory(.{
-        .source_dir = b.path("src/runtime/c23"),
+        .source_dir = b.path("libs/libc/c23"),
         .install_dir = .prefix,
         .install_subdir = "include",
     });

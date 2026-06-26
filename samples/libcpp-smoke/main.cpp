@@ -10,7 +10,7 @@ int main(void)
     std::string_view sv = "cpp23";
     if (sv.size() != 5)
         return 2;
-    std::cout << "RXDK-LibsZig conformance-cpp23 OK\n";
+    std::cout << "RXDK-LibsZig libcpp-smoke OK\n";
     for (;;)
         ;
 }

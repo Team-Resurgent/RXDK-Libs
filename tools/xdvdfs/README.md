@@ -11,7 +11,7 @@ Downloads [XDVDFS-TR latest release](https://github.com/Team-Resurgent/XDVDFS-TR
 Pack a sample XBE as `default.xbe` at the XISO root:
 
 ```powershell
-.\scripts\Invoke-XbeIsoBuild.ps1 -InputXbe zig-out\xbe\conformance-c.xbe
+.\scripts\Invoke-XbeIsoBuild.ps1 -InputXbe zig-out\xbe\libc-smoke.xbe
 ```
 
 Output defaults to `zig-out/iso/<sample>.iso`.

@@ -3,8 +3,7 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'conformance-c', 'conformance-c23', 'conformance-cpp23',
-        'xapi-smoke'
+        'libc-smoke', 'libcpp-smoke', 'xapi-smoke'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -114,7 +113,7 @@ function Build-AllSamples {
         [switch]$Iso
     )
     Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Opt
-    foreach ($name in @('conformance-c', 'conformance-c23', 'conformance-cpp23', 'xapi-smoke')) {
+    foreach ($name in @('libc-smoke', 'libcpp-smoke', 'xapi-smoke')) {
         Invoke-ZigBuild -Step @($name) -Opt $Opt
         if ($Xbe) {
             Build-Sample -Target $name -Opt $Opt -Xbe:$Xbe -Iso:$Iso
@@ -123,8 +122,7 @@ function Build-AllSamples {
 }
 
 $singleSampleTargets = @(
-    'conformance-c', 'conformance-c23', 'conformance-cpp23',
-    'xapi-smoke'
+    'libc-smoke', 'libcpp-smoke', 'xapi-smoke'
 )
 
 switch ($Target) {

@@ -17,8 +17,8 @@ int main(void)
     unsigned passed = 0;
     unsigned failed = 0;
 
-    DbgPrint("RXDK-LibsZig: conformance-c start\n");
-    printf("RXDK-LibsZig: conformance-c start\n");
+    DbgPrint("RXDK-LibsZig: libc-smoke start\n");
+    printf("RXDK-LibsZig: libc-smoke start\n");
 
     for (unsigned i = 0; i < total; i++) {
         DbgPrint("RXDK-LibsZig: test %s.%s\n", tests[i].group, tests[i].name);
@@ -28,13 +28,13 @@ int main(void)
         } else {
             failed++;
             DbgPrint(
-                "RXDK-LibsZig: conformance-c FAIL %s.%s line=%d\n",
+                "RXDK-LibsZig: libc-smoke FAIL %s.%s line=%d\n",
                 tests[i].group,
                 tests[i].name,
                 rc
             );
             printf(
-                "RXDK-LibsZig conformance-c FAIL %s.%s line=%d\n",
+                "RXDK-LibsZig libc-smoke FAIL %s.%s line=%d\n",
                 tests[i].group,
                 tests[i].name,
                 rc
@@ -43,13 +43,13 @@ int main(void)
     }
 
     printf(
-        "RXDK-LibsZig conformance-c OK passed=%u failed=%u total=%u\n",
+        "RXDK-LibsZig libc-smoke OK passed=%u failed=%u total=%u\n",
         passed,
         failed,
         total
     );
     DbgPrint(
-        "RXDK-LibsZig conformance-c OK passed=%u failed=%u total=%u\n",
+        "RXDK-LibsZig libc-smoke OK passed=%u failed=%u total=%u\n",
         passed,
         failed,
         total

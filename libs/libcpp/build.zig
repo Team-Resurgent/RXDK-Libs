@@ -1,5 +1,5 @@
 const std = @import("std");
-const compile_c = @import("compile_c.zig");
+const compile_c = @import("../../build/compile_c.zig");
 
 const exclude = [_][]const u8{
     "filesystem",
@@ -98,7 +98,7 @@ fn includeDirs(_: *std.Build) []const []const u8 {
 
 pub fn addLibcxxObjects(
     b: *std.Build,
-    xbox_target: @TypeOf(@import("xbox_target.zig")),
+    xbox_target: @TypeOf(@import("../../build/xbox_target.zig")),
     opt_flag: []const u8,
 ) !compile_c.CompileBatch {
     const sources = try collectLibcxxSources(b, b.allocator);

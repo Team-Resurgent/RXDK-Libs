@@ -28,7 +28,6 @@ pub fn includeDirs() []const []const u8 {
         XAPI ++ "/support/idex",
         XAPI ++ "/support/crypto",
         XAPI ++ "/port",
-        XAPI ++ "/minilib",
         "build/generated",
         XAPI ++ "/internal/shims",
         "shared/picolibc/include",
@@ -180,8 +179,6 @@ pub fn isCoreObjectPath(path: []const u8) bool {
         "libs\\libxapi\\xapi\\uuid\\",
         "libs/libxapi/xapi/port/",
         "libs\\libxapi\\xapi\\port\\",
-        "libs/libxapi/xapi/minilib/",
-        "libs\\libxapi\\xapi\\minilib\\",
     };
     for (prefixes) |prefix| {
         if (std.mem.indexOf(u8, path, prefix) != null) {

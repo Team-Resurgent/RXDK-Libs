@@ -68,4 +68,3 @@ CompileFlags:
     - -Ilibs/libxapi/xapi/support/idex
     - -Ilibs/libxapi/xapi/support/crypto
     - -Ilibs/libxapi/xapi/port
-    - -Ilibs/libxapi/xapi/minilib

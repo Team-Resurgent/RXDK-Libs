@@ -182,6 +182,7 @@ pub fn addPeSample(
     const compile = b.addSystemCommand(&.{
         b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
     });
+    compile.addArg("-march=pentium3"); // Xbox P3: SSE1, no SSE2
     compile.addArgs(&.{ "-c", "-o" });
     compile.addArg(obj_path);
     compile.addArgs(std_flags);
@@ -212,6 +213,7 @@ pub fn addPeSample(
         const extra = b.addSystemCommand(&.{
             b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
         });
+        extra.addArg("-march=pentium3"); // Xbox P3: SSE1, no SSE2
         extra.addArgs(&.{ "-c", "-o" });
         extra.addArg(extra_obj);
         extra.addArgs(std_flags);
@@ -259,6 +261,7 @@ pub fn addPeSample(
         const compile_probe_image_init = b.addSystemCommand(&.{
             b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
         });
+        compile_probe_image_init.addArg("-march=pentium3"); // Xbox P3: SSE1, no SSE2
         compile_probe_image_init.addArgs(&.{ "-c", "-o" });
         compile_probe_image_init.addArg(probe_image_init_obj);
         compile_probe_image_init.addArgs(xbox_target.cFlags(b));
@@ -302,6 +305,7 @@ pub fn addPeSample(
         const compile_image_init = b.addSystemCommand(&.{
             b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
         });
+        compile_image_init.addArg("-march=pentium3"); // Xbox P3: SSE1, no SSE2
         compile_image_init.addArgs(&.{ "-c", "-o" });
         compile_image_init.addArg(image_init_obj);
         compile_image_init.addArgs(xbox_target.cFlags(b));

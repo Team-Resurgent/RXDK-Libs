@@ -136,7 +136,6 @@ fn appendDirSources(
 
 fn includeDirs(_: *std.Build) []const []const u8 {
     return &.{
-        "include",
         "shared/include",
         "build/generated",
         "shared/picolibc/include",
@@ -200,7 +199,7 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     });
     const gen = b.addInstallFile(b.path("build/generated/picolibc.h"), "include/picolibc.h");
     const xbox = b.addInstallDirectory(.{
-        .source_dir = b.path("include/xbox"),
+        .source_dir = b.path("shared/include/xbox"),
         .install_dir = .prefix,
         .install_subdir = "include/xbox",
     });

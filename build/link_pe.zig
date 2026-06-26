@@ -265,7 +265,7 @@ pub fn addPeSample(
         compile_probe_image_init.addArg(opt_flag);
         compile_probe_image_init.addArg("-D_XBOX=1");
         compile_probe_image_init.addArg("-D_WIN32=1");
-        compile_probe_image_init.addArg("-Iinclude");
+        compile_probe_image_init.addArg("-Ishared/include");
         compile_probe_image_init.addArg("-Ibuild/generated");
         compile_probe_image_init.addArg("-include");
         compile_probe_image_init.addArg("build/generated/xbox_image_init_stub.h");
@@ -308,7 +308,7 @@ pub fn addPeSample(
         compile_image_init.addArg(opt_flag);
         compile_image_init.addArg("-D_XBOX=1");
         compile_image_init.addArg("-D_WIN32=1");
-        compile_image_init.addArg("-Iinclude");
+        compile_image_init.addArg("-Ishared/include");
         compile_image_init.addArg("-Ibuild/generated");
         compile_image_init.addArg("-Izig-out/link");
         compile_image_init.addArg("-include");

@@ -29,7 +29,6 @@ pub fn includeDirs() []const []const u8 {
         XAPI ++ "/support/crypto",
         XAPI ++ "/port",
         XAPI ++ "/minilib",
-        "include",
         "build/generated",
         XAPI ++ "/internal/shims",
         "shared/picolibc/include",
@@ -106,11 +105,11 @@ pub fn addAllObjects(
                 const base = includeDirs();
                 var list = std.ArrayListUnmanaged([]const u8).empty;
                 for (base) |dir| {
-                    // uuid compiles against the full XDK SDK headers; place
-                    // include/sdk ahead of shared/include so its windef/winbase
-                    // shadow the slimmed shared copies.
+                    // uuid compiles against the full XDK SDK headers from the
+                    // vendored May-2020 leak; place them ahead of shared/include
+                    // so their windef/winbase shadow the slimmed shared copies.
                     if (std.mem.eql(u8, dir, "shared/include")) {
-                        list.append(b.allocator, "include/sdk") catch @panic("OOM");
+                        list.append(b.allocator, "vendor/xbox_leak_may_2020/xbox_leak_may_2020/xbox trunk/xbox/public/sdk/inc") catch @panic("OOM");
                     }
                     list.append(b.allocator, dir) catch @panic("OOM");
                 }

@@ -91,7 +91,6 @@ fn includeDirs(_: *std.Build) []const []const u8 {
         "vendor/llvm-project/libcxxabi/include",
         "vendor/llvm-project/libcxx/src",
         "build/generated",
-        "include",
         "shared/picolibc/include",
         "shared/picolibc/machine/x86",
     };

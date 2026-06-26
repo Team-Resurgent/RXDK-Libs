@@ -111,155 +111,19 @@ pub fn build(b: *std.Build) void {
     xapi_slices_step.dependOn(xapi_objs.step);
 
     const krnl = b.path("prebuilt/xboxkrnl.lib");
-    const inc = [_]std.Build.LazyPath{
-        b.path("include"),
-        b.path("shared/include"),
-        b.path("build/generated"),
-        b.path("shared/picolibc/include"),
-        b.path("shared/picolibc/machine/x86"),
-    };
-
-    const kernel = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "kernel-smoke",
-        .src = "samples/kernel-smoke/main.c",
-        .libs = &.{krnl},
-        .include_paths = &inc,
-        .entry = "_start",
-        .deps = &.{ verify, &mkdir_samples.step },
-    });
-    const kernel_step = b.step("kernel-smoke", "Build kernel-only smoke PE");
-    kernel_step.dependOn(kernel.install);
 
     var sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
 
-    const kernel_api = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "kernel-api-smoke",
-        .src = "samples/kernel-api-smoke/main.c",
-        .objects = sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &inc,
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const kernel_api_step = b.step("kernel-api-smoke", "Build KeQuerySystemTime + stdio smoke PE");
-    kernel_api_step.dependOn(kernel_api.install);
-
-    const kernel_api_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "kernel-api-link",
-        .src = "samples/kernel-api-link/main.c",
-        .extra_srcs = &.{"samples/kernel-api-link/generated_link.c"},
-        .objects = sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &inc,
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const kernel_api_link_step = b.step("kernel-api-link", "Build link coverage for all xboxkrnl exports");
-    kernel_api_link_step.dependOn(kernel_api_link.install);
-
-    // Kit runtime probe: all non-debug exports in one XBE (see generated_probes_kit.c).
-    const probe_sample = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "kernel-api-probe",
-        .src = "samples/kernel-api-probe/main.c",
-        .extra_srcs = &.{"samples/kernel-api-probe/generated_probes_kit.c"},
-        .objects = sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &inc,
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const kernel_api_probe_step = b.step("kernel-api-probe", "Build full kernel API runtime probe (360 exports, kit ISO)");
-    kernel_api_probe_step.dependOn(probe_sample.install);
-
-    const probe_debug = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "kernel-api-probe-debug",
-        .src = "samples/kernel-api-probe/main.c",
-        .extra_srcs = &.{"samples/kernel-api-probe/generated_probes_debug.c"},
-        .objects = sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &inc,
-        .extra_flags = &.{"-DKERNEL_API_PROBE_DEBUG=1"},
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const kernel_api_probe_debug_step = b.step("kernel-api-probe-debug", "Build DbgLoad/UnLoad + MmDbg* probes (debug kernel / BFM debug BIOS only)");
-    kernel_api_probe_debug_step.dependOn(probe_debug.install);
-    kernel_api_probe_step.dependOn(kernel_api_probe_debug_step);
-
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/xapi/internal"),
-        b.path("include"),
         b.path("build/generated"),
         b.path("shared/picolibc/include"),
         b.path("shared/picolibc/machine/x86"),
     };
-
-    const xapi_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "xapi-link",
-        .src = "samples/xapi-link/main.c",
-        .objects = sample_objects.items,
-        .libs = &.{ libxapi_lib, krnl },
-        .include_paths = &xapi_inc,
-        .extra_flags = &.{},
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const xapi_link_step = b.step("xapi-link", "Build libc + libxapi.lib link smoke PE");
-    xapi_link_step.dependOn(xapi_link.install);
-
-    const xapi_standalone_runtime_sources = [_][]const u8{
-        "src/xbox/crt0.S",
-        "src/xbox/startup.c",
-        "src/xbox/hal.c",
-        "src/xbox/trace.c",
-        "src/xbox/tls_stub.c",
-        "src/xbox/errno.c",
-        "libs/libxapi/xapi/minilib/minilib.c",
-    };
-    const xapi_standalone_inc = [_][]const u8{
-        "include",
-        "shared/include",
-        "build/generated",
-        "shared/picolibc/include",
-        "shared/picolibc/machine/x86",
-        "libs/libxapi/xapi/minilib",
-    };
-    const xapi_standalone_runtime = compile_c.addBatch(b, .{
-        .name = "xapi-standalone-runtime",
-        .target = xbox_target.target_triple,
-        .out_subdir = "xapi-standalone-runtime",
-        .sources = &xapi_standalone_runtime_sources,
-        .flags = xbox_target.cFlags(b),
-        .include_dirs = &xapi_standalone_inc,
-        .opt_flag = opt_flag,
-    });
-    var xapi_standalone_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
-    xapi_standalone_objects.appendSlice(b.allocator, xapi_standalone_runtime.outputs) catch @panic("OOM");
-
-    const xapi_standalone_link = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "xapi-standalone-link",
-        .src = "samples/xapi-standalone-link/main.c",
-        .objects = xapi_standalone_objects.items,
-        .libs = &.{ libxapi_lib, krnl },
-        .include_paths = &xapi_inc,
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libxapi.step, xapi_standalone_runtime.step },
-    });
-    const xapi_standalone_link_step = b.step(
-        "xapi-standalone-link",
-        "Build libxapi.lib link smoke PE without picolibc objects",
-    );
-    xapi_standalone_link_step.dependOn(xapi_standalone_link.install);
 
     const xapi_smoke_extra = [_][]const u8{
         "samples/xapi-smoke/src/xapi_boot.c",
@@ -318,55 +182,21 @@ pub fn build(b: *std.Build) void {
     cpp_sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
     cpp_sample_objects.appendSlice(b.allocator, libcxx_objs.outputs) catch @panic("OOM");
 
-    const hello_c = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "hello-c",
-        .src = "samples/hello-c/main.c",
-        .objects = sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &inc,
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
-    });
-    const hello_c_step = b.step("hello-c", "Build hello-c sample PE");
-    hello_c_step.dependOn(hello_c.install);
-
     const cxx_inc = [_]std.Build.LazyPath{
         b.path("build/generated/libcxx"),
         b.path("shared/libcxx/include"),
         b.path("build/generated"),
-        b.path("include"),
         b.path("shared/include"),
         b.path("shared/picolibc/include"),
         b.path("shared/picolibc/machine/x86"),
     };
-
-    const hello_cpp = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "hello-cpp",
-        .src = "samples/hello-cpp/main.cpp",
-        .is_cpp = true,
-        .objects = cpp_sample_objects.items,
-        .libs = &.{krnl},
-        .include_paths = &cxx_inc,
-        .extra_flags = &.{
-            "-U_WIN32",
-            "-U__MINGW32__",
-            "-include", "picolibc_prereq.h",
-            "-include", "__config_site",
-        },
-        .entry = "start",
-        .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step },
-    });
-    const hello_cpp_step = b.step("hello-cpp", "Build hello-cpp sample PE");
-    hello_cpp_step.dependOn(hello_cpp.install);
 
     const c23 = link_pe.addPeSample(b, target, optimize, xbox_target, .{
         .name = "c23-stdbit-smoke",
         .src = "samples/conformance/c23/stdbit_smoke.c",
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
+        .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
@@ -400,7 +230,7 @@ pub fn build(b: *std.Build) void {
         .extra_srcs = &.{"samples/conformance/c/generated_tests.c"},
         .objects = sample_objects.items,
         .libs = &.{krnl},
-        .include_paths = &.{ b.path("include"), b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
+        .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("src/runtime/c23"), b.path("shared/picolibc/include") },
         .entry = "start",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },

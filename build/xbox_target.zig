@@ -111,7 +111,6 @@ pub fn xapiCppFlags(_: *std.Build) []const []const u8 {
 }
 
 pub fn addIncludeTree(mod: *std.Build.Module, b: *std.Build) void {
-    mod.addIncludePath(b.path("include"));
     mod.addIncludePath(b.path("build/generated"));
     mod.addIncludePath(b.path("shared/picolibc/include"));
     mod.addIncludePath(b.path("shared/picolibc/machine/x86"));

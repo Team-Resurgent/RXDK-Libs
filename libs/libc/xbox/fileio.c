@@ -236,44 +236,55 @@ int close(int fd)
     return 0;
 }
 
-static void fill_stat(struct stat *st, HANDLE h)
+static void set_stat(struct stat *st, long long size, unsigned long attrs)
 {
-    FILE_STANDARD_INFORMATION info;
-    IO_STATUS_BLOCK iosb;
-    NTSTATUS s;
-
     for (size_t i = 0; i < sizeof(*st); ++i)
         ((char *)st)[i] = 0;
-
-    s = NtQueryInformationFile(h, &iosb, &info, sizeof(info),
-                               FileStandardInformation);
-    if (NT_SUCCESS(s)) {
-        st->st_size = (off_t)info.EndOfFile.QuadPart;
-        st->st_mode = info.Directory ? S_IFDIR : S_IFREG;
-    } else {
-        st->st_mode = S_IFREG;
-    }
+    st->st_size = (off_t)size;
+    st->st_mode = (attrs & FILE_ATTRIBUTE_DIRECTORY) ? S_IFDIR : S_IFREG;
 }
 
 int fstat(int fd, struct stat *st)
 {
     rxdk_fd *e = get_fd(fd);
+    FILE_STANDARD_INFORMATION sinfo;
+    FILE_BASIC_INFORMATION binfo;
+    IO_STATUS_BLOCK iosb;
+    long long size = 0;
+    unsigned long attrs = 0;
+
     if (!e || !st) { errno = EBADF; return -1; }
-    fill_stat(st, e->handle);
+
+    if (NT_SUCCESS(NtQueryInformationFile(e->handle, &iosb, &sinfo,
+                                          sizeof(sinfo), FileStandardInformation)))
+        size = (long long)sinfo.EndOfFile.QuadPart;
+    if (NT_SUCCESS(NtQueryInformationFile(e->handle, &iosb, &binfo,
+                                          sizeof(binfo), FileBasicInformation)))
+        attrs = binfo.FileAttributes;
+
+    set_stat(st, size, attrs);
     return 0;
 }
 
 int stat(const char *path, struct stat *st)
 {
-    HANDLE h;
+    OBJECT_STRING name;
+    OBJECT_ATTRIBUTES obja;
+    FILE_NETWORK_OPEN_INFORMATION info;
     NTSTATUS s;
 
     if (!st) { errno = EINVAL; return -1; }
-    /* No NON_DIRECTORY flag so directories resolve too. */
-    s = nt_open(path, NT_GENERIC_READ, NT_FILE_OPEN, 0, &h);
+
+    /* Path-based query (no handle): returns size + attributes in one call and
+       reports FILE_ATTRIBUTE_DIRECTORY reliably on FATX, unlike the Directory
+       field of FILE_STANDARD_INFORMATION. Mirrors libxapi's GetFileAttributes. */
+    RtlInitAnsiString(&name, path);
+    InitializeObjectAttributes(&obja, &name, OBJ_CASE_INSENSITIVE,
+                               ObDosDevicesDirectory(), NULL);
+    s = NtQueryFullAttributesFile(&obja, &info);
     if (!NT_SUCCESS(s)) { errno = ENOENT; return -1; }
-    fill_stat(st, h);
-    NtClose(h);
+
+    set_stat(st, (long long)info.EndOfFile.QuadPart, info.FileAttributes);
     return 0;
 }
 

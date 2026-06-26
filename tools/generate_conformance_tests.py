@@ -67,6 +67,7 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <stdckdint.h>
 #include <uchar.h>
 #include <wctype.h>
+#include <xbox/libc_hooks.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif

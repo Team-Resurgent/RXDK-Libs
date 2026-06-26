@@ -31,6 +31,7 @@
 #include <stdckdint.h>
 #include <uchar.h>
 #include <wctype.h>
+#include <xbox/libc_hooks.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif
@@ -117,6 +118,42 @@ static int id_worker(void *arg)
         return 2;
     g_ids[idx] = self;
     return 0;
+}
+static int g_pfd[2];
+static int pipe_writer(void *arg)
+{
+    struct timespec d = { 0, 50000000 }; /* 50ms */
+    (void)arg;
+    thrd_sleep(&d, NULL);
+    write(g_pfd[1], "async", 5);
+    return 0;
+}
+static ssize_t hk_stdin(void *buf, size_t count)
+{
+    const char *s = "hello";
+    size_t n = count < 5 ? count : 5;
+    memcpy(buf, s, n);
+    return (ssize_t)n;
+}
+
+static int g_hk_out_fd;
+static size_t g_hk_out_n;
+static char g_hk_out_buf[16];
+
+static ssize_t hk_out(int fd, const void *buf, size_t count)
+{
+    g_hk_out_fd = fd;
+    g_hk_out_n = count < sizeof(g_hk_out_buf) ? count : sizeof(g_hk_out_buf);
+    memcpy(g_hk_out_buf, buf, g_hk_out_n);
+    return (ssize_t)count;
+}
+
+static int hk_exec(const char *p, char *const a[], char *const e[])
+{
+    (void)p;
+    (void)a;
+    (void)e;
+    return 4242; /* sentinel: handler invoked */
 }
 
 static int test_string_strlen(void)
@@ -612,6 +649,93 @@ struct tms tb;
     return 0;
 }
 
+static int test_posix_pipe(void)
+{
+int fd[2];
+    char b[8];
+    RXDK_TEST_EQ(pipe(fd), 0);
+    RXDK_TEST_EQ((int)write(fd[1], "hello", 5), 5);
+    RXDK_TEST_EQ((int)read(fd[0], b, 5), 5);
+    b[5] = '\0';
+    RXDK_TEST_STR_EQ(b, "hello");
+    close(fd[1]);                          /* writer closed */
+    RXDK_TEST_EQ((int)read(fd[0], b, 5), 0); /* -> EOF */
+    close(fd[0]);
+    return 0;
+}
+
+static int test_posix_pipe_blocking(void)
+{
+/* reader blocks until a second thread writes (exercises pipe wakeups) */
+    thrd_t t;
+    char b[8];
+    ssize_t n;
+    RXDK_TEST_EQ(pipe(g_pfd), 0);
+    RXDK_TEST_EQ(thrd_create(&t, pipe_writer, NULL), thrd_success);
+    n = read(g_pfd[0], b, 5);
+    RXDK_TEST_EQ((int)n, 5);
+    b[5] = '\0';
+    RXDK_TEST_STR_EQ(b, "async");
+    thrd_join(t, NULL);
+    close(g_pfd[0]);
+    close(g_pfd[1]);
+    return 0;
+}
+
+static int test_posix_dup2(void)
+{
+int fd[2];
+    char b[8];
+    RXDK_TEST_EQ(pipe(fd), 0);
+    RXDK_TEST_EQ(dup2(fd[0], 20), 20);     /* alias read end onto fd 20 */
+    RXDK_TEST_EQ((int)write(fd[1], "xy", 2), 2);
+    RXDK_TEST_EQ((int)read(20, b, 2), 2);
+    b[2] = '\0';
+    RXDK_TEST_STR_EQ(b, "xy");
+    close(fd[0]);                          /* original closed; dup survives */
+    RXDK_TEST_EQ((int)write(fd[1], "z", 1), 1);
+    RXDK_TEST_EQ((int)read(20, b, 1), 1);
+    RXDK_TEST_EQ(b[0], 'z');
+    close(20);
+    close(fd[1]);
+    RXDK_TEST_EQ(dup2(1, 2), 2);           /* console alias is a no-op */
+    return 0;
+}
+
+static int test_rxdk_io_hooks(void)
+{
+char b[8];
+    ssize_t sn, en;
+    int er;
+
+    /* stdin handler: read(0) routes to it; unset -> EOF */
+    rxdk_set_stdin_handler(hk_stdin);
+    sn = read(0, b, 5);
+    rxdk_set_stdin_handler(NULL);
+    RXDK_TEST_EQ((int)sn, 5);
+    b[5] = '\0';
+    RXDK_TEST_STR_EQ(b, "hello");
+    en = read(0, b, 5);
+    RXDK_TEST_EQ((int)en, 0);
+
+    /* output handler: write(2) routes with the stderr fd flag */
+    g_hk_out_fd = -1;
+    g_hk_out_n = 0;
+    rxdk_set_output_handler(hk_out);
+    write(2, "err", 3);
+    rxdk_set_output_handler(NULL);
+    RXDK_TEST_EQ(g_hk_out_fd, 2);
+    RXDK_TEST_EQ((int)g_hk_out_n, 3);
+    RXDK_TEST_EQ(g_hk_out_buf[0], 'e');
+
+    /* exec handler: execve routes to it */
+    rxdk_set_exec_handler(hk_exec);
+    er = execve("d:\\x.xbe", NULL, NULL);
+    rxdk_set_exec_handler(NULL);
+    RXDK_TEST_EQ(er, 4242);
+    return 0;
+}
+
 static int test_c23_stdckdint(void)
 {
 int r;
@@ -731,6 +855,10 @@ static const conformance_test tests[] = {
     { "posix", "regex", test_posix_regex },
     { "posix", "getentropy", test_posix_getentropy },
     { "posix", "times", test_posix_times },
+    { "posix", "pipe", test_posix_pipe },
+    { "posix", "pipe_blocking", test_posix_pipe_blocking },
+    { "posix", "dup2", test_posix_dup2 },
+    { "rxdk", "io_hooks", test_rxdk_io_hooks },
     { "c23", "stdckdint", test_c23_stdckdint },
     { "c23", "stdbool", test_c23_stdbool },
     { "c23", "stdalign", test_c23_stdalign },

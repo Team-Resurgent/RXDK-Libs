@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "xbox/kernel.h"
+#include "xbox/libc_hooks.h"
 
 typedef unsigned long sigset_t;
 
@@ -64,14 +65,7 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
 
 /* stat/fstat live in fileio.c (kernel-backed). */
 /* regcomp/regexec/regerror/regfree are picolibc's POSIX regex (libc/posix/). */
-/* open() lives in fileio.c (kernel-backed). */
-
-int pipe(int fildes[2])
-{
-    (void)fildes;
-    errno = ENOSYS;
-    return -1;
-}
+/* open/pipe/dup2 live in fileio.c (fd table). */
 
 int fork(void)
 {
@@ -79,16 +73,16 @@ int fork(void)
     return -1;
 }
 
-int dup2(int oldfd, int newfd)
-{
-    (void)oldfd;
-    (void)newfd;
-    errno = ENOSYS;
-    return -1;
-}
-
+/*
+ * execve replaces the running image. On Xbox that means launching another XBE
+ * (a reboot), which is policy libc can't own without depending on xapi. If the
+ * app registers an exec handler (e.g. wrapping XLaunchNewImage), route to it;
+ * otherwise it is unsupported.
+ */
 int execve(const char *path, char *const argv[], char *const envp[])
 {
+    if (__rxdk_exec_hook)
+        return __rxdk_exec_hook(path, argv, envp);
     (void)path;
     (void)argv;
     (void)envp;

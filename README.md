@@ -1,13 +1,13 @@
 # RXDK-LibsZig
 
-Zig-only Xbox C/C++ runtime for original Xbox devkits — **picolibc** + **LLVM libc++**, ISO C23 / C++23.
+Zig-only Xbox C/C++ runtime + clean-room xAPI for original Xbox devkits — **picolibc** + **LLVM libc++** + **libxapi**, ISO C23 / C++23.
 
-No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. Host deploy tools (`imagebld`, neighborhood, etc.) live in [RXDK-Libs](https://github.com/Team-Resurgent/RXDK-Libs) and may stay MSBuild-based.
+No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. Host deploy tools (`imagebld`, `xdvdfs`, neighborhood, etc.) live under `tools/` and may stay MSBuild-based.
 
 ## Prerequisites
 
 - [Zig](https://ziglang.org/) **0.16+** (tested with 0.16.0)
-- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`), `vendor/xbox_leak_may_2020` (export ordinals reference only)
+- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`), `vendor/xbox_leak_may_2020` (XDK SDK headers for the uuid slice + kernel export ordinals)
 
 ```powershell
 .\scripts\init-submodules.ps1
@@ -24,36 +24,42 @@ git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
 ## Layout
 
 ```
-build.zig / build/       Zig build graph (only orchestration)
-src/xbox/                Xbox HAL, crt0, kernel glue (first-party)
-src/runtime/c23/         Small C23 gap-fill (e.g. stdbit)
-vendor/picolibc/         C library sources (submodule)
-vendor/llvm-project/     libc++ / libcxxabi sources (submodule, sparse)
-prebuilt/xboxkrnl.lib    Only committed prebuilt (kernel import lib)
-include/xboxkrnl/         Shipped kernel headers (xboxkrnl.h umbrella + api/*.h)
-vendor/xbox_leak_may_2020/ Reference submodule for header generation only
-zig-out/lib/             libxboxc.lib, libxboxcxx.lib
-zig-out/include/         Staged C/C++ headers (after `zig build`)
-samples/                 PE smokes linked with zig cc + lld
+build.zig / build/         Zig build graph (orchestration + generated headers)
+shared/include/            Public distributed headers (xt.h umbrella, xapi.h, xbox.h,
+                           xkbd.h, windef/winbase, xboxkrnl/, xbox/)
+shared/picolibc/           picolibc C headers (headers-only distribution)
+shared/libcxx/             LLVM libc++ headers (headers-only distribution)
+libs/libxapi/              Clean-room xAPI port (→ libxapi.lib)
+src/xbox/                  Xbox HAL, crt0, kernel glue (first-party runtime → libc)
+src/runtime/c23/           Small C23 gap-fill (stdbit)
+vendor/picolibc/           picolibc C library sources (submodule)
+vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
+vendor/xbox_leak_may_2020/ XDK SDK headers (uuid) + kernel export reference (submodule)
+prebuilt/xboxkrnl.lib      Only committed prebuilt (kernel import lib)
+zig-out/lib/               libc.lib, libcpp.lib, libxapi.lib, libxapi_core.lib
+zig-out/include/           Staged C / C++ / xAPI headers (after `zig build`)
+samples/                   xapi-smoke + conformance PE smokes
+build-iso.ps1              Interactive menu: pick a sample and build its ISO
 ```
 
 ## Build
 
 ```powershell
 cd D:\Git\RXDK-LibsZig
-.\scripts\compile.ps1                  # libs + all samples (default)
-.\scripts\compile.ps1 -Target libs     # libxboxc.lib, libxboxcxx.lib, headers only
-.\scripts\compile.ps1 -Target hello-c  # single sample
-.\scripts\compile.ps1 -Xbe             # also PE → XBE via RXDK-Tools imagebld
-.\scripts\compile.ps1 -Iso             # PE → XBE → XISO (default.xbe at root)
+.\build-iso.ps1                                # interactive menu → sample ISO
+.\scripts\compile.ps1                          # libs + all samples (default)
+.\scripts\compile.ps1 -Target libs            # libc/libcpp/libxapi + headers only
+.\scripts\compile.ps1 -Target xapi-smoke      # single sample
+.\scripts\compile.ps1 -Target xapi-smoke -Iso # PE → XBE → XISO (default.xbe at root)
 ```
 
 Or invoke `zig build` directly:
 
 ```powershell
 zig build verify-no-vs    # assert build/*.zig never invokes MSVC toolchain
-zig build                 # libs + headers + kernel-smoke + hello-c
-zig build hello-cpp       # iostream sample
+zig build                 # libs + staged headers
+zig build libxapi         # libxapi.lib only
+zig build xapi-smoke      # 27-test xAPI smoke PE
 zig build conformance-c
 zig build conformance-c23
 zig build conformance-cpp23
@@ -63,31 +69,33 @@ zig build conformance-cpp23
 
 | Output | Contents |
 |--------|----------|
-| `zig-out/lib/libxboxc.lib` | picolibc + minimal libm + `src/xbox/*` |
-| `zig-out/lib/libxboxcxx.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
-| `zig-out/include/` | picolibc + `include/xbox/` + `include/xboxkrnl/` + `c++/v1/` |
+| `zig-out/lib/libc.lib` | picolibc + minimal libm + `src/xbox/*` runtime |
+| `zig-out/lib/libcpp.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
+| `zig-out/lib/libxapi.lib` | Clean-room xAPI (k32 + dll + rtl + uuid + USB) |
+| `zig-out/lib/libxapi_core.lib` | xAPI without the USB stack (k32 + dll + rtl + uuid) |
+| `zig-out/include/` | picolibc + `xbox/` + `xboxkrnl/` + `c++/v1/` + `xt.h`/`xapi.h`/`xbox.h`/`xkbd.h` |
 
-Samples link via direct object response files (`zig-out/link/*.rsp`) because COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`. External consumers can link `libxboxc.lib` / `libxboxcxx.lib` or mirror the object-rsp pattern.
+Library layering is strictly one-way — `libxapi → libc → xboxkrnl` and `libcpp → libc` — so a C-only title can link `libc.lib` + `xboxkrnl.lib` without dragging in xAPI or libc++.
+
+Samples link via direct object response files (`zig-out/link/*.rsp`) because COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`. External consumers can link the staged `.lib`s or mirror the object-rsp pattern.
 
 ### Target
 
 - Triple: `x86-windows-gnu`
 - C23 / C++23 (`-std=c23` / `-std=c++23`)
 - Entry: `_start` from `src/xbox/crt0.S` (link with `-e start`)
-- Debug output: `write` → `DbgPrint` (direct kernel import via `include/xboxkrnl/`)
+- Debug output: `write` → `DbgPrint` (direct kernel import via `shared/include/xboxkrnl/`)
 
 ## Samples
 
 | Step | PE | Notes |
 |------|-----|-------|
-| `kernel-smoke` | `zig-out/samples/kernel-smoke/kernel-smoke.exe` | `DbgPrint` only; `xboxkrnl.lib` |
-| `hello-c` | `zig-out/samples/hello-c/hello-c.exe` | `printf` via picolibc |
-| `hello-cpp` | `zig-out/samples/hello-cpp/hello-cpp.exe` | `std::cout` via libc++ |
-| `conformance-c` | `conformance-c.exe` | libc/C23 runtime matrix (16 tests, see `docs/conformance.md`) |
-| `conformance-c23` | `c23-stdbit-smoke.exe` | `<stdbit.h>` smoke |
-| `conformance-cpp23` | `cpp23-expected-smoke.exe` | `<expected>`, `<string_view>` |
+| `xapi-smoke` | `zig-out/samples/xapi-smoke/xapi-smoke.exe` | 27 xAPI category tests (kit hardware + HDD) |
+| `conformance-c` | `zig-out/samples/conformance-c/conformance-c.exe` | libc / C23 runtime matrix (see `docs/conformance.md`) |
+| `conformance-c23` | `zig-out/samples/conformance-c23/conformance-c23.exe` | `<stdbit.h>` smoke |
+| `conformance-cpp23` | `zig-out/samples/conformance-cpp23/conformance-cpp23.exe` | `<expected>`, `<string_view>` |
 
-Kit validation and XBE packaging: see [docs/kit-runbook.md](docs/kit-runbook.md).
+Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build-iso.ps1`](build-iso.ps1).
 
 ## Design notes
 

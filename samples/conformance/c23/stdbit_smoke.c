@@ -8,7 +8,7 @@ int main(void)
     unsigned x = 0x80000000u;
     assert(stdc_leading_zeros(x) == 0);
 #endif
-    printf("RXDK-LibsZig c23-stdbit-smoke OK\n");
+    printf("RXDK-LibsZig conformance-c23 OK\n");
     for (;;)
         ;
 }

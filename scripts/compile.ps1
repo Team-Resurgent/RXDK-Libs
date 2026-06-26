@@ -3,12 +3,8 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'kernel-smoke', 'kernel-api-smoke', 'kernel-api-link',
-        'kernel-api-probe', 'kernel-api-probe-debug',
-        'hello-c', 'hello-cpp',
         'conformance-c', 'conformance-c23', 'conformance-cpp23',
-        'c23-stdbit-smoke', 'cpp23-expected-smoke',
-        'xapi-smoke', 'xapi-link', 'xapi-standalone-link'
+        'xapi-smoke'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -93,17 +89,6 @@ if (-not $SkipSubmoduleCheck) {
     Require-Submodules -RepoRoot $Root
 }
 
-function Resolve-Sample {
-    param([string]$Target)
-    switch ($Target) {
-        'conformance-c23' { return @{ BuildStep = 'conformance-c23'; Artifact = 'c23-stdbit-smoke' } }
-        'c23-stdbit-smoke' { return @{ BuildStep = 'conformance-c23'; Artifact = 'c23-stdbit-smoke' } }
-        'conformance-cpp23' { return @{ BuildStep = 'conformance-cpp23'; Artifact = 'cpp23-expected-smoke' } }
-        'cpp23-expected-smoke' { return @{ BuildStep = 'conformance-cpp23'; Artifact = 'cpp23-expected-smoke' } }
-        default { return @{ BuildStep = $Target; Artifact = $Target } }
-    }
-}
-
 function Build-Sample {
     param(
         [string]$Target,
@@ -113,29 +98,12 @@ function Build-Sample {
         [switch]$NoHdd,
         [switch]$FormatHdd
     )
-    if ($Iso -and $Target -eq 'kernel-api-link') {
-        throw @"
-kernel-api-link is a host-only link test (367 xboxkrnl imports) — do not deploy to kit.
-Use: .\scripts\compile.ps1 -Target kernel-api-probe -Iso
-"@
-    }
-    if ($Iso -and $Target -eq 'xapi-link') {
-        throw @"
-xapi-link is a host-only link smoke — do not deploy to kit.
-Use: .\scripts\compile.ps1 -Target xapi-smoke -Iso
-"@
-    }
-    $sample = Resolve-Sample -Target $Target
-    Invoke-ZigBuild -Step @('verify-no-vs', $sample.BuildStep) -Opt $Opt
+    # Build step, artifact, and PE name are all $Target now.
+    Invoke-ZigBuild -Step @('verify-no-vs', $Target) -Opt $Opt
     if ($Xbe) {
-        $maxThunks = 0
-        $stackSize = 65536
-        if ($sample.Artifact -eq 'kernel-api-probe' -or $sample.Artifact -eq 'kernel-api-probe-debug') {
-            $stackSize = 1048576
-        }
-        $mountHdd = ($sample.Artifact -eq 'xapi-smoke') -and -not $NoHdd
-        $formatHdd = $mountHdd -and (($sample.Artifact -eq 'xapi-smoke' -and $Iso) -or $FormatHdd)
-        Convert-SampleXbe -SampleName $sample.Artifact -Iso:$Iso -MountHdd:$mountHdd -FormatHdd:$formatHdd -MaxImportThunks $maxThunks -StackSize $stackSize
+        $mountHdd = ($Target -eq 'xapi-smoke') -and -not $NoHdd
+        $formatHdd = $mountHdd -and (($Target -eq 'xapi-smoke' -and $Iso) -or $FormatHdd)
+        Convert-SampleXbe -SampleName $Target -Iso:$Iso -MountHdd:$mountHdd -FormatHdd:$formatHdd
     }
 }
 
@@ -146,9 +114,8 @@ function Build-AllSamples {
         [switch]$Iso
     )
     Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Opt
-    foreach ($name in @('kernel-smoke', 'kernel-api-smoke', 'kernel-api-link', 'kernel-api-probe', 'kernel-api-probe-debug', 'hello-c', 'hello-cpp', 'conformance-c', 'c23-stdbit-smoke', 'cpp23-expected-smoke')) {
-        $sample = Resolve-Sample -Target $name
-        Invoke-ZigBuild -Step @($sample.BuildStep) -Opt $Opt
+    foreach ($name in @('conformance-c', 'conformance-c23', 'conformance-cpp23', 'xapi-smoke')) {
+        Invoke-ZigBuild -Step @($name) -Opt $Opt
         if ($Xbe) {
             Build-Sample -Target $name -Opt $Opt -Xbe:$Xbe -Iso:$Iso
         }
@@ -156,12 +123,8 @@ function Build-AllSamples {
 }
 
 $singleSampleTargets = @(
-    'kernel-smoke', 'kernel-api-smoke', 'kernel-api-link',
-    'kernel-api-probe', 'kernel-api-probe-debug',
-    'hello-c', 'hello-cpp',
     'conformance-c', 'conformance-c23', 'conformance-cpp23',
-    'c23-stdbit-smoke', 'cpp23-expected-smoke',
-    'xapi-smoke', 'xapi-link', 'xapi-standalone-link'
+    'xapi-smoke'
 )
 
 switch ($Target) {

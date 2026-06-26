@@ -36,7 +36,7 @@ RXDK-LibsZig conformance-c OK passed=16 failed=0 total=16
 | Step | Artifact | Role |
 |------|----------|------|
 | `conformance-c` | `conformance-c.exe` | libc + C23 runtime matrix |
-| `conformance-c23` | `c23-stdbit-smoke.exe` | single-header smoke |
-| `conformance-cpp23` | `cpp23-expected-smoke.exe` | libc++ smoke |
+| `conformance-c23` | `conformance-c23.exe` | single-header smoke |
+| `conformance-cpp23` | `conformance-cpp23.exe` | libc++ smoke |
 
 Upstream stdtests autotools workflow (`configure && make`) can be used separately for host compiler matrices; RXDK integration starts with the manifest and grows runtime recipes here.

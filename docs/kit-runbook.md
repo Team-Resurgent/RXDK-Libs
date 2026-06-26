@@ -1,18 +1,21 @@
 # Kit runbook — RXDK-LibsZig samples
 
-Build PEs in this repo with **`zig build`** only. Deploying to a devkit uses **external** MSBuild/host tools from RXDK-Libs.
+Build PEs in this repo with **`zig build`** only. Deploying to a devkit uses **external** host tools (`imagebld`, `xdvdfs`) under `tools/`.
+
+The fastest path is the root menu:
+
+```powershell
+.\build-iso.ps1            # pick a sample, build PE → XBE → ISO
+```
+
+The rest of this doc is the manual pipeline behind that menu.
 
 ## 1. Build PEs
 
 ```powershell
 cd D:\Git\RXDK-LibsZig
 zig build verify-no-vs
-zig build kernel-smoke
-zig build kernel-api-smoke
-zig build kernel-api-link
-zig build kernel-api-probe
-zig build hello-c
-zig build hello-cpp
+zig build xapi-smoke
 zig build conformance-c
 zig build conformance-c23
 zig build conformance-cpp23
@@ -26,25 +29,19 @@ Host header matrix (stdtests manifest, compile-only):
 
 See `docs/conformance.md` for adding runtime tests.
 
-`compile.ps1` accepts either the zig step name or the artifact folder name:
+Build step name == artifact folder == PE name for every sample:
 
 ```powershell
 .\scripts\compile.ps1 -Target conformance-c23 -Iso
-.\scripts\compile.ps1 -Target c23-stdbit-smoke -Iso
 ```
 
 Artifacts:
 
 ```
-zig-out/samples/kernel-smoke/kernel-smoke.exe
-zig-out/samples/kernel-api-smoke/kernel-api-smoke.exe
-zig-out/samples/kernel-api-link/kernel-api-link.exe
-zig-out/samples/kernel-api-probe/kernel-api-probe.exe
-zig-out/samples/hello-c/hello-c.exe
-zig-out/samples/hello-cpp/hello-cpp.exe
+zig-out/samples/xapi-smoke/xapi-smoke.exe
 zig-out/samples/conformance-c/conformance-c.exe
-zig-out/samples/c23-stdbit-smoke/c23-stdbit-smoke.exe
-zig-out/samples/cpp23-expected-smoke/cpp23-expected-smoke.exe
+zig-out/samples/conformance-c23/conformance-c23.exe
+zig-out/samples/conformance-cpp23/conformance-cpp23.exe
 ```
 
 ## 2. Install RXDK-Tools (`imagebld`)
@@ -61,24 +58,20 @@ This unpacks to `tools/rxdk-managed/win-x64/tools/imagebld.exe` (and `xbox-launc
 ## 3. Post-link — PE → XBE
 
 ```powershell
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-smoke\kernel-smoke.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-smoke\kernel-api-smoke.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-link\kernel-api-link.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\kernel-api-probe\kernel-api-probe.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-c\hello-c.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\hello-cpp\hello-cpp.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\c23-stdbit-smoke\c23-stdbit-smoke.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\cpp23-expected-smoke\cpp23-expected-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\xapi-smoke\xapi-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\conformance-c\conformance-c.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\conformance-c23\conformance-c23.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\conformance-cpp23\conformance-cpp23.exe -XbeDebug -NoLibWarn
 ```
 
-Or call `imagebld` directly (after `.\scripts\Patch-PeXbox.ps1 -Path zig-out\samples\hello-c\hello-c.exe`):
+Or call `imagebld` directly (after `.\scripts\Patch-PeXbox.ps1 -Path zig-out\samples\conformance-c\conformance-c.exe`):
 
 ```powershell
 $ib = tools\rxdk-managed\win-x64\tools\imagebld.exe
-& $ib /in:zig-out\samples\hello-c\hello-c.exe /out:zig-out\xbe\hello-c.xbe /nologo /stack:1048576 /debug /nolibwarn /INITFLAGS:0 /DONTMOUNTUD /DONTMODIFYHD
+& $ib /in:zig-out\samples\conformance-c\conformance-c.exe /out:zig-out\xbe\conformance-c.xbe /nologo /stack:65536 /debug /nolibwarn /INITFLAGS:24 /DONTMOUNTUD /DONTMODIFYHD
 ```
 
-Verified locally (build-70): `kernel-smoke.exe` → `kernel-smoke.xbe` (24 KB), `hello-c.exe` → `hello-c.xbe` (528 KB).
+`xapi-smoke` targets the HDD utility drive — `compile.ps1 -Target xapi-smoke -Iso` mounts and formats it by default (`-NoHdd` for a plain boot disc).
 
 ## 4. XBE → XISO (`default.xbe`)
 
@@ -91,21 +84,21 @@ Install [XDVDFS-TR](https://github.com/Team-Resurgent/XDVDFS-TR/releases/latest)
 Pack an XBE with `default.xbe` at the image root (required for Xbox boot from disc image):
 
 ```powershell
-.\scripts\Invoke-XbeIsoBuild.ps1 -InputXbe zig-out\xbe\hello-c.xbe
+.\scripts\Invoke-XbeIsoBuild.ps1 -InputXbe zig-out\xbe\conformance-c.xbe
 ```
 
 Or build PE, XBE, and ISO in one step:
 
 ```powershell
-.\scripts\compile.ps1 -Target hello-c -Iso
+.\scripts\compile.ps1 -Target conformance-c -Iso
 ```
 
-Output: `zig-out/iso/hello-c.iso` containing `/default.xbe`.
+Output: `zig-out/iso/conformance-c.iso` containing `/default.xbe`.
 
 Verify contents:
 
 ```powershell
-tools\xdvdfs\win-x64\xdvdfs.exe tree zig-out\iso\hello-c.iso
+tools\xdvdfs\win-x64\xdvdfs.exe tree zig-out\iso\conformance-c.iso
 ```
 
 ## 5. Deploy to devkit
@@ -116,17 +109,12 @@ Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — ou
 
 | Sample | Expected `DbgPrint` / debug console line |
 |--------|----------------------------------------|
-| kernel-smoke | `RXDK-LibsZig kernel-smoke OK` |
-| kernel-api-smoke | `RXDK-LibsZig kernel-api-smoke OK` |
-| kernel-api-link | Host link test only — **not for kit** (367 imports). `zig build kernel-api-link` on PC. |
-| kernel-api-probe | `kernel-api-probe OK passed=360 …` — **360** retail-safe semantic probes (1 MiB stack) |
-| kernel-api-probe-debug | `debug OK passed=7 …` — DbgLoad/UnLoad + `MmDbg*` (debug BIOS) |
-| hello-c | `RXDK-LibsZig hello-c OK` |
-| hello-cpp | `RXDK-LibsZig hello-cpp OK` |
-| c23-stdbit-smoke | `RXDK-LibsZig c23-stdbit-smoke OK` |
-| cpp23-expected-smoke | `RXDK-LibsZig cpp23-expected-smoke OK` |
+| xapi-smoke | `passed=27` then `all runnable tests passed` |
+| conformance-c | `RXDK-LibsZig conformance-c OK passed=N failed=0 total=N` |
+| conformance-c23 | `RXDK-LibsZig conformance-c23 OK` |
+| conformance-cpp23 | `RXDK-LibsZig conformance-cpp23 OK` |
 
-`hello-c` / `hello-cpp` route stdio through `write` → `DbgPrint` (direct kernel import).
+Samples route stdio through `write` → `DbgPrint` (direct kernel import).
 
 ## 7. Troubleshooting
 
@@ -138,20 +126,6 @@ Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — ou
 | Link undefined `_write` | HAL must export `write`, not `_write` |
 | Huge PE / many undefined at link | Use object `.rsp` from `zig-out/link/` (same as build graph) |
 
-## 8. Kernel API coverage
-
-Two samples exercise the generated headers against `prebuilt/xboxkrnl.lib`:
-
-1. **`kernel-api-link`** — references every export at link time on the **host PC** only (367 IAT slots; kit loader may reject this XBE). Catches header/lib mismatches before kit deploy.
-2. **`kernel-api-probe`** — **360** semantic runtime probes (all exports except debug-only). **`kernel-api-probe-debug`** — remaining **7** (DbgLoad/UnLoad + `MmDbg*`, debug BIOS only).
-
-```powershell
-python tools/generate_kernel_api_tests.py
-zig build kernel-api-probe
-.\scripts\compile.ps1 -Target kernel-api-probe -Iso
-.\scripts\compile.ps1 -Target kernel-api-probe-debug -Iso    # debug BIOS only
-```
-
-## 9. CI / non-Windows hosts
+## 8. CI / non-Windows hosts
 
 `zig build` is designed to run on Linux/macOS/Windows with only Zig installed. Kit deploy steps require Windows host tools and hardware.

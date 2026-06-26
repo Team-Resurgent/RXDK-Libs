@@ -16,20 +16,14 @@ Regenerate:
 
 ```powershell
 python tools/generate_xboxkrnl_headers.py
-python tools/generate_kernel_api_tests.py   # after header regen
 ```
 
 Link with `prebuilt/xboxkrnl.lib`.
 
-## API testing
-
-| Sample | What it validates |
-|--------|-------------------|
-| `kernel-api-link` | All **367** exports (333 functions + 34 data) resolve at link time |
-| `kernel-api-probe` | **360** semantic runtime probes (all non-debug exports) |
-| `kernel-api-probe-debug` | **7** DbgLoad/UnLoad + `MmDbg*` (debug BIOS) |
-
-Build: `zig build kernel-api-probe`. Kit ISO: `.\scripts\compile.ps1 -Target kernel-api-probe -Iso`.
+These headers are exercised by being compiled and linked into `libc`, `libxapi`,
+and the `xapi-smoke` / `conformance` samples (all of which link
+`prebuilt/xboxkrnl.lib`). The standalone full-export probe samples
+(`kernel-api-link` / `-probe`) were retired in the tree cleanup.
 
 ## Layout
 

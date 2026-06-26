@@ -2,8 +2,8 @@
 param(
     [string]$ReferenceExe = 'D:\Git\TriangleXDK\Debug\TriangleXDK.exe',
     [string]$ReferenceXbe = 'D:\Git\TriangleXDK\Debug\TriangleXDK.xbe',
-    [string]$CandidateExe = 'zig-out\samples\hello-c\hello-c.exe',
-    [string]$CandidateXbe = 'zig-out\xbe\hello-c.xbe'
+    [string]$CandidateExe = 'zig-out\samples\conformance-c\conformance-c.exe',
+    [string]$CandidateXbe = 'zig-out\xbe\conformance-c.xbe'
 )
 
 $ErrorActionPreference = 'Stop'

@@ -8,10 +8,10 @@ RXDK-Libs is a **reference** for behavior (startup order, printf path, kernel ex
 picolibc (C) + minimal libm
         +
 src/xbox/* (HAL, crt0, kernel, stubs)
-        = libxboxc.lib
+        = libc.lib
 
 LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
-        = libxboxcxx.lib
+        = libcpp.lib
 ```
 
 | Layer | Location |
@@ -21,7 +21,7 @@ LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
 | Third-party C++ | `vendor/llvm-project/libcxx`, `libcxxabi` |
 | Public headers | staged to `zig-out/include/` |
 | Kernel import lib | `prebuilt/xboxkrnl.lib` (only prebuilt) |
-| Kernel headers | `include/xboxkrnl/` — umbrella `xboxkrnl.h`, base `xboxdef.h`, `types/*.h`, `api/*.h`, optional `winnt/{pe,xbe}.h` |
+| Kernel headers | `shared/include/xboxkrnl/` — umbrella `xboxkrnl.h`, base `xboxdef.h`, `types/*.h`, `api/*.h`, optional `winnt/{pe,xbe}.h` |
 
 ## Symbol / ABI notes (x86-windows-gnu)
 
@@ -60,7 +60,7 @@ External titles can use the shipped `.lib` files; if `lld-link` drops archive me
 
 | RXDK-Libs | RXDK-LibsZig |
 |-----------|--------------|
-| `libcmt.lib` / MSVC STL | `libxboxc.lib` / `libxboxcxx.lib` |
+| `libcmt.lib` / MSVC STL | `libc.lib` / `libcpp.lib` |
 | `mainCRTStartup`, XAPILIB | `_start` + direct kernel import |
 | MSBuild / `cl.exe` | `zig build` only |
 | Full libm / EH / threads | Minimal libm; no EH yet; single-thread |

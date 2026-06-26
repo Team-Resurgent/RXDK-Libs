@@ -192,7 +192,7 @@ pub fn build(b: *std.Build) void {
     };
 
     const c23 = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "c23-stdbit-smoke",
+        .name = "conformance-c23",
         .src = "samples/conformance/c23/stdbit_smoke.c",
         .objects = sample_objects.items,
         .libs = &.{krnl},
@@ -205,7 +205,7 @@ pub fn build(b: *std.Build) void {
     c23_step.dependOn(c23.install);
 
     const cpp23 = link_pe.addPeSample(b, target, optimize, xbox_target, .{
-        .name = "cpp23-expected-smoke",
+        .name = "conformance-cpp23",
         .src = "samples/conformance/cpp23/expected_smoke.cpp",
         .is_cpp = true,
         .objects = cpp_sample_objects.items,

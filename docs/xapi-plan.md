@@ -1,6 +1,9 @@
 # libxapi — full xAPI port
 
 > Living plan for xAPI work in RXDK-LibsZig. Supersedes earlier `libxbox*` naming.
+> **Note:** the `kernel-*`, `hello-*`, `xapi-link`, and `xapi-standalone-link` smoke
+> samples referenced below were retired in the tree cleanup — only `xapi-smoke` and
+> `conformance-*` remain. Sections mentioning them are historical.
 
 ## Phase 1 package (`libs/libxapi/`)
 

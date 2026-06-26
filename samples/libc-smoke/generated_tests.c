@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include <iso646.h>
 #include <limits.h>
+#include <locale.h>
 #include <math.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -33,6 +34,9 @@
 #include <uchar.h>
 #include <wctype.h>
 #include <xbox/libc_hooks.h>
+#include <complex.h>
+#include <fenv.h>
+#include <tgmath.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif
@@ -140,6 +144,34 @@ static ssize_t pf_capture(int fd, const void *buf, size_t count)
     for (i = 0; i < count && g_pf_n < sizeof(g_pf_buf) - 1; ++i)
         g_pf_buf[g_pf_n++] = p[i];
     g_pf_buf[g_pf_n] = '\0';
+    return (ssize_t)count;
+}
+static int g_st_in_done;
+
+static ssize_t st_in(void *buf, size_t count)
+{
+    const char *s = "abc\n";
+    size_t n = 4;
+    if (g_st_in_done)
+        return 0; /* EOF on subsequent reads */
+    if (n > count)
+        n = count;
+    memcpy(buf, s, n);
+    g_st_in_done = 1;
+    return (ssize_t)n;
+}
+
+static int g_st_out_fd;
+static size_t g_st_out_n;
+static char g_st_out_buf[32];
+
+static ssize_t st_out(int fd, const void *buf, size_t count)
+{
+    const char *p = (const char *)buf;
+    size_t i;
+    g_st_out_fd = fd;
+    for (i = 0; i < count && g_st_out_n < sizeof(g_st_out_buf) - 1; ++i)
+        g_st_out_buf[g_st_out_n++] = p[i];
     return (ssize_t)count;
 }
 static volatile int g_sig_count;
@@ -270,6 +302,23 @@ static int test_stdlib_malloc_free(void)
 void *p = malloc(64);
     if (p == NULL)
         RXDK_TEST_FAIL();
+    free(p);
+    return 0;
+}
+
+static int test_stdlib_malloc_large(void)
+{
+/* exceed the old 256 KB static heap to prove the kernel-backed heap works;
+       touch every page so commit-on-demand is actually exercised */
+    size_t n = 4u * 1024u * 1024u; /* 4 MiB */
+    size_t i;
+    unsigned char *p = (unsigned char *)malloc(n);
+    if (p == NULL)
+        RXDK_TEST_FAIL();
+    for (i = 0; i < n; i += 4096u)
+        p[i] = (unsigned char)(i >> 12);
+    for (i = 0; i < n; i += 4096u)
+        RXDK_TEST_EQ(p[i], (unsigned char)(i >> 12));
     free(p);
     return 0;
 }
@@ -501,6 +550,99 @@ RXDK_TEST_TRUE(isnan(NAN));
     RXDK_TEST_TRUE(!signbit(1.0));
     RXDK_TEST_TRUE(fabs(-2.5) == 2.5);
     RXDK_TEST_TRUE(scalbn(1.0, 3) == 8.0);
+    return 0;
+}
+
+static int test_math_real(void)
+{
+/* exact results for representable values */
+    RXDK_TEST_TRUE(sqrt(4.0) == 2.0);
+    RXDK_TEST_TRUE(pow(2.0, 10.0) == 1024.0);
+    RXDK_TEST_TRUE(floor(3.7) == 3.0);
+    RXDK_TEST_TRUE(ceil(3.2) == 4.0);
+    RXDK_TEST_TRUE(trunc(3.9) == 3.0);
+    RXDK_TEST_TRUE(round(2.5) == 3.0);
+    RXDK_TEST_TRUE(fmod(7.0, 3.0) == 1.0);
+    /* transcendental within tolerance */
+    RXDK_TEST_TRUE(fabs(sqrt(2.0) - 1.4142135623730951) < 1e-9);
+    RXDK_TEST_TRUE(fabs(exp(1.0) - 2.718281828459045) < 1e-9);
+    RXDK_TEST_TRUE(fabs(log(2.718281828459045) - 1.0) < 1e-9);
+    RXDK_TEST_TRUE(fabs(log10(1000.0) - 3.0) < 1e-9);
+    RXDK_TEST_TRUE(fabs(sin(0.0)) < 1e-12);
+    RXDK_TEST_TRUE(fabs(cos(0.0) - 1.0) < 1e-12);
+    RXDK_TEST_TRUE(fabs(atan2(1.0, 1.0) - 0.78539816339744831) < 1e-9);
+    return 0;
+}
+
+static int test_complex_arithmetic(void)
+{
+/* C23 <complex.h>: construction, accessors, basic algebra */
+    double complex z = 3.0 + 4.0 * I;
+    RXDK_TEST_TRUE(creal(z) == 3.0);
+    RXDK_TEST_TRUE(cimag(z) == 4.0);
+    RXDK_TEST_TRUE(cabs(z) == 5.0);
+    double complex w = conj(z);
+    RXDK_TEST_TRUE(creal(w) == 3.0);
+    RXDK_TEST_TRUE(cimag(w) == -4.0);
+    /* e^(i*pi) = -1 (Euler) */
+    double complex e = cexp(I * 3.14159265358979323846);
+    RXDK_TEST_TRUE(fabs(creal(e) + 1.0) < 1e-9);
+    RXDK_TEST_TRUE(fabs(cimag(e)) < 1e-9);
+    /* csqrt(-1) = i */
+    double complex r = csqrt(-1.0 + 0.0 * I);
+    RXDK_TEST_TRUE(fabs(creal(r)) < 1e-9);
+    RXDK_TEST_TRUE(fabs(cimag(r) - 1.0) < 1e-9);
+    return 0;
+}
+
+static int test_fenv_rounding(void)
+{
+/* C23 <fenv.h>: rounding-mode control and exception flags */
+    int saved = fegetround();
+    RXDK_TEST_TRUE(fesetround(FE_TONEAREST) == 0);
+    RXDK_TEST_EQ(fegetround(), FE_TONEAREST);
+    RXDK_TEST_TRUE(rint(2.5) == 2.0); /* ties-to-even */
+    RXDK_TEST_TRUE(fesetround(FE_TOWARDZERO) == 0);
+    RXDK_TEST_EQ(fegetround(), FE_TOWARDZERO);
+    RXDK_TEST_TRUE(rint(2.9) == 2.0);
+    fesetround(saved);
+
+    feclearexcept(FE_ALL_EXCEPT);
+    RXDK_TEST_TRUE(!fetestexcept(FE_INVALID));
+    feraiseexcept(FE_INVALID);
+    RXDK_TEST_TRUE(fetestexcept(FE_INVALID) != 0);
+    feclearexcept(FE_INVALID);
+    RXDK_TEST_TRUE(!fetestexcept(FE_INVALID));
+    return 0;
+}
+
+static int test_tgmath_dispatch(void)
+{
+/* C23 <tgmath.h>: type-generic macros resolve per argument type */
+    float f = sqrt(4.0f);
+    double d = sqrt(4.0);
+    RXDK_TEST_TRUE(f == 2.0f);
+    RXDK_TEST_TRUE(d == 2.0);
+    RXDK_TEST_TRUE(fabs(pow(2.0f, 3.0f) - 8.0f) < 1e-5f);
+    RXDK_TEST_TRUE(fabs(cos(0.0) - 1.0) < 1e-12);
+    /* complex argument routes to the complex variant */
+    double complex z = sqrt(-1.0 + 0.0 * I);
+    RXDK_TEST_TRUE(fabs(cimag(z) - 1.0) < 1e-9);
+    return 0;
+}
+
+static int test_locale_basic(void)
+{
+/* picolibc ships the minimal "C"/"POSIX" locale; verify it is real */
+    char *l = setlocale(LC_ALL, "C");
+    struct lconv *lc;
+    RXDK_TEST_TRUE(l != NULL);
+    RXDK_TEST_TRUE(setlocale(LC_ALL, NULL) != NULL);
+    RXDK_TEST_TRUE(setlocale(LC_ALL, "no-such-locale") == NULL);
+    lc = localeconv();
+    RXDK_TEST_TRUE(lc != NULL);
+    RXDK_TEST_STR_EQ(lc->decimal_point, ".");
+    RXDK_TEST_TRUE(MB_CUR_MAX >= 1);
     return 0;
 }
 
@@ -767,6 +909,46 @@ static int test_stdio_printf(void)
     return 0;
 }
 
+static int test_stdio_streams(void)
+{
+/* FILE* layer: stdin -> read(0) -> stdin hook; stderr/stdout -> write -> output hook */
+    char line[16];
+    char *r;
+
+    /* fgets(stdin) pulls one line from the stdin hook, then sees EOF */
+    g_st_in_done = 0;
+    rxdk_set_stdin_handler(st_in);
+    r = fgets(line, sizeof(line), stdin);
+    RXDK_TEST_TRUE(r == line);
+    RXDK_TEST_STR_EQ(line, "abc\n");
+    r = fgets(line, sizeof(line), stdin);
+    RXDK_TEST_TRUE(r == NULL);
+    RXDK_TEST_TRUE(feof(stdin));
+    rxdk_set_stdin_handler(NULL);
+    clearerr(stdin);
+
+    /* fprintf(stderr) routes through the output hook with fd 2 */
+    g_st_out_fd = -1;
+    g_st_out_n = 0;
+    rxdk_set_output_handler(st_out);
+    fprintf(stderr, "e=%d", 7);
+    fflush(stderr);
+    RXDK_TEST_EQ(g_st_out_fd, 2);
+    g_st_out_buf[g_st_out_n] = '\0';
+    RXDK_TEST_STR_EQ(g_st_out_buf, "e=7");
+
+    /* fputs(stdout) routes through the output hook with fd 1 */
+    g_st_out_fd = -1;
+    g_st_out_n = 0;
+    fputs("out", stdout);
+    fflush(stdout);
+    rxdk_set_output_handler(NULL);
+    RXDK_TEST_EQ(g_st_out_fd, 1);
+    g_st_out_buf[g_st_out_n] = '\0';
+    RXDK_TEST_STR_EQ(g_st_out_buf, "out");
+    return 0;
+}
+
 static int test_posix_signal(void)
 {
 sigset_t set, old, pend;
@@ -957,6 +1139,7 @@ static const conformance_test tests[] = {
     { "stdlib", "atoi", test_stdlib_atoi },
     { "stdlib", "strtol", test_stdlib_strtol },
     { "stdlib", "malloc_free", test_stdlib_malloc_free },
+    { "stdlib", "malloc_large", test_stdlib_malloc_large },
     { "ctype", "isdigit", test_ctype_isdigit },
     { "ctype", "toupper", test_ctype_toupper },
     { "errno", "errno_rw", test_errno_errno_rw },
@@ -971,6 +1154,11 @@ static const conformance_test tests[] = {
     { "time", "clock", test_time_clock },
     { "threads", "mutex_counter", test_threads_mutex_counter },
     { "math", "classify", test_math_classify },
+    { "math", "real", test_math_real },
+    { "complex", "arithmetic", test_complex_arithmetic },
+    { "fenv", "rounding", test_fenv_rounding },
+    { "tgmath", "dispatch", test_tgmath_dispatch },
+    { "locale", "basic", test_locale_basic },
     { "float", "limits", test_float_limits },
     { "setjmp", "roundtrip", test_setjmp_roundtrip },
     { "inttypes", "format", test_inttypes_format },
@@ -988,6 +1176,7 @@ static const conformance_test tests[] = {
     { "posix", "pipe_blocking", test_posix_pipe_blocking },
     { "posix", "dup2", test_posix_dup2 },
     { "stdio", "printf", test_stdio_printf },
+    { "stdio", "streams", test_stdio_streams },
     { "posix", "signal", test_posix_signal },
     { "rxdk", "io_hooks", test_rxdk_io_hooks },
     { "rxdk", "exec_args", test_rxdk_exec_args },

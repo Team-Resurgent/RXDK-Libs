@@ -44,6 +44,7 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <inttypes.h>
 #include <iso646.h>
 #include <limits.h>
+#include <locale.h>
 #include <math.h>
 #include <setjmp.h>
 #include <signal.h>
@@ -69,6 +70,9 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <uchar.h>
 #include <wctype.h>
 #include <xbox/libc_hooks.h>
+#include <complex.h>
+#include <fenv.h>
+#include <tgmath.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif

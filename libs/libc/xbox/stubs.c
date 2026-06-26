@@ -69,9 +69,6 @@ int execve(const char *path, char *const argv[], char *const envp[])
 {
     if (__rxdk_exec_hook)
         return __rxdk_exec_hook(path, argv, envp);
-    (void)path;
-    (void)argv;
-    (void)envp;
     errno = ENOSYS;
     return -1;
 }

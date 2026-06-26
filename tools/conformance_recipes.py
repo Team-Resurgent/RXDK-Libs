@@ -266,4 +266,44 @@ CONFORMANCE_TESTS: list[tuple[str, str, str]] = [
     return 0;
 """,
     ),
+    (
+        "threads",
+        "mutex_counter",
+        """
+    /* Four threads each bump a shared counter 10000x under a mutex; with mutual
+       exclusion the total is exact. Exercises thrd_create/join + mtx_*. */
+    thrd_t th[4];
+    int i, r;
+
+    g_counter = 0;
+    RXDK_TEST_EQ(mtx_init(&g_mtx, mtx_plain), thrd_success);
+
+    for (i = 0; i < 4; ++i)
+        RXDK_TEST_EQ(thrd_create(&th[i], worker_inc, NULL), thrd_success);
+
+    for (i = 0; i < 4; ++i) {
+        RXDK_TEST_EQ(thrd_join(th[i], &r), thrd_success);
+        RXDK_TEST_EQ(r, 0);
+    }
+
+    mtx_destroy(&g_mtx);
+    RXDK_TEST_EQ(g_counter, 4 * 10000);
+    return 0;
+""",
+        """
+static mtx_t g_mtx;
+static volatile int g_counter;
+
+static int worker_inc(void *arg)
+{
+    (void)arg;
+    for (int i = 0; i < 10000; ++i) {
+        mtx_lock(&g_mtx);
+        g_counter++;
+        mtx_unlock(&g_mtx);
+    }
+    return 0;
+}
+""",
+    ),
 ]

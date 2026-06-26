@@ -12,6 +12,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <threads.h>
 #include <time.h>
 #include <unistd.h>
 #if __STDC_VERSION__ >= 202311L
@@ -24,6 +25,20 @@ typedef struct conformance_test {
     const char *name;
     int (*run)(void);
 } conformance_test;
+
+static mtx_t g_mtx;
+static volatile int g_counter;
+
+static int worker_inc(void *arg)
+{
+    (void)arg;
+    for (int i = 0; i < 10000; ++i) {
+        mtx_lock(&g_mtx);
+        g_counter++;
+        mtx_unlock(&g_mtx);
+    }
+    return 0;
+}
 
 static int test_string_strlen(void)
 {
@@ -242,6 +257,29 @@ volatile unsigned long spin = 0;
     return 0;
 }
 
+static int test_threads_mutex_counter(void)
+{
+/* Four threads each bump a shared counter 10000x under a mutex; with mutual
+       exclusion the total is exact. Exercises thrd_create/join + mtx_*. */
+    thrd_t th[4];
+    int i, r;
+
+    g_counter = 0;
+    RXDK_TEST_EQ(mtx_init(&g_mtx, mtx_plain), thrd_success);
+
+    for (i = 0; i < 4; ++i)
+        RXDK_TEST_EQ(thrd_create(&th[i], worker_inc, NULL), thrd_success);
+
+    for (i = 0; i < 4; ++i) {
+        RXDK_TEST_EQ(thrd_join(th[i], &r), thrd_success);
+        RXDK_TEST_EQ(r, 0);
+    }
+
+    mtx_destroy(&g_mtx);
+    RXDK_TEST_EQ(g_counter, 4 * 10000);
+    return 0;
+}
+
 
 static const conformance_test tests[] = {
     { "string", "strlen", test_string_strlen },
@@ -264,6 +302,7 @@ static const conformance_test tests[] = {
     { "time", "monotonic", test_time_monotonic },
     { "time", "wallclock", test_time_wallclock },
     { "time", "clock", test_time_clock },
+    { "threads", "mutex_counter", test_threads_mutex_counter },
 };
 
 unsigned conformance_test_count(void)

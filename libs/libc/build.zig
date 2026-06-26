@@ -175,6 +175,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/hal.c",
         "libs/libc/xbox/fileio.c",
         "libs/libc/xbox/timeio.c",
+        "libs/libc/xbox/threads.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/trace.c",
         "libs/libc/xbox/stubs.c",
@@ -201,6 +202,7 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         .install_subdir = "include",
     });
     const gen = b.addInstallFile(b.path("build/generated/picolibc.h"), "include/picolibc.h");
+    const threads_h = b.addInstallFile(b.path("shared/include/threads.h"), "include/threads.h");
     const xbox = b.addInstallDirectory(.{
         .source_dir = b.path("shared/include/xbox"),
         .install_dir = .prefix,
@@ -225,6 +227,7 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     });
     step.dependOn(&install.step);
     step.dependOn(&gen.step);
+    step.dependOn(&threads_h.step);
     step.dependOn(&xbox.step);
     step.dependOn(&xboxkrnl.step);
     step.dependOn(&c23.step);

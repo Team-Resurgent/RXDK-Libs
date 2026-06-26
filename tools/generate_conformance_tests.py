@@ -20,10 +20,15 @@ def test_fn_name(group: str, name: str) -> str:
     return f"test_{safe}"
 
 
-def write_generated(tests: list[tuple[str, str, str]]) -> None:
+def write_generated(tests: list[tuple[str, ...]]) -> None:
     defs: list[str] = []
     table: list[str] = []
-    for group, name, body in tests:
+    preludes: list[str] = []
+    for entry in tests:
+        group, name, body = entry[0], entry[1], entry[2]
+        prelude = entry[3] if len(entry) > 3 else None  # optional file-scope code
+        if prelude:
+            preludes.append(prelude.strip())
         fn = test_fn_name(group, name)
         defs.append(f"static int {fn}(void)\n{{\n{body.strip()}\n}}\n")
         table.append(f'    {{ "{group}", "{name}", {fn} }},')
@@ -43,6 +48,7 @@ def write_generated(tests: list[tuple[str, str, str]]) -> None:
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <threads.h>
 #include <time.h>
 #include <unistd.h>
 #if __STDC_VERSION__ >= 202311L
@@ -55,6 +61,8 @@ typedef struct conformance_test {{
     const char *name;
     int (*run)(void);
 }} conformance_test;
+
+{chr(10).join(preludes)}
 
 {chr(10).join(defs)}
 
@@ -92,7 +100,7 @@ def report_coverage(tests: list[tuple[str, str, str]], headers: list[str]) -> No
     if not headers:
         print("note: vendor/stdtests not checked out — skip header manifest report")
         return
-    covered = {group for group, _, _ in tests}
+    covered = {t[0] for t in tests}
     # Map stdtests header stem to our group names (rough alignment).
     stem_to_group = {
         "string": "string",

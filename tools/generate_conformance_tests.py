@@ -38,6 +38,8 @@ def write_generated(tests: list[tuple[str, str, str]]) -> None:
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif

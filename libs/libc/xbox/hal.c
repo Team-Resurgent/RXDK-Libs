@@ -11,25 +11,7 @@ char *__enviro = (char *)0;
 static char *heap_end;
 static char heap_buf[256 * 1024];
 
-int write(int fd, const void *buf, unsigned int count)
-{
-    const char *p = (const char *)buf;
-    char line[512];
-    unsigned int n = count;
-
-    (void)fd;
-    if (!buf || count == 0)
-        return 0;
-
-    if (n >= sizeof(line))
-        n = (unsigned int)(sizeof(line) - 1);
-
-    for (unsigned int i = 0; i < n; ++i)
-        line[i] = p[i];
-    line[n] = '\0';
-    DbgPrint("%s", line);
-    return (int)count;
-}
+/* write() lives in fileio.c (it now routes fd>=3 to real files). */
 
 void *sbrk(ptrdiff_t incr)
 {

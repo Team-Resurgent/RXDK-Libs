@@ -168,4 +168,52 @@ CONFORMANCE_TESTS: list[tuple[str, str, str]] = [
     return 0;
 """,
     ),
+    (
+        "filesystem",
+        "roundtrip",
+        r"""
+    /* Exercises the kernel-backed file I/O on the mounted E: drive: create a
+       folder, confirm it exists, write a file, stat it, seek + read back, then
+       clean up after itself. The harness mounts E: before tests run. */
+    const char *dir = "E:\\test";
+    const char *file = "E:\\test\\probe.bin";
+    const char *msg = "RXDK-FS-CHECK!"; /* 14 bytes */
+    struct stat sbuf;
+    char rbuf[8];
+    FILE *fp;
+
+    /* start from a clean slate (ignore errors if absent) */
+    remove(file);
+    rmdir(dir);
+
+    /* create the test folder and confirm it is a directory */
+    if (mkdir(dir, 0777) != 0) RXDK_TEST_FAIL();
+    if (stat(dir, &sbuf) != 0) RXDK_TEST_FAIL();
+    RXDK_TEST_TRUE(S_ISDIR(sbuf.st_mode));
+
+    /* write a known payload */
+    fp = fopen(file, "wb");
+    RXDK_TEST_TRUE(fp != NULL);
+    RXDK_TEST_EQ(fwrite(msg, 1, 14, fp), 14u);
+    fclose(fp);
+
+    /* size reported via stat */
+    if (stat(file, &sbuf) != 0) RXDK_TEST_FAIL();
+    RXDK_TEST_EQ((long)sbuf.st_size, 14L);
+
+    /* reopen, seek to offset 5, read 4 bytes ("FS-C") */
+    fp = fopen(file, "rb");
+    RXDK_TEST_TRUE(fp != NULL);
+    if (fseek(fp, 5, SEEK_SET) != 0) RXDK_TEST_FAIL();
+    RXDK_TEST_EQ(fread(rbuf, 1, 4, fp), 4u);
+    rbuf[4] = '\0';
+    RXDK_TEST_STR_EQ(rbuf, "FS-C");
+    fclose(fp);
+
+    /* clean up after ourselves */
+    RXDK_TEST_EQ(remove(file), 0);
+    RXDK_TEST_EQ(rmdir(dir), 0);
+    return 0;
+""",
+    ),
 ]

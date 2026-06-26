@@ -32,21 +32,7 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
     return 0;
 }
 
-int stat(const char *path, struct stat *st)
-{
-    (void)path;
-    (void)st;
-    errno = ENOENT;
-    return -1;
-}
-
-int fstat(int fd, struct stat *st)
-{
-    (void)fd;
-    (void)st;
-    errno = ENOSYS;
-    return -1;
-}
+/* stat/fstat live in fileio.c (kernel-backed). */
 
 typedef struct {
     int dummy;
@@ -79,13 +65,7 @@ void regfree(regex_t *preg)
     (void)preg;
 }
 
-int open(const char *path, int flags, ...)
-{
-    (void)path;
-    (void)flags;
-    errno = ENOENT;
-    return -1;
-}
+/* open() lives in fileio.c (kernel-backed). */
 
 int pipe(int fildes[2])
 {
@@ -126,37 +106,7 @@ int waitpid(int pid, int *status, int options)
     return -1;
 }
 
-ssize_t read(int fd, void *buf, size_t count)
-{
-    (void)fd;
-    (void)buf;
-    (void)count;
-    errno = ENOSYS;
-    return -1;
-}
-
-int close(int fd)
-{
-    (void)fd;
-    errno = ENOSYS;
-    return -1;
-}
-
-off_t lseek(int fd, off_t offset, int whence)
-{
-    (void)fd;
-    (void)offset;
-    (void)whence;
-    errno = ENOSYS;
-    return -1;
-}
-
-int unlink(const char *path)
-{
-    (void)path;
-    errno = ENOENT;
-    return -1;
-}
+/* read/close/lseek/unlink live in fileio.c (kernel-backed). */
 
 long times(void *buf)
 {

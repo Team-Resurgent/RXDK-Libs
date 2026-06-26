@@ -172,6 +172,7 @@ pub fn addXboxObjects(
 ) compile_c.CompileBatch {
     const sources = [_][]const u8{
         "libs/libc/xbox/hal.c",
+        "libs/libc/xbox/fileio.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/trace.c",
         "libs/libc/xbox/stubs.c",

@@ -10,6 +10,28 @@ typedef struct conformance_test {
 unsigned conformance_test_count(void);
 const conformance_test *conformance_tests(void);
 
+/*
+ * Test-harness setup: map E: to the hard disk's data partition so the
+ * filesystem test has somewhere real to write. Mounting is policy, so it lives
+ * in the test, not in libc. STATUS_OBJECT_NAME_COLLISION means E: is already
+ * mapped, which is fine.
+ */
+static void mount_e_drive(void)
+{
+    OBJECT_STRING dos;
+    OBJECT_STRING dev;
+    NTSTATUS s;
+
+    RtlInitAnsiString(&dos, "\\??\\E:");
+    RtlInitAnsiString(&dev, "\\Device\\Harddisk0\\Partition1");
+    s = IoCreateSymbolicLink(&dos, &dev);
+    if (NT_SUCCESS(s) || s == STATUS_OBJECT_NAME_COLLISION) {
+        DbgPrint("RXDK-LibsZig: mounted E: -> Harddisk0\\Partition1\n");
+    } else {
+        DbgPrint("RXDK-LibsZig: mount E: FAILED status=0x%08x\n", (unsigned)s);
+    }
+}
+
 int main(void)
 {
     unsigned total = conformance_test_count();
@@ -19,6 +41,8 @@ int main(void)
 
     DbgPrint("RXDK-LibsZig: libc-smoke start\n");
     printf("RXDK-LibsZig: libc-smoke start\n");
+
+    mount_e_drive();
 
     for (unsigned i = 0; i < total; i++) {
         DbgPrint("RXDK-LibsZig: test %s.%s\n", tests[i].group, tests[i].name);

@@ -103,6 +103,9 @@ pub fn addLibcxxObjects(
 ) !compile_c.CompileBatch {
     const sources = try collectLibcxxSources(b, b.allocator);
     const flags = xbox_target.appendFlags(b, xbox_target.cppFlags(b), &.{
+        // Vendored libc++/libcxxabi — silence upstream warnings (e.g.
+        // -Wpragma-clang-attribute), matching the picolibc/libxapi batches.
+        "-Wno-everything",
         "-U_WIN32",
         "-U__MINGW32__",
         "-include",

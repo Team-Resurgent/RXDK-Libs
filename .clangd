@@ -19,6 +19,53 @@ CompileFlags:
     - -Ishared/include
     - -Ishared/picolibc/include
     - -Ishared/picolibc/machine/x86
-    - -Ishared/libcxx/include
     - -Iinclude
     - -Ibuild/generated
+
+---
+# C++ translation units additionally get the libcxx header root (kept off the C
+# path so C files don't pull libcxx's __config_site).
+If:
+  PathMatch: [.*\.(cpp|cxx|cc|hpp|hh)]
+CompileFlags:
+  Add:
+    - -Ishared/libcxx/include
+    - -Ibuild/generated/libcxx
+
+---
+# libxapi internal sources (libs/libxapi/xapi/**) pull their type environment
+# from a bridge header (e.g. #include "bridge_k32.h") that lives in the slice's
+# internal include dirs, plus the build's force-included picolibc.h/profile.h.
+# Give clangd those dirs + force-includes so internal types (POBJECT_STRING,
+# OBJECT_STRING, etc.) resolve when one of these files is opened standalone.
+If:
+  PathMatch: [libs/libxapi/.*]
+CompileFlags:
+  Add:
+    - -include
+    - picolibc.h
+    - -include
+    - libs/libxapi/xapi/site/profile.h
+    - -Ilibs/libxapi/xapi/internal
+    - -Ilibs/libxapi/xapi/internal/shims
+    - -Ilibs/libxapi/xapi/site
+    - -Ilibs/libxapi/xapi/nt
+    - -Ilibs/libxapi/xapi/k32
+    - -Ilibs/libxapi/xapi/k32/inc
+    - -Ilibs/libxapi/xapi/dll
+    - -Ilibs/libxapi/xapi/rtl
+    - -Ilibs/libxapi/xapi/rtl/inc
+    - -Ilibs/libxapi/xapi/uuid
+    - -Ilibs/libxapi/xapi/usb/inc
+    - -Ilibs/libxapi/xapi/usb/ohcd
+    - -Ilibs/libxapi/xapi/usb/usbd
+    - -Ilibs/libxapi/xapi/usb/hub
+    - -Ilibs/libxapi/xapi/usb/mu
+    - -Ilibs/libxapi/xapi/usb/xid
+    - -Ilibs/libxapi/xapi/support/inc
+    - -Ilibs/libxapi/xapi/support/inc/ntos
+    - -Ilibs/libxapi/xapi/support/fatx
+    - -Ilibs/libxapi/xapi/support/idex
+    - -Ilibs/libxapi/xapi/support/crypto
+    - -Ilibs/libxapi/xapi/port
+    - -Ilibs/libxapi/xapi/minilib

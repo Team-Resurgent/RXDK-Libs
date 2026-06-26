@@ -3,29 +3,26 @@ const compile_c = @import("../../build/compile_c.zig");
 
 const exclude = [_][]const u8{
     "filesystem",
-    "random",
-    "regex",
-    "thread",
-    "mutex",
-    "shared_mutex",
-    "condition_variable",
-    "future",
-    "chrono",
+    "random_shuffle",
     "barrier",
     "latch",
     "semaphore",
     "stop_token",
     "strstream",
     "atomic.cpp",
+    // (thread.cpp / mutex.cpp / shared_mutex.cpp / condition_variable*.cpp are
+    //  enabled: C11 thread API backed by libc <threads.h>.)
+    // charconv.cpp provides only the *floating-point* to_chars/from_chars; it
+    // needs ryu (excluded) and the src/include/shared/{fp_bits,str_to_*}.h
+    // helpers, which this libc++ snapshot doesn't vendor. Integer to_chars/
+    // from_chars are header-only in <charconv> and work without this TU.
     "charconv",
-    "algorithm.cpp",
     "experimental/",
     "support/",
     "pstl/",
     "ryu/",
     "print.cpp",
     "memory_resource",
-    "hash.cpp",
     "valarray",
     "bind.cpp",
     "fstream",
@@ -91,6 +88,7 @@ fn includeDirs(_: *std.Build) []const []const u8 {
         "vendor/llvm-project/libcxxabi/include",
         "vendor/llvm-project/libcxx/src",
         "build/generated",
+        "shared/include", // libc <threads.h> for the C11 thread API backend
         "shared/picolibc/include",
         "shared/picolibc/machine/x86",
     };
@@ -117,6 +115,13 @@ pub fn addLibcxxObjects(
         "-DLIBCXXABI_BUILDING_LIBCXXABI",
         "-D_LIBCXXABI_HAS_NO_THREADS",
         "-D_LIBCPP_LIBC_NEWLIB",
+        // Our libc provides clock_gettime with CLOCK_REALTIME + CLOCK_MONOTONIC
+        // (timeio.c); tell <chrono> to use it for system_clock + steady_clock.
+        // Not auto-detected because picolibc doesn't advertise _POSIX_TIMERS.
+        "-D_LIBCPP_HAS_CLOCK_GETTIME",
+        // random_device routes to our getentropy() (stubs.c) via the
+        // /dev/urandom token; pick that backend explicitly.
+        "-D_LIBCPP_USING_GETENTROPY",
     });
     return compile_c.addBatch(b, .{
         .name = "libcxx",

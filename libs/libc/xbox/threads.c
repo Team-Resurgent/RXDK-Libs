@@ -212,7 +212,59 @@ void thrd_yield(void)
     KeDelayExecutionThread(0, FALSE, &zero);
 }
 
+/* ---- lazy first-use init --------------------------------------------------- */
+/*
+ * C11 has no static initializer for mtx_t/cnd_t, yet libc++'s C11 thread
+ * backend constructs std::mutex / std::condition_variable as zero-initialized
+ * (constexpr) objects and locks/waits on them with no mtx_init/cnd_init call --
+ * it assumes a zeroed object is a ready, unlocked primitive (true on glibc/musl).
+ * Our objects wrap a kernel RTL_CRITICAL_SECTION / KEVENT, neither of which is
+ * valid when zeroed (entering/waiting touches a null event/list at
+ * DISPATCH_LEVEL -> bugcheck 0x0A). So we honor the same contract: a zeroed
+ * object lazily runs its real kernel init on first use.
+ *
+ * A per-object atomic state word lives in the slack at offset 60 of the 64-byte
+ * opaque buffer (past the ~28-byte RTL_CRITICAL_SECTION and ~20-byte cnd). It is
+ * 0 when zero-initialized, 1 while a winner initializes, and the magic once
+ * ready; racing callers spin (briefly, yielding) until ready.
+ */
+#define RXDK_LAZY_OFF   60
+#define RXDK_LAZY_MAGIC 0x52584C5AL /* 'RXLZ' */
+
+static volatile long *lazy_state(void *obj)
+{
+    return (volatile long *)((unsigned char *)obj + RXDK_LAZY_OFF);
+}
+
+/* Returns 1 if the caller won the race and must initialize (then call
+   lazy_publish); 0 if already initialized. */
+static int lazy_claim(volatile long *state)
+{
+    long expected = 0;
+    if (__atomic_load_n(state, __ATOMIC_ACQUIRE) == RXDK_LAZY_MAGIC)
+        return 0;
+    if (__atomic_compare_exchange_n(state, &expected, 1L, 0,
+                                    __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE))
+        return 1;
+    while (__atomic_load_n(state, __ATOMIC_ACQUIRE) != RXDK_LAZY_MAGIC)
+        thrd_yield();
+    return 0;
+}
+
+static void lazy_publish(volatile long *state)
+{
+    __atomic_store_n(state, RXDK_LAZY_MAGIC, __ATOMIC_RELEASE);
+}
+
 /* ---- mutexes --------------------------------------------------------------- */
+
+static void mtx_ensure(mtx_t *mtx)
+{
+    if (lazy_claim(lazy_state(mtx))) {
+        RtlInitializeCriticalSection((PRTL_CRITICAL_SECTION)mtx);
+        lazy_publish(lazy_state(mtx));
+    }
+}
 
 int mtx_init(mtx_t *mtx, int type)
 {
@@ -220,6 +272,7 @@ int mtx_init(mtx_t *mtx, int type)
     if (!mtx)
         return thrd_error;
     RtlInitializeCriticalSection((PRTL_CRITICAL_SECTION)mtx);
+    lazy_publish(lazy_state(mtx)); /* mark ready so lazy-init is skipped */
     return thrd_success;
 }
 
@@ -227,6 +280,7 @@ int mtx_lock(mtx_t *mtx)
 {
     if (!mtx)
         return thrd_error;
+    mtx_ensure(mtx);
     RtlEnterCriticalSection((PRTL_CRITICAL_SECTION)mtx);
     return thrd_success;
 }
@@ -235,6 +289,7 @@ int mtx_trylock(mtx_t *mtx)
 {
     if (!mtx)
         return thrd_error;
+    mtx_ensure(mtx);
     return RtlTryEnterCriticalSection((PRTL_CRITICAL_SECTION)mtx) ? thrd_success
                                                                   : thrd_busy;
 }
@@ -260,6 +315,16 @@ void mtx_destroy(mtx_t *mtx)
 
 /* ---- condition variables --------------------------------------------------- */
 
+static void cnd_ensure(cnd_t *cond)
+{
+    if (lazy_claim(lazy_state(cond))) {
+        struct rxdk_cnd *c = (struct rxdk_cnd *)cond;
+        KeInitializeEvent(&c->ev, SynchronizationEvent, FALSE);
+        c->waiters = 0;
+        lazy_publish(lazy_state(cond));
+    }
+}
+
 int cnd_init(cnd_t *cond)
 {
     struct rxdk_cnd *c = (struct rxdk_cnd *)cond;
@@ -267,6 +332,7 @@ int cnd_init(cnd_t *cond)
         return thrd_error;
     KeInitializeEvent(&c->ev, SynchronizationEvent, FALSE);
     c->waiters = 0;
+    lazy_publish(lazy_state(cond)); /* mark ready so lazy-init is skipped */
     return thrd_success;
 }
 
@@ -275,6 +341,7 @@ int cnd_wait(cnd_t *cond, mtx_t *mtx)
     struct rxdk_cnd *c = (struct rxdk_cnd *)cond;
     if (!c || !mtx)
         return thrd_error;
+    cnd_ensure(cond);
     c->waiters++; /* caller holds mtx */
     mtx_unlock(mtx);
     KeWaitForSingleObject(&c->ev, 0, 0, FALSE, NULL);
@@ -295,6 +362,7 @@ int cnd_signal(cnd_t *cond)
     struct rxdk_cnd *c = (struct rxdk_cnd *)cond;
     if (!c)
         return thrd_error;
+    cnd_ensure(cond);
     if (c->waiters > 0)
         KeSetEvent(&c->ev, 0, FALSE);
     return thrd_success;
@@ -306,6 +374,7 @@ int cnd_broadcast(cnd_t *cond)
     long n;
     if (!c)
         return thrd_error;
+    cnd_ensure(cond);
     for (n = c->waiters; n > 0; --n)
         KeSetEvent(&c->ev, 0, FALSE);
     return thrd_success;

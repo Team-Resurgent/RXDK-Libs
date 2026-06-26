@@ -210,6 +210,7 @@ pub fn build(b: *std.Build) void {
     const libcpp_smoke = link_pe.addPeSample(b, target, optimize, xbox_target, .{
         .name = "libcpp-smoke",
         .src = "samples/libcpp-smoke/main.cpp",
+        .extra_srcs = &.{"samples/libcpp-smoke/tests.cpp"},
         .is_cpp = true,
         .objects = cpp_sample_objects.items,
         .libs = &.{krnl},

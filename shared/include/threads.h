@@ -14,7 +14,11 @@
 extern "C" {
 #endif
 
+/* In C++, thread_local is a built-in keyword; only the C11 library macro form
+   is provided here for C translation units. */
+#ifndef __cplusplus
 #define thread_local _Thread_local
+#endif
 
 typedef int (*thrd_start_t)(void *);
 typedef void (*tss_dtor_t)(void *);
@@ -56,7 +60,7 @@ int  thrd_join(thrd_t thr, int *res);
 /* Mutexes */
 int  mtx_init(mtx_t *mtx, int type);
 int  mtx_lock(mtx_t *mtx);
-int  mtx_timedlock(mtx_t *restrict mtx, const struct timespec *restrict ts);
+int  mtx_timedlock(mtx_t *__restrict mtx, const struct timespec *__restrict ts);
 int  mtx_trylock(mtx_t *mtx);
 int  mtx_unlock(mtx_t *mtx);
 void mtx_destroy(mtx_t *mtx);
@@ -66,8 +70,8 @@ int  cnd_init(cnd_t *cond);
 int  cnd_signal(cnd_t *cond);
 int  cnd_broadcast(cnd_t *cond);
 int  cnd_wait(cnd_t *cond, mtx_t *mtx);
-int  cnd_timedwait(cnd_t *restrict cond, mtx_t *restrict mtx,
-                   const struct timespec *restrict ts);
+int  cnd_timedwait(cnd_t *__restrict cond, mtx_t *__restrict mtx,
+                   const struct timespec *__restrict ts);
 void cnd_destroy(cnd_t *cond);
 
 /* Call once */

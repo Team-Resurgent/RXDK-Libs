@@ -146,18 +146,25 @@ pub fn addAllObjects(
 }
 
 pub fn stageHeaders(b: *std.Build) *std.Build.Step {
-    const install_xapi = b.addInstallFile(b.path("shared/include/xapi.h"), "include/xapi.h");
-    const install_xbox = b.addInstallFile(b.path("shared/include/xbox.h"), "include/xbox.h");
-    const install_xkbd = b.addInstallFile(b.path("shared/include/xkbd.h"), "include/xkbd.h");
     const step = b.allocator.create(std.Build.Step) catch @panic("OOM");
     step.* = std.Build.Step.init(.{
         .id = .custom,
         .name = "stage-libxapi-headers",
         .owner = b,
     });
-    step.dependOn(&install_xapi.step);
-    step.dependOn(&install_xbox.step);
-    step.dependOn(&install_xkbd.step);
+    // Public umbrella set in shared/include (xt.h pulls windef/winbase; the
+    // xboxkrnl/ and xbox/ subdirs are staged by the libc header step).
+    const public_headers = [_][]const u8{
+        "xt.h", "xapi.h", "xbox.h", "xkbd.h",
+        "windef.h", "winbase.h", "winerror.h",
+    };
+    for (public_headers) |name| {
+        const install = b.addInstallFile(
+            b.path(b.fmt("shared/include/{s}", .{name})),
+            b.fmt("include/{s}", .{name}),
+        );
+        step.dependOn(&install.step);
+    }
     return step;
 }
 

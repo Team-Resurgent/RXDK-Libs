@@ -45,6 +45,10 @@ pub fn picolibcFlags(_: *std.Build) []const []const u8 {
         "-fno-stack-protector",
         "-fno-zero-initialized-in-bss",
         "-fno-sanitize=undefined",
+        // Vendored picolibc — silence its upstream warnings (macro redefines
+        // from our force-included picolibc.h, wint_t va_arg, etc.), matching
+        // how the first-party cFlags / libxapi / libcxx batches are compiled.
+        "-Wno-everything",
         "-D__Picolibc__",
         "-D__SINGLE_THREAD",
         "-D__TINY_STDIO",

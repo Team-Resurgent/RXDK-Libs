@@ -2,6 +2,9 @@
 .zig-cache/
 zig-out/
 
+# Staged redistributable bundle (build-iso.ps1 -Dist)
+dist/
+
 # RXDK-Tools host bundle (downloaded by scripts/install-rxdk-tools.ps1)
 tools/rxdk-managed/*.zip
 tools/rxdk-managed/win-x64/

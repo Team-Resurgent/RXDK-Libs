@@ -11,8 +11,6 @@
 #include "xbox/kernel.h"
 #include "xbox/libc_hooks.h"
 
-typedef unsigned long sigset_t;
-
 /*
  * getentropy: the Xbox kernel exposes no CSPRNG, so this derives bytes from the
  * performance counter (which advances every read) mixed with system time and
@@ -49,19 +47,7 @@ int getentropy(void *buf, size_t len)
     return 0;
 }
 
-int raise(int sig)
-{
-    (void)sig;
-    return 0;
-}
-
-int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
-{
-    (void)how;
-    (void)set;
-    (void)oldset;
-    return 0;
-}
+/* signal/raise/sigprocmask/sigpending live in signals.c (synchronous C signals). */
 
 /* stat/fstat live in fileio.c (kernel-backed). */
 /* regcomp/regexec/regerror/regfree are picolibc's POSIX regex (libc/posix/). */

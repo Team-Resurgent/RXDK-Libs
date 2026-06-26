@@ -46,6 +46,7 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <limits.h>
 #include <math.h>
 #include <setjmp.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>

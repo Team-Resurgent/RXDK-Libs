@@ -194,6 +194,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/locks.c",
         "libs/libc/xbox/errno_tls.c",
         "libs/libc/xbox/hooks.c",
+        "libs/libc/xbox/signals.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/trace.c",
         "libs/libc/xbox/stubs.c",

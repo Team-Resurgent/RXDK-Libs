@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <math.h>
 #include <setjmp.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -127,6 +128,14 @@ static int pipe_writer(void *arg)
     thrd_sleep(&d, NULL);
     write(g_pfd[1], "async", 5);
     return 0;
+}
+static volatile int g_sig_count;
+static volatile int g_sig_last;
+
+static void sig_handler(int s)
+{
+    g_sig_count++;
+    g_sig_last = s;
 }
 static ssize_t hk_stdin(void *buf, size_t count)
 {
@@ -732,6 +741,44 @@ int fd[2];
     return 0;
 }
 
+static int test_posix_signal(void)
+{
+sigset_t set, old, pend;
+
+    g_sig_count = 0;
+    g_sig_last = 0;
+
+    /* register + synchronous raise */
+    RXDK_TEST_TRUE(signal(SIGTERM, sig_handler) != SIG_ERR);
+    RXDK_TEST_EQ(raise(SIGTERM), 0);
+    RXDK_TEST_EQ(g_sig_count, 1);
+    RXDK_TEST_EQ(g_sig_last, SIGTERM);
+
+    /* C semantics: disposition resets to SIG_DFL after delivery */
+    RXDK_TEST_EQ(raise(SIGTERM), 0);
+    RXDK_TEST_EQ(g_sig_count, 1);
+
+    /* SIG_IGN is not delivered */
+    signal(SIGINT, SIG_IGN);
+    RXDK_TEST_EQ(raise(SIGINT), 0);
+    RXDK_TEST_EQ(g_sig_count, 1);
+
+    /* block -> pending -> unblock delivers */
+    signal(SIGTERM, sig_handler);
+    set = (sigset_t)1 << SIGTERM;
+    RXDK_TEST_EQ(sigprocmask(SIG_BLOCK, &set, &old), 0);
+    RXDK_TEST_EQ(raise(SIGTERM), 0);
+    RXDK_TEST_EQ(g_sig_count, 1);
+    sigpending(&pend);
+    RXDK_TEST_TRUE((pend & ((sigset_t)1 << SIGTERM)) != 0);
+    RXDK_TEST_EQ(sigprocmask(SIG_UNBLOCK, &set, NULL), 0);
+    RXDK_TEST_EQ(g_sig_count, 2);
+
+    signal(SIGTERM, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+    return 0;
+}
+
 static int test_rxdk_io_hooks(void)
 {
 char b[8];
@@ -914,6 +961,7 @@ static const conformance_test tests[] = {
     { "posix", "pipe", test_posix_pipe },
     { "posix", "pipe_blocking", test_posix_pipe_blocking },
     { "posix", "dup2", test_posix_dup2 },
+    { "posix", "signal", test_posix_signal },
     { "rxdk", "io_hooks", test_rxdk_io_hooks },
     { "rxdk", "exec_args", test_rxdk_exec_args },
     { "c23", "stdckdint", test_c23_stdckdint },

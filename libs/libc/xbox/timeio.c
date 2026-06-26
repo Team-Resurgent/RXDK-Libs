@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include <sys/time.h>
+#include <sys/times.h>
 #include <time.h>
 
 #include "xbox/kernel.h"
@@ -92,4 +93,20 @@ clock_t clock(void)
     /* split to avoid 64-bit overflow on c * CLOCKS_PER_SEC */
     return (clock_t)(sec * (unsigned long long)CLOCKS_PER_SEC
                      + (rem * (unsigned long long)CLOCKS_PER_SEC) / freq);
+}
+
+clock_t times(struct tms *buf)
+{
+    /* CLK_TCK == CLOCKS_PER_SEC here, so times() shares clock()'s scale. There
+       is no per-process CPU accounting on Xbox (one dedicated title), so the
+       elapsed monotonic time is reported as user time; the rest are zero. */
+    clock_t t = clock();
+
+    if (buf) {
+        buf->tms_utime = t;
+        buf->tms_stime = 0;
+        buf->tms_cutime = 0;
+        buf->tms_cstime = 0;
+    }
+    return t;
 }

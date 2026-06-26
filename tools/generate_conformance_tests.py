@@ -54,6 +54,7 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/times.h>
 #include <threads.h>
 #include <time.h>
 #include <unistd.h>

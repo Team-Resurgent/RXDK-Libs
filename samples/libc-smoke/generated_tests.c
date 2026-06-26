@@ -18,6 +18,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/times.h>
 #include <threads.h>
 #include <time.h>
 #include <unistd.h>
@@ -593,6 +594,24 @@ unsigned char a[32], b[32];
     return 0;
 }
 
+static int test_posix_times(void)
+{
+struct tms tb;
+    volatile unsigned long spin = 0;
+    clock_t t0 = times(&tb);
+    clock_t t1;
+
+    RXDK_TEST_NE(t0, (clock_t)-1);
+    RXDK_TEST_EQ(tb.tms_stime, (clock_t)0);
+    for (unsigned long i = 0; i < 20000000UL; ++i)
+        spin += i;
+    (void)spin;
+    t1 = times(&tb);
+    RXDK_TEST_TRUE(t1 >= t0);              /* monotonic */
+    RXDK_TEST_TRUE(tb.tms_utime >= t0);    /* user time advanced */
+    return 0;
+}
+
 static int test_c23_stdckdint(void)
 {
 int r;
@@ -711,6 +730,7 @@ static const conformance_test tests[] = {
     { "threads", "identity", test_threads_identity },
     { "posix", "regex", test_posix_regex },
     { "posix", "getentropy", test_posix_getentropy },
+    { "posix", "times", test_posix_times },
     { "c23", "stdckdint", test_c23_stdckdint },
     { "c23", "stdbool", test_c23_stdbool },
     { "c23", "stdalign", test_c23_stdalign },

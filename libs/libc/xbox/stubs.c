@@ -106,11 +106,4 @@ int waitpid(int pid, int *status, int options)
 }
 
 /* read/close/lseek/unlink live in fileio.c (kernel-backed). */
-
-long times(void *buf)
-{
-    (void)buf;
-    return -1;
-}
-
-/* clock_gettime/clock_getres/gettimeofday/clock live in timeio.c (kernel-backed). */
+/* times + clock_gettime/clock_getres/gettimeofday/clock live in timeio.c. */

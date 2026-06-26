@@ -227,12 +227,55 @@ char buf[16];
     return 0;
 }
 
-static int test_c23_stdbit_leading_zeros(void)
+static int test_c23_stdbit(void)
 {
 #if __STDC_VERSION__ >= 202311L
-    unsigned x = 0x80000000u;
-    RXDK_TEST_EQ(stdc_leading_zeros(x), 0u);
+    /* leading / trailing zeros (32-bit) */
+    RXDK_TEST_EQ(stdc_leading_zeros(0x80000000u), 0u);
+    RXDK_TEST_EQ(stdc_leading_zeros(1u), 31u);
     RXDK_TEST_EQ(stdc_leading_zeros(0u), 32u);
+    RXDK_TEST_EQ(stdc_trailing_zeros(0x80000000u), 31u);
+    RXDK_TEST_EQ(stdc_trailing_zeros(1u), 0u);
+    RXDK_TEST_EQ(stdc_trailing_zeros(0u), 32u);
+    /* narrow types via _Generic dispatch */
+    RXDK_TEST_EQ(stdc_leading_zeros((unsigned char)0x80), 0u);
+    RXDK_TEST_EQ(stdc_leading_zeros((unsigned char)1), 7u);
+    RXDK_TEST_EQ(stdc_leading_zeros((unsigned short)1), 15u);
+    RXDK_TEST_EQ(stdc_count_ones((unsigned char)0xFF), 8u);
+    RXDK_TEST_EQ(stdc_count_zeros((unsigned char)0xFF), 0u);
+    /* ones */
+    RXDK_TEST_EQ(stdc_leading_ones(0xFFFFFFFFu), 32u);
+    RXDK_TEST_EQ(stdc_leading_ones(0xF0000000u), 4u);
+    RXDK_TEST_EQ(stdc_trailing_ones(0xFFu), 8u);
+    RXDK_TEST_EQ(stdc_trailing_ones(7u), 3u);
+    /* counts */
+    RXDK_TEST_EQ(stdc_count_ones(0xFFu), 8u);
+    RXDK_TEST_EQ(stdc_count_zeros(0xFFu), 24u);
+    /* first leading / trailing */
+    RXDK_TEST_EQ(stdc_first_leading_one(0x80000000u), 1u);
+    RXDK_TEST_EQ(stdc_first_leading_one(0u), 0u);
+    RXDK_TEST_EQ(stdc_first_leading_zero(0xFFFFFFFFu), 0u);
+    RXDK_TEST_EQ(stdc_first_trailing_one(8u), 4u);
+    RXDK_TEST_EQ(stdc_first_trailing_one(0u), 0u);
+    RXDK_TEST_EQ(stdc_first_trailing_zero(7u), 4u);
+    /* single bit / width / floor / ceil */
+    RXDK_TEST_TRUE(stdc_has_single_bit(8u));
+    RXDK_TEST_TRUE(!stdc_has_single_bit(6u));
+    RXDK_TEST_TRUE(!stdc_has_single_bit(0u));
+    RXDK_TEST_EQ(stdc_bit_width(0u), 0u);
+    RXDK_TEST_EQ(stdc_bit_width(1u), 1u);
+    RXDK_TEST_EQ(stdc_bit_width(255u), 8u);
+    RXDK_TEST_EQ(stdc_bit_floor(5u), 4u);
+    RXDK_TEST_EQ(stdc_bit_floor(8u), 8u);
+    RXDK_TEST_EQ(stdc_bit_floor(0u), 0u);
+    RXDK_TEST_EQ(stdc_bit_ceil(5u), 8u);
+    RXDK_TEST_EQ(stdc_bit_ceil(8u), 8u);
+    RXDK_TEST_EQ(stdc_bit_ceil(0u), 1u);
+    RXDK_TEST_EQ(stdc_bit_ceil(1u), 1u);
+    /* 64-bit (unsigned long long) */
+    RXDK_TEST_EQ(stdc_leading_zeros(1ull), 63u);
+    RXDK_TEST_EQ(stdc_bit_width(0xFFFFFFFFFFFFFFFFull), 64u);
+    RXDK_TEST_EQ(stdc_count_ones(0xFFFFFFFFFFFFFFFFull), 64u);
 #endif
     return 0;
 }
@@ -524,7 +567,7 @@ static const conformance_test tests[] = {
     { "limits", "char_bit", test_limits_char_bit },
     { "stdint", "uint32_width", test_stdint_uint32_width },
     { "stdio", "sprintf_int", test_stdio_sprintf_int },
-    { "c23", "stdbit_leading_zeros", test_c23_stdbit_leading_zeros },
+    { "c23", "stdbit", test_c23_stdbit },
     { "filesystem", "roundtrip", test_filesystem_roundtrip },
     { "time", "monotonic", test_time_monotonic },
     { "time", "wallclock", test_time_wallclock },

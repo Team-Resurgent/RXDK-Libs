@@ -40,7 +40,13 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #define _GNU_SOURCE 1
 #include <ctype.h>
 #include <errno.h>
+#include <float.h>
+#include <inttypes.h>
+#include <iso646.h>
 #include <limits.h>
+#include <math.h>
+#include <setjmp.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -51,6 +57,7 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <threads.h>
 #include <time.h>
 #include <unistd.h>
+#include <wchar.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif

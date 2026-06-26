@@ -86,6 +86,10 @@ pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
         compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
             compile.addArg(obj_rel);
             compile.addArg(opts.opt_flag);
+            // .S sources may #include <picolibc.h> etc., so honor include dirs.
+            for (opts.include_dirs) |inc| {
+                compile.addArg(b.fmt("-I{s}", .{inc}));
+            }
             compile.addFileArg(b.path(src));
         } else {
             compile.addArg(if (opts.is_cpp) "c++" else "cc");

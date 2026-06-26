@@ -4,7 +4,13 @@
 #define _GNU_SOURCE 1
 #include <ctype.h>
 #include <errno.h>
+#include <float.h>
+#include <inttypes.h>
+#include <iso646.h>
 #include <limits.h>
+#include <math.h>
+#include <setjmp.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -15,6 +21,7 @@
 #include <threads.h>
 #include <time.h>
 #include <unistd.h>
+#include <wchar.h>
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif
@@ -38,6 +45,16 @@ static int worker_inc(void *arg)
         mtx_unlock(&g_mtx);
     }
     return 0;
+}
+static int sum_ints(int n, ...)
+{
+    va_list ap;
+    int s = 0;
+    va_start(ap, n);
+    for (int i = 0; i < n; ++i)
+        s += va_arg(ap, int);
+    va_end(ap);
+    return s;
 }
 
 static int test_string_strlen(void)
@@ -280,6 +297,80 @@ static int test_threads_mutex_counter(void)
     return 0;
 }
 
+static int test_math_classify(void)
+{
+RXDK_TEST_TRUE(isnan(NAN));
+    RXDK_TEST_TRUE(isinf(INFINITY));
+    RXDK_TEST_TRUE(!isfinite(INFINITY));
+    RXDK_TEST_TRUE(isfinite(1.0));
+    RXDK_TEST_TRUE(signbit(-1.0));
+    RXDK_TEST_TRUE(!signbit(1.0));
+    RXDK_TEST_TRUE(fabs(-2.5) == 2.5);
+    RXDK_TEST_TRUE(scalbn(1.0, 3) == 8.0);
+    return 0;
+}
+
+static int test_float_limits(void)
+{
+RXDK_TEST_EQ(FLT_RADIX, 2);
+    RXDK_TEST_EQ(DBL_MANT_DIG, 53);
+    RXDK_TEST_TRUE(FLT_MAX > 0.0f);
+    RXDK_TEST_TRUE(DBL_EPSILON > 0.0);
+    return 0;
+}
+
+static int test_setjmp_roundtrip(void)
+{
+jmp_buf jb;
+    volatile int reached = 0;
+    int v = setjmp(jb);
+    if (v == 0) {
+        reached = 1;
+        longjmp(jb, 42);
+    }
+    RXDK_TEST_EQ(v, 42);
+    RXDK_TEST_EQ(reached, 1);
+    return 0;
+}
+
+static int test_inttypes_format(void)
+{
+char buf[32];
+    int32_t v = -123456;
+    RXDK_TEST_TRUE(sprintf(buf, "%" PRId32, v) > 0);
+    RXDK_TEST_STR_EQ(buf, "-123456");
+    RXDK_TEST_EQ((long)imaxabs((intmax_t)-5), 5L);
+    return 0;
+}
+
+static int test_stdarg_varargs(void)
+{
+RXDK_TEST_EQ(sum_ints(4, 1, 2, 3, 4), 10);
+    RXDK_TEST_EQ(sum_ints(0), 0);
+    return 0;
+}
+
+static int test_wchar_basic(void)
+{
+wchar_t dst[4];
+    RXDK_TEST_EQ(wcslen(L"abc"), 3u);
+    RXDK_TEST_EQ(wcscmp(L"abc", L"abc"), 0);
+    RXDK_TEST_TRUE(wcscmp(L"abc", L"abd") < 0);
+    wmemcpy(dst, L"xy", 3);
+    RXDK_TEST_EQ(wcscmp(dst, L"xy"), 0);
+    return 0;
+}
+
+static int test_iso646_macros(void)
+{
+RXDK_TEST_TRUE(1 and 1);
+    RXDK_TEST_TRUE(1 or 0);
+    RXDK_TEST_TRUE(not 0);
+    RXDK_TEST_EQ(5 bitand 3, 1);
+    RXDK_TEST_EQ(4 bitor 1, 5);
+    return 0;
+}
+
 
 static const conformance_test tests[] = {
     { "string", "strlen", test_string_strlen },
@@ -303,6 +394,13 @@ static const conformance_test tests[] = {
     { "time", "wallclock", test_time_wallclock },
     { "time", "clock", test_time_clock },
     { "threads", "mutex_counter", test_threads_mutex_counter },
+    { "math", "classify", test_math_classify },
+    { "float", "limits", test_float_limits },
+    { "setjmp", "roundtrip", test_setjmp_roundtrip },
+    { "inttypes", "format", test_inttypes_format },
+    { "stdarg", "varargs", test_stdarg_varargs },
+    { "wchar", "basic", test_wchar_basic },
+    { "iso646", "macros", test_iso646_macros },
 };
 
 unsigned conformance_test_count(void)

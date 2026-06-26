@@ -33,38 +33,7 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
 }
 
 /* stat/fstat live in fileio.c (kernel-backed). */
-
-typedef struct {
-    int dummy;
-} regex_t;
-
-typedef struct {
-    int dummy;
-} regmatch_t;
-
-int regcomp(regex_t *preg, const char *pattern, int cflags)
-{
-    (void)preg;
-    (void)pattern;
-    (void)cflags;
-    return 0;
-}
-
-int regexec(const regex_t *preg, const char *string, size_t nmatch, regmatch_t pmatch[], int eflags)
-{
-    (void)preg;
-    (void)string;
-    (void)nmatch;
-    (void)pmatch;
-    (void)eflags;
-    return 1;
-}
-
-void regfree(regex_t *preg)
-{
-    (void)preg;
-}
-
+/* regcomp/regexec/regerror/regfree are picolibc's POSIX regex (libc/posix/). */
 /* open() lives in fileio.c (kernel-backed). */
 
 int pipe(int fildes[2])

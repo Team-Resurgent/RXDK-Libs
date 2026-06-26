@@ -107,6 +107,11 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     try list.append(allocator, "libs/libc/xbox/posix_stdio_streams.c");
     // x86 setjmp/longjmp (machine asm; needs <picolibc.h> + relative i386mach.h)
     try list.append(allocator, "vendor/picolibc/libc/machine/x86/setjmp.S");
+    // POSIX regex (Henry Spencer engine; internal headers are same-dir quote includes)
+    try list.append(allocator, "vendor/picolibc/libc/posix/regcomp.c");
+    try list.append(allocator, "vendor/picolibc/libc/posix/regexec.c");
+    try list.append(allocator, "vendor/picolibc/libc/posix/regerror.c");
+    try list.append(allocator, "vendor/picolibc/libc/posix/regfree.c");
 
     return try list.toOwnedSlice(allocator);
 }

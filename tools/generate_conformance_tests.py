@@ -58,6 +58,7 @@ def write_generated(tests: list[tuple[str, ...]]) -> None:
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <regex.h> /* after the headers that define size_t */
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif

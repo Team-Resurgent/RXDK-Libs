@@ -22,6 +22,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <regex.h> /* after the headers that define size_t */
 #if __STDC_VERSION__ >= 202311L
 #include <stdbit.h>
 #endif
@@ -550,6 +551,27 @@ static int test_threads_identity(void)
     return 0;
 }
 
+static int test_posix_regex(void)
+{
+/* picolibc's POSIX regex (Henry Spencer engine). */
+    regex_t re;
+    regmatch_t m[2];
+
+    /* anchored numeric pattern: matches all-digits, rejects otherwise */
+    RXDK_TEST_EQ(regcomp(&re, "^[0-9]+$", REG_EXTENDED), 0);
+    RXDK_TEST_EQ(regexec(&re, "12345", 0, NULL, 0), 0);
+    RXDK_TEST_EQ(regexec(&re, "12a45", 0, NULL, 0), REG_NOMATCH);
+    regfree(&re);
+
+    /* capture group offsets */
+    RXDK_TEST_EQ(regcomp(&re, "([a-z]+)", REG_EXTENDED), 0);
+    RXDK_TEST_EQ(regexec(&re, "  abc  ", 2, m, 0), 0);
+    RXDK_TEST_EQ((int)m[1].rm_so, 2);
+    RXDK_TEST_EQ((int)m[1].rm_eo, 5);
+    regfree(&re);
+    return 0;
+}
+
 
 static const conformance_test tests[] = {
     { "string", "strlen", test_string_strlen },
@@ -584,6 +606,7 @@ static const conformance_test tests[] = {
     { "threads", "tss", test_threads_tss },
     { "threads", "errno_isolation", test_threads_errno_isolation },
     { "threads", "identity", test_threads_identity },
+    { "posix", "regex", test_posix_regex },
 };
 
 unsigned conformance_test_count(void)

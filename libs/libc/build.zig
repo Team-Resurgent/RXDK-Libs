@@ -38,6 +38,7 @@ const picolibc_exclude = [_][]const u8{
     "ryu_umul128.c",
     "tls.c",
     "interrupt.c",
+    "clock.c", // replaced by libs/libc/xbox/timeio.c (KeQueryPerformanceCounter)
     "posix_locale.c",
     "posixiob_stdin.c",
     "posixiob_stdout.c",
@@ -173,6 +174,7 @@ pub fn addXboxObjects(
     const sources = [_][]const u8{
         "libs/libc/xbox/hal.c",
         "libs/libc/xbox/fileio.c",
+        "libs/libc/xbox/timeio.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/trace.c",
         "libs/libc/xbox/stubs.c",

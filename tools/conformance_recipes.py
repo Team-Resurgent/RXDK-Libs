@@ -216,4 +216,54 @@ CONFORMANCE_TESTS: list[tuple[str, str, str]] = [
     return 0;
 """,
     ),
+    (
+        "time",
+        "monotonic",
+        """
+    struct timespec a, b;
+    volatile unsigned long spin = 0;
+
+    RXDK_TEST_EQ(clock_gettime(CLOCK_MONOTONIC, &a), 0);
+    RXDK_TEST_TRUE(a.tv_nsec >= 0 && a.tv_nsec < 1000000000L);
+
+    for (unsigned long i = 0; i < 20000000UL; ++i)
+        spin += i;
+    (void)spin;
+
+    RXDK_TEST_EQ(clock_gettime(CLOCK_MONOTONIC, &b), 0);
+    {
+        long long da = (long long)a.tv_sec * 1000000000LL + a.tv_nsec;
+        long long db = (long long)b.tv_sec * 1000000000LL + b.tv_nsec;
+        RXDK_TEST_TRUE(db > da); /* monotonic clock must advance */
+    }
+    return 0;
+""",
+    ),
+    (
+        "time",
+        "wallclock",
+        """
+    struct timeval tv;
+    RXDK_TEST_EQ(gettimeofday(&tv, NULL), 0);
+    RXDK_TEST_TRUE(tv.tv_usec >= 0 && tv.tv_usec < 1000000L);
+    return 0;
+""",
+    ),
+    (
+        "time",
+        "clock",
+        """
+    volatile unsigned long spin = 0;
+    clock_t c0 = clock();
+    clock_t c1;
+
+    RXDK_TEST_NE(c0, (clock_t)-1);
+    for (unsigned long i = 0; i < 20000000UL; ++i)
+        spin += i;
+    (void)spin;
+    c1 = clock();
+    RXDK_TEST_TRUE(c1 >= c0);
+    return 0;
+""",
+    ),
 ]

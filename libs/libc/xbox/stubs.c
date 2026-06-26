@@ -114,32 +114,4 @@ long times(void *buf)
     return -1;
 }
 
-int clock_gettime(clockid_t clk_id, struct timespec *tp)
-{
-    (void)clk_id;
-    if (tp) {
-        tp->tv_sec = 0;
-        tp->tv_nsec = 0;
-    }
-    return 0;
-}
-
-int clock_getres(clockid_t clk_id, struct timespec *tp)
-{
-    (void)clk_id;
-    if (tp) {
-        tp->tv_sec = 0;
-        tp->tv_nsec = 1000000000;
-    }
-    return 0;
-}
-
-int gettimeofday(struct timeval *tv, void *tz)
-{
-    (void)tz;
-    if (tv) {
-        tv->tv_sec = 0;
-        tv->tv_usec = 0;
-    }
-    return 0;
-}
+/* clock_gettime/clock_getres/gettimeofday/clock live in timeio.c (kernel-backed). */

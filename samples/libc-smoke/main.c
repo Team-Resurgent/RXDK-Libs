@@ -1,5 +1,6 @@
 #include "xbox/kernel.h"
 #include <stdio.h>
+#include <time.h>
 
 typedef struct conformance_test {
     const char *group;
@@ -32,6 +33,21 @@ static void mount_e_drive(void)
     }
 }
 
+/* Show the time stack working end to end: time() -> gmtime() -> strftime(). */
+static void print_datetime(void)
+{
+    time_t now = time(NULL);
+    struct tm *t = gmtime(&now);
+    char buf[64];
+
+    if (t && strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S UTC", t) > 0) {
+        DbgPrint("RXDK-LibsZig: time = %s (epoch %ld)\n", buf, (long)now);
+        printf("RXDK-LibsZig: time = %s (epoch %ld)\n", buf, (long)now);
+    } else {
+        DbgPrint("RXDK-LibsZig: time epoch=%ld\n", (long)now);
+    }
+}
+
 int main(void)
 {
     unsigned total = conformance_test_count();
@@ -43,6 +59,7 @@ int main(void)
     printf("RXDK-LibsZig: libc-smoke start\n");
 
     mount_e_drive();
+    print_datetime();
 
     for (unsigned i = 0; i < total; i++) {
         DbgPrint("RXDK-LibsZig: test %s.%s\n", tests[i].group, tests[i].name);

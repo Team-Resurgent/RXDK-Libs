@@ -34,3 +34,6 @@ prebuilt/xboxkrnl_imports/
 
 # Python
 tools/__pycache__/
+
+# Local Claude Code settings (per-machine, not shared)
+.claude/

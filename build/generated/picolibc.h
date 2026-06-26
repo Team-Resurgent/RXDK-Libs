@@ -3,7 +3,7 @@
 
 #define __ATOMIC_UNGETC 1
 #define __FAST_STRCMP 1
-#define __GLOBAL_ERRNO 1
+#define __PICOLIBC_ERRNO_FUNCTION __rxdk_errno
 #define __PREFER_SIZE_OVER_SPEED 1
 #define __TINY_STDIO 1
 #define __HAVE_COMPLEX 1

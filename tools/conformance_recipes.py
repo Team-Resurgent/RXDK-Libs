@@ -483,4 +483,79 @@ static int tss_worker(void *arg)
 }
 """,
     ),
+    (
+        "threads",
+        "errno_isolation",
+        """
+    /* errno is per-thread: each worker's value must survive the others. */
+    thrd_t th[3];
+    int i, r;
+
+    errno = 4242;
+    for (i = 0; i < 3; ++i)
+        RXDK_TEST_EQ(thrd_create(&th[i], errno_worker, (void *)(intptr_t)(100 + i)),
+                     thrd_success);
+    for (i = 0; i < 3; ++i) {
+        RXDK_TEST_EQ(thrd_join(th[i], &r), thrd_success);
+        RXDK_TEST_EQ(r, 0);
+    }
+    RXDK_TEST_EQ(errno, 4242); /* main's errno untouched by workers */
+    return 0;
+""",
+        """
+static int errno_worker(void *arg)
+{
+    int want = (int)(intptr_t)arg;
+    errno = want;
+    thrd_yield();
+    thrd_yield();
+    if (errno != want) /* another thread's errno must not clobber ours */
+        return 1;
+    return 0;
+}
+""",
+    ),
+    (
+        "threads",
+        "identity",
+        """
+    /* Every thread has a distinct id, thrd_current() inside a thread matches
+       the handle thrd_create() handed back, and thrd_equal is reflexive. */
+    thrd_t th[4];
+    int i, j, r;
+
+    for (i = 0; i < 4; ++i)
+        g_ids[i] = NULL;
+    for (i = 0; i < 4; ++i)
+        RXDK_TEST_EQ(thrd_create(&th[i], id_worker, (void *)(intptr_t)i),
+                     thrd_success);
+    for (i = 0; i < 4; ++i) {
+        RXDK_TEST_EQ(thrd_join(th[i], &r), thrd_success);
+        RXDK_TEST_EQ(r, 0);
+    }
+
+    for (i = 0; i < 4; ++i) {
+        RXDK_TEST_TRUE(g_ids[i] != NULL);
+        RXDK_TEST_TRUE(thrd_equal(g_ids[i], th[i])); /* self == its handle */
+        for (j = i + 1; j < 4; ++j)
+            RXDK_TEST_TRUE(!thrd_equal(g_ids[i], g_ids[j])); /* all distinct */
+    }
+    return 0;
+""",
+        """
+static thrd_t g_ids[4];
+
+static int id_worker(void *arg)
+{
+    int idx = (int)(intptr_t)arg;
+    thrd_t self = thrd_current();
+    if (self == NULL)
+        return 1;
+    if (!thrd_equal(self, thrd_current())) /* reflexive */
+        return 2;
+    g_ids[idx] = self;
+    return 0;
+}
+""",
+    ),
 ]

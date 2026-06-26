@@ -42,7 +42,6 @@ static void print_datetime(void)
 
     if (t && strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S UTC", t) > 0) {
         DbgPrint("RXDK-LibsZig: time = %s (epoch %ld)\n", buf, (long)now);
-        printf("RXDK-LibsZig: time = %s (epoch %ld)\n", buf, (long)now);
     } else {
         DbgPrint("RXDK-LibsZig: time epoch=%ld\n", (long)now);
     }
@@ -56,7 +55,6 @@ int main(void)
     unsigned failed = 0;
 
     DbgPrint("RXDK-LibsZig: libc-smoke start\n");
-    printf("RXDK-LibsZig: libc-smoke start\n");
 
     mount_e_drive();
     print_datetime();
@@ -74,21 +72,9 @@ int main(void)
                 tests[i].name,
                 rc
             );
-            printf(
-                "RXDK-LibsZig libc-smoke FAIL %s.%s line=%d\n",
-                tests[i].group,
-                tests[i].name,
-                rc
-            );
         }
     }
 
-    printf(
-        "RXDK-LibsZig libc-smoke OK passed=%u failed=%u total=%u\n",
-        passed,
-        failed,
-        total
-    );
     DbgPrint(
         "RXDK-LibsZig libc-smoke OK passed=%u failed=%u total=%u\n",
         passed,

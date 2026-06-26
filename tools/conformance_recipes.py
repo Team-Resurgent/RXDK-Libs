@@ -731,6 +731,36 @@ static int pipe_writer(void *arg)
 """,
     ),
     (
+        "stdio",
+        "printf",
+        """
+    /* capture printf's stdout via the output hook and check the formatting */
+    g_pf_n = 0;
+    g_pf_buf[0] = '\\0';
+    rxdk_set_output_handler(pf_capture);
+    printf("n=%d s=%s x=%x", 42, "hi", 255);
+    fflush(stdout);
+    rxdk_set_output_handler(NULL);
+    RXDK_TEST_STR_EQ(g_pf_buf, "n=42 s=hi x=ff");
+    return 0;
+""",
+        """
+static char g_pf_buf[64];
+static size_t g_pf_n;
+
+static ssize_t pf_capture(int fd, const void *buf, size_t count)
+{
+    const char *p = (const char *)buf;
+    size_t i;
+    (void)fd;
+    for (i = 0; i < count && g_pf_n < sizeof(g_pf_buf) - 1; ++i)
+        g_pf_buf[g_pf_n++] = p[i];
+    g_pf_buf[g_pf_n] = '\\0';
+    return (ssize_t)count;
+}
+""",
+    ),
+    (
         "posix",
         "signal",
         """

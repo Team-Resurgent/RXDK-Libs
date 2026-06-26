@@ -112,6 +112,13 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     try list.append(allocator, "vendor/picolibc/libc/posix/regexec.c");
     try list.append(allocator, "vendor/picolibc/libc/posix/regerror.c");
     try list.append(allocator, "vendor/picolibc/libc/posix/regfree.c");
+    // C23 <uchar.h> conversions (char8/16/32); internal uchar-local.h is same-dir
+    try list.append(allocator, "vendor/picolibc/libc/uchar/mbrtoc8.c");
+    try list.append(allocator, "vendor/picolibc/libc/uchar/mbrtoc16.c");
+    try list.append(allocator, "vendor/picolibc/libc/uchar/mbrtoc32.c");
+    try list.append(allocator, "vendor/picolibc/libc/uchar/c8rtomb.c");
+    try list.append(allocator, "vendor/picolibc/libc/uchar/c16rtomb.c");
+    try list.append(allocator, "vendor/picolibc/libc/uchar/c32rtomb.c");
 
     return try list.toOwnedSlice(allocator);
 }

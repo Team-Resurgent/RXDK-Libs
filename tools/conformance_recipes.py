@@ -624,4 +624,116 @@ static int id_worker(void *arg)
     return 0;
 """,
     ),
+    (
+        "posix",
+        "getentropy",
+        """
+    unsigned char a[32], b[32];
+    int i, diff = 0;
+    RXDK_TEST_EQ(getentropy(a, sizeof(a)), 0);
+    RXDK_TEST_EQ(getentropy(b, sizeof(b)), 0);
+    for (i = 0; i < 32; ++i)
+        if (a[i] != b[i])
+            diff++;
+    RXDK_TEST_TRUE(diff > 0);          /* two reads differ */
+    RXDK_TEST_EQ(getentropy(a, 257), -1); /* >256 rejected */
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "stdckdint",
+        """
+    int r;
+    unsigned char ur;
+    RXDK_TEST_TRUE(!ckd_add(&r, 2, 3));
+    RXDK_TEST_EQ(r, 5);
+    RXDK_TEST_TRUE(!ckd_mul(&r, 6, 7));
+    RXDK_TEST_EQ(r, 42);
+    RXDK_TEST_TRUE(ckd_add(&ur, (unsigned char)200, (unsigned char)100));
+    RXDK_TEST_TRUE(ckd_sub(&ur, (unsigned char)1, (unsigned char)2));
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "stdbool",
+        """
+    bool b = true;
+    RXDK_TEST_TRUE(b);
+    RXDK_TEST_TRUE(!false);
+    RXDK_TEST_EQ((int)true, 1);
+    RXDK_TEST_EQ((int)false, 0);
+    RXDK_TEST_EQ(sizeof(bool), 1u);
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "stdalign",
+        """
+    struct A16 { _Alignas(16) char x; };
+    RXDK_TEST_EQ(alignof(int), 4u);
+    RXDK_TEST_EQ(alignof(struct A16), 16u);
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "assert",
+        """
+    assert(1);
+    assert(2 + 2 == 4);
+    static_assert(sizeof(int) == 4, "int is 4 bytes");
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "stdatomic",
+        """
+    atomic_int a;
+    int expected = 8;
+    atomic_flag f = ATOMIC_FLAG_INIT;
+    atomic_init(&a, 0);
+    atomic_store(&a, 5);
+    RXDK_TEST_EQ(atomic_load(&a), 5);
+    RXDK_TEST_EQ(atomic_fetch_add(&a, 3), 5);
+    RXDK_TEST_EQ(atomic_load(&a), 8);
+    RXDK_TEST_TRUE(atomic_compare_exchange_strong(&a, &expected, 10));
+    RXDK_TEST_EQ(atomic_load(&a), 10);
+    RXDK_TEST_TRUE(!atomic_flag_test_and_set(&f));
+    RXDK_TEST_TRUE(atomic_flag_test_and_set(&f));
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "uchar",
+        """
+    char16_t c16 = 0;
+    char32_t c32 = 0;
+    mbstate_t st;
+    memset(&st, 0, sizeof(st));
+    RXDK_TEST_EQ(mbrtoc16(&c16, "A", 1, &st), 1u);
+    RXDK_TEST_EQ(c16, (char16_t)'A');
+    memset(&st, 0, sizeof(st));
+    RXDK_TEST_EQ(mbrtoc32(&c32, "Z", 1, &st), 1u);
+    RXDK_TEST_EQ(c32, (char32_t)'Z');
+    return 0;
+""",
+    ),
+    (
+        "c23",
+        "wctype",
+        """
+    RXDK_TEST_TRUE(iswalpha(L'A'));
+    RXDK_TEST_TRUE(iswdigit(L'7'));
+    RXDK_TEST_TRUE(!iswalpha(L'7'));
+    RXDK_TEST_TRUE(iswspace(L' '));
+    RXDK_TEST_EQ(towupper(L'a'), (wint_t)L'A');
+    RXDK_TEST_EQ(towlower(L'A'), (wint_t)L'a');
+    return 0;
+""",
+    ),
 ]

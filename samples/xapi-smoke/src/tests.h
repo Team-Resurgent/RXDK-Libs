@@ -26,3 +26,4 @@ int test_mu(void);
 int test_savegame(void);
 int test_content(void);
 int test_nickname(void);
+int test_soundtrack(void);

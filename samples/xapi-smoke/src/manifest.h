@@ -34,6 +34,7 @@ static const XapiSmokeTest kXapiSmokeTests[] = {
     { "savegame",    test_savegame },
     { "content",     test_content },
     { "nickname",    test_nickname },
+    { "soundtrack",  test_soundtrack },
 };
 
 #define kXapiSmokeTestCount (sizeof(kXapiSmokeTests) / sizeof(kXapiSmokeTests[0]))

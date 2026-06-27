@@ -158,6 +158,7 @@ pub fn build(b: *std.Build) void {
         "samples/xapi-smoke/src/test_path.c",
         "samples/xapi-smoke/src/test_savegame.c",
         "samples/xapi-smoke/src/test_section.c",
+        "samples/xapi-smoke/src/test_soundtrack.c",
         "samples/xapi-smoke/src/test_strings.c",
         "samples/xapi-smoke/src/test_sync.c",
         "samples/xapi-smoke/src/test_sync2.c",

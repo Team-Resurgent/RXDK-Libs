@@ -142,6 +142,32 @@ function Register-XboxIp {
     }
 }
 
+# Reformat one line of xbox-launch output: surface the title's own debug strings
+# ("  debugstr[NN]: <text>" -> "  | <text>"), dim connection status, and drop the
+# debug-monitor notify/exec/module chatter (and the expected break timeout).
+function Write-LaunchLine {
+    param($Line)
+    $t = ([string]$Line).TrimEnd()
+    if ([string]::IsNullOrWhiteSpace($t)) { return }
+
+    if ($t -match 'debugstr\[\d+\]:\s?(.*)$') {
+        if (-not [string]::IsNullOrWhiteSpace($Matches[1])) {
+            Write-Host ('  | {0}' -f $Matches[1])
+        }
+        return
+    }
+    # Debug-monitor bookkeeping + the expected "no initial break" timeout: drop.
+    if ($t -match '^\s*notify:' -or
+        $t -match '^\s*exec state=' -or
+        $t -match '^\s*module\s' -or
+        $t -match 'Waiting up to .* for initial break' -or
+        $t -match 'Timed out waiting for initial stop') {
+        return
+    }
+    # Everything else (Rebooting..., SetTitle...) is useful status -> dim it.
+    Write-Host ('  {0}' -f $t) -ForegroundColor DarkGray
+}
+
 # Buildable sample ISO targets (the samples kept after the tree cleanup).
 # Iso = the artifact filename compile.ps1 produces under zig-out\iso\.
 $samples = @(
@@ -264,7 +290,10 @@ function Invoke-SampleDeploy {
 
     Write-Host ''
     Write-Host ('==> launching {0} on {1}' -f $remoteXbe, $XboxIp) -ForegroundColor Cyan
-    & $launch /dir $deployRemoteDir /title $deployRemoteXbe /x $XboxIp /timeout $deployLaunchTimeoutMs
+    # Stream xbox-launch output through the cleaner so the title's debug strings
+    # read plainly (the kit puts notify/debugstr/exec lines on stdout).
+    & $launch /dir $deployRemoteDir /title $deployRemoteXbe /x $XboxIp /timeout $deployLaunchTimeoutMs |
+        ForEach-Object { Write-LaunchLine $_ }
     $code = $LASTEXITCODE
 
     Write-Host ''

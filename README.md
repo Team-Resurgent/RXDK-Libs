@@ -91,7 +91,7 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 |------|-----|-------|
 | `xapi-smoke` | `zig-out/samples/xapi-smoke/xapi-smoke.exe` | 27 xAPI category tests (kit hardware + HDD) |
 | `libc-smoke` | `zig-out/samples/libc-smoke/libc-smoke.exe` | libc / C23 runtime matrix incl. `<stdbit.h>` (see `docs/conformance.md`) |
-| `libcpp-smoke` | `zig-out/samples/libcpp-smoke/libcpp-smoke.exe` | libc++ / C++23 — `<expected>`, `<string_view>`, `<iostream>` |
+| `libcpp-smoke` | `zig-out/samples/libcpp-smoke/libcpp-smoke.exe` | libc++ / C++23 — 39 tests incl. exceptions, `<format>`/`<print>`, `<ranges>`, `<expected>`, `<chrono>`, `<thread>`, `<regex>`, `<filesystem>` (see `docs/conformance.md`) |
 
 Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build-iso.ps1`](build-iso.ps1).
 
@@ -99,6 +99,6 @@ Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook
 
 - **Reference only:** [RXDK-Libs](https://github.com/Team-Resurgent/RXDK-Libs) for behavior (startup, printf path, kernel exports). Nothing is copied verbatim from legacy CRT/STL trees.
 - **Root-cause policy:** fix runtime/HAL here; do not patch samples to dodge library bugs.
-- **C++ exceptions / EH:** current libc++ profile is `-fno-exceptions` with `cxa_noexception.cpp` until libunwind is wired for Xbox PE. RTTI remains enabled for `dynamic_cast` / `typeinfo`.
+- **C++ exceptions / EH:** DWARF/Itanium exceptions via vendored libunwind + libc++abi (`__cxa_throw`, `__gxx_personality_v0`, `.eh_frame`). Two Xbox-specific fixes: `main` runs on a dedicated `PsCreateSystemThreadEx` thread (the kernel's init-thread stack is too small for the unwinder), and `_LIBCXXABI_DTOR_FUNC` is forced to `__thiscall` (clang emits i386 member functions thiscall, but `-U_WIN32` would drop it). RTTI enabled for `dynamic_cast` / `typeinfo`.
 
 See [docs/porting-notes.md](docs/porting-notes.md) for architecture and vendor mapping.

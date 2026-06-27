@@ -1,6 +1,7 @@
-// libcpp-smoke conformance tests: C++23 / libc++ features that work today on
-// the Xbox target (exceptions are off; <charconv>/<chrono>/<thread>/<random>/
-// <regex>/<filesystem> are not yet enabled). Each test returns 0 or __LINE__.
+// libcpp-smoke conformance tests: C++23 / libc++ features that work today on the
+// Xbox target. DWARF/Itanium exceptions, <charconv>, <chrono>, <thread>,
+// <random>, <regex>, <filesystem>, <format>, and <print> are all enabled. Each
+// test returns 0 (pass) or __LINE__ (fail).
 
 #include "tests.hpp"
 
@@ -14,8 +15,11 @@
 #include <condition_variable>
 #include <expected>
 #include <filesystem>
+#include <format>
 #include <future>
+#include <iterator>
 #include <mutex>
+#include <print>
 #include <functional>
 #include <map>
 #include <memory>
@@ -627,6 +631,54 @@ int test_exceptions_basic()
     return 0;
 }
 
+int test_charconv_floating()
+{
+    // Floating-point to_chars (libs/libcpp/charconv_fp_to_chars.cpp + ryu).
+    // (from_chars for float is intentionally not provided; see that TU.)
+    char buf[64];
+    auto r = std::to_chars(buf, buf + sizeof(buf), 3.5);
+    RXDK_TEST_TRUE(r.ec == std::errc{});
+    *r.ptr = '\0';
+    RXDK_TEST_TRUE(std::string_view(buf) == "3.5");
+
+    auto p = std::to_chars(buf, buf + sizeof(buf), 0.5, std::chars_format::fixed, 3);
+    RXDK_TEST_TRUE(p.ec == std::errc{});
+    *p.ptr = '\0';
+    RXDK_TEST_TRUE(std::string_view(buf) == "0.500");
+    return 0;
+}
+
+int test_format_basic()
+{
+    // std::format: positional/auto args, fill/align/width, integer bases, float.
+    RXDK_TEST_TRUE(std::format("{}", 42) == "42");
+    RXDK_TEST_TRUE(std::format("{} {}", "ab", "cd") == "ab cd");
+    RXDK_TEST_TRUE(std::format("{1}{0}", "a", "b") == "ba");
+    RXDK_TEST_TRUE(std::format("{:05}", 42) == "00042");
+    RXDK_TEST_TRUE(std::format("{:>4}", "x") == "   x");
+    RXDK_TEST_TRUE(std::format("{:*^5}", "ab") == "*ab**");
+    RXDK_TEST_TRUE(std::format("{:#x}", 255) == "0xff");
+    RXDK_TEST_TRUE(std::format("{:b}", 5) == "101");
+    // floating point routes through std::to_chars (the FP to_chars TU + ryu)
+    RXDK_TEST_TRUE(std::format("{}", 3.5) == "3.5");
+    RXDK_TEST_TRUE(std::format("{:.2f}", 3.14159) == "3.14");
+    return 0;
+}
+
+int test_print_basic()
+{
+    // std::print / std::println write to stdout (-> write() -> DbgPrint on the
+    // kit), so these lines are visible on the debug monitor.
+    std::print("RXDK-LibsZig: std::print {} {}\n", "ok", 7);
+    std::println("RXDK-LibsZig: std::println {}", 42);
+
+    // Verify the formatting engine deterministically via format_to into a buffer.
+    std::string s;
+    std::format_to(std::back_inserter(s), "{}-{:02d}", "v", 3);
+    RXDK_TEST_TRUE(s == "v-03");
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -661,9 +713,12 @@ const cpp_test g_tests[] = {
     {"future", "async", test_future_async},
     {"thread", "sleep", test_thread_sleep},
     {"charconv", "integer", test_charconv_integer},
+    {"charconv", "floating", test_charconv_floating},
     {"regex", "match", test_regex_match},
     {"filesystem", "ops", test_filesystem_ops},
     {"exceptions", "basic", test_exceptions_basic},
+    {"format", "basic", test_format_basic},
+    {"print", "basic", test_print_basic},
 };
 
 } // namespace

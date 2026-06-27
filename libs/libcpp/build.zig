@@ -12,16 +12,15 @@ const exclude = [_][]const u8{
     "atomic.cpp",
     // (thread.cpp / mutex.cpp / shared_mutex.cpp / condition_variable*.cpp are
     //  enabled: C11 thread API backed by libc <threads.h>.)
-    // charconv.cpp provides only the *floating-point* to_chars/from_chars; it
-    // needs ryu (excluded) and the src/include/shared/{fp_bits,str_to_*}.h
-    // helpers, which this libc++ snapshot doesn't vendor. Integer to_chars/
-    // from_chars are header-only in <charconv> and work without this TU.
+    // charconv.cpp instantiates both to_chars AND from_chars for floating point;
+    // from_chars_floating_point.h needs src/include/shared/*.h, which this libc++
+    // snapshot does not vendor. We only need FP to_chars (std::format/print output),
+    // so charconv.cpp stays excluded and libs/libcpp/charconv_fp_to_chars.cpp
+    // (added below) instantiates just the to_chars overloads, backed by ryu/*.cpp.
     "charconv",
     "experimental/",
     "support/",
     "pstl/",
-    "ryu/",
-    "print.cpp",
     "memory_resource",
     "valarray",
     "bind.cpp",
@@ -87,10 +86,25 @@ pub fn collectLibcxxSources(b: *std.Build, allocator: std.mem.Allocator) ![]cons
         try list.append(allocator, rel);
     }
 
+    // ryu/*.cpp (Ryu float<->string) backs charconv.cpp's floating-point
+    // to_chars/from_chars. Also a subdir, so walked explicitly like filesystem.
+    var ryu_dir = try b.build_root.handle.openDir(io, "vendor/llvm-project/libcxx/src/ryu", .{ .iterate = true });
+    defer ryu_dir.close(io);
+    var ryu_it = ryu_dir.iterate();
+    while (try ryu_it.next(io)) |entry| {
+        if (entry.kind != .file) continue;
+        if (!std.mem.endsWith(u8, entry.name, ".cpp")) continue;
+        const rel = try std.fmt.allocPrint(allocator, "vendor/llvm-project/libcxx/src/ryu/{s}", .{entry.name});
+        try list.append(allocator, rel);
+    }
+
     for (cxxabi_sources) |src| {
         const rel = try std.fmt.allocPrint(allocator, "vendor/llvm-project/libcxxabi/src/{s}", .{src});
         try list.append(allocator, rel);
     }
+
+    // First-party FP to_chars (see charconv exclusion note above).
+    try list.append(allocator, try allocator.dupe(u8, "libs/libcpp/charconv_fp_to_chars.cpp"));
 
     return try list.toOwnedSlice(allocator);
 }

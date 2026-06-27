@@ -115,6 +115,25 @@ function Get-RxdkTool {
     return $path
 }
 
+# Register the IP as the toolchain's default Xbox via xbset, so xbcp / xbox-launch
+# / xbwatson can find it. Best-effort: warn (don't fail) if xbset is missing or
+# errors -- the menu still passes the IP explicitly with -x / /x.
+function Register-XboxIp {
+    param([string]$XboxIp)
+    if ([string]::IsNullOrWhiteSpace($XboxIp)) { return }
+    try {
+        $xbset = Get-RxdkTool 'xbset.exe'
+        Write-Host ('==> xbset {0} (default Xbox)' -f $XboxIp) -ForegroundColor Cyan
+        & $xbset $XboxIp
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host ('  xbset returned exit {0}' -f $LASTEXITCODE) -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Host ('  xbset unavailable: {0}' -f $_.Exception.Message) -ForegroundColor Yellow
+    }
+}
+
 # Buildable sample ISO targets (the samples kept after the tree cleanup).
 # Iso = the artifact filename compile.ps1 produces under zig-out\iso\.
 $samples = @(
@@ -332,7 +351,11 @@ function Invoke-SampleAction {
 $deployCfg = Get-DeployConfig
 $cfgDirty = $false
 if ($Mode) { $deployCfg.Mode = $Mode; $cfgDirty = $true }
-if ($PSBoundParameters.ContainsKey('XboxIp')) { $deployCfg.XboxIp = $XboxIp; $cfgDirty = $true }
+if ($PSBoundParameters.ContainsKey('XboxIp')) {
+    $deployCfg.XboxIp = $XboxIp
+    $cfgDirty = $true
+    Register-XboxIp -XboxIp $XboxIp
+}
 if ($cfgDirty) { Save-DeployConfig -Config $deployCfg }
 
 # Config-only invocation (-Mode/-XboxIp with no build target): persist and exit.
@@ -369,6 +392,7 @@ while ($true) {
     if ($chosen -eq 'set-ip') {
         $deployCfg.XboxIp = Read-XboxIp -Current $deployCfg.XboxIp
         Save-DeployConfig -Config $deployCfg
+        Register-XboxIp -XboxIp $deployCfg.XboxIp
         $shown = if ([string]::IsNullOrWhiteSpace($deployCfg.XboxIp)) { '(not set)' } else { $deployCfg.XboxIp }
         Write-Host ('  xbox -> {0}' -f $shown) -ForegroundColor Green
         continue

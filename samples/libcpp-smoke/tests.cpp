@@ -18,6 +18,7 @@
 #include <condition_variable>
 #include <coroutine>
 #include <flat_map>
+#include <generator>
 #include <latch>
 #include <mdspan>
 #include <semaphore>
@@ -779,6 +780,69 @@ int test_coroutine_task()
     return 0;
 }
 
+// std::generator (C++23): a coroutine that models input_range.
+std::generator<int> gen_iota(int n)
+{
+    for (int i = 0; i < n; ++i)
+        co_yield i;
+}
+
+int test_generator_flat()
+{
+    int sum = 0, count = 0;
+    for (int x : gen_iota(5)) {
+        sum += x;
+        ++count;
+    }
+    RXDK_TEST_EQ(count, 5);
+    RXDK_TEST_EQ(sum, 0 + 1 + 2 + 3 + 4); // 10
+    return 0;
+}
+
+// generator<string>: reference is string&&, so co_yield of an lvalue takes the
+// copy-materializing yield_value overload; co_yield of a temporary takes the
+// by-reference one.
+std::generator<std::string> gen_words()
+{
+    std::string a = "alpha";
+    co_yield a;                       // lvalue -> materialized copy
+    co_yield std::string("bravo!");   // rvalue
+}
+
+int test_generator_strings()
+{
+    int total = 0, n = 0;
+    for (auto &&w : gen_words()) {
+        total += static_cast<int>(w.size());
+        ++n;
+    }
+    RXDK_TEST_EQ(n, 2);
+    RXDK_TEST_EQ(total, 5 + 6); // "alpha"=5, "bravo!"=6
+    return 0;
+}
+
+// Recursive generator via std::ranges::elements_of: splice a plain range and a
+// nested generator into the output sequence.
+std::generator<int> gen_nested()
+{
+    co_yield 1;
+    co_yield std::ranges::elements_of(std::vector<int>{2, 3, 4});
+    co_yield std::ranges::elements_of(gen_iota(3)); // 0,1,2
+    co_yield 9;
+}
+
+int test_generator_nested()
+{
+    int sum = 0, count = 0;
+    for (int x : gen_nested()) {
+        sum += x;
+        ++count;
+    }
+    RXDK_TEST_EQ(count, 1 + 3 + 3 + 1);          // 8 elements
+    RXDK_TEST_EQ(sum, 1 + (2 + 3 + 4) + (0 + 1 + 2) + 9); // 22
+    return 0;
+}
+
 int test_iostream_sstream()
 {
     // ostringstream: integer, hex/dec manipulators, and floating point (num_put).
@@ -1081,6 +1145,9 @@ const cpp_test g_tests[] = {
     {"print", "basic", test_print_basic},
     {"coroutine", "generator", test_coroutine_generator},
     {"coroutine", "task", test_coroutine_task},
+    {"generator", "flat", test_generator_flat},
+    {"generator", "strings", test_generator_strings},
+    {"generator", "nested", test_generator_nested},
     {"iostream", "sstream", test_iostream_sstream},
     {"fstream", "roundtrip", test_fstream_roundtrip},
     {"pmr", "vector", test_pmr_vector},

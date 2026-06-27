@@ -15,11 +15,10 @@ const exclude = [_][]const u8{
     "support/",
     "pstl/",
     "new.cpp",
-    // C++ thread_local with non-trivial dtors also needs thread_local *storage*,
-    // which uses the Windows TLS model (__tls_index + a per-thread TLS block set
-    // up by xapi/CRT). Raw libc/libcpp threads don't have that yet, so __cxa_thread_atexit
-    // is unusable here and stays excluded. (C11 tss_create destructors DO run at
-    // thread exit -- see libs/libc/xbox/threads.c rxdk_run_tss_dtors.)
+    // __cxa_thread_atexit (thread_local destructor registration) is provided by
+    // libc (libs/libc/xbox/emutls.c) alongside the emulated-TLS runtime, so its
+    // dtor list and the emutls storage share one thread-exit cleanup. libc++abi's
+    // version is compiled out by _LIBCXXABI_HAS_NO_THREADS anyway.
     "cxa_thread_atexit.cpp",
 };
 

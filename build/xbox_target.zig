@@ -35,6 +35,15 @@ pub fn cppFlags(_: *std.Build) []const []const u8 {
         "-frtti",
         "-nostdinc++",
         "-fno-sanitize=undefined",
+        // C++ thread_local storage: emulated TLS (a per-thread table reached via
+        // __emutls_get_address) instead of the Windows __tls_index/TEB model, which
+        // raw libc/libcpp threads don't set up. Backed by libc tss (see emutls.c).
+        "-femulated-tls",
+        // ...but clang still emits a CodeView S_*THREAD32 debug record for each
+        // thread_local pointing at the native symbol (_g), which -femulated-tls never
+        // defines -> undefined-symbol at link. Debug info isn't consumed in the XBE
+        // pipeline, so drop it (-g0) to suppress the dangling TLS debug records.
+        "-g0",
     };
 }
 

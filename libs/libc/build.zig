@@ -255,6 +255,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/tmpio.c",
         "libs/libc/xbox/timeio.c",
         "libs/libc/xbox/threads.c",
+        "libs/libc/xbox/emutls.c",
         "libs/libc/xbox/locks.c",
         "libs/libc/xbox/errno_tls.c",
         "libs/libc/xbox/hooks.c",

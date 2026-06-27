@@ -976,6 +976,31 @@ int test_tss_dtor()
     return 0;
 }
 
+// C++ thread_local storage (emulated-TLS) + non-trivial destructor run at thread
+// exit (libc++abi __cxa_thread_atexit -> tss key dtor -> rxdk_run_tss_dtors).
+std::atomic<int> g_tl_value{0};
+std::atomic<int> g_tl_dtor_count{0};
+struct TlGuard {
+    int tag = 0;
+    ~TlGuard() { g_tl_dtor_count.fetch_add(1); }
+};
+void touch_thread_local(int v)
+{
+    static thread_local TlGuard g; // per-thread, constructed on first use
+    g.tag = v;
+    g_tl_value.store(g.tag);
+}
+
+int test_thread_local_dtor()
+{
+    g_tl_dtor_count.store(0);
+    std::thread t([] { touch_thread_local(7); });
+    t.join(); // thread exited -> thread_local destructor must have run
+    RXDK_TEST_EQ(g_tl_value.load(), 7);
+    RXDK_TEST_EQ(g_tl_dtor_count.load(), 1);
+    return 0;
+}
+
 int test_bind_placeholders()
 {
     auto f = std::bind(std::plus<int>{}, std::placeholders::_1, 10);
@@ -1066,6 +1091,7 @@ const cpp_test g_tests[] = {
     {"barrier", "phases", test_barrier_phases},
     {"charconv", "from_floating", test_charconv_from_floating},
     {"tss", "dtor", test_tss_dtor},
+    {"thread_local", "dtor", test_thread_local_dtor},
     {"bind", "placeholders", test_bind_placeholders},
     {"any", "basic", test_any_basic},
     {"mdspan", "basic", test_mdspan_basic},

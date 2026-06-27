@@ -4,6 +4,7 @@ const xbox_target = @import("build/xbox_target.zig");
 const coff_lib = @import("build/coff_lib.zig");
 const picolibc = @import("libs/libc/build.zig");
 const libcxx = @import("libs/libcpp/build.zig");
+const libunwind = @import("libs/libcpp/unwind.zig");
 const libxapi_pkg = @import("libs/libxapi/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
@@ -53,13 +54,26 @@ pub fn build(b: *std.Build) void {
 
     const libcxx_objs = libcxx.addLibcxxObjects(b, xbox_target, opt_flag) catch @panic("libcxx sources");
 
+    // LLVM libunwind (DWARF) is an internal component of the C++ runtime, so
+    // its objects are packed into libcpp.lib (not a separate public lib). Until
+    // exceptions are enabled nothing references _Unwind_*, so archive semantics
+    // keep these objects out of links (and thus no undefined __eh_frame_start).
+    const libunwind_objs = libunwind.addUnwindObjects(b, opt_flag);
+    const libunwind_step = b.step("libunwind", "Build LLVM libunwind (DWARF unwinder) objects");
+    libunwind_step.dependOn(libunwind_objs.step);
+
     var libcpp_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     libcpp_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
     libcpp_deps.append(b.allocator, libcxx_objs.step) catch @panic("OOM");
+    libcpp_deps.append(b.allocator, libunwind_objs.step) catch @panic("OOM");
     libcpp_deps.append(b.allocator, libc.step) catch @panic("OOM");
     libcpp_deps.append(b.allocator, xbox_objs.step) catch @panic("OOM");
 
-    const libcpp = coff_lib.pack(b, "libcpp", libcxx_objs.outputs, libcpp_deps.items);
+    var libcpp_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
+    libcpp_objects.appendSlice(b.allocator, libcxx_objs.outputs) catch @panic("OOM");
+    libcpp_objects.appendSlice(b.allocator, libunwind_objs.outputs) catch @panic("OOM");
+
+    const libcpp = coff_lib.pack(b, "libcpp", libcpp_objects.items, libcpp_deps.items);
     const install_libcpp = b.addInstallFile(libcpp.path, "lib/libcpp.lib");
     install_libcpp.step.dependOn(libcpp.step);
 

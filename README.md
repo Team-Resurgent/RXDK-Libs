@@ -91,7 +91,7 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 |------|-----|-------|
 | `xapi-smoke` | `zig-out/samples/xapi-smoke/xapi-smoke.exe` | 27 xAPI category tests (kit hardware + HDD) |
 | `libc-smoke` | `zig-out/samples/libc-smoke/libc-smoke.exe` | libc / C23 runtime matrix incl. `<stdbit.h>` (see `docs/conformance.md`) |
-| `libcpp-smoke` | `zig-out/samples/libcpp-smoke/libcpp-smoke.exe` | libc++ / C++23 — 39 tests incl. exceptions, `<format>`/`<print>`, `<ranges>`, `<expected>`, `<chrono>`, `<thread>`, `<regex>`, `<filesystem>` (see `docs/conformance.md`) |
+| `libcpp-smoke` | `zig-out/samples/libcpp-smoke/libcpp-smoke.exe` | libc++ / C++23 — 51 tests incl. exceptions, coroutines, `<format>`/`<print>`, `<fstream>`, `<ranges>`, `<chrono>`, `<thread>` + atomic-wait/`<latch>`/`<semaphore>`/`<barrier>`, `<pmr>`, `<valarray>`, `<charconv>`, `<regex>`, `<filesystem>` (see `docs/conformance.md`) |
 
 Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build-iso.ps1`](build-iso.ps1).
 

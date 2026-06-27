@@ -7,17 +7,20 @@ const exclude = [_][]const u8{
     "strstream",
     // (thread.cpp / mutex.cpp / shared_mutex.cpp / condition_variable*.cpp are
     //  enabled: C11 thread API backed by libc <threads.h>.)
-    // charconv.cpp instantiates both to_chars AND from_chars for floating point;
-    // from_chars_floating_point.h needs src/include/shared/*.h, which this libc++
-    // snapshot does not vendor. We only need FP to_chars (std::format/print output),
-    // so charconv.cpp stays excluded and libs/libcpp/charconv_fp_to_chars.cpp
-    // (added below) instantiates just the to_chars overloads, backed by ryu/*.cpp.
+    // charconv.cpp's FP path pulls in LLVM libc's __support tree (via libc/shared/*),
+    // which is not vendored here. It stays excluded; libs/libcpp/charconv_fp_{to,from}_chars.cpp
+    // (added below) provide FP to_chars (ryu) and from_chars (strtod) instead.
     "charconv",
     "experimental/",
     "support/",
     "pstl/",
     "bind.cpp",
     "new.cpp",
+    // C++ thread_local with non-trivial dtors also needs thread_local *storage*,
+    // which uses the Windows TLS model (__tls_index + a per-thread TLS block set
+    // up by xapi/CRT). Raw libc/libcpp threads don't have that yet, so __cxa_thread_atexit
+    // is unusable here and stays excluded. (C11 tss_create destructors DO run at
+    // thread exit -- see libs/libc/xbox/threads.c rxdk_run_tss_dtors.)
     "cxa_thread_atexit.cpp",
 };
 
@@ -95,8 +98,9 @@ pub fn collectLibcxxSources(b: *std.Build, allocator: std.mem.Allocator) ![]cons
         try list.append(allocator, rel);
     }
 
-    // First-party FP to_chars (see charconv exclusion note above).
+    // First-party FP to_chars / from_chars (see charconv exclusion note above).
     try list.append(allocator, try allocator.dupe(u8, "libs/libcpp/charconv_fp_to_chars.cpp"));
+    try list.append(allocator, try allocator.dupe(u8, "libs/libcpp/charconv_fp_from_chars.cpp"));
 
     return try list.toOwnedSlice(allocator);
 }

@@ -51,6 +51,8 @@
 #include <variant>
 #include <vector>
 
+#include <threads.h> // C11 tss (thread-specific storage) for the tss-dtor test
+
 namespace {
 
 int test_string_basic()
@@ -925,6 +927,52 @@ int test_barrier_phases()
     return 0;
 }
 
+int test_charconv_from_floating()
+{
+    // std::from_chars(string -> double), inverse of the to_chars test above.
+    double v = 0;
+    const char *s = "2.5xyz";
+    auto r = std::from_chars(s, s + 6, v);
+    RXDK_TEST_TRUE(r.ec == std::errc{});
+    RXDK_TEST_TRUE(v == 2.5);
+    RXDK_TEST_TRUE(r.ptr == s + 3); // consumed "2.5"
+
+    double sci = 0;
+    const char *s2 = "1.5e3";
+    auto r2 = std::from_chars(s2, s2 + 5, sci);
+    RXDK_TEST_TRUE(r2.ec == std::errc{});
+    RXDK_TEST_TRUE(sci == 1500.0);
+
+    double bad = -1;
+    const char *s3 = "abc";
+    auto r3 = std::from_chars(s3, s3 + 3, bad);
+    RXDK_TEST_TRUE(r3.ec == std::errc::invalid_argument);
+    return 0;
+}
+
+// C11 tss (thread-specific storage) destructors must run when the owning thread
+// exits (threads.c rxdk_run_tss_dtors). This is the mechanism C++ thread_local
+// dtors layer on; thread_local *storage* itself (Windows TLS model) is a separate
+// gap for raw libc/libcpp threads, so we exercise the tss layer directly.
+std::atomic<int> g_tss_dtor_count{0};
+void rxdk_tss_dtor(void *p)
+{
+    if (p)
+        g_tss_dtor_count.fetch_add(1);
+}
+
+int test_tss_dtor()
+{
+    g_tss_dtor_count.store(0);
+    tss_t key;
+    RXDK_TEST_EQ(tss_create(&key, rxdk_tss_dtor), (int)thrd_success);
+    std::thread t([&] { tss_set(key, reinterpret_cast<void *>(0x1234)); });
+    t.join(); // thread exited -> its tss destructor must have run
+    RXDK_TEST_EQ(g_tss_dtor_count.load(), 1);
+    tss_delete(key);
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -975,6 +1023,8 @@ const cpp_test g_tests[] = {
     {"latch", "wait", test_latch_wait},
     {"semaphore", "acquire", test_semaphore_acquire},
     {"barrier", "phases", test_barrier_phases},
+    {"charconv", "from_floating", test_charconv_from_floating},
+    {"tss", "dtor", test_tss_dtor},
 };
 
 } // namespace

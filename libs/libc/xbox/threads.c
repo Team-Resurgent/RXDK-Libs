@@ -91,11 +91,17 @@ static void reg_del(struct __rxdk_thrd *t)
 
 /* ---- threads --------------------------------------------------------------- */
 
+/* Runs this thread's TLS (tss) destructors at exit; defined after the tss tables
+   below. Enables C++ thread_local objects with non-trivial destructors (libc++abi
+   __cxa_thread_atexit registers them through a tss key destructor). */
+static void rxdk_run_tss_dtors(void);
+
 static VOID NTAPI thread_entry(PVOID ctx)
 {
     struct __rxdk_thrd *t = (struct __rxdk_thrd *)ctx;
     reg_add(t);
     t->result = t->func(t->arg);
+    rxdk_run_tss_dtors();
     reg_del(t);
 }
 
@@ -180,6 +186,7 @@ int thrd_equal(thrd_t a, thrd_t b)
 _Noreturn void thrd_exit(int res)
 {
     struct __rxdk_thrd *t = thrd_current();
+    rxdk_run_tss_dtors();
     if (t) {
         t->result = res;
         reg_del(t);
@@ -500,6 +507,50 @@ void tss_delete(tss_t key)
     g_tss_keys[key - 1].dtor = NULL;
     for (int i = 0; i < RXDK_TSS_SLOTS; ++i) {
         if (g_tss_slots[i].inuse && g_tss_slots[i].key == key)
+            g_tss_slots[i].inuse = 0;
+    }
+    reg_unlock();
+}
+
+/* Run the calling thread's tss destructors at thread exit (C11 semantics: a
+   destructor sees its slot already cleared and may set new values, so repeat a
+   bounded number of rounds). libc++abi's __cxa_thread_atexit registers C++
+   thread_local destructors via a tss key destructor, so this is what makes
+   thread_local objects with non-trivial destructors actually destruct. */
+static void rxdk_run_tss_dtors(void)
+{
+    PKTHREAD kt = KeGetCurrentThread();
+
+    for (int iter = 0; iter < 4; ++iter) {
+        int ran = 0;
+        for (int i = 0; i < RXDK_TSS_SLOTS; ++i) {
+            void *val = NULL;
+            tss_dtor_t dtor = NULL;
+
+            reg_lock();
+            if (g_tss_slots[i].inuse && g_tss_slots[i].kt == kt &&
+                g_tss_slots[i].val != NULL) {
+                tss_t key = g_tss_slots[i].key;
+                val = g_tss_slots[i].val;
+                g_tss_slots[i].val = NULL; /* clear before calling (C11) */
+                if (key >= 1 && key <= RXDK_TSS_KEYS && g_tss_keys[key - 1].used)
+                    dtor = g_tss_keys[key - 1].dtor;
+            }
+            reg_unlock();
+
+            if (dtor) {
+                dtor(val);
+                ran = 1;
+            }
+        }
+        if (!ran)
+            break;
+    }
+
+    /* Release this thread's slots. */
+    reg_lock();
+    for (int i = 0; i < RXDK_TSS_SLOTS; ++i) {
+        if (g_tss_slots[i].inuse && g_tss_slots[i].kt == kt)
             g_tss_slots[i].inuse = 0;
     }
     reg_unlock();

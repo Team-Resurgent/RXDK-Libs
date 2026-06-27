@@ -31,6 +31,16 @@ static void mount_e_drive(void)
     } else {
         DbgPrint("RXDK-LibsZig: mount E: FAILED status=0x%08x\n", (unsigned)s);
     }
+
+    /* Z: is the scratch/utility drive (tmpfile/tmpnam land here). */
+    RtlInitAnsiString(&dos, "\\??\\Z:");
+    RtlInitAnsiString(&dev, "\\Device\\Harddisk0\\Partition5");
+    s = IoCreateSymbolicLink(&dos, &dev);
+    if (NT_SUCCESS(s) || s == STATUS_OBJECT_NAME_COLLISION) {
+        DbgPrint("RXDK-LibsZig: mounted Z: -> Harddisk0\\Partition5\n");
+    } else {
+        DbgPrint("RXDK-LibsZig: mount Z: FAILED status=0x%08x\n", (unsigned)s);
+    }
 }
 
 /* Show the time stack working end to end: time() -> gmtime() -> strftime(). */

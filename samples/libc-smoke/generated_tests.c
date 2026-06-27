@@ -323,6 +323,46 @@ static int test_stdlib_malloc_large(void)
     return 0;
 }
 
+static int test_stdlib_env(void)
+{
+/* getenv (C) + setenv/unsetenv (POSIX) over picolibc's in-memory environ;
+       no OS environment on Xbox, so it is purely process-local. */
+    RXDK_TEST_TRUE(getenv("RXDK_NOPE") == NULL);
+    RXDK_TEST_EQ(setenv("RXDK_VAR", "hello", 1), 0);
+    RXDK_TEST_STR_EQ(getenv("RXDK_VAR"), "hello");
+    RXDK_TEST_EQ(setenv("RXDK_VAR", "world", 1), 0);   /* overwrite */
+    RXDK_TEST_STR_EQ(getenv("RXDK_VAR"), "world");
+    RXDK_TEST_EQ(setenv("RXDK_VAR", "no", 0), 0);      /* no-overwrite */
+    RXDK_TEST_STR_EQ(getenv("RXDK_VAR"), "world");
+    RXDK_TEST_EQ(unsetenv("RXDK_VAR"), 0);
+    RXDK_TEST_TRUE(getenv("RXDK_VAR") == NULL);
+    return 0;
+}
+
+static int test_stdio_tmpfile(void)
+{
+/* tmpfile() creates a scratch file on Z: and deletes it on close. The
+       harness maps Z: -> Harddisk0\\Partition5. */
+    char rbuf[8];
+    FILE *fp = tmpfile();
+    RXDK_TEST_TRUE(fp != NULL);
+    RXDK_TEST_EQ(fwrite("tmp!", 1, 4, fp), 4u);
+    rewind(fp);
+    RXDK_TEST_EQ(fread(rbuf, 1, 4, fp), 4u);
+    rbuf[4] = '\0';
+    RXDK_TEST_STR_EQ(rbuf, "tmp!");
+    fclose(fp); /* file is removed here (delete-on-close) */
+
+    /* tmpnam() returns a Z: path */
+    {
+        char nbuf[L_tmpnam];
+        char *n = tmpnam(nbuf);
+        RXDK_TEST_TRUE(n != NULL);
+        RXDK_TEST_TRUE(n[0] == 'Z' && n[1] == ':');
+    }
+    return 0;
+}
+
 static int test_ctype_isdigit(void)
 {
 RXDK_TEST_TRUE(isdigit('0'));
@@ -1167,6 +1207,8 @@ static const conformance_test tests[] = {
     { "stdlib", "strtol", test_stdlib_strtol },
     { "stdlib", "malloc_free", test_stdlib_malloc_free },
     { "stdlib", "malloc_large", test_stdlib_malloc_large },
+    { "stdlib", "env", test_stdlib_env },
+    { "stdio", "tmpfile", test_stdio_tmpfile },
     { "ctype", "isdigit", test_ctype_isdigit },
     { "ctype", "toupper", test_ctype_toupper },
     { "errno", "errno_rw", test_errno_errno_rw },

@@ -595,12 +595,12 @@ int vfprintf_s(FILE * __restrict stream, const char * __restrict fmt,
 /*
  * The format of tmpnam names is TXXXXXX, which works with mktemp
  */
-#define L_tmpnam 8
+#define L_tmpnam 16 /* RXDK: room for "Z:\\Txxxxxx" scratch paths (was 8) */
 
 /*
- * tmpnam files are created in the current directory
+ * RXDK tmpfile/tmpnam place scratch files on the Z: utility drive.
  */
-#define P_tmpdir ""
+#define P_tmpdir "Z:\\"
 
 /*
  * We don't have any way of knowing any underlying POSIX limits,

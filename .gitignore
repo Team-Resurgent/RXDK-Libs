@@ -5,6 +5,9 @@ zig-out/
 # Staged redistributable bundle (build-iso.ps1 -Dist)
 dist/
 
+# Local deploy settings for build-iso.ps1 (Xbox IP + iso/deploy mode)
+.rxdk-deploy.json
+
 # RXDK-Tools host bundle (downloaded by scripts/install-rxdk-tools.ps1)
 tools/rxdk-managed/*.zip
 tools/rxdk-managed/win-x64/

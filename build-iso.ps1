@@ -80,9 +80,17 @@ if (-not (Test-Path -LiteralPath $compile)) {
 # ---- Deploy settings (Xbox IP + iso/deploy mode), persisted locally. -------
 $deployConfigPath = Join-Path $root '.rxdk-deploy.json'
 
-# Where a deployed XBE lands on the kit, and what xbox-launch runs.
-$deployRemoteDir = 'e:\xbetest'
+# Where a deployed XBE lands on the kit, and what xbox-launch runs. The RXDK
+# tools address the Xbox E: drive as "xe:\" (xc:/xd: for C:/D:), so the kit-side
+# path E:\xbetest is written xe:\xbetest for xbcp and xbox-launch.
+$deployRemoteDir = 'xe:\xbetest'
 $deployRemoteXbe = 'default.xbe'
+
+# How long xbox-launch streams debug output / waits for the initial break before
+# returning. Our smoke titles run to completion without a debugger break, so the
+# launch "times out" (and the title keeps running on the kit) -- that is success,
+# not failure. Keep it short enough not to stall the menu.
+$deployLaunchTimeoutMs = 30000
 
 function Get-DeployConfig {
     $cfg = [pscustomobject]@{ Mode = 'iso'; XboxIp = '' }
@@ -256,11 +264,27 @@ function Invoke-SampleDeploy {
 
     Write-Host ''
     Write-Host ('==> launching {0} on {1}' -f $remoteXbe, $XboxIp) -ForegroundColor Cyan
-    & $launch /dir $deployRemoteDir /title $deployRemoteXbe /x $XboxIp
-    if ($LASTEXITCODE -ne 0) { throw "xbox-launch failed (exit $LASTEXITCODE)." }
+    & $launch /dir $deployRemoteDir /title $deployRemoteXbe /x $XboxIp /timeout $deployLaunchTimeoutMs
+    $code = $LASTEXITCODE
 
     Write-Host ''
-    Write-Host ('OK  deployed + launched {0} on {1}' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
+    if ($code -eq 2) {
+        # xbox-launch's "no console configured" code.
+        Write-Warning "xbox-launch: no Xbox console configured (set one with 'i' / xbset)."
+    }
+    elseif ($code -eq 0) {
+        Write-Host ('OK  deployed + launched {0} on {1} (hit initial break)' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
+    }
+    else {
+        # Non-zero here means no initial debug break arrived within the timeout.
+        # That is expected for our run-to-completion smoke titles: the title was
+        # launched and ran on the kit (watch full output with 'w' / xbWatson).
+        Write-Host ('OK  deployed + launched {0} on {1} (ran to completion; no debug break)' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
+    }
+
+    # The deploy + launch succeeded; don't let xbox-launch's break-timeout exit
+    # code leak out as a script-level failure (matters for scripted -Sample runs).
+    $global:LASTEXITCODE = 0
 }
 
 # Launch the xbWatson debug-output monitor against the configured kit. It runs

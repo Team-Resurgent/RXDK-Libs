@@ -8,6 +8,7 @@
 #include <cstdio>
 
 #include <algorithm>
+#include <any>
 #include <array>
 #include <atomic>
 #include <barrier>
@@ -16,7 +17,9 @@
 #include <chrono>
 #include <condition_variable>
 #include <coroutine>
+#include <flat_map>
 #include <latch>
+#include <mdspan>
 #include <semaphore>
 #include <expected>
 #include <filesystem>
@@ -973,6 +976,44 @@ int test_tss_dtor()
     return 0;
 }
 
+int test_bind_placeholders()
+{
+    auto f = std::bind(std::plus<int>{}, std::placeholders::_1, 10);
+    RXDK_TEST_EQ(f(5), 15);
+    return 0;
+}
+
+int test_any_basic()
+{
+    std::any a = 42;
+    RXDK_TEST_EQ(std::any_cast<int>(a), 42);
+    a = std::string("hi");
+    RXDK_TEST_TRUE(std::any_cast<std::string &>(a) == "hi");
+    RXDK_TEST_TRUE(a.has_value());
+    return 0;
+}
+
+int test_mdspan_basic()
+{
+    int data[6] = {0, 1, 2, 3, 4, 5};
+    std::mdspan<int, std::extents<std::size_t, 2, 3>> m(data);
+    RXDK_TEST_EQ((m[1, 2]), 5); // row-major: data[1*3+2]
+    RXDK_TEST_EQ(m.extent(0), 2u);
+    return 0;
+}
+
+int test_flat_map_basic()
+{
+    std::flat_map<int, std::string> fm;
+    fm.insert({3, "c"});
+    fm.insert({1, "a"});
+    fm.insert({2, "b"});
+    RXDK_TEST_EQ(fm.size(), 3u);
+    RXDK_TEST_TRUE(fm.begin()->first == 1); // keys sorted
+    RXDK_TEST_TRUE(fm[2] == "b");
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -1025,6 +1066,10 @@ const cpp_test g_tests[] = {
     {"barrier", "phases", test_barrier_phases},
     {"charconv", "from_floating", test_charconv_from_floating},
     {"tss", "dtor", test_tss_dtor},
+    {"bind", "placeholders", test_bind_placeholders},
+    {"any", "basic", test_any_basic},
+    {"mdspan", "basic", test_mdspan_basic},
+    {"flat_map", "basic", test_flat_map_basic},
 };
 
 } // namespace

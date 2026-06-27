@@ -14,7 +14,6 @@ const exclude = [_][]const u8{
     "experimental/",
     "support/",
     "pstl/",
-    "bind.cpp",
     "new.cpp",
     // C++ thread_local with non-trivial dtors also needs thread_local *storage*,
     // which uses the Windows TLS model (__tls_index + a per-thread TLS block set

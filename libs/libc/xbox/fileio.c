@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -30,6 +31,7 @@
 
 #define NT_FILE_SHARE_READ              0x00000001UL
 #define NT_FILE_SHARE_WRITE             0x00000002UL
+#define NT_FILE_SHARE_DELETE            0x00000004UL
 
 #define NT_FILE_OPEN                    1UL
 #define NT_FILE_CREATE                  2UL
@@ -70,6 +72,7 @@ typedef struct rxdk_ofd {
     HANDLE handle;
     long long offset;
     int append;
+    char *path; /* absolute DOS path for directory fds (dirfd-relative *at ops) */
     /* pipe */
     struct rxdk_pipe *pipe;
     int write_end;
@@ -105,9 +108,59 @@ static rxdk_ofd *new_ofd(int kind)
     o->handle = NULL;
     o->offset = 0;
     o->append = 0;
+    o->path = NULL;
     o->pipe = NULL;
     o->write_end = 0;
     return o;
+}
+
+/* Internal interop for dirio.c (directory + path ops live there but share this
+   fd table): map an fd to its kernel file handle, and install a bare handle as
+   a new file fd. Not part of the public API. */
+HANDLE __rxdk_fd_handle(int fd)
+{
+    rxdk_ofd *o = get_fd(fd);
+    return (o && o->kind == RXDK_KIND_FILE) ? o->handle : NULL;
+}
+
+int __rxdk_fd_install(HANDLE h)
+{
+    rxdk_ofd *o = new_ofd(RXDK_KIND_FILE);
+    int fd;
+    if (!o)
+        return -1;
+    o->handle = h;
+    fd = alloc_slot(o);
+    if (fd < 0) {
+        free(o);
+        return -1;
+    }
+    return fd;
+}
+
+/* Like __rxdk_fd_install but remembers the fd's absolute DOS path, so *at()
+   ops can resolve dirfd-relative children to absolute paths (FATX has no
+   RootDirectory-relative open). `path` is copied. */
+int __rxdk_fd_install_path(HANDLE h, const char *path)
+{
+    int fd = __rxdk_fd_install(h);
+    rxdk_ofd *o;
+    if (fd < 0)
+        return -1;
+    o = get_fd(fd);
+    if (o && path) {
+        size_t n = strlen(path);
+        o->path = (char *)malloc(n + 1);
+        if (o->path)
+            memcpy(o->path, path, n + 1);
+    }
+    return fd;
+}
+
+const char *__rxdk_fd_path(int fd)
+{
+    rxdk_ofd *o = get_fd(fd);
+    return o ? o->path : NULL;
 }
 
 static long long file_size(HANDLE h)
@@ -198,6 +251,19 @@ static void pipe_detach(rxdk_ofd *o)
 
 /* ---- file open ------------------------------------------------------------- */
 
+/* The NT object manager wants '\\' separators, but POSIX callers (notably
+   libc++ <filesystem>, which joins paths with '/') hand us forward slashes.
+   Normalize into a caller buffer before building the object name. */
+#define RXDK_PATH_BUF 1024
+static const char *fix_seps(const char *in, char *out, size_t n)
+{
+    size_t i = 0;
+    for (; in[i] && i + 1 < n; ++i)
+        out[i] = (in[i] == '/') ? '\\' : in[i];
+    out[i] = '\0';
+    return out;
+}
+
 /* Open `path` (a DOS-style name like "E:\\dir\\file") under \??\. */
 static NTSTATUS nt_open(const char *path, ULONG access, ULONG disp,
                         ULONG options, HANDLE *out)
@@ -205,14 +271,16 @@ static NTSTATUS nt_open(const char *path, ULONG access, ULONG disp,
     OBJECT_STRING name;
     OBJECT_ATTRIBUTES obja;
     IO_STATUS_BLOCK iosb;
+    char buf[RXDK_PATH_BUF];
 
-    RtlInitAnsiString(&name, path);
+    RtlInitAnsiString(&name, fix_seps(path, buf, sizeof buf));
     InitializeObjectAttributes(&obja, &name, OBJ_CASE_INSENSITIVE,
                                ObDosDevicesDirectory(), NULL);
     return NtCreateFile(out,
                         access | NT_SYNCHRONIZE | NT_FILE_READ_ATTRIBUTES,
                         &obja, &iosb, NULL, FILE_ATTRIBUTE_NORMAL,
-                        NT_FILE_SHARE_READ | NT_FILE_SHARE_WRITE,
+                        NT_FILE_SHARE_READ | NT_FILE_SHARE_WRITE |
+                            NT_FILE_SHARE_DELETE,
                         disp,
                         options | NT_FILE_SYNCHRONOUS_IO_NONALERT);
 }
@@ -384,6 +452,7 @@ int close(int fd)
             pipe_detach(o);
         else if (o->handle)
             NtClose(o->handle);
+        free(o->path);
         free(o);
     }
     return 0;
@@ -505,10 +574,11 @@ int stat(const char *path, struct stat *st)
     OBJECT_ATTRIBUTES obja;
     FILE_NETWORK_OPEN_INFORMATION info;
     NTSTATUS s;
+    char buf[RXDK_PATH_BUF];
 
     if (!st) { errno = EINVAL; return -1; }
 
-    RtlInitAnsiString(&name, path);
+    RtlInitAnsiString(&name, fix_seps(path, buf, sizeof buf));
     InitializeObjectAttributes(&obja, &name, OBJ_CASE_INSENSITIVE,
                                ObDosDevicesDirectory(), NULL);
     s = NtQueryFullAttributesFile(&obja, &info);

@@ -473,6 +473,33 @@ static int test_filesystem_roundtrip(void)
     return 0;
 }
 
+static int test_stdio_rename(void)
+{
+/* rename() is C-standard <stdio.h>; picolibc ships no generic body, so the
+       RXDK libc provides it (kernel-backed). Create, rename, verify old gone +
+       new present, then clean up. The harness mounts E: before tests run. */
+    const char *a = "E:\\rn_old.bin";
+    const char *b = "E:\\rn_new.bin";
+    struct stat sbuf;
+    FILE *fp;
+
+    remove(a);
+    remove(b);
+
+    fp = fopen(a, "wb");
+    RXDK_TEST_TRUE(fp != NULL);
+    RXDK_TEST_EQ(fwrite("hi", 1, 2, fp), 2u);
+    fclose(fp);
+
+    RXDK_TEST_EQ(rename(a, b), 0);
+    RXDK_TEST_NE(stat(b, &sbuf), -1);           /* new name exists */
+    RXDK_TEST_EQ((long)sbuf.st_size, 2L);
+    RXDK_TEST_EQ(stat(a, &sbuf), -1);           /* old name gone */
+
+    RXDK_TEST_EQ(remove(b), 0);
+    return 0;
+}
+
 static int test_time_monotonic(void)
 {
 struct timespec a, b;
@@ -1149,6 +1176,7 @@ static const conformance_test tests[] = {
     { "stdio", "sprintf_int", test_stdio_sprintf_int },
     { "c23", "stdbit", test_c23_stdbit },
     { "filesystem", "roundtrip", test_filesystem_roundtrip },
+    { "stdio", "rename", test_stdio_rename },
     { "time", "monotonic", test_time_monotonic },
     { "time", "wallclock", test_time_wallclock },
     { "time", "clock", test_time_clock },

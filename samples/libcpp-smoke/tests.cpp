@@ -4,6 +4,8 @@
 
 #include "tests.hpp"
 
+#include <cstdio>
+
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -11,6 +13,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <expected>
+#include <filesystem>
 #include <future>
 #include <mutex>
 #include <functional>
@@ -518,6 +521,62 @@ int test_regex_match()
     return 0;
 }
 
+int test_filesystem_ops()
+{
+    // exceptions are off, so use the error_code overloads throughout.
+    namespace fs = std::filesystem;
+    std::error_code ec;
+    fs::path dir = "E:\\fstest";
+    fs::path file = "E:\\fstest\\hello.txt";
+    fs::path file2 = "E:\\fstest\\renamed.txt";
+
+    // Reliable, re-runnable clean slate: individual remove() uses unlink/rmdir
+    // directly (not the openat-relative path), so it works regardless of a
+    // prior run's state. (remove_all itself is exercised at the end.)
+    fs::remove(file, ec);
+    fs::remove(file2, ec);
+    fs::remove(dir, ec);
+
+    // create_directory -> libc mkdir
+    RXDK_TEST_TRUE(fs::create_directory(dir, ec));
+    RXDK_TEST_FALSE((bool)ec);
+    RXDK_TEST_TRUE(fs::is_directory(fs::status(dir, ec)));
+
+    // write a payload via C stdio (fstream is not built)
+    FILE *fp = std::fopen("E:\\fstest\\hello.txt", "wb");
+    RXDK_TEST_TRUE(fp != nullptr);
+    RXDK_TEST_EQ(std::fwrite("hello!", 1, 6, fp), 6u);
+    std::fclose(fp);
+
+    // exists + file_size -> libc stat
+    RXDK_TEST_TRUE(fs::exists(file, ec));
+    RXDK_TEST_EQ((long)fs::file_size(file, ec), 6L);
+
+    // directory_iterator -> libc opendir/readdir/closedir
+    bool found = false;
+    for (auto const &e : fs::directory_iterator(dir, ec)) {
+        if (e.path().filename() == "hello.txt") {
+            found = true;
+            RXDK_TEST_EQ((long)e.file_size(ec), 6L);
+        }
+    }
+    RXDK_TEST_FALSE((bool)ec);
+    RXDK_TEST_TRUE(found);
+
+    // rename within the filesystem -> libc rename
+    fs::rename(file, file2, ec);
+    RXDK_TEST_FALSE((bool)ec);
+    RXDK_TEST_TRUE(fs::exists(file2, ec));
+    RXDK_TEST_FALSE(fs::exists(file, ec));
+
+    // remove_all -> exercises openat/fdopendir/readdir/unlinkat
+    std::uintmax_t n = fs::remove_all(dir, ec);
+    RXDK_TEST_FALSE((bool)ec);
+    RXDK_TEST_TRUE(n >= 2); /* directory + the renamed file */
+    RXDK_TEST_FALSE(fs::exists(dir, ec));
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -553,6 +612,7 @@ const cpp_test g_tests[] = {
     {"thread", "sleep", test_thread_sleep},
     {"charconv", "integer", test_charconv_integer},
     {"regex", "match", test_regex_match},
+    {"filesystem", "ops", test_filesystem_ops},
 };
 
 } // namespace

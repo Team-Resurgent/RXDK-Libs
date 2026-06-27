@@ -72,6 +72,19 @@ pub fn collectLibcxxSources(b: *std.Build, allocator: std.mem.Allocator) ![]cons
         try list.append(allocator, rel);
     }
 
+    // <filesystem> sources live in a subdir (not covered by the glob above).
+    // Enabled via _LIBCPP_HAS_FILESYSTEM; backed by libc dirio.c (dirent + path
+    // ops over Nt*). Symlink/hardlink ops degrade to ENOSYS (FATX has neither).
+    var fs_dir = try b.build_root.handle.openDir(io, "vendor/llvm-project/libcxx/src/filesystem", .{ .iterate = true });
+    defer fs_dir.close(io);
+    var fs_it = fs_dir.iterate();
+    while (try fs_it.next(io)) |entry| {
+        if (entry.kind != .file) continue;
+        if (!std.mem.endsWith(u8, entry.name, ".cpp")) continue;
+        const rel = try std.fmt.allocPrint(allocator, "vendor/llvm-project/libcxx/src/filesystem/{s}", .{entry.name});
+        try list.append(allocator, rel);
+    }
+
     for (cxxabi_sources) |src| {
         const rel = try std.fmt.allocPrint(allocator, "vendor/llvm-project/libcxxabi/src/{s}", .{src});
         try list.append(allocator, rel);

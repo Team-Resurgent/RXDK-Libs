@@ -1,12 +1,33 @@
 #include "tests.hpp"
 
-// DbgPrint is the kernel debug-console sink (extern "C"); the harness reports
-// through it so output matches libc-smoke and lands on the debug monitor
-// unbuffered, independent of iostream.
-extern "C" void DbgPrint(const char *format, ...);
+#include "xbox/kernel.h"
+
+// DbgPrint (from xbox/kernel.h) is the kernel debug-console sink; the harness
+// reports through it so output matches libc-smoke and lands on the debug
+// monitor unbuffered, independent of iostream.
+
+// Map E: -> the hard disk data partition so the <filesystem> test has a real
+// place to work. Mounting is policy, so it lives in the harness, not libc.
+// STATUS_OBJECT_NAME_COLLISION means E: is already mapped, which is fine.
+static void mount_e_drive()
+{
+    OBJECT_STRING dos;
+    OBJECT_STRING dev;
+    NTSTATUS s;
+
+    RtlInitAnsiString(&dos, "\\??\\E:");
+    RtlInitAnsiString(&dev, "\\Device\\Harddisk0\\Partition1");
+    s = IoCreateSymbolicLink(&dos, &dev);
+    if (NT_SUCCESS(s) || s == STATUS_OBJECT_NAME_COLLISION)
+        DbgPrint("RXDK-LibsZig: mounted E: -> Harddisk0\\Partition1\n");
+    else
+        DbgPrint("RXDK-LibsZig: mount E: FAILED status=0x%08x\n", (unsigned)s);
+}
 
 int main()
 {
+    mount_e_drive();
+
     unsigned total = cpp_test_count();
     const cpp_test *tests = cpp_tests();
     unsigned passed = 0;

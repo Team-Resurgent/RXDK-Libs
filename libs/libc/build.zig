@@ -40,6 +40,7 @@ const picolibc_exclude = [_][]const u8{
     "interrupt.c",
     "clock.c", // replaced by libs/libc/xbox/timeio.c (KeQueryPerformanceCounter)
     "lock.c",  // replaced by libs/libc/xbox/locks.c (RTL critical sections)
+    "remove.c", // picolibc's is unlink-only; dirio.c provides a POSIX remove (rmdir for dirs)
     "posix_locale.c",
     "posixiob_stdin.c",
     "posixiob_stdout.c",
@@ -244,6 +245,7 @@ pub fn addXboxObjects(
     const sources = [_][]const u8{
         "libs/libc/xbox/hal.c",
         "libs/libc/xbox/fileio.c",
+        "libs/libc/xbox/dirio.c",
         "libs/libc/xbox/timeio.c",
         "libs/libc/xbox/threads.c",
         "libs/libc/xbox/locks.c",

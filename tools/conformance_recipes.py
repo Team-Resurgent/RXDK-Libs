@@ -279,6 +279,35 @@ CONFORMANCE_TESTS: list[tuple[str, str, str]] = [
 """,
     ),
     (
+        "stdio",
+        "rename",
+        r"""
+    /* rename() is C-standard <stdio.h>; picolibc ships no generic body, so the
+       RXDK libc provides it (kernel-backed). Create, rename, verify old gone +
+       new present, then clean up. The harness mounts E: before tests run. */
+    const char *a = "E:\\rn_old.bin";
+    const char *b = "E:\\rn_new.bin";
+    struct stat sbuf;
+    FILE *fp;
+
+    remove(a);
+    remove(b);
+
+    fp = fopen(a, "wb");
+    RXDK_TEST_TRUE(fp != NULL);
+    RXDK_TEST_EQ(fwrite("hi", 1, 2, fp), 2u);
+    fclose(fp);
+
+    RXDK_TEST_EQ(rename(a, b), 0);
+    RXDK_TEST_NE(stat(b, &sbuf), -1);           /* new name exists */
+    RXDK_TEST_EQ((long)sbuf.st_size, 2L);
+    RXDK_TEST_EQ(stat(a, &sbuf), -1);           /* old name gone */
+
+    RXDK_TEST_EQ(remove(b), 0);
+    return 0;
+""",
+    ),
+    (
         "time",
         "monotonic",
         """

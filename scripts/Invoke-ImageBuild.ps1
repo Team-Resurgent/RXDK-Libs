@@ -8,7 +8,6 @@ param(
     [switch]$BootDisc,
     [switch]$MountHdd,
     [switch]$FormatHdd,
-    [switch]$SkipPePatch,
     [int]$MaxImportThunks = 0,
     [int]$StackSize = 65536
 )
@@ -26,12 +25,10 @@ if (-not (Test-Path -LiteralPath $inputFull)) {
     throw "Input PE not found: $inputFull"
 }
 
-if (-not $SkipPePatch) {
-    Write-Host "==> patch PE subsystem (IMAGE_SUBSYSTEM_XBOX), stack commit $StackSize" -ForegroundColor Cyan
-    # The kit reads the main-thread stack from the PE SizeOfStackCommit, so patch
-    # it to the same $StackSize we pass imagebld (/stack -> XBE header) below.
-    & (Join-Path $PSScriptRoot 'Patch-PeXbox.ps1') -Path $inputFull -StackCommit $StackSize
-}
+# No PE pre-patch: imagebld (Rxdk.XbeImage) coerces the subsystem to Xbox and
+# resolves the real TLS directory itself. The main-thread stack comes from the XBE
+# header SizeOfStackCommit, which imagebld sets from /stack (passed below); the XBE
+# startup spawns main on a thread sized from it.
 
 & (Join-Path $PSScriptRoot 'Invoke-PeVerify.ps1') -InputExe $inputFull -MaxImportThunks $MaxImportThunks
 

@@ -26,8 +26,10 @@ for ($i = 0; $i -lt $nsec; $i++) {
 }
 
 $subsystem = [BitConverter]::ToUInt16($bytes, $opt + 68)
+# imagebld coerces the subsystem to Xbox (14) when building the XBE, so the input
+# PE need not already be 14. Just report it; don't require a PE-patch pre-pass.
 if ($subsystem -ne 14) {
-    throw "PE subsystem is $subsystem (expected 14 Xbox). Run Patch-PeXbox.ps1."
+    Write-Host "PE subsystem is $subsystem (imagebld will coerce to 14 Xbox)." -ForegroundColor Yellow
 }
 
 $descCount = 0

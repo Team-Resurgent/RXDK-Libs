@@ -27,7 +27,7 @@ LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
 
 - C functions must **not** use a leading underscore in source when targeting the PE ABI layer (e.g. implement `write`, not `_write`; `write` links as `_write`).
 - Asm `crt0.S` defines `_start`; link with `-e start` (not `-e _start`).
-- After link, `scripts/Patch-PeXbox.ps1` sets PE **subsystem 14** (`IMAGE_SUBSYSTEM_XBOX`) — required for valid `imagebld` output (Zig/lld only emits Windows subsystem 3 today).
+- Zig/lld emits Windows subsystem 3 (CONSOLE); no PE pre-patch is needed — `imagebld` (RXDK-Tools) coerces the subsystem to **14** (`IMAGE_SUBSYSTEM_XBOX`) and resolves the real TLS directory itself when building the XBE.
 - `imagebld` only embeds part of `.data` in the XBE (see `SizeOfRawData` in `imagebld /DUMP`, often less than the PE `SizeOfRawData`). `Write-XboxImageInit.ps1` probe-links, converts to XBE, and emits `zig-out/link/<sample>_image_init.h` with the **XBE** tail size; `image_init.c` clears that range at startup before `printf`.
 - lld on PE does not honour picolibc `__weak_reference` for `stdin`/`stdout`/`stderr`. Vendor `posixiob_*.c` is excluded; `libs/libc/xbox/posix_stdio_streams.c` defines strong `FILE *const stdin/stdout/stderr` alongside `__posix_*`.
 - `___main` comes from C `__main` in `libs/libc/xbox/startup.c`; it walks MinGW/lld `__CTOR_LIST__` so libc++ global ctors (including `std::cout` init) run before C++ `main` body executes.

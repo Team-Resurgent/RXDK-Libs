@@ -321,15 +321,8 @@ pub fn addPeSample(
         probe_link.dependOn(&compile_probe_image_init.step);
         probe_link.dependOn(link_dir_mkdir);
 
-        const patch_probe = b.addSystemCommand(&.{
-            "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
-            "-File", "scripts/Patch-PeXbox.ps1",
-            "-Path",
-        });
-        patch_probe.addArg(probe_exe);
-        patch_probe.setCwd(b.path("."));
-        patch_probe.step.dependOn(probe_link);
-
+        // Write-XboxImageInit only reads section RVAs (for the .data/.bss clear
+        // region), so the probe needs no PE pre-patch.
         const gen_header = b.addSystemCommand(&.{
             "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
             "-File", "scripts/Write-XboxImageInit.ps1",
@@ -338,7 +331,7 @@ pub fn addPeSample(
         });
         gen_header.addArg(probe_exe);
         gen_header.setCwd(b.path("."));
-        gen_header.step.dependOn(&patch_probe.step);
+        gen_header.step.dependOn(probe_link);
 
         const compile_image_init = b.addSystemCommand(&.{
             b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
@@ -377,17 +370,10 @@ pub fn addPeSample(
         break :blk link;
     };
 
-    const patch = b.addSystemCommand(&.{
-        "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
-        "-File", "scripts/Patch-PeXbox.ps1",
-        "-Path",
-    });
-    patch.addArg(exe_path);
-    patch.setCwd(b.path("."));
-    patch.step.dependOn(final_link);
-
+    // No PE pre-patch: imagebld coerces the subsystem to Xbox and resolves the
+    // real TLS directory itself, so the linker output ships to imagebld as-is.
     const install = b.addInstallFile(b.path(exe_path), b.fmt("samples/{s}/{s}.exe", .{ opts.name, opts.name }));
-    install.step.dependOn(&patch.step);
+    install.step.dependOn(final_link);
 
-    return .{ .step = &patch.step, .install = &install.step };
+    return .{ .step = final_link, .install = &install.step };
 }

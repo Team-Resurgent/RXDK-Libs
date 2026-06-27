@@ -61,7 +61,7 @@ This unpacks to `tools/rxdk-managed/win-x64/tools/imagebld.exe` (and `xbox-launc
 .\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\libcpp-smoke\libcpp-smoke.exe -XbeDebug -NoLibWarn
 ```
 
-Or call `imagebld` directly (after `.\scripts\Patch-PeXbox.ps1 -Path zig-out\samples\libc-smoke\libc-smoke.exe`):
+Or call `imagebld` directly (it coerces the subsystem to Xbox and resolves TLS, so no PE pre-patch is needed):
 
 ```powershell
 $ib = tools\rxdk-managed\win-x64\tools\imagebld.exe

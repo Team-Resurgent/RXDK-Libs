@@ -9,11 +9,15 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
+#include <barrier>
 #include <bit>
 #include <charconv>
 #include <chrono>
 #include <condition_variable>
 #include <coroutine>
+#include <latch>
+#include <semaphore>
 #include <expected>
 #include <filesystem>
 #include <format>
@@ -854,6 +858,73 @@ int test_valarray_basic()
     return 0;
 }
 
+// ---- C++20 blocking sync (atomic wait/notify backend = atomic.cpp) ----
+
+int test_atomic_wait()
+{
+    std::atomic<int> a{0};
+    std::thread setter([&] {
+        a.store(7);
+        a.notify_one();
+    });
+    a.wait(0); // blocks until the value differs from 0
+    RXDK_TEST_EQ(a.load(), 7);
+    setter.join();
+    return 0;
+}
+
+int test_latch_wait()
+{
+    std::latch l(3);
+    std::atomic<int> counter{0};
+    std::vector<std::thread> ts;
+    for (int i = 0; i < 3; ++i)
+        ts.emplace_back([&] {
+            counter.fetch_add(1);
+            l.count_down();
+        });
+    l.wait();
+    RXDK_TEST_EQ(counter.load(), 3);
+    for (auto &t : ts)
+        t.join();
+    return 0;
+}
+
+int test_semaphore_acquire()
+{
+    std::counting_semaphore<4> sem(0);
+    std::atomic<int> produced{0};
+    std::thread producer([&] {
+        for (int i = 0; i < 3; ++i) {
+            produced.fetch_add(1);
+            sem.release();
+        }
+    });
+    for (int i = 0; i < 3; ++i)
+        sem.acquire();
+    producer.join();
+    RXDK_TEST_EQ(produced.load(), 3);
+    return 0;
+}
+
+int test_barrier_phases()
+{
+    std::atomic<int> ticks{0};
+    std::barrier b(2);
+    auto worker = [&] {
+        b.arrive_and_wait();
+        ticks.fetch_add(1);
+        b.arrive_and_wait();
+        ticks.fetch_add(1);
+    };
+    std::thread t1(worker);
+    std::thread t2(worker);
+    t1.join();
+    t2.join();
+    RXDK_TEST_EQ(ticks.load(), 4); // 2 threads x 2 phases
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -900,6 +971,10 @@ const cpp_test g_tests[] = {
     {"fstream", "roundtrip", test_fstream_roundtrip},
     {"pmr", "vector", test_pmr_vector},
     {"valarray", "basic", test_valarray_basic},
+    {"atomic", "wait", test_atomic_wait},
+    {"latch", "wait", test_latch_wait},
+    {"semaphore", "acquire", test_semaphore_acquire},
+    {"barrier", "phases", test_barrier_phases},
 };
 
 } // namespace

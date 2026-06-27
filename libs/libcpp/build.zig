@@ -4,12 +4,7 @@ const compile_c = @import("../../build/compile_c.zig");
 const exclude = [_][]const u8{
     "filesystem",
     "random_shuffle",
-    "barrier",
-    "latch",
-    "semaphore",
-    "stop_token",
     "strstream",
-    "atomic.cpp",
     // (thread.cpp / mutex.cpp / shared_mutex.cpp / condition_variable*.cpp are
     //  enabled: C11 thread API backed by libc <threads.h>.)
     // charconv.cpp instantiates both to_chars AND from_chars for floating point;

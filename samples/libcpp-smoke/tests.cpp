@@ -13,13 +13,17 @@
 #include <charconv>
 #include <chrono>
 #include <condition_variable>
+#include <coroutine>
 #include <expected>
 #include <filesystem>
 #include <format>
 #include <future>
+#include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <mutex>
 #include <print>
+#include <sstream>
 #include <functional>
 #include <map>
 #include <memory>
@@ -679,6 +683,112 @@ int test_print_basic()
     return 0;
 }
 
+// ---- coroutines (C++20, header-only <coroutine>; no <generator> in this libc++) ----
+
+// Lazy synchronous generator: initial_suspend suspends, each next() resumes to
+// the next co_yield. Exercises co_yield, coroutine_handle, suspend points, and
+// the compiler-allocated coroutine frame (operator new/delete).
+struct co_gen {
+    struct promise_type {
+        int current;
+        co_gen get_return_object() {
+            return co_gen{std::coroutine_handle<promise_type>::from_promise(*this)};
+        }
+        std::suspend_always initial_suspend() noexcept { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        std::suspend_always yield_value(int v) noexcept {
+            current = v;
+            return {};
+        }
+        void return_void() noexcept {}
+        void unhandled_exception() {}
+    };
+    std::coroutine_handle<promise_type> h;
+    explicit co_gen(std::coroutine_handle<promise_type> hh) : h(hh) {}
+    co_gen(co_gen &&o) noexcept : h(o.h) { o.h = {}; }
+    ~co_gen() { if (h) h.destroy(); }
+    bool next() {
+        h.resume();
+        return !h.done();
+    }
+    int current() const { return h.promise().current; }
+};
+
+co_gen co_range(int n)
+{
+    for (int i = 0; i < n; ++i)
+        co_yield i;
+}
+
+int test_coroutine_generator()
+{
+    co_gen g = co_range(4);
+    int count = 0;
+    int sum = 0;
+    while (g.next()) {
+        sum += g.current();
+        ++count;
+    }
+    RXDK_TEST_EQ(count, 4);
+    RXDK_TEST_EQ(sum, 0 + 1 + 2 + 3); // 6
+    return 0;
+}
+
+// Eager task: initial_suspend never suspends, so the body runs to co_return at
+// call time. Exercises co_await (suspend_never) and co_return <value>.
+struct co_task {
+    struct promise_type {
+        int result;
+        co_task get_return_object() {
+            return co_task{std::coroutine_handle<promise_type>::from_promise(*this)};
+        }
+        std::suspend_never initial_suspend() noexcept { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        void return_value(int v) noexcept { result = v; }
+        void unhandled_exception() {}
+    };
+    std::coroutine_handle<promise_type> h;
+    explicit co_task(std::coroutine_handle<promise_type> hh) : h(hh) {}
+    co_task(co_task &&o) noexcept : h(o.h) { o.h = {}; }
+    ~co_task() { if (h) h.destroy(); }
+    int get() const { return h.promise().result; }
+};
+
+co_task co_add(int a, int b)
+{
+    co_await std::suspend_never{};
+    co_return a + b;
+}
+
+int test_coroutine_task()
+{
+    co_task t = co_add(20, 22);
+    RXDK_TEST_EQ(t.get(), 42);
+    return 0;
+}
+
+int test_iostream_sstream()
+{
+    // ostringstream: integer, hex/dec manipulators, and floating point (num_put).
+    std::ostringstream os;
+    os << "x=" << 42 << " hex=" << std::hex << 255 << std::dec << " f=" << 3.5;
+    RXDK_TEST_TRUE(os.str() == "x=42 hex=ff f=3.5");
+
+    // istringstream: extract int, word, double (num_get).
+    std::istringstream is("7 abc 2.5");
+    int i = 0;
+    std::string w;
+    double d = 0.0;
+    is >> i >> w >> d;
+    RXDK_TEST_EQ(i, 7);
+    RXDK_TEST_TRUE(w == "abc");
+    RXDK_TEST_TRUE(d == 2.5);
+
+    // Real std::cout (global stream object init) -> visible on the debug monitor.
+    std::cout << "RXDK-LibsZig: std::cout works " << 123 << " pi=" << 3.14159 << std::endl;
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -719,6 +829,9 @@ const cpp_test g_tests[] = {
     {"exceptions", "basic", test_exceptions_basic},
     {"format", "basic", test_format_basic},
     {"print", "basic", test_print_basic},
+    {"coroutine", "generator", test_coroutine_generator},
+    {"coroutine", "task", test_coroutine_task},
+    {"iostream", "sstream", test_iostream_sstream},
 };
 
 } // namespace

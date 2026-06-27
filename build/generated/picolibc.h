@@ -9,7 +9,11 @@
 #define __HAVE_COMPLEX 1
 #define __IO_C99_FORMATS 1
 #define __IO_LONG_LONG 1
-#define __IO_DEFAULT 0
+/* Default printf/scanf I/O variant = double ('d'): float formatting/parsing for
+   printf, scanf, and iostream num_put/num_get. Backed by the Ryu engines
+   (dtoa_ryu.c etc., compiled in libs/libc/build.zig). Was 0 (no float ->
+   picolibc emitted the "*float*" placeholder for %f/%g). */
+#define __IO_DEFAULT 'd'
 #define __NEWLIB_VERSION "4.3.0"
 #define _NEWLIB_VERSION "4.3.0"
 #define _PICOLIBC_MINOR__ 8

@@ -26,6 +26,10 @@ const picolibc_exclude = [_][]const u8{
     "sincosf_data.c",
     "s_scalbn.c",
     "cosf.c",
+    // The Ryu float<->string engines are excluded: picolibc's classic engines
+    // (dtoa_engine.c / ftoa_engine.c / atod_engine.c / atof_engine.c, all built)
+    // already provide __dtoa_engine etc., so compiling the ryu variants too would
+    // duplicate those symbols. The classic engines back the double printf variant.
     "ftoa_ryu.c",
     "dtoa_ryu.c",
     "atod_ryu.c",
@@ -258,7 +262,6 @@ pub fn addXboxObjects(
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/stubs.c",
         "libs/libc/xbox/tls_stub.c",
-        "libs/libc/xbox/picolibc_aliases.c",
         "libs/libc/xbox/libm_shim.c",
         "libs/libc/c23/stdbit.c",
         "libs/libc/xbox/crt0.S",

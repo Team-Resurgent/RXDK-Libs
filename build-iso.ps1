@@ -139,19 +139,21 @@ function Select-Action {
     Write-Host '   d. dist               libs libc/libcpp/libxapi + headers -> dist\'
     Write-Host '   m. mode               toggle iso <-> deploy'
     Write-Host '   i. ip                 set Xbox hostname / IP (deploy)'
+    Write-Host '   w. watson             launch xbWatson debug monitor (/x <ip>)'
     Write-Host '   q. quit'
     Write-Host ''
     while ($true) {
-        $sel = Read-Host ('  Select [1-{0}, d, m, i, q]' -f $samples.Count)
+        $sel = Read-Host ('  Select [1-{0}, d, m, i, w, q]' -f $samples.Count)
         if ($sel -match '^\s*(q|quit)\s*$') { return $null }
         if ($sel -match '^\s*d(ist)?\s*$') { return 'dist' }
         if ($sel -match '^\s*m(ode)?\s*$') { return 'toggle-mode' }
         if ($sel -match '^\s*i(p)?\s*$') { return 'set-ip' }
+        if ($sel -match '^\s*w(atson)?\s*$') { return 'watson' }
         $n = 0
         if ([int]::TryParse($sel, [ref]$n) -and $n -ge 1 -and $n -le $samples.Count) {
             return $samples[$n - 1]
         }
-        Write-Host '  Invalid selection - enter a number, d/m/i, or q to quit.' -ForegroundColor Yellow
+        Write-Host '  Invalid selection - enter a number, d/m/i/w, or q to quit.' -ForegroundColor Yellow
     }
 }
 
@@ -240,6 +242,19 @@ function Invoke-SampleDeploy {
 
     Write-Host ''
     Write-Host ('OK  deployed + launched {0} on {1}' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
+}
+
+# Launch the xbWatson debug-output monitor against the configured kit. It runs
+# in its own window so the menu stays usable.
+function Invoke-Watson {
+    param([Parameter(Mandatory)] [string]$XboxIp)
+    if ([string]::IsNullOrWhiteSpace($XboxIp)) {
+        throw "No Xbox IP set. Pick 'i' in the menu (or pass -XboxIp) first."
+    }
+    $watson = Get-RxdkTool 'xbwatson.exe'
+    Write-Host ('==> launching xbWatson on {0}' -f $XboxIp) -ForegroundColor Cyan
+    Start-Process -FilePath $watson -ArgumentList '/x', $XboxIp | Out-Null
+    Write-Host ('OK  xbWatson started for {0}' -f $XboxIp) -ForegroundColor Green
 }
 
 function Invoke-DistBuild {
@@ -356,6 +371,11 @@ while ($true) {
         Save-DeployConfig -Config $deployCfg
         $shown = if ([string]::IsNullOrWhiteSpace($deployCfg.XboxIp)) { '(not set)' } else { $deployCfg.XboxIp }
         Write-Host ('  xbox -> {0}' -f $shown) -ForegroundColor Green
+        continue
+    }
+    if ($chosen -eq 'watson') {
+        try { Invoke-Watson -XboxIp $deployCfg.XboxIp }
+        catch { Write-Host ('  {0}' -f $_.Exception.Message) -ForegroundColor Red }
         continue
     }
 

@@ -68,6 +68,10 @@ pub const Options = struct {
     deps: []const *std.Build.Step = &.{},
     /// Probe-link PE, emit zig-out/link/<name>_image_init.h, then link image_init.o.
     bootstrap: bool = false,
+    /// Bracket the merged .eh_frame with crtbegin/crtend markers so libunwind
+    /// (baremetal) can discover it via __eh_frame_start/__eh_frame_end. Needed
+    /// by C++ samples that use exceptions.
+    eh_frame_bracket: bool = false,
 };
 
 const MkdirContext = struct {
@@ -110,12 +114,17 @@ fn addLinkExe(
     bootstrap_objs: []const []const u8,
     entry: []const u8,
     deps: []const *std.Build.Step,
+    eh_begin: ?[]const u8,
+    eh_end: ?[]const u8,
 ) *std.Build.Step {
     const link = b.addSystemCommand(&.{
         b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
     });
     link.addArgs(&.{ "-o" });
     link.addArg(out_exe);
+    // crtbegin marker first so __eh_frame_start precedes every .eh_frame
+    // contribution (libunwind baremetal discovery brackets [start,end)).
+    if (eh_begin) |o| link.addArg(o);
     link.addArg(sample_obj);
     if (libs.len > 0) {
         link.addFileArg(b.path("prebuilt/xboxkrnl_xbld.obj"));
@@ -144,6 +153,8 @@ fn addLinkExe(
             link.addFileArg(lib);
         }
     }
+    // crtend marker last so __eh_frame_end follows every .eh_frame contribution.
+    if (eh_end) |o| link.addArg(o);
     link.addArgs(link_flags);
     link.addArg(opt_flag);
     link.addArg("-rtlib=compiler-rt");
@@ -253,6 +264,32 @@ pub fn addPeSample(
         link_deps.append(b.allocator, step) catch @panic("OOM");
     }
 
+    // crtbegin/crtend .eh_frame markers (C++ exception unwinding). Compiled here
+    // so addLinkExe can place them first/last around the merged .eh_frame.
+    var eh_begin_obj: ?[]const u8 = null;
+    var eh_end_obj: ?[]const u8 = null;
+    if (opts.eh_frame_bracket) {
+        const beg = b.fmt("{s}/{s}_eh_begin.o", .{ out_dir, opts.name });
+        const end = b.fmt("{s}/{s}_eh_end.o", .{ out_dir, opts.name });
+        inline for (.{
+            .{ beg, "libs/libc/xbox/crt_eh_begin.S" },
+            .{ end, "libs/libc/xbox/crt_eh_end.S" },
+        }) |pair| {
+            const c = b.addSystemCommand(&.{
+                b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
+            });
+            c.addArg("-march=pentium3");
+            c.addArgs(&.{ "-c", "-o" });
+            c.addArg(pair[0]);
+            c.addFileArg(b.path(pair[1]));
+            c.setCwd(b.path("."));
+            c.step.dependOn(mkdir);
+            link_deps.append(b.allocator, &c.step) catch @panic("OOM");
+        }
+        eh_begin_obj = beg;
+        eh_end_obj = end;
+    }
+
     const final_link = if (opts.bootstrap) blk: {
         const probe_exe = b.fmt("zig-out/link/{s}_probe.exe", .{opts.name});
         const probe_image_init_obj = b.fmt("zig-out/link/{s}_image_init_probe.o", .{opts.name});
@@ -279,6 +316,7 @@ pub fn addPeSample(
         const probe_link = addLinkExe(
             b, xbox_target, opt_flag, link_flags, probe_exe, obj_path,
             opts.libs, object_rsp, extra_obj_paths.items, &.{probe_image_init_obj}, opts.entry, link_deps.items,
+            eh_begin_obj, eh_end_obj,
         );
         probe_link.dependOn(&compile_probe_image_init.step);
         probe_link.dependOn(link_dir_mkdir);
@@ -325,6 +363,7 @@ pub fn addPeSample(
         const link = addLinkExe(
             b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
             opts.libs, object_rsp, extra_obj_paths.items, &.{image_init_obj}, opts.entry, link_deps.items,
+            eh_begin_obj, eh_end_obj,
         );
         link.dependOn(&compile_image_init.step);
         link.dependOn(link_dir_mkdir);
@@ -333,6 +372,7 @@ pub fn addPeSample(
         const link = addLinkExe(
             b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
             opts.libs, object_rsp, extra_obj_paths.items, &.{}, opts.entry, link_deps.items,
+            eh_begin_obj, eh_end_obj,
         );
         break :blk link;
     };

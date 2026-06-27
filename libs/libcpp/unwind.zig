@@ -9,6 +9,10 @@ const xbox_target = @import("../../build/xbox_target.zig");
 // defined so arch detection + the DWARF (no-SEH) model are selected.
 
 const include_dirs = [_][]const u8{
+    // Shadows mingw <windows.h>/<ntverp.h> (pulled under _WIN32) with empty
+    // stubs -- we use the DWARF unwinder, not SEH, so no Win32 API is needed,
+    // and the real windows.h drags in stralign.h -> wcscpy. Must be first.
+    "build/generated/libunwind_stubs",
     "vendor/llvm-project/libunwind/include",
     "vendor/llvm-project/libunwind/src",
     "build/generated",
@@ -18,6 +22,9 @@ const include_dirs = [_][]const u8{
 
 const extra = [_][]const u8{
     "-D_LIBUNWIND_IS_BAREMETAL",
+    // No SRWLOCK on Xbox; we use static .eh_frame discovery (not the dynamic-FDE
+    // cache), so libunwind's RWMutex can be a no-op.
+    "-D_LIBUNWIND_HAS_NO_THREADS",
     "-funwind-tables",
     "-Wno-everything",
     "-include",

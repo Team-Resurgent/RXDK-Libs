@@ -4,7 +4,5 @@
 _xbox_image_anchor:
 _start:
 	call	xbox_runtime_init
-	subl	$12, %esp
-	call	main
-	addl	$12, %esp
-	call	xbox_halt
+	call	xbox_start_main
+	ret

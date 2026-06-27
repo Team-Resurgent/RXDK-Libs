@@ -27,8 +27,10 @@ if (-not (Test-Path -LiteralPath $inputFull)) {
 }
 
 if (-not $SkipPePatch) {
-    Write-Host "==> patch PE subsystem (IMAGE_SUBSYSTEM_XBOX)" -ForegroundColor Cyan
-    & (Join-Path $PSScriptRoot 'Patch-PeXbox.ps1') -Path $inputFull
+    Write-Host "==> patch PE subsystem (IMAGE_SUBSYSTEM_XBOX), stack commit $StackSize" -ForegroundColor Cyan
+    # The kit reads the main-thread stack from the PE SizeOfStackCommit, so patch
+    # it to the same $StackSize we pass imagebld (/stack -> XBE header) below.
+    & (Join-Path $PSScriptRoot 'Patch-PeXbox.ps1') -Path $inputFull -StackCommit $StackSize
 }
 
 & (Join-Path $PSScriptRoot 'Invoke-PeVerify.ps1') -InputExe $inputFull -MaxImportThunks $MaxImportThunks

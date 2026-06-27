@@ -195,6 +195,7 @@ pub fn build(b: *std.Build) void {
     cpp_sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     cpp_sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
     cpp_sample_objects.appendSlice(b.allocator, libcxx_objs.outputs) catch @panic("OOM");
+    cpp_sample_objects.appendSlice(b.allocator, libunwind_objs.outputs) catch @panic("OOM");
 
     const cxx_inc = [_]std.Build.LazyPath{
         b.path("build/generated/libcxx"),
@@ -232,12 +233,14 @@ pub fn build(b: *std.Build) void {
         .extra_flags = &.{
             "-U_WIN32",
             "-U__MINGW32__",
+            "-fexceptions",
             "-include", "picolibc_prereq.h",
             "-include", "__config_site",
         },
         .entry = "start",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step },
+        .eh_frame_bracket = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step, libunwind_objs.step },
     });
     const libcpp_smoke_step = b.step("libcpp-smoke", "Build libc++ / C++23 runtime smoke (kit ISO)");
     libcpp_smoke_step.dependOn(libcpp_smoke.install);

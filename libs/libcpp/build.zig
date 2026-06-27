@@ -38,8 +38,10 @@ const cxxabi_sources = [_][]const u8{
     "stdlib_new_delete.cpp",
     "cxa_aux_runtime.cpp",
     "cxa_default_handlers.cpp",
-    "cxa_noexception.cpp",
+    "cxa_exception.cpp",
+    "cxa_personality.cpp",
     "cxa_exception_storage.cpp",
+    "fallback_malloc.cpp",
     "cxa_handlers.cpp",
     "cxa_vector.cpp",
     "cxa_virtual.cpp",
@@ -114,11 +116,22 @@ pub fn addLibcxxObjects(
 ) !compile_c.CompileBatch {
     const sources = try collectLibcxxSources(b, b.allocator);
     const flags = xbox_target.appendFlags(b, xbox_target.cppFlags(b), &.{
+        // C++ exceptions: DWARF EH backed by libunwind. Overrides cppFlags'
+        // -fno-exceptions (last flag wins) so the runtime's throw machinery
+        // (__cxa_throw, the personality routine) is generated.
+        "-fexceptions",
         // Vendored libc++/libcxxabi — silence upstream warnings (e.g.
         // -Wpragma-clang-attribute), matching the picolibc/libxapi batches.
         "-Wno-everything",
         "-U_WIN32",
         "-U__MINGW32__",
+        // We undefine _WIN32 above to take libc++/libcxxabi's Itanium/POSIX code
+        // paths, but the exception-object destructor must still be called with
+        // the target's member-function convention (__thiscall on i386: this in
+        // ECX). Without this, libcxxabi calls ~T() as cdecl and the destructor
+        // reads `this` from a stale ECX -> wild pointer (e.g. ~runtime_error's
+        // refstring). Keep the __thiscall qualifier on _LIBCXXABI_DTOR_FUNC.
+        "-D_LIBCXXABI_FORCE_THISCALL_DTOR",
         "-include",
         "picolibc_prereq.h",
         "-include",

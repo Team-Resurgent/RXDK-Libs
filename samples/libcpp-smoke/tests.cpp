@@ -26,6 +26,7 @@
 #include <regex>
 #include <set>
 #include <shared_mutex>
+#include <stdexcept>
 #include <span>
 #include <string>
 #include <thread>
@@ -577,6 +578,55 @@ int test_filesystem_ops()
     return 0;
 }
 
+namespace {
+int g_eh_dtor_ran;
+struct UnwindGuard {
+    ~UnwindGuard() { g_eh_dtor_ran = 1; }
+};
+[[noreturn]] void throw_int_via_guard()
+{
+    UnwindGuard g; // must be destroyed as the exception unwinds the stack
+    throw 42;
+}
+} // namespace
+
+int test_exceptions_basic()
+{
+    // DWARF/Itanium exceptions (libunwind + cxa_personality). Throw across a
+    // frame with a local object and confirm its destructor runs during unwind.
+    g_eh_dtor_ran = 0;
+    bool caught = false;
+    try {
+        throw_int_via_guard();
+    } catch (int e) {
+        caught = true;
+        RXDK_TEST_EQ(e, 42);
+    }
+    RXDK_TEST_TRUE(caught);
+    RXDK_TEST_EQ(g_eh_dtor_ran, 1);
+
+    // std::exception hierarchy + what()
+    try {
+        throw std::runtime_error("boom");
+    } catch (const std::exception &ex) {
+        RXDK_TEST_TRUE(std::string(ex.what()) == "boom");
+    }
+
+    // catch-by-base (slicing-safe reference) and rethrow
+    int selected = 0;
+    try {
+        try {
+            throw 7;
+        } catch (...) {
+            throw; // rethrow the in-flight exception
+        }
+    } catch (int) {
+        selected = 1;
+    }
+    RXDK_TEST_EQ(selected, 1);
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -613,6 +663,7 @@ const cpp_test g_tests[] = {
     {"charconv", "integer", test_charconv_integer},
     {"regex", "match", test_regex_match},
     {"filesystem", "ops", test_filesystem_ops},
+    {"exceptions", "basic", test_exceptions_basic},
 };
 
 } // namespace

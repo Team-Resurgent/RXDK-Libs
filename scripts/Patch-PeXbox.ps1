@@ -1,7 +1,13 @@
-# Patch PE32 optional header for Xbox imagebld (subsystem 14, 1 MiB stack).
+# Patch PE32 optional header for Xbox imagebld (subsystem 14, large stack).
+# The PE SizeOfStackCommit is the field the kit boot path actually uses for the
+# main-thread stack (xbdm dmmodule.c: pxbe->StackSize = PE SizeOfStackCommit),
+# so it must match the stack size passed to imagebld. The caller threads a
+# single $StackCommit value through both to keep them in sync.
 param(
     [Parameter(Mandatory)]
-    [string]$Path
+    [string]$Path,
+    [uint32]$StackReserve = 0x00100000,
+    [uint32]$StackCommit = 0x00010000
 )
 
 $ErrorActionPreference = 'Stop'
@@ -113,8 +119,12 @@ try {
     [BitConverter]::GetBytes([uint16]0).CopyTo($buf, $optOff + 42)   # MinorOperatingSystemVersion
     [BitConverter]::GetBytes([uint16]1).CopyTo($buf, $optOff + 48)   # MajorSubsystemVersion
     [BitConverter]::GetBytes([uint16]0).CopyTo($buf, $optOff + 50)   # MinorSubsystemVersion
-    [BitConverter]::GetBytes([uint32]0x00100000).CopyTo($buf, $optOff + 72) # SizeOfStackReserve (TriangleXDK)
-    [BitConverter]::GetBytes([uint32]0x00001000).CopyTo($buf, $optOff + 76) # SizeOfStackCommit (TriangleXDK)
+    [BitConverter]::GetBytes($StackReserve).CopyTo($buf, $optOff + 72) # SizeOfStackReserve
+    # SizeOfStackCommit is the REAL main-thread stack on the kit: xbdm sets the
+    # XBE StackSize from this field (kernel dmmodule.c). 4 KiB is far too small
+    # for the DWARF C++ exception unwinder (it overflowed mid-unwind). Threaded
+    # from the caller so it matches imagebld's /stack value.
+    [BitConverter]::GetBytes($StackCommit).CopyTo($buf, $optOff + 76) # SizeOfStackCommit
     [BitConverter]::GetBytes([uint32]0x00100000).CopyTo($buf, $optOff + 80) # SizeOfHeapReserve
     [BitConverter]::GetBytes([uint32]0x00010000).CopyTo($buf, $optOff + 84) # SizeOfHeapCommit (64 KiB initial)
     [BitConverter]::GetBytes([uint16]14).CopyTo($buf, $optOff + 68)    # IMAGE_SUBSYSTEM_XBOX

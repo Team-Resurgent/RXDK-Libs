@@ -1,6 +1,19 @@
 #include "tests.hpp"
 
+#include <exception>
+
 #include "xbox/kernel.h"
+
+// Unhandled-exception hook. std::set_terminate is the standard registration
+// point; std::terminate fires for an uncaught throw (or if stack unwinding
+// can't find a handler / the .eh_frame tables are wrong). Report via DbgPrint
+// so it's visible on the debug monitor instead of a silent halt.
+static void rxdk_terminate()
+{
+    DbgPrint("RXDK-LibsZig: std::terminate -- unhandled C++ exception\n");
+    for (;;)
+        ;
+}
 
 // DbgPrint (from xbox/kernel.h) is the kernel debug-console sink; the harness
 // reports through it so output matches libc-smoke and lands on the debug
@@ -26,6 +39,7 @@ static void mount_e_drive()
 
 int main()
 {
+    std::set_terminate(rxdk_terminate);
     mount_e_drive();
 
     unsigned total = cpp_test_count();

@@ -17,13 +17,16 @@
 #include <expected>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <future>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <memory_resource>
 #include <mutex>
 #include <print>
 #include <sstream>
+#include <valarray>
 #include <functional>
 #include <map>
 #include <memory>
@@ -789,6 +792,68 @@ int test_iostream_sstream()
     return 0;
 }
 
+int test_fstream_roundtrip()
+{
+    // std::ofstream/ifstream over FATX (basic_filebuf -> fopen/fread/fwrite).
+    // E: is mounted to Harddisk0\Partition1 by the harness (see mount_e_drive).
+    const char *path = "E:\\rxdk_fstream.txt";
+    {
+        std::ofstream out(path, std::ios::trunc);
+        RXDK_TEST_TRUE(out.is_open());
+        out << "line1\n" << 42 << " " << 3.5 << "\n";
+    }
+    {
+        std::ifstream in(path);
+        RXDK_TEST_TRUE(in.is_open());
+        std::string l1;
+        std::getline(in, l1);
+        RXDK_TEST_TRUE(l1 == "line1");
+        int n = 0;
+        double d = 0.0;
+        in >> n >> d;
+        RXDK_TEST_EQ(n, 42);
+        RXDK_TEST_TRUE(d == 3.5);
+    }
+    std::error_code ec;
+    std::filesystem::remove(path, ec);
+    return 0;
+}
+
+int test_pmr_vector()
+{
+    // Polymorphic allocators over a fixed stack buffer (no global heap churn).
+    std::array<std::byte, 2048> buf;
+    std::pmr::monotonic_buffer_resource pool(buf.data(), buf.size());
+    std::pmr::vector<int> v(&pool);
+    for (int i = 0; i < 16; ++i)
+        v.push_back(i * i);
+    RXDK_TEST_EQ(v.size(), 16u);
+    RXDK_TEST_EQ(v[15], 225);
+
+    std::pmr::string s("hello", &pool);
+    s += " world";
+    RXDK_TEST_TRUE(s == "hello world");
+    return 0;
+}
+
+int test_valarray_basic()
+{
+    std::valarray<int> a = {1, 2, 3, 4};
+    std::valarray<int> b = a * 2;
+    RXDK_TEST_EQ(b.sum(), 20); // 2+4+6+8
+    RXDK_TEST_EQ(a.max(), 4);
+
+    std::valarray<double> d = {1.0, 4.0, 9.0};
+    std::valarray<double> r = std::sqrt(d);
+    RXDK_TEST_TRUE(r[2] == 3.0);
+
+    std::valarray<int> sub = a[std::slice(1, 2, 2)]; // indices 1,3 -> {2,4}
+    RXDK_TEST_EQ(sub.size(), 2u);
+    RXDK_TEST_EQ(sub[0], 2);
+    RXDK_TEST_EQ(sub[1], 4);
+    return 0;
+}
+
 const cpp_test g_tests[] = {
     {"string", "basic", test_string_basic},
     {"vector", "basic", test_vector_basic},
@@ -832,6 +897,9 @@ const cpp_test g_tests[] = {
     {"coroutine", "generator", test_coroutine_generator},
     {"coroutine", "task", test_coroutine_task},
     {"iostream", "sstream", test_iostream_sstream},
+    {"fstream", "roundtrip", test_fstream_roundtrip},
+    {"pmr", "vector", test_pmr_vector},
+    {"valarray", "basic", test_valarray_basic},
 };
 
 } // namespace

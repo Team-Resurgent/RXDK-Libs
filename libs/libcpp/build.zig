@@ -21,10 +21,7 @@ const exclude = [_][]const u8{
     "experimental/",
     "support/",
     "pstl/",
-    "memory_resource",
-    "valarray",
     "bind.cpp",
-    "fstream",
     "new.cpp",
     "cxa_thread_atexit.cpp",
 };

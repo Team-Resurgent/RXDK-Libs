@@ -224,7 +224,7 @@ extern XMETAL_PushBuffer *g_pPushBuffer;
 // This method cannot fail but may block until there is enough space
 // in the push buffer to process the reservation.
 //
-DWORD * WINAPI XMETAL_StartPushCount(XMETAL_PushBuffer *pPushBuffer, DWORD count);
+PPUSH WINAPI XMETAL_StartPushCount(XMETAL_PushBuffer *pPushBuffer, DWORD count);
 
 // Commit the space actually used in the push buffer.  Pass in the pointer
 // in the push buffer immediately after the last pushed command.  It is not

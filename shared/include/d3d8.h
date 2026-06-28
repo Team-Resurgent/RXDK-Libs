@@ -1438,7 +1438,7 @@ void    WINAPI D3DDevice_CopyRects(D3DSurface *pSourceSurface, CONST RECT *pSour
 void    WINAPI D3DDevice_SetCopyRectsState(CONST D3DCOPYRECTSTATE *pCopyRectState, CONST D3DCOPYRECTROPSTATE *pCopyRectRopState);
 void    WINAPI D3DDevice_GetCopyRectsState(D3DCOPYRECTSTATE *pCopyRectState, D3DCOPYRECTROPSTATE *pCopyRectRopState);
 void    WINAPI D3DDevice_SetRenderTarget(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil);
-void    WINAPI D3DDevice_GetRenderTarget(D3DSurface **ppRenderTarget);
+HRESULT WINAPI D3DDevice_GetRenderTarget(D3DSurface **ppRenderTarget);
 HRESULT WINAPI D3DDevice_GetDepthStencilSurface(D3DSurface **ppZStencilSurface);
 D3DINLINE void    WINAPI D3DDevice_BeginScene() { }
 D3DINLINE void    WINAPI D3DDevice_EndScene() { }
@@ -1532,7 +1532,7 @@ void    WINAPI D3DDevice_SetStreamSource(UINT StreamNumber, D3DVertexBuffer *pSt
 void    WINAPI D3DDevice_GetStreamSource(UINT StreamNumber, D3DVertexBuffer **ppStreamData, UINT *pStride);
 void    WINAPI D3DDevice_SetIndices(D3DIndexBuffer* pIndexData, UINT BaseVertexIndex);
 void    WINAPI D3DDevice_GetIndices(D3DIndexBuffer** ppIndexData, UINT *pBaseVertexIndex);
-void    WINAPI D3DDevice_CreatePixelShader(CONST D3DPIXELSHADERDEF *pPSDef, DWORD *pHandle);
+HRESULT WINAPI D3DDevice_CreatePixelShader(CONST D3DPIXELSHADERDEF *pPSDef, DWORD *pHandle);
 void    WINAPI D3DDevice_SetPixelShader(DWORD Handle);
 void    WINAPI D3DDevice_SetPixelShaderProgram(CONST D3DPIXELSHADERDEF *pPSDef);
 void    WINAPI D3DDevice_GetPixelShader(DWORD *pHandle);
@@ -1560,7 +1560,7 @@ VOID    WINAPI D3DDevice_BlockOnFence(DWORD Fence);
 void    WINAPI D3DDevice_InsertCallback(D3DCALLBACKTYPE Type, D3DCALLBACK pCallback, DWORD Context);
 void    WINAPI D3DDevice_FlushVertexCache();
 HRESULT WINAPI D3DDevice_PersistDisplay();
-HRESULT WINAPI D3DDevice_GetPersistedSurface(IDirect3DSurface8 **ppSurface);
+void    WINAPI D3DDevice_GetPersistedSurface(IDirect3DSurface8 **ppSurface);
 BOOL    WINAPI D3DDevice_GetOverlayUpdateStatus();
 void    WINAPI D3DDevice_GetDisplayFieldStatus(D3DFIELD_STATUS *pFieldStatus);
 void    WINAPI D3DDevice_SetVertexData2f(INT Register, float a, float b);
@@ -2556,17 +2556,17 @@ D3DINLINE void    WINAPI D3DPushBuffer_FreePrivateData(D3DPushBuffer *pThis, REF
 void    WINAPI D3DPushBuffer_Verify(D3DPushBuffer* pPushBuffer, BOOL StampResources);
 void    WINAPI D3DPushBuffer_BeginFixup(D3DPushBuffer* pPushBuffer, D3DFixup* pFixup, BOOL NoWait);
 HRESULT WINAPI D3DPushBuffer_EndFixup(D3DPushBuffer* pPushBuffer);
-void    WINAPI D3DPushBuffer_RunPushBuffer(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DPushBuffer* pDestinationPushBuffer, D3DFixup* pDestinationFixup);
-void    WINAPI D3DPushBuffer_SetModelView(D3DPushBuffer* pPushBuffer, DWORD Offset, CONST D3DMATRIX* pModelView, CONST D3DMATRIX* pInverseModelView, CONST D3DMATRIX* pComposite);
-void    WINAPI D3DPushBuffer_SetVertexBlendModelView(D3DPushBuffer* pPushBuffer, DWORD Offset, UINT Count, CONST D3DMATRIX* pModelViews, CONST D3DMATRIX* pInverseModelViews, CONST D3DMATRIX* pProjectionViewport);
-void    WINAPI D3DPushBuffer_SetVertexShaderInput(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Handle, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
-void    WINAPI D3DPushBuffer_SetVertexShaderInputDirect(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
-void    WINAPI D3DPushBuffer_SetRenderTarget(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DSurface* pRenderTarget, D3DSurface* pZBuffer);
-void    WINAPI D3DPushBuffer_SetTexture(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Stage, D3DBaseTexture *pTexture);
-void    WINAPI D3DPushBuffer_SetPalette(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Stage,D3DPalette *pPalette);
-HRESULT WINAPI D3DPushBuffer_EndVisibilityTest(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Index);
-void    WINAPI D3DPushBuffer_SetVertexShaderConstant(D3DPushBuffer* pPushBuffer, DWORD Offset, INT Register, CONST void* pConstantData, DWORD ConstantCount);
-void    WINAPI D3DPushBuffer_Jump(D3DPushBuffer* pPushBuffer, DWORD Offset, UINT DestinationOffset);
+void    WINAPI D3DPushBuffer_RunPushBuffer(D3DPushBuffer* pPushBuffer, UINT Offset, D3DPushBuffer* pDestinationPushBuffer, D3DFixup* pDestinationFixup);
+void    WINAPI D3DPushBuffer_SetModelView(D3DPushBuffer* pPushBuffer, UINT Offset, CONST D3DMATRIX* pModelView, CONST D3DMATRIX* pInverseModelView, CONST D3DMATRIX* pComposite);
+void    WINAPI D3DPushBuffer_SetVertexBlendModelView(D3DPushBuffer* pPushBuffer, UINT Offset, UINT Count, CONST D3DMATRIX* pModelViews, CONST D3DMATRIX* pInverseModelViews, CONST D3DMATRIX* pProjectionViewport);
+void    WINAPI D3DPushBuffer_SetVertexShaderInput(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Handle, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
+void    WINAPI D3DPushBuffer_SetVertexShaderInputDirect(D3DPushBuffer* pPushBuffer, UINT Offset, D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
+void    WINAPI D3DPushBuffer_SetRenderTarget(D3DPushBuffer* pPushBuffer, UINT Offset, D3DSurface* pRenderTarget, D3DSurface* pZBuffer);
+void    WINAPI D3DPushBuffer_SetTexture(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Stage, D3DBaseTexture *pTexture);
+void    WINAPI D3DPushBuffer_SetPalette(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Stage,D3DPalette *pPalette);
+HRESULT WINAPI D3DPushBuffer_EndVisibilityTest(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Index);
+void    WINAPI D3DPushBuffer_SetVertexShaderConstant(D3DPushBuffer* pPushBuffer, UINT Offset, INT Register, CONST void* pConstantData, DWORD ConstantCount);
+void    WINAPI D3DPushBuffer_Jump(D3DPushBuffer* pPushBuffer, UINT Offset, UINT DestinationOffset);
 
 D3DINLINE ULONG   WINAPI IDirect3DPushBuffer8_AddRef(D3DPushBuffer *pThis) { return D3DResource_AddRef((D3DResource *)pThis); }
 D3DINLINE ULONG   WINAPI IDirect3DPushBuffer8_Release(D3DPushBuffer *pThis) { return D3DResource_Release((D3DResource *)pThis); }
@@ -2716,7 +2716,7 @@ D3DINLINE HRESULT WINAPI D3DVolume_SetPrivateData(D3DVolume *pThis, REFGUID refg
 D3DINLINE HRESULT WINAPI D3DVolume_GetPrivateData(D3DVolume *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DVolume_FreePrivateData(D3DVolume *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-void    WINAPI D3DVolume_GetContainer(D3DVolume *pThis, D3DBaseTexture **ppBaseTexture);
+HRESULT WINAPI D3DVolume_GetContainer(D3DVolume *pThis, D3DBaseTexture **ppBaseTexture);
 void    WINAPI D3DVolume_GetDesc(D3DVolume *pThis, D3DVOLUME_DESC *pDesc);
 void    WINAPI D3DVolume_LockBox(D3DVolume *pThis, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags);
 D3DINLINE void WINAPI D3DVolume_UnlockBox(D3DVolume *pThis) { }

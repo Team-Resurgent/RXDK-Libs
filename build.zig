@@ -133,7 +133,7 @@ pub fn build(b: *std.Build) void {
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
-        b.path("libs/libxapi/xapi/internal"),
+        b.path("libs/libxapi/internal"),
         b.path("build/generated"),
         b.path("shared/picolibc/include"),
         b.path("shared/picolibc/machine/x86"),
@@ -197,7 +197,7 @@ pub fn build(b: *std.Build) void {
     const xapi_input_inc = [_]std.Build.LazyPath{
         b.path("samples/xapi-smoke/src"), // common.h
         b.path("shared/include"),
-        b.path("libs/libxapi/xapi/internal"),
+        b.path("libs/libxapi/internal"),
         b.path("build/generated"),
         b.path("shared/picolibc/include"),
         b.path("shared/picolibc/machine/x86"),

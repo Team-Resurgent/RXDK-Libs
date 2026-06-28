@@ -2,7 +2,7 @@ const std = @import("std");
 const compile_c = @import("../../build/compile_c.zig");
 const xapi_sources = @import("sources.zig");
 
-const XAPI = "libs/libxapi/xapi";
+const XAPI = "libs/libxapi";
 
 pub fn includeDirs() []const []const u8 {
     return &.{
@@ -169,16 +169,16 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
 
 pub fn isCoreObjectPath(path: []const u8) bool {
     const prefixes = [_][]const u8{
-        "libs/libxapi/xapi/k32/",
-        "libs\\libxapi\\xapi\\k32\\",
-        "libs/libxapi/xapi/dll/",
-        "libs\\libxapi\\xapi\\dll\\",
-        "libs/libxapi/xapi/rtl/",
-        "libs\\libxapi\\xapi\\rtl\\",
-        "libs/libxapi/xapi/uuid/",
-        "libs\\libxapi\\xapi\\uuid\\",
-        "libs/libxapi/xapi/port/",
-        "libs\\libxapi\\xapi\\port\\",
+        "libs/libxapi/k32/",
+        "libs\\libxapi\\k32\\",
+        "libs/libxapi/dll/",
+        "libs\\libxapi\\dll\\",
+        "libs/libxapi/rtl/",
+        "libs\\libxapi\\rtl\\",
+        "libs/libxapi/uuid/",
+        "libs\\libxapi\\uuid\\",
+        "libs/libxapi/port/",
+        "libs\\libxapi\\port\\",
     };
     for (prefixes) |prefix| {
         if (std.mem.indexOf(u8, path, prefix) != null) {

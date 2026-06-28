@@ -33,7 +33,7 @@ CompileFlags:
     - -Ibuild/generated/libcxx
 
 ---
-# libxapi internal sources (libs/libxapi/xapi/**) pull their type environment
+# libxapi internal sources (libs/libxapi/**) pull their type environment
 # from a bridge header (e.g. #include "bridge_k32.h") that lives in the slice's
 # internal include dirs, plus the build's force-included picolibc.h/profile.h.
 # Give clangd those dirs + force-includes so internal types (POBJECT_STRING,
@@ -45,26 +45,26 @@ CompileFlags:
     - -include
     - picolibc.h
     - -include
-    - libs/libxapi/xapi/site/profile.h
-    - -Ilibs/libxapi/xapi/internal
-    - -Ilibs/libxapi/xapi/internal/shims
-    - -Ilibs/libxapi/xapi/site
-    - -Ilibs/libxapi/xapi/nt
-    - -Ilibs/libxapi/xapi/k32
-    - -Ilibs/libxapi/xapi/k32/inc
-    - -Ilibs/libxapi/xapi/dll
-    - -Ilibs/libxapi/xapi/rtl
-    - -Ilibs/libxapi/xapi/rtl/inc
-    - -Ilibs/libxapi/xapi/uuid
-    - -Ilibs/libxapi/xapi/usb/inc
-    - -Ilibs/libxapi/xapi/usb/ohcd
-    - -Ilibs/libxapi/xapi/usb/usbd
-    - -Ilibs/libxapi/xapi/usb/hub
-    - -Ilibs/libxapi/xapi/usb/mu
-    - -Ilibs/libxapi/xapi/usb/xid
-    - -Ilibs/libxapi/xapi/support/inc
-    - -Ilibs/libxapi/xapi/support/inc/ntos
-    - -Ilibs/libxapi/xapi/support/fatx
-    - -Ilibs/libxapi/xapi/support/idex
-    - -Ilibs/libxapi/xapi/support/crypto
-    - -Ilibs/libxapi/xapi/port
+    - libs/libxapi/site/profile.h
+    - -Ilibs/libxapi/internal
+    - -Ilibs/libxapi/internal/shims
+    - -Ilibs/libxapi/site
+    - -Ilibs/libxapi/nt
+    - -Ilibs/libxapi/k32
+    - -Ilibs/libxapi/k32/inc
+    - -Ilibs/libxapi/dll
+    - -Ilibs/libxapi/rtl
+    - -Ilibs/libxapi/rtl/inc
+    - -Ilibs/libxapi/uuid
+    - -Ilibs/libxapi/usb/inc
+    - -Ilibs/libxapi/usb/ohcd
+    - -Ilibs/libxapi/usb/usbd
+    - -Ilibs/libxapi/usb/hub
+    - -Ilibs/libxapi/usb/mu
+    - -Ilibs/libxapi/usb/xid
+    - -Ilibs/libxapi/support/inc
+    - -Ilibs/libxapi/support/inc/ntos
+    - -Ilibs/libxapi/support/fatx
+    - -Ilibs/libxapi/support/idex
+    - -Ilibs/libxapi/support/crypto
+    - -Ilibs/libxapi/port

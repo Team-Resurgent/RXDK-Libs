@@ -5,9 +5,9 @@
 // debug-prints every button / movement event. Runs forever; watch the output
 // with xbWatson or the deploy log and press buttons / move the mouse.
 //
-// Reading keyboard *keystrokes* needs the XInputDebug*Keyboard queue API (a
-// separate gap); keyboard connect/disconnect is reported here, and keystroke
-// printing is wired in once that API lands.
+// Keyboard keystrokes come through the XInputDebug keyboard queue API
+// (XInputDebugInitKeyboardQueue + XInputDebugGetKeystroke) -- XInputGetState
+// refuses keyboards. We init the queue at startup and drain it each tick.
 
 #include "common.h"   // xapi.h + trace helpers
 #include <xkbd.h>     // XDEVICE_TYPE_DEBUG_KEYBOARD
@@ -55,6 +55,9 @@ static HANDLE g_kbd[INPUT_MAX_PORTS];
 static WORD g_padPrevDigital[INPUT_MAX_PORTS];
 static BYTE g_padPrevAnalog[INPUT_MAX_PORTS][8];
 static BYTE g_mousePrevButtons[INPUT_MAX_PORTS];
+static int g_mousePrevDx[INPUT_MAX_PORTS];
+static int g_mousePrevDy[INPUT_MAX_PORTS];
+static int g_mousePrevDz[INPUT_MAX_PORTS];
 static DWORD g_irPrevPacket[INPUT_MAX_PORTS];
 
 // Open/close devices of one type as they are inserted/removed, logging each.
@@ -138,9 +141,15 @@ static void poll_mice(void)
         int dx = state.DebugMouse.cMickeysX;
         int dy = state.DebugMouse.cMickeysY;
         int dz = state.DebugMouse.cWheel;
-        if (dx || dy || dz) {
+        // Only log when the movement actually changes -- the driver re-reports
+        // the last delta every poll, which would otherwise spam identical lines.
+        if ((dx || dy || dz) &&
+            (dx != g_mousePrevDx[port] || dy != g_mousePrevDy[port] || dz != g_mousePrevDz[port])) {
             DbgPrint("input: mouse%d move dx=%d dy=%d wheel=%d\n", port, dx, dy, dz);
         }
+        g_mousePrevDx[port] = dx;
+        g_mousePrevDy[port] = dy;
+        g_mousePrevDz[port] = dz;
     }
 }
 
@@ -160,11 +169,40 @@ static void poll_ir(void)
     }
 }
 
+static void poll_keyboard(void)
+{
+    XINPUT_DEBUG_KEYSTROKE ks;
+    // Drain every queued keystroke this tick (queue API; XInputGetState refuses
+    // keyboards). SINGLE_KEYBOARD_ONLY -> one queue, no handle argument.
+    while (XInputDebugGetKeystroke(&ks) == ERROR_SUCCESS) {
+        const char *evt = (ks.Flags & XINPUT_DEBUG_KEYSTROKE_FLAG_KEYUP)  ? "up"
+                        : (ks.Flags & XINPUT_DEBUG_KEYSTROKE_FLAG_REPEAT) ? "repeat"
+                                                                          : "down";
+        if (ks.Ascii >= 32 && ks.Ascii < 127) {
+            DbgPrint("input: key %s vk=0x%02x '%c'\n", evt, ks.VirtualKey, ks.Ascii);
+        } else {
+            DbgPrint("input: key %s vk=0x%02x ascii=0x%02x\n", evt,
+                     ks.VirtualKey, (unsigned)(unsigned char)ks.Ascii);
+        }
+    }
+}
+
 int main(void)
 {
     XINPUT_POLLING_PARAMETERS kbdPolling;
+    XINPUT_DEBUG_KEYQUEUE_PARAMETERS kbdQueue;
 
     XInitDevices(0, NULL);
+
+    // Set up the keyboard keystroke queue (down + up + auto-repeat). This also
+    // installs the XID keyboard service hook so reports get translated to keys.
+    kbdQueue.dwFlags = XINPUT_DEBUG_KEYQUEUE_FLAG_KEYDOWN |
+                       XINPUT_DEBUG_KEYQUEUE_FLAG_KEYUP |
+                       XINPUT_DEBUG_KEYQUEUE_FLAG_KEYREPEAT;
+    kbdQueue.dwQueueSize = 40;
+    kbdQueue.dwRepeatDelay = 400;
+    kbdQueue.dwRepeatInterval = 100;
+    XInputDebugInitKeyboardQueue(&kbdQueue);
 
     xapi_smoke_trace_line("input monitor start");
     DbgPrint("input: press buttons / move mouse / aim the remote; connect & disconnect devices.\n");
@@ -185,8 +223,7 @@ int main(void)
         poll_gamepads();
         poll_mice();
         poll_ir();
-        // Keyboard keystroke printing is added once the XInputDebug*Keyboard
-        // queue API is implemented; connect/disconnect is reported above.
+        poll_keyboard();
 
         Sleep(16); // ~60 Hz
     }

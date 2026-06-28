@@ -477,8 +477,18 @@ HRESULT CDevice::Init(
     }
 
     // Remember the semaphore location.
-
-    m_pGpuTime = (volatile DWORD *)(m_pCachedContiguousMemoryBase);
+    //
+    // RXDK: read/write the GPU semaphore + notifiers through the write-combined
+    // (uncached) alias of this contiguous block rather than the cached mapping.
+    // The driver normally relies on the NV2A snooping the CPU cache so a cached
+    // read of m_pGpuTime sees the GPU's semaphore write; that coherency does not
+    // hold in our environment, so the busy-spin in BlockOnTime() would read a
+    // stale cached value and stall a full deadlock-timeout per frame. The WC
+    // alias keeps the same physical offset (so GetAddressInfo/GetGPUAddress still
+    // program the GPU with the correct address) while making every CPU access
+    // bypass the cache.
+    m_pGpuTime = (volatile DWORD *)XMETAL_MapToContiguousAddress(
+                     GetPhysicalOffset((void *)m_pCachedContiguousMemoryBase));
 
     // Set up the notification buffers
 

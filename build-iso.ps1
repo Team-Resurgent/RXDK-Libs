@@ -266,11 +266,13 @@ function Invoke-SampleDeploy {
     Write-Host ''
     Write-Host ('==> building {0} XBE ({1}) for deploy' -f $Chosen.Target, $Opt) -ForegroundColor Cyan
 
-    # Deploy only needs the XBE, not an XISO.
+    # Deploy builds the XBE with boot-disc init flags (-Deploy) so it runs from
+    # the kit's E: under xbox-launch -- without them an xAPI title stalls trying
+    # to set up the utility drive. No XISO is packed.
     $compileArgs = @{
         Target   = $Chosen.Target
         Optimize = $Opt
-        Xbe      = $true
+        Deploy   = $true
     }
     if ($Chosen.Target -eq 'xapi-smoke' -and $UseNoHdd) { $compileArgs['NoHdd'] = $true }
 

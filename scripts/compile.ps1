@@ -10,6 +10,7 @@ param(
     [string]$Optimize = 'Debug',
     [switch]$Xbe,
     [switch]$Iso,
+    [switch]$Deploy,
     [switch]$NoHdd,
     [switch]$FormatHdd,
     [switch]$SkipSubmoduleCheck
@@ -63,6 +64,7 @@ function Convert-SampleXbe {
     param(
         [string]$SampleName,
         [switch]$Iso,
+        [switch]$Deploy,
         [switch]$MountHdd,
         [switch]$FormatHdd,
         [int]$MaxImportThunks = 0,
@@ -73,13 +75,18 @@ function Convert-SampleXbe {
         Write-Warning "Skip XBE: PE not found: $pe"
         return
     }
-    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$Iso -MountHdd:$MountHdd -FormatHdd:$FormatHdd -MaxImportThunks $MaxImportThunks -StackSize $StackSize
+    # A deployed XBE (run from the kit's E:) needs the same boot init flags as a
+    # boot disc -- INITFLAGS:24 /DONTMOUNTUD /DONTMODIFYHD (NO_SETUP_HARD_DISK).
+    # Without them the title tries to set up the utility drive and never reaches
+    # its app thread under xbox-launch.
+    $bootDisc = $Iso -or $Deploy
+    $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$bootDisc -MountHdd:$MountHdd -FormatHdd:$FormatHdd -MaxImportThunks $MaxImportThunks -StackSize $StackSize
     if ($Iso) {
         & (Join-Path $PSScriptRoot 'Invoke-XbeIsoBuild.ps1') -InputXbe $xbe
     }
 }
 
-if ($Iso -and -not $Xbe) {
+if (($Iso -or $Deploy) -and -not $Xbe) {
     $Xbe = $true
 }
 
@@ -94,6 +101,7 @@ function Build-Sample {
         [string]$Opt,
         [switch]$Xbe,
         [switch]$Iso,
+        [switch]$Deploy,
         [switch]$NoHdd,
         [switch]$FormatHdd
     )
@@ -102,7 +110,7 @@ function Build-Sample {
     if ($Xbe) {
         $mountHdd = ($Target -eq 'xapi-smoke') -and -not $NoHdd
         $formatHdd = $mountHdd -and (($Target -eq 'xapi-smoke' -and $Iso) -or $FormatHdd)
-        Convert-SampleXbe -SampleName $Target -Iso:$Iso -MountHdd:$mountHdd -FormatHdd:$formatHdd
+        Convert-SampleXbe -SampleName $Target -Iso:$Iso -Deploy:$Deploy -MountHdd:$mountHdd -FormatHdd:$formatHdd
     }
 }
 
@@ -136,7 +144,7 @@ switch ($Target) {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
     }
     { $_ -in $singleSampleTargets } {
-        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso -NoHdd:$NoHdd -FormatHdd:$FormatHdd
+        Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso -Deploy:$Deploy -NoHdd:$NoHdd -FormatHdd:$FormatHdd
     }
     'all' {
         Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Optimize

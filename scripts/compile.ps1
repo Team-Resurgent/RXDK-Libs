@@ -3,7 +3,7 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input'
+        'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -130,7 +130,7 @@ function Build-AllSamples {
 }
 
 $singleSampleTargets = @(
-    'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input'
+    'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle'
 )
 
 switch ($Target) {

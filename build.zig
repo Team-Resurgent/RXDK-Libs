@@ -143,6 +143,7 @@ pub fn build(b: *std.Build) void {
     sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
 
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
+    const libd3d8_lib = b.path("zig-out/lib/libd3d8.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -238,6 +239,46 @@ pub fn build(b: *std.Build) void {
     });
     const xapi_input_step = b.step("xapi-input", "Build xAPI input device monitor (controller/mouse/IR/keyboard)");
     xapi_input_step.dependOn(xapi_input.install);
+
+    // D3D8 rotating-triangle sample. C title: reuses the xapi boot/trace helpers,
+    // includes the public d3d8.h, and links libd3d8.lib (+ libxapi + krnl).
+    const d3d8_tri_inc = [_]std.Build.LazyPath{
+        b.path("samples/xapi-smoke/src"), // common.h
+        b.path("shared/include"),
+        b.path("libs/libxapi/internal"),
+        b.path("libs/libxapi/nt"), // guiddef.h (GUID/REFGUID for d3d8.h)
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const d3d8_tri_extra = [_][]const u8{
+        "samples/xapi-smoke/src/xapi_boot.c",
+        "samples/xapi-smoke/src/common.c",
+    };
+    const d3d8_tri = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "d3d8-triangle",
+        .src = "samples/d3d8-triangle/src/main.c",
+        .extra_srcs = &d3d8_tri_extra,
+        .objects = sample_objects.items,
+        .libs = &.{ libd3d8_lib, libxapi_lib, krnl },
+        .include_paths = &d3d8_tri_inc,
+        // d3d8.h pulls a heavy Win32 header set; like the libraries, force our
+        // headers only (-nostdinc) so zig's MinGW winnt.h/basetsd.h/vadefs.h
+        // don't get pulled in and clash with our xboxkrnl/windef definitions.
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "xapi_smoke_boot_entry",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libd3d8.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
+    d3d8_tri_step.dependOn(d3d8_tri.install);
 
     var cpp_sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     cpp_sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");

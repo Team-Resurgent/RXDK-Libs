@@ -49,6 +49,11 @@ pub fn cppFlags(_: *std.Build) []const []const u8 {
         "-D_XAPI_",
         "-Xclang",
         "-fdefault-calling-conv=stdcall",
+        // FIRST force-include: pins libc/libm calls to cdecl before any system
+        // header declares them, so -fdefault-calling-conv=stdcall + -ffreestanding
+        // doesn't silently make them stdcall (see cdecl_libc.h).
+        "-include",
+        "libs/libd3d8/site/cdecl_libc.h",
         "-include",
         "picolibc.h",
         "-include",

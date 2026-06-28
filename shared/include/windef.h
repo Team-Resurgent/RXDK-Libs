@@ -128,6 +128,13 @@ typedef char *PSZ;
 #define PASCAL      __stdcall
 #endif
 
+// WINAPI is the standard Win32 stdcall macro. Use the keyword form (not the
+// attribute) so it binds correctly in function-pointer typedefs (e.g. d3d8.h
+// render-state tables) -- matches how libd3d8 was compiled.
+#ifndef WINAPI
+#define WINAPI __stdcall
+#endif
+
 #undef FAR
 #undef  NEAR
 #define FAR                 far
@@ -172,6 +179,12 @@ typedef int          INT_PTR, *PINT_PTR;
 #endif
 #ifndef DECLARE_HANDLE
 #define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
+#endif
+// HWND is vestigial on Xbox (e.g. D3DPRESENT_PARAMETERS.hDeviceWindow) but the
+// public headers reference it. Provide the standard opaque-handle stub.
+#ifndef _HWND_DEFINED_
+#define _HWND_DEFINED_
+DECLARE_HANDLE(HWND);
 #endif
 #endif /* NT_INCLUDED */
 

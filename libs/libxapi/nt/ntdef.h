@@ -178,7 +178,10 @@ typedef unsigned long POINTER_64_INT;
 #endif
 
 #ifndef DECLSPEC_SELECTANY
-#if (_MSC_VER >= 1100)
+#if (_MSC_VER >= 1100) || defined(__clang__)
+// clang does not define _MSC_VER under -target *-windows-gnu, but it does honor
+// __declspec(selectany) (emits an IMAGE_COMDAT_SELECT_ANY section so the linker
+// folds duplicate header-defined globals -- e.g. d3d8.h's D3DCONST tables).
 #define DECLSPEC_SELECTANY  __declspec(selectany)
 #else
 #define DECLSPEC_SELECTANY

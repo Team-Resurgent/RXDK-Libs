@@ -59,7 +59,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke')]
+    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle')]
     [string]$Sample,
     [switch]$All,
     [switch]$Clean,
@@ -199,6 +199,7 @@ $samples = @(
     [pscustomobject]@{ Target = 'xapi-input';   Iso = 'xapi-input.iso';   Desc = 'xAPI input monitor - controller/mouse/IR/keyboard events' }
     [pscustomobject]@{ Target = 'libc-smoke';   Iso = 'libc-smoke.iso';   Desc = 'libc / C23 runtime conformance matrix' }
     [pscustomobject]@{ Target = 'libcpp-smoke'; Iso = 'libcpp-smoke.iso'; Desc = 'libc++ / C++23 smoke (expected, string_view, iostream)' }
+    [pscustomobject]@{ Target = 'd3d8-triangle'; Iso = 'd3d8-triangle.iso'; Desc = 'libd3d8 / NV2A rotating colored triangle' }
 )
 
 # Submenu reached via 'm. more' on the main menu: the actions/settings that

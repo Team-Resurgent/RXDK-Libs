@@ -32,7 +32,9 @@ typedef struct _GUID {
 #endif
 
 #ifndef DECLSPEC_SELECTANY
-#if (_MSC_VER >= 1100)
+#if (_MSC_VER >= 1100) || defined(__clang__)
+// clang does not define _MSC_VER under -target *-windows-gnu but honors
+// __declspec(selectany), so the linker folds duplicate header-defined globals.
 #define DECLSPEC_SELECTANY  __declspec(selectany)
 #else
 #define DECLSPEC_SELECTANY

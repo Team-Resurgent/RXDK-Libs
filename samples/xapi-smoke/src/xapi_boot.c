@@ -13,7 +13,12 @@ extern char _tls_end;
 
 typedef struct _XBEIMAGE_HEADER {
     ULONG Signature;
-    UCHAR EncryptedDigest[260];
+    UCHAR EncryptedDigest[256]; // XBE digital signature is 256 bytes (2048-bit RSA).
+                                // Using 260 shifts every field +4: SizeOfStackCommit
+                                // then reads dwPeHeapReserve (1MB) instead of the real
+                                // 64KB stack, and PsCreateSystemThreadEx gets a 1MB
+                                // kernel stack -> a non-zero TLS carve overflows the
+                                // kernel-stack pool and the app thread never runs.
     PVOID BaseAddress;
     ULONG SizeOfHeaders;
     ULONG SizeOfImage;
@@ -72,8 +77,11 @@ static DWORD __stdcall xapi_smoke_main_startup(LPVOID unused)
 {
     (void)unused;
 
+    DbgPrint("xapi-smoke: TRACE app routine entered\n");
     XapiApplyKernelPatches();
+    DbgPrint("xapi-smoke: TRACE after XapiApplyKernelPatches\n");
     xapi_smoke_fixup_object_strings();
+    DbgPrint("xapi-smoke: TRACE after fixup_object_strings\n");
     RxdkInitKernelImportPtrs();
     DbgPrint("xapi-smoke: init process\n");
     XapiInitProcess();
@@ -119,20 +127,16 @@ void xapi_smoke_boot_entry(void)
 
     setup_xapi_tls_index();
 
-    status = PsCreateSystemThreadEx(
-        &hThread,
-        0,
-        XeImageHeader()->SizeOfStackCommit,
-        XapiTlsSize,
-        NULL,
-        (PKSTART_ROUTINE)xapi_smoke_main_startup,
-        NULL,
-        FALSE,
-        FALSE,
-        (PKSYSTEM_ROUTINE)XapiThreadStartup);
+    DbgPrint("xapi-smoke: TRACE creating app thread via CreateThread TlsSize=%lu\n",
+        (unsigned long)XapiTlsSize);
+    (void)status;
+    // Use the XAPI CreateThread (exactly what the XDK's mainCRTStartup does) rather
+    // than a raw PsCreateSystemThreadEx -- CreateThread sets the thread up the way
+    // the kernel expects for a TLS-bearing title thread.
+    hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)xapi_smoke_main_startup, NULL, 0, NULL);
 
-    if (!NT_SUCCESS(status)) {
-        DbgPrint("xapi-smoke: PsCreateSystemThreadEx %08x\n", (unsigned)status);
+    if (hThread == NULL) {
+        DbgPrint("xapi-smoke: CreateThread failed\n");
         for (;;) {
         }
     }

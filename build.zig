@@ -192,6 +192,41 @@ pub fn build(b: *std.Build) void {
     const xapi_smoke_step = b.step("xapi-smoke", "Build xAPI category smoke tests (27 tests, kit hardware)");
     xapi_smoke_step.dependOn(xapi_smoke.install);
 
+    // xAPI input-device monitor. Reuses xapi-smoke's boot + trace helpers
+    // (xapi_boot.c / common.c) -- the only new file is its own main.c.
+    const xapi_input_inc = [_]std.Build.LazyPath{
+        b.path("samples/xapi-smoke/src"), // common.h
+        b.path("shared/include"),
+        b.path("libs/libxapi/xapi/internal"),
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const xapi_input_extra = [_][]const u8{
+        "samples/xapi-smoke/src/xapi_boot.c",
+        "samples/xapi-smoke/src/common.c",
+    };
+    const xapi_input = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "xapi-input",
+        .src = "samples/xapi-input/src/main.c",
+        .extra_srcs = &xapi_input_extra,
+        .objects = sample_objects.items,
+        .libs = &.{ libxapi_lib, krnl },
+        .include_paths = &xapi_input_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-include",
+            "build/generated/picolibc.h",
+        },
+        .entry = "xapi_smoke_boot_entry",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const xapi_input_step = b.step("xapi-input", "Build xAPI input device monitor (controller/mouse/IR/keyboard)");
+    xapi_input_step.dependOn(xapi_input.install);
+
     var cpp_sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     cpp_sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     cpp_sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");

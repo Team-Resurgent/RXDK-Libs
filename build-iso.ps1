@@ -59,7 +59,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'libc-smoke', 'libcpp-smoke')]
+    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke')]
     [string]$Sample,
     [switch]$Dist,
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -172,6 +172,7 @@ function Write-LaunchLine {
 # Iso = the artifact filename compile.ps1 produces under zig-out\iso\.
 $samples = @(
     [pscustomobject]@{ Target = 'xapi-smoke';   Iso = 'xapi-smoke.iso';   Desc = 'xAPI category smoke - 27 tests, kit hardware + HDD' }
+    [pscustomobject]@{ Target = 'xapi-input';   Iso = 'xapi-input.iso';   Desc = 'xAPI input monitor - controller/mouse/IR/keyboard events' }
     [pscustomobject]@{ Target = 'libc-smoke';   Iso = 'libc-smoke.iso';   Desc = 'libc / C23 runtime conformance matrix' }
     [pscustomobject]@{ Target = 'libcpp-smoke'; Iso = 'libcpp-smoke.iso'; Desc = 'libc++ / C++23 smoke (expected, string_view, iostream)' }
 )

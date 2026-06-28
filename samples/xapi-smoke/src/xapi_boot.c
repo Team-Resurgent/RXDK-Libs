@@ -77,11 +77,8 @@ static DWORD __stdcall xapi_smoke_main_startup(LPVOID unused)
 {
     (void)unused;
 
-    DbgPrint("xapi-smoke: TRACE app routine entered\n");
     XapiApplyKernelPatches();
-    DbgPrint("xapi-smoke: TRACE after XapiApplyKernelPatches\n");
     xapi_smoke_fixup_object_strings();
-    DbgPrint("xapi-smoke: TRACE after fixup_object_strings\n");
     RxdkInitKernelImportPtrs();
     DbgPrint("xapi-smoke: init process\n");
     XapiInitProcess();
@@ -120,16 +117,11 @@ VOID __stdcall XapiThreadStartup(
 void xapi_smoke_boot_entry(void)
 {
     HANDLE hThread;
-    NTSTATUS status;
 
     xbox_runtime_init();
-    DbgPrint("xapi-smoke: boot entry\n");
 
     setup_xapi_tls_index();
 
-    DbgPrint("xapi-smoke: TRACE creating app thread via CreateThread TlsSize=%lu\n",
-        (unsigned long)XapiTlsSize);
-    (void)status;
     // Use the XAPI CreateThread (exactly what the XDK's mainCRTStartup does) rather
     // than a raw PsCreateSystemThreadEx -- CreateThread sets the thread up the way
     // the kernel expects for a TLS-bearing title thread.
@@ -141,6 +133,5 @@ void xapi_smoke_boot_entry(void)
         }
     }
 
-    DbgPrint("xapi-smoke: app thread started\n");
     CloseHandle(hThread);
 }

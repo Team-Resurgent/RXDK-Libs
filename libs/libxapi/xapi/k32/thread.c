@@ -158,13 +158,6 @@ Return Value:
 {
     DWORD dwExitCode;
 
-    DbgPrint("xapi: TRACE XapiThreadStartup enter TlsData=%p start=%08x end=%08x zf=%u idx=%08x\n",
-        KeGetCurrentThread()->TlsData,
-        (unsigned)_tls_used.StartAddressOfRawData,
-        (unsigned)_tls_used.EndAddressOfRawData,
-        (unsigned)_tls_used.SizeOfZeroFill,
-        (unsigned)*((PULONG)_tls_used.AddressOfIndex));
-
     ASSERT(KeGetCurrentIrql() == PASSIVE_LEVEL);
 
     try
@@ -196,8 +189,6 @@ Return Value:
         if (_tls_used.SizeOfZeroFill != 0) {
             RtlZeroMemory((PBYTE)TlsData + RawDataSize, _tls_used.SizeOfZeroFill);
         }
-
-        DbgPrint("xapi: TRACE TLS set up, calling notify + start routine\n");
 
         XapiCallThreadNotifyRoutines(TRUE);
 

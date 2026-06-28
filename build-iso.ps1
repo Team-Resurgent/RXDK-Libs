@@ -293,9 +293,13 @@ function Invoke-SampleDeploy {
 
     Write-Host ''
     Write-Host ('==> launching {0} on {1}' -f $remoteXbe, $XboxIp) -ForegroundColor Cyan
-    # Stream xbox-launch output through the cleaner so the title's debug strings
-    # read plainly (the kit puts notify/debugstr/exec lines on stdout).
-    & $launch /dir $deployRemoteDir /title $deployRemoteXbe /x $XboxIp /timeout $deployLaunchTimeoutMs |
+    # Launch-and-RUN (/go): xbox-launch reboots into the title and lets it run
+    # free, streaming debug output for the window. WITHOUT /go it sets an initial
+    # breakpoint + stop-on-thread-create and HALTS the title at its first thread
+    # waiting for a debugger -- so the app thread never runs (it just looks hung).
+    # Stream the output through the cleaner so the title's debug strings read
+    # plainly (the kit puts notify/debugstr/exec lines on stdout).
+    & $launch /go /dir $deployRemoteDir /title $deployRemoteXbe /x $XboxIp /timeout $deployLaunchTimeoutMs |
         ForEach-Object { Write-LaunchLine $_ }
     $code = $LASTEXITCODE
 
@@ -304,14 +308,8 @@ function Invoke-SampleDeploy {
         # xbox-launch's "no console configured" code.
         Write-Warning "xbox-launch: no Xbox console configured (set one with 'i' / xbset)."
     }
-    elseif ($code -eq 0) {
-        Write-Host ('OK  deployed + launched {0} on {1} (hit initial break)' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
-    }
     else {
-        # Non-zero here means no initial debug break arrived within the timeout.
-        # That is expected for our run-to-completion smoke titles: the title was
-        # launched and ran on the kit (watch full output with 'w' / xbWatson).
-        Write-Host ('OK  deployed + launched {0} on {1} (ran to completion; no debug break)' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
+        Write-Host ('OK  deployed + launched {0} on {1} (running on kit; watch full output with ''w'' / xbWatson)' -f $Chosen.Target, $XboxIp) -ForegroundColor Green
     }
 
     # The deploy + launch succeeded; don't let xbox-launch's break-timeout exit

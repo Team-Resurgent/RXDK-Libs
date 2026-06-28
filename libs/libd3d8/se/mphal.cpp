@@ -267,7 +267,7 @@ CMiniport::HalVideoControlInit()
     // buffer kickoffs for these classes.
     //
     
-    for (INT i = 0; i < 2; i++)
+    INT i; for (i = 0; i < 2; i++)
     {
         REG_WR32(RegisterBase, NV_PVIDEO_LUMINANCE(i),
                  DRF_DEF(_PVIDEO, _LUMINANCE, _CONTRAST, _UNITY) |
@@ -297,7 +297,7 @@ CMiniport::HalGrControlInit()
     //
     
     REG_WR_DRF_NUM(RegisterBase, _PGRAPH, _CHANNEL_CTX_TABLE, _INST, CtxTableBase);
-    for (INT i = 0; i < NUM_FIFOS_NV20; i++)
+    INT i; for (i = 0; i < NUM_FIFOS_NV20; i++)
     {
         INST_WR32(RegisterBase, CtxTableBase, i * 4, 0);
     }
@@ -584,7 +584,7 @@ CMiniport::HalGrControlLoad()
 
     HalGrIdle();
 
-    for (INT i = 0; i < NV_PFB_TILE__SIZE_1; i++)
+    INT i; for (i = 0; i < NV_PFB_TILE__SIZE_1; i++)
     {
         misc = REG_RD32(RegisterBase, NV_PFB_TLIMIT(i));
         REG_WR32(RegisterBase, NV_PGRAPH_TLIMIT(i), misc);

@@ -704,7 +704,8 @@ void WINAPI D3DDevice_SetPixelShaderConstant(
         // The pixelshaderdef struct has three dwords that map D3D constants 
         // to nVidia registers.  Scan the mapping to determine which registers
         // to write with this D3D constant.
-        for(UINT r=0; r<8; r++) // check c0 registers
+        UINT r;   // RXDK: hoisted (reused by the c1/final loops; MSVC for-scope leak)
+        for(r=0; r<8; r++) // check c0 registers
             if(((pPsd->PSC0Mapping >> (4*r)) & 0xf) == Register)
                 pDevice->SetRenderState((D3DRENDERSTATETYPE)(D3DRS_PSCONSTANT0_0 + r), dVal);
 

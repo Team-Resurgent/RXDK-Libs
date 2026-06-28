@@ -125,7 +125,8 @@ VOID SpewFloat(
 
     f -= l;
 
-    for(int i = 0; i < 6; i++)
+    int i;   // RXDK: hoisted (used after the loop; was an MSVC for-scope leak)
+    for(i = 0; i < 6; i++)
     {
         f *= 10;
         DWORD dw = (DWORD)FloatToLong(f);
@@ -310,7 +311,7 @@ void WINAPI D3DRDI_DumpPA()
         }
 
         DbgPrint("  unknown:");
-        for(i = 0; i < 4; i++)
+        for(int i = 0; i < 4; i++)   // RXDK: re-declare (was MSVC for-scope reuse)
             DbgPrint(" 0x%08lx", casentry.unknown[i]);
         DbgPrint("\n");
     }

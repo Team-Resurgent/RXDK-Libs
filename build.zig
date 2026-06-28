@@ -6,6 +6,7 @@ const picolibc = @import("libs/libc/build.zig");
 const libcxx = @import("libs/libcpp/build.zig");
 const libunwind = @import("libs/libcpp/unwind.zig");
 const libxapi_pkg = @import("libs/libxapi/build.zig");
+const libd3d8_pkg = @import("libs/libd3d8/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -104,6 +105,17 @@ pub fn build(b: *std.Build) void {
 
     const stage_xapi_headers = libxapi_pkg.stageHeaders(b);
     stage_xapi_headers.dependOn(&install_libxapi.step);
+
+    // libd3d8: the Xbox D3D8 (NV2A) driver. Same pattern as libxapi.
+    const d3d8_objs = libd3d8_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var d3d8_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    d3d8_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    d3d8_deps.append(b.allocator, d3d8_objs.step) catch @panic("OOM");
+    const libd3d8 = coff_lib.pack(b, "libd3d8", d3d8_objs.outputs, d3d8_deps.items);
+    const install_libd3d8 = b.addInstallFile(libd3d8.path, "lib/libd3d8.lib");
+    install_libd3d8.step.dependOn(libd3d8.step);
+    const d3d8_step = b.step("libd3d8", "Build libd3d8.lib (Xbox D3D8 / NV2A driver)");
+    d3d8_step.dependOn(&install_libd3d8.step);
 
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);

@@ -48,6 +48,7 @@ typedef struct _XID_GLOBALS             *PXID_GLOBALS;
 // Constants for legacy devices - keyboards
 //-----------------------------------------------
 #define HID_KEYBOARD_PROTOCOL 0x01
+#define HID_MOUSE_PROTOCOL    0x02
 #define HID_SET_PROTOCOL      0x0B
 #define HID_BOOT_PROTOCOL     0x00
 #define HID_SET_IDLE          0x0A
@@ -87,6 +88,8 @@ typedef struct _XINPUT_KEYBOARD_LEDS
 //------------------------------------------------
 #define  XID_DEVTYPE_GAMECONTROLLER        1
 #define  XID_DEVTYPE_KEYBOARD              2
+// (XID_DEVTYPE_IRREMOTE 3 is defined in typeinfo.cpp)
+#define  XID_DEVTYPE_MOUSE                 4
 
 //  Right now we have a device that plugs directly into the box,
 //  So it is only physically possible to have ine device per port.
@@ -335,4 +338,13 @@ __attribute__((fastcall))
 XID_ProcessNewKeyboardData(
     PXID_OPEN_DEVICE OpenDevice
     );
+
+void
+__attribute__((fastcall))
+XID_ProcessMouseData(
+    PXID_OPEN_DEVICE OpenDevice
+    );
+
+VOID XID_EnumMouse(PURB Urb, PXID_DEVICE_NODE XidNode);
+VOID XID_EnumMouseComplete(PURB Urb, PXID_DEVICE_NODE XidNode);
 

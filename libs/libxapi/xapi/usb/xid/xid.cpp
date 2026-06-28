@@ -1727,11 +1727,11 @@ XID_EnumLegacy1(
         (USB_DEVICE_CLASS_HUMAN_INTERFACE == interfaceDescriptor->bInterfaceClass) &&
         (HID_KEYBOARD_PROTOCOL == interfaceDescriptor->bInterfaceProtocol)
     )
-    {   
+    {
         //
         //  Switch to the boot protcol
         //
-        
+
         USB_BUILD_CONTROL_TRANSFER(
             &XID_Globals.EnumUrb.ControlTransfer,
             NULL,
@@ -1747,6 +1747,30 @@ XID_EnumLegacy1(
             XidNode->InterfaceNumber,
             0);
 
+    }
+    else if(
+        (USB_DEVICE_CLASS_HUMAN_INTERFACE == interfaceDescriptor->bInterfaceClass) &&
+        (HID_MOUSE_PROTOCOL == interfaceDescriptor->bInterfaceProtocol)
+    )
+    {
+        //
+        //  Debug USB mouse: switch to the boot protocol, then XID_EnumMouse
+        //  sets the idle rate and completes (mirrors the keyboard path).
+        //
+        USB_BUILD_CONTROL_TRANSFER(
+            &XID_Globals.EnumUrb.ControlTransfer,
+            NULL,
+            NULL,
+            0,
+            0,
+            (PURB_COMPLETE_PROC)XID_EnumMouse,
+            (PVOID)XidNode,
+            TRUE,
+            USB_HOST_TO_DEVICE | USB_CLASS_COMMAND | USB_COMMAND_TO_INTERFACE,
+            HID_SET_PROTOCOL,
+            HID_BOOT_PROTOCOL,
+            XidNode->InterfaceNumber,
+            0);
     }
 #if NEVER
     //
@@ -1935,6 +1959,72 @@ XID_EnumKeyboardComplete(
     XidNode->SubType = XINPUT_DEVSUBTYPE_KBD_STANDARD;
     XidNode->bMaxInputReportSize = sizeof(XINPUT_KEYBOARD);
     XidNode->bMaxOutputReportSize = sizeof(XINPUT_KEYBOARD_LEDS);
+    XidNode->Device->SetClassSpecificType(XidNode->TypeIndex);
+    XidNode->Device->AddComplete(USBD_STATUS_SUCCESS);
+    XidNode->Ready = TRUE;
+}
+
+VOID
+XID_EnumMouse(
+    PURB                Urb,
+    PXID_DEVICE_NODE    XidNode
+    )
+/*++
+  Routine Description:
+    Boot protocol was selected in XID_EnumLegacy1; now set the idle rate to
+    infinite (mirrors XID_EnumKeyboard) and complete.
+--*/
+{
+    UNREFERENCED_PARAMETER(Urb);
+    XID_ClearEnumWatchdog();
+
+    USB_BUILD_CONTROL_TRANSFER(
+        &XID_Globals.EnumUrb.ControlTransfer,
+        NULL,
+        NULL,
+        0,
+        0,
+        (PURB_COMPLETE_PROC)XID_EnumMouseComplete,
+        (PVOID)XidNode,
+        TRUE,
+        USB_HOST_TO_DEVICE | USB_CLASS_COMMAND | USB_COMMAND_TO_INTERFACE,
+        HID_SET_IDLE,
+        HID_IDLE_INFINITE,
+        XidNode->InterfaceNumber,
+        0);
+    XID_SetEnumWatchdog();
+    XidNode->Device->SubmitRequest(&XID_Globals.EnumUrb);
+}
+
+VOID
+XID_EnumMouseComplete(
+    PURB                Urb,
+    PXID_DEVICE_NODE    XidNode
+    )
+/*++
+  Routine Description:
+    Finish enumerating a debug mouse (legacy boot device, hardcoded type).
+--*/
+{
+    UNREFERENCED_PARAMETER(Urb);
+    USB_DBG_ENTRY_PRINT(("Entering XID_EnumMouseComplete.\n"));
+    XID_ClearEnumWatchdog();
+
+    XidNode->TypeInformation = GetTypeInformation(XID_DEVTYPE_MOUSE, &XidNode->TypeIndex);
+    if(!XidNode->TypeInformation)
+    {
+        USB_DBG_WARN_PRINT(("No mouse support in this build."));
+        XidNode->Device->SetExtension(NULL);
+        XidNode->Device->AddComplete(USBD_STATUS_UNSUPPORTED_DEVICE);
+        XidNode->Device=NULL;
+        XidNode->InUse = FALSE;
+        XID_Globals.DeviceNodeInUseCount--;
+        return;
+    }
+
+    XidNode->SubType = 0;
+    XidNode->bMaxInputReportSize = sizeof(XINPUT_MOUSE);
+    XidNode->bMaxOutputReportSize = 0;
     XidNode->Device->SetClassSpecificType(XidNode->TypeIndex);
     XidNode->Device->AddComplete(USBD_STATUS_SUCCESS);
     XidNode->Ready = TRUE;

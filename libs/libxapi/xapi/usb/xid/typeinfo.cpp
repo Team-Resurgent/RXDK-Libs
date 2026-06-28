@@ -154,9 +154,29 @@ XID_TYPE_INFORMATION  IrRemoteTypeInfo =
  {XID_DEVTYPE_IRREMOTE, XID_DEFAULT_MAX_IRREMOTE, XID_INPUT_REPORT_ID_MAX_IRREMOTE, XID_OUTPUT_REPORT_ID_MAX_IRREMOTE,
  XDEVICE_TYPE_IR_REMOTE, IrRemoteReportInfoList, NULL, &IrRemoteDefaultPolling, XID_ProcessIRRemoteData, 0};
 
+//----------------------------------------------
+//  Debug Mouse Reports (compiled in by default; was DEBUG_MOUSE in the XDK)
+//----------------------------------------------
+//#define XID_DEVTYPE_MOUSE                4 - defined in xid.h
+#define  XID_DEVSUBTYPE_MAX_MOUSE          1
+#define  XID_INPUT_REPORT_ID_MAX_MOUSE     0
+#define  XID_OUTPUT_REPORT_ID_MAX_MOUSE    0
+#define  XID_DEFAULT_MAX_MOUSE             1
+
+DECLARE_XPP_TYPE(XDEVICE_TYPE_DEBUG_MOUSE)
+XINPUT_MOUSE         MouseDefaults = {0, 0, 0, 0}; //No buttons, no motion
+XID_REPORT_TYPE_INFO MouseReportInfoList[1] = {sizeof(XINPUT_MOUSE),(PVOID)&MouseDefaults};
+XINPUT_POLLING_PARAMETERS MouseDefaultPolling = {TRUE,FALSE,0,8,0,0}; //AutoPoll On, 8 ms Input Poll Interval
+
+XID_TYPE_INFORMATION  MouseTypeInfo =
+ {XID_DEVTYPE_MOUSE, XID_DEFAULT_MAX_MOUSE, XID_INPUT_REPORT_ID_MAX_MOUSE, XID_OUTPUT_REPORT_ID_MAX_MOUSE,
+ XDEVICE_TYPE_DEBUG_MOUSE, MouseReportInfoList, NULL, &MouseDefaultPolling, XID_ProcessMouseData,
+ XID_BSF_NO_CAPABILITIES};
+
 XID_TYPE_INFORMATION * const RxdkXidTypeTable[] = {
     &GamepadTypeInfo,
     &KeyboardTypeInfo,
     &IrRemoteTypeInfo,
+    &MouseTypeInfo,
 };
 const ULONG RxdkXidTypeTableCount = sizeof(RxdkXidTypeTable) / sizeof(RxdkXidTypeTable[0]);

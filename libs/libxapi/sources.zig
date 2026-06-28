@@ -130,6 +130,7 @@ pub const xid_sources = [_][]const u8{
     "libs/libxapi/xapi/usb/xid/xid.cpp",
     "libs/libxapi/xapi/usb/xid/xidinp.cpp",
     "libs/libxapi/xapi/usb/xid/lightgun.cpp",
+    "libs/libxapi/xapi/usb/xid/mouse.cpp",
 };
 
 // Build slices collapse to three: each source #includes its own bridge header

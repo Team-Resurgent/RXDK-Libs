@@ -8,6 +8,7 @@
  ***************************************************************************/
  
 #include "precomp.hpp"
+#include <string.h>   // RXDK: memcpy, replacing the MSVC rep-movsd __asm loops below
 
 #ifdef STARTUPANIMATION
 namespace D3DK
@@ -303,31 +304,26 @@ void WINAPI D3DDevice_DrawVerticesUP(
         {
             // D'oh, we have to copy attribute-by-attribute:
 
-            _asm {
-            
-                mov edx, batchCount;
-                mov esi, pVertexStart;
-                mov edi, pPush;
-            
-            Vertex_Loop:
-            
-                mov ebx, pAttributeData;
-                mov eax, attributeCount;
-            
-            Attribute_Loop:
-            
-                mov ecx, [ebx].UP_Count;
-                rep movsd;
-                add esi, [ebx].UP_Delta;
-                add ebx, size InlineAttributeData;
-                dec eax;
-                jnz Attribute_Loop;
-        
-                dec edx;
-                jnz Vertex_Loop;
-        
-                mov pPush, edi;
-                mov pVertexStart, esi;
+            // RXDK: was a rep-movsd __asm loop (MSVC naked asm clang can't build).
+            // Same work in C: for each vertex, copy each attribute's UP_Count
+            // dwords into the push buffer, then skip UP_Delta bytes in the source.
+            {
+                DWORD* dst = (DWORD*)pPush;
+                BYTE*  src = (BYTE*)pVertexStart;
+                for (DWORD v = 0; v < batchCount; v++)
+                {
+                    InlineAttributeData* attr = pAttributeData;
+                    for (DWORD a = 0; a < attributeCount; a++)
+                    {
+                        DWORD n = attr->UP_Count;
+                        memcpy(dst, src, n * sizeof(DWORD));
+                        dst += n;
+                        src += n * sizeof(DWORD) + attr->UP_Delta;
+                        attr++;
+                    }
+                }
+                pPush = (PPUSH)dst;
+                pVertexStart = (DWORD*)src;
             }
         }
 
@@ -490,34 +486,28 @@ void WINAPI D3DDevice_DrawIndexedVerticesUP(
 
         PushCount(pPush++, PUSHER_NOINC(NV097_INLINE_ARRAY), count);
     
-        _asm {
-        
-            mov edx, pIndexData
-            mov edi, pPush;
-        
-        Vertex_Loop:
-    
-            movzx esi, word ptr [edx];
-            add edx, 2;
-            mov eax, attributeCount;
-            imul esi, VertexStreamZeroStride;
-            mov ebx, pAttributeData;
-            add esi, pVertexStart
-        
-        Attribute_Loop:
-        
-            mov ecx, [ebx].UP_Count;
-            rep movsd;
-            add esi, [ebx].UP_Delta;
-            add ebx, size InlineAttributeData;
-            dec eax;
-            jnz Attribute_Loop;
-    
-            dec batchCount;
-            jnz Vertex_Loop;
-    
-            mov pPush, edi;
-            mov pIndexData, edx;
+        // RXDK: indexed variant of the rep-movsd __asm loop. For each 16-bit
+        // index, the source vertex is pVertexStart + index*stride; then copy each
+        // attribute's UP_Count dwords and skip UP_Delta bytes, as above.
+        {
+            DWORD*      dst  = (DWORD*)pPush;
+            const WORD* pIdx = (const WORD*)pIndexData;
+            for (DWORD v = 0; v < batchCount; v++)
+            {
+                DWORD index = *pIdx++;
+                BYTE* src = (BYTE*)pVertexStart + index * VertexStreamZeroStride;
+                InlineAttributeData* attr = pAttributeData;
+                for (DWORD a = 0; a < attributeCount; a++)
+                {
+                    DWORD n = attr->UP_Count;
+                    memcpy(dst, src, n * sizeof(DWORD));
+                    dst += n;
+                    src += n * sizeof(DWORD) + attr->UP_Delta;
+                    attr++;
+                }
+            }
+            pPush = (PPUSH)dst;
+            pIndexData = pIdx;
         }
 
         // Are we done?

@@ -7,6 +7,7 @@ const libcxx = @import("libs/libcpp/build.zig");
 const libunwind = @import("libs/libcpp/unwind.zig");
 const libxapi_pkg = @import("libs/libxapi/build.zig");
 const libd3d8_pkg = @import("libs/libd3d8/build.zig");
+const libd3dx8_pkg = @import("libs/libd3dx8/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -117,6 +118,19 @@ pub fn build(b: *std.Build) void {
     const d3d8_step = b.step("libd3d8", "Build libd3d8.lib (Xbox D3D8 / NV2A driver)");
     d3d8_step.dependOn(&install_libd3d8.step);
 
+    // libd3dx8: the Xbox D3DX8 helper library (math/mesh/tex/effect/.X + jpeg/png/zlib).
+    // Title-side code; same pack pattern as libd3d8. Not in the default install
+    // (archives fine; undefined externals only surface at title link-time).
+    const d3dx8_objs = libd3dx8_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var d3dx8_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    d3dx8_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    d3dx8_deps.append(b.allocator, d3dx8_objs.step) catch @panic("OOM");
+    const libd3dx8 = coff_lib.pack(b, "libd3dx8", d3dx8_objs.outputs, d3dx8_deps.items);
+    const install_libd3dx8 = b.addInstallFile(libd3dx8.path, "lib/libd3dx8.lib");
+    install_libd3dx8.step.dependOn(libd3dx8.step);
+    const d3dx8_step = b.step("libd3dx8", "Build libd3dx8.lib (Xbox D3DX8 helper library)");
+    d3dx8_step.dependOn(&install_libd3dx8.step);
+
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
@@ -144,6 +158,7 @@ pub fn build(b: *std.Build) void {
 
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
     const libd3d8_lib = b.path("zig-out/lib/libd3d8.lib");
+    const libd3dx8_lib = b.path("zig-out/lib/libd3dx8.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -260,7 +275,7 @@ pub fn build(b: *std.Build) void {
         .src = "samples/d3d8-triangle/src/main.c",
         .extra_srcs = &d3d8_tri_extra,
         .objects = sample_objects.items,
-        .libs = &.{ libd3d8_lib, libxapi_lib, krnl },
+        .libs = &.{ libd3dx8_lib, libd3d8_lib, libxapi_lib, krnl },
         .include_paths = &d3d8_tri_inc,
         // d3d8.h pulls a heavy Win32 header set; like the libraries, force our
         // headers only (-nostdinc) so zig's MinGW winnt.h/basetsd.h/vadefs.h
@@ -275,7 +290,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libd3d8.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, picolibc_objs.step, xbox_objs.step },
     });
     const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
     d3d8_tri_step.dependOn(d3d8_tri.install);

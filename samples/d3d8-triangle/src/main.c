@@ -16,6 +16,15 @@
 #include <guiddef.h>  // GUID/REFGUID -- d3d8.h's resource interfaces reference them
 #include <d3d8.h>
 
+// Link test for libd3dx8: D3DXMatrixRotationZ is a non-inline export (extern "C",
+// __stdcall) defined in libd3dx8's math/d3dxmath.cpp. We forward-declare it here
+// rather than #include <d3dx8math.h>: the public D3DX headers pull the full
+// d3dx8.h + xobjbase COM surface, which expects the XDK xtl.h environment (COM
+// calling-convention macros etc.) that a real title sets up but this deliberately
+// light sample does not. The decorated symbol (_D3DXMatrixRotationZ@8) depends
+// only on the name + arg byte count, so a D3DMATRIX*/float prototype links fine.
+D3DMATRIX *WINAPI D3DXMatrixRotationZ(D3DMATRIX *pOut, float Angle);
+
 #define TRI_PI 3.14159265358979323846f
 
 typedef struct {
@@ -179,7 +188,8 @@ int main(void)
     for (;;) {
         D3DMATRIX world;
 
-        mat_rotation_z(&world, angle);
+        // Spin via libd3dx8 (D3DXMATRIX is layout-compatible with D3DMATRIX).
+        D3DXMatrixRotationZ(&world, angle);
         D3DDevice_SetTransform(D3DTS_WORLD, &world);
         angle += 0.02f;
         if (angle > 2.0f * TRI_PI) angle -= 2.0f * TRI_PI;

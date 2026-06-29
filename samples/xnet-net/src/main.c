@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// XNet bring-up sample -- RXDK libxnetx (the newer private/ntos/net stack).
+// XNet bring-up sample -- RXDK libxnet (the private/ntos/net stack).
 //
 // Uses the public XNetStartup API (the same one PrometheOS/titles use). The
 // dev-kit NIC is owned by the debug monitor (xbdm); this stack's native

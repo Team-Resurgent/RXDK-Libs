@@ -1,12 +1,13 @@
-// libxnet source manifest -- the Xbox XNet TCP/IP network stack ported from the
-// May-2020 leak (private/ntos/xnet). Custom Microsoft stack (NOT lwIP): phy +
-// lib + enet (ARP + nForce/i82558 NIC) + ip (IP/ICMP/IGMP/route/loopback) +
-// dhcp + tcp (TCP/UDP/PCB/timers) + dns + winsock (sockets + XnetInitialize) +
-// http. ppp/modem (dial-up) and test/ are OUT of scope. Mirrors libdsound's
-// per-subdir slice layout; http/*.cxx are C++, everything else is C.
+// libxnet source manifest -- the Xbox XNet stack ported from the May-2020 leak
+// (private/ntos/net). This is the public XNetStartup-API stack the kit's xbdm was
+// built against (native CXbdmServer/CXbdmClient dev-kit NIC sharing). Build as
+// XNET_BUILD_LIBX (the vendor LIBTAG=X / xnet.lib variant):
+//   features ARP/DHCP/DNS/FRAG/ICMP/INSECURE/ROUTE/XBDM_CLIENT/XBOX
+//   (XBDM_CLIENT = native dev-kit bridge; INSECURE = no crypto dependency).
 //
-// Kernel-runtime component (runs at DISPATCH_LEVEL, pokes the MCPX NIC) -- see
-// site/bridge_xnet.h (force-included before each TU).
+// C++ throughout (classes/vtables); tcpipxsum is our C reimpl of i386/tcpipxsum.asm.
+// Precompiled header is net/xnp.h (force-included via site/bridge_xnet.h).
+// See [[libxnet-newstack-upgrade]] memory for the full plan.
 
 pub const Slice = struct {
     name: []const u8,
@@ -16,62 +17,32 @@ pub const Slice = struct {
 
 const X = "libs/libxnet";
 
+// C reimpl of i386/tcpipxsum.asm (RFC1071 internet checksum).
 pub const c_sources = [_][]const u8{
-    // phy: Ethernet PHY transceiver (MII, link negotiation)
-    X ++ "/phy/phy.c",
-    // lib: packet pools + net utilities (+ C reimpl of i386/tcpipxsum.asm)
-    X ++ "/lib/netpool.c",
-    X ++ "/lib/netutil.c",
     X ++ "/lib/tcpipxsum.c",
-    // enet: ARP, Ethernet framing, NIC drivers (i82558 debug board + nForce MCPX)
-    X ++ "/enet/arp.c",
-    X ++ "/enet/enet.c",
-    X ++ "/enet/i82558.c",
-    X ++ "/enet/xnic.c",
-    // ip: IPv4 / ICMP / IGMP / routing / loopback
-    X ++ "/ip/ipinit.c",
-    X ++ "/ip/iprecv.c",
-    X ++ "/ip/ipsend.c",
-    X ++ "/ip/icmp.c",
-    X ++ "/ip/igmp.c",
-    X ++ "/ip/route.c",
-    X ++ "/ip/loopback.c",
-    X ++ "/ip/iputil.c",
-    // dhcp: DHCP client state machine
-    X ++ "/dhcp/dhcp.c",
-    X ++ "/dhcp/dhcpdump.c",
-    // tcp: TCP, UDP, PCBs, multicast, timers
-    X ++ "/tcp/tcpinit.c",
-    X ++ "/tcp/tcprecv.c",
-    X ++ "/tcp/tcpsend.c",
-    X ++ "/tcp/tcpconn.c",
-    X ++ "/tcp/udp.c",
-    X ++ "/tcp/pcb.c",
-    X ++ "/tcp/mcast.c",
-    // dns: DNS resolver
-    X ++ "/dns/dns.c",
-    // winsock: socket API + XnetInitialize / XNetCleanup
-    X ++ "/winsock/sockinit.c",
-    X ++ "/winsock/socket.c",
-    X ++ "/winsock/sockopt.c",
-    X ++ "/winsock/recv.c",
-    X ++ "/winsock/send.c",
-    X ++ "/winsock/connect.c",
-    X ++ "/winsock/select.c",
-    X ++ "/winsock/sockmisc.c",
-    X ++ "/winsock/enumprot.c",
-    X ++ "/winsock/getxbyy.c",
 };
 
-// http: lightweight HTTP client (C++). DEFERRED -- it pulls wininet (wininetp.h:
-// HttpSendRequestA, LPWIN32_FIND_DATAW) and its own Free/MAlloc heap macros, and
-// isn't needed for network bring-up (XnetInitialize + sockets + DHCP). Re-enable
-// once the core stack works on hardware.
+// The newer net stack (private/ntos/net sources.inc SOURCES list, minus the .asm).
 pub const cpp_sources = [_][]const u8{
-    // X ++ "/http/handle.cxx",
-    // X ++ "/http/http.cxx",
+    X ++ "/net/base.cpp",
+    X ++ "/net/enet.cpp",
+    X ++ "/net/halw.cpp",
+    X ++ "/net/halx.cpp",
+    X ++ "/net/ip.cpp",
+    X ++ "/net/ipdhcp.cpp",
+    X ++ "/net/ipdns.cpp",
+    X ++ "/net/ipicmp.cpp",
+    X ++ "/net/ipqos.cpp",
+    X ++ "/net/nicw.cpp",
+    X ++ "/net/nicx.cpp",
+    X ++ "/net/sock.cpp",
+    X ++ "/net/socktcp.cpp",
+    X ++ "/net/sockudp.cpp",
+    X ++ "/net/xnet.cpp",
+    X ++ "/net/xnetp.cpp",
 };
 
 pub const slices = [_]Slice{
-    .{ .name = "xnet", .is_cpp = false, .sources = &c_sources },
+    .{ .name = "xnet-c", .is_cpp = false, .sources = &c_sources },
+    .{ .name = "xnet-cpp", .is_cpp = true, .sources = &cpp_sources },
 };

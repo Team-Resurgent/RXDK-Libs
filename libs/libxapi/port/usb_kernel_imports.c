@@ -57,7 +57,7 @@ BOOLEAN (__stdcall *const rxdk_krnl_KeSetTimerEx)(PKTIMER, LARGE_INTEGER, LONG, 
 NTSTATUS (__stdcall *const rxdk_krnl_PhyInitialize)(BOOLEAN, PVOID) = &PhyInitialize;
 ULONG (__stdcall *const rxdk_krnl_PhyGetLinkState)(BOOLEAN) = &PhyGetLinkState;
 
-/* Crypto exports called by libxnetx (newer net stack RNG seed in base.cpp). */
+/* Crypto exports called by libxnet (net stack RNG seed in base.cpp). */
 VOID (__stdcall *const rxdk_krnl_XcSHAInit)(PUCHAR) = &XcSHAInit;
 VOID (__stdcall *const rxdk_krnl_XcSHAUpdate)(PUCHAR, PUCHAR, ULONG) = &XcSHAUpdate;
 VOID (__stdcall *const rxdk_krnl_XcSHAFinal)(PUCHAR, PUCHAR) = &XcSHAFinal;
@@ -69,7 +69,7 @@ VOID (__stdcall *const rxdk_krnl_XcDESKeyParity)(PUCHAR, ULONG) = &XcDESKeyParit
 VOID (__stdcall *const rxdk_krnl_XcHMAC)(PUCHAR, ULONG, PUCHAR, ULONG, PUCHAR, ULONG, PUCHAR) = &XcHMAC;
 ULONG (__stdcall *const rxdk_krnl_XcModExp)(PULONG, PULONG, PULONG, PULONG, ULONG) = &XcModExp;
 
-/* More kernel exports referenced by libxnetx (waits, mem stats, NV config). */
+/* More kernel exports referenced by libxnet (waits, mem stats, NV config). */
 NTSTATUS (__stdcall *const rxdk_krnl_KeWaitForMultipleObjects)(ULONG, PVOID *, WAIT_TYPE, KWAIT_REASON, KPROCESSOR_MODE, BOOLEAN, PLARGE_INTEGER, PKWAIT_BLOCK) = &KeWaitForMultipleObjects;
 NTSTATUS (__stdcall *const rxdk_krnl_MmQueryStatistics)(PMM_STATISTICS) = &MmQueryStatistics;
 NTSTATUS (__stdcall *const rxdk_krnl_ExQueryNonVolatileSetting)(ULONG, ULONG *, VOID *, ULONG, ULONG *) = &ExQueryNonVolatileSetting;

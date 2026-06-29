@@ -4,23 +4,16 @@ const xnet_sources = @import("sources.zig");
 
 const X = "libs/libxnet";
 
-// Include environment for the Xbox XNet stack. Its own per-subdir headers (each
-// TU has a precomp.h pulling local pcb.h/sockp.h/tcpimpl.h etc. + inc/*), plus
-// libxapi's NT/ntos/dm header set -- xnet is a kernel-runtime component (ntos/
-// xnet) that pokes the MCPX NIC and runs TCP timers at DISPATCH_LEVEL.
-// See site/bridge_xnet.h (force-included before each TU).
+// Include environment for the Xbox net stack (private/ntos/net). xnp.h (the
+// precomp, #included by every .cpp) pulls ntos/init/hal/nturtl/xtl/xboxp/xdbg/phy/
+// xbeimage/ldr + winsockp/xcrypt/xonlinep; most live in libxapi's header tree, the
+// rest are copied into inc/. Kernel-runtime component -- see site/bridge_xnet.h.
 pub fn includeDirs() []const []const u8 {
     return &.{
+        X ++ "/net",
         X ++ "/inc",
-        X ++ "/phy",
         X ++ "/lib",
-        X ++ "/enet",
-        X ++ "/ip",
-        X ++ "/dhcp",
-        X ++ "/tcp",
-        X ++ "/dns",
-        X ++ "/winsock",
-        X ++ "/http",
+        X ++ "/site",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
@@ -36,6 +29,13 @@ pub fn includeDirs() []const []const u8 {
     };
 }
 
+// The newer net stack is MSVC C++ (member-ptr-to-base casts, single-inheritance
+// vtables, struct layouts asserted via C_ASSERT). Compile with clang's MSVC C++
+// ABI so layouts + the native CXbdmServer/CXbdmClient interop match the kit's
+// MSVC-built xbdm. C ABI (the extern "C"/WSAAPI entry points) is unchanged, so the
+// objects link fine with the gnu-ABI rest of the tree.
+pub const target_triple = "x86-windows-msvc";
+
 const common_flags = [_][]const u8{
     "-ffreestanding",
     "-fno-stack-protector",
@@ -47,6 +47,7 @@ const common_flags = [_][]const u8{
     "-fasm-blocks",
     "-fno-operator-names",
     "-fno-sanitize=undefined",
+    "-fwrapv",
     "-Wno-everything",
     "-D_XAPI_",
     "-include",
@@ -77,6 +78,7 @@ pub fn addAllObjects(
     xbox_target: @TypeOf(@import("../../build/xbox_target.zig")),
     opt_flag: []const u8,
 ) ObjectBatch {
+    _ = xbox_target; // libxnet pins its own MSVC target_triple (see note above)
     const allocator = b.allocator;
     var all_outputs = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
@@ -85,7 +87,7 @@ pub fn addAllObjects(
         const flags = if (slice.is_cpp) cppFlags(b) else cFlags(b);
         const batch = compile_c.addBatch(b, .{
             .name = b.fmt("xnet-{s}", .{slice.name}),
-            .target = xbox_target.target_triple,
+            .target = target_triple,   // MSVC C++ ABI (see note above), not xbox_target's gnu
             .out_subdir = b.fmt("xnet/{s}", .{slice.name}),
             .sources = slice.sources,
             .flags = flags,

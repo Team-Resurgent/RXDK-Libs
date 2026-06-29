@@ -1,6 +1,6 @@
 /*
  * MSVC 64-bit integer helper routines (__alldiv / __aulldiv / __allrem /
- * __aullrem / __allmul) referenced by MSVC-C++-ABI objects (libs/libxnetx --
+ * __aullrem / __allmul) referenced by MSVC-C++-ABI objects (libs/libxnet --
  * clang's x86-windows-msvc target emits these for 64-bit / and % instead of
  * compiler-rt's __divdi3 etc.). This file is compiled with the rest of libxapi
  * under the GNU ABI, so the C operators below lower to compiler-rt (__divdi3,

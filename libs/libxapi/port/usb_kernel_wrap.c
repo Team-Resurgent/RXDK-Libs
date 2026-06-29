@@ -273,7 +273,7 @@ ULONG __cdecl PhyGetLinkState(BOOLEAN update)
 }
 
 /*
- * Crypto cdecl facades for libxnetx (the newer net stack's RNG seed, base.cpp
+ * Crypto cdecl facades for libxnet (the net stack's RNG seed, base.cpp
  * RandInit/Rand, uses kernel SHA/RC4). Same cdecl->stdcall bridging as above.
  */
 extern VOID (__stdcall *const rxdk_krnl_XcSHAInit)(PUCHAR);
@@ -338,7 +338,7 @@ ULONG __cdecl XcModExp(PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN)
     return rxdk_krnl_XcModExp(pA, pB, pC, pD, dwN);
 }
 
-/* Waits / mem stats / NV config referenced by libxnetx. */
+/* Waits / mem stats / NV config referenced by libxnet. */
 extern NTSTATUS (__stdcall *const rxdk_krnl_KeWaitForMultipleObjects)(ULONG, PVOID *, WAIT_TYPE, KWAIT_REASON, KPROCESSOR_MODE, BOOLEAN, PLARGE_INTEGER, PKWAIT_BLOCK);
 extern NTSTATUS (__stdcall *const rxdk_krnl_MmQueryStatistics)(PMM_STATISTICS);
 extern NTSTATUS (__stdcall *const rxdk_krnl_ExQueryNonVolatileSetting)(ULONG, ULONG *, VOID *, ULONG, ULONG *);

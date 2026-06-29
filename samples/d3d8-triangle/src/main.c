@@ -16,14 +16,34 @@
 #include <guiddef.h>  // GUID/REFGUID -- d3d8.h's resource interfaces reference them
 #include <d3d8.h>
 
-// Link test for libd3dx8: D3DXMatrixRotationZ is a non-inline export (extern "C",
-// __stdcall) defined in libd3dx8's math/d3dxmath.cpp. We forward-declare it here
-// rather than #include <d3dx8math.h>: the public D3DX headers pull the full
-// d3dx8.h + xobjbase COM surface, which expects the XDK xtl.h environment (COM
-// calling-convention macros etc.) that a real title sets up but this deliberately
-// light sample does not. The decorated symbol (_D3DXMatrixRotationZ@8) depends
-// only on the name + arg byte count, so a D3DMATRIX*/float prototype links fine.
-D3DMATRIX *WINAPI D3DXMatrixRotationZ(D3DMATRIX *pOut, float Angle);
+// --- D3DX8 ---------------------------------------------------------------------
+// This title uses libd3dx8 for its matrix math (identity / projection / view /
+// rotation). The public <d3dx8math.h> pulls the full d3dx8.h umbrella, which
+// builds its COM vtables with the STDMETHOD* calling-convention macros. In a
+// full XDK those come in via <xtl.h>; this sample includes the lighter <d3d8.h>
+// directly (common.h -> xapi.h already sets NT_INCLUDED + the base Win32 types),
+// so we supply just the COM macros the d3dx8 headers expect, then include the
+// header. (The same set the libd3dx8 build provides via site/bridge_d3dx8.h.)
+#ifndef STDMETHODCALLTYPE
+#define STDMETHODCALLTYPE   __stdcall
+#define STDMETHODVCALLTYPE  __cdecl
+#define STDAPICALLTYPE      __stdcall
+#define STDAPIVCALLTYPE     __cdecl
+#endif
+#ifndef EXTERN_C
+#define EXTERN_C extern
+#endif
+#ifndef STDAPI
+#define STDAPI       EXTERN_C HRESULT STDAPICALLTYPE
+#define STDAPI_(t)   EXTERN_C t STDAPICALLTYPE
+#endif
+// HMODULE: dxfile.h (pulled by d3dx8mesh.h via the umbrella) carries one; not in
+// our slimmed windef.h.
+#ifndef _HMODULE_DEFINED_
+#define _HMODULE_DEFINED_
+DECLARE_HANDLE(HMODULE);
+#endif
+#include <d3dx8math.h>
 
 #define TRI_PI 3.14159265358979323846f
 
@@ -39,72 +59,6 @@ static const CustomVertex g_triangle[3] = {
     { -1.0f,  0.5777f, 0.0f, 0xff00ff00 },   // top-left - green
     {  1.0f,  0.5777f, 0.0f, 0xffff0000 },   // top-right - red
 };
-
-//--- hand-rolled matrix math (left-handed, D3D row-vector convention) ----------
-
-static void mat_identity(D3DMATRIX *m)
-{
-    RtlZeroMemory(m, sizeof(*m));
-    m->_11 = m->_22 = m->_33 = m->_44 = 1.0f;
-}
-
-static void mat_perspective_fov_lh(D3DMATRIX *m, float fovY, float aspect,
-                                    float zn, float zf)
-{
-    float h = 1.0f / tanf(fovY * 0.5f);
-    float w = h / aspect;
-    RtlZeroMemory(m, sizeof(*m));
-    m->_11 = w;
-    m->_22 = h;
-    m->_33 = zf / (zf - zn);
-    m->_34 = 1.0f;
-    m->_43 = -zn * zf / (zf - zn);
-}
-
-static void vec_sub(float *r, const float *a, const float *b)
-{
-    r[0] = a[0] - b[0]; r[1] = a[1] - b[1]; r[2] = a[2] - b[2];
-}
-static void vec_norm(float *v)
-{
-    float l = sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    if (l > 0.0f) { v[0] /= l; v[1] /= l; v[2] /= l; }
-}
-static void vec_cross(float *r, const float *a, const float *b)
-{
-    r[0] = a[1]*b[2] - a[2]*b[1];
-    r[1] = a[2]*b[0] - a[0]*b[2];
-    r[2] = a[0]*b[1] - a[1]*b[0];
-}
-static float vec_dot(const float *a, const float *b)
-{
-    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
-}
-
-static void mat_look_at_lh(D3DMATRIX *m, const float *eye, const float *at,
-                            const float *up)
-{
-    float zaxis[3], xaxis[3], yaxis[3];
-    vec_sub(zaxis, at, eye); vec_norm(zaxis);
-    vec_cross(xaxis, up, zaxis); vec_norm(xaxis);
-    vec_cross(yaxis, zaxis, xaxis);
-
-    m->_11 = xaxis[0]; m->_12 = yaxis[0]; m->_13 = zaxis[0]; m->_14 = 0.0f;
-    m->_21 = xaxis[1]; m->_22 = yaxis[1]; m->_23 = zaxis[1]; m->_24 = 0.0f;
-    m->_31 = xaxis[2]; m->_32 = yaxis[2]; m->_33 = zaxis[2]; m->_34 = 0.0f;
-    m->_41 = -vec_dot(xaxis, eye);
-    m->_42 = -vec_dot(yaxis, eye);
-    m->_43 = -vec_dot(zaxis, eye);
-    m->_44 = 1.0f;
-}
-
-static void mat_rotation_z(D3DMATRIX *m, float angle)
-{
-    float c = cosf(angle), s = sinf(angle);
-    mat_identity(m);
-    m->_11 = c;  m->_12 = s;
-    m->_21 = -s; m->_22 = c;
-}
 
 //--- D3D ----------------------------------------------------------------------
 
@@ -158,19 +112,19 @@ static int init_device(void)
 
 static void init_transforms(void)
 {
-    D3DMATRIX proj, view, world;
-    const float eye[3] = { 0.0f, 0.0f, -7.0f };
-    const float at[3]  = { 0.0f, 0.0f,  0.0f };
-    const float up[3]  = { 0.0f, 1.0f,  0.0f };
+    D3DXMATRIX proj, view, world;
+    D3DXVECTOR3 eye = { 0.0f, 0.0f, -7.0f };
+    D3DXVECTOR3 at  = { 0.0f, 0.0f,  0.0f };
+    D3DXVECTOR3 up  = { 0.0f, 1.0f,  0.0f };
 
-    mat_perspective_fov_lh(&proj, TRI_PI / 4.0f, 4.0f / 3.0f, 1.0f, 200.0f);
-    D3DDevice_SetTransform(D3DTS_PROJECTION, &proj);
+    D3DXMatrixPerspectiveFovLH(&proj, TRI_PI / 4.0f, 4.0f / 3.0f, 1.0f, 200.0f);
+    D3DDevice_SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&proj);
 
-    mat_look_at_lh(&view, eye, at, up);
-    D3DDevice_SetTransform(D3DTS_VIEW, &view);
+    D3DXMatrixLookAtLH(&view, &eye, &at, &up);
+    D3DDevice_SetTransform(D3DTS_VIEW, (D3DMATRIX *)&view);
 
-    mat_identity(&world);
-    D3DDevice_SetTransform(D3DTS_WORLD, &world);
+    D3DXMatrixIdentity(&world);
+    D3DDevice_SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
 }
 
 int main(void)
@@ -186,11 +140,11 @@ int main(void)
 
     DbgPrint("d3d8-triangle: entering render loop\n");
     for (;;) {
-        D3DMATRIX world;
+        D3DXMATRIX world;
 
         // Spin via libd3dx8 (D3DXMATRIX is layout-compatible with D3DMATRIX).
         D3DXMatrixRotationZ(&world, angle);
-        D3DDevice_SetTransform(D3DTS_WORLD, &world);
+        D3DDevice_SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
         angle += 0.02f;
         if (angle > 2.0f * TRI_PI) angle -= 2.0f * TRI_PI;
 

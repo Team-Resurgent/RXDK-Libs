@@ -11,6 +11,7 @@ const libd3dx8_pkg = @import("libs/libd3dx8/build.zig");
 const libxgraphics_pkg = @import("libs/libxgraphics/build.zig");
 const libdsound_pkg = @import("libs/libdsound/build.zig");
 const libxnet_pkg = @import("libs/libxnet/build.zig");
+const libxnetx_pkg = @import("libs/libxnetx/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -171,6 +172,19 @@ pub fn build(b: *std.Build) void {
     const xnet_step = b.step("libxnet", "Build libxnet.lib (Xbox XNet TCP/IP stack)");
     xnet_step.dependOn(&install_libxnet.step);
 
+    // libxnetx: the NEWER Xbox net stack (private/ntos/net -- public XNetStartup
+    // API, native CXbdmServer/CXbdmClient dev-kit NIC sharing). Compiled with the
+    // MSVC C++ ABI (see libs/libxnetx/build.zig). Replaces the libxnet graft.
+    const xnetx_objs = libxnetx_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xnetx_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xnetx_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xnetx_deps.append(b.allocator, xnetx_objs.step) catch @panic("OOM");
+    const libxnetx = coff_lib.pack(b, "libxnetx", xnetx_objs.outputs, xnetx_deps.items);
+    const install_libxnetx = b.addInstallFile(libxnetx.path, "lib/libxnetx.lib");
+    install_libxnetx.step.dependOn(libxnetx.step);
+    const xnetx_step = b.step("libxnetx", "Build libxnetx.lib (newer Xbox XNet stack, XNetStartup)");
+    xnetx_step.dependOn(&install_libxnetx.step);
+
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
@@ -201,7 +215,7 @@ pub fn build(b: *std.Build) void {
     const libd3dx8_lib = b.path("zig-out/lib/libd3dx8.lib");
     const libxgraphics_lib = b.path("zig-out/lib/libxgraphics.lib");
     const libdsound_lib = b.path("zig-out/lib/libdsound.lib");
-    const libxnet_lib = b.path("zig-out/lib/libxnet.lib");
+    const libxnetx_lib = b.path("zig-out/lib/libxnetx.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -443,13 +457,16 @@ pub fn build(b: *std.Build) void {
     const xnet_extra = [_][]const u8{
         "samples/xapi-smoke/src/xapi_boot.c",
         "samples/xapi-smoke/src/common.c",
+        // MSVC 64-bit math helpers (__alldiv etc.) for the MSVC-ABI libxnetx.
+        // Linked directly into the sample (GNU ABI -> lowers to compiler-rt).
+        "libs/libxapi/port/msvc_lldiv.c",
     };
     const xnet_sample = link_pe.addPeSample(b, target, optimize, xbox_target, .{
         .name = "xnet-net",
         .src = "samples/xnet-net/src/main.c",
         .extra_srcs = &xnet_extra,
         .objects = sample_objects.items,
-        .libs = &.{ libxnet_lib, libxapi_lib, krnl },
+        .libs = &.{ libxnetx_lib, libxapi_lib, krnl },
         .include_paths = &xnet_inc,
         .extra_flags = &.{
             "-D_XAPI_",
@@ -461,7 +478,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libxnet.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libxnetx.step, picolibc_objs.step, xbox_objs.step },
     });
     const xnet_sample_step = b.step("xnet-net", "Build the XNet network bring-up sample");
     xnet_sample_step.dependOn(xnet_sample.install);

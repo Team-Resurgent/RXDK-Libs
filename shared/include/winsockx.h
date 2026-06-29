@@ -664,7 +664,12 @@ typedef struct _OVERLAPPED *    LPWSAOVERLAPPED;
 #else /* WIN16 */
 
 #define WSAAPI                  FAR PASCAL
-typedef DWORD                   WSAEVENT, FAR * LPWSAEVENT;
+/* RXDK: WSAEVENT is a kernel HANDLE (Win32 def). The leak's title-facing
+   winsockx.h typedef'd it as DWORD (opaque to titles), but the stack impl
+   (private/ntos/net) passes WSAEVENTs straight to WaitForSingleObject/SetEvent/
+   CloseHandle etc., and clang rejects the DWORD->void* conversion MSVC allowed
+   with a warning. HANDLE is ABI-identical (both 32-bit) and type-correct. */
+typedef HANDLE                  WSAEVENT, FAR * LPWSAEVENT;
 
 typedef struct _WSAOVERLAPPED {
     DWORD    Internal;

@@ -271,3 +271,89 @@ ULONG __cdecl PhyGetLinkState(BOOLEAN update)
 {
     return rxdk_krnl_PhyGetLinkState(update);
 }
+
+/*
+ * Crypto cdecl facades for libxnetx (the newer net stack's RNG seed, base.cpp
+ * RandInit/Rand, uses kernel SHA/RC4). Same cdecl->stdcall bridging as above.
+ */
+extern VOID (__stdcall *const rxdk_krnl_XcSHAInit)(PUCHAR);
+extern VOID (__stdcall *const rxdk_krnl_XcSHAUpdate)(PUCHAR, PUCHAR, ULONG);
+extern VOID (__stdcall *const rxdk_krnl_XcSHAFinal)(PUCHAR, PUCHAR);
+extern VOID (__stdcall *const rxdk_krnl_XcRC4Key)(PUCHAR, ULONG, PUCHAR);
+extern VOID (__stdcall *const rxdk_krnl_XcRC4Crypt)(PUCHAR, ULONG, PUCHAR);
+
+VOID __cdecl XcSHAInit(PUCHAR pbSHAContext)
+{
+    rxdk_krnl_XcSHAInit(pbSHAContext);
+}
+
+VOID __cdecl XcSHAUpdate(PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength)
+{
+    rxdk_krnl_XcSHAUpdate(pbSHAContext, pbInput, dwInputLength);
+}
+
+VOID __cdecl XcSHAFinal(PUCHAR pbSHAContext, PUCHAR pbDigest)
+{
+    rxdk_krnl_XcSHAFinal(pbSHAContext, pbDigest);
+}
+
+VOID __cdecl XcRC4Key(PUCHAR pbKeyStruct, ULONG dwKeyLength, PUCHAR pbKey)
+{
+    rxdk_krnl_XcRC4Key(pbKeyStruct, dwKeyLength, pbKey);
+}
+
+VOID __cdecl XcRC4Crypt(PUCHAR pbKeyStruct, ULONG dwInputLength, PUCHAR pbInput)
+{
+    rxdk_krnl_XcRC4Crypt(pbKeyStruct, dwInputLength, pbInput);
+}
+
+extern VOID (__stdcall *const rxdk_krnl_XcKeyTable)(ULONG, PUCHAR, PUCHAR);
+extern VOID (__stdcall *const rxdk_krnl_XcBlockCryptCBC)(ULONG, ULONG, PUCHAR, PUCHAR, PUCHAR, ULONG, PUCHAR);
+extern VOID (__stdcall *const rxdk_krnl_XcDESKeyParity)(PUCHAR, ULONG);
+extern VOID (__stdcall *const rxdk_krnl_XcHMAC)(PUCHAR, ULONG, PUCHAR, ULONG, PUCHAR, ULONG, PUCHAR);
+extern ULONG (__stdcall *const rxdk_krnl_XcModExp)(PULONG, PULONG, PULONG, PULONG, ULONG);
+
+VOID __cdecl XcKeyTable(ULONG dwCipher, PUCHAR pbKeyTable, PUCHAR pbKey)
+{
+    rxdk_krnl_XcKeyTable(dwCipher, pbKeyTable, pbKey);
+}
+
+VOID __cdecl XcBlockCryptCBC(ULONG dwCipher, ULONG dwInputLength, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp, PUCHAR pbFeedback)
+{
+    rxdk_krnl_XcBlockCryptCBC(dwCipher, dwInputLength, pbOutput, pbInput, pbKeyTable, dwOp, pbFeedback);
+}
+
+VOID __cdecl XcDESKeyParity(PUCHAR pbKey, ULONG dwKeyLength)
+{
+    rxdk_krnl_XcDESKeyParity(pbKey, dwKeyLength);
+}
+
+VOID __cdecl XcHMAC(PUCHAR pbKey, ULONG dwKeyLength, PUCHAR pbInput, ULONG dwInputLength, PUCHAR pbInput2, ULONG dwInputLength2, PUCHAR pbDigest)
+{
+    rxdk_krnl_XcHMAC(pbKey, dwKeyLength, pbInput, dwInputLength, pbInput2, dwInputLength2, pbDigest);
+}
+
+ULONG __cdecl XcModExp(PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN)
+{
+    return rxdk_krnl_XcModExp(pA, pB, pC, pD, dwN);
+}
+
+/* Waits / mem stats / NV config referenced by libxnetx. */
+extern NTSTATUS (__stdcall *const rxdk_krnl_KeWaitForMultipleObjects)(ULONG, PVOID *, WAIT_TYPE, KWAIT_REASON, KPROCESSOR_MODE, BOOLEAN, PLARGE_INTEGER, PKWAIT_BLOCK);
+extern NTSTATUS (__stdcall *const rxdk_krnl_MmQueryStatistics)(PMM_STATISTICS);
+extern NTSTATUS (__stdcall *const rxdk_krnl_ExQueryNonVolatileSetting)(ULONG, ULONG *, VOID *, ULONG, ULONG *);
+
+NTSTATUS __cdecl KeWaitForMultipleObjects(ULONG Count, PVOID Object[], WAIT_TYPE WaitType, KWAIT_REASON WaitReason, KPROCESSOR_MODE WaitMode, BOOLEAN Alertable, PLARGE_INTEGER Timeout, PKWAIT_BLOCK WaitBlockArray)
+{
+    return rxdk_krnl_KeWaitForMultipleObjects(Count, Object, WaitType, WaitReason, WaitMode, Alertable, Timeout, WaitBlockArray);
+}
+
+NTSTATUS __cdecl MmQueryStatistics(PMM_STATISTICS MemoryStatistics)
+{
+    return rxdk_krnl_MmQueryStatistics(MemoryStatistics);
+}
+
+NTSTATUS __cdecl ExQueryNonVolatileSetting(ULONG ValueIndex, ULONG *Type, VOID *Value, ULONG ValueLength, ULONG *ResultLength)
+{
+    return rxdk_krnl_ExQueryNonVolatileSetting(ValueIndex, Type, Value, ValueLength, ResultLength);
+}

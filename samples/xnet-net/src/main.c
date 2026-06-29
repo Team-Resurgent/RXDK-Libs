@@ -1,100 +1,120 @@
 //------------------------------------------------------------------------------
-// XNet bring-up sample -- RXDK libxnet.
+// XNet bring-up sample -- RXDK libxnetx (the newer private/ntos/net stack).
 //
-// Starts the Xbox TCP/IP stack (the nForce MCPX ethernet NIC + PHY), waits for
-// DHCP, and reports the ethernet link state and the leased IP address.
-//
-// The leak's xnet source implements the OLDER public API (XnetInitialize /
-// XnetGetEthernetLinkStatus), which the slimmed public winsockx.h does not
-// declare (it only has the newer XNetStartup). So we declare the few entry
-// points we call here, with their real calling conventions (WSAAPI = __stdcall;
-// IpGetBestAddress is an internal cdecl helper that returns the best local IP).
+// Uses the public XNetStartup API (the same one PrometheOS/titles use). The
+// dev-kit NIC is owned by the debug monitor (xbdm); this stack's native
+// CXbdmClient shares it. XNetStartup is non-blocking -- we then BUSY-POLL
+// XNetGetTitleXnAddr until an address is configured, keeping the thread runnable
+// so the timer + NIC DPCs keep running. (A blocking wait starves DPCs on the kit;
+// PrometheOS likewise polls from its render loop. See [[libxnet-newstack-upgrade]].)
 //------------------------------------------------------------------------------
 
-#include "common.h"   // xapi_smoke_trace_line + the boot/trace helpers
+#include "common.h"   // xapi_smoke_trace_line + boot/trace helpers
 #include <stdio.h>
 
-// --- libxnet entry points (see winsock/sockinit.c, ip/iputil.c) --------------
-extern int            __stdcall XnetInitialize(const void *initParams, int wait);
-extern int            __stdcall XnetCleanup(void);
-extern unsigned long  __stdcall XnetGetEthernetLinkStatus(void);
-extern unsigned long             IpGetBestAddress(unsigned long *addr); // cdecl, IPADDR* (net order)
+// Public XNet API (newer stack). WSAAPI == __stdcall on Xbox; declared manually
+// (the title-side winsockx.h needs the full Windows header env to include here).
+typedef struct {
+    unsigned long  ina;          // IP address (network byte order; 0 if none)
+    unsigned long  inaOnline;
+    unsigned short wPortOnline;
+    unsigned char  abEnet[6];    // Ethernet MAC
+    unsigned char  abOnline[20];
+} XNADDR;                        // 36 bytes (matches winsockx.h)
 
-// NOTE: KeStallExecutionProcessor (declared in xboxkrnl ke.h) is a kernel busy-wait
-// that does NOT block/yield -> the thread stays runnable so timer and NIC DPCs keep
-// firing. On the dev kit, a *blocking* wait (KeWaitForSingleObject, e.g. Sleep /
-// XnetInitialize(wait=1)) starves DPCs once it's the only thread, so DHCP retries and
-// received frames never get processed. We therefore poll with a busy-wait.
+// XNetStartupParams: 12 packed BYTEs (winsockx.h). Any field left 0 takes the
+// stack's default; we only need cfgSizeOfStruct + cfgFlags.
+typedef struct {
+    unsigned char cfgSizeOfStruct;
+    unsigned char cfgFlags;
+    unsigned char cfgPrivatePoolSizeInPages;
+    unsigned char cfgEnetReceiveQueueLength;
+    unsigned char cfgIpFragMaxSimultaneous;
+    unsigned char cfgIpFragMaxPacketDiv256;
+    unsigned char cfgSockMaxSockets;
+    unsigned char cfgSockDefaultRecvBufsizeInK;
+    unsigned char cfgSockDefaultSendBufsizeInK;
+    unsigned char cfgKeyRegMax;
+    unsigned char cfgSecRegMax;
+    unsigned char cfgQosDataLimitDiv4;
+} XNetStartupParams;            // 12 bytes
+
+// Devkit-only: allow insecure comms to untrusted hosts (e.g. a PC). REQUIRED on
+// the INSECURE library -- without it DhcpConfig parks at FLAG_ACTIVE_NOADDR
+// (XNADDR_ETHERNET) to mimic xnets.lib and never acquires an IP. (PrometheOS sets
+// this too. See [[libxnet-newstack-upgrade]].)
+#define XNET_STARTUP_BYPASS_SECURITY  0x01
+
+extern int           __stdcall XNetStartup(const XNetStartupParams *pxnsp);
+extern int           __stdcall XNetCleanup(void);
+extern unsigned long __stdcall XNetGetTitleXnAddr(XNADDR *pxna);  // -> XNADDR_* flags
+extern unsigned long __stdcall XNetGetEthernetLinkStatus(void);
+extern void          __stdcall KeStallExecutionProcessor(unsigned long microseconds);
+
+// XNetGetTitleXnAddr result flags (winsockx.h XNET_GET_XNADDR_*).
+#define XNADDR_PENDING   0x00
+#define XNADDR_NONE      0x01
+#define XNADDR_ETHERNET  0x02
+#define XNADDR_STATIC    0x04
+#define XNADDR_DHCP      0x08
+#define XNADDR_AUTO      0x10
 
 // Ethernet link-status flags (winsockx.h XNET_ETHERNET_LINK_*).
-#define LINK_ACTIVE       0x01
-#define LINK_100MBPS      0x02
-#define LINK_10MBPS       0x04
-#define LINK_FULL_DUPLEX  0x08
-#define LINK_HALF_DUPLEX  0x10
-
-// Address-config flags (rxdk_xnet_compat.h XNET_ADDR_*).
-#define ADDR_STATIC       0x04
-#define ADDR_DHCP         0x08
-#define ADDR_AUTOIP       0x10
-
-static void print_status(void)
-{
-    unsigned long link = XnetGetEthernetLinkStatus();
-    unsigned long ip = 0, flags = IpGetBestAddress(&ip);
-    unsigned char *o = (unsigned char *)&ip;  // IPADDR is network byte order
-
-    DbgPrint("xnet-net: link=0x%02x [%s %s %s]\n",
-             (unsigned)link,
-             (link & LINK_ACTIVE) ? "UP" : "DOWN",
-             (link & LINK_100MBPS) ? "100Mbps" : ((link & LINK_10MBPS) ? "10Mbps" : "?"),
-             (link & LINK_FULL_DUPLEX) ? "full-duplex" : ((link & LINK_HALF_DUPLEX) ? "half-duplex" : "?"));
-    DbgPrint("xnet-net: IP = %u.%u.%u.%u  (addr-flags=0x%x)\n",
-             o[0], o[1], o[2], o[3], (unsigned)flags);
-}
+#define LINK_ACTIVE   0x01
+#define LINK_100MBPS  0x02
+#define LINK_10MBPS   0x04
+#define LINK_FULL     0x08
+#define LINK_HALF     0x10
 
 int main(void)
 {
-    int           rc;
-    unsigned long ip = 0, flags = 0;
-    int           i;
+    int           rc, i;
+    XNADDR        xna = {0};
+    unsigned long st = XNADDR_PENDING, link;
+    unsigned char *o;
+    XNetStartupParams xnsp = {0};
+
+    xnsp.cfgSizeOfStruct = sizeof(xnsp);                 // must equal sizeof(XNetStartupParams)
+    xnsp.cfgFlags        = XNET_STARTUP_BYPASS_SECURITY; // devkit insecure mode -> DHCP runs
 
     xapi_smoke_trace_line("xnet-net start");
 
-    // Start the stack WITHOUT blocking on DHCP (wait=0): a blocking wait starves
-    // DPCs on the kit. We drive DHCP ourselves by busy-polling below.
-    DbgPrint("xnet-net: calling XnetInitialize (no-wait; busy-poll for DHCP)...\n");
-    rc = XnetInitialize(NULL, 0 /* no wait */);
-    DbgPrint("xnet-net: XnetInitialize returned %d\n", rc);
+    DbgPrint("xnet-net: XNetStartup (newer private/ntos/net stack)...\n");
+    rc = XNetStartup(&xnsp);
+    DbgPrint("xnet-net: XNetStartup returned %d\n", rc);
 
-    // Poll up to ~30s for a real lease, keeping the thread runnable (busy-wait) so
-    // the TCP fast-timer DPC (DHCP retransmits) and the xbdm/NIC receive DPC keep
-    // running. (We must NOT block: a blocking wait starves DPCs on the dev kit.)
-    //
-    // KNOWN LIMITATION (dev kit): the timer-driven path through the old-stack ->
-    // xbdm CXbdmServer bridge hangs the kit at DISPATCH. Being replaced by a port
-    // of the newer private/ntos/net stack (XNetStartup), whose CXbdmClient is
-    // native to the xbdm protocol. See [[libxnet-port]] memory.
-    for (i = 0; i < 300; i++) {
-        KeStallExecutionProcessor(100000);   // 100ms busy wait (DPCs stay alive)
-        flags = IpGetBestAddress(&ip);
-        if (ip && (flags & (ADDR_DHCP | ADDR_STATIC)))
-            break;                            // got a real (non-AutoIP) address
-        if ((i % 10) == 9)                    // ~ every second
-            DbgPrint("xnet-net: ...polling DHCP (t=%ds, ip-flags=0x%x)\n",
-                     (i + 1) / 10, (unsigned)flags);
+    // Busy-poll for a configured address (DO NOT block: a blocking wait starves
+    // DPCs on the dev kit, so the timer/NIC DPCs that drive DHCP would never run).
+    for (i = 0; i < 300; i++) {              // ~30s
+        KeStallExecutionProcessor(100000);   // 100ms busy wait keeps DPCs alive
+        st = XNetGetTitleXnAddr(&xna);
+        if (st & (XNADDR_DHCP | XNADDR_STATIC))
+            break;                           // got a real lease / static IP
+        if ((i % 10) == 9)
+            DbgPrint("xnet-net: ...polling (t=%ds, xnaddr-flags=0x%lx)\n",
+                     (i + 1) / 10, st);
     }
 
-    if (ip && (flags & (ADDR_DHCP | ADDR_STATIC)))
-        DbgPrint("xnet-net: *** DHCP lease acquired ***\n");
-    else
-        DbgPrint("xnet-net: no DHCP lease (flags=0x%x); reporting current state\n",
-                 (unsigned)flags);
-    print_status();
+    link = XNetGetEthernetLinkStatus();
+    DbgPrint("xnet-net: link=0x%02lx [%s %s %s]\n", link,
+             (link & LINK_ACTIVE) ? "UP" : "DOWN",
+             (link & LINK_100MBPS) ? "100Mbps" : ((link & LINK_10MBPS) ? "10Mbps" : "?"),
+             (link & LINK_FULL) ? "full-duplex" : ((link & LINK_HALF) ? "half-duplex" : "?"));
 
-    // Keep the title alive WITHOUT blocking, so networking (DPC-driven) keeps
-    // running. (A blocking Sleep would freeze the stack on the kit.)
-    DbgPrint("xnet-net: network up; idling (busy).\n");
+    o = (unsigned char *)&xna.ina;   // network byte order
+    DbgPrint("xnet-net: flags=0x%lx IP=%u.%u.%u.%u mac=%02x:%02x:%02x:%02x:%02x:%02x\n",
+             st, o[0], o[1], o[2], o[3],
+             xna.abEnet[0], xna.abEnet[1], xna.abEnet[2],
+             xna.abEnet[3], xna.abEnet[4], xna.abEnet[5]);
+
+    if (st & (XNADDR_DHCP | XNADDR_STATIC))
+        DbgPrint("xnet-net: *** network up (address acquired) ***\n");
+    else
+        DbgPrint("xnet-net: no address (flags=0x%lx)\n", st);
+
+    // Keep the title alive WITHOUT blocking (the DPC-driven stack needs a running
+    // thread; a blocking Sleep would freeze it on the kit).
+    DbgPrint("xnet-net: idling (busy).\n");
     for (;;) { KeStallExecutionProcessor(100000); }
 
     return 0;

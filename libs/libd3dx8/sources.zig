@@ -118,6 +118,7 @@ pub const jpeglib_sources = [_][]const u8{
     "libs/libd3dx8/misc/jpeglib/jidctflt.cpp",
     "libs/libd3dx8/misc/jpeglib/jidctfst.cpp",
     "libs/libd3dx8/misc/jpeglib/jidctint.cpp",
+    "libs/libd3dx8/misc/jpeglib/jidctred.cpp",
     "libs/libd3dx8/misc/jpeglib/jmemmgr.cpp",
     "libs/libd3dx8/misc/jpeglib/jmemnobs.cpp",
     "libs/libd3dx8/misc/jpeglib/jquant1.cpp",

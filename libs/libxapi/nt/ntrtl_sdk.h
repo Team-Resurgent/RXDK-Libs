@@ -3023,6 +3023,7 @@ done:
 //
 
 #ifndef RXDK_TIME_FIELDS
+#define RXDK_TIME_FIELDS   /* RXDK: set the guard (ntos.h uses the same one) so co-including <nt.h> + <ntos.h> -- as dsound's dscommon.h does -- doesn't redefine TIME_FIELDS */
 typedef struct _TIME_FIELDS {
     CSHORT Year;        // range [1601...]
     CSHORT Month;       // range [1..12]

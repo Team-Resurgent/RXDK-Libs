@@ -8,6 +8,8 @@ const libunwind = @import("libs/libcpp/unwind.zig");
 const libxapi_pkg = @import("libs/libxapi/build.zig");
 const libd3d8_pkg = @import("libs/libd3d8/build.zig");
 const libd3dx8_pkg = @import("libs/libd3dx8/build.zig");
+const libxgraphics_pkg = @import("libs/libxgraphics/build.zig");
+const libdsound_pkg = @import("libs/libdsound/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -131,6 +133,31 @@ pub fn build(b: *std.Build) void {
     const d3dx8_step = b.step("libd3dx8", "Build libd3dx8.lib (Xbox D3DX8 helper library)");
     d3dx8_step.dependOn(&install_libd3dx8.step);
 
+    // libxgraphics: the Xbox xgraphics helper library (swizzle/format helpers,
+    // S3TC, shader assembler, xgmath). d3dx8's texture path needs the XGSwizzle*
+    // functions. Built >= -O2 (asm-blocks). Not in the default install.
+    const xg_objs = libxgraphics_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xg_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xg_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xg_deps.append(b.allocator, xg_objs.step) catch @panic("OOM");
+    const libxgraphics = coff_lib.pack(b, "libxgraphics", xg_objs.outputs, xg_deps.items);
+    const install_libxgraphics = b.addInstallFile(libxgraphics.path, "lib/libxgraphics.lib");
+    install_libxgraphics.step.dependOn(libxgraphics.step);
+    const xg_step = b.step("libxgraphics", "Build libxgraphics.lib (Xbox xgraphics helper library)");
+    xg_step.dependOn(&install_libxgraphics.step);
+
+    // libdsound: the Xbox core DirectSound library (MCPX APU driver). Not in the
+    // default install.
+    const ds_objs = libdsound_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var ds_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    ds_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    ds_deps.append(b.allocator, ds_objs.step) catch @panic("OOM");
+    const libdsound = coff_lib.pack(b, "libdsound", ds_objs.outputs, ds_deps.items);
+    const install_libdsound = b.addInstallFile(libdsound.path, "lib/libdsound.lib");
+    install_libdsound.step.dependOn(libdsound.step);
+    const ds_step = b.step("libdsound", "Build libdsound.lib (Xbox DirectSound / MCPX APU)");
+    ds_step.dependOn(&install_libdsound.step);
+
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
@@ -159,6 +186,8 @@ pub fn build(b: *std.Build) void {
     const libxapi_lib = b.path("zig-out/lib/libxapi.lib");
     const libd3d8_lib = b.path("zig-out/lib/libd3d8.lib");
     const libd3dx8_lib = b.path("zig-out/lib/libd3dx8.lib");
+    const libxgraphics_lib = b.path("zig-out/lib/libxgraphics.lib");
+    const libdsound_lib = b.path("zig-out/lib/libdsound.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -294,6 +323,96 @@ pub fn build(b: *std.Build) void {
     });
     const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
     d3d8_tri_step.dependOn(d3d8_tri.install);
+
+    // D3D8 texture-grid sample. C title: loads the media images via libd3dx8's
+    // D3DXCreateTextureFromFile and draws a 3x2 grid of drifting textured quads.
+    // Links libd3dx8 + libxgraphics (swizzle) + libd3d8 + libxapi + krnl.
+    const d3d8_tex_extra = [_][]const u8{
+        "samples/xapi-smoke/src/xapi_boot.c",
+        "samples/xapi-smoke/src/common.c",
+    };
+    // libd3dx8's C++ image codecs use global operator new/delete; this C title has
+    // no C++ runtime, so compile a tiny malloc-backed set into its own object.
+    const opnew_batch = compile_c.addBatch(b, .{
+        .name = "d3d8-textures-opnew",
+        .target = xbox_target.target_triple,
+        .out_subdir = "d3d8-textures",
+        .sources = &.{"samples/d3d8-textures/src/opnew.cpp"},
+        .flags = &.{
+            "-std=c++17", "-ffreestanding", "-fno-exceptions", "-fno-rtti",
+            "-nostdinc", "-nostdinc++", "-fms-extensions", "-fms-compatibility",
+            "-fno-sanitize=undefined", "-Wno-everything", "-D_XAPI_", "-include", "picolibc.h",
+        },
+        .include_dirs = &.{
+            "shared/include", "build/generated",
+            "shared/picolibc/include", "shared/picolibc/machine/x86",
+        },
+        .opt_flag = opt_flag,
+        .is_cpp = true,
+    });
+    var d3d8_tex_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
+    d3d8_tex_objects.appendSlice(b.allocator, sample_objects.items) catch @panic("OOM");
+    d3d8_tex_objects.appendSlice(b.allocator, opnew_batch.outputs) catch @panic("OOM");
+    const d3d8_tex = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "d3d8-textures",
+        .src = "samples/d3d8-textures/src/main.c",
+        .extra_srcs = &d3d8_tex_extra,
+        .objects = d3d8_tex_objects.items,
+        .libs = &.{ libd3dx8_lib, libxgraphics_lib, libd3d8_lib, libxapi_lib, krnl },
+        .include_paths = &d3d8_tri_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "xapi_smoke_boot_entry",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, &install_libxgraphics.step, opnew_batch.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const d3d8_tex_step = b.step("d3d8-textures", "Build the D3D8 texture-grid sample");
+    d3d8_tex_step.dependOn(d3d8_tex.install);
+
+    // DirectSound OGG-music sample. C title: decodes media\music.ogg with
+    // stb_vorbis and plays it on a looping libdsound buffer (the MCPX APU).
+    const dsmusic_inc = [_]std.Build.LazyPath{
+        b.path("samples/xapi-smoke/src"), // common.h
+        b.path("shared/include"),         // dsound.h
+        b.path("libs/libxapi/internal"),
+        b.path("libs/libxapi/nt"),        // guiddef.h
+        b.path("vendor/stb"),             // stb_vorbis.c (via stb_vorbis_impl.c)
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const dsmusic_extra = [_][]const u8{
+        "samples/xapi-smoke/src/xapi_boot.c",
+        "samples/xapi-smoke/src/common.c",
+        "samples/dsound-music/src/stb_vorbis_impl.c",
+    };
+    const dsmusic = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "dsound-music",
+        .src = "samples/dsound-music/src/main.c",
+        .extra_srcs = &dsmusic_extra,
+        .objects = sample_objects.items,
+        .libs = &.{ libdsound_lib, libxapi_lib, krnl },
+        .include_paths = &dsmusic_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "xapi_smoke_boot_entry",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const dsmusic_step = b.step("dsound-music", "Build the DirectSound OGG-music sample");
+    dsmusic_step.dependOn(dsmusic.install);
 
     var cpp_sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     cpp_sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");

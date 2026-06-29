@@ -39,3 +39,15 @@ ULONG_PTR (__stdcall *const rxdk_krnl_MmGetPhysicalAddress)(PVOID) = &MmGetPhysi
 NTSTATUS (__stdcall *const rxdk_krnl_KeDelayExecutionThread)(KPROCESSOR_MODE, BOOLEAN, PLARGE_INTEGER) = &KeDelayExecutionThread;
 BOOLEAN (__stdcall *const rxdk_krnl_KeInsertQueueDpc)(PRKDPC, PVOID, PVOID) = &KeInsertQueueDpc;
 VOID (__stdcall *const rxdk_krnl_MmLockUnlockPhysicalPage)(ULONG_PTR, BOOLEAN) = &MmLockUnlockPhysicalPage;
+
+/* Additional kernel exports called by libdsound (MCPX APU driver). Same
+ * cdecl-facade bridging as above: dsound's vendor ntos.h calls are cdecl,
+ * xboxkrnl is __stdcall. */
+ULONG (__stdcall *const rxdk_krnl_ExQueryPoolBlockSize)(PVOID) = &ExQueryPoolBlockSize;
+BOOLEAN (__stdcall *const rxdk_krnl_KeDisconnectInterrupt)(PKINTERRUPT) = &KeDisconnectInterrupt;
+VOID (__stdcall *const rxdk_krnl_KeQuerySystemTime)(PLARGE_INTEGER) = &KeQuerySystemTime;
+BOOLEAN (__stdcall *const rxdk_krnl_KeRemoveQueueDpc)(PRKDPC) = &KeRemoveQueueDpc;
+BOOLEAN (__stdcall *const rxdk_krnl_KeSynchronizeExecution)(PKINTERRUPT, PKSYNCHRONIZE_ROUTINE, PVOID) = &KeSynchronizeExecution;
+PVOID (__stdcall *const rxdk_krnl_MmAllocateContiguousMemoryEx)(SIZE_T, ULONG_PTR, ULONG_PTR, ULONG_PTR, ULONG) = &MmAllocateContiguousMemoryEx;
+VOID (__stdcall *const rxdk_krnl_MmFreeContiguousMemory)(PVOID) = &MmFreeContiguousMemory;
+SIZE_T (__stdcall *const rxdk_krnl_MmQueryAllocationSize)(PVOID) = &MmQueryAllocationSize;

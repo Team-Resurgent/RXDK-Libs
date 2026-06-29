@@ -190,3 +190,59 @@ VOID __cdecl MmLockUnlockPhysicalPage(ULONG_PTR PhysicalAddress, BOOLEAN UnlockP
 {
     rxdk_krnl_MmLockUnlockPhysicalPage(PhysicalAddress, UnlockPage);
 }
+
+/*
+ * Additional cdecl facades for libdsound (MCPX APU driver). These kernel
+ * exports were previously stubbed via prebuilt/xboxkrnl_dsound_imports.lib,
+ * which provided undecorated imports straight to the __stdcall kernel -- an
+ * ABI mismatch (cdecl caller vs stdcall callee). Routing through the stdcall
+ * function pointers fixes the convention, same as the USB facades above.
+ */
+extern ULONG (__stdcall *const rxdk_krnl_ExQueryPoolBlockSize)(PVOID);
+extern BOOLEAN (__stdcall *const rxdk_krnl_KeDisconnectInterrupt)(PKINTERRUPT);
+extern VOID (__stdcall *const rxdk_krnl_KeQuerySystemTime)(PLARGE_INTEGER);
+extern BOOLEAN (__stdcall *const rxdk_krnl_KeRemoveQueueDpc)(PRKDPC);
+extern BOOLEAN (__stdcall *const rxdk_krnl_KeSynchronizeExecution)(PKINTERRUPT, PKSYNCHRONIZE_ROUTINE, PVOID);
+extern PVOID (__stdcall *const rxdk_krnl_MmAllocateContiguousMemoryEx)(SIZE_T, ULONG_PTR, ULONG_PTR, ULONG_PTR, ULONG);
+extern VOID (__stdcall *const rxdk_krnl_MmFreeContiguousMemory)(PVOID);
+extern SIZE_T (__stdcall *const rxdk_krnl_MmQueryAllocationSize)(PVOID);
+
+ULONG __cdecl ExQueryPoolBlockSize(PVOID PoolBlock)
+{
+    return rxdk_krnl_ExQueryPoolBlockSize(PoolBlock);
+}
+
+BOOLEAN __cdecl KeDisconnectInterrupt(PKINTERRUPT Interrupt)
+{
+    return rxdk_krnl_KeDisconnectInterrupt(Interrupt);
+}
+
+VOID __cdecl KeQuerySystemTime(PLARGE_INTEGER CurrentTime)
+{
+    rxdk_krnl_KeQuerySystemTime(CurrentTime);
+}
+
+BOOLEAN __cdecl KeRemoveQueueDpc(PRKDPC Dpc)
+{
+    return rxdk_krnl_KeRemoveQueueDpc(Dpc);
+}
+
+BOOLEAN __cdecl KeSynchronizeExecution(PKINTERRUPT Interrupt, PKSYNCHRONIZE_ROUTINE SynchronizeRoutine, PVOID SynchronizeContext)
+{
+    return rxdk_krnl_KeSynchronizeExecution(Interrupt, SynchronizeRoutine, SynchronizeContext);
+}
+
+PVOID __cdecl MmAllocateContiguousMemoryEx(SIZE_T NumberOfBytes, ULONG_PTR LowestAcceptableAddress, ULONG_PTR HighestAcceptableAddress, ULONG_PTR Alignment, ULONG Protect)
+{
+    return rxdk_krnl_MmAllocateContiguousMemoryEx(NumberOfBytes, LowestAcceptableAddress, HighestAcceptableAddress, Alignment, Protect);
+}
+
+VOID __cdecl MmFreeContiguousMemory(PVOID BaseAddress)
+{
+    rxdk_krnl_MmFreeContiguousMemory(BaseAddress);
+}
+
+SIZE_T __cdecl MmQueryAllocationSize(PVOID BaseAddress)
+{
+    return rxdk_krnl_MmQueryAllocationSize(BaseAddress);
+}

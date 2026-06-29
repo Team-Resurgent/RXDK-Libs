@@ -449,13 +449,13 @@ void WINAPI XGUnswizzleBox(
     DWORD       Width,        // The width of the entire source texture.
     DWORD       Height,       // The height of the entire source texture.
     DWORD       Depth,        // The depth of the entire destination texture.
-    D3DBOX *    pBox,         // The rectangle within the texture to copy.
+    CONST D3DBOX * pBox,      // RXDK: const to match the swizzler.cpp definition (reads only)
     LPVOID      pDest,        // The destination buffer
     DWORD       RowPitch,     // Byte offset from the left edge of one row to
                                 // the left edge of the next row
     DWORD       SlicePitch,   // Byte offset from the top-left of one slice to
                                 // the top-left of the next deepest slice
-    XGPOINT3D * pPoint,       // Where to copy the rectangle to
+    CONST XGPOINT3D * pPoint, // RXDK: const to match the swizzler.cpp definition
     DWORD       BytesPerPixel
     );
 

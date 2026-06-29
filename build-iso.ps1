@@ -200,6 +200,8 @@ $samples = @(
     [pscustomobject]@{ Target = 'libc-smoke';   Iso = 'libc-smoke.iso';   Desc = 'libc / C23 runtime conformance matrix' }
     [pscustomobject]@{ Target = 'libcpp-smoke'; Iso = 'libcpp-smoke.iso'; Desc = 'libc++ / C++23 smoke (expected, string_view, iostream)' }
     [pscustomobject]@{ Target = 'd3d8-triangle'; Iso = 'd3d8-triangle.iso'; Desc = 'libd3d8 / NV2A rotating colored triangle' }
+    [pscustomobject]@{ Target = 'd3d8-textures'; Iso = 'd3d8-textures.iso'; Desc = 'libd3dx8 + libxgraphics / 3x2 texture grid (deploys media\)' }
+    [pscustomobject]@{ Target = 'dsound-music'; Iso = 'dsound-music.iso'; Desc = 'libdsound + stb_vorbis / looping OGG music (deploys media\)' }
 )
 
 # Submenu reached via 'm. more' on the main menu: the actions/settings that
@@ -372,6 +374,20 @@ function Invoke-SampleDeploy {
     # -t create destination dir, -y overwrite without prompting.
     & $xbcp $xbe $remoteXbe -x $XboxIp -y -t
     if ($LASTEXITCODE -ne 0) { throw "xbcp failed (exit $LASTEXITCODE)." }
+
+    # If the sample ships a media\ folder, copy it alongside the XBE so the title
+    # can load its assets from D:\media\ (e.g. d3d8-textures). The title's D:
+    # maps to its own deploy subfolder, so this lands at <remoteDir>\media\<file>.
+    $mediaDir = Join-Path $root ('samples\{0}\media' -f $Chosen.Target)
+    if (Test-Path -LiteralPath $mediaDir) {
+        Write-Host ''
+        Write-Host ('==> copying media\ for {0} -> {1}\media' -f $Chosen.Target, $remoteDir) -ForegroundColor Cyan
+        foreach ($f in (Get-ChildItem -LiteralPath $mediaDir -File)) {
+            $remoteMedia = '{0}\media\{1}' -f $remoteDir, $f.Name
+            & $xbcp $f.FullName $remoteMedia -x $XboxIp -y -t
+            if ($LASTEXITCODE -ne 0) { throw ("xbcp of media file {0} failed (exit {1})." -f $f.Name, $LASTEXITCODE) }
+        }
+    }
 
     # build-all (and any copy-only caller) skips launch: you can't run every
     # title at once. The XBE is staged under its own subfolder for manual launch.

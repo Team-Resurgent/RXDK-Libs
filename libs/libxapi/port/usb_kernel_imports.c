@@ -51,3 +51,8 @@ BOOLEAN (__stdcall *const rxdk_krnl_KeSynchronizeExecution)(PKINTERRUPT, PKSYNCH
 PVOID (__stdcall *const rxdk_krnl_MmAllocateContiguousMemoryEx)(SIZE_T, ULONG_PTR, ULONG_PTR, ULONG_PTR, ULONG) = &MmAllocateContiguousMemoryEx;
 VOID (__stdcall *const rxdk_krnl_MmFreeContiguousMemory)(PVOID) = &MmFreeContiguousMemory;
 SIZE_T (__stdcall *const rxdk_krnl_MmQueryAllocationSize)(PVOID) = &MmQueryAllocationSize;
+
+/* Additional kernel exports called by libxnet (TCP timers + MCPX PHY). */
+BOOLEAN (__stdcall *const rxdk_krnl_KeSetTimerEx)(PKTIMER, LARGE_INTEGER, LONG, PKDPC) = &KeSetTimerEx;
+NTSTATUS (__stdcall *const rxdk_krnl_PhyInitialize)(BOOLEAN, PVOID) = &PhyInitialize;
+ULONG (__stdcall *const rxdk_krnl_PhyGetLinkState)(BOOLEAN) = &PhyGetLinkState;

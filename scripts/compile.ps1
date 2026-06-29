@@ -3,7 +3,7 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle', 'd3d8-textures', 'dsound-music'
+        'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle', 'd3d8-textures', 'dsound-music', 'xnet-net'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -68,7 +68,10 @@ function Convert-SampleXbe {
         [switch]$MountHdd,
         [switch]$FormatHdd,
         [int]$MaxImportThunks = 0,
-        [int]$StackSize = 65536
+        # 128 KiB (XDK default 64 KiB): generous headroom only. The earlier
+        # "DmEnetFunc overflows the stack" rationale was wrong; real fix was the
+        # CXbdmClient bridge. Can likely return to 65536 after HW validation.
+        [int]$StackSize = 131072
     )
     $pe = Join-Path $Root "zig-out\samples\$SampleName\$SampleName.exe"
     if (-not (Test-Path -LiteralPath $pe)) {
@@ -130,7 +133,7 @@ function Build-AllSamples {
 }
 
 $singleSampleTargets = @(
-    'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle', 'd3d8-textures', 'dsound-music'
+    'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle', 'd3d8-textures', 'dsound-music', 'xnet-net'
 )
 
 switch ($Target) {

@@ -49,11 +49,14 @@ typedef struct _XBOX_HARDWARE_INFO {
     UCHAR reserved[2];
 } XBOX_HARDWARE_INFO;
 
-#if !defined(_NTSYSTEM_) && !defined(RXDK_USB_LINK)
+#if !defined(_NTSYSTEM_) && !defined(RXDK_USB_LINK) && !defined(RXDK_XNET_LINK)
 extern const XBOX_HARDWARE_INFO* XboxHardwareInfo;
 #elif !defined(_NTSYSTEM_) && defined(RXDK_USB_LINK)
 #include "kernel_import_ptrs.h"
 #else
+/* RXDK_XNET_LINK (libxnet, kernel-runtime): the xnet source (phy.c) accesses
+   XboxHardwareInfo as a struct value (XboxHardwareInfo.McpRevision), matching the
+   kernel's DATA export. */
 extern XBOX_HARDWARE_INFO XboxHardwareInfo;
 #endif
 

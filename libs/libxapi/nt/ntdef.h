@@ -219,6 +219,12 @@ typedef void * POINTER_64 PVOID64;
 
 #if (_MSC_VER >= 1200) && defined(_M_IX86)
 #define FORCEINLINE static __forceinline
+#elif defined(RXDK_XNET_LINK)
+/* RXDK (libxnet): clang on x86-windows-gnu doesn't define _M_IX86, so this fell
+   through to plain __inline -- which under C99 emits no out-of-line copy, leaving
+   FORCEINLINE helpers (KeGetCurrentPrcb, ...) undefined at link. static makes
+   each TU emit its own copy. */
+#define FORCEINLINE static __inline
 #else
 #define FORCEINLINE __inline
 #endif

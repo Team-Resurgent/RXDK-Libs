@@ -10,6 +10,7 @@ const libd3d8_pkg = @import("libs/libd3d8/build.zig");
 const libd3dx8_pkg = @import("libs/libd3dx8/build.zig");
 const libxgraphics_pkg = @import("libs/libxgraphics/build.zig");
 const libdsound_pkg = @import("libs/libdsound/build.zig");
+const libxnet_pkg = @import("libs/libxnet/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -158,6 +159,18 @@ pub fn build(b: *std.Build) void {
     const ds_step = b.step("libdsound", "Build libdsound.lib (Xbox DirectSound / MCPX APU)");
     ds_step.dependOn(&install_libdsound.step);
 
+    // libxnet: the Xbox XNet TCP/IP network stack (MCPX ethernet NIC + PHY +
+    // IP/TCP/UDP/DHCP/DNS/winsock). Not in the default install.
+    const xnet_objs = libxnet_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xnet_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xnet_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xnet_deps.append(b.allocator, xnet_objs.step) catch @panic("OOM");
+    const libxnet = coff_lib.pack(b, "libxnet", xnet_objs.outputs, xnet_deps.items);
+    const install_libxnet = b.addInstallFile(libxnet.path, "lib/libxnet.lib");
+    install_libxnet.step.dependOn(libxnet.step);
+    const xnet_step = b.step("libxnet", "Build libxnet.lib (Xbox XNet TCP/IP stack)");
+    xnet_step.dependOn(&install_libxnet.step);
+
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
@@ -188,6 +201,7 @@ pub fn build(b: *std.Build) void {
     const libd3dx8_lib = b.path("zig-out/lib/libd3dx8.lib");
     const libxgraphics_lib = b.path("zig-out/lib/libxgraphics.lib");
     const libdsound_lib = b.path("zig-out/lib/libdsound.lib");
+    const libxnet_lib = b.path("zig-out/lib/libxnet.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -413,6 +427,44 @@ pub fn build(b: *std.Build) void {
     });
     const dsmusic_step = b.step("dsound-music", "Build the DirectSound OGG-music sample");
     dsmusic_step.dependOn(dsmusic.install);
+
+    // XNet bring-up sample: start the TCP/IP stack (MCPX NIC), wait for DHCP,
+    // print the link state + leased IP. C title: reuses the xapi boot/trace
+    // helpers, links libxnet (+ libxapi + krnl).
+    const xnet_inc = [_]std.Build.LazyPath{
+        b.path("samples/xapi-smoke/src"), // common.h
+        b.path("shared/include"),
+        b.path("libs/libxapi/internal"),
+        b.path("libs/libxapi/nt"),
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const xnet_extra = [_][]const u8{
+        "samples/xapi-smoke/src/xapi_boot.c",
+        "samples/xapi-smoke/src/common.c",
+    };
+    const xnet_sample = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "xnet-net",
+        .src = "samples/xnet-net/src/main.c",
+        .extra_srcs = &xnet_extra,
+        .objects = sample_objects.items,
+        .libs = &.{ libxnet_lib, libxapi_lib, krnl },
+        .include_paths = &xnet_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "xapi_smoke_boot_entry",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libxnet.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const xnet_sample_step = b.step("xnet-net", "Build the XNet network bring-up sample");
+    xnet_sample_step.dependOn(xnet_sample.install);
 
     var cpp_sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     cpp_sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");

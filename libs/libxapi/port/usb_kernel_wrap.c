@@ -246,3 +246,28 @@ SIZE_T __cdecl MmQueryAllocationSize(PVOID BaseAddress)
 {
     return rxdk_krnl_MmQueryAllocationSize(BaseAddress);
 }
+
+/*
+ * Additional cdecl facades for libxnet (TCP fast/slow timers + the MCPX
+ * ethernet PHY). Same cdecl->stdcall bridging as above. PhyInitialize /
+ * PhyGetLinkState are kernel exports (ordinals 253 / 252); the xnet source's
+ * own phy.c copies are gated out in our build.
+ */
+extern BOOLEAN (__stdcall *const rxdk_krnl_KeSetTimerEx)(PKTIMER, LARGE_INTEGER, LONG, PKDPC);
+extern NTSTATUS (__stdcall *const rxdk_krnl_PhyInitialize)(BOOLEAN, PVOID);
+extern ULONG (__stdcall *const rxdk_krnl_PhyGetLinkState)(BOOLEAN);
+
+BOOLEAN __cdecl KeSetTimerEx(PKTIMER Timer, LARGE_INTEGER DueTime, LONG Period, PKDPC Dpc)
+{
+    return rxdk_krnl_KeSetTimerEx(Timer, DueTime, Period, Dpc);
+}
+
+NTSTATUS __cdecl PhyInitialize(BOOLEAN forceReset, PVOID param)
+{
+    return rxdk_krnl_PhyInitialize(forceReset, param);
+}
+
+ULONG __cdecl PhyGetLinkState(BOOLEAN update)
+{
+    return rxdk_krnl_PhyGetLinkState(update);
+}

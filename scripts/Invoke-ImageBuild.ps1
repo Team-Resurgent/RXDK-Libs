@@ -9,7 +9,11 @@ param(
     [switch]$MountHdd,
     [switch]$FormatHdd,
     [int]$MaxImportThunks = 0,
-    [int]$StackSize = 65536
+    # 128 KiB (XDK default is 64 KiB). Generous headroom only -- the original
+    # "DmEnetFunc overflows the stack" theory was WRONG (the real bug was the
+    # xnet/xbdm CXbdmServer protocol mismatch, now fixed via the CXbdmClient
+    # bridge). Can likely return to 65536 once the bridge is HW-validated.
+    [int]$StackSize = 131072
 )
 
 $ErrorActionPreference = 'Stop'

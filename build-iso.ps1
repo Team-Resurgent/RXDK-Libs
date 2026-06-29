@@ -59,7 +59,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle')]
+    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3d8-textures', 'dsound-music', 'xnet-net')]
     [string]$Sample,
     [switch]$All,
     [switch]$Clean,
@@ -202,6 +202,7 @@ $samples = @(
     [pscustomobject]@{ Target = 'd3d8-triangle'; Iso = 'd3d8-triangle.iso'; Desc = 'libd3d8 / NV2A rotating colored triangle' }
     [pscustomobject]@{ Target = 'd3d8-textures'; Iso = 'd3d8-textures.iso'; Desc = 'libd3dx8 + libxgraphics / 3x2 texture grid (deploys media\)' }
     [pscustomobject]@{ Target = 'dsound-music'; Iso = 'dsound-music.iso'; Desc = 'libdsound + stb_vorbis / looping OGG music (deploys media\)' }
+    [pscustomobject]@{ Target = 'xnet-net';     Iso = 'xnet-net.iso';     Desc = 'libxnet / XNet bring-up - link status + DHCP IP' }
 )
 
 # Submenu reached via 'm. more' on the main menu: the actions/settings that

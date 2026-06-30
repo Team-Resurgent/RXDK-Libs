@@ -1,23 +1,23 @@
 #ifndef XBOXKRNL_API_IO_H
 #define XBOXKRNL_API_IO_H
 
-XBAPI PFN_COUNT NTAPI FscGetCacheSize (void);
+XBAPI PFN_COUNT STDCALL FscGetCacheSize (void);
 
-XBAPI VOID NTAPI FscInvalidateIdleBlocks (void);
+XBAPI VOID STDCALL FscInvalidateIdleBlocks (void);
 
-XBAPI NTSTATUS NTAPI FscSetCacheSize
+XBAPI NTSTATUS STDCALL FscSetCacheSize
 (
     IN PFN_COUNT NumberOfCachePages
 );
 
 XBAPI IDE_CHANNEL_OBJECT IdexChannelObject;
 
-XBAPI PIRP NTAPI IoAllocateIrp
+XBAPI PIRP STDCALL IoAllocateIrp
 (
     IN CCHAR StackSize
 );
 
-XBAPI PIRP NTAPI IoBuildAsynchronousFsdRequest
+XBAPI PIRP STDCALL IoBuildAsynchronousFsdRequest
 (
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,
@@ -27,7 +27,7 @@ XBAPI PIRP NTAPI IoBuildAsynchronousFsdRequest
     IN PIO_STATUS_BLOCK IoStatusBlock OPTIONAL
 );
 
-XBAPI PIRP NTAPI IoBuildDeviceIoControlRequest
+XBAPI PIRP STDCALL IoBuildDeviceIoControlRequest
 (
     IN ULONG IoControlCode,
     IN PDEVICE_OBJECT DeviceObject,
@@ -40,7 +40,7 @@ XBAPI PIRP NTAPI IoBuildDeviceIoControlRequest
     OUT PIO_STATUS_BLOCK IoStatusBlock
 );
 
-XBAPI PIRP NTAPI IoBuildSynchronousFsdRequest
+XBAPI PIRP STDCALL IoBuildSynchronousFsdRequest
 (
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,
@@ -51,7 +51,7 @@ XBAPI PIRP NTAPI IoBuildSynchronousFsdRequest
     OUT PIO_STATUS_BLOCK IoStatusBlock
 );
 
-XBAPI NTSTATUS NTAPI IoCheckShareAccess
+XBAPI NTSTATUS STDCALL IoCheckShareAccess
 (
     IN ACCESS_MASK DesiredAccess,
     IN ULONG DesiredShareAccess,
@@ -62,7 +62,7 @@ XBAPI NTSTATUS NTAPI IoCheckShareAccess
 
 XBAPI OBJECT_TYPE IoCompletionObjectType[1];
 
-XBAPI NTSTATUS NTAPI IoCreateDevice
+XBAPI NTSTATUS STDCALL IoCreateDevice
 (
     IN PDRIVER_OBJECT DriverObject,
     IN ULONG DeviceExtensionSize,
@@ -72,7 +72,7 @@ XBAPI NTSTATUS NTAPI IoCreateDevice
     OUT PDEVICE_OBJECT *DeviceObject
 );
 
-XBAPI NTSTATUS NTAPI IoCreateFile
+XBAPI NTSTATUS STDCALL IoCreateFile
 (
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -86,30 +86,30 @@ XBAPI NTSTATUS NTAPI IoCreateFile
     IN ULONG Options
 );
 
-XBAPI NTSTATUS NTAPI IoCreateSymbolicLink
+XBAPI NTSTATUS STDCALL IoCreateSymbolicLink
 (
     IN POBJECT_STRING SymbolicLinkName,
     IN POBJECT_STRING DeviceName
 );
 
-XBAPI VOID NTAPI IoDeleteDevice
+XBAPI VOID STDCALL IoDeleteDevice
 (
     IN PDEVICE_OBJECT DeviceObject
 );
 
-XBAPI NTSTATUS NTAPI IoDeleteSymbolicLink
+XBAPI NTSTATUS STDCALL IoDeleteSymbolicLink
 (
     IN POBJECT_STRING SymbolicLinkName
 );
 
 XBAPI OBJECT_TYPE IoDeviceObjectType[1];
 
-XBAPI NTSTATUS NTAPI IoDismountVolume
+XBAPI NTSTATUS STDCALL IoDismountVolume
 (
     IN PDEVICE_OBJECT DeviceObject
 );
 
-XBAPI NTSTATUS NTAPI IoDismountVolumeByName
+XBAPI NTSTATUS STDCALL IoDismountVolumeByName
 (
     IN POBJECT_STRING DeviceName
 );
@@ -128,30 +128,30 @@ XBAPI VOID FASTCALL IofCompleteRequest
 
 XBAPI OBJECT_TYPE IoFileObjectType[1];
 
-XBAPI VOID NTAPI IoFreeIrp
+XBAPI VOID STDCALL IoFreeIrp
 (
     IN PIRP Irp
 );
 
-XBAPI VOID NTAPI IoInitializeIrp
+XBAPI VOID STDCALL IoInitializeIrp
 (
     IN OUT PIRP Irp,
     IN USHORT PacketSize,
     IN CCHAR StackSize
 );
 
-XBAPI NTSTATUS NTAPI IoInvalidDeviceRequest
+XBAPI NTSTATUS STDCALL IoInvalidDeviceRequest
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp
 );
 
-XBAPI VOID NTAPI IoMarkIrpMustComplete
+XBAPI VOID STDCALL IoMarkIrpMustComplete
 (
     IN OUT PIRP Irp
 );
 
-XBAPI NTSTATUS NTAPI IoQueryFileInformation
+XBAPI NTSTATUS STDCALL IoQueryFileInformation
 (
     IN PFILE_OBJECT FileObject,
     IN FILE_INFORMATION_CLASS FileInformationClass,
@@ -160,7 +160,7 @@ XBAPI NTSTATUS NTAPI IoQueryFileInformation
     OUT PULONG ReturnedLength
 );
 
-XBAPI NTSTATUS NTAPI IoQueryVolumeInformation
+XBAPI NTSTATUS STDCALL IoQueryVolumeInformation
 (
     IN PFILE_OBJECT FileObject,
     IN FS_INFORMATION_CLASS FsInformationClass,
@@ -169,18 +169,18 @@ XBAPI NTSTATUS NTAPI IoQueryVolumeInformation
     OUT PULONG ReturnedLength
 );
 
-XBAPI VOID NTAPI IoQueueThreadIrp
+XBAPI VOID STDCALL IoQueueThreadIrp
 (
     IN PIRP Irp
 );
 
-XBAPI VOID NTAPI IoRemoveShareAccess
+XBAPI VOID STDCALL IoRemoveShareAccess
 (
     IN PFILE_OBJECT FileObject,
     IN OUT PSHARE_ACCESS ShareAccess
 );
 
-XBAPI NTSTATUS NTAPI IoSetIoCompletion
+XBAPI NTSTATUS STDCALL IoSetIoCompletion
 (
     IN PVOID IoCompletion,
     IN PVOID KeyContext,
@@ -189,7 +189,7 @@ XBAPI NTSTATUS NTAPI IoSetIoCompletion
     IN ULONG_PTR IoStatusInformation
 );
 
-XBAPI VOID NTAPI IoSetShareAccess
+XBAPI VOID STDCALL IoSetShareAccess
 (
     IN ACCESS_MASK DesiredAccess,
     IN ULONG DesiredShareAccess,
@@ -197,25 +197,25 @@ XBAPI VOID NTAPI IoSetShareAccess
     OUT PSHARE_ACCESS ShareAccess
 );
 
-XBAPI VOID NTAPI IoStartNextPacket
+XBAPI VOID STDCALL IoStartNextPacket
 (
     IN PDEVICE_OBJECT DeviceObject
 );
 
-XBAPI VOID NTAPI IoStartNextPacketByKey
+XBAPI VOID STDCALL IoStartNextPacketByKey
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN ULONG Key
 );
 
-XBAPI VOID NTAPI IoStartPacket
+XBAPI VOID STDCALL IoStartPacket
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp,
     IN PULONG Key OPTIONAL
 );
 
-XBAPI NTSTATUS NTAPI IoSynchronousDeviceIoControlRequest
+XBAPI NTSTATUS STDCALL IoSynchronousDeviceIoControlRequest
 (
     IN ULONG IoControlCode,
     IN PDEVICE_OBJECT DeviceObject,
@@ -227,7 +227,7 @@ XBAPI NTSTATUS NTAPI IoSynchronousDeviceIoControlRequest
     IN BOOLEAN InternalDeviceIoControl
 );
 
-XBAPI NTSTATUS NTAPI IoSynchronousFsdRequest
+XBAPI NTSTATUS STDCALL IoSynchronousFsdRequest
 (
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,

@@ -8,7 +8,7 @@ XBAPI VOID FASTCALL HalClearSoftwareInterrupt
     IN KIRQL RequestIrql
 );
 
-XBAPI VOID NTAPI HalDisableSystemInterrupt
+XBAPI VOID STDCALL HalDisableSystemInterrupt
 (
     IN ULONG BusInterruptLevel
 );
@@ -19,25 +19,25 @@ XBAPI STRING HalDiskModelNumber;
 
 XBAPI STRING HalDiskSerialNumber;
 
-XBAPI VOID NTAPI HalEnableSecureTrayEject(void);
+XBAPI VOID STDCALL HalEnableSecureTrayEject(void);
 
-XBAPI VOID NTAPI HalEnableSystemInterrupt
+XBAPI VOID STDCALL HalEnableSystemInterrupt
 (
     IN ULONG BusInterruptLevel,
     IN KINTERRUPT_MODE InterruptMode
 );
 
-XBAPI ULONG NTAPI HalGetInterruptVector
+XBAPI ULONG STDCALL HalGetInterruptVector
 (
     IN ULONG BusInterruptLevel,
     OUT PKIRQL Irql
 );
 
-XBAPI VOID NTAPI HalInitiateShutdown(void);
+XBAPI VOID STDCALL HalInitiateShutdown(void);
 
-XBAPI BOOLEAN NTAPI HalIsResetOrShutdownPending(void);
+XBAPI BOOLEAN STDCALL HalIsResetOrShutdownPending(void);
 
-XBAPI NTSTATUS NTAPI HalReadSMBusValue
+XBAPI NTSTATUS STDCALL HalReadSMBusValue
 (
     IN UCHAR SlaveAddress,
     IN UCHAR CommandCode,
@@ -45,13 +45,13 @@ XBAPI NTSTATUS NTAPI HalReadSMBusValue
     OUT ULONG *DataValue
 );
 
-XBAPI NTSTATUS NTAPI HalReadSMCTrayState
+XBAPI NTSTATUS STDCALL HalReadSMCTrayState
 (
     OUT PULONG TrayState,
     OUT PULONG TrayStateChangeCount OPTIONAL
 );
 
-XBAPI VOID NTAPI HalReadWritePCISpace
+XBAPI VOID STDCALL HalReadWritePCISpace
 (
     IN ULONG BusNumber,
     IN ULONG SlotNumber,
@@ -61,7 +61,7 @@ XBAPI VOID NTAPI HalReadWritePCISpace
     IN BOOLEAN WritePCISpace
 );
 
-XBAPI VOID NTAPI HalRegisterShutdownNotification
+XBAPI VOID STDCALL HalRegisterShutdownNotification
 (
     IN PHAL_SHUTDOWN_REGISTRATION ShutdownRegistration,
     IN BOOLEAN Register
@@ -72,12 +72,12 @@ XBAPI VOID FASTCALL HalRequestSoftwareInterrupt
     KIRQL RequestIrql
 );
 
-XBAPI VOID DECLSPEC_NORETURN NTAPI HalReturnToFirmware
+XBAPI VOID DECLSPEC_NORETURN STDCALL HalReturnToFirmware
 (
     IN FIRMWARE_REENTRY Routine
 );
 
-XBAPI NTSTATUS NTAPI HalWriteSMBusValue
+XBAPI NTSTATUS STDCALL HalWriteSMBusValue
 (
     IN UCHAR SlaveAddress,
     IN UCHAR CommandCode,
@@ -85,26 +85,26 @@ XBAPI NTSTATUS NTAPI HalWriteSMBusValue
     IN ULONG DataValue
 );
 
-XBAPI NTSTATUS NTAPI HalWriteSMCScratchRegister
+XBAPI NTSTATUS STDCALL HalWriteSMCScratchRegister
 (
     IN ULONG ScratchRegister
 );
 
-XBAPI VOID NTAPI WRITE_PORT_BUFFER_UCHAR
+XBAPI VOID STDCALL WRITE_PORT_BUFFER_UCHAR
 (
     IN PUCHAR Port,
     IN PUCHAR Buffer,
     IN ULONG Count
 );
 
-XBAPI VOID NTAPI WRITE_PORT_BUFFER_ULONG
+XBAPI VOID STDCALL WRITE_PORT_BUFFER_ULONG
 (
     IN PULONG Port,
     IN PULONG Buffer,
     IN ULONG Count
 );
 
-XBAPI VOID NTAPI WRITE_PORT_BUFFER_USHORT
+XBAPI VOID STDCALL WRITE_PORT_BUFFER_USHORT
 (
     IN PUSHORT Port,
     IN PUSHORT Buffer,

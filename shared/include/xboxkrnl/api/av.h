@@ -1,9 +1,9 @@
 #ifndef XBOXKRNL_API_AV_H
 #define XBOXKRNL_API_AV_H
 
-XBAPI PVOID NTAPI AvGetSavedDataAddress(void);
+XBAPI PVOID STDCALL AvGetSavedDataAddress(void);
 
-XBAPI VOID NTAPI AvSendTVEncoderOption
+XBAPI VOID STDCALL AvSendTVEncoderOption
 (
     IN PVOID RegisterBase,
     IN ULONG Option,
@@ -11,7 +11,7 @@ XBAPI VOID NTAPI AvSendTVEncoderOption
     OUT PULONG Result
 );
 
-XBAPI ULONG NTAPI AvSetDisplayMode
+XBAPI ULONG STDCALL AvSetDisplayMode
 (
     IN PVOID RegisterBase,
     IN ULONG Step,
@@ -21,7 +21,7 @@ XBAPI ULONG NTAPI AvSetDisplayMode
     IN ULONG FrameBuffer
 );
 
-XBAPI VOID NTAPI AvSetSavedDataAddress
+XBAPI VOID STDCALL AvSetSavedDataAddress
 (
     IN PVOID Address
 );

@@ -230,7 +230,7 @@ typedef struct _OBJECT_HEADER {
 
 #define OBJECT_TO_OBJECT_HEADER(Object) CONTAINING_RECORD(Object, OBJECT_HEADER, Body)
 
-typedef VOID (NTAPI *PKDEFERRED_ROUTINE) (
+typedef VOID (STDCALL *PKDEFERRED_ROUTINE) (
 
     IN PKDPC Dpc,
     IN PVOID DeferredContext,
@@ -245,7 +245,7 @@ typedef struct _KDEVICE_QUEUE {
     LIST_ENTRY DeviceListHead;
 } KDEVICE_QUEUE, *PKDEVICE_QUEUE;
 
-typedef VOID (NTAPI *PKSTART_ROUTINE) (
+typedef VOID (STDCALL *PKSTART_ROUTINE) (
 
     IN PVOID StartContext
 );
@@ -255,7 +255,7 @@ typedef union _FILE_SEGMENT_ELEMENT {
     DWORD Alignment;
 } FILE_SEGMENT_ELEMENT, *PFILE_SEGMENT_ELEMENT;
 
-typedef VOID (NTAPI *PIO_APC_ROUTINE) (
+typedef VOID (STDCALL *PIO_APC_ROUTINE) (
 
     IN PVOID ApcContext,
     IN PIO_STATUS_BLOCK IoStatusBlock,
@@ -311,7 +311,7 @@ typedef struct _ETHREAD {
     PVOID DebugData;
 } ETHREAD, *PETHREAD;
 
-typedef VOID (NTAPI *PCREATE_THREAD_NOTIFY_ROUTINE) (
+typedef VOID (STDCALL *PCREATE_THREAD_NOTIFY_ROUTINE) (
 
     IN PETHREAD Thread,
     IN HANDLE ThreadId,
@@ -323,7 +323,7 @@ typedef enum _KINTERRUPT_MODE {
     Latched
 } KINTERRUPT_MODE;
 
-typedef BOOLEAN (NTAPI *PKSERVICE_ROUTINE) (
+typedef BOOLEAN (STDCALL *PKSERVICE_ROUTINE) (
 
     IN PKINTERRUPT Interrupt,
     IN PVOID ServiceContext
@@ -334,7 +334,7 @@ typedef struct _TIMER_BASIC_INFORMATION {
     BOOLEAN TimerState;
 } TIMER_BASIC_INFORMATION, *PTIMER_BASIC_INFORMATION;
 
-typedef VOID (NTAPI *PTIMER_APC_ROUTINE) (
+typedef VOID (STDCALL *PTIMER_APC_ROUTINE) (
 
     IN PVOID TimerContext,
     IN ULONG TimerLowValue,

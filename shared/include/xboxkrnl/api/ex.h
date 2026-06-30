@@ -1,22 +1,22 @@
 #ifndef XBOXKRNL_API_EX_H
 #define XBOXKRNL_API_EX_H
 
-XBAPI VOID NTAPI ExAcquireReadWriteLockExclusive
+XBAPI VOID STDCALL ExAcquireReadWriteLockExclusive
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI VOID NTAPI ExAcquireReadWriteLockShared
+XBAPI VOID STDCALL ExAcquireReadWriteLockShared
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI PVOID NTAPI ExAllocatePool
+XBAPI PVOID STDCALL ExAllocatePool
 (
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI PVOID NTAPI ExAllocatePoolWithTag
+XBAPI PVOID STDCALL ExAllocatePoolWithTag
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG Tag
@@ -41,17 +41,17 @@ XBAPI PLIST_ENTRY FASTCALL ExfInterlockedRemoveHeadList
     IN PLIST_ENTRY ListHead
 );
 
-XBAPI VOID NTAPI ExFreePool
+XBAPI VOID STDCALL ExFreePool
 (
     IN PVOID P
 );
 
-XBAPI VOID NTAPI ExInitializeReadWriteLock
+XBAPI VOID STDCALL ExInitializeReadWriteLock
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI LARGE_INTEGER NTAPI ExInterlockedAddLargeInteger
+XBAPI LARGE_INTEGER STDCALL ExInterlockedAddLargeInteger
 (
     IN OUT PLARGE_INTEGER Addend,
     IN LARGE_INTEGER Increment,
@@ -73,7 +73,7 @@ XBAPI LONGLONG FASTCALL ExInterlockedCompareExchange64
 
 XBAPI OBJECT_TYPE ExMutantObjectType[1];
 
-XBAPI NTSTATUS NTAPI ExQueryNonVolatileSetting
+XBAPI NTSTATUS STDCALL ExQueryNonVolatileSetting
 (
     IN ULONG ValueIndex,
     OUT PULONG Type,
@@ -82,34 +82,34 @@ XBAPI NTSTATUS NTAPI ExQueryNonVolatileSetting
     OUT PULONG ResultLength
 );
 
-XBAPI ULONG NTAPI ExQueryPoolBlockSize
+XBAPI ULONG STDCALL ExQueryPoolBlockSize
 (
     IN PVOID PoolBlock
 );
 
-XBAPI VOID NTAPI ExRaiseException
+XBAPI VOID STDCALL ExRaiseException
 (
     PEXCEPTION_RECORD ExceptionRecord
 );
 
-XBAPI VOID NTAPI ExRaiseStatus
+XBAPI VOID STDCALL ExRaiseStatus
 (
     IN NTSTATUS Status
 );
 
-XBAPI NTSTATUS NTAPI ExReadWriteRefurbInfo
+XBAPI NTSTATUS STDCALL ExReadWriteRefurbInfo
 (
     OUT XBOX_REFURB_INFO *RefurbInfo,
     IN ULONG ValueLength,
     BOOLEAN DoWrite
 );
 
-XBAPI VOID NTAPI ExReleaseReadWriteLock
+XBAPI VOID STDCALL ExReleaseReadWriteLock
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI NTSTATUS NTAPI ExSaveNonVolatileSetting
+XBAPI NTSTATUS STDCALL ExSaveNonVolatileSetting
 (
     IN ULONG ValueIndex,
     IN ULONG Type,

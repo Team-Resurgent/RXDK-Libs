@@ -101,23 +101,23 @@ typedef struct _IRP {
 
 struct _DEVICE_OBJECT;
 
-typedef VOID (NTAPI *PDRIVER_STARTIO) (
+typedef VOID (STDCALL *PDRIVER_STARTIO) (
 
     IN struct _DEVICE_OBJECT *DeviceObject,
     IN struct _IRP *Irp
 );
 
-typedef VOID (NTAPI *PDRIVER_DELETEDEVICE) (
+typedef VOID (STDCALL *PDRIVER_DELETEDEVICE) (
 
     IN struct _DEVICE_OBJECT *DeviceObject
 );
 
-typedef NTSTATUS (NTAPI *PDRIVER_DISMOUNTVOLUME) (
+typedef NTSTATUS (STDCALL *PDRIVER_DISMOUNTVOLUME) (
 
     IN struct _DEVICE_OBJECT *DeviceObject
 );
 
-typedef NTSTATUS (NTAPI *PDRIVER_DISPATCH) (
+typedef NTSTATUS (STDCALL *PDRIVER_DISPATCH) (
 
     IN struct _DEVICE_OBJECT *DeviceObject,
     IN struct _IRP *Irp

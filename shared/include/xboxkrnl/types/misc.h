@@ -48,7 +48,7 @@ typedef struct _HARDWARE_PTE {
     ULONG PageFrameNumber : 20;
 } HARDWARE_PTE, *PHARDWARE_PTE;
 
-typedef VOID (NTAPI *PPS_APC_ROUTINE) (
+typedef VOID (STDCALL *PPS_APC_ROUTINE) (
 
     IN PVOID ApcArgument1,
     IN PVOID ApcArgument2,
@@ -103,24 +103,24 @@ typedef struct _SHARE_ACCESS {
     UCHAR SharedDelete;
 } SHARE_ACCESS, *PSHARE_ACCESS;
 
-typedef BOOLEAN (NTAPI *PKSYNCHRONIZE_ROUTINE) (
+typedef BOOLEAN (STDCALL *PKSYNCHRONIZE_ROUTINE) (
 
     IN PVOID SynchronizeContext
 );
 
-typedef VOID (NTAPI *PKRUNDOWN_ROUTINE) (
+typedef VOID (STDCALL *PKRUNDOWN_ROUTINE) (
 
     IN PKAPC Apc
 );
 
-typedef VOID (NTAPI *PKNORMAL_ROUTINE) (
+typedef VOID (STDCALL *PKNORMAL_ROUTINE) (
 
     IN PVOID NormalContext,
     IN PVOID SystemArgument1,
     IN PVOID SystemArgument2
 );
 
-typedef VOID (NTAPI *PKKERNEL_ROUTINE) (
+typedef VOID (STDCALL *PKKERNEL_ROUTINE) (
 
     IN PKAPC Apc,
     IN OUT PKNORMAL_ROUTINE *NormalRoutine,
@@ -131,7 +131,7 @@ typedef VOID (NTAPI *PKKERNEL_ROUTINE) (
 
 struct _HAL_SHUTDOWN_REGISTRATION;
 
-typedef VOID (NTAPI *PHAL_SHUTDOWN_NOTIFICATION) (
+typedef VOID (STDCALL *PHAL_SHUTDOWN_NOTIFICATION) (
 
     IN struct _HAL_SHUTDOWN_REGISTRATION *ShutdownRegistration
 );
@@ -142,22 +142,22 @@ typedef struct _HAL_SHUTDOWN_REGISTRATION {
     LIST_ENTRY ListEntry;
 } HAL_SHUTDOWN_REGISTRATION, *PHAL_SHUTDOWN_REGISTRATION;
 
-typedef VOID (NTAPI *pfXcSHAInit) (PUCHAR pbSHAContext);
-typedef VOID (NTAPI *pfXcSHAUpdate) (PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
-typedef VOID (NTAPI *pfXcSHAFinal) (PUCHAR pbSHAContext, PUCHAR pbDigest);
-typedef VOID (NTAPI *pfXcRC4Key) (PUCHAR pbKeyStruct, ULONG dwKeyLength, PUCHAR pbKey);
-typedef VOID (NTAPI *pfXcRC4Crypt) (PUCHAR pbKeyStruct, ULONG dwInputLength, PUCHAR pbInput);
-typedef VOID (NTAPI *pfXcHMAC) (PUCHAR pbKey, ULONG dwKeyLength, PUCHAR pbInput, ULONG dwInputLength, PUCHAR pbInput2, ULONG dwInputLength2, PUCHAR pbDigest);
-typedef ULONG (NTAPI *pfXcPKEncPublic) (PUCHAR pbPubKey, PUCHAR pbInput, PUCHAR pbOutput);
-typedef ULONG (NTAPI *pfXcPKDecPrivate) (PUCHAR pbPrvKey, PUCHAR pbInput, PUCHAR pbOutput);
-typedef ULONG (NTAPI *pfXcPKGetKeyLen) (PUCHAR pbPubKey);
-typedef BOOLEAN (NTAPI *pfXcVerifyPKCS1Signature) (PUCHAR pbSig, PUCHAR pbPubKey, PUCHAR pbDigest);
-typedef ULONG (NTAPI *pfXcModExp) (PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN);
-typedef VOID (NTAPI *pfXcDESKeyParity) (PUCHAR pbKey, ULONG dwKeyLength);
-typedef VOID (NTAPI *pfXcKeyTable) (ULONG dwCipher, PUCHAR pbKeyTable, PUCHAR pbKey);
-typedef VOID (NTAPI *pfXcBlockCrypt) (ULONG dwCipher, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp);
-typedef VOID (NTAPI *pfXcBlockCryptCBC) (ULONG dwCipher, ULONG dwInputLength, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp, PUCHAR pbFeedback);
-typedef ULONG (NTAPI *pfXcCryptService) (ULONG dwOp, PVOID pArgs);
+typedef VOID (STDCALL *pfXcSHAInit) (PUCHAR pbSHAContext);
+typedef VOID (STDCALL *pfXcSHAUpdate) (PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
+typedef VOID (STDCALL *pfXcSHAFinal) (PUCHAR pbSHAContext, PUCHAR pbDigest);
+typedef VOID (STDCALL *pfXcRC4Key) (PUCHAR pbKeyStruct, ULONG dwKeyLength, PUCHAR pbKey);
+typedef VOID (STDCALL *pfXcRC4Crypt) (PUCHAR pbKeyStruct, ULONG dwInputLength, PUCHAR pbInput);
+typedef VOID (STDCALL *pfXcHMAC) (PUCHAR pbKey, ULONG dwKeyLength, PUCHAR pbInput, ULONG dwInputLength, PUCHAR pbInput2, ULONG dwInputLength2, PUCHAR pbDigest);
+typedef ULONG (STDCALL *pfXcPKEncPublic) (PUCHAR pbPubKey, PUCHAR pbInput, PUCHAR pbOutput);
+typedef ULONG (STDCALL *pfXcPKDecPrivate) (PUCHAR pbPrvKey, PUCHAR pbInput, PUCHAR pbOutput);
+typedef ULONG (STDCALL *pfXcPKGetKeyLen) (PUCHAR pbPubKey);
+typedef BOOLEAN (STDCALL *pfXcVerifyPKCS1Signature) (PUCHAR pbSig, PUCHAR pbPubKey, PUCHAR pbDigest);
+typedef ULONG (STDCALL *pfXcModExp) (PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN);
+typedef VOID (STDCALL *pfXcDESKeyParity) (PUCHAR pbKey, ULONG dwKeyLength);
+typedef VOID (STDCALL *pfXcKeyTable) (ULONG dwCipher, PUCHAR pbKeyTable, PUCHAR pbKey);
+typedef VOID (STDCALL *pfXcBlockCrypt) (ULONG dwCipher, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp);
+typedef VOID (STDCALL *pfXcBlockCryptCBC) (ULONG dwCipher, ULONG dwInputLength, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp, PUCHAR pbFeedback);
+typedef ULONG (STDCALL *pfXcCryptService) (ULONG dwOp, PVOID pArgs);
 
 typedef struct {
     pfXcSHAInit pXcSHAInit;
@@ -260,18 +260,18 @@ typedef struct _MMGLOBALDATA {
     PMMADDRESS_NODE *VadFreeHint;
 } MMGLOBALDATA, *PMMGLOBALDATA;
 
-typedef VOID (NTAPI *PIDE_INTERRUPT_ROUTINE) (void);
-typedef VOID (NTAPI *PIDE_FINISHIO_ROUTINE) (void);
-typedef BOOLEAN (NTAPI *PIDE_POLL_RESET_COMPLETE_ROUTINE) (void);
-typedef VOID (NTAPI *PIDE_TIMEOUT_EXPIRED_ROUTINE) (void);
+typedef VOID (STDCALL *PIDE_INTERRUPT_ROUTINE) (void);
+typedef VOID (STDCALL *PIDE_FINISHIO_ROUTINE) (void);
+typedef BOOLEAN (STDCALL *PIDE_POLL_RESET_COMPLETE_ROUTINE) (void);
+typedef VOID (STDCALL *PIDE_TIMEOUT_EXPIRED_ROUTINE) (void);
 
-typedef VOID (NTAPI *PIDE_START_PACKET_ROUTINE) (
+typedef VOID (STDCALL *PIDE_START_PACKET_ROUTINE) (
 
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp
 );
 
-typedef VOID (NTAPI *PIDE_START_NEXT_PACKET_ROUTINE) (void);
+typedef VOID (STDCALL *PIDE_START_NEXT_PACKET_ROUTINE) (void);
 
 typedef struct _IDE_CHANNEL_OBJECT {
     PIDE_INTERRUPT_ROUTINE InterruptRoutine;
@@ -296,7 +296,7 @@ typedef struct _IDE_CHANNEL_OBJECT {
     KINTERRUPT InterruptObject;
 } IDE_CHANNEL_OBJECT, *PIDE_CHANNEL_OBJECT;
 
-typedef VOID (NTAPI *PKSYSTEM_ROUTINE) (
+typedef VOID (STDCALL *PKSYSTEM_ROUTINE) (
 
     IN PKSTART_ROUTINE StartRoutine OPTIONAL,
     IN PVOID StartContext OPTIONAL

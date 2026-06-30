@@ -1,7 +1,7 @@
 #ifndef XBOXKRNL_API_MISC_H
 #define XBOXKRNL_API_MISC_H
 
-XBAPI VOID NTAPI __attribute__ ((noreturn)) PsTerminateSystemThread
+XBAPI VOID STDCALL __attribute__ ((noreturn)) PsTerminateSystemThread
 (
     IN NTSTATUS ExitStatus
 );
@@ -72,32 +72,32 @@ XBAPI VOID FASTCALL KiUnlockDispatcherDatabase
     IN KIRQL OldIrql
 );
 
-XBAPI DWORD NTAPI PhyGetLinkState
+XBAPI DWORD STDCALL PhyGetLinkState
 (
     BOOLEAN update
 );
 
-XBAPI NTSTATUS NTAPI PhyInitialize
+XBAPI NTSTATUS STDCALL PhyInitialize
 (
     BOOLEAN forceReset,
     PVOID param OPTIONAL
 );
 
-XBAPI VOID NTAPI READ_PORT_BUFFER_UCHAR
+XBAPI VOID STDCALL READ_PORT_BUFFER_UCHAR
 (
     IN PUCHAR Port,
     OUT PUCHAR Buffer,
     IN ULONG Count
 );
 
-XBAPI VOID NTAPI READ_PORT_BUFFER_ULONG
+XBAPI VOID STDCALL READ_PORT_BUFFER_ULONG
 (
     IN PULONG Port,
     OUT PULONG Buffer,
     IN ULONG Count
 );
 
-XBAPI VOID NTAPI READ_PORT_BUFFER_USHORT
+XBAPI VOID STDCALL READ_PORT_BUFFER_USHORT
 (
     IN PUSHORT Port,
     OUT PUSHORT Buffer,

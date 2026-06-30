@@ -1,7 +1,7 @@
 #ifndef XBOXKRNL_API_OB_H
 #define XBOXKRNL_API_OB_H
 
-XBAPI NTSTATUS NTAPI ObCreateObject
+XBAPI NTSTATUS STDCALL ObCreateObject
 (
     IN POBJECT_TYPE ObjectType,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -21,7 +21,7 @@ XBAPI VOID FASTCALL ObfReferenceObject
     IN PVOID Object
 );
 
-XBAPI NTSTATUS NTAPI ObInsertObject
+XBAPI NTSTATUS STDCALL ObInsertObject
 (
     IN PVOID Object,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -29,12 +29,12 @@ XBAPI NTSTATUS NTAPI ObInsertObject
     OUT PHANDLE Handle
 );
 
-XBAPI VOID NTAPI ObMakeTemporaryObject
+XBAPI VOID STDCALL ObMakeTemporaryObject
 (
     IN PVOID Object
 );
 
-XBAPI NTSTATUS NTAPI ObOpenObjectByName
+XBAPI NTSTATUS STDCALL ObOpenObjectByName
 (
     IN POBJECT_ATTRIBUTES ObjectAttributes,
     IN POBJECT_TYPE ObjectType,
@@ -42,7 +42,7 @@ XBAPI NTSTATUS NTAPI ObOpenObjectByName
     OUT PHANDLE Handle
 );
 
-XBAPI NTSTATUS NTAPI ObOpenObjectByPointer
+XBAPI NTSTATUS STDCALL ObOpenObjectByPointer
 (
     IN PVOID Object,
     IN POBJECT_TYPE ObjectType,
@@ -51,14 +51,14 @@ XBAPI NTSTATUS NTAPI ObOpenObjectByPointer
 
 XBAPI OBJECT_HANDLE_TABLE ObpObjectHandleTable;
 
-XBAPI NTSTATUS NTAPI ObReferenceObjectByHandle
+XBAPI NTSTATUS STDCALL ObReferenceObjectByHandle
 (
     IN HANDLE Handle,
     IN POBJECT_TYPE ObjectType OPTIONAL,
     OUT PVOID *ReturnedObject
 );
 
-XBAPI NTSTATUS NTAPI ObReferenceObjectByName
+XBAPI NTSTATUS STDCALL ObReferenceObjectByName
 (
     IN POBJECT_STRING ObjectName,
     IN ULONG Attributes,
@@ -67,7 +67,7 @@ XBAPI NTSTATUS NTAPI ObReferenceObjectByName
     OUT PVOID *Object
 );
 
-XBAPI NTSTATUS NTAPI ObReferenceObjectByPointer
+XBAPI NTSTATUS STDCALL ObReferenceObjectByPointer
 (
     IN PVOID Object,
     IN POBJECT_TYPE ObjectType

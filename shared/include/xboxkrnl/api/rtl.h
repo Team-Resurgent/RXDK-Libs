@@ -1,32 +1,32 @@
 #ifndef XBOXKRNL_API_RTL_H
 #define XBOXKRNL_API_RTL_H
 
-XBAPI NTSTATUS NTAPI RtlAnsiStringToUnicodeString
+XBAPI NTSTATUS STDCALL RtlAnsiStringToUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PSTRING SourceString,
     BOOLEAN AllocateDestinationString
 );
 
-XBAPI NTSTATUS NTAPI RtlAppendStringToString
+XBAPI NTSTATUS STDCALL RtlAppendStringToString
 (
     IN PSTRING Destination,
     IN PSTRING Source
 );
 
-XBAPI NTSTATUS NTAPI RtlAppendUnicodeStringToString
+XBAPI NTSTATUS STDCALL RtlAppendUnicodeStringToString
 (
     PUNICODE_STRING Destination,
     PUNICODE_STRING Source
 );
 
-XBAPI NTSTATUS NTAPI RtlAppendUnicodeToString
+XBAPI NTSTATUS STDCALL RtlAppendUnicodeToString
 (
     PUNICODE_STRING Destination,
     PCWSTR Source
 );
 
-XBAPI VOID NTAPI RtlAssert
+XBAPI VOID STDCALL RtlAssert
 (
     IN PVOID FailedAssertion,
     IN PVOID FileName,
@@ -34,12 +34,12 @@ XBAPI VOID NTAPI RtlAssert
     IN PCHAR Message OPTIONAL
 );
 
-XBAPI VOID NTAPI RtlCaptureContext
+XBAPI VOID STDCALL RtlCaptureContext
 (
     OUT PCONTEXT ContextRecord
 );
 
-XBAPI USHORT NTAPI RtlCaptureStackBackTrace
+XBAPI USHORT STDCALL RtlCaptureStackBackTrace
 (
     IN ULONG FramesToSkip,
     IN ULONG FramesToCapture,
@@ -47,163 +47,163 @@ XBAPI USHORT NTAPI RtlCaptureStackBackTrace
     OUT PULONG BackTraceHash
 );
 
-XBAPI NTSTATUS NTAPI RtlCharToInteger
+XBAPI NTSTATUS STDCALL RtlCharToInteger
 (
     IN PCSZ String,
     IN ULONG Base OPTIONAL,
     OUT PULONG Value
 );
 
-XBAPI SIZE_T NTAPI RtlCompareMemory
+XBAPI SIZE_T STDCALL RtlCompareMemory
 (
     IN CONST VOID *Source1,
     IN CONST VOID *Source2,
     IN SIZE_T Length
 );
 
-XBAPI SIZE_T NTAPI RtlCompareMemoryUlong
+XBAPI SIZE_T STDCALL RtlCompareMemoryUlong
 (
     PVOID Source,
     SIZE_T Length,
     ULONG Pattern
 );
 
-XBAPI LONG NTAPI RtlCompareString
+XBAPI LONG STDCALL RtlCompareString
 (
     IN CONST PSTRING String1,
     IN CONST PSTRING String2,
     IN BOOLEAN CaseInSensitive
 );
 
-XBAPI LONG NTAPI RtlCompareUnicodeString
+XBAPI LONG STDCALL RtlCompareUnicodeString
 (
     PUNICODE_STRING String1,
     PUNICODE_STRING String2,
     BOOLEAN CaseInSensitive
 );
 
-XBAPI VOID NTAPI RtlCopyString
+XBAPI VOID STDCALL RtlCopyString
 (
     OUT PSTRING DestinationString,
     IN PSTRING SourceString
 );
 
-XBAPI VOID NTAPI RtlCopyUnicodeString
+XBAPI VOID STDCALL RtlCopyUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PUNICODE_STRING SourceString
 );
 
-XBAPI BOOLEAN NTAPI RtlCreateUnicodeString
+XBAPI BOOLEAN STDCALL RtlCreateUnicodeString
 (
     OUT PUNICODE_STRING DestinationString,
     IN PCWSTR SourceString
 );
 
-XBAPI WCHAR NTAPI RtlDowncaseUnicodeChar
+XBAPI WCHAR STDCALL RtlDowncaseUnicodeChar
 (
     WCHAR SourceCharacter
 );
 
-XBAPI NTSTATUS NTAPI RtlDowncaseUnicodeString
+XBAPI NTSTATUS STDCALL RtlDowncaseUnicodeString
 (
     OUT PUNICODE_STRING DestinationString,
     IN PUNICODE_STRING SourceString,
     IN BOOLEAN AllocateDestinationString
 );
 
-XBAPI VOID NTAPI RtlEnterCriticalSection
+XBAPI VOID STDCALL RtlEnterCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI VOID NTAPI RtlEnterCriticalSectionAndRegion
+XBAPI VOID STDCALL RtlEnterCriticalSectionAndRegion
 (
     PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI BOOLEAN NTAPI RtlEqualString
+XBAPI BOOLEAN STDCALL RtlEqualString
 (
     IN CONST PSTRING String1,
     IN CONST PSTRING String2,
     IN BOOLEAN CaseInSensitive
 );
 
-XBAPI BOOLEAN NTAPI RtlEqualUnicodeString
+XBAPI BOOLEAN STDCALL RtlEqualUnicodeString
 (
     IN CONST PUNICODE_STRING String1,
     IN CONST PUNICODE_STRING String2,
     IN BOOLEAN CaseInSensitive
 );
 
-XBAPI LARGE_INTEGER NTAPI RtlExtendedIntegerMultiply
+XBAPI LARGE_INTEGER STDCALL RtlExtendedIntegerMultiply
 (
     LARGE_INTEGER Multiplicand,
     LONG Multiplier
 );
 
-XBAPI LARGE_INTEGER NTAPI RtlExtendedLargeIntegerDivide
+XBAPI LARGE_INTEGER STDCALL RtlExtendedLargeIntegerDivide
 (
     LARGE_INTEGER Dividend,
     ULONG Divisor,
     PULONG Remainder
 );
 
-XBAPI LARGE_INTEGER NTAPI RtlExtendedMagicDivide
+XBAPI LARGE_INTEGER STDCALL RtlExtendedMagicDivide
 (
     LARGE_INTEGER Dividend,
     LARGE_INTEGER MagicDivisor,
     CCHAR ShiftCount
 );
 
-XBAPI VOID NTAPI RtlFillMemory
+XBAPI VOID STDCALL RtlFillMemory
 (
     PVOID Destination,
     ULONG Length,
     UCHAR Fill
 );
 
-XBAPI VOID NTAPI RtlFillMemoryUlong
+XBAPI VOID STDCALL RtlFillMemoryUlong
 (
     PVOID Destination,
     SIZE_T Length,
     ULONG Pattern
 );
 
-XBAPI VOID NTAPI RtlFreeAnsiString
+XBAPI VOID STDCALL RtlFreeAnsiString
 (
     PANSI_STRING AnsiString
 );
 
-XBAPI VOID NTAPI RtlFreeUnicodeString
+XBAPI VOID STDCALL RtlFreeUnicodeString
 (
     PUNICODE_STRING UnicodeString
 );
 
-XBAPI VOID NTAPI RtlGetCallersAddress
+XBAPI VOID STDCALL RtlGetCallersAddress
 (
     OUT PVOID *CallersAddress,
     OUT PVOID *CallersCaller
 );
 
-XBAPI VOID NTAPI RtlInitAnsiString
+XBAPI VOID STDCALL RtlInitAnsiString
 (
     PANSI_STRING DestinationString,
     IN PCSZ SourceString
 );
 
-XBAPI VOID NTAPI RtlInitializeCriticalSection
+XBAPI VOID STDCALL RtlInitializeCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI VOID NTAPI RtlInitUnicodeString
+XBAPI VOID STDCALL RtlInitUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PCWSTR SourceString
 );
 
-XBAPI NTSTATUS NTAPI RtlIntegerToChar
+XBAPI NTSTATUS STDCALL RtlIntegerToChar
 (
     ULONG Value,
     ULONG Base,
@@ -211,42 +211,42 @@ XBAPI NTSTATUS NTAPI RtlIntegerToChar
     PSZ String
 );
 
-XBAPI NTSTATUS NTAPI RtlIntegerToUnicodeString
+XBAPI NTSTATUS STDCALL RtlIntegerToUnicodeString
 (
     ULONG Value,
     ULONG Base,
     PUNICODE_STRING String
 );
 
-XBAPI VOID NTAPI RtlLeaveCriticalSection
+XBAPI VOID STDCALL RtlLeaveCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI VOID NTAPI RtlLeaveCriticalSectionAndRegion
+XBAPI VOID STDCALL RtlLeaveCriticalSectionAndRegion
 (
     PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI CHAR NTAPI RtlLowerChar
+XBAPI CHAR STDCALL RtlLowerChar
 (
     IN CHAR Character
 );
 
-XBAPI VOID NTAPI RtlMapGenericMask
+XBAPI VOID STDCALL RtlMapGenericMask
 (
     PACCESS_MASK AccessMask,
     PGENERIC_MAPPING GenericMapping
 );
 
-XBAPI VOID NTAPI RtlMoveMemory
+XBAPI VOID STDCALL RtlMoveMemory
 (
     PVOID Destination,
     CONST PVOID Source,
     ULONG Length
 );
 
-XBAPI NTSTATUS NTAPI RtlMultiByteToUnicodeN
+XBAPI NTSTATUS STDCALL RtlMultiByteToUnicodeN
 (
     PWSTR UnicodeString,
     ULONG MaxBytesInUnicodeString,
@@ -255,29 +255,29 @@ XBAPI NTSTATUS NTAPI RtlMultiByteToUnicodeN
     ULONG BytesInMultiByteString
 );
 
-XBAPI NTSTATUS NTAPI RtlMultiByteToUnicodeSize
+XBAPI NTSTATUS STDCALL RtlMultiByteToUnicodeSize
 (
     PULONG BytesInUnicodeString,
     PCHAR MultiByteString,
     ULONG BytesInMultiByteString
 );
 
-XBAPI ULONG NTAPI RtlNtStatusToDosError
+XBAPI ULONG STDCALL RtlNtStatusToDosError
 (
     IN NTSTATUS Status
 );
 
-XBAPI VOID NTAPI RtlRaiseException
+XBAPI VOID STDCALL RtlRaiseException
 (
     IN PEXCEPTION_RECORD ExceptionRecord
 );
 
-XBAPI VOID NTAPI RtlRaiseStatus
+XBAPI VOID STDCALL RtlRaiseStatus
 (
     IN NTSTATUS Status
 );
 
-XBAPI VOID NTAPI RtlRip
+XBAPI VOID STDCALL RtlRip
 (
     IN PVOID ApiName,
     IN PVOID Expression,
@@ -299,19 +299,19 @@ XBAPI VOID CDECL RtlSprintf
     ...
 );
 
-XBAPI BOOLEAN NTAPI RtlTimeFieldsToTime
+XBAPI BOOLEAN STDCALL RtlTimeFieldsToTime
 (
     IN PTIME_FIELDS TimeFields,
     OUT PLARGE_INTEGER Time
 );
 
-XBAPI VOID NTAPI RtlTimeToTimeFields
+XBAPI VOID STDCALL RtlTimeToTimeFields
 (
     IN PLARGE_INTEGER Time,
     OUT PTIME_FIELDS TimeFields
 );
 
-XBAPI BOOLEAN NTAPI RtlTryEnterCriticalSection
+XBAPI BOOLEAN STDCALL RtlTryEnterCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
@@ -321,21 +321,21 @@ XBAPI ULONG FASTCALL RtlUlongByteSwap
     IN ULONG Source
 );
 
-XBAPI NTSTATUS NTAPI RtlUnicodeStringToAnsiString
+XBAPI NTSTATUS STDCALL RtlUnicodeStringToAnsiString
 (
     OUT PSTRING DestinationString,
     IN PUNICODE_STRING SourceString,
     IN BOOLEAN AllocateDestinationString
 );
 
-XBAPI NTSTATUS NTAPI RtlUnicodeStringToInteger
+XBAPI NTSTATUS STDCALL RtlUnicodeStringToInteger
 (
     PUNICODE_STRING String,
     ULONG Base,
     PULONG Value
 );
 
-XBAPI NTSTATUS NTAPI RtlUnicodeToMultiByteN
+XBAPI NTSTATUS STDCALL RtlUnicodeToMultiByteN
 (
     PCHAR MultiByteString,
     ULONG MaxBytesInMultiByteString,
@@ -344,14 +344,14 @@ XBAPI NTSTATUS NTAPI RtlUnicodeToMultiByteN
     ULONG BytesInUnicodeString
 );
 
-XBAPI NTSTATUS NTAPI RtlUnicodeToMultiByteSize
+XBAPI NTSTATUS STDCALL RtlUnicodeToMultiByteSize
 (
     PULONG BytesInMultiByteString,
     PWSTR UnicodeString,
     ULONG BytesInUnicodeString
 );
 
-XBAPI VOID NTAPI RtlUnwind
+XBAPI VOID STDCALL RtlUnwind
 (
     IN PVOID TargetFrame OPTIONAL,
     IN PVOID TargetIp OPTIONAL,
@@ -359,19 +359,19 @@ XBAPI VOID NTAPI RtlUnwind
     IN PVOID ReturnValue
 );
 
-XBAPI WCHAR NTAPI RtlUpcaseUnicodeChar
+XBAPI WCHAR STDCALL RtlUpcaseUnicodeChar
 (
     WCHAR SourceCharacter
 );
 
-XBAPI NTSTATUS NTAPI RtlUpcaseUnicodeString
+XBAPI NTSTATUS STDCALL RtlUpcaseUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PCUNICODE_STRING SourceString,
     BOOLEAN AllocateDestinationString
 );
 
-XBAPI NTSTATUS NTAPI RtlUpcaseUnicodeToMultiByteN
+XBAPI NTSTATUS STDCALL RtlUpcaseUnicodeToMultiByteN
 (
     PCHAR MultiByteString,
     ULONG MaxBytesInMultiByteString,
@@ -380,12 +380,12 @@ XBAPI NTSTATUS NTAPI RtlUpcaseUnicodeToMultiByteN
     ULONG BytesInUnicodeString
 );
 
-XBAPI CHAR NTAPI RtlUpperChar
+XBAPI CHAR STDCALL RtlUpperChar
 (
     CHAR Character
 );
 
-XBAPI VOID NTAPI RtlUpperString
+XBAPI VOID STDCALL RtlUpperString
 (
     PSTRING DestinationString,
     PSTRING SourceString
@@ -411,14 +411,14 @@ XBAPI VOID CDECL RtlVsprintf
     ...
 );
 
-XBAPI ULONG NTAPI RtlWalkFrameChain
+XBAPI ULONG STDCALL RtlWalkFrameChain
 (
     OUT PVOID *Callers,
     IN ULONG Count,
     IN ULONG Flags
 );
 
-XBAPI VOID NTAPI RtlZeroMemory
+XBAPI VOID STDCALL RtlZeroMemory
 (
     IN VOID UNALIGNED *Destination,
     IN SIZE_T Length

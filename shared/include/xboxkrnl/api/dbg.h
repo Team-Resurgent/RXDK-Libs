@@ -1,14 +1,14 @@
 #ifndef XBOXKRNL_API_DBG_H
 #define XBOXKRNL_API_DBG_H
 
-XBAPI VOID NTAPI DbgBreakPoint (void);
+XBAPI VOID STDCALL DbgBreakPoint (void);
 
-XBAPI VOID NTAPI DbgBreakPointWithStatus
+XBAPI VOID STDCALL DbgBreakPointWithStatus
 (
     IN ULONG Status
 );
 
-XBAPI VOID NTAPI DbgLoadImageSymbols
+XBAPI VOID STDCALL DbgLoadImageSymbols
 (
     PSTRING FileName,
     PVOID ImageBase,
@@ -21,14 +21,14 @@ XBAPI ULONG CDECL DbgPrint
     ...
 );
 
-XBAPI ULONG NTAPI DbgPrompt
+XBAPI ULONG STDCALL DbgPrompt
 (
     PCH Prompt,
     PCH Response,
     ULONG MaximumResponseLength
 );
 
-XBAPI VOID NTAPI DbgUnLoadImageSymbols
+XBAPI VOID STDCALL DbgUnLoadImageSymbols
 (
     PSTRING FileName,
     PVOID ImageBase,

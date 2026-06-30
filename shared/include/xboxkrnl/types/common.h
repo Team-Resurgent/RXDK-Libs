@@ -6,7 +6,8 @@
 #define UNALIGNED
 #define OPTIONAL
 #define XBAPI              __declspec(dllimport)
-#define NTAPI              __attribute__((__stdcall__))
+#define STDCALL            __attribute__((__stdcall__))
+#define NTAPI              STDCALL
 #define CDECL              __attribute__((__cdecl__))
 #define FASTCALL           __attribute__((fastcall))
 #define DECLSPEC_NORETURN  __attribute__((noreturn))

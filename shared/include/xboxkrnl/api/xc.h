@@ -1,7 +1,7 @@
 #ifndef XBOXKRNL_API_XC_H
 #define XBOXKRNL_API_XC_H
 
-XBAPI VOID NTAPI XcBlockCrypt
+XBAPI VOID STDCALL XcBlockCrypt
 (
     IN ULONG dwCipher,
     OUT PUCHAR pbOutput,
@@ -10,7 +10,7 @@ XBAPI VOID NTAPI XcBlockCrypt
     IN ULONG dwOp
 );
 
-XBAPI VOID NTAPI XcBlockCryptCBC
+XBAPI VOID STDCALL XcBlockCryptCBC
 (
     IN ULONG dwCipher,
     IN ULONG dwInputLength,
@@ -21,19 +21,19 @@ XBAPI VOID NTAPI XcBlockCryptCBC
     IN PUCHAR pbFeedback
 );
 
-XBAPI ULONG NTAPI XcCryptService
+XBAPI ULONG STDCALL XcCryptService
 (
     IN ULONG dwOp,
     IN PVOID pArgs
 );
 
-XBAPI VOID NTAPI XcDESKeyParity
+XBAPI VOID STDCALL XcDESKeyParity
 (
     IN OUT PUCHAR pbKey,
     IN ULONG dwKeyLength
 );
 
-XBAPI VOID NTAPI XcHMAC
+XBAPI VOID STDCALL XcHMAC
 (
     IN PUCHAR pbKey,
     IN ULONG dwKeyLength,
@@ -44,14 +44,14 @@ XBAPI VOID NTAPI XcHMAC
     OUT PUCHAR pbDigest
 );
 
-XBAPI VOID NTAPI XcKeyTable
+XBAPI VOID STDCALL XcKeyTable
 (
     IN ULONG dwCipher,
     OUT PUCHAR pbKeyTable,
     IN PUCHAR pbKey
 );
 
-XBAPI ULONG NTAPI XcModExp
+XBAPI ULONG STDCALL XcModExp
 (
     OUT PULONG pA,
     IN PULONG pB,
@@ -60,51 +60,51 @@ XBAPI ULONG NTAPI XcModExp
     IN ULONG dwN
 );
 
-XBAPI ULONG NTAPI XcPKDecPrivate
+XBAPI ULONG STDCALL XcPKDecPrivate
 (
     IN PUCHAR pbPrvKey,
     IN PUCHAR pbInput,
     OUT PUCHAR pbOutput
 );
 
-XBAPI ULONG NTAPI XcPKEncPublic
+XBAPI ULONG STDCALL XcPKEncPublic
 (
     IN PUCHAR pbPubKey,
     IN PUCHAR pbInput,
     OUT PUCHAR pbOutput
 );
 
-XBAPI ULONG NTAPI XcPKGetKeyLen
+XBAPI ULONG STDCALL XcPKGetKeyLen
 (
     IN PUCHAR pbPubKey
 );
 
-XBAPI VOID NTAPI XcRC4Crypt
+XBAPI VOID STDCALL XcRC4Crypt
 (
     IN PUCHAR pbKeyStruct,
     IN ULONG dwInputLength,
     IN OUT PUCHAR pbInput
 );
 
-XBAPI VOID NTAPI XcRC4Key
+XBAPI VOID STDCALL XcRC4Key
 (
     OUT PUCHAR pbKeyStruct,
     IN ULONG dwKeyLength,
     IN PUCHAR pbKey
 );
 
-XBAPI VOID NTAPI XcSHAFinal
+XBAPI VOID STDCALL XcSHAFinal
 (
     IN PUCHAR pbSHAContext,
     OUT PUCHAR pbDigest
 );
 
-XBAPI VOID NTAPI XcSHAInit
+XBAPI VOID STDCALL XcSHAInit
 (
     OUT PUCHAR pbSHAContext
 );
 
-XBAPI VOID NTAPI XcSHAUpdate
+XBAPI VOID STDCALL XcSHAUpdate
 (
     IN OUT PUCHAR pbSHAContext,
     IN PUCHAR pbInput,
@@ -112,14 +112,14 @@ XBAPI VOID NTAPI XcSHAUpdate
 );
 
 #if !defined(RXDK_LIBXAPI_BUILD)
-XBAPI VOID NTAPI XcUpdateCrypto
+XBAPI VOID STDCALL XcUpdateCrypto
 (
     IN PCRYPTO_VECTOR pNewVector,
     OUT PCRYPTO_VECTOR pROMVector OPTIONAL
 );
 #endif
 
-XBAPI BOOLEAN NTAPI XcVerifyPKCS1Signature
+XBAPI BOOLEAN STDCALL XcVerifyPKCS1Signature
 (
     IN PUCHAR pbSig,
     IN PUCHAR pbPubKey,
@@ -129,14 +129,14 @@ XBAPI BOOLEAN NTAPI XcVerifyPKCS1Signature
 #if !defined(RXDK_LIBXAPI_BUILD)
 XBAPI ANSI_STRING XeImageFileName[1];
 
-XBAPI NTSTATUS NTAPI XeLoadSection
+XBAPI NTSTATUS STDCALL XeLoadSection
 (
     IN PXBE_SECTION_HEADER Section
 );
 
 XBAPI UCHAR XePublicKeyData[284];
 
-XBAPI NTSTATUS NTAPI XeUnloadSection
+XBAPI NTSTATUS STDCALL XeUnloadSection
 (
     IN OUT PXBE_SECTION_HEADER Section
 );

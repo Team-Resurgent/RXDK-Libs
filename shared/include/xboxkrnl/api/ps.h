@@ -1,7 +1,7 @@
 #ifndef XBOXKRNL_API_PS_H
 #define XBOXKRNL_API_PS_H
 
-XBAPI NTSTATUS NTAPI PsCreateSystemThread
+XBAPI NTSTATUS STDCALL PsCreateSystemThread
 (
     OUT PHANDLE ThreadHandle,
     OUT PHANDLE ThreadId OPTIONAL,
@@ -10,7 +10,7 @@ XBAPI NTSTATUS NTAPI PsCreateSystemThread
     IN BOOLEAN DebuggerThread
 );
 
-XBAPI NTSTATUS NTAPI PsCreateSystemThreadEx
+XBAPI NTSTATUS STDCALL PsCreateSystemThreadEx
 (
     OUT PHANDLE ThreadHandle,
     IN SIZE_T ThreadExtensionSize,
@@ -24,12 +24,12 @@ XBAPI NTSTATUS NTAPI PsCreateSystemThreadEx
     IN PKSYSTEM_ROUTINE SystemRoutine OPTIONAL
 );
 
-XBAPI NTSTATUS NTAPI PsQueryStatistics
+XBAPI NTSTATUS STDCALL PsQueryStatistics
 (
     IN OUT PPS_STATISTICS ProcessStatistics
 );
 
-XBAPI NTSTATUS NTAPI PsSetCreateThreadNotifyRoutine
+XBAPI NTSTATUS STDCALL PsSetCreateThreadNotifyRoutine
 (
     IN PCREATE_THREAD_NOTIFY_ROUTINE NotifyRoutine
 );

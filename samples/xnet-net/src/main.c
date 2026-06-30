@@ -7,6 +7,11 @@
 // XNetGetTitleXnAddr until an address is configured, keeping the thread runnable
 // so the timer + NIC DPCs keep running. (A blocking wait starves DPCs on the kit;
 // PrometheOS likewise polls from its render loop. See [[libxnet-newstack-upgrade]].)
+//
+// Once a DHCP/static address is up, it hosts a single web page over the libxnet
+// BSD socket API: bind/listen on :80 and serve a small HTML page to any browser.
+// Every socket is non-blocking + busy-polled for the same DPC reason, so the
+// server loop also keeps the stack alive. Point a browser at the kit's IP.
 //------------------------------------------------------------------------------
 
 #include "common.h"   // xapi_smoke_trace_line + boot/trace helpers
@@ -66,6 +71,167 @@ extern void          __stdcall KeStallExecutionProcessor(unsigned long microseco
 #define LINK_FULL     0x08
 #define LINK_HALF     0x10
 
+// ---------------------------------------------------------------------------
+// Berkeley/Winsock socket API (exported by libxnet). winsockx.h pulls the full
+// <windows.h> environment, so -- like the XNet decls above -- declare just what
+// the HTTP server needs by hand. WSAAPI == __stdcall on Xbox.
+// ---------------------------------------------------------------------------
+typedef unsigned int SOCKET;                  // UINT_PTR (32-bit Xbox)
+
+struct in_addr     { unsigned long s_addr; };
+struct sockaddr_in {
+    short           sin_family;
+    unsigned short  sin_port;                 // network byte order
+    struct in_addr  sin_addr;
+    char            sin_zero[8];
+};
+struct sockaddr    { unsigned short sa_family; char sa_data[14]; };
+
+#define AF_INET         2
+#define SOCK_STREAM     1
+#define IPPROTO_TCP     6
+#define INADDR_ANY      0
+#define INVALID_SOCKET  ((SOCKET)~0)
+#define SOCKET_ERROR    (-1)
+#define SOL_SOCKET      0xffff
+#define SO_REUSEADDR    0x0004
+#define FIONBIO         0x8004667EL           // _IOW('f',126,u_long): set non-blocking
+#define WSAEWOULDBLOCK  10035
+
+extern SOCKET         __stdcall socket(int af, int type, int protocol);
+extern int            __stdcall closesocket(SOCKET s);
+extern int            __stdcall bind(SOCKET s, const struct sockaddr *name, int namelen);
+extern int            __stdcall listen(SOCKET s, int backlog);
+extern SOCKET         __stdcall accept(SOCKET s, struct sockaddr *addr, int *addrlen);
+extern int            __stdcall recv(SOCKET s, char *buf, int len, int flags);
+extern int            __stdcall send(SOCKET s, const char *buf, int len, int flags);
+extern int            __stdcall setsockopt(SOCKET s, int level, int optname,
+                                           const char *optval, int optlen);
+extern int            __stdcall ioctlsocket(SOCKET s, long cmd, unsigned long *argp);
+extern unsigned short __stdcall htons(unsigned short hostshort);
+extern int            __stdcall WSAGetLastError(void);
+
+// ---------------------------------------------------------------------------
+// Tiny single-page HTTP/1.0 server.
+//
+// The XNet stack is DPC-driven and a BLOCKING socket call would starve those
+// DPCs on the kit (same reason the address poll busy-waits), so every socket is
+// non-blocking and we spin with KeStallExecutionProcessor between would-block
+// retries -- that keeps the thread runnable so the NIC/timer DPCs keep pumping.
+// ---------------------------------------------------------------------------
+
+static const char g_page[] =
+    "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+    "<title>RXDK Xbox</title></head>"
+    "<body style=\"font-family:Segoe UI,sans-serif;text-align:center;"
+    "background:#107C10;color:#fff;padding-top:12%\">"
+    "<h1>&#x2714; Hello from the Xbox</h1>"
+    "<p>This page is served by <b>libxnet</b> running on an original Xbox dev kit.</p>"
+    "</body></html>";
+
+// Send the whole buffer, polling past WSAEWOULDBLOCK so we never block the stack.
+static int send_all(SOCKET s, const char *buf, int len)
+{
+    int off = 0, n, idle = 0;
+    while (off < len) {
+        n = send(s, buf + off, len - off, 0);
+        if (n > 0) { off += n; idle = 0; continue; }
+        if (WSAGetLastError() != WSAEWOULDBLOCK)
+            return -1;                       // real error
+        if (++idle > 2000)
+            return -1;                       // ~4s with nothing drained -> give up
+        KeStallExecutionProcessor(2000);     // 2ms; lets the TX DPC drain the socket
+    }
+    return 0;
+}
+
+// Read and discard the request (we serve the same page for any GET), then write
+// the response and close. Returns when the exchange is done.
+static void handle_client(SOCKET cli)
+{
+    unsigned long nb = 1;
+    char  req[512], hdr[160];
+    int   n, idle = 0, got = 0, hlen;
+
+    ioctlsocket(cli, FIONBIO, &nb);
+
+    // Drain the request: read until we've seen the end-of-headers blank line, the
+    // peer stalls, or a small cap -- enough to clear the RX buffer for any GET.
+    while (got < 8192) {
+        n = recv(cli, req, sizeof(req) - 1, 0);
+        if (n > 0) {
+            req[n] = 0; got += n; idle = 0;
+            if (got >= 4 && (req[n-1] == '\n'))   // crude end-of-headers heuristic
+                break;
+        } else if (n == 0) {
+            break;                            // peer closed
+        } else {
+            if (WSAGetLastError() != WSAEWOULDBLOCK) break;
+            if (++idle > 200) break;          // ~1s with no request -> just respond
+            KeStallExecutionProcessor(5000);  // 5ms
+        }
+    }
+
+    hlen = sprintf(hdr,
+                   "HTTP/1.0 200 OK\r\n"
+                   "Content-Type: text/html\r\n"
+                   "Content-Length: %d\r\n"
+                   "Connection: close\r\n\r\n",
+                   (int)(sizeof(g_page) - 1));
+
+    if (send_all(cli, hdr, hlen) == 0)
+        send_all(cli, g_page, (int)(sizeof(g_page) - 1));
+}
+
+// Listen on :80 and serve g_page to every connection. Never returns.
+static void serve_http(unsigned long ip_be)
+{
+    SOCKET srv, cli;
+    struct sockaddr_in addr;
+    unsigned long nb = 1;
+    int yes = 1;
+    unsigned char *o = (unsigned char *)&ip_be;
+    DWORD hits = 0;
+
+    srv = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (srv == INVALID_SOCKET) {
+        DbgPrint("http: socket() failed (err=%d)\n", WSAGetLastError());
+        return;
+    }
+    setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof(yes));
+
+    addr.sin_family      = AF_INET;
+    addr.sin_port        = htons(80);
+    addr.sin_addr.s_addr = INADDR_ANY;
+    { int i; for (i = 0; i < (int)sizeof(addr.sin_zero); i++) addr.sin_zero[i] = 0; }
+
+    if (bind(srv, (struct sockaddr *)&addr, sizeof(addr)) == SOCKET_ERROR) {
+        DbgPrint("http: bind(:80) failed (err=%d)\n", WSAGetLastError());
+        closesocket(srv);
+        return;
+    }
+    if (listen(srv, 4) == SOCKET_ERROR) {
+        DbgPrint("http: listen() failed (err=%d)\n", WSAGetLastError());
+        closesocket(srv);
+        return;
+    }
+    ioctlsocket(srv, FIONBIO, &nb);   // non-blocking accept (don't starve DPCs)
+
+    DbgPrint("http: serving on http://%u.%u.%u.%u/  -- open it in a browser\n",
+             o[0], o[1], o[2], o[3]);
+
+    for (;;) {
+        cli = accept(srv, NULL, NULL);
+        if (cli == INVALID_SOCKET) {
+            KeStallExecutionProcessor(10000);  // 10ms; poll again, keep DPCs alive
+            continue;
+        }
+        handle_client(cli);
+        closesocket(cli);
+        DbgPrint("http: served request #%lu\n", (unsigned long)++hits);
+    }
+}
+
 int main(void)
 {
     int           rc, i;
@@ -107,13 +273,17 @@ int main(void)
              xna.abEnet[0], xna.abEnet[1], xna.abEnet[2],
              xna.abEnet[3], xna.abEnet[4], xna.abEnet[5]);
 
-    if (st & (XNADDR_DHCP | XNADDR_STATIC))
+    if (st & (XNADDR_DHCP | XNADDR_STATIC)) {
         DbgPrint("xnet-net: *** network up (address acquired) ***\n");
-    else
+        // Host a single web page. serve_http never returns (busy-polling accept),
+        // which also keeps the DPC-driven stack alive.
+        serve_http(xna.ina);
+    } else {
         DbgPrint("xnet-net: no address (flags=0x%lx)\n", st);
+    }
 
-    // Keep the title alive WITHOUT blocking (the DPC-driven stack needs a running
-    // thread; a blocking Sleep would freeze it on the kit).
+    // Fallback (no address): keep the title alive WITHOUT blocking (the DPC-driven
+    // stack needs a running thread; a blocking Sleep would freeze it on the kit).
     DbgPrint("xnet-net: idling (busy).\n");
     for (;;) { KeStallExecutionProcessor(100000); }
 

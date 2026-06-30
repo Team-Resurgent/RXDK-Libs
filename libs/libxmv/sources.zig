@@ -28,6 +28,7 @@ pub const xmv_c_sources = [_][]const u8{
     "libs/libxmv/xmvplay/wmv2_tables.c",
     "libs/libxmv/xmvplay/wmv2_vlc.c",
     "libs/libxmv/xmvplay/wmv2dec.c",
+    "libs/libxmv/xmvplay/wmv2_mb.c",
     // Leak software video kernel (Phase 2 keyframe/I-frame decode). frontend.c +
     // backend.c carry MSVC __asm{} MMX (InverseDCT / YUV->YUY2) -- built >= -O2.
     "libs/libxmv/decoder/frontend.c",

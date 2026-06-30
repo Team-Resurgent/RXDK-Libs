@@ -39,6 +39,12 @@ typedef struct Wmv2 {
     // Per-MB skip flags (1 = skipped), [MBWidth*MBHeight].
     uint8_t *mb_skip;
 
+    // Per-MB motion vectors with a 1-MB border (left/top/right) for prediction.
+    // stride = MBWidth+2; index(mb_x,mb_y) = (mb_y+1)*stride + (mb_x+1).
+    int16_t *mv_x;          // [(MBWidth+2)*(MBHeight+1)]
+    int16_t *mv_y;
+    int      mv_stride;
+
     // Ported VLC tables.
     Wmv2Vlc mv_vlc[2];      // by mv_table_index
     Wmv2Vlc cbp_vlc[4];     // by cbp_table_index (P MB-type + CBP)
@@ -59,5 +65,14 @@ int  Wmv2DecodePictureHeader(Wmv2 *w);
 // for P the macroblock skip bitmap). Call after Wmv2DecodePictureHeader.
 // Returns 0 on success, <0 on error.
 int  Wmv2DecodeSecondaryHeader(Wmv2 *w);
+
+// Decode a whole P-frame: assumes the bit walker is positioned at the start of
+// the frame and the primary+secondary headers have already been parsed. Motion-
+// compensates from the core's displayed planes (reference) into its building
+// planes and adds the inter/intra residual. Returns 0 on success, <0 on error.
+int  Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size);
+
+// Reset the motion-vector grid (called at I-frames: no MVs to predict from).
+void Wmv2ResetMotion(Wmv2 *w);
 
 #endif // RXDK_WMV2DEC_H

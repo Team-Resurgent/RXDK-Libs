@@ -38,4 +38,8 @@ void XmvCoreRender(XmvVideoCore *core, void *pSurface);
 // Used to drive the WMV2 header/MB parse (wmv2dec.c) over the core's bit reader.
 void XmvCoreSetupBits(XmvVideoCore *core, const unsigned char *data);
 
+// Promote the just-built planes to the displayed (reference) planes. Used by the
+// P-frame path, which decodes into the building planes from the displayed ones.
+void XmvCoreSwap(XmvVideoCore *core);
+
 #endif // RXDK_XMVCORE_H

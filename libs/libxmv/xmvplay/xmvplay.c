@@ -371,36 +371,29 @@ HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface
         return S_OK;
     }
 
-    // Increment 1 diagnostic: parse + log the WMV2 P-frame header for the first
-    // few P-frames. This is throwaway (P-frames are not yet decoded/rendered), so
-    // it freely clobbers the bit walker; it verifies the extradata decode, the
-    // ported VLC tables, and the secondary-header parse before the MB loop lands.
-    if (pDecoder->wmv2_ok && !keyframe && pDecoder->frames_shown < 8) {
-        int pt;
-        XmvCoreSetupBits(pDecoder->core, frame);
-        pt = Wmv2DecodePictureHeader(&pDecoder->wmv2);
-        if (pt >= 0 && Wmv2DecodeSecondaryHeader(&pDecoder->wmv2) == 0) {
-            Wmv2 *w = &pDecoder->wmv2;
-            DbgPrint("wmv2: Phdr q=%d cbpidx=%d mspel=%d mv=%d dc=%d rl=%d/%d "
-                     "abt(pmb=%d type=%d) nr=%d\n",
-                     w->qscale, w->cbp_table_index, w->mspel, w->mv_table_index,
-                     w->dc_table_index, w->rl_table_index, w->rl_chroma_table_index,
-                     w->per_mb_abt, w->abt_type, w->no_rounding);
-        } else {
-            DbgPrint("wmv2: P header parse failed (pt=%d)\n", pt);
-        }
-    }
-
-    // Phase 2: decode through the leak software video kernel. It implements only
-    // baseline I-frames (P-frames are unimplemented in the leaked source), so we
-    // decode each keyframe and hold it on the surface through the following
-    // P-frame run -- which proves the container + WMV2 bitstream wiring. Full I+P
-    // playback is the FFmpeg WMV2 port. No core (bad geometry) -> placeholder.
+    // Phase 2: full decode. Keyframes go through the leak I-frame kernel; P-frames
+    // through the ported WMV2 path (header parse + MB loop + half-pel motion comp
+    // + residual), reconstructing into the building planes from the displayed
+    // (reference) planes, then promoted with a swap. Every frame is decoded in
+    // sequence (P depends on the previous). No core (bad geometry) -> placeholder.
     if (pDecoder->core) {
         if (keyframe) {
-            XmvCoreDecodeKeyframe(pDecoder->core, frame, size);
+            XmvCoreDecodeKeyframe(pDecoder->core, frame, size);   // decodes + swaps
+            if (pDecoder->wmv2_ok) {
+                pDecoder->wmv2.no_rounding = 1;   // I-frame: rounding base state
+                Wmv2ResetMotion(&pDecoder->wmv2);
+            }
             pDecoder->have_keyframe = 1;
+        } else if (pDecoder->have_keyframe && pDecoder->wmv2_ok) {
+            XmvCoreSetupBits(pDecoder->core, frame);
+            if (Wmv2DecodePictureHeader(&pDecoder->wmv2) == WMV2_PICT_P &&
+                Wmv2DecodeSecondaryHeader(&pDecoder->wmv2) == 0) {
+                Wmv2DecodePFrame(&pDecoder->wmv2, frame, size);
+                XmvCoreSwap(pDecoder->core);      // promote building -> displayed
+            }
+            // On parse failure, keep the previous displayed frame (freeze).
         }
+
         if (pDecoder->have_keyframe)
             XmvCoreRender(pDecoder->core, (void *)pSurface);
         else

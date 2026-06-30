@@ -129,6 +129,11 @@ void XmvCoreDecodeKeyframe(XmvVideoCore *core, const unsigned char *data, unsign
     // keyframe is 0, so DecodeOneFrame takes DecodeIFrame).
     DecodeOneFrame(core);
 
+    // Diagnostic: how many bytes did the leak I-frame decode actually consume?
+    // ~= frame size means the demuxer's size is real; << means frames are padded.
+    DbgPrint("xmv: keyframe leak-consumed=%d/%u bytes\n",
+             (int)(core->pDecodingPosition - (BYTE *)data), (unsigned)size);
+
     // Promote building -> displayed (what RenderBitmap shows).
     swap = core->pYDisplayed; core->pYDisplayed = core->pYBuilding; core->pYBuilding = swap;
     swap = core->pUDisplayed; core->pUDisplayed = core->pUBuilding; core->pUBuilding = swap;
@@ -149,4 +154,14 @@ void XmvCoreSetupBits(XmvVideoCore *core, const unsigned char *data)
     core->pDecodingPosition = (BYTE *)data;
     core->BitCache          = 0;
     core->BitsRemaining     = 0;
+}
+
+void XmvCoreSwap(XmvVideoCore *core)
+{
+    BYTE *s;
+    if (!core)
+        return;
+    s = core->pYDisplayed; core->pYDisplayed = core->pYBuilding; core->pYBuilding = s;
+    s = core->pUDisplayed; core->pUDisplayed = core->pUBuilding; core->pUBuilding = s;
+    s = core->pVDisplayed; core->pVDisplayed = core->pVBuilding; core->pVBuilding = s;
 }

@@ -63,6 +63,15 @@ int Wmv2Init(Wmv2 *w, XmvVideoCore *core, const uint8_t extradata[4])
     if (!w->mb_skip)
         return -1;
 
+    w->mv_stride = (int)core->MBWidth + 2;
+    {
+        size_t n = (size_t)w->mv_stride * (core->MBHeight + 1);
+        w->mv_x = (int16_t *)malloc(n * sizeof(int16_t));
+        w->mv_y = (int16_t *)malloc(n * sizeof(int16_t));
+        if (!w->mv_x || !w->mv_y)
+            return -1;
+    }
+
     rc  = Wmv2VlcBuildFromLengths(&w->mv_vlc[0], ff_msmp4_mv_table0_lens, ff_msmp4_mv_table0,
                                   MSMPEG4_MV_TABLES_NB_ELEMS);
     rc |= Wmv2VlcBuildFromLengths(&w->mv_vlc[1], ff_msmp4_mv_table1_lens, ff_msmp4_mv_table1,
@@ -89,6 +98,8 @@ void Wmv2Free(Wmv2 *w)
     if (!w->initialized)
         return;
     if (w->mb_skip) free(w->mb_skip);
+    if (w->mv_x)    free(w->mv_x);
+    if (w->mv_y)    free(w->mv_y);
     for (i = 0; i < 2; i++) Wmv2VlcFree(&w->mv_vlc[i]);
     for (i = 0; i < 4; i++) Wmv2VlcFree(&w->cbp_vlc[i]);
     w->initialized = 0;
@@ -116,6 +127,8 @@ int Wmv2DecodePictureHeader(Wmv2 *w)
 }
 
 // parse_mb_skip (wmv2dec.c): fills w->mb_skip[mb_y*mb_width + mb_x].
+static int g_dbg_skip_frames;
+
 static int wmv2_parse_mb_skip(Wmv2 *w)
 {
     XmvVideoCore *c = w->core;
@@ -124,6 +137,10 @@ static int wmv2_parse_mb_skip(Wmv2 *w)
     int x, y, skip_type;
 
     skip_type = (int)ReadBits(c, 2);
+    if (g_dbg_skip_frames < 4) {
+        DbgPrint("wmv2:   skip_type=%d q=%d\n", skip_type, w->qscale);
+        g_dbg_skip_frames++;
+    }
     switch (skip_type) {
     case SKIP_TYPE_NONE:
         for (y = 0; y < mbh; y++)
@@ -137,11 +154,14 @@ static int wmv2_parse_mb_skip(Wmv2 *w)
         break;
     case SKIP_TYPE_ROW:
         for (y = 0; y < mbh; y++) {
-            if (ReadOneBit(c)) {
+            int rb = (int)ReadOneBit(c), nc = 0;
+            if (rb) {
                 for (x = 0; x < mbw; x++) skip[y * mbw + x] = 1;
             } else {
-                for (x = 0; x < mbw; x++) skip[y * mbw + x] = (uint8_t)ReadOneBit(c);
+                for (x = 0; x < mbw; x++) { int s = (int)ReadOneBit(c); skip[y * mbw + x] = (uint8_t)s; nc += !s; }
             }
+            if (g_dbg_skip_frames <= 1)
+                DbgPrint("wmv2:   skiprow y=%d rowbit=%d coded=%d\n", y, rb, rb ? 0 : nc);
         }
         break;
     case SKIP_TYPE_COL:

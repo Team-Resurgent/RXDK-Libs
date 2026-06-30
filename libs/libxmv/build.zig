@@ -11,10 +11,9 @@ const X = "libs/libxmv";
 // headers (d3d8.h, dsound.h, xmv.h).
 pub fn includeDirs() []const []const u8 {
     return &.{
-        X ++ "/xmvplay",
+        X ++ "/src",
         X ++ "/decoder",
         X ++ "/inc",
-        X ++ "/src",
         X ++ "/site",
         "shared/include",
         "libs/libxapi/internal",

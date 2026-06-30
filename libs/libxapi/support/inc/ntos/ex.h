@@ -61,8 +61,12 @@ ExAllocatePoolWithTag(
 
 NTKERNELAPI
 VOID
-__cdecl                     /* explicitly cdecl to match ExAllocatePool (same
-                             * kernel pool family); NTAPI/stdcall here #DF'd. */
+                            /* Convention inherited from the TU default (like
+                             * ExAllocatePool above): cdecl for the facade-based
+                             * libs, stdcall for -fdefault-calling-conv=stdcall
+                             * libs (dsound/xnet) so it binds direct to libkernel.
+                             * Was explicitly __cdecl when every consumer was
+                             * cdecl-default; that pinned it to the facade. */
 ExFreePool(
     IN PVOID P
     );

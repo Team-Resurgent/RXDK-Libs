@@ -50,6 +50,14 @@ const common_flags = [_][]const u8{
     "-fwrapv",
     "-Wno-everything",
     "-D_XAPI_",
+    // -fdefault-calling-conv=stdcall: the Xbox net stack was /Gz; this makes the
+    // vendor kernel calls compile __stdcall so they bind straight to libkernel.lib
+    // (no cdecl->stdcall facades). cdecl_libc.h is force-included FIRST to pin
+    // libc to __cdecl before picolibc's headers are seen (see that file).
+    "-Xclang",
+    "-fdefault-calling-conv=stdcall",
+    "-include",
+    X ++ "/site/cdecl_libc.h",
     "-include",
     "picolibc.h",
     "-include",

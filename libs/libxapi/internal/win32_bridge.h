@@ -82,6 +82,7 @@ typedef LONG_PTR *PLONG_PTR;
 
 #ifndef MEM_COMMIT
 #define MEM_COMMIT                       0x1000
+#define MEM_RESERVE                      0x2000
 #define MEM_RELEASE                      0x8000
 #endif
 

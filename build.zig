@@ -11,6 +11,7 @@ const libd3dx8_pkg = @import("libs/libd3dx8/build.zig");
 const libxgraphics_pkg = @import("libs/libxgraphics/build.zig");
 const libdsound_pkg = @import("libs/libdsound/build.zig");
 const libxnet_pkg = @import("libs/libxnet/build.zig");
+const libxmv_pkg = @import("libs/libxmv/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -173,6 +174,19 @@ pub fn build(b: *std.Build) void {
     const xnet_step = b.step("libxnet", "Build libxnet.lib (Xbox XNet stack, XNetStartup)");
     xnet_step.dependOn(&install_libxnet.step);
 
+    // libxmv: the Xbox XMV (FMV) video decoder ported from the leak
+    // (private/windows/xmv/decoder). Title-side software codec -> YUY2 D3D surface;
+    // links with libd3d8 + libdsound + libxapi. Not in the default install.
+    const xmv_objs = libxmv_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xmv_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xmv_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xmv_deps.append(b.allocator, xmv_objs.step) catch @panic("OOM");
+    const libxmv = coff_lib.pack(b, "libxmv", xmv_objs.outputs, xmv_deps.items);
+    const install_libxmv = b.addInstallFile(libxmv.path, "lib/libxmv.lib");
+    install_libxmv.step.dependOn(libxmv.step);
+    const xmv_step = b.step("libxmv", "Build libxmv.lib (Xbox XMV FMV decoder)");
+    xmv_step.dependOn(&install_libxmv.step);
+
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
@@ -203,6 +217,7 @@ pub fn build(b: *std.Build) void {
     const libd3dx8_lib = b.path("zig-out/lib/libd3dx8.lib");
     const libxgraphics_lib = b.path("zig-out/lib/libxgraphics.lib");
     const libdsound_lib = b.path("zig-out/lib/libdsound.lib");
+    const libxmv_lib = b.path("zig-out/lib/libxmv.lib");
     const libxnet_lib = b.path("zig-out/lib/libxnet.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
@@ -390,6 +405,32 @@ pub fn build(b: *std.Build) void {
     });
     const d3d8_tex_step = b.step("d3d8-textures", "Build the D3D8 texture-grid sample");
     d3d8_tex_step.dependOn(d3d8_tex.install);
+
+    // XMV video-playback sample. C title: opens D:\media\test.xmv, decodes it with
+    // libxmv (the leak FMV codec) into a YUY2 surface and shows it via the D3D8
+    // overlay; brings up libdsound (MCPX APU) for the audio path. Links libxmv +
+    // libd3d8 + libdsound (+ libxapi + krnl). Reuses the d3d8 include/extra sets.
+    const xmv_sample = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "xmv-play",
+        .src = "samples/xmv-play/src/main.c",
+        .extra_srcs = &d3d8_tri_extra,
+        .objects = sample_objects.items,
+        .libs = &.{ libxmv_lib, libd3d8_lib, libdsound_lib, libxapi_lib, krnl },
+        .include_paths = &d3d8_tri_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "xapi_smoke_boot_entry",
+        .bootstrap = true,
+        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libxmv.step, &install_libd3d8.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const xmv_sample_step = b.step("xmv-play", "Build the XMV video-playback sample");
+    xmv_sample_step.dependOn(xmv_sample.install);
 
     // DirectSound OGG-music sample. C title: decodes media\music.ogg with
     // stb_vorbis and plays it on a looping libdsound buffer (the MCPX APU).

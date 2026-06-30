@@ -173,6 +173,9 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         .source_dir = b.path("shared/libcxx/include"),
         .install_dir = .prefix,
         .install_subdir = "include/c++/v1",
+        // Keep build-system cruft out of the dist tree. Matches by extension, so
+        // the extensionless libc++ headers (vector, __config, ...) are unaffected.
+        .exclude_extensions = &.{ ".txt", ".build", ".in", ".c", ".md", ".cmake", ".am", ".modulemap" },
     });
     const site = b.addInstallFile(b.path("build/generated/libcxx/__config_site"), "include/c++/v1/__config_site");
     const assert_handler = b.addInstallFile(

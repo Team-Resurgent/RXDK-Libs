@@ -278,11 +278,17 @@ pub fn addXboxObjects(
     });
 }
 
+// Non-header files to keep out of the staged/dist include tree (build-system
+// cruft + stray sources + docs). exclude_extensions matches the file extension,
+// so extensionless C++ headers (vector, __config, ...) are unaffected.
+const header_excludes = [_][]const u8{ ".txt", ".build", ".in", ".c", ".md", ".cmake", ".am" };
+
 pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     const install = b.addInstallDirectory(.{
         .source_dir = b.path("shared/picolibc/include"),
         .install_dir = .prefix,
         .install_subdir = "include",
+        .exclude_extensions = &header_excludes,
     });
     const gen = b.addInstallFile(b.path("build/generated/picolibc.h"), "include/picolibc.h");
     const threads_h = b.addInstallFile(b.path("shared/include/threads.h"), "include/threads.h");
@@ -290,16 +296,19 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         .source_dir = b.path("shared/include/xbox"),
         .install_dir = .prefix,
         .install_subdir = "include/xbox",
+        .exclude_extensions = &header_excludes,
     });
     const xboxkrnl = b.addInstallDirectory(.{
         .source_dir = b.path("shared/include/xboxkrnl"),
         .install_dir = .prefix,
         .install_subdir = "include/xboxkrnl",
+        .exclude_extensions = &header_excludes,
     });
     const c23 = b.addInstallDirectory(.{
         .source_dir = b.path("libs/libc/c23"),
         .install_dir = .prefix,
         .install_subdir = "include",
+        .exclude_extensions = &header_excludes,
     });
 
     const step = b.allocator.create(std.Build.Step) catch @panic("OOM");

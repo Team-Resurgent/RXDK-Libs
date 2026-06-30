@@ -11,9 +11,9 @@
     verifies the PE, converts it to an XBE (imagebld), and packs an XISO under
     zig-out\iso\.
 
-    Or pick "dist" to build the libraries (libc, libcpp, libxapi) and stage the
-    .lib files plus the public headers into dist\libs and dist\include
-    (dist\ is gitignored).
+    Or pick "dist" to build all the libraries (libc, libcpp, libxapi, libd3d8,
+    libd3dx8, libxgraphics, libdsound, libxnet, libxmv) and stage the .lib files
+    plus the public headers into dist\libs and dist\include (dist\ is gitignored).
 
     Run with no arguments for a looping menu: after each action it waits for
     Enter and returns to the menu. Pass -Sample or -Dist to run once and exit
@@ -55,7 +55,7 @@
 
 .EXAMPLE
     .\build-iso.ps1 -Dist -Optimize ReleaseFast
-        Build libc/libcpp/libxapi and stage them into dist\.
+        Build all libraries and stage them (+ headers) into dist\.
 #>
 [CmdletBinding()]
 param(
@@ -217,7 +217,7 @@ function Select-More {
     Write-Host '  more - actions & settings' -ForegroundColor Cyan
     Write-Host '  -------------------------'
     Write-Host ('   a. all                {0}' -f $allDesc)
-    Write-Host '   d. dist               libs libc/libcpp/libxapi + headers -> dist\'
+    Write-Host '   d. dist               all libs (.lib) + public headers -> dist\'
     Write-Host '   c. clean              remove zig-out\xbe + zig-out\iso'
     Write-Host '   m. mode               toggle iso <-> deploy'
     Write-Host '   o. optimize           Debug / ReleaseSafe / ReleaseFast / ReleaseSmall'
@@ -441,11 +441,11 @@ function Invoke-Watson {
 function Invoke-DistBuild {
     param([Parameter(Mandatory)] [string]$Opt)
     Write-Host ''
-    Write-Host ('==> building lib distribution (libc/libcpp/libxapi, {0})' -f $Opt) -ForegroundColor Cyan
+    Write-Host ('==> building lib distribution (all libs, {0})' -f $Opt) -ForegroundColor Cyan
 
-    # compile.ps1 -Target libs runs the default zig install step, which builds
-    # libc/libcpp/libxapi and stages the .lib files + public headers into
-    # zig-out\lib and zig-out\include.
+    # compile.ps1 -Target libs builds every shippable .lib: the default install
+    # (libc/libcpp/libxapi + their public headers into zig-out\lib + zig-out\include)
+    # plus the device libs (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv).
     & $compile -Target libs -Optimize $Opt
 
     $distLibs = Join-Path $root 'dist\libs'
@@ -455,9 +455,13 @@ function Invoke-DistBuild {
         New-Item -ItemType Directory -Force -Path $d | Out-Null
     }
 
-    # Ship only the canonical libraries (zig-out\lib can hold stale artifacts
-    # from earlier/explicit builds).
-    $shipLibs = @('libc.lib', 'libcpp.lib', 'libxapi.lib')
+    # Ship every library by name (zig-out\lib can also hold stale/intermediate
+    # artifacts -- libxapi_core.lib etc. -- so copy an explicit list).
+    $shipLibs = @(
+        'libc.lib', 'libcpp.lib', 'libxapi.lib',
+        'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
+        'libdsound.lib', 'libxnet.lib', 'libxmv.lib'
+    )
     $copied = @()
     foreach ($name in $shipLibs) {
         $src = Join-Path $root ('zig-out\lib\{0}' -f $name)
@@ -470,10 +474,13 @@ function Invoke-DistBuild {
         }
     }
 
-    # -Path (not -LiteralPath) so the '*' wildcard is expanded.
-    $incSrc = Join-Path $root 'zig-out\include'
-    if (Test-Path -LiteralPath $incSrc) {
-        Copy-Item -Path (Join-Path $incSrc '*') -Destination $distInc -Recurse -Force
+    # Public headers: the staged libc/libc++/xapi set (zig-out\include) plus the
+    # device-library public headers (shared\include: d3d8.h, dsound.h, xmv.h,
+    # d3dx8*.h, winsockx.h, ...). -Path (not -LiteralPath) so '*' is expanded.
+    foreach ($incSrc in @((Join-Path $root 'zig-out\include'), (Join-Path $root 'shared\include'))) {
+        if (Test-Path -LiteralPath $incSrc) {
+            Copy-Item -Path (Join-Path $incSrc '*') -Destination $distInc -Recurse -Force
+        }
     }
 
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count

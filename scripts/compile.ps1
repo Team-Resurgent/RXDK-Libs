@@ -141,7 +141,11 @@ switch ($Target) {
         Invoke-ZigBuild -Step @('verify-no-vs') -Opt $Optimize
     }
     'libs' {
+        # Default install stages libc/libcpp/libxapi (+ their public headers);
+        # the device libs have their own named steps -> build them all so "libs"
+        # means every shippable .lib.
         Invoke-ZigBuild -Step @() -Opt $Optimize
+        Invoke-ZigBuild -Step @('libd3d8', 'libd3dx8', 'libxgraphics', 'libdsound', 'libxnet', 'libxmv') -Opt $Optimize
     }
     'samples' {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso

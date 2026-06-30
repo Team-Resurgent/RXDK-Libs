@@ -46,6 +46,16 @@ typedef struct Wmv2 {
     int16_t *mv_y;
     int      mv_stride;
 
+    // Intra DC-prediction grids (dequantized DC of each 8x8 block, b8 resolution
+    // for luma, MB resolution for chroma; 1-block top/left border = 1024). Reset
+    // to 1024 each frame; only intra blocks write. Used by the in-P intra path.
+    int16_t *dc_y, *dc_u, *dc_v;
+    int      dc_y_stride, dc_c_stride;
+
+    // Intra AC-prediction grids: 16 coeffs per block (1..7 = left column, 8+1..8+7
+    // = top row), same grid layout/stride as dc_*. Reset to 0 each frame.
+    int16_t *ac_y, *ac_u, *ac_v;
+
     // Ported VLC tables.
     Wmv2Vlc mv_vlc[2];      // by mv_table_index
     Wmv2Vlc cbp_vlc[4];     // by cbp_table_index (P MB-type + CBP)

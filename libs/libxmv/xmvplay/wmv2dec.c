@@ -75,6 +75,23 @@ int Wmv2Init(Wmv2 *w, XmvVideoCore *core, const uint8_t extradata[4])
             return -1;
     }
 
+    // Intra DC-prediction grids: luma at b8 resolution (2 blocks/MB) + 1-block
+    // border, chroma at MB resolution + 1-block border.
+    w->dc_y_stride = (int)core->MBWidth * 2 + 2;
+    w->dc_c_stride = (int)core->MBWidth + 2;
+    {
+        size_t ny = (size_t)w->dc_y_stride * (core->MBHeight * 2 + 2);
+        size_t nc = (size_t)w->dc_c_stride * (core->MBHeight + 2);
+        w->dc_y = (int16_t *)malloc(ny * sizeof(int16_t));
+        w->dc_u = (int16_t *)malloc(nc * sizeof(int16_t));
+        w->dc_v = (int16_t *)malloc(nc * sizeof(int16_t));
+        w->ac_y = (int16_t *)malloc(ny * 16 * sizeof(int16_t));
+        w->ac_u = (int16_t *)malloc(nc * 16 * sizeof(int16_t));
+        w->ac_v = (int16_t *)malloc(nc * 16 * sizeof(int16_t));
+        if (!w->dc_y || !w->dc_u || !w->dc_v || !w->ac_y || !w->ac_u || !w->ac_v)
+            return -1;
+    }
+
     rc  = Wmv2VlcBuildFromLengths(&w->mv_vlc[0], ff_msmp4_mv_table0_lens, ff_msmp4_mv_table0,
                                   MSMPEG4_MV_TABLES_NB_ELEMS);
     rc |= Wmv2VlcBuildFromLengths(&w->mv_vlc[1], ff_msmp4_mv_table1_lens, ff_msmp4_mv_table1,
@@ -103,6 +120,12 @@ void Wmv2Free(Wmv2 *w)
     if (w->mb_skip) free(w->mb_skip);
     if (w->mv_x)    free(w->mv_x);
     if (w->mv_y)    free(w->mv_y);
+    if (w->dc_y)    free(w->dc_y);
+    if (w->dc_u)    free(w->dc_u);
+    if (w->dc_v)    free(w->dc_v);
+    if (w->ac_y)    free(w->ac_y);
+    if (w->ac_u)    free(w->ac_u);
+    if (w->ac_v)    free(w->ac_v);
     for (i = 0; i < 2; i++) Wmv2VlcFree(&w->mv_vlc[i]);
     for (i = 0; i < 4; i++) Wmv2VlcFree(&w->cbp_vlc[i]);
     w->initialized = 0;
@@ -140,8 +163,8 @@ static int wmv2_parse_mb_skip(Wmv2 *w)
     int x, y, skip_type;
 
     skip_type = (int)ReadBits(c, 2);
-    if (g_dbg_skip_frames < 4) {
-        DbgPrint("wmv2:   skip_type=%d q=%d\n", skip_type, w->qscale);
+    if (g_dbg_skip_frames == 0) {
+        DbgPrint("wmv2:   P-frame skip_type=%d q=%d\n", skip_type, w->qscale);
         g_dbg_skip_frames++;
     }
     switch (skip_type) {
@@ -163,8 +186,7 @@ static int wmv2_parse_mb_skip(Wmv2 *w)
             } else {
                 for (x = 0; x < mbw; x++) { int s = (int)ReadOneBit(c); skip[y * mbw + x] = (uint8_t)s; nc += !s; }
             }
-            if (g_dbg_skip_frames <= 1)
-                DbgPrint("wmv2:   skiprow y=%d rowbit=%d coded=%d\n", y, rb, rb ? 0 : nc);
+            (void)nc;
         }
         break;
     case SKIP_TYPE_COL:

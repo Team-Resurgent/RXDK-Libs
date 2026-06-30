@@ -24,15 +24,17 @@
 // Diagnostic counters (see Wmv2DecodePFrame).
 static int g_dbg_coded, g_dbg_abt;          // coded / ABT blocks this frame
 static int g_dbg_pframes;                    // P-frames decoded so far (log gate)
-static int g_dbg_ac;                         // AC coefficient decodes logged
-static const BYTE *g_fstart;                 // frame start (for bit-position logging)
-static int g_dbg_mb;                         // trace the current MB (set for mb(0,12))
-#define BITPOS(c) ((int)(((c)->pDecodingPosition - g_fstart) * 8 - (int)(c)->BitsRemaining))
 
 // ---------------------------------------------------------------------------
 // Inverse DCT (classic IEEE-1180 reference integer IDCT), producing raw spatial
 // values; the caller clamps and either stores (intra) or adds (inter residual).
 // ---------------------------------------------------------------------------
+// Full 8x8 IDCT: the MPEG-reference IDCT (W1=2841..W7=565), which is exactly the
+// transform the retail Xbox XMV decoder uses for keyframes (decoder/frontend.c
+// InverseDCT: M1 = W7,W1-W7 = 565,2276). Matching it keeps the keyframe (leak)
+// and P-frame paths consistent on real hardware. (FFmpeg decodes with a different,
+// auto-selected IDCT, so an offline diff vs FFmpeg shows the IEEE-1180-permitted
+// +-1 -- that is FFmpeg's IDCT differing, not a bug here.)
 #define W1 2841
 #define W2 2676
 #define W3 2408
@@ -98,6 +100,154 @@ static void idct_put(BYTE *dst, int stride, int *blk)
     for (y = 0; y < 8; y++)
         for (x = 0; x < 8; x++)
             dst[y * stride + x] = clampU8(blk[y * 8 + x]);
+}
+
+// ---------------------------------------------------------------------------
+// WMV2 ABT (adaptive block transform) 8x4 / 4x8 IDCTs, ported from FFmpeg
+// simple_idct.c (ff_simple_idct84_add / idct48_add + helpers). These use the
+// FFmpeg simple_idct constants/scaling (distinct from the 8x8 idctref above);
+// the 8-point and 4-point passes are designed to compose, so they must be used
+// together for ABT blocks. The scan tables place coeffs into the 8x8 int block.
+// ---------------------------------------------------------------------------
+static const BYTE g_wmv2_scanA[64] = {
+    0x00,0x01,0x02,0x08,0x03,0x09,0x0A,0x10, 0x04,0x0B,0x11,0x18,0x12,0x0C,0x05,0x13,
+    0x19,0x0D,0x14,0x1A,0x1B,0x06,0x15,0x1C, 0x0E,0x16,0x1D,0x07,0x1E,0x0F,0x17,0x1F,
+};
+static const BYTE g_wmv2_scanB[64] = {
+    0x00,0x08,0x01,0x10,0x09,0x18,0x11,0x02, 0x20,0x0A,0x19,0x28,0x12,0x30,0x21,0x1A,
+    0x38,0x29,0x22,0x03,0x31,0x39,0x0B,0x2A, 0x13,0x32,0x1B,0x3A,0x23,0x2B,0x33,0x3B,
+};
+
+// Full-block WMV2 scans (ff_wmv1_scantable[0] inter, [1] intra). These are the
+// "down-first" WMV2 zigzags and differ from the standard JPEG zigzag the leak
+// hands us via g_NormalZigzag -- using the wrong one transposes the AC spectrum.
+// We run an identity-permutation IDCT (idctref / simple_idct), so the RAW
+// scantable maps scan position k -> blk[scan[k]] directly (no idct permute).
+static const BYTE g_wmv2_inter_scan[64] = {
+    0x00,0x08,0x01,0x02,0x09,0x10,0x18,0x11, 0x0A,0x03,0x04,0x0B,0x12,0x19,0x20,0x28,
+    0x30,0x38,0x29,0x21,0x1A,0x13,0x0C,0x05, 0x06,0x0D,0x14,0x1B,0x22,0x31,0x39,0x3A,
+    0x32,0x2A,0x23,0x1C,0x15,0x0E,0x07,0x0F, 0x16,0x1D,0x24,0x2B,0x33,0x3B,0x3C,0x34,
+    0x2C,0x25,0x1E,0x17,0x1F,0x26,0x2D,0x35, 0x3D,0x3E,0x36,0x2E,0x27,0x2F,0x37,0x3F,
+};
+static const BYTE g_wmv2_intra_scan[64] = {
+    0x00,0x08,0x01,0x02,0x09,0x10,0x18,0x11, 0x0A,0x03,0x04,0x0B,0x12,0x19,0x20,0x28,
+    0x21,0x30,0x1A,0x13,0x0C,0x05,0x06,0x0D, 0x14,0x1B,0x22,0x29,0x38,0x31,0x39,0x2A,
+    0x23,0x1C,0x15,0x0E,0x07,0x0F,0x16,0x1D, 0x24,0x2B,0x32,0x3A,0x33,0x3B,0x2C,0x25,
+    0x1E,0x17,0x1F,0x26,0x2D,0x34,0x3C,0x35, 0x3D,0x2E,0x27,0x2F,0x36,0x3E,0x37,0x3F,
+};
+// ff_wmv1_scantable[2] (intra horizontal, used for ac_pred from top) and [3]
+// (intra vertical, used for ac_pred from left).
+static const BYTE g_wmv2_intra_h_scan[64] = {
+    0x00,0x01,0x08,0x02,0x03,0x09,0x10,0x18, 0x11,0x0A,0x04,0x05,0x0B,0x12,0x19,0x20,
+    0x28,0x30,0x21,0x1A,0x13,0x0C,0x06,0x07, 0x0D,0x14,0x1B,0x22,0x29,0x38,0x31,0x39,
+    0x2A,0x23,0x1C,0x15,0x0E,0x0F,0x16,0x1D, 0x24,0x2B,0x32,0x3A,0x33,0x2C,0x25,0x1E,
+    0x17,0x1F,0x26,0x2D,0x34,0x3B,0x3C,0x35, 0x2E,0x27,0x2F,0x36,0x3D,0x3E,0x37,0x3F,
+};
+static const BYTE g_wmv2_intra_v_scan[64] = {
+    0x00,0x08,0x10,0x01,0x18,0x20,0x28,0x09, 0x02,0x03,0x0A,0x11,0x19,0x30,0x38,0x29,
+    0x21,0x1A,0x12,0x0B,0x04,0x05,0x0C,0x13, 0x1B,0x22,0x31,0x39,0x32,0x2A,0x23,0x1C,
+    0x14,0x0D,0x06,0x07,0x0E,0x15,0x1D,0x24, 0x2B,0x33,0x3A,0x3B,0x34,0x2C,0x25,0x1E,
+    0x16,0x0F,0x17,0x1F,0x26,0x2D,0x3C,0x35, 0x2E,0x27,0x2F,0x36,0x3D,0x3E,0x37,0x3F,
+};
+
+#define SW1 22725
+#define SW2 21407
+#define SW3 19266
+#define SW4 16383
+#define SW5 12873
+#define SW6 8867
+#define SW7 4520
+#define S_ROW_SHIFT 11
+#define S_COL_SHIFT 20
+// 4-point fixed-point constants (FFmpeg simple_idct.c).
+#define R1 30274
+#define R2 12540
+#define R3 23170
+#define R_SHIFT 11
+#define C1 3784
+#define C2 1567
+#define C3 2896
+#define C_SHIFT 17
+
+// 8-point row IDCT (simple_idct idctRowCondDC), in place over row[0..7].
+static void s_idct_row8(int *row)
+{
+    int a0, a1, a2, a3, b0, b1, b2, b3;
+    a0 = SW4 * row[0] + (1 << (S_ROW_SHIFT - 1));
+    a1 = a0; a2 = a0; a3 = a0;
+    a0 += SW2 * row[2]; a1 += SW6 * row[2]; a2 -= SW6 * row[2]; a3 -= SW2 * row[2];
+    b0 = SW1 * row[1] + SW3 * row[3];
+    b1 = SW3 * row[1] - SW7 * row[3];
+    b2 = SW5 * row[1] - SW1 * row[3];
+    b3 = SW7 * row[1] - SW5 * row[3];
+    a0 += SW4 * row[4] + SW6 * row[6]; a1 += -SW4 * row[4] - SW2 * row[6];
+    a2 += -SW4 * row[4] + SW2 * row[6]; a3 += SW4 * row[4] - SW6 * row[6];
+    b0 += SW5 * row[5] + SW7 * row[7];
+    b1 += -SW1 * row[5] - SW5 * row[7];
+    b2 += SW7 * row[5] + SW3 * row[7];
+    b3 += SW3 * row[5] - SW1 * row[7];
+    row[0] = (a0 + b0) >> S_ROW_SHIFT; row[7] = (a0 - b0) >> S_ROW_SHIFT;
+    row[1] = (a1 + b1) >> S_ROW_SHIFT; row[6] = (a1 - b1) >> S_ROW_SHIFT;
+    row[2] = (a2 + b2) >> S_ROW_SHIFT; row[5] = (a2 - b2) >> S_ROW_SHIFT;
+    row[3] = (a3 + b3) >> S_ROW_SHIFT; row[4] = (a3 - b3) >> S_ROW_SHIFT;
+}
+// 8-point column IDCT add (simple_idct idctSparseColAdd); col stride 8.
+static void s_idct_col8_add(BYTE *dest, int stride, int *col)
+{
+    int a0, a1, a2, a3, b0, b1, b2, b3;
+    a0 = SW4 * (col[0] + ((1 << (S_COL_SHIFT - 1)) / SW4));
+    a1 = a0; a2 = a0; a3 = a0;
+    a0 += SW2 * col[16]; a1 += SW6 * col[16]; a2 -= SW6 * col[16]; a3 -= SW2 * col[16];
+    b0 = SW1 * col[8]; b1 = SW3 * col[8]; b2 = SW5 * col[8]; b3 = SW7 * col[8];
+    b0 += SW3 * col[24]; b1 -= SW7 * col[24]; b2 -= SW1 * col[24]; b3 -= SW5 * col[24];
+    a0 += SW4 * col[32]; a1 -= SW4 * col[32]; a2 -= SW4 * col[32]; a3 += SW4 * col[32];
+    b0 += SW5 * col[40]; b1 -= SW1 * col[40]; b2 += SW7 * col[40]; b3 += SW3 * col[40];
+    a0 += SW6 * col[48]; a1 -= SW2 * col[48]; a2 += SW2 * col[48]; a3 -= SW6 * col[48];
+    b0 += SW7 * col[56]; b1 -= SW5 * col[56]; b2 += SW3 * col[56]; b3 -= SW1 * col[56];
+    dest[0]          = clampU8(dest[0]          + ((a0 + b0) >> S_COL_SHIFT));
+    dest[stride]     = clampU8(dest[stride]     + ((a1 + b1) >> S_COL_SHIFT));
+    dest[2 * stride] = clampU8(dest[2 * stride] + ((a2 + b2) >> S_COL_SHIFT));
+    dest[3 * stride] = clampU8(dest[3 * stride] + ((a3 + b3) >> S_COL_SHIFT));
+    dest[4 * stride] = clampU8(dest[4 * stride] + ((a3 - b3) >> S_COL_SHIFT));
+    dest[5 * stride] = clampU8(dest[5 * stride] + ((a2 - b2) >> S_COL_SHIFT));
+    dest[6 * stride] = clampU8(dest[6 * stride] + ((a1 - b1) >> S_COL_SHIFT));
+    dest[7 * stride] = clampU8(dest[7 * stride] + ((a0 - b0) >> S_COL_SHIFT));
+}
+// 4-point row IDCT (simple_idct idct4row), in place over row[0..3].
+static void s_idct4row(int *row)
+{
+    int c0, c1, c2, c3, a0 = row[0], a1 = row[1], a2 = row[2], a3 = row[3];
+    c0 = (a0 + a2) * R3 + (1 << (R_SHIFT - 1));
+    c2 = (a0 - a2) * R3 + (1 << (R_SHIFT - 1));
+    c1 = a1 * R1 + a3 * R2;
+    c3 = a1 * R2 - a3 * R1;
+    row[0] = (c0 + c1) >> R_SHIFT; row[1] = (c2 + c3) >> R_SHIFT;
+    row[2] = (c2 - c3) >> R_SHIFT; row[3] = (c0 - c1) >> R_SHIFT;
+}
+// 4-point column IDCT add (simple_idct idct4col_add); col stride 8.
+static void s_idct4col_add(BYTE *dest, int stride, int *col)
+{
+    int c0, c1, c2, c3, a0 = col[0], a1 = col[8], a2 = col[16], a3 = col[24];
+    c0 = (a0 + a2) * C3 + (1 << (C_SHIFT - 1));
+    c2 = (a0 - a2) * C3 + (1 << (C_SHIFT - 1));
+    c1 = a1 * C1 + a3 * C2;
+    c3 = a1 * C2 - a3 * C1;
+    dest[0]          = clampU8(dest[0]          + ((c0 + c1) >> C_SHIFT));
+    dest[stride]     = clampU8(dest[stride]     + ((c2 + c3) >> C_SHIFT));
+    dest[2 * stride] = clampU8(dest[2 * stride] + ((c2 - c3) >> C_SHIFT));
+    dest[3 * stride] = clampU8(dest[3 * stride] + ((c0 - c1) >> C_SHIFT));
+}
+static void idct84_add(BYTE *dst, int stride, int *block)
+{
+    int i;
+    for (i = 0; i < 4; i++) s_idct_row8(block + i * 8);
+    for (i = 0; i < 8; i++) s_idct4col_add(dst + i, stride, block + i);
+}
+static void idct48_add(BYTE *dst, int stride, int *block)
+{
+    int i;
+    for (i = 0; i < 8; i++) s_idct4row(block + i * 8);
+    for (i = 0; i < 4; i++) s_idct_col8_add(dst + i, stride, block + i);
 }
 
 static void idct_add(BYTE *dst, int stride, int *blk)
@@ -269,7 +419,7 @@ static void wmv2_mspel_motion(Wmv2 *w, BYTE *Ydst, BYTE *Udst, BYTE *Vdst,
 // zigzag. `counter` is the starting scan position (0 inter, 1 intra-after-DC).
 // ---------------------------------------------------------------------------
 static void decode_ac(XmvVideoCore *c, Wmv2 *w, XMVACCoefficientDecoderTable *tbl,
-                      int *blk, int counter, int qscale)
+                      int *blk, int counter, int qscale, const BYTE *scan)
 {
     int D2   = qscale * 2;
     int Qodd = (qscale & 1) ? qscale : qscale - 1;
@@ -320,14 +470,10 @@ static void decode_ac(XmvVideoCore *c, Wmv2 *w, XMVACCoefficientDecoderTable *tb
             if (Sign) Level = -Level;
         }
 
-        if (g_dbg_mb) {
-            DbgPrint("wmv2:       ac idx=%u run=%d lvl=%d done=%d bitpos=%d\n",
-                     (unsigned)Index, Run, (int)Level, Done, BITPOS(w->core));
-        }
         counter += Run;
         if (counter > 63) counter = 63;
         {
-            int idx = g_NormalZigzag[counter];
+            int idx = scan[counter];
             blk[idx] = (Level > 0) ? (D2 * (int)Level + Qodd) : (D2 * (int)Level - Qodd);
         }
         counter++;
@@ -342,23 +488,60 @@ static void decode_inter_block(XmvVideoCore *c, Wmv2 *w, int coded, int rl_index
     int blk[64];
     if (!coded) return;
     memset(blk, 0, sizeof(blk));
-    decode_ac(c, w, &g_InterDecoderTables[rl_index], blk, 0, w->qscale);
+    decode_ac(c, w, &g_InterDecoderTables[rl_index], blk, 0, w->qscale, g_wmv2_inter_scan);
     idct_add(dest, stride, blk);
 }
 
+// WMV1/WMV2 DC scale tables (ff_wmv1_{y,c}_dc_scale_table), indexed by qscale.
+static const BYTE g_wmv2_y_dc_scale[32] = {
+     0,  8,  8,  8,  8,  8,  9,  9, 10, 10, 11, 11, 12, 12, 13, 13,
+    14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21,
+};
+static const BYTE g_wmv2_c_dc_scale[32] = {
+     0,  8,  8,  8,  8,  9,  9, 10, 10, 11, 11, 12, 12, 13, 13, 14,
+    14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22,
+};
+
 // Decode + reconstruct one intra block (DC huffman + AC) into dest via IDCT-put.
-// First cut: no spatial DC/AC prediction (rare in P-frames); maintains bit-sync.
-static void decode_intra_block_p(XmvVideoCore *c, Wmv2 *w, int n, int coded,
-                                 BYTE *dest, int stride)
+// Implements the msmpeg4/WMV2 spatial DC prediction (ff_msmpeg4_pred_dc): the DC
+// is a delta from the left- or top-neighbour block's DC (chosen by gradient),
+// read from the per-frame w->dc_{y,u,v} grids (reset to 1024, so inter/skip
+// neighbours predict the default DC). ac_pred is parsed by the caller; AC spatial
+// prediction is not applied (streams here use ac_pred=0).
+static void decode_intra_block_p(XmvVideoCore *c, Wmv2 *w, int mb_x, int mb_y,
+                                 int n, int coded, int ac_pred, BYTE *dest, int stride)
 {
     int blk[64];
-    int DCStepSize  = (w->qscale <= 4) ? 8 : (w->qscale / 2 + 6);
-    int defaultDC   = (1024 + (DCStepSize >> 1)) / DCStepSize;
+    int scale = (n < 4) ? g_wmv2_y_dc_scale[w->qscale] : g_wmv2_c_dc_scale[w->qscale];
+    int16_t *grid, *acg, *acself;
+    int gstride, gidx, a, b, cc, pa, pb, pc, pred, dir, i;
     WORD *dctable;
     DWORD mag;
     int dc;
 
     memset(blk, 0, sizeof(blk));
+
+    // Locate this block in its DC/AC grids (luma b8 resolution, chroma MB res).
+    if (n < 4) {
+        grid = w->dc_y; acg = w->ac_y; gstride = w->dc_y_stride;
+        gidx = (mb_y * 2 + 1 + (n >> 1)) * gstride + (mb_x * 2 + 1 + (n & 1));
+    } else {
+        grid = (n == 4) ? w->dc_u : w->dc_v;
+        acg  = (n == 4) ? w->ac_u : w->ac_v; gstride = w->dc_c_stride;
+        gidx = (mb_y + 1) * gstride + (mb_x + 1);
+    }
+    acself = acg + (size_t)gidx * 16;
+
+    // Gradient DC prediction from left (a), top-left (b), top (cc); dir picks the
+    // predictor (0 = left, 1 = top) and also selects the AC-prediction neighbour.
+    a  = grid[gidx - 1];
+    b  = grid[gidx - 1 - gstride];
+    cc = grid[gidx - gstride];
+    pa = (a  + (scale >> 1)) / scale;
+    pb = (b  + (scale >> 1)) / scale;
+    pc = (cc + (scale >> 1)) / scale;
+    if (abs(pa - pb) < abs(pb - pc)) { pred = pc; dir = 1; }
+    else                            { pred = pa; dir = 0; }
 
     if (n < 4)
         dctable = w->dc_table_index ? g_Huffman_DCTDCy_HighMotion : g_Huffman_DCTDCy_Talking;
@@ -369,18 +552,38 @@ static void decode_intra_block_p(XmvVideoCore *c, Wmv2 *w, int n, int coded,
     if (mag == INTRADCYTCOEF_ESCAPE_CODE)   // 119, same escape for luma/chroma
         mag = ReadBits(c, 8);
     if (mag && ReadOneBit(c))
-        dc = defaultDC - (int)mag;
+        dc = pred - (int)mag;
     else
-        dc = defaultDC + (int)mag;
+        dc = pred + (int)mag;
 
-    blk[0] = dc * DCStepSize;
+    blk[0]     = dc * scale;
+    grid[gidx] = (int16_t)blk[0];
 
     if (coded) {
         int rl = (n < 4) ? w->rl_table_index : w->rl_chroma_table_index;
         XMVACCoefficientDecoderTable *tbl = (n < 4)
             ? &g_IntraDecoderTables[rl] : &g_InterDecoderTables[rl];
-        decode_ac(c, w, tbl, blk, 1, w->qscale);
+        // ac_pred selects the vertical (dir=left) or horizontal (dir=top) scan so
+        // the predicted row/column lands first; otherwise the plain intra scan.
+        const BYTE *scan = !ac_pred ? g_wmv2_intra_scan
+                         : (dir == 0 ? g_wmv2_intra_v_scan : g_wmv2_intra_h_scan);
+        decode_ac(c, w, tbl, blk, 1, w->qscale, scan);
     }
+
+    // AC prediction (ff_mpeg4_pred_ac): add the neighbour's stored AC, then store
+    // this block's left column / top row for future predictors. qscale is constant
+    // per WMV2 frame, so no rescale path is needed.
+    if (ac_pred) {
+        if (dir == 0) {                                  // from left neighbour
+            int16_t *acl = acg + (size_t)(gidx - 1) * 16;
+            for (i = 1; i < 8; i++) blk[i << 3] += acl[i];
+        } else {                                         // from top neighbour
+            int16_t *act = acg + (size_t)(gidx - gstride) * 16;
+            for (i = 1; i < 8; i++) blk[i] += act[8 + i];
+        }
+    }
+    for (i = 1; i < 8; i++) acself[i]     = (int16_t)blk[i << 3];   // left column
+    for (i = 1; i < 8; i++) acself[8 + i] = (int16_t)blk[i];        // top row
 
     idct_put(dest, stride, blk);
 }
@@ -482,12 +685,18 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
 
     g_dbg_coded = 0;
     g_dbg_abt   = 0;
-    g_fstart    = (const BYTE *)frame;
     Wmv2ResetMotion(w);
 
-    if (g_dbg_pframes == 0)
-        DbgPrint("wmv2:   after-hdr consumed=%d bytes (skip bitmap cost)\n",
-                 (int)(c->pDecodingPosition - (BYTE *)frame));
+    // Reset the intra DC-prediction grids: 1024 everywhere (= default DC), so
+    // inter/skip neighbours predict the default and only intra blocks override.
+    {
+        int i, ny = w->dc_y_stride * (mbh * 2 + 2), nc = w->dc_c_stride * (mbh + 2);
+        for (i = 0; i < ny; i++) w->dc_y[i] = 1024;
+        for (i = 0; i < nc; i++) w->dc_u[i] = w->dc_v[i] = 1024;
+        memset(w->ac_y, 0, (size_t)ny * 16 * sizeof(int16_t));
+        memset(w->ac_u, 0, (size_t)nc * 16 * sizeof(int16_t));
+        memset(w->ac_v, 0, (size_t)nc * 16 * sizeof(int16_t));
+    }
 
     for (mb_y = 0; mb_y < mbh; mb_y++) {
         int first_slice_line = (slice_h > 0) ? ((mb_y % slice_h) == 0) : (mb_y == 0);
@@ -513,15 +722,9 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                 continue;
             }
 
-            g_dbg_mb = (g_dbg_pframes == 0 && mb_x == 0 && mb_y == 12);
-            if (g_dbg_mb) DbgPrint("wmv2:   mb(0,12) bit before MB-type=%d\n", BITPOS(c));
-
             code     = Wmv2VlcDecode(c, &w->cbp_vlc[w->cbp_table_index]);
             mb_intra = (~code & 0x40) >> 6;
             cbp      = code & 0x3f;
-
-            if (g_dbg_mb) DbgPrint("wmv2:   mb(0,12) code=%d cbp=0x%02x bit after MB-type=%d\n",
-                                   code, cbp, BITPOS(c));
 
             if (!mb_intra) {
                 int px, py, mx, my, dxy, uvdxy, src_x, src_y, uvsx, uvsy;
@@ -547,9 +750,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                 w->mv_x[g] = (int16_t)mx;
                 w->mv_y[g] = (int16_t)my;
 
-                if (g_dbg_mb) DbgPrint("wmv2:   mb(0,12) mv=(%d,%d) pred=(%d,%d) bit after MV=%d\n",
-                                       mx, my, px, py, BITPOS(c));
-
                 if (w->mspel) {
                     wmv2_mspel_motion(w, Ydst, Udst, Vdst, Ypitch, UVpitch,
                                       mb_x, mb_y, mx, my, w->hshift, round);
@@ -571,7 +771,7 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
 
                 // Inter residual. abt_type per coded block = the per-block value
                 // (per_block_abt) or the MB-level value; abt_type != 0 selects an
-                // 8x4/4x8 transform -- parsed for bit-sync, residual not yet applied.
+                // 8x4 (type 1) or 4x8 (type 2) adaptive block transform.
                 for (n = 0; n < 6; n++) {
                     int coded = (cbp >> (5 - n)) & 1;
                     int abt_t;
@@ -582,27 +782,39 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                         continue;
                     g_dbg_coded++;
 
+                    switch (n) {
+                    case 0: bd = Ydst;                  bstride = Ypitch;  break;
+                    case 1: bd = Ydst + 8;              bstride = Ypitch;  break;
+                    case 2: bd = Ydst + 8 * Ypitch;     bstride = Ypitch;  break;
+                    case 3: bd = Ydst + 8 + 8 * Ypitch; bstride = Ypitch;  break;
+                    case 4: bd = Udst;                  bstride = UVpitch; break;
+                    default:bd = Vdst;                  bstride = UVpitch; break;
+                    }
+
                     abt_t = w->per_block_abt ? decode012(c) : w->abt_type;
 
                     if (abt_t) {
                         static const int sub_cbp_table[3] = { 2, 3, 1 };
+                        const BYTE *scan = (abt_t == 1) ? g_wmv2_scanA : g_wmv2_scanB;
                         int sub = sub_cbp_table[decode012(c)];
-                        int scratch[64];
-                        if (sub & 1) { memset(scratch,0,sizeof(scratch)); decode_ac(c,w,&g_InterDecoderTables[w->rl_table_index],scratch,0,w->qscale); }
-                        if (sub & 2) { memset(scratch,0,sizeof(scratch)); decode_ac(c,w,&g_InterDecoderTables[w->rl_table_index],scratch,0,w->qscale); }
+                        int blk1[64], blk2[64];
+                        memset(blk1, 0, sizeof(blk1));
+                        memset(blk2, 0, sizeof(blk2));
+                        if (sub & 1)
+                            decode_ac(c, w, &g_InterDecoderTables[w->rl_table_index], blk1, 0, w->qscale, scan);
+                        if (sub & 2)
+                            decode_ac(c, w, &g_InterDecoderTables[w->rl_table_index], blk2, 0, w->qscale, scan);
+                        if (abt_t == 1) {            // two stacked 8x4 transforms
+                            idct84_add(bd, bstride, blk1);
+                            idct84_add(bd + 4 * bstride, bstride, blk2);
+                        } else {                     // two side-by-side 4x8 transforms
+                            idct48_add(bd, bstride, blk1);
+                            idct48_add(bd + 4, bstride, blk2);
+                        }
                         g_dbg_abt++;
-                        continue;
+                    } else {
+                        decode_inter_block(c, w, 1, w->rl_table_index, bd, bstride);
                     }
-
-                    switch (n) {
-                    case 0: bd = Ydst;                         bstride = Ypitch;  break;
-                    case 1: bd = Ydst + 8;                     bstride = Ypitch;  break;
-                    case 2: bd = Ydst + 8 * Ypitch;            bstride = Ypitch;  break;
-                    case 3: bd = Ydst + 8 + 8 * Ypitch;        bstride = Ypitch;  break;
-                    case 4: bd = Udst;                         bstride = UVpitch; break;
-                    default:bd = Vdst;                         bstride = UVpitch; break;
-                    }
-                    decode_inter_block(c, w, 1, w->rl_table_index, bd, bstride);
                 }
             } else {
                 // Intra macroblock inside a P-frame.
@@ -611,7 +823,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                 w->mv_x[g] = 0; w->mv_y[g] = 0;
 
                 ac_pred = (int)ReadOneBit(c);
-                (void)ac_pred;
 
                 if (w->per_mb_rl_table && cbp) {
                     w->rl_table_index        = decode012(c);
@@ -630,29 +841,19 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                     case 4: bd = Udst;                  bstride = UVpitch; break;
                     default:bd = Vdst;                  bstride = UVpitch; break;
                     }
-                    decode_intra_block_p(c, w, n, coded, bd, bstride);
+                    decode_intra_block_p(c, w, mb_x, mb_y, n, coded, ac_pred, bd, bstride);
                 }
             }
         }
-
-        // Per-row consumption (P#0): pinpoints where the parse derails.
-        if (g_dbg_pframes == 0 && (n_inter + n_intra) > 0)
-            DbgPrint("wmv2:   row %d end consumed=%d (inter=%d intra=%d)\n",
-                     mb_y, (int)(c->pDecodingPosition - (BYTE *)frame), n_inter, n_intra);
     }
 
-    // Diagnostic: MB composition + bit consumption vs frame size for the first
-    // few P-frames. consumed ~ size (within a few bytes of bit-reader lookahead)
-    // means the parse stayed in sync; a large mismatch means a desync bug.
-    if (g_dbg_pframes < 4) {
+    // First-frame sanity: MB composition + bit consumption vs frame size.
+    // consumed ~= size (within a few bytes of bit-reader lookahead) means the
+    // parse stayed in sync end-to-end.
+    if (g_dbg_pframes == 0) {
         int consumed = (int)(c->pDecodingPosition - (BYTE *)frame);
-        int i, nz = 0, tail = (int)size - consumed;
-        for (i = consumed; i < (int)size; i++)
-            if (frame[i]) nz++;
-        DbgPrint("wmv2: P#%d mb skip=%d inter=%d intra=%d | coded=%d abt=%d | "
-                 "consumed=%d/%u | tail_nonzero=%d/%d\n",
-                 g_dbg_pframes, n_skip, n_inter, n_intra, g_dbg_coded, g_dbg_abt,
-                 consumed, size, nz, tail);
+        DbgPrint("wmv2: P-frame skip=%d inter=%d intra=%d | coded=%d abt=%d | consumed=%d/%u\n",
+                 n_skip, n_inter, n_intra, g_dbg_coded, g_dbg_abt, consumed, size);
     }
     g_dbg_pframes++;
 

@@ -11,8 +11,8 @@
     verifies the PE, converts it to an XBE (imagebld), and packs an XISO under
     zig-out\iso\.
 
-    Or pick "dist" to build all the libraries (libc, libcpp, libxapi, libd3d8,
-    libd3dx8, libxgraphics, libdsound, libxnet, libxmv) and stage the .lib files
+    Or pick "dist" to build all the libraries (libkernel, libc, libcpp, libxapi,
+    libd3d8, libd3dx8, libxgraphics, libdsound, libxnet, libxmv) and stage the .lib files
     plus the public headers into dist\libs and dist\include (dist\ is gitignored).
 
     Run with no arguments for a looping menu: after each action it waits for
@@ -444,8 +444,9 @@ function Invoke-DistBuild {
     Write-Host ('==> building lib distribution (all libs, {0})' -f $Opt) -ForegroundColor Cyan
 
     # compile.ps1 -Target libs builds every shippable .lib: the default install
-    # (libc/libcpp/libxapi + their public headers into zig-out\lib + zig-out\include)
-    # plus the device libs (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv).
+    # (libkernel/libc/libcpp/libxapi + their public headers into zig-out\lib +
+    # zig-out\include) plus the device libs
+    # (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv).
     & $compile -Target libs -Optimize $Opt
 
     $distLibs = Join-Path $root 'dist\libs'
@@ -458,6 +459,7 @@ function Invoke-DistBuild {
     # Ship every library by name (zig-out\lib can also hold stale/intermediate
     # artifacts -- libxapi_core.lib etc. -- so copy an explicit list).
     $shipLibs = @(
+        'libkernel.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',
         'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
         'libdsound.lib', 'libxnet.lib', 'libxmv.lib'

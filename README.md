@@ -129,7 +129,6 @@ Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook
 
 ## Design notes
 
-- **Reference only:** [RXDK-LibsOld](https://github.com/Team-Resurgent/RXDK-LibsOld) for behavior (startup, printf path, kernel exports). Nothing is copied verbatim from legacy CRT/STL trees.
 - **Root-cause policy:** fix runtime/HAL here; do not patch samples to dodge library bugs.
 - **C++ exceptions / EH:** DWARF/Itanium exceptions via vendored libunwind + libc++abi (`__cxa_throw`, `__gxx_personality_v0`, `.eh_frame`). Two Xbox-specific fixes: `main` runs on a dedicated `PsCreateSystemThreadEx` thread (the kernel's init-thread stack is too small for the unwinder), and `_LIBCXXABI_DTOR_FUNC` is forced to `__thiscall` (clang emits i386 member functions thiscall, but `-U_WIN32` would drop it). RTTI enabled for `dynamic_cast` / `typeinfo`.
 

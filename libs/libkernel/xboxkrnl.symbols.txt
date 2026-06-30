@@ -1,0 +1,372 @@
+ ord  name                               decorated                          conv         note
+   1  AvGetSavedDataAddress              _AvGetSavedDataAddress@0           stdcall      
+   2  AvSendTVEncoderOption              _AvSendTVEncoderOption@16          stdcall      
+   3  AvSetDisplayMode                   _AvSetDisplayMode@24               stdcall      
+   4  AvSetSavedDataAddress              _AvSetSavedDataAddress@4           stdcall      
+   5  DbgBreakPoint                      _DbgBreakPoint@0                   stdcall      
+   6  DbgBreakPointWithStatus            _DbgBreakPointWithStatus@4         stdcall      
+   7  DbgLoadImageSymbols                _DbgLoadImageSymbols@12            stdcall      
+   8  DbgPrint                           _DbgPrint                          cdecl        cdecl-varargs
+   9  HalReadSMCTrayState                _HalReadSMCTrayState@8             stdcall      
+  10  DbgPrompt                          _DbgPrompt@12                      stdcall      
+  11  DbgUnLoadImageSymbols              _DbgUnLoadImageSymbols@12          stdcall      
+  12  ExAcquireReadWriteLockExclusive    _ExAcquireReadWriteLockExclusive@4 stdcall      
+  13  ExAcquireReadWriteLockShared       _ExAcquireReadWriteLockShared@4    stdcall      
+  14  ExAllocatePool                     _ExAllocatePool@4                  stdcall      
+  15  ExAllocatePoolWithTag              _ExAllocatePoolWithTag@8           stdcall      
+  16  ExEventObjectType                  _ExEventObjectType                 data         data
+  17  ExFreePool                         _ExFreePool@4                      stdcall      
+  18  ExInitializeReadWriteLock          _ExInitializeReadWriteLock@4       stdcall      
+  19  ExInterlockedAddLargeInteger       _ExInterlockedAddLargeInteger@16   stdcall      
+  20  ExInterlockedAddLargeStatistic     @ExInterlockedAddLargeStatistic@8  fastcall     
+  21  ExInterlockedCompareExchange64     @ExInterlockedCompareExchange64@12 fastcall     
+  22  ExMutantObjectType                 _ExMutantObjectType                data         data
+  23  ExQueryPoolBlockSize               _ExQueryPoolBlockSize@4            stdcall      
+  24  ExQueryNonVolatileSetting          _ExQueryNonVolatileSetting@20      stdcall      
+  25  ExReadWriteRefurbInfo              _ExReadWriteRefurbInfo@12          stdcall      
+  26  ExRaiseException                   _ExRaiseException@4                stdcall      
+  27  ExRaiseStatus                      _ExRaiseStatus@4                   stdcall      
+  28  ExReleaseReadWriteLock             _ExReleaseReadWriteLock@4          stdcall      
+  29  ExSaveNonVolatileSetting           _ExSaveNonVolatileSetting@16       stdcall      
+  30  ExSemaphoreObjectType              _ExSemaphoreObjectType             data         data
+  31  ExTimerObjectType                  _ExTimerObjectType                 data         data
+  32  ExfInterlockedInsertHeadList       @ExfInterlockedInsertHeadList@8    fastcall     
+  33  ExfInterlockedInsertTailList       @ExfInterlockedInsertTailList@8    fastcall     
+  34  ExfInterlockedRemoveHeadList       @ExfInterlockedRemoveHeadList@4    fastcall     
+  35  FscGetCacheSize                    _FscGetCacheSize@0                 stdcall      
+  36  FscInvalidateIdleBlocks            _FscInvalidateIdleBlocks@0         stdcall      
+  37  FscSetCacheSize                    _FscSetCacheSize@4                 stdcall      
+  38  HalClearSoftwareInterrupt          @HalClearSoftwareInterrupt@4       fastcall     
+  39  HalDisableSystemInterrupt          _HalDisableSystemInterrupt@4       stdcall      
+  40  HalDiskCachePartitionCount         _HalDiskCachePartitionCount        data         data
+  41  HalDiskModelNumber                 _HalDiskModelNumber                data         data
+  42  HalDiskSerialNumber                _HalDiskSerialNumber               data         data
+  43  HalEnableSystemInterrupt           _HalEnableSystemInterrupt@8        stdcall      
+  44  HalGetInterruptVector              _HalGetInterruptVector@8           stdcall      
+  45  HalReadSMBusValue                  _HalReadSMBusValue@16              stdcall      
+  46  HalReadWritePCISpace               _HalReadWritePCISpace@24           stdcall      
+  47  HalRegisterShutdownNotification    _HalRegisterShutdownNotification@8 stdcall      
+  48  HalRequestSoftwareInterrupt        @HalRequestSoftwareInterrupt@4     fastcall     
+  49  HalReturnToFirmware                _HalReturnToFirmware@4             stdcall      
+  50  HalWriteSMBusValue                 _HalWriteSMBusValue@16             stdcall      
+  51  InterlockedCompareExchange         @InterlockedCompareExchange@12     fastcall     
+  52  InterlockedDecrement               @InterlockedDecrement@4            fastcall     
+  53  InterlockedIncrement               @InterlockedIncrement@4            fastcall     
+  54  InterlockedExchange                @InterlockedExchange@8             fastcall     
+  55  InterlockedExchangeAdd             @InterlockedExchangeAdd@8          fastcall     
+  56  InterlockedFlushSList              @InterlockedFlushSList@4           fastcall     
+  57  InterlockedPopEntrySList           @InterlockedPopEntrySList@4        fastcall     
+  58  InterlockedPushEntrySList          @InterlockedPushEntrySList@8       fastcall     
+  59  IoAllocateIrp                      _IoAllocateIrp@4                   stdcall      
+  60  IoBuildAsynchronousFsdRequest      _IoBuildAsynchronousFsdRequest@24  stdcall      
+  61  IoBuildDeviceIoControlRequest      _IoBuildDeviceIoControlRequest@36  stdcall      
+  62  IoBuildSynchronousFsdRequest       _IoBuildSynchronousFsdRequest@28   stdcall      
+  63  IoCheckShareAccess                 _IoCheckShareAccess@20             stdcall      
+  64  IoCompletionObjectType             _IoCompletionObjectType            data         data
+  65  IoCreateDevice                     _IoCreateDevice@24                 stdcall      
+  66  IoCreateFile                       _IoCreateFile@40                   stdcall      
+  67  IoCreateSymbolicLink               _IoCreateSymbolicLink@8            stdcall      
+  68  IoDeleteDevice                     _IoDeleteDevice@4                  stdcall      
+  69  IoDeleteSymbolicLink               _IoDeleteSymbolicLink@4            stdcall      
+  70  IoDeviceObjectType                 _IoDeviceObjectType                data         data
+  71  IoFileObjectType                   _IoFileObjectType                  data         data
+  72  IoFreeIrp                          _IoFreeIrp@4                       stdcall      
+  73  IoInitializeIrp                    _IoInitializeIrp@12                stdcall      
+  74  IoInvalidDeviceRequest             _IoInvalidDeviceRequest@8          stdcall      
+  75  IoQueryFileInformation             _IoQueryFileInformation@20         stdcall      
+  76  IoQueryVolumeInformation           _IoQueryVolumeInformation@20       stdcall      
+  77  IoQueueThreadIrp                   _IoQueueThreadIrp@4                stdcall      
+  78  IoRemoveShareAccess                _IoRemoveShareAccess@8             stdcall      
+  79  IoSetIoCompletion                  _IoSetIoCompletion@20              stdcall      
+  80  IoSetShareAccess                   _IoSetShareAccess@16               stdcall      
+  81  IoStartNextPacket                  _IoStartNextPacket@4               stdcall      
+  82  IoStartNextPacketByKey             _IoStartNextPacketByKey@8          stdcall      
+  83  IoStartPacket                      _IoStartPacket@12                  stdcall      
+  84  IoSynchronousDeviceIoControlRequest _IoSynchronousDeviceIoControlRequest@32 stdcall      
+  85  IoSynchronousFsdRequest            _IoSynchronousFsdRequest@20        stdcall      
+  86  IofCallDriver                      @IofCallDriver@8                   fastcall     
+  87  IofCompleteRequest                 @IofCompleteRequest@8              fastcall     
+  88  KdDebuggerEnabled                  _KdDebuggerEnabled                 data         data
+  89  KdDebuggerNotPresent               _KdDebuggerNotPresent              data         data
+  90  IoDismountVolume                   _IoDismountVolume@4                stdcall      
+  91  IoDismountVolumeByName             _IoDismountVolumeByName@4          stdcall      
+  92  KeAlertResumeThread                _KeAlertResumeThread@4             stdcall      
+  93  KeAlertThread                      _KeAlertThread@8                   stdcall      
+  94  KeBoostPriorityThread              _KeBoostPriorityThread@8           stdcall      
+  95  KeBugCheck                         _KeBugCheck@4                      stdcall      
+  96  KeBugCheckEx                       _KeBugCheckEx@20                   stdcall      
+  97  KeCancelTimer                      _KeCancelTimer@4                   stdcall      
+  98  KeConnectInterrupt                 _KeConnectInterrupt@4              stdcall      
+  99  KeDelayExecutionThread             _KeDelayExecutionThread@12         stdcall      
+ 100  KeDisconnectInterrupt              _KeDisconnectInterrupt@4           stdcall      
+ 101  KeEnterCriticalRegion              _KeEnterCriticalRegion@0           stdcall      
+ 102  MmGlobalData                       _MmGlobalData                      data         data
+ 103  KeGetCurrentIrql                   _KeGetCurrentIrql@0                stdcall      
+ 104  KeGetCurrentThread                 _KeGetCurrentThread@0              stdcall      
+ 105  KeInitializeApc                    _KeInitializeApc@28                stdcall      
+ 106  KeInitializeDeviceQueue            _KeInitializeDeviceQueue@4         stdcall      
+ 107  KeInitializeDpc                    _KeInitializeDpc@12                stdcall      
+ 108  KeInitializeEvent                  _KeInitializeEvent@12              stdcall      
+ 109  KeInitializeInterrupt              _KeInitializeInterrupt@28          stdcall      
+ 110  KeInitializeMutant                 _KeInitializeMutant@8              stdcall      
+ 111  KeInitializeQueue                  _KeInitializeQueue@8               stdcall      
+ 112  KeInitializeSemaphore              _KeInitializeSemaphore@12          stdcall      
+ 113  KeInitializeTimerEx                _KeInitializeTimerEx@8             stdcall      
+ 114  KeInsertByKeyDeviceQueue           _KeInsertByKeyDeviceQueue@12       stdcall      
+ 115  KeInsertDeviceQueue                _KeInsertDeviceQueue@8             stdcall      
+ 116  KeInsertHeadQueue                  _KeInsertHeadQueue@8               stdcall      
+ 117  KeInsertQueue                      _KeInsertQueue@8                   stdcall      
+ 118  KeInsertQueueApc                   _KeInsertQueueApc@16               stdcall      
+ 119  KeInsertQueueDpc                   _KeInsertQueueDpc@12               stdcall      
+ 120  KeInterruptTime                    _KeInterruptTime                   data         data
+ 121  KeIsExecutingDpc                   _KeIsExecutingDpc@0                stdcall      
+ 122  KeLeaveCriticalRegion              _KeLeaveCriticalRegion@0           stdcall      
+ 123  KePulseEvent                       _KePulseEvent@12                   stdcall      
+ 124  KeQueryBasePriorityThread          _KeQueryBasePriorityThread@4       stdcall      
+ 125  KeQueryInterruptTime               _KeQueryInterruptTime@0            stdcall      
+ 126  KeQueryPerformanceCounter          _KeQueryPerformanceCounter@0       stdcall      
+ 127  KeQueryPerformanceFrequency        _KeQueryPerformanceFrequency@0     stdcall      
+ 128  KeQuerySystemTime                  _KeQuerySystemTime@4               stdcall      
+ 129  KeRaiseIrqlToDpcLevel              _KeRaiseIrqlToDpcLevel@0           stdcall      
+ 130  KeRaiseIrqlToSynchLevel            _KeRaiseIrqlToSynchLevel@0         stdcall      
+ 131  KeReleaseMutant                    _KeReleaseMutant@16                stdcall      
+ 132  KeReleaseSemaphore                 _KeReleaseSemaphore@16             stdcall      
+ 133  KeRemoveByKeyDeviceQueue           _KeRemoveByKeyDeviceQueue@8        stdcall      
+ 134  KeRemoveDeviceQueue                _KeRemoveDeviceQueue@4             stdcall      
+ 135  KeRemoveEntryDeviceQueue           _KeRemoveEntryDeviceQueue@8        stdcall      
+ 136  KeRemoveQueue                      _KeRemoveQueue@12                  stdcall      
+ 137  KeRemoveQueueDpc                   _KeRemoveQueueDpc@4                stdcall      
+ 138  KeResetEvent                       _KeResetEvent@4                    stdcall      
+ 139  KeRestoreFloatingPointState        _KeRestoreFloatingPointState@4     stdcall      
+ 140  KeResumeThread                     _KeResumeThread@4                  stdcall      
+ 141  KeRundownQueue                     _KeRundownQueue@4                  stdcall      
+ 142  KeSaveFloatingPointState           _KeSaveFloatingPointState@4        stdcall      
+ 143  KeSetBasePriorityThread            _KeSetBasePriorityThread@8         stdcall      
+ 144  KeSetDisableBoostThread            _KeSetDisableBoostThread@8         stdcall      
+ 145  KeSetEvent                         _KeSetEvent@12                     stdcall      
+ 146  KeSetEventBoostPriority            _KeSetEventBoostPriority@8         stdcall      
+ 147  KeSetPriorityProcess               _KeSetPriorityProcess@8            stdcall      
+ 148  KeSetPriorityThread                _KeSetPriorityThread@8             stdcall      
+ 149  KeSetTimer                         _KeSetTimer@16                     stdcall      
+ 150  KeSetTimerEx                       _KeSetTimerEx@20                   stdcall      
+ 151  KeStallExecutionProcessor          _KeStallExecutionProcessor@4       stdcall      
+ 152  KeSuspendThread                    _KeSuspendThread@4                 stdcall      
+ 153  KeSynchronizeExecution             _KeSynchronizeExecution@12         stdcall      
+ 154  KeSystemTime                       _KeSystemTime                      data         data
+ 155  KeTestAlertThread                  _KeTestAlertThread@4               stdcall      
+ 156  KeTickCount                        _KeTickCount                       data         data
+ 157  KeTimeIncrement                    _KeTimeIncrement                   data         data
+ 158  KeWaitForMultipleObjects           _KeWaitForMultipleObjects@32       stdcall      
+ 159  KeWaitForSingleObject              _KeWaitForSingleObject@20          stdcall      
+ 160  KfRaiseIrql                        @KfRaiseIrql@4                     fastcall     
+ 161  KfLowerIrql                        @KfLowerIrql@4                     fastcall     
+ 162  KiBugCheckData                     _KiBugCheckData                    data         data
+ 163  KiUnlockDispatcherDatabase         @KiUnlockDispatcherDatabase@4      fastcall     
+ 164  LaunchDataPage                     _LaunchDataPage                    data         data
+ 165  MmAllocateContiguousMemory         _MmAllocateContiguousMemory@4      stdcall      
+ 166  MmAllocateContiguousMemoryEx       _MmAllocateContiguousMemoryEx@20   stdcall      
+ 167  MmAllocateSystemMemory             _MmAllocateSystemMemory@8          stdcall      
+ 168  MmClaimGpuInstanceMemory           _MmClaimGpuInstanceMemory@8        stdcall      
+ 169  MmCreateKernelStack                _MmCreateKernelStack@8             stdcall      
+ 170  MmDeleteKernelStack                _MmDeleteKernelStack@8             stdcall      
+ 171  MmFreeContiguousMemory             _MmFreeContiguousMemory@4          stdcall      
+ 172  MmFreeSystemMemory                 _MmFreeSystemMemory@8              stdcall      
+ 173  MmGetPhysicalAddress               _MmGetPhysicalAddress@4            stdcall      
+ 174  MmIsAddressValid                   _MmIsAddressValid@4                stdcall      
+ 175  MmLockUnlockBufferPages            _MmLockUnlockBufferPages@12        stdcall      
+ 176  MmLockUnlockPhysicalPage           _MmLockUnlockPhysicalPage@8        stdcall      
+ 177  MmMapIoSpace                       _MmMapIoSpace@12                   stdcall      
+ 178  MmPersistContiguousMemory          _MmPersistContiguousMemory@12      stdcall      
+ 179  MmQueryAddressProtect              _MmQueryAddressProtect@4           stdcall      
+ 180  MmQueryAllocationSize              _MmQueryAllocationSize@4           stdcall      
+ 181  MmQueryStatistics                  _MmQueryStatistics@4               stdcall      
+ 182  MmSetAddressProtect                _MmSetAddressProtect@12            stdcall      
+ 183  MmUnmapIoSpace                     _MmUnmapIoSpace@8                  stdcall      
+ 184  NtAllocateVirtualMemory            _NtAllocateVirtualMemory@20        stdcall      
+ 185  NtCancelTimer                      _NtCancelTimer@8                   stdcall      
+ 186  NtClearEvent                       _NtClearEvent@4                    stdcall      
+ 187  NtClose                            _NtClose@4                         stdcall      
+ 188  NtCreateDirectoryObject            _NtCreateDirectoryObject@8         stdcall      
+ 189  NtCreateEvent                      _NtCreateEvent@16                  stdcall      
+ 190  NtCreateFile                       _NtCreateFile@36                   stdcall      
+ 191  NtCreateIoCompletion               _NtCreateIoCompletion@16           stdcall      
+ 192  NtCreateMutant                     _NtCreateMutant@12                 stdcall      
+ 193  NtCreateSemaphore                  _NtCreateSemaphore@16              stdcall      
+ 194  NtCreateTimer                      _NtCreateTimer@12                  stdcall      
+ 195  NtDeleteFile                       _NtDeleteFile@4                    stdcall      
+ 196  NtDeviceIoControlFile              _NtDeviceIoControlFile@40          stdcall      
+ 197  NtDuplicateObject                  _NtDuplicateObject@12              stdcall      
+ 198  NtFlushBuffersFile                 _NtFlushBuffersFile@8              stdcall      
+ 199  NtFreeVirtualMemory                _NtFreeVirtualMemory@12            stdcall      
+ 200  NtFsControlFile                    _NtFsControlFile@40                stdcall      
+ 201  NtOpenDirectoryObject              _NtOpenDirectoryObject@8           stdcall      
+ 202  NtOpenFile                         _NtOpenFile@24                     stdcall      
+ 203  NtOpenSymbolicLinkObject           _NtOpenSymbolicLinkObject@8        stdcall      
+ 204  NtProtectVirtualMemory             _NtProtectVirtualMemory@16         stdcall      
+ 205  NtPulseEvent                       _NtPulseEvent@8                    stdcall      
+ 206  NtQueueApcThread                   _NtQueueApcThread@20               stdcall      
+ 207  NtQueryDirectoryFile               _NtQueryDirectoryFile@40           stdcall      
+ 208  NtQueryDirectoryObject             _NtQueryDirectoryObject@24         stdcall      
+ 209  NtQueryEvent                       _NtQueryEvent@8                    stdcall      
+ 210  NtQueryFullAttributesFile          _NtQueryFullAttributesFile@8       stdcall      
+ 211  NtQueryInformationFile             _NtQueryInformationFile@20         stdcall      
+ 212  NtQueryIoCompletion                _NtQueryIoCompletion@8             stdcall      
+ 213  NtQueryMutant                      _NtQueryMutant@8                   stdcall      
+ 214  NtQuerySemaphore                   _NtQuerySemaphore@8                stdcall      
+ 215  NtQuerySymbolicLinkObject          _NtQuerySymbolicLinkObject@12      stdcall      
+ 216  NtQueryTimer                       _NtQueryTimer@8                    stdcall      
+ 217  NtQueryVirtualMemory               _NtQueryVirtualMemory@8            stdcall      
+ 218  NtQueryVolumeInformationFile       _NtQueryVolumeInformationFile@20   stdcall      
+ 219  NtReadFile                         _NtReadFile@32                     stdcall      
+ 220  NtReadFileScatter                  _NtReadFileScatter@32              stdcall      
+ 221  NtReleaseMutant                    _NtReleaseMutant@8                 stdcall      
+ 222  NtReleaseSemaphore                 _NtReleaseSemaphore@12             stdcall      
+ 223  NtRemoveIoCompletion               _NtRemoveIoCompletion@20           stdcall      
+ 224  NtResumeThread                     _NtResumeThread@8                  stdcall      
+ 225  NtSetEvent                         _NtSetEvent@8                      stdcall      
+ 226  NtSetInformationFile               _NtSetInformationFile@20           stdcall      
+ 227  NtSetIoCompletion                  _NtSetIoCompletion@20              stdcall      
+ 228  NtSetSystemTime                    _NtSetSystemTime@8                 stdcall      
+ 229  NtSetTimerEx                       _NtSetTimerEx@32                   stdcall      
+ 230  NtSignalAndWaitForSingleObjectEx   _NtSignalAndWaitForSingleObjectEx@20 stdcall      
+ 231  NtSuspendThread                    _NtSuspendThread@8                 stdcall      
+ 232  NtUserIoApcDispatcher              _NtUserIoApcDispatcher@12          stdcall      
+ 233  NtWaitForSingleObject              _NtWaitForSingleObject@12          stdcall      
+ 234  NtWaitForSingleObjectEx            _NtWaitForSingleObjectEx@16        stdcall      
+ 235  NtWaitForMultipleObjectsEx         _NtWaitForMultipleObjectsEx@24     stdcall      
+ 236  NtWriteFile                        _NtWriteFile@32                    stdcall      
+ 237  NtWriteFileGather                  _NtWriteFileGather@32              stdcall      
+ 238  NtYieldExecution                   _NtYieldExecution@0                stdcall      
+ 239  ObCreateObject                     _ObCreateObject@16                 stdcall      
+ 240  ObDirectoryObjectType              _ObDirectoryObjectType             data         data
+ 241  ObInsertObject                     _ObInsertObject@16                 stdcall      
+ 242  ObMakeTemporaryObject              _ObMakeTemporaryObject@4           stdcall      
+ 243  ObOpenObjectByName                 _ObOpenObjectByName@16             stdcall      
+ 244  ObOpenObjectByPointer              _ObOpenObjectByPointer@12          stdcall      
+ 245  ObpObjectHandleTable               _ObpObjectHandleTable              data         data
+ 246  ObReferenceObjectByHandle          _ObReferenceObjectByHandle@12      stdcall      
+ 247  ObReferenceObjectByName            _ObReferenceObjectByName@20        stdcall      
+ 248  ObReferenceObjectByPointer         _ObReferenceObjectByPointer@8      stdcall      
+ 249  ObSymbolicLinkObjectType           _ObSymbolicLinkObjectType          data         data
+ 250  ObfDereferenceObject               @ObfDereferenceObject@4            fastcall     
+ 251  ObfReferenceObject                 @ObfReferenceObject@4              fastcall     
+ 252  PhyGetLinkState                    _PhyGetLinkState@4                 stdcall      
+ 253  PhyInitialize                      _PhyInitialize@8                   stdcall      
+ 254  PsCreateSystemThread               _PsCreateSystemThread@20           stdcall      
+ 255  PsCreateSystemThreadEx             _PsCreateSystemThreadEx@40         stdcall      
+ 256  PsQueryStatistics                  _PsQueryStatistics@4               stdcall      
+ 257  PsSetCreateThreadNotifyRoutine     _PsSetCreateThreadNotifyRoutine@4  stdcall      
+ 258  PsTerminateSystemThread            _PsTerminateSystemThread@4         stdcall      
+ 259  PsThreadObjectType                 _PsThreadObjectType                data         data
+ 260  RtlAnsiStringToUnicodeString       _RtlAnsiStringToUnicodeString@12   stdcall      
+ 261  RtlAppendStringToString            _RtlAppendStringToString@8         stdcall      
+ 262  RtlAppendUnicodeStringToString     _RtlAppendUnicodeStringToString@8  stdcall      
+ 263  RtlAppendUnicodeToString           _RtlAppendUnicodeToString@8        stdcall      
+ 264  RtlAssert                          _RtlAssert@16                      stdcall      
+ 265  RtlCaptureContext                  _RtlCaptureContext@4               stdcall      
+ 266  RtlCaptureStackBackTrace           _RtlCaptureStackBackTrace@16       stdcall      
+ 267  RtlCharToInteger                   _RtlCharToInteger@12               stdcall      
+ 268  RtlCompareMemory                   _RtlCompareMemory@12               stdcall      
+ 269  RtlCompareMemoryUlong              _RtlCompareMemoryUlong@12          stdcall      
+ 270  RtlCompareString                   _RtlCompareString@12               stdcall      
+ 271  RtlCompareUnicodeString            _RtlCompareUnicodeString@12        stdcall      
+ 272  RtlCopyString                      _RtlCopyString@8                   stdcall      
+ 273  RtlCopyUnicodeString               _RtlCopyUnicodeString@8            stdcall      
+ 274  RtlCreateUnicodeString             _RtlCreateUnicodeString@8          stdcall      
+ 275  RtlDowncaseUnicodeChar             _RtlDowncaseUnicodeChar@4          stdcall      
+ 276  RtlDowncaseUnicodeString           _RtlDowncaseUnicodeString@12       stdcall      
+ 277  RtlEnterCriticalSection            _RtlEnterCriticalSection@4         stdcall      
+ 278  RtlEnterCriticalSectionAndRegion   _RtlEnterCriticalSectionAndRegion@4 stdcall      
+ 279  RtlEqualString                     _RtlEqualString@12                 stdcall      
+ 280  RtlEqualUnicodeString              _RtlEqualUnicodeString@12          stdcall      
+ 281  RtlExtendedIntegerMultiply         _RtlExtendedIntegerMultiply@12     stdcall      
+ 282  RtlExtendedLargeIntegerDivide      _RtlExtendedLargeIntegerDivide@16  stdcall      
+ 283  RtlExtendedMagicDivide             _RtlExtendedMagicDivide@20         stdcall      
+ 284  RtlFillMemory                      _RtlFillMemory@12                  stdcall      
+ 285  RtlFillMemoryUlong                 _RtlFillMemoryUlong@12             stdcall      
+ 286  RtlFreeAnsiString                  _RtlFreeAnsiString@4               stdcall      
+ 287  RtlFreeUnicodeString               _RtlFreeUnicodeString@4            stdcall      
+ 288  RtlGetCallersAddress               _RtlGetCallersAddress@8            stdcall      
+ 289  RtlInitAnsiString                  _RtlInitAnsiString@8               stdcall      
+ 290  RtlInitUnicodeString               _RtlInitUnicodeString@8            stdcall      
+ 291  RtlInitializeCriticalSection       _RtlInitializeCriticalSection@4    stdcall      
+ 292  RtlIntegerToChar                   _RtlIntegerToChar@16               stdcall      
+ 293  RtlIntegerToUnicodeString          _RtlIntegerToUnicodeString@12      stdcall      
+ 294  RtlLeaveCriticalSection            _RtlLeaveCriticalSection@4         stdcall      
+ 295  RtlLeaveCriticalSectionAndRegion   _RtlLeaveCriticalSectionAndRegion@4 stdcall      
+ 296  RtlLowerChar                       _RtlLowerChar@4                    stdcall      
+ 297  RtlMapGenericMask                  _RtlMapGenericMask@8               stdcall      
+ 298  RtlMoveMemory                      _RtlMoveMemory@12                  stdcall      
+ 299  RtlMultiByteToUnicodeN             _RtlMultiByteToUnicodeN@20         stdcall      
+ 300  RtlMultiByteToUnicodeSize          _RtlMultiByteToUnicodeSize@12      stdcall      
+ 301  RtlNtStatusToDosError              _RtlNtStatusToDosError@4           stdcall      
+ 302  RtlRaiseException                  _RtlRaiseException@4               stdcall      
+ 303  RtlRaiseStatus                     _RtlRaiseStatus@4                  stdcall      
+ 304  RtlTimeFieldsToTime                _RtlTimeFieldsToTime@8             stdcall      
+ 305  RtlTimeToTimeFields                _RtlTimeToTimeFields@8             stdcall      
+ 306  RtlTryEnterCriticalSection         _RtlTryEnterCriticalSection@4      stdcall      
+ 307  RtlUlongByteSwap                   @RtlUlongByteSwap@4                fastcall     
+ 308  RtlUnicodeStringToAnsiString       _RtlUnicodeStringToAnsiString@12   stdcall      
+ 309  RtlUnicodeStringToInteger          _RtlUnicodeStringToInteger@12      stdcall      
+ 310  RtlUnicodeToMultiByteN             _RtlUnicodeToMultiByteN@20         stdcall      
+ 311  RtlUnicodeToMultiByteSize          _RtlUnicodeToMultiByteSize@12      stdcall      
+ 312  RtlUnwind                          _RtlUnwind@16                      stdcall      
+ 313  RtlUpcaseUnicodeChar               _RtlUpcaseUnicodeChar@4            stdcall      
+ 314  RtlUpcaseUnicodeString             _RtlUpcaseUnicodeString@12         stdcall      
+ 315  RtlUpcaseUnicodeToMultiByteN       _RtlUpcaseUnicodeToMultiByteN@20   stdcall      
+ 316  RtlUpperChar                       _RtlUpperChar@4                    stdcall      
+ 317  RtlUpperString                     _RtlUpperString@8                  stdcall      
+ 318  RtlUshortByteSwap                  @RtlUshortByteSwap@4               fastcall     
+ 319  RtlWalkFrameChain                  _RtlWalkFrameChain@12              stdcall      
+ 320  RtlZeroMemory                      _RtlZeroMemory@8                   stdcall      
+ 321  XboxEEPROMKey                      _XboxEEPROMKey                     data         data
+ 322  XboxHardwareInfo                   _XboxHardwareInfo                  data         data
+ 323  XboxHDKey                          _XboxHDKey                         data         data
+ 324  XboxKrnlVersion                    _XboxKrnlVersion                   data         data
+ 325  XboxSignatureKey                   _XboxSignatureKey                  data         data
+ 326  XeImageFileName                    _XeImageFileName                   data         data
+ 327  XeLoadSection                      _XeLoadSection@4                   stdcall      
+ 328  XeUnloadSection                    _XeUnloadSection@4                 stdcall      
+ 329  READ_PORT_BUFFER_UCHAR             _READ_PORT_BUFFER_UCHAR@12         stdcall      
+ 330  READ_PORT_BUFFER_USHORT            _READ_PORT_BUFFER_USHORT@12        stdcall      
+ 331  READ_PORT_BUFFER_ULONG             _READ_PORT_BUFFER_ULONG@12         stdcall      
+ 332  WRITE_PORT_BUFFER_UCHAR            _WRITE_PORT_BUFFER_UCHAR@12        stdcall      
+ 333  WRITE_PORT_BUFFER_USHORT           _WRITE_PORT_BUFFER_USHORT@12       stdcall      
+ 334  WRITE_PORT_BUFFER_ULONG            _WRITE_PORT_BUFFER_ULONG@12        stdcall      
+ 335  XcSHAInit                          _XcSHAInit@4                       stdcall      
+ 336  XcSHAUpdate                        _XcSHAUpdate@12                    stdcall      
+ 337  XcSHAFinal                         _XcSHAFinal@8                      stdcall      
+ 338  XcRC4Key                           _XcRC4Key@12                       stdcall      
+ 339  XcRC4Crypt                         _XcRC4Crypt@12                     stdcall      
+ 340  XcHMAC                             _XcHMAC@28                         stdcall      
+ 341  XcPKEncPublic                      _XcPKEncPublic@12                  stdcall      
+ 342  XcPKDecPrivate                     _XcPKDecPrivate@12                 stdcall      
+ 343  XcPKGetKeyLen                      _XcPKGetKeyLen@4                   stdcall      
+ 344  XcVerifyPKCS1Signature             _XcVerifyPKCS1Signature@12         stdcall      
+ 345  XcModExp                           _XcModExp@20                       stdcall      
+ 346  XcDESKeyParity                     _XcDESKeyParity@8                  stdcall      
+ 347  XcKeyTable                         _XcKeyTable@12                     stdcall      
+ 348  XcBlockCrypt                       _XcBlockCrypt@20                   stdcall      
+ 349  XcBlockCryptCBC                    _XcBlockCryptCBC@28                stdcall      
+ 350  XcCryptService                     _XcCryptService@8                  stdcall      
+ 351  XcUpdateCrypto                     _XcUpdateCrypto@8                  stdcall      
+ 352  RtlRip                             _RtlRip@12                         stdcall      
+ 353  XboxLANKey                         _XboxLANKey                        data         data
+ 354  XboxAlternateSignatureKeys         _XboxAlternateSignatureKeys        data         data
+ 355  XePublicKeyData                    _XePublicKeyData                   data         data
+ 356  HalBootSMCVideoMode                _HalBootSMCVideoMode               data         data
+ 357  IdexChannelObject                  _IdexChannelObject                 data         data
+ 358  HalIsResetOrShutdownPending        _HalIsResetOrShutdownPending@0     stdcall      
+ 359  IoMarkIrpMustComplete              _IoMarkIrpMustComplete@4           stdcall      
+ 360  HalInitiateShutdown                _HalInitiateShutdown@0             stdcall      
+ 361  RtlSnprintf                        __snprintf                         cdecl-alias  alias
+ 362  RtlSprintf                         _sprintf                           cdecl-alias  alias
+ 363  RtlVsnprintf                       __vsnprintf                        cdecl-alias  alias
+ 364  RtlVsprintf                        _vsprintf                          cdecl-alias  alias
+ 365  HalEnableSecureTrayEject           _HalEnableSecureTrayEject@0        stdcall      
+ 366  HalWriteSMCScratchRegister         _HalWriteSMCScratchRegister@4      stdcall      
+ 374  MmDbgAllocateMemory                _MmDbgAllocateMemory@8             stdcall      
+ 375  MmDbgFreeMemory                    _MmDbgFreeMemory@8                 stdcall      
+ 376  MmDbgQueryAvailablePages           _MmDbgQueryAvailablePages@0        stdcall      
+ 377  MmDbgReleaseAddress                _MmDbgReleaseAddress@8             stdcall      
+ 378  MmDbgWriteCheck                    _MmDbgWriteCheck@8                 stdcall      

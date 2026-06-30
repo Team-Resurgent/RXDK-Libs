@@ -12,6 +12,7 @@ const libxgraphics_pkg = @import("libs/libxgraphics/build.zig");
 const libdsound_pkg = @import("libs/libdsound/build.zig");
 const libxnet_pkg = @import("libs/libxnet/build.zig");
 const libxmv_pkg = @import("libs/libxmv/build.zig");
+const libkernel_pkg = @import("libs/libkernel/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -206,7 +207,17 @@ pub fn build(b: *std.Build) void {
     const xapi_slices_step = b.step("xapi-slices", "Compile all libxapi source slices to objects");
     xapi_slices_step.dependOn(xapi_objs.step);
 
-    const krnl = b.path("prebuilt/xboxkrnl.lib");
+    // libkernel: the Xbox kernel import library, generated from the checked-in
+    // decorated .def (libs/libkernel/xboxkrnl.def) via `zig lib`. Replaces the
+    // opaque prebuilt/xboxkrnl.lib (symbol-identical import surface).
+    const libkernel = libkernel_pkg.add(b, &.{&mkdir_lib.step});
+    const install_libkernel = b.addInstallFile(libkernel.path, "lib/libkernel.lib");
+    install_libkernel.step.dependOn(libkernel.step);
+    b.getInstallStep().dependOn(&install_libkernel.step);
+    const libkernel_step = b.step("libkernel", "Build libkernel.lib (Xbox kernel import library)");
+    libkernel_step.dependOn(&install_libkernel.step);
+
+    const krnl = libkernel.path;
 
     var sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
@@ -275,7 +286,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_smoke_step = b.step("xapi-smoke", "Build xAPI category smoke tests (27 tests, kit hardware)");
     xapi_smoke_step.dependOn(xapi_smoke.install);
@@ -310,7 +321,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_input_step = b.step("xapi-input", "Build xAPI input device monitor (controller/mouse/IR/keyboard)");
     xapi_input_step.dependOn(xapi_input.install);
@@ -350,7 +361,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, picolibc_objs.step, xbox_objs.step },
     });
     const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
     d3d8_tri_step.dependOn(d3d8_tri.install);
@@ -401,7 +412,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, &install_libxgraphics.step, opnew_batch.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, &install_libxgraphics.step, opnew_batch.step, picolibc_objs.step, xbox_objs.step },
     });
     const d3d8_tex_step = b.step("d3d8-textures", "Build the D3D8 texture-grid sample");
     d3d8_tex_step.dependOn(d3d8_tex.install);
@@ -427,7 +438,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libxmv.step, &install_libd3d8.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libxmv.step, &install_libd3d8.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
     });
     const xmv_sample_step = b.step("xmv-play", "Build the XMV video-playback sample");
     xmv_sample_step.dependOn(xmv_sample.install);
@@ -466,7 +477,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
     });
     const dsmusic_step = b.step("dsound-music", "Build the DirectSound OGG-music sample");
     dsmusic_step.dependOn(dsmusic.install);
@@ -507,7 +518,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "xapi_smoke_boot_entry",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libxapi.step, &install_libxnet.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libxnet.step, picolibc_objs.step, xbox_objs.step },
     });
     const xnet_sample_step = b.step("xnet-net", "Build the XNet network bring-up sample");
     xnet_sample_step.dependOn(xnet_sample.install);
@@ -536,7 +547,7 @@ pub fn build(b: *std.Build) void {
         .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("shared/picolibc/include") },
         .entry = "start",
         .bootstrap = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, picolibc_objs.step, xbox_objs.step },
     });
     const libc_smoke_step = b.step("libc-smoke", "Build libc / C23 runtime smoke (kit ISO)");
     libc_smoke_step.dependOn(libc_smoke.install);
@@ -561,7 +572,7 @@ pub fn build(b: *std.Build) void {
         .entry = "start",
         .bootstrap = true,
         .eh_frame_bracket = true,
-        .deps = &.{ verify, &mkdir_samples.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step, libunwind_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step, libunwind_objs.step },
     });
     const libcpp_smoke_step = b.step("libcpp-smoke", "Build libc++ / C++23 runtime smoke (kit ISO)");
     libcpp_smoke_step.dependOn(libcpp_smoke.install);

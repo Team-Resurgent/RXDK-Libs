@@ -91,9 +91,10 @@ void XapiInitAutoPowerDown(void);
 
 #define CCHMAX_HEX_DWORD 9
 
-NTSTATUS MU_CreateDeviceObject(IN ULONG Port, IN ULONG Slot, IN POBJECT_STRING DeviceName);
-VOID MU_CloseDeviceObject(IN ULONG Port, IN ULONG Slot);
-PDEVICE_OBJECT MU_GetExistingDeviceObject(IN ULONG Port, IN ULONG Slot);
+// STDCALL: defined in the stdcall-default USB driver, called from the cdecl core.
+NTSTATUS STDCALL MU_CreateDeviceObject(IN ULONG Port, IN ULONG Slot, IN POBJECT_STRING DeviceName);
+VOID STDCALL MU_CloseDeviceObject(IN ULONG Port, IN ULONG Slot);
+PDEVICE_OBJECT STDCALL MU_GetExistingDeviceObject(IN ULONG Port, IN ULONG Slot);
 
 #ifdef DBG
 extern ULONG MU_MaxUserDevices;

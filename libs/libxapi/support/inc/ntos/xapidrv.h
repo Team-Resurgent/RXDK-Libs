@@ -33,8 +33,11 @@ extern "C" {
 //---------------------------------------------------------------------------------------------------------------
 //  XAPI Driver APIS for reporting USB devices
 //---------------------------------------------------------------------------------------------------------------
+// STDCALL: defined cdecl-default in the k32 core (xpp.c) but called from the
+// stdcall-default USB driver (usbd/tree.cpp); pin so both agree (else _Xd...@12
+// vs _Xd... fuzzy-resolves with a stack imbalance).
 XAPIDRVAPI
-VOID XdReportDeviceInsertionRemoval(
+VOID STDCALL XdReportDeviceInsertionRemoval(
     PXPP_DEVICE_TYPE XppDeviceType,
     ULONG PortBit,
     BOOLEAN fInserted

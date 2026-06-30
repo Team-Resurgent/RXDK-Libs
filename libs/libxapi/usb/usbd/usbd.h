@@ -536,4 +536,4 @@ USBD_DeviceEnumTimerProc(
 //------------------------------------------------
 //  Entry Point XAPI must call
 //------------------------------------------------
-EXTERNUSB VOID USBD_Init(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes);
+EXTERNUSB VOID STDCALL USBD_Init(DWORD NumDeviceTypes, PXDEVICE_PREALLOC_TYPE DeviceTypes);

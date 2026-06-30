@@ -98,7 +98,18 @@ pub fn addAllObjects(
         // Bridges are #included by each source file now, so the build passes no
         // per-slice -include or -D — only the base C/C++ flags differ by
         // language, plus uuid's distinct SDK include path.
-        const flags = if (slice.is_cpp) xapiCppFlags(b) else xapiCFlags(b);
+        const base_flags = if (slice.is_cpp) xapiCppFlags(b) else xapiCFlags(b);
+        // USB driver slices: -fdefault-calling-conv=stdcall (the /Gz the Xbox USB
+        // stack was built with) so bare vendor kernel decls bind direct to libkernel
+        // (no facades). cdecl_libc.h is prepended so it force-includes BEFORE
+        // picolibc.h, pinning libc to cdecl.
+        const flags = if (slice.stdcall) blk: {
+            const extra = [_][]const u8{
+                "-Xclang", "-fdefault-calling-conv=stdcall",
+                "-include", XAPI ++ "/site/cdecl_libc.h",
+            };
+            break :blk std.mem.concat(b.allocator, []const u8, &.{ &extra, base_flags }) catch @panic("OOM");
+        } else base_flags;
         const dirs = if (std.mem.eql(u8, slice.name, "uuid"))
             blk: {
                 const base = includeDirs();

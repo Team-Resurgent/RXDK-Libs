@@ -219,13 +219,13 @@ typedef void * POINTER_64 PVOID64;
 
 #if (_MSC_VER >= 1200) && defined(_M_IX86)
 #define FORCEINLINE static __forceinline
-#elif defined(RXDK_XNET_LINK) || defined(RXDK_DSOUND_LINK)
-/* RXDK (libxnet, libdsound): clang on x86-windows-gnu doesn't define _M_IX86, so
-   this fell through to plain __inline. Under C99 that emits no out-of-line copy
-   (libxnet: FORCEINLINE helpers like KeGetCurrentPrcb left undefined at link);
-   under -fdefault-calling-conv=stdcall it emits an EXTERNAL _Name@N copy that
-   collides with libkernel's import thunk (libdsound: _KeGetCurrentIrql@0). static
-   gives each TU its own internal copy -- no external symbol, no collision. */
+#elif defined(RXDK_XNET_LINK) || defined(RXDK_DSOUND_LINK) || defined(RXDK_USB_LINK)
+/* RXDK (libxnet, libdsound, libxapi USB): clang on x86-windows-gnu doesn't define
+   _M_IX86 the MSVC way, so this fell through to plain __inline. Under C99 that emits
+   no out-of-line copy (libxnet: FORCEINLINE helpers like KeGetCurrentPrcb left
+   undefined at link); under -fdefault-calling-conv=stdcall it emits an EXTERNAL
+   _Name@N copy that collides with libkernel's import thunk (_KeGetCurrentIrql@0).
+   static gives each TU its own internal copy -- no external symbol, no collision. */
 #define FORCEINLINE static __inline
 #else
 #define FORCEINLINE __inline
@@ -244,6 +244,20 @@ typedef void * POINTER_64 PVOID64;
 #else
 #define _cdecl
 #define NTAPI
+#endif
+
+// Explicit calling-convention vocabulary. Use these to spell out a convention that
+// must AGREE across cdecl-default and stdcall-default translation units -- e.g. a
+// function defined in the stdcall-default USB driver but called from the cdecl core
+// (USBD_Init, MU_*). STDCALL == NTAPI (__stdcall); named for clarity at the site.
+#ifndef STDCALL
+#define STDCALL NTAPI
+#endif
+#ifndef FASTCALL
+#define FASTCALL __attribute__((__fastcall__))
+#endif
+#ifndef CDECL
+#define CDECL __cdecl
 #endif
 
 //

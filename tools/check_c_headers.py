@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Compile-only C header availability check (stdtests manifest, RXDK include paths).
+"""Compile-only C header availability check (stdc header manifest, RXDK include paths).
 
-Host-side substitute for vendor/stdtests configure until autotools is wired on Windows.
+Manifest is tools/conformance_headers.txt (vendored from winspool/stdtests). Host-side
+substitute for an autotools configure on Windows.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = ROOT / "vendor" / "stdtests" / "template" / "c_header.txt"
+MANIFEST = ROOT / "tools" / "conformance_headers.txt"
 ZIG = "zig"
 
 INCLUDE_DIRS = [
@@ -94,7 +95,7 @@ def main() -> int:
 
     if not args.manifest.is_file():
         print(f"error: manifest not found: {args.manifest}", file=sys.stderr)
-        print("Run: git submodule update --init vendor/stdtests", file=sys.stderr)
+        print("Expected tools/conformance_headers.txt", file=sys.stderr)
         return 2
 
     headers = parse_manifest(args.manifest)

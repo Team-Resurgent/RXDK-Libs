@@ -1,6 +1,6 @@
 # C / libc conformance (kit + host)
 
-Runtime tests live in `samples/conformance/c/` and follow the header taxonomy from [winspool/stdtests](https://github.com/winspool/stdtests) (`vendor/stdtests/template/c_header.txt`).
+Host header checks follow the header taxonomy from [winspool/stdtests](https://github.com/winspool/stdtests), whose manifest is vendored at `tools/conformance_headers.txt` (the submodule was removed -- that 3KB file is all we used).
 
 ## Host — header availability
 
@@ -11,7 +11,7 @@ Compile-only check against RXDK include paths (no autotools required):
 python tools\check_c_headers.py --report zig-out\conformance\headers.tsv
 ```
 
-Uses `vendor/stdtests/template/c_header.txt` as the manifest. Skips headers not expected on kit yet (`threads.h`, `signal.h`, …).
+Uses `tools/conformance_headers.txt` as the manifest. Skips headers not expected on kit yet (`threads.h`, `signal.h`, …).
 
 ## Kit — runtime libc tests
 

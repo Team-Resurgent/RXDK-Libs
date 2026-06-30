@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Runtime conformance test bodies for RXDK kit libc/C23 probes.
 
-Header taxonomy follows vendor/stdtests/template/c_header.txt.
+Header taxonomy follows tools/conformance_headers.txt.
 Add a (group, name, body) tuple here; regenerate with generate_conformance_tests.py.
 Bodies must not #include headers (generator adds file-scope includes).
 """

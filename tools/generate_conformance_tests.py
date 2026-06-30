@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from conformance_recipes import CONFORMANCE_TESTS  # noqa: E402
 
 OUT = ROOT / "samples" / "libc-smoke" / "generated_tests.c"
-HEADER_MANIFEST = ROOT / "vendor" / "stdtests" / "template" / "c_header.txt"
+HEADER_MANIFEST = ROOT / "tools" / "conformance_headers.txt"
 
 
 def test_fn_name(group: str, name: str) -> str:
@@ -120,7 +120,7 @@ def parse_stdtests_headers(path: Path) -> list[str]:
 
 def report_coverage(tests: list[tuple[str, str, str]], headers: list[str]) -> None:
     if not headers:
-        print("note: vendor/stdtests not checked out — skip header manifest report")
+        print("note: tools/conformance_headers.txt missing — skip header manifest report")
         return
     covered = {t[0] for t in tests}
     # Map stdtests header stem to our group names (rough alignment).

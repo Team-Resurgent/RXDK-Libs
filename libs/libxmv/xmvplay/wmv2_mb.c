@@ -167,6 +167,102 @@ static void mc_block(BYTE *dst, int dstStride, const BYTE *ref, int refStride,
 }
 
 // ---------------------------------------------------------------------------
+// WMV2 mspel (Microsoft sub-pel) 9-tap interpolation, used for luma motion comp
+// when the frame's mspel flag is set. Ported from FFmpeg wmv2dec.c
+// (wmv2_mspel8_*_lowpass + put_mspel8_mc* + ff_mspel_motion). Chroma stays
+// half-pel (mc_block) but with the mspel chroma-MV derivation.
+// ---------------------------------------------------------------------------
+static void mspel_hlp(BYTE *dst, const BYTE *src, int dS, int sS, int h)
+{
+    int i, x;
+    for (i = 0; i < h; i++) {
+        for (x = 0; x < 8; x++)
+            dst[x] = clampU8((9 * (src[x] + src[x + 1]) - (src[x - 1] + src[x + 2]) + 8) >> 4);
+        dst += dS; src += sS;
+    }
+}
+static void mspel_vlp(BYTE *dst, const BYTE *src, int dS, int sS, int w)
+{
+    int i, y;
+    for (i = 0; i < w; i++) {
+        for (y = 0; y < 8; y++)
+            dst[y * dS] = clampU8((9 * (src[y * sS] + src[(y + 1) * sS]) -
+                                   (src[(y - 1) * sS] + src[(y + 2) * sS]) + 8) >> 4);
+        src++; dst++;
+    }
+}
+static void avg8(BYTE *dst, const BYTE *a, const BYTE *b, int dS, int aS, int bS)
+{
+    int j, x;
+    for (j = 0; j < 8; j++) {
+        for (x = 0; x < 8; x++) dst[x] = (BYTE)((a[x] + b[x] + 1) >> 1);
+        dst += dS; a += aS; b += bS;
+    }
+}
+static void copy8(BYTE *dst, const BYTE *src, int dS, int sS)
+{
+    int j, x;
+    for (j = 0; j < 8; j++) { for (x = 0; x < 8; x++) dst[x] = src[x]; dst += dS; src += sS; }
+}
+// One 8x8 luma block; src points into a padded buffer (stride sS); dxy 0..7.
+static void mspel_put8(BYTE *dst, int dS, const BYTE *src, int sS, int dxy)
+{
+    BYTE half[64], halfH[11 * 8], halfV[64], halfHV[64];
+    switch (dxy) {
+    case 0: copy8(dst, src, dS, sS); break;
+    case 1: mspel_hlp(half, src, 8, sS, 8); avg8(dst, src, half, dS, sS, 8); break;
+    case 2: mspel_hlp(dst, src, dS, sS, 8); break;
+    case 3: mspel_hlp(half, src, 8, sS, 8); avg8(dst, src + 1, half, dS, sS, 8); break;
+    case 4: mspel_vlp(dst, src, dS, sS, 8); break;
+    case 5: mspel_hlp(halfH, src - sS, 8, sS, 11); mspel_vlp(halfV, src, 8, sS, 8);
+            mspel_vlp(halfHV, halfH + 8, 8, 8, 8); avg8(dst, halfV, halfHV, dS, 8, 8); break;
+    case 6: mspel_hlp(halfH, src - sS, 8, sS, 11); mspel_vlp(dst, halfH + 8, dS, 8, 8); break;
+    default:mspel_hlp(halfH, src - sS, 8, sS, 11); mspel_vlp(halfV, src + 1, 8, sS, 8);
+            mspel_vlp(halfHV, halfH + 8, 8, 8, 8); avg8(dst, halfV, halfHV, dS, 8, 8); break;
+    }
+}
+// Full mspel motion for one macroblock: 9-tap luma + half-pel chroma.
+static void wmv2_mspel_motion(Wmv2 *w, BYTE *Ydst, BYTE *Udst, BYTE *Vdst,
+                              int Ypitch, int UVpitch, int mb_x, int mb_y,
+                              int mx, int my, int hshift, int round)
+{
+    XmvVideoCore *c = w->core;
+    int dxy = 2 * (((my & 1) << 1) | (mx & 1)) + hshift;
+    int src_x = mb_x * 16 + (mx >> 1);
+    int src_y = mb_y * 16 + (my >> 1);
+    int W = (int)c->Width, H = (int)c->Height;
+    const BYTE *ref = c->pYDisplayed;
+    BYTE buf[24 * 24];
+    const BYTE *ptr;
+    int i, j, cmx, cmy, cdxy, csx, csy;
+
+    // Extract a 22x22 padded region around (src_x-1, src_y-1) with edge clamp.
+    for (j = 0; j < 22; j++) {
+        int sy = clampi(src_y - 1 + j, 0, H - 1);
+        for (i = 0; i < 22; i++) {
+            int sx = clampi(src_x - 1 + i, 0, W - 1);
+            buf[j * 24 + i] = ref[sy * W + sx];
+        }
+    }
+    ptr = buf + 24 + 1;   // buf[1][1] == ref(src_x, src_y)
+    mspel_put8(Ydst,                       Ypitch, ptr,                24, dxy);
+    mspel_put8(Ydst + 8,                   Ypitch, ptr + 8,            24, dxy);
+    mspel_put8(Ydst + 8 * Ypitch,          Ypitch, ptr + 8 * 24,       24, dxy);
+    mspel_put8(Ydst + 8 + 8 * Ypitch,      Ypitch, ptr + 8 + 8 * 24,   24, dxy);
+
+    // Chroma: mspel derivation (motion>>2, dxy from motion&3), half-pel.
+    cdxy = ((my & 3) ? 2 : 0) | ((mx & 3) ? 1 : 0);
+    cmx  = mx >> 2;
+    cmy  = my >> 2;
+    csx  = mb_x * 8 + cmx;
+    csy  = mb_y * 8 + cmy;
+    mc_block(Udst, UVpitch, c->pUDisplayed, UVpitch, (int)c->UVWidth, (int)c->UVHeight,
+             8, 8, csx, csy, cdxy, round);
+    mc_block(Vdst, UVpitch, c->pVDisplayed, UVpitch, (int)c->UVWidth, (int)c->UVHeight,
+             8, 8, csx, csy, cdxy, round);
+}
+
+// ---------------------------------------------------------------------------
 // Run/level AC decode using a leak coding-set table. Mirrors the leak's
 // DecodeBaselineIFrameBlock AC loop (frontend.c) minus intra AC prediction:
 // places dequantized coefficients into blk[64] (natural order) via the normal
@@ -454,19 +550,24 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                 if (g_dbg_mb) DbgPrint("wmv2:   mb(0,12) mv=(%d,%d) pred=(%d,%d) bit after MV=%d\n",
                                        mx, my, px, py, BITPOS(c));
 
-                dxy   = ((my & 1) << 1) | (mx & 1);
-                src_x = mb_x * 16 + (mx >> 1);
-                src_y = mb_y * 16 + (my >> 1);
-                uvsx  = src_x >> 1;
-                uvsy  = src_y >> 1;
-                uvdxy = dxy | (my & 2) | ((mx & 2) >> 1);
+                if (w->mspel) {
+                    wmv2_mspel_motion(w, Ydst, Udst, Vdst, Ypitch, UVpitch,
+                                      mb_x, mb_y, mx, my, w->hshift, round);
+                } else {
+                    dxy   = ((my & 1) << 1) | (mx & 1);
+                    src_x = mb_x * 16 + (mx >> 1);
+                    src_y = mb_y * 16 + (my >> 1);
+                    uvsx  = src_x >> 1;
+                    uvsy  = src_y >> 1;
+                    uvdxy = dxy | (my & 2) | ((mx & 2) >> 1);
 
-                mc_block(Ydst, Ypitch, c->pYDisplayed, Ypitch, (int)c->Width, (int)c->Height,
-                         16, 16, src_x, src_y, dxy, round);
-                mc_block(Udst, UVpitch, c->pUDisplayed, UVpitch, (int)c->UVWidth, (int)c->UVHeight,
-                         8, 8, uvsx, uvsy, uvdxy, round);
-                mc_block(Vdst, UVpitch, c->pVDisplayed, UVpitch, (int)c->UVWidth, (int)c->UVHeight,
-                         8, 8, uvsx, uvsy, uvdxy, round);
+                    mc_block(Ydst, Ypitch, c->pYDisplayed, Ypitch, (int)c->Width, (int)c->Height,
+                             16, 16, src_x, src_y, dxy, round);
+                    mc_block(Udst, UVpitch, c->pUDisplayed, UVpitch, (int)c->UVWidth, (int)c->UVHeight,
+                             8, 8, uvsx, uvsy, uvdxy, round);
+                    mc_block(Vdst, UVpitch, c->pVDisplayed, UVpitch, (int)c->UVWidth, (int)c->UVHeight,
+                             8, 8, uvsx, uvsy, uvdxy, round);
+                }
 
                 // Inter residual. abt_type per coded block = the per-block value
                 // (per_block_abt) or the MB-level value; abt_type != 0 selects an

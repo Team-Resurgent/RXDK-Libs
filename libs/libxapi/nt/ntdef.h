@@ -219,11 +219,13 @@ typedef void * POINTER_64 PVOID64;
 
 #if (_MSC_VER >= 1200) && defined(_M_IX86)
 #define FORCEINLINE static __forceinline
-#elif defined(RXDK_XNET_LINK)
-/* RXDK (libxnet): clang on x86-windows-gnu doesn't define _M_IX86, so this fell
-   through to plain __inline -- which under C99 emits no out-of-line copy, leaving
-   FORCEINLINE helpers (KeGetCurrentPrcb, ...) undefined at link. static makes
-   each TU emit its own copy. */
+#elif defined(RXDK_XNET_LINK) || defined(RXDK_DSOUND_LINK)
+/* RXDK (libxnet, libdsound): clang on x86-windows-gnu doesn't define _M_IX86, so
+   this fell through to plain __inline. Under C99 that emits no out-of-line copy
+   (libxnet: FORCEINLINE helpers like KeGetCurrentPrcb left undefined at link);
+   under -fdefault-calling-conv=stdcall it emits an EXTERNAL _Name@N copy that
+   collides with libkernel's import thunk (libdsound: _KeGetCurrentIrql@0). static
+   gives each TU its own internal copy -- no external symbol, no collision. */
 #define FORCEINLINE static __inline
 #else
 #define FORCEINLINE __inline

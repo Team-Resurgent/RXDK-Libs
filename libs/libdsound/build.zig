@@ -33,6 +33,11 @@ pub fn includeDirs() []const []const u8 {
 // (dsmath/i3dl2/drvhlp) verbatim. -fno-operator-names: drvhlp.h has functions
 // literally named `and`/`or` (C++ alternative tokens). -DDPF_LIBRARY: the build
 // tags debug-print output (dsound/sources). The bridge supplies the rest.
+// -Xclang -fdefault-calling-conv=stdcall: the Xbox DirectSound was built /Gz
+// (default __stdcall), like libd3d8. This makes the vendor kernel calls compile
+// __stdcall so they bind straight to libkernel.lib's __imp__Name@N -- no
+// cdecl->stdcall facades. cdecl_libc.h is force-included FIRST to pin libc/libm
+// to __cdecl before picolibc's headers are seen (see that file).
 const common_flags = [_][]const u8{
     "-ffreestanding",
     "-fno-stack-protector",
@@ -47,6 +52,10 @@ const common_flags = [_][]const u8{
     "-Wno-everything",
     "-D_XAPI_",
     "-DDPF_LIBRARY=\"DSOUND\"",
+    "-Xclang",
+    "-fdefault-calling-conv=stdcall",
+    "-include",
+    DS ++ "/site/cdecl_libc.h",
     "-include",
     "picolibc.h",
     "-include",

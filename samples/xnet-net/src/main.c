@@ -98,6 +98,19 @@ struct sockaddr    { unsigned short sa_family; char sa_data[14]; };
 #define FIONBIO         0x8004667EL           // _IOW('f',126,u_long): set non-blocking
 #define WSAEWOULDBLOCK  10035
 
+// WSAStartup bumps a SEPARATE socket refcount inside the stack; socket() returns
+// WSANOTINITIALISED (10093) without it. XNetStartup only bumps the XNet refcount,
+// so the standard Xbox order is XNetStartup THEN WSAStartup. (32-bit WSADATA layout.)
+typedef struct WSAData {
+    unsigned short wVersion, wHighVersion;
+    char           szDescription[257];
+    char           szSystemStatus[129];
+    unsigned short iMaxSockets, iMaxUdpDg;
+    char          *lpVendorInfo;
+} WSADATA;
+#define MAKEWORD(lo,hi) ((unsigned short)(((unsigned char)(lo)) | ((unsigned short)(unsigned char)(hi) << 8)))
+extern int            __stdcall WSAStartup(unsigned short wVersionRequired, WSADATA *lpWSAData);
+
 extern SOCKET         __stdcall socket(int af, int type, int protocol);
 extern int            __stdcall closesocket(SOCKET s);
 extern int            __stdcall bind(SOCKET s, const struct sockaddr *name, int namelen);
@@ -274,7 +287,12 @@ int main(void)
              xna.abEnet[3], xna.abEnet[4], xna.abEnet[5]);
 
     if (st & (XNADDR_DHCP | XNADDR_STATIC)) {
+        WSADATA wsa;
+        int wrc;
         DbgPrint("xnet-net: *** network up (address acquired) ***\n");
+        // socket() needs WSAStartup (separate refcount from XNetStartup).
+        wrc = WSAStartup(MAKEWORD(2, 2), &wsa);
+        DbgPrint("xnet-net: WSAStartup returned %d\n", wrc);
         // Host a single web page. serve_http never returns (busy-polling accept),
         // which also keeps the DPC-driven stack alive.
         serve_http(xna.ina);

@@ -1,5 +1,5 @@
 /*
- * <sys/random.h> for RXDK-LibsZig.
+ * <sys/random.h> for RXDK-Libs.
  *
  * picolibc declares getentropy() in <sys/unistd.h>, but some consumers
  * (e.g. libc++ <random>'s getentropy backend) include <sys/random.h>. This

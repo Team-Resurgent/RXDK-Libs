@@ -27,9 +27,9 @@ static void mount_e_drive(void)
     RtlInitAnsiString(&dev, "\\Device\\Harddisk0\\Partition1");
     s = IoCreateSymbolicLink(&dos, &dev);
     if (NT_SUCCESS(s) || s == STATUS_OBJECT_NAME_COLLISION) {
-        DbgPrint("RXDK-LibsZig: mounted E: -> Harddisk0\\Partition1\n");
+        DbgPrint("RXDK-Libs: mounted E: -> Harddisk0\\Partition1\n");
     } else {
-        DbgPrint("RXDK-LibsZig: mount E: FAILED status=0x%08x\n", (unsigned)s);
+        DbgPrint("RXDK-Libs: mount E: FAILED status=0x%08x\n", (unsigned)s);
     }
 
     /* Z: is the scratch/utility drive (tmpfile/tmpnam land here). */
@@ -37,9 +37,9 @@ static void mount_e_drive(void)
     RtlInitAnsiString(&dev, "\\Device\\Harddisk0\\Partition5");
     s = IoCreateSymbolicLink(&dos, &dev);
     if (NT_SUCCESS(s) || s == STATUS_OBJECT_NAME_COLLISION) {
-        DbgPrint("RXDK-LibsZig: mounted Z: -> Harddisk0\\Partition5\n");
+        DbgPrint("RXDK-Libs: mounted Z: -> Harddisk0\\Partition5\n");
     } else {
-        DbgPrint("RXDK-LibsZig: mount Z: FAILED status=0x%08x\n", (unsigned)s);
+        DbgPrint("RXDK-Libs: mount Z: FAILED status=0x%08x\n", (unsigned)s);
     }
 }
 
@@ -51,9 +51,9 @@ static void print_datetime(void)
     char buf[64];
 
     if (t && strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S UTC", t) > 0) {
-        DbgPrint("RXDK-LibsZig: time = %s (epoch %ld)\n", buf, (long)now);
+        DbgPrint("RXDK-Libs: time = %s (epoch %ld)\n", buf, (long)now);
     } else {
-        DbgPrint("RXDK-LibsZig: time epoch=%ld\n", (long)now);
+        DbgPrint("RXDK-Libs: time epoch=%ld\n", (long)now);
     }
 }
 
@@ -64,20 +64,20 @@ int main(void)
     unsigned passed = 0;
     unsigned failed = 0;
 
-    DbgPrint("RXDK-LibsZig: libc-smoke start\n");
+    DbgPrint("RXDK-Libs: libc-smoke start\n");
 
     mount_e_drive();
     print_datetime();
 
     for (unsigned i = 0; i < total; i++) {
-        DbgPrint("RXDK-LibsZig: test %s.%s\n", tests[i].group, tests[i].name);
+        DbgPrint("RXDK-Libs: test %s.%s\n", tests[i].group, tests[i].name);
         int rc = tests[i].run();
         if (rc == 0) {
             passed++;
         } else {
             failed++;
             DbgPrint(
-                "RXDK-LibsZig: libc-smoke FAIL %s.%s line=%d\n",
+                "RXDK-Libs: libc-smoke FAIL %s.%s line=%d\n",
                 tests[i].group,
                 tests[i].name,
                 rc
@@ -86,7 +86,7 @@ int main(void)
     }
 
     DbgPrint(
-        "RXDK-LibsZig libc-smoke OK passed=%u failed=%u total=%u\n",
+        "RXDK-Libs libc-smoke OK passed=%u failed=%u total=%u\n",
         passed,
         failed,
         total

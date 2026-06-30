@@ -1,4 +1,4 @@
-# Convert a RXDK-LibsZig sample PE (.exe) to .xbe using RXDK-Tools imagebld.
+# Convert a RXDK-Libs sample PE (.exe) to .xbe using RXDK-Tools imagebld.
 param(
     [Parameter(Mandatory)]
     [string]$InputExe,

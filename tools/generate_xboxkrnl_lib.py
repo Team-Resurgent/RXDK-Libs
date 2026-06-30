@@ -200,7 +200,7 @@ def main():
         )
     table_text = "\n".join(lines)
     table_path = args.table or Path(
-        r"C:/Users/eq2k/AppData/Local/Temp/claude/D--Git-RXDK-LibsZig/"
+        r"C:/Users/eq2k/AppData/Local/Temp/claude/D--Git-RXDK-Libs/"
         r"e4ae3696-05c0-4f25-88c0-48d64b98ea48/scratchpad/libkernel_table.txt"
     )
     try:

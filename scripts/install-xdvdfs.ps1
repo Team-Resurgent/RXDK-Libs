@@ -21,7 +21,7 @@ $api = if ($Tag -eq 'latest') {
     "https://api.github.com/repos/Team-Resurgent/XDVDFS-TR/releases/tags/$Tag"
 }
 
-$release = Invoke-RestMethod -Uri $api -Headers @{ 'User-Agent' = 'RXDK-LibsZig' }
+$release = Invoke-RestMethod -Uri $api -Headers @{ 'User-Agent' = 'RXDK-Libs' }
 $asset = $release.assets | Where-Object { $_.name -like 'xdvdfs-windows-*.zip' } | Select-Object -First 1
 if (-not $asset) {
     throw "xdvdfs-windows-*.zip not found on release $($release.tag_name)"

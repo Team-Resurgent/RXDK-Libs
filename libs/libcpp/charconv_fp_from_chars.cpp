@@ -1,5 +1,5 @@
 //===----------------------------------------------------------------------===//
-// RXDK-LibsZig: floating-point std::from_chars (string -> float/double).
+// RXDK-Libs: floating-point std::from_chars (string -> float/double).
 //
 // libc++ 23 delegates its from_chars float parsing to LLVM libc's __support tree
 // (libc/shared/{fp_bits,str_to_float,str_to_integer}.h -> libc/src/__support/...),

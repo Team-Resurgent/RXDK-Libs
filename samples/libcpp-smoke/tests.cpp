@@ -686,8 +686,8 @@ int test_print_basic()
 {
     // std::print / std::println write to stdout (-> write() -> DbgPrint on the
     // kit), so these lines are visible on the debug monitor.
-    std::print("RXDK-LibsZig: std::print {} {}\n", "ok", 7);
-    std::println("RXDK-LibsZig: std::println {}", 42);
+    std::print("RXDK-Libs: std::print {} {}\n", "ok", 7);
+    std::println("RXDK-Libs: std::println {}", 42);
 
     // Verify the formatting engine deterministically via format_to into a buffer.
     std::string s;
@@ -861,7 +861,7 @@ int test_iostream_sstream()
     RXDK_TEST_TRUE(d == 2.5);
 
     // Real std::cout (global stream object init) -> visible on the debug monitor.
-    std::cout << "RXDK-LibsZig: std::cout works " << 123 << " pi=" << 3.14159 << std::endl;
+    std::cout << "RXDK-Libs: std::cout works " << 123 << " pi=" << 3.14159 << std::endl;
     return 0;
 }
 

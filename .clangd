@@ -1,4 +1,4 @@
-# clangd configuration for RXDK-LibsZig.
+# clangd configuration for RXDK-Libs.
 #
 # Everything here compiles for the Xbox: 32-bit x86, MS-extensions, freestanding.
 # clangd otherwise analyzes opened files with host (x86_64) defaults, which trips

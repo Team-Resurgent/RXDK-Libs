@@ -98,7 +98,7 @@ void *sbrk(ptrdiff_t incr)
 void _exit(int status) /* x86-windows-gnu exports as __exit; crt0.S calls __exit */
 {
     (void)status;
-    DbgPrint("RXDK-LibsZig: _exit\n");
+    DbgPrint("RXDK-Libs: _exit\n");
     for (;;)
         ;
 }

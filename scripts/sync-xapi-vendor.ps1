@@ -12,13 +12,13 @@ if (-not $RxdkLibsRoot) { $RxdkLibsRoot = $env:RXDK_LIBS_ROOT }
 
 $Root = [IO.Path]::GetFullPath($Root)
 if (-not $RxdkLibsRoot) {
-    $RxdkLibsRoot = [IO.Path]::GetFullPath((Join-Path $Root '..\RXDK-Libs'))
+    $RxdkLibsRoot = [IO.Path]::GetFullPath((Join-Path $Root '..\RXDK-LibsOld'))
 }
 $Vendor = Join-Path $Root 'vendor\xbox_private'
 $SrcVendor = Join-Path $RxdkLibsRoot 'vendor'
 
 if (-not (Test-Path (Join-Path $SrcVendor 'private\ntos\xapi'))) {
-    throw "RXDK-Libs vendor/xapi not found at $SrcVendor. Set RXDK_LIBS_ROOT or clone RXDK-Libs beside this repo."
+    throw "RXDK-LibsOld vendor/xapi not found at $SrcVendor. Set RXDK_LIBS_ROOT or clone RXDK-LibsOld beside this repo."
 }
 
 function Sync-Tree {

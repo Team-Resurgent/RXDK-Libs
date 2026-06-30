@@ -21,7 +21,7 @@ $api = if ($Tag -eq 'latest') {
     "https://api.github.com/repos/Team-Resurgent/RXDK-Tools/releases/tags/$Tag"
 }
 
-$release = Invoke-RestMethod -Uri $api -Headers @{ 'User-Agent' = 'RXDK-LibsZig' }
+$release = Invoke-RestMethod -Uri $api -Headers @{ 'User-Agent' = 'RXDK-Libs' }
 $asset = $release.assets | Where-Object { $_.name -eq 'rxdk-managed-win-x64.zip' } | Select-Object -First 1
 if (-not $asset) {
     throw "rxdk-managed-win-x64.zip not found on release $($release.tag_name)"

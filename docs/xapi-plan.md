@@ -1,6 +1,6 @@
 # libxapi — full xAPI port
 
-> Living plan for xAPI work in RXDK-LibsZig. Supersedes earlier `libxbox*` naming.
+> Living plan for xAPI work in RXDK-Libs. Supersedes earlier `libxbox*` naming.
 > **Note:** the `kernel-*`, `hello-*`, `xapi-link`, and `xapi-standalone-link` smoke
 > samples referenced below were retired in the tree cleanup — only `xapi-smoke` and
 > `conformance-*` remain. Sections mentioning them are historical.
@@ -127,11 +127,11 @@ Optional cleanup: drop `src/xbox/kernel.c` if nothing in libc still needs a loca
 | xapi_usb_* | ohcd, usbd, hub, mu, xid — merged in (not separate ship libs); USB pool alloc lives **inside usbd**, not a sidecar |
 | xapi_sndtrk | Sound tracker (`xsndtrk.c`) — part of libxapi or sibling ship lib |
 
-**No separate shim slice.** There is no `xapi_modern`, `xapi_gap_src`, or `src/xapi/*.c` sidecar module. RXDK-Libs gap behavior is implemented **inside the owning leak module** (edited in-tree under `vendor/…`), not as overlay wrappers.
+**No separate shim slice.** There is no `xapi_modern`, `xapi_gap_src`, or `src/xapi/*.c` sidecar module. RXDK-LibsOld gap behavior is implemented **inside the owning leak module** (edited in-tree under `vendor/…`), not as overlay wrappers.
 
 ### Gap work — fold into native modules (not shims)
 
-| Former RXDK-Libs gap | Integrate into |
+| Former RXDK-LibsOld gap | Integrate into |
 |----------------------|----------------|
 | `XMemAlloc` / `XMemFree` | `xapi_k32` — `physical.c` / `virtual.c` / heap path |
 | FP save/restore for DPC | `xapi_k32` or `xapi_dll` — next to existing FP/kernel touch points |
@@ -156,7 +156,7 @@ Pack via [`build/coff_lib.zig`](../build/coff_lib.zig) → `zig-out/lib/libxapi.
 
 Because we are not preserving Windows portability:
 
-| RXDK-Libs / leak pattern | Xbox-only approach |
+| RXDK-LibsOld / leak pattern | Xbox-only approach |
 |--------------------------|-------------------|
 | `fix_non_posix_systems.h`, getopt, `windows.h` fallbacks | Omit — not built |
 | Dual desktop/Xbox `#ifdef` in leak C++ | Keep Xbox branch only; delete the rest |
@@ -186,4 +186,4 @@ Because we are not preserving Windows portability:
 
 ## Reference
 
-[D:/Git/RXDK-Libs](D:/Git/RXDK-Libs) for behavior reference only; **do not copy** `vendor/src/xdk_xapi_*` — reimplement gap logic in the native module files under `vendor/…/xapi` and `vendor/…/dd/usb`.
+[D:/Git/RXDK-LibsOld](D:/Git/RXDK-LibsOld) for behavior reference only; **do not copy** `vendor/src/xdk_xapi_*` — reimplement gap logic in the native module files under `vendor/…/xapi` and `vendor/…/dd/usb`.

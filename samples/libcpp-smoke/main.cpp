@@ -10,7 +10,7 @@
 // so it's visible on the debug monitor instead of a silent halt.
 static void rxdk_terminate()
 {
-    DbgPrint("RXDK-LibsZig: std::terminate -- unhandled C++ exception\n");
+    DbgPrint("RXDK-Libs: std::terminate -- unhandled C++ exception\n");
     for (;;)
         ;
 }
@@ -32,9 +32,9 @@ static void mount_e_drive()
     RtlInitAnsiString(&dev, "\\Device\\Harddisk0\\Partition1");
     s = IoCreateSymbolicLink(&dos, &dev);
     if (NT_SUCCESS(s) || s == STATUS_OBJECT_NAME_COLLISION)
-        DbgPrint("RXDK-LibsZig: mounted E: -> Harddisk0\\Partition1\n");
+        DbgPrint("RXDK-Libs: mounted E: -> Harddisk0\\Partition1\n");
     else
-        DbgPrint("RXDK-LibsZig: mount E: FAILED status=0x%08x\n", (unsigned)s);
+        DbgPrint("RXDK-Libs: mount E: FAILED status=0x%08x\n", (unsigned)s);
 }
 
 int main()
@@ -47,17 +47,17 @@ int main()
     unsigned passed = 0;
     unsigned failed = 0;
 
-    DbgPrint("RXDK-LibsZig: libcpp-smoke start\n");
+    DbgPrint("RXDK-Libs: libcpp-smoke start\n");
 
     for (unsigned i = 0; i < total; ++i) {
-        DbgPrint("RXDK-LibsZig: test %s.%s\n", tests[i].group, tests[i].name);
+        DbgPrint("RXDK-Libs: test %s.%s\n", tests[i].group, tests[i].name);
         int rc = tests[i].run();
         if (rc == 0) {
             ++passed;
         } else {
             ++failed;
             DbgPrint(
-                "RXDK-LibsZig: libcpp-smoke FAIL %s.%s line=%d\n",
+                "RXDK-Libs: libcpp-smoke FAIL %s.%s line=%d\n",
                 tests[i].group,
                 tests[i].name,
                 rc
@@ -66,7 +66,7 @@ int main()
     }
 
     DbgPrint(
-        "RXDK-LibsZig libcpp-smoke OK passed=%u failed=%u total=%u\n",
+        "RXDK-Libs libcpp-smoke OK passed=%u failed=%u total=%u\n",
         passed,
         failed,
         total

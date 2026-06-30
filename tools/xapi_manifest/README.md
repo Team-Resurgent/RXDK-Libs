@@ -1,6 +1,6 @@
 # xAPI build manifest
 
-Module boundaries mirror [RXDK-Libs `gen-xapi.ps1`](../../scripts/gen-xapi.ps1).
+Module boundaries mirror [RXDK-LibsOld `gen-xapi.ps1`](../../scripts/gen-xapi.ps1).
 
 Regenerate compile source lists:
 
@@ -26,4 +26,4 @@ Output: [`build/xapi_sources.zig`](../build/xapi_sources.zig) — consumed by [`
 | mu | `vendor/xbox_private/private/ntos/dd/usb/mu/sources` |
 | xid | `vendor/xbox_private/private/ntos/dd/usb/xid/sources` |
 
-Gap fixes from RXDK-Libs `xapi_gap_src` are **not** a separate module — edit the owning slice sources under `vendor/xbox_private/`.
+Gap fixes from RXDK-LibsOld `xapi_gap_src` are **not** a separate module — edit the owning slice sources under `vendor/xbox_private/`.

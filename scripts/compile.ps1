@@ -1,4 +1,4 @@
-# Build RXDK-LibsZig (Zig-only runtime, samples, optional XBE conversion).
+# Build RXDK-Libs (Zig-only runtime, samples, optional XBE conversion).
 param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(

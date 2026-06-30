@@ -1,5 +1,5 @@
 /*
- * <threads.h> - C11 threads for RXDK-LibsZig (ISO/IEC 9899:2011 §7.26).
+ * <threads.h> - C11 threads for RXDK-Libs (ISO/IEC 9899:2011 §7.26).
  *
  * Implemented in libc over the Xbox kernel (PsCreateSystemThreadEx + Rtl
  * critical sections + Ke events). Opaque objects are sized byte buffers so this

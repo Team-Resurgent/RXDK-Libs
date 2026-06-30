@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     Interactive menu to build a sample ISO (or a redistributable lib bundle) for
-    RXDK-LibsZig.
+    RXDK-Libs.
 
 .DESCRIPTION
     Thin wrapper over scripts\compile.ps1.
@@ -246,7 +246,7 @@ function Select-Action {
         $ipText = if ([string]::IsNullOrWhiteSpace($Config.XboxIp)) { '(not set)' } else { $Config.XboxIp }
 
         Write-Host ''
-        Write-Host '  RXDK-LibsZig - build menu' -ForegroundColor Cyan
+        Write-Host '  RXDK-Libs - build menu' -ForegroundColor Cyan
         Write-Host '  -------------------------'
         Write-Host ('   mode: {0} - xbox: {1} - opt: {2}' -f $Config.Mode, $ipText, $Config.Optimize) -ForegroundColor DarkGray
         for ($i = 0; $i -lt $samples.Count; $i++) {

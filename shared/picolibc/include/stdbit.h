@@ -1,7 +1,7 @@
 /*
  * <stdbit.h> - C23 bit utilities (ISO/IEC 9899:2023 §7.18).
  *
- * Full implementation for RXDK-LibsZig: 14 operations over the five unsigned
+ * Full implementation for RXDK-Libs: 14 operations over the five unsigned
  * integer types plus the type-generic macros. Definitions live in
  * libs/libc/c23/stdbit.c (built on the compiler bit builtins).
  */

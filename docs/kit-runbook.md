@@ -1,4 +1,4 @@
-# Kit runbook — RXDK-LibsZig samples
+# Kit runbook — RXDK-Libs samples
 
 Build PEs in this repo with **`zig build`** only. Deploying to a devkit uses **external** host tools (`imagebld`, `xdvdfs`) under `tools/`.
 
@@ -13,7 +13,7 @@ The rest of this doc is the manual pipeline behind that menu.
 ## 1. Build PEs
 
 ```powershell
-cd D:\Git\RXDK-LibsZig
+cd D:\Git\RXDK-Libs
 zig build verify-no-vs
 zig build xapi-smoke
 zig build libc-smoke
@@ -44,10 +44,10 @@ zig-out/samples/libcpp-smoke/libcpp-smoke.exe
 
 ## 2. Install RXDK-Tools (`imagebld`)
 
-`imagebld.exe` is **not** built in RXDK-LibsZig. Install the managed Windows bundle from [RXDK-Tools releases](https://github.com/Team-Resurgent/RXDK-Tools/releases/latest):
+`imagebld.exe` is **not** built in RXDK-Libs. Install the managed Windows bundle from [RXDK-Tools releases](https://github.com/Team-Resurgent/RXDK-Tools/releases/latest):
 
 ```powershell
-cd D:\Git\RXDK-LibsZig
+cd D:\Git\RXDK-Libs
 .\scripts\install-rxdk-tools.ps1
 ```
 
@@ -100,15 +100,15 @@ tools\xdvdfs\win-x64\xdvdfs.exe tree zig-out\iso\libc-smoke.iso
 
 ## 5. Deploy to devkit
 
-Use RXDK-Libs deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — out of scope for `zig build`.
+Use RXDK-LibsOld deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — out of scope for `zig build`.
 
 ## 6. Expected debug output
 
 | Sample | Expected `DbgPrint` / debug console line |
 |--------|----------------------------------------|
 | xapi-smoke | `passed=27` then `all runnable tests passed` |
-| libc-smoke | `RXDK-LibsZig libc-smoke OK passed=N failed=0 total=N` |
-| libcpp-smoke | `RXDK-LibsZig libcpp-smoke OK` |
+| libc-smoke | `RXDK-Libs libc-smoke OK passed=N failed=0 total=N` |
+| libcpp-smoke | `RXDK-Libs libcpp-smoke OK` |
 
 Samples route stdio through `write` → `DbgPrint` (direct kernel import).
 

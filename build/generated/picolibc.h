@@ -1,4 +1,4 @@
-/* Generated for RXDK-LibsZig Xbox HAL (picolibc 1.8.x profile). */
+/* Generated for RXDK-Libs Xbox HAL (picolibc 1.8.x profile). */
 #pragma once
 
 #define __ATOMIC_UNGETC 1

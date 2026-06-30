@@ -27,8 +27,8 @@ zig build libc-smoke
 Expected serial output:
 
 ```
-RXDK-LibsZig: libc-smoke start
-RXDK-LibsZig libc-smoke OK passed=16 failed=0 total=16
+RXDK-Libs: libc-smoke start
+RXDK-Libs libc-smoke OK passed=16 failed=0 total=16
 ```
 
 ## Kit — runtime libc++ / C++23 tests
@@ -43,8 +43,8 @@ RXDK-LibsZig libc-smoke OK passed=16 failed=0 total=16
 Expected serial output:
 
 ```
-RXDK-LibsZig: libcpp-smoke start
-RXDK-LibsZig libcpp-smoke OK passed=59 failed=0 total=59
+RXDK-Libs: libcpp-smoke start
+RXDK-Libs libcpp-smoke OK passed=59 failed=0 total=59
 ```
 
 Covered: exceptions (DWARF/Itanium), coroutines + `std::generator` (incl. recursive

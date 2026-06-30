@@ -1,6 +1,6 @@
-# Porting notes — RXDK-LibsZig greenfield runtime
+# Porting notes — RXDK-Libs greenfield runtime
 
-RXDK-Libs is a **reference** for behavior (startup order, printf path, kernel exports). Do not copy MSVC CRT, XDK headers, or shim layers.
+RXDK-LibsOld is a **reference** for behavior (startup order, printf path, kernel exports). Do not copy MSVC CRT, XDK headers, or shim layers.
 
 ## Architecture
 
@@ -56,9 +56,9 @@ Internal smokes link picolibc + xbox + (optional) libcxx **objects** via `@zig-o
 
 External titles can use the shipped `.lib` files; if `lld-link` drops archive members, use the same object-rsp approach or `--whole-archive` on both libs.
 
-## Intentional divergences from RXDK-Libs
+## Intentional divergences from RXDK-LibsOld
 
-| RXDK-Libs | RXDK-LibsZig |
+| RXDK-LibsOld | RXDK-Libs |
 |-----------|--------------|
 | `libcmt.lib` / MSVC STL | `libc.lib` / `libcpp.lib` |
 | `mainCRTStartup`, XAPILIB | `_start` + direct kernel import |

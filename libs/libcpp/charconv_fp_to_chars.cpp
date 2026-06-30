@@ -1,5 +1,5 @@
 //===----------------------------------------------------------------------===//
-// RXDK-LibsZig: floating-point std::to_chars only.
+// RXDK-Libs: floating-point std::to_chars only.
 //
 // libc++'s charconv.cpp instantiates both to_chars and from_chars for floating
 // point, but from_chars_floating_point.h pulls in src/include/shared/*.h, which

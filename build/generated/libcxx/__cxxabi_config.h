@@ -1,5 +1,5 @@
 //===----------------------------------------------------------------------===//
-// RXDK-LibsZig wrapper for libc++abi's <__cxxabi_config.h>.
+// RXDK-Libs wrapper for libc++abi's <__cxxabi_config.h>.
 //
 // build/generated/libcxx is first on the libcpp include path, and libc++abi's
 // cxxabi.h pulls this header in with angle brackets (#include <__cxxabi_config.h>),

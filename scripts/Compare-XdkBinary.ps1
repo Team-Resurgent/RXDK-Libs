@@ -1,4 +1,4 @@
-# Compare RXDK-LibsZig PE/XBE headers against a known-good XDK build.
+# Compare RXDK-Libs PE/XBE headers against a known-good XDK build.
 param(
     [string]$ReferenceExe = 'D:\Git\TriangleXDK\Debug\TriangleXDK.exe',
     [string]$ReferenceXbe = 'D:\Git\TriangleXDK\Debug\TriangleXDK.xbe',

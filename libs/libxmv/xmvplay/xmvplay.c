@@ -32,6 +32,7 @@ typedef struct D3DXVECTOR3 { float x, y, z; } D3DXVECTOR3;
 #include <xmv.h>
 #include "xmvdemux.h"
 #include "xmvcore.h"
+#include "wmv2dec.h"
 
 #define XMV_AUDIO_PACKETS 64   // in-flight audio packet ring depth
 
@@ -47,6 +48,10 @@ struct XMVDecoder {
     // geometry is unsupported (not /16) -> falls back to the placeholder render.
     XmvVideoCore *core;
     int           have_keyframe;   // set once the first keyframe has been decoded
+
+    // WMV2 P-frame layer (increment 1: header parse + diagnostics).
+    Wmv2          wmv2;
+    int           wmv2_ok;
 
     // Audio (one enabled track for now).
     LPDIRECTSOUNDSTREAM  pStream;
@@ -171,6 +176,14 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
         DbgPrint("xmv: video core unavailable (geometry %ux%u) -- placeholder render\n",
                  dec->demux.width, dec->demux.height);
 
+    // WMV2 P-frame layer: needs the sequence extradata + the core geometry.
+    if (dec->core && dec->demux.has_extradata) {
+        if (Wmv2Init(&dec->wmv2, dec->core, dec->demux.video_extradata) == 0)
+            dec->wmv2_ok = 1;
+        else
+            DbgPrint("xmv: Wmv2Init failed (P-frame decode unavailable)\n");
+    }
+
     *ppDecoder = dec;
     return S_OK;
 }
@@ -184,6 +197,7 @@ void __stdcall XMVDecoder_CloseDecoder(XMVDecoder *pDecoder)
         IDirectSoundStream_Flush(pDecoder->pStream);
         IDirectSoundStream_Release(pDecoder->pStream);
     }
+    if (pDecoder->wmv2_ok) Wmv2Free(&pDecoder->wmv2);
     if (pDecoder->core)    XmvCoreDestroy(pDecoder->core);
     if (pDecoder->scratch) free(pDecoder->scratch);
     if (pDecoder->file)    free(pDecoder->file);
@@ -355,6 +369,26 @@ HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface
         if (pResult) *pResult = XMV_ENDOFFILE;
         if (pTimeOfFrame) *pTimeOfFrame = pts;
         return S_OK;
+    }
+
+    // Increment 1 diagnostic: parse + log the WMV2 P-frame header for the first
+    // few P-frames. This is throwaway (P-frames are not yet decoded/rendered), so
+    // it freely clobbers the bit walker; it verifies the extradata decode, the
+    // ported VLC tables, and the secondary-header parse before the MB loop lands.
+    if (pDecoder->wmv2_ok && !keyframe && pDecoder->frames_shown < 8) {
+        int pt;
+        XmvCoreSetupBits(pDecoder->core, frame);
+        pt = Wmv2DecodePictureHeader(&pDecoder->wmv2);
+        if (pt >= 0 && Wmv2DecodeSecondaryHeader(&pDecoder->wmv2) == 0) {
+            Wmv2 *w = &pDecoder->wmv2;
+            DbgPrint("wmv2: Phdr q=%d cbpidx=%d mspel=%d mv=%d dc=%d rl=%d/%d "
+                     "abt(pmb=%d type=%d) nr=%d\n",
+                     w->qscale, w->cbp_table_index, w->mspel, w->mv_table_index,
+                     w->dc_table_index, w->rl_table_index, w->rl_chroma_table_index,
+                     w->per_mb_abt, w->abt_type, w->no_rounding);
+        } else {
+            DbgPrint("wmv2: P header parse failed (pt=%d)\n", pt);
+        }
     }
 
     // Phase 2: decode through the leak software video kernel. It implements only

@@ -34,4 +34,8 @@ void XmvCoreDecodeKeyframe(XmvVideoCore *core, const unsigned char *data, unsign
 // as void* to keep this header free of the d3d8 umbrella).
 void XmvCoreRender(XmvVideoCore *core, void *pSurface);
 
+// Point the bit walker at a (dword-reversed) frame body, resetting the cache.
+// Used to drive the WMV2 header/MB parse (wmv2dec.c) over the core's bit reader.
+void XmvCoreSetupBits(XmvVideoCore *core, const unsigned char *data);
+
 #endif // RXDK_XMVCORE_H

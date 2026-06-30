@@ -141,3 +141,12 @@ void XmvCoreRender(XmvVideoCore *core, void *pSurface)
         return;
     RenderBitmap(core, (D3DSurface *)pSurface);
 }
+
+void XmvCoreSetupBits(XmvVideoCore *core, const unsigned char *data)
+{
+    if (!core)
+        return;
+    core->pDecodingPosition = (BYTE *)data;
+    core->BitCache          = 0;
+    core->BitsRemaining     = 0;
+}

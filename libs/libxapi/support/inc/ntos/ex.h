@@ -41,13 +41,8 @@ InitializePool(
 
 NTKERNELAPI
 PVOID
-                            /* Convention inherited from the TU default like every
-                             * other bare kernel decl: stdcall under the USB driver's
-                             * -fdefault-calling-conv=stdcall, matching libkernel's
-                             * real export _ExAllocatePool@4. (An old note here pinned
-                             * it __cdecl after "stdcall crashed early in USBD_Init" --
-                             * that predates libkernel's correct import; re-validate on
-                             * the kit.) */
+__cdecl                     /* explicitly cdecl: this kernel export is cdecl
+                             * (stdcall on it crashed early in USBD_Init). */
 ExAllocatePool(
     IN SIZE_T NumberOfBytes
     );

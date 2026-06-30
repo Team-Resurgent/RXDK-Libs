@@ -72,19 +72,4 @@ typedef __builtin_va_list __gnuc_va_list;
 #define DBG 0
 #endif
 
-/* Explicit calling-convention vocabulary, visible in every libxapi TU (this header
- * is force-included). Use to spell out a convention that must AGREE across
- * cdecl-default and stdcall-default TUs -- e.g. USB driver functions (USBD_Init,
- * MU_*) defined stdcall-default but called from the cdecl core. Guarded so the NT
- * headers' own NTAPI/FASTCALL definitions stay compatible. */
-#ifndef STDCALL
-#define STDCALL __attribute__((__stdcall__))
-#endif
-#ifndef FASTCALL
-#define FASTCALL __attribute__((__fastcall__))
-#endif
-#ifndef CDECL
-#define CDECL __attribute__((__cdecl__))
-#endif
-
 #endif

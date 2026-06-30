@@ -647,20 +647,20 @@ MU_RemoveDevice (
 
 extern "C"
 {
-NTSTATUS STDCALL
+NTSTATUS
 MU_CreateDeviceObject(
     IN  ULONG            Port,
     IN  ULONG            Slot,
     IN  POBJECT_STRING  DeviceName
     );
 
-VOID STDCALL
+VOID
 MU_CloseDeviceObject(
     IN  ULONG  Port,
     IN  ULONG  Slot
     );
 
-PDEVICE_OBJECT STDCALL
+PDEVICE_OBJECT
 MU_GetExistingDeviceObject(
     IN  ULONG  Port,
     IN  ULONG  Slot

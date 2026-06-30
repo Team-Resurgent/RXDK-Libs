@@ -1600,7 +1600,7 @@ typedef VOID (STDCALL *PKSYSTEM_ROUTINE) (
  * @param Section The section to be unloaded.
  * @return STATUS_SUCCESS or the error.
  */
-XBAPI NTSTATUS STDCALL XeUnloadSection
+NTSTATUS STDCALL XeUnloadSection
 (
     IN OUT PXBE_SECTION_HEADER Section
 );
@@ -1612,21 +1612,21 @@ XBAPI UCHAR XePublicKeyData[284];
  * @param Section The section to be loaded.
  * @return STATUS_SUCCESS or the error.
  */
-XBAPI NTSTATUS STDCALL XeLoadSection
+NTSTATUS STDCALL XeLoadSection
 (
     IN PXBE_SECTION_HEADER Section
 );
 
 XBAPI ANSI_STRING XeImageFileName[1];
 
-XBAPI BOOLEAN STDCALL XcVerifyPKCS1Signature
+BOOLEAN STDCALL XcVerifyPKCS1Signature
 (
     IN PUCHAR pbSig,
     IN PUCHAR pbPubKey,
     IN PUCHAR pbDigest
 );
 
-XBAPI VOID STDCALL XcUpdateCrypto
+VOID STDCALL XcUpdateCrypto
 (
     IN PCRYPTO_VECTOR pNewVector,
     OUT PCRYPTO_VECTOR pROMVector OPTIONAL
@@ -1638,7 +1638,7 @@ XBAPI VOID STDCALL XcUpdateCrypto
  * @param pbInput A pointer to the bytes which are to get hashed
  * @param dwInputLength The number of bytes in the buffer given in the pbInput parameter
  */
-XBAPI VOID STDCALL XcSHAUpdate
+VOID STDCALL XcSHAUpdate
 (
     IN OUT PUCHAR pbSHAContext,
     IN PUCHAR pbInput,
@@ -1649,7 +1649,7 @@ XBAPI VOID STDCALL XcSHAUpdate
  * Initializes a buffer which will get used to generate a SHA-1 hash.
  * @param pbSHAContext A pointer to a 116-byte buffer to be used as storage for the internal state of the algorithm
  */
-XBAPI VOID STDCALL XcSHAInit
+VOID STDCALL XcSHAInit
 (
     OUT PUCHAR pbSHAContext
 );
@@ -1659,46 +1659,46 @@ XBAPI VOID STDCALL XcSHAInit
  * @param pbSHAContext A pointer to the buffer used to hold the internal state of the algorithm
  * @param pbDigest A pointer to a 20-byte buffer in which the hash will be stored
  */
-XBAPI VOID STDCALL XcSHAFinal
+VOID STDCALL XcSHAFinal
 (
     IN PUCHAR pbSHAContext,
     OUT PUCHAR pbDigest
 );
 
-XBAPI VOID STDCALL XcRC4Key
+VOID STDCALL XcRC4Key
 (
     OUT PUCHAR pbKeyStruct,
     IN ULONG dwKeyLength,
     IN PUCHAR pbKey
 );
 
-XBAPI VOID STDCALL XcRC4Crypt
+VOID STDCALL XcRC4Crypt
 (
     IN PUCHAR pbKeyStruct,
     IN ULONG dwInputLength,
     IN OUT PUCHAR pbInput
 );
 
-XBAPI ULONG STDCALL XcPKGetKeyLen
+ULONG STDCALL XcPKGetKeyLen
 (
     IN PUCHAR pbPubKey
 );
 
-XBAPI ULONG STDCALL XcPKEncPublic
+ULONG STDCALL XcPKEncPublic
 (
     IN PUCHAR pbPubKey,
     IN PUCHAR pbInput,
     OUT PUCHAR pbOutput
 );
 
-XBAPI ULONG STDCALL XcPKDecPrivate
+ULONG STDCALL XcPKDecPrivate
 (
     IN PUCHAR pbPrvKey,
     IN PUCHAR pbInput,
     OUT PUCHAR pbOutput
 );
 
-XBAPI ULONG STDCALL XcModExp
+ULONG STDCALL XcModExp
 (
     OUT PULONG pA,
     IN PULONG pB,
@@ -1707,14 +1707,14 @@ XBAPI ULONG STDCALL XcModExp
     IN ULONG dwN
 );
 
-XBAPI VOID STDCALL XcKeyTable
+VOID STDCALL XcKeyTable
 (
     IN ULONG dwCipher,
     OUT PUCHAR pbKeyTable,
     IN PUCHAR pbKey
 );
 
-XBAPI VOID STDCALL XcHMAC
+VOID STDCALL XcHMAC
 (
     IN PUCHAR pbKey,
     IN ULONG dwKeyLength,
@@ -1725,19 +1725,19 @@ XBAPI VOID STDCALL XcHMAC
     OUT PUCHAR pbDigest
 );
 
-XBAPI VOID STDCALL XcDESKeyParity
+VOID STDCALL XcDESKeyParity
 (
     IN OUT PUCHAR pbKey,
     IN ULONG dwKeyLength
 );
 
-XBAPI ULONG STDCALL XcCryptService
+ULONG STDCALL XcCryptService
 (
     IN ULONG dwOp,
     IN PVOID pArgs
 );
 
-XBAPI VOID STDCALL XcBlockCryptCBC
+VOID STDCALL XcBlockCryptCBC
 (
     IN ULONG dwCipher,
     IN ULONG dwInputLength,
@@ -1748,7 +1748,7 @@ XBAPI VOID STDCALL XcBlockCryptCBC
     IN PUCHAR pbFeedback
 );
 
-XBAPI VOID STDCALL XcBlockCrypt
+VOID STDCALL XcBlockCrypt
 (
     IN ULONG dwCipher,
     OUT PUCHAR pbOutput,
@@ -1777,7 +1777,7 @@ XBAPI XBOX_KEY_DATA XboxAlternateSignatureKeys[];
  * @param Buffer Pointer to a buffer containing the values to be written.
  * @param Count Specifies the number of values to be written to the port.
  */
-XBAPI VOID STDCALL WRITE_PORT_BUFFER_USHORT
+VOID STDCALL WRITE_PORT_BUFFER_USHORT
 (
     IN PUSHORT Port,
     IN PUSHORT Buffer,
@@ -1790,7 +1790,7 @@ XBAPI VOID STDCALL WRITE_PORT_BUFFER_USHORT
  * @param Buffer Pointer to a buffer containing the values to be written.
  * @param Count Specifies the number of values to be written to the port.
  */
-XBAPI VOID STDCALL WRITE_PORT_BUFFER_ULONG
+VOID STDCALL WRITE_PORT_BUFFER_ULONG
 (
     IN PULONG Port,
     IN PULONG Buffer,
@@ -1803,7 +1803,7 @@ XBAPI VOID STDCALL WRITE_PORT_BUFFER_ULONG
  * @param Buffer Pointer to a buffer containing the values to be written.
  * @param Count Specifies the number of values to be written to the port.
  */
-XBAPI VOID STDCALL WRITE_PORT_BUFFER_UCHAR
+VOID STDCALL WRITE_PORT_BUFFER_UCHAR
 (
     IN PUCHAR Port,
     IN PUCHAR Buffer,
@@ -1818,14 +1818,14 @@ XBAPI VOID STDCALL WRITE_PORT_BUFFER_UCHAR
  * @param Length The length of the memory block which is to be filled
  * @param Fill The byte-value with which the memory block will be filled
  */
-XBAPI VOID STDCALL RtlFillMemory
+VOID STDCALL RtlFillMemory
 (
     PVOID Destination,
     ULONG Length,
     UCHAR Fill
 );
 
-XBAPI VOID STDCALL RtlMoveMemory
+VOID STDCALL RtlMoveMemory
 (
     PVOID Destination,
     CONST PVOID Source,
@@ -1837,7 +1837,7 @@ XBAPI VOID STDCALL RtlMoveMemory
  * @param Destination A pointer to the memory block which is to be filled
  * @param Length The length of the memory block which is to be filled
  */
-XBAPI VOID STDCALL RtlZeroMemory
+VOID STDCALL RtlZeroMemory
 (
     IN VOID UNALIGNED *Destination,
     IN SIZE_T Length
@@ -1853,21 +1853,21 @@ XBAPI VOID STDCALL RtlZeroMemory
 
 #endif
 
-XBAPI ULONG STDCALL RtlWalkFrameChain
+ULONG STDCALL RtlWalkFrameChain
 (
     OUT PVOID *Callers,
     IN ULONG Count,
     IN ULONG Flags
 );
 
-XBAPI VOID CDECL RtlVsprintf
+VOID CDECL RtlVsprintf
 (
     CHAR *,
     CONST CHAR*,
     ...
 );
 
-XBAPI VOID CDECL RtlVsnprintf
+VOID CDECL RtlVsnprintf
 (
     CHAR *,
     SIZE_T,
@@ -1875,7 +1875,7 @@ XBAPI VOID CDECL RtlVsnprintf
     ...
 );
 
-XBAPI VOID STDCALL RtlUpperString
+VOID STDCALL RtlUpperString
 (
     PSTRING DestinationString,
     PSTRING SourceString
@@ -1886,12 +1886,12 @@ XBAPI VOID STDCALL RtlUpperString
  * @param Character The character which will be converted
  * @return The uppercased character
  */
-XBAPI CHAR STDCALL RtlUpperChar
+CHAR STDCALL RtlUpperChar
 (
     CHAR Character
 );
 
-XBAPI NTSTATUS STDCALL RtlUpcaseUnicodeToMultiByteN
+NTSTATUS STDCALL RtlUpcaseUnicodeToMultiByteN
 (
     PCHAR MultiByteString,
     ULONG MaxBytesInMultiByteString,
@@ -1900,14 +1900,14 @@ XBAPI NTSTATUS STDCALL RtlUpcaseUnicodeToMultiByteN
     ULONG BytesInUnicodeString
 );
 
-XBAPI NTSTATUS STDCALL RtlUpcaseUnicodeString
+NTSTATUS STDCALL RtlUpcaseUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PCUNICODE_STRING SourceString,
     BOOLEAN AllocateDestinationString
 );
 
-XBAPI WCHAR STDCALL RtlUpcaseUnicodeChar
+WCHAR STDCALL RtlUpcaseUnicodeChar
 (
     WCHAR SourceCharacter
 );
@@ -1920,7 +1920,7 @@ XBAPI WCHAR STDCALL RtlUpcaseUnicodeChar
  * @param ExceptionRecord A pointer to an EXCEPTION_RECORD structure.
  * @param ReturnValue A value to be placed in the integer function return register before continuing execution.
  */
-XBAPI VOID STDCALL RtlUnwind
+VOID STDCALL RtlUnwind
 (
     IN PVOID TargetFrame OPTIONAL,
     IN PVOID TargetIp OPTIONAL,
@@ -1928,14 +1928,14 @@ XBAPI VOID STDCALL RtlUnwind
     IN PVOID ReturnValue
 );
 
-XBAPI NTSTATUS STDCALL RtlUnicodeToMultiByteSize
+NTSTATUS STDCALL RtlUnicodeToMultiByteSize
 (
     PULONG BytesInMultiByteString,
     PWSTR UnicodeString,
     ULONG BytesInUnicodeString
 );
 
-XBAPI NTSTATUS STDCALL RtlUnicodeToMultiByteN
+NTSTATUS STDCALL RtlUnicodeToMultiByteN
 (
     PCHAR MultiByteString,
     ULONG MaxBytesInMultiByteString,
@@ -1944,7 +1944,7 @@ XBAPI NTSTATUS STDCALL RtlUnicodeToMultiByteN
     ULONG BytesInUnicodeString
 );
 
-XBAPI NTSTATUS STDCALL RtlUnicodeStringToInteger
+NTSTATUS STDCALL RtlUnicodeStringToInteger
 (
     PUNICODE_STRING String,
     ULONG Base,
@@ -1958,7 +1958,7 @@ XBAPI NTSTATUS STDCALL RtlUnicodeStringToInteger
  * @param AllocateDestinationString If TRUE, this function allocates a buffer for the destination string which must be deallocated by using RtlFreeAnsiString. If FALSE, the buffer specified in DestinationString will be used instead.
  * @return STATUS_SUCCESS if the conversion was successfull, otherwise an NTSTATUS error code.
  */
-XBAPI NTSTATUS STDCALL RtlUnicodeStringToAnsiString
+NTSTATUS STDCALL RtlUnicodeStringToAnsiString
 (
     OUT PSTRING DestinationString,
     IN PUNICODE_STRING SourceString,
@@ -1970,7 +1970,7 @@ XBAPI NTSTATUS STDCALL RtlUnicodeStringToAnsiString
  * @param CriticalSection A pointer to the critical section object.
  * @return If the critical section is successfully entered or the current thread already owns the critical section, the return value is nonzero. If another thread already owns the critical section, the return value is zero.
  */
-XBAPI BOOLEAN STDCALL RtlTryEnterCriticalSection
+BOOLEAN STDCALL RtlTryEnterCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
@@ -1980,26 +1980,26 @@ XBAPI BOOLEAN STDCALL RtlTryEnterCriticalSection
  * @param Time Pointer to a buffer containing the absolute system time as a large integer, accurate to 100-nanosecond resolution
  * @param TimeFields Pointer to a caller-allocated buffer, which must be at least sizeof(TIME_FIELDS), to contain the returned information
  */
-XBAPI VOID STDCALL RtlTimeToTimeFields
+VOID STDCALL RtlTimeToTimeFields
 (
     IN PLARGE_INTEGER Time,
     OUT PTIME_FIELDS TimeFields
 );
 
-XBAPI BOOLEAN STDCALL RtlTimeFieldsToTime
+BOOLEAN STDCALL RtlTimeFieldsToTime
 (
     IN PTIME_FIELDS TimeFields,
     OUT PLARGE_INTEGER Time
 );
 
-XBAPI VOID CDECL RtlSprintf
+VOID CDECL RtlSprintf
 (
     CHAR *,
     CONST CHAR *,
     ...
 );
 
-XBAPI VOID CDECL RtlSnprintf
+VOID CDECL RtlSnprintf
 (
     CHAR *,
     SIZE_T,
@@ -2007,36 +2007,36 @@ XBAPI VOID CDECL RtlSnprintf
     ...
 );
 
-XBAPI VOID STDCALL RtlRip
+VOID STDCALL RtlRip
 (
     IN PVOID ApiName,
     IN PVOID Expression,
     IN PVOID Message
 );
 
-XBAPI VOID STDCALL RtlRaiseStatus
+VOID STDCALL RtlRaiseStatus
 (
     IN NTSTATUS Status
 );
 
-XBAPI VOID STDCALL RtlRaiseException
+VOID STDCALL RtlRaiseException
 (
     IN PEXCEPTION_RECORD ExceptionRecord
 );
 
-XBAPI ULONG STDCALL RtlNtStatusToDosError
+ULONG STDCALL RtlNtStatusToDosError
 (
     IN NTSTATUS Status
 );
 
-XBAPI NTSTATUS STDCALL RtlMultiByteToUnicodeSize
+NTSTATUS STDCALL RtlMultiByteToUnicodeSize
 (
     PULONG BytesInUnicodeString,
     PCHAR MultiByteString,
     ULONG BytesInMultiByteString
 );
 
-XBAPI NTSTATUS STDCALL RtlMultiByteToUnicodeN
+NTSTATUS STDCALL RtlMultiByteToUnicodeN
 (
     PWSTR UnicodeString,
     ULONG MaxBytesInUnicodeString,
@@ -2045,7 +2045,7 @@ XBAPI NTSTATUS STDCALL RtlMultiByteToUnicodeN
     ULONG BytesInMultiByteString
 );
 
-XBAPI VOID STDCALL RtlMapGenericMask
+VOID STDCALL RtlMapGenericMask
 (
     PACCESS_MASK AccessMask,
     PGENERIC_MAPPING GenericMapping
@@ -2056,12 +2056,12 @@ XBAPI VOID STDCALL RtlMapGenericMask
  * @param Character The character which will be converted
  * @return The lowercased character
  */
-XBAPI CHAR STDCALL RtlLowerChar
+CHAR STDCALL RtlLowerChar
 (
     IN CHAR Character
 );
 
-XBAPI VOID STDCALL RtlLeaveCriticalSectionAndRegion
+VOID STDCALL RtlLeaveCriticalSectionAndRegion
 (
     PRTL_CRITICAL_SECTION CriticalSection
 );
@@ -2070,19 +2070,19 @@ XBAPI VOID STDCALL RtlLeaveCriticalSectionAndRegion
  * Releases ownership of the specified critical section object.
  * @param CriticalSection A pointer to the critical section object.
  */
-XBAPI VOID STDCALL RtlLeaveCriticalSection
+VOID STDCALL RtlLeaveCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI NTSTATUS STDCALL RtlIntegerToUnicodeString
+NTSTATUS STDCALL RtlIntegerToUnicodeString
 (
     ULONG Value,
     ULONG Base,
     PUNICODE_STRING String
 );
 
-XBAPI NTSTATUS STDCALL RtlIntegerToChar
+NTSTATUS STDCALL RtlIntegerToChar
 (
     ULONG Value,
     ULONG Base,
@@ -2094,7 +2094,7 @@ XBAPI NTSTATUS STDCALL RtlIntegerToChar
  * Initializes a critical section object.
  * @param CriticalSection A pointer to the critical section object.
  */
-XBAPI VOID STDCALL RtlInitializeCriticalSection
+VOID STDCALL RtlInitializeCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
@@ -2106,7 +2106,7 @@ XBAPI VOID STDCALL RtlInitializeCriticalSection
  * @param DestinationString A pointer to the UNICODE_STRING structure to be initialized.
  * @param SourceString A pointer to a null-terminated character string which is used to initialize the counted string structure pointed to by DestinationString.
  */
-XBAPI VOID STDCALL RtlInitUnicodeString
+VOID STDCALL RtlInitUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PCWSTR SourceString
@@ -2117,13 +2117,13 @@ XBAPI VOID STDCALL RtlInitUnicodeString
  * @param DestinationString A pointer to the ANSI_STRING structure to be initialized.
  * @param SourceString A pointer to a null-terminated character string which is used to initialize the counted string structure pointed to by DestinationString.
  */
-XBAPI VOID STDCALL RtlInitAnsiString
+VOID STDCALL RtlInitAnsiString
 (
     PANSI_STRING DestinationString,
     IN PCSZ SourceString
 );
 
-XBAPI VOID STDCALL RtlGetCallersAddress
+VOID STDCALL RtlGetCallersAddress
 (
     OUT PVOID *CallersAddress,
     OUT PVOID *CallersCaller
@@ -2133,7 +2133,7 @@ XBAPI VOID STDCALL RtlGetCallersAddress
  * Frees the string buffer allocated by RtlAnsiStringToUnicodeString.
  * @param UnicodeString A pointer to a Unicode string whose buffer was previously allocated by RtlAnsiStringToUnicodeString.
  */
-XBAPI VOID STDCALL RtlFreeUnicodeString
+VOID STDCALL RtlFreeUnicodeString
 (
     PUNICODE_STRING UnicodeString
 );
@@ -2142,7 +2142,7 @@ XBAPI VOID STDCALL RtlFreeUnicodeString
  * Frees the string buffer allocated by RtlUnicodeStringToAnsiString.
  * @param AnsiString A pointer to an ANSI string whose buffer was previously allocated by RtlUnicodeStringToAnsiString.
  */
-XBAPI VOID STDCALL RtlFreeAnsiString
+VOID STDCALL RtlFreeAnsiString
 (
     PANSI_STRING AnsiString
 );
@@ -2153,28 +2153,28 @@ XBAPI VOID STDCALL RtlFreeAnsiString
  * @param Length The length of the memory block which is to be filled
  * @param Pattern The ULONG-value with which the memory block will be filled
  */
-XBAPI VOID STDCALL RtlFillMemoryUlong
+VOID STDCALL RtlFillMemoryUlong
 (
     PVOID Destination,
     SIZE_T Length,
     ULONG Pattern
 );
 
-XBAPI LARGE_INTEGER STDCALL RtlExtendedMagicDivide
+LARGE_INTEGER STDCALL RtlExtendedMagicDivide
 (
     LARGE_INTEGER Dividend,
     LARGE_INTEGER MagicDivisor,
     CCHAR ShiftCount
 );
 
-XBAPI LARGE_INTEGER STDCALL RtlExtendedLargeIntegerDivide
+LARGE_INTEGER STDCALL RtlExtendedLargeIntegerDivide
 (
     LARGE_INTEGER Dividend,
     ULONG Divisor,
     PULONG Remainder
 );
 
-XBAPI LARGE_INTEGER STDCALL RtlExtendedIntegerMultiply
+LARGE_INTEGER STDCALL RtlExtendedIntegerMultiply
 (
     LARGE_INTEGER Multiplicand,
     LONG Multiplier
@@ -2187,7 +2187,7 @@ XBAPI LARGE_INTEGER STDCALL RtlExtendedIntegerMultiply
  * @param CaseInSensitive Whether to ignore the case of the strings or not
  * @return TRUE if the strings are equal, FALSE if not
  */
-XBAPI BOOLEAN STDCALL RtlEqualUnicodeString
+BOOLEAN STDCALL RtlEqualUnicodeString
 (
     IN CONST PUNICODE_STRING String1,
     IN CONST PUNICODE_STRING String2,
@@ -2201,14 +2201,14 @@ XBAPI BOOLEAN STDCALL RtlEqualUnicodeString
  * @param CaseInSensitive Whether to ignore the case of the strings or not
  * @return TRUE if the strings are equal, FALSE if not
  */
-XBAPI BOOLEAN STDCALL RtlEqualString
+BOOLEAN STDCALL RtlEqualString
 (
     IN CONST PSTRING String1,
     IN CONST PSTRING String2,
     IN BOOLEAN CaseInSensitive
 );
 
-XBAPI VOID STDCALL RtlEnterCriticalSectionAndRegion
+VOID STDCALL RtlEnterCriticalSectionAndRegion
 (
     PRTL_CRITICAL_SECTION CriticalSection
 );
@@ -2217,36 +2217,36 @@ XBAPI VOID STDCALL RtlEnterCriticalSectionAndRegion
  * Waits for ownership of the specified critical section object. The function returns when the calling thread is granted ownership.
  * @param CriticalSection A pointer to the critical section object.
  */
-XBAPI VOID STDCALL RtlEnterCriticalSection
+VOID STDCALL RtlEnterCriticalSection
 (
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
 
-XBAPI NTSTATUS STDCALL RtlDowncaseUnicodeString
+NTSTATUS STDCALL RtlDowncaseUnicodeString
 (
     OUT PUNICODE_STRING DestinationString,
     IN PUNICODE_STRING SourceString,
     IN BOOLEAN AllocateDestinationString
 );
 
-XBAPI WCHAR STDCALL RtlDowncaseUnicodeChar
+WCHAR STDCALL RtlDowncaseUnicodeChar
 (
     WCHAR SourceCharacter
 );
 
-XBAPI BOOLEAN STDCALL RtlCreateUnicodeString
+BOOLEAN STDCALL RtlCreateUnicodeString
 (
     OUT PUNICODE_STRING DestinationString,
     IN PCWSTR SourceString
 );
 
-XBAPI VOID STDCALL RtlCopyUnicodeString
+VOID STDCALL RtlCopyUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PUNICODE_STRING SourceString
 );
 
-XBAPI VOID STDCALL RtlCopyString
+VOID STDCALL RtlCopyString
 (
     OUT PSTRING DestinationString,
     IN PSTRING SourceString
@@ -2259,7 +2259,7 @@ XBAPI VOID STDCALL RtlCopyString
  * @param CaseInSensitive Whether to ignore the case of the strings or not
  * @return Zero if the strings are equal, less than zero if String1 is less than String2, greater than zero if String1 is greater than String2
  */
-XBAPI LONG STDCALL RtlCompareUnicodeString
+LONG STDCALL RtlCompareUnicodeString
 (
     PUNICODE_STRING String1,
     PUNICODE_STRING String2,
@@ -2273,7 +2273,7 @@ XBAPI LONG STDCALL RtlCompareUnicodeString
  * @param CaseInSensitive Whether to ignore the case of the strings or not
  * @return Zero if the strings are equal, less than zero if String1 is less than String2, greater than zero if String1 is greater than String2
  */
-XBAPI LONG STDCALL RtlCompareString
+LONG STDCALL RtlCompareString
 (
     IN CONST PSTRING String1,
     IN CONST PSTRING String2,
@@ -2287,7 +2287,7 @@ XBAPI LONG STDCALL RtlCompareString
  * @param Pattern Pattern to be compared byte by byte, repeatedly, through the specified memory range.
  * @return The number of bytes that were compared and found to be equal. If all bytes compare as equal, the "Length"-value is returned. If "Source" is not ULONG-aligned or if "Length" is not a multiple of sizeof(ULONG), zero is returned.
  */
-XBAPI SIZE_T STDCALL RtlCompareMemoryUlong
+SIZE_T STDCALL RtlCompareMemoryUlong
 (
     PVOID Source,
     SIZE_T Length,
@@ -2301,7 +2301,7 @@ XBAPI SIZE_T STDCALL RtlCompareMemoryUlong
  * @param Length The number of bytes to compare.
  * @return The number of bytes in the two blocks that match. If all bytes match, the "Length"-value is returned.
  */
-XBAPI SIZE_T STDCALL RtlCompareMemory
+SIZE_T STDCALL RtlCompareMemory
 (
     IN CONST VOID *Source1,
     IN CONST VOID *Source2,
@@ -2315,14 +2315,14 @@ XBAPI SIZE_T STDCALL RtlCompareMemory
  * @param Value Pointer to a ULONG variable where the converted value will be stored
  * @return STATUS_SUCCESS if the string was successfully converted, STATUS_INVALID_PARAMETER otherwise
  */
-XBAPI NTSTATUS STDCALL RtlCharToInteger
+NTSTATUS STDCALL RtlCharToInteger
 (
     IN PCSZ String,
     IN ULONG Base OPTIONAL,
     OUT PULONG Value
 );
 
-XBAPI USHORT STDCALL RtlCaptureStackBackTrace
+USHORT STDCALL RtlCaptureStackBackTrace
 (
     IN ULONG FramesToSkip,
     IN ULONG FramesToCapture,
@@ -2330,7 +2330,7 @@ XBAPI USHORT STDCALL RtlCaptureStackBackTrace
     OUT PULONG BackTraceHash
 );
 
-XBAPI VOID STDCALL RtlCaptureContext
+VOID STDCALL RtlCaptureContext
 (
     OUT PCONTEXT ContextRecord
 );
@@ -2342,7 +2342,7 @@ XBAPI VOID STDCALL RtlCaptureContext
  * @param LineNumber The linenumber containing the assertion
  * @param Message An optional message (will also be shown by the debugger)
  */
-XBAPI VOID STDCALL RtlAssert
+VOID STDCALL RtlAssert
 (
     IN PVOID FailedAssertion,
     IN PVOID FileName,
@@ -2350,19 +2350,19 @@ XBAPI VOID STDCALL RtlAssert
     IN PCHAR Message OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL RtlAppendUnicodeToString
+NTSTATUS STDCALL RtlAppendUnicodeToString
 (
     PUNICODE_STRING Destination,
     PCWSTR Source
 );
 
-XBAPI NTSTATUS STDCALL RtlAppendUnicodeStringToString
+NTSTATUS STDCALL RtlAppendUnicodeStringToString
 (
     PUNICODE_STRING Destination,
     PUNICODE_STRING Source
 );
 
-XBAPI NTSTATUS STDCALL RtlAppendStringToString
+NTSTATUS STDCALL RtlAppendStringToString
 (
     IN PSTRING Destination,
     IN PSTRING Source
@@ -2375,7 +2375,7 @@ XBAPI NTSTATUS STDCALL RtlAppendStringToString
  * @param AllocateDestinationString If TRUE, this function allocates a buffer for the destination string which must be deallocated by using RtlFreeUnicodeString. If FALSE, the buffer specified in DestinationString will be used instead.
  * @return STATUS_SUCCESS if the conversion was successfull, otherwise an NTSTATUS error code.
  */
-XBAPI NTSTATUS STDCALL RtlAnsiStringToUnicodeString
+NTSTATUS STDCALL RtlAnsiStringToUnicodeString
 (
     PUNICODE_STRING DestinationString,
     PSTRING SourceString,
@@ -2388,7 +2388,7 @@ XBAPI NTSTATUS STDCALL RtlAnsiStringToUnicodeString
  * @param Buffer Pointer to a buffer into which the array of values will be written.
  * @param Count Specifies the number of values to be read from the port and written into the buffer.
  */
-XBAPI VOID STDCALL READ_PORT_BUFFER_USHORT
+VOID STDCALL READ_PORT_BUFFER_USHORT
 (
     IN PUSHORT Port,
     OUT PUSHORT Buffer,
@@ -2401,7 +2401,7 @@ XBAPI VOID STDCALL READ_PORT_BUFFER_USHORT
  * @param Buffer Pointer to a buffer into which the array of values will be written.
  * @param Count Specifies the number of values to be read from the port and written into the buffer.
  */
-XBAPI VOID STDCALL READ_PORT_BUFFER_ULONG
+VOID STDCALL READ_PORT_BUFFER_ULONG
 (
     IN PULONG Port,
     OUT PULONG Buffer,
@@ -2414,7 +2414,7 @@ XBAPI VOID STDCALL READ_PORT_BUFFER_ULONG
  * @param Buffer Pointer to a buffer into which the array of values will be written.
  * @param Count Specifies the number of values to be read from the port and written into the buffer.
  */
-XBAPI VOID STDCALL READ_PORT_BUFFER_UCHAR
+VOID STDCALL READ_PORT_BUFFER_UCHAR
 (
     IN PUCHAR Port,
     OUT PUCHAR Buffer,
@@ -2423,23 +2423,23 @@ XBAPI VOID STDCALL READ_PORT_BUFFER_UCHAR
 
 XBAPI OBJECT_TYPE PsThreadObjectType;
 
-XBAPI VOID STDCALL __attribute__ ((noreturn)) PsTerminateSystemThread
+VOID STDCALL __attribute__ ((noreturn)) PsTerminateSystemThread
 (
     IN NTSTATUS ExitStatus
 );
 
-XBAPI NTSTATUS STDCALL PsSetCreateThreadNotifyRoutine
+NTSTATUS STDCALL PsSetCreateThreadNotifyRoutine
 (
     IN PCREATE_THREAD_NOTIFY_ROUTINE NotifyRoutine
 );
 
-XBAPI NTSTATUS STDCALL PsQueryStatistics
+NTSTATUS STDCALL PsQueryStatistics
 (
     IN OUT PPS_STATISTICS ProcessStatistics
 );
 
 
-XBAPI NTSTATUS STDCALL PsCreateSystemThreadEx
+NTSTATUS STDCALL PsCreateSystemThreadEx
 (
     OUT PHANDLE ThreadHandle,
     IN SIZE_T ThreadExtensionSize,
@@ -2453,7 +2453,7 @@ XBAPI NTSTATUS STDCALL PsCreateSystemThreadEx
     IN PKSYSTEM_ROUTINE SystemRoutine OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL PsCreateSystemThread
+NTSTATUS STDCALL PsCreateSystemThread
 (
     OUT PHANDLE ThreadHandle,
     OUT PHANDLE ThreadId OPTIONAL,
@@ -2468,7 +2468,7 @@ XBAPI NTSTATUS STDCALL PsCreateSystemThread
  * @param param Optional parameters (seemingly unused)
  * @return Status code (zero on success)
  */
-XBAPI NTSTATUS STDCALL PhyInitialize
+NTSTATUS STDCALL PhyInitialize
 (
     BOOLEAN forceReset,
     PVOID param OPTIONAL
@@ -2485,7 +2485,7 @@ XBAPI NTSTATUS STDCALL PhyInitialize
  * @param update If FALSE, the kernel returns the cached value, otherwise the hardware is polled and the cached value updated
  * @return Flags describing the status of the NIC. See XNET_ETHERNET_LINK bit masks.
  */
-XBAPI DWORD STDCALL PhyGetLinkState
+DWORD STDCALL PhyGetLinkState
 (
     BOOLEAN update
 );
@@ -2493,13 +2493,13 @@ XBAPI DWORD STDCALL PhyGetLinkState
 XBAPI OBJECT_HANDLE_TABLE ObpObjectHandleTable;
 XBAPI OBJECT_TYPE ObSymbolicLinkObjectType;
 
-XBAPI NTSTATUS STDCALL ObReferenceObjectByPointer
+NTSTATUS STDCALL ObReferenceObjectByPointer
 (
     IN PVOID Object,
     IN POBJECT_TYPE ObjectType
 );
 
-XBAPI NTSTATUS STDCALL ObReferenceObjectByName
+NTSTATUS STDCALL ObReferenceObjectByName
 (
     IN POBJECT_STRING ObjectName,
     IN ULONG Attributes,
@@ -2508,21 +2508,21 @@ XBAPI NTSTATUS STDCALL ObReferenceObjectByName
     OUT PVOID *Object
 );
 
-XBAPI NTSTATUS STDCALL ObReferenceObjectByHandle
+NTSTATUS STDCALL ObReferenceObjectByHandle
 (
     IN HANDLE Handle,
     IN POBJECT_TYPE ObjectType OPTIONAL,
     OUT PVOID *ReturnedObject
 );
 
-XBAPI NTSTATUS STDCALL ObOpenObjectByPointer
+NTSTATUS STDCALL ObOpenObjectByPointer
 (
     IN PVOID Object,
     IN POBJECT_TYPE ObjectType,
     OUT PHANDLE Handle
 );
 
-XBAPI NTSTATUS STDCALL ObOpenObjectByName
+NTSTATUS STDCALL ObOpenObjectByName
 (
     IN POBJECT_ATTRIBUTES ObjectAttributes,
     IN POBJECT_TYPE ObjectType,
@@ -2530,12 +2530,12 @@ XBAPI NTSTATUS STDCALL ObOpenObjectByName
     OUT PHANDLE Handle
 );
 
-XBAPI VOID STDCALL ObMakeTemporaryObject
+VOID STDCALL ObMakeTemporaryObject
 (
     IN PVOID Object
 );
 
-XBAPI NTSTATUS STDCALL ObInsertObject
+NTSTATUS STDCALL ObInsertObject
 (
     IN PVOID Object,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -2545,7 +2545,7 @@ XBAPI NTSTATUS STDCALL ObInsertObject
 
 XBAPI OBJECT_TYPE ObDirectoryObjectType;
 
-XBAPI NTSTATUS STDCALL ObCreateObject
+NTSTATUS STDCALL ObCreateObject
 (
     IN POBJECT_TYPE ObjectType,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -2556,9 +2556,9 @@ XBAPI NTSTATUS STDCALL ObCreateObject
 /**
  * yields execution of the current thread for one timeslice
  */
-XBAPI NTSTATUS STDCALL NtYieldExecution(void);
+NTSTATUS STDCALL NtYieldExecution(void);
 
-XBAPI BOOLEAN STDCALL NtWriteFileGather
+BOOLEAN STDCALL NtWriteFileGather
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -2570,7 +2570,7 @@ XBAPI BOOLEAN STDCALL NtWriteFileGather
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtWriteFile
+NTSTATUS STDCALL NtWriteFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -2590,7 +2590,7 @@ XBAPI NTSTATUS STDCALL NtWriteFile
  * @param Timeout An optional (set to NULL when not used) pointer to an absolute or relative time over which the wait is to occur. If an explicit timeout value of zero is specified, then no wait occurs if the wait cannot be satisfied immediately.
  * @return The wait completion status. Can be STATUS_SUCCESS (specified object satisifed the wait), STATUS_TIMEOUT (a timeout occured), STATUS_ALERTED (the wait was aborted to deliver an alert to the current thread) or STATUS_USER_APC (the wait was aborted to deliver a user APC to the current thread).
  */
-XBAPI NTSTATUS STDCALL NtWaitForSingleObjectEx
+NTSTATUS STDCALL NtWaitForSingleObjectEx
 (
     IN HANDLE Handle,
     IN KPROCESSOR_MODE WaitMode,
@@ -2605,7 +2605,7 @@ XBAPI NTSTATUS STDCALL NtWaitForSingleObjectEx
  * @param Timeout An optional (set to NULL when not used) pointer to an absolute or relative time over which the wait is to occur. If an explicit timeout value of zero is specified, then no wait occurs if the wait cannot be satisfied immediately.
  * @return The wait completion status. Can be STATUS_SUCCESS (specified object satisifed the wait), STATUS_TIMEOUT (a timeout occured), STATUS_ALERTED (the wait was aborted to deliver an alert to the current thread) or STATUS_USER_APC (the wait was aborted to deliver a user APC to the current thread).
  */
-XBAPI NTSTATUS STDCALL NtWaitForSingleObject
+NTSTATUS STDCALL NtWaitForSingleObject
 (
     IN HANDLE Handle,
     IN BOOLEAN Alertable,
@@ -2622,7 +2622,7 @@ XBAPI NTSTATUS STDCALL NtWaitForSingleObject
  * @param Timeout An optional (set to NULL when not used) pointer to an absolute or relative time over which the wait is to occur. If an explicit timeout value of zero is specified, then no wait occurs if the wait cannot be satisfied immediately.
  * @return The wait completion status. The index of the object in the array that satisfied the wait is returned. Can also be STATUS_TIMEOUT (a timeout occured), STATUS_ALERTED (the wait was aborted to deliver an alert to the current thread) or STATUS_USER_APC (the wait was aborted to deliver a user APC to the current thread).
  */
-XBAPI NTSTATUS STDCALL NtWaitForMultipleObjectsEx
+NTSTATUS STDCALL NtWaitForMultipleObjectsEx
 (
     IN ULONG Count,
     IN CONST HANDLE Handles[],
@@ -2632,7 +2632,7 @@ XBAPI NTSTATUS STDCALL NtWaitForMultipleObjectsEx
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI VOID STDCALL NtUserIoApcDispatcher
+VOID STDCALL NtUserIoApcDispatcher
 (
     IN PVOID ApcContext,
     IN PIO_STATUS_BLOCK IoStatusBlock,
@@ -2645,13 +2645,13 @@ XBAPI VOID STDCALL NtUserIoApcDispatcher
  * @param PreviousSuspendCount Optional pointer to a variable that receives the thread's previous suspend count.
  * @return The status of the operation.
  */
-XBAPI NTSTATUS STDCALL NtSuspendThread
+NTSTATUS STDCALL NtSuspendThread
 (
     IN HANDLE ThreadHandle,
     OUT PULONG PreviousSuspendCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSignalAndWaitForSingleObjectEx
+NTSTATUS STDCALL NtSignalAndWaitForSingleObjectEx
 (
     IN HANDLE SignalHandle,
     IN HANDLE WaitHandle,
@@ -2660,7 +2660,7 @@ XBAPI NTSTATUS STDCALL NtSignalAndWaitForSingleObjectEx
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSetTimerEx
+NTSTATUS STDCALL NtSetTimerEx
 (
     IN HANDLE TimerHandle,
     IN PLARGE_INTEGER DueTime,
@@ -2678,13 +2678,13 @@ XBAPI NTSTATUS STDCALL NtSetTimerEx
  * @param PreviousTime An optional pointer to a variable that receives the previous system time.
  * @return The status of the operation. STATUS_SUCCESS when successfull, STATUS_ACCESS_VIOLATION if the input parameter cannot be read or the output cannot be written, STATUS_INVALID_PARAMETER if the input time is negative.
  */
-XBAPI NTSTATUS STDCALL NtSetSystemTime
+NTSTATUS STDCALL NtSetSystemTime
 (
     IN PLARGE_INTEGER SystemTime,
     OUT PLARGE_INTEGER PreviousTime OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSetIoCompletion
+NTSTATUS STDCALL NtSetIoCompletion
 (
     IN HANDLE IoCompletionHandle,
     IN PVOID KeyContext,
@@ -2693,7 +2693,7 @@ XBAPI NTSTATUS STDCALL NtSetIoCompletion
     IN ULONG_PTR IoStatusInformation
 );
 
-XBAPI NTSTATUS STDCALL NtSetInformationFile
+NTSTATUS STDCALL NtSetInformationFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock,
@@ -2708,7 +2708,7 @@ XBAPI NTSTATUS STDCALL NtSetInformationFile
  * @param PreviousState An optional pointer to a variable that will get set to the previous state of the event object.
  * @return STATUS_SUCCESS on success, an NTSTATUS error code otherwise.
  */
-XBAPI NTSTATUS STDCALL NtSetEvent
+NTSTATUS STDCALL NtSetEvent
 (
     IN HANDLE EventHandle,
     OUT PLONG PreviousState OPTIONAL
@@ -2720,13 +2720,13 @@ XBAPI NTSTATUS STDCALL NtSetEvent
  * @param PreviousSuspendCount Optional pointer to a variable that receives the thread's previous suspend count.
  * @return The status of the operation.
  */
-XBAPI NTSTATUS STDCALL NtResumeThread
+NTSTATUS STDCALL NtResumeThread
 (
     IN HANDLE ThreadHandle,
     OUT PULONG PreviousSuspendCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtRemoveIoCompletion
+NTSTATUS STDCALL NtRemoveIoCompletion
 (
     IN HANDLE IoCompletionHandle,
     OUT PVOID *KeyContext,
@@ -2742,7 +2742,7 @@ XBAPI NTSTATUS STDCALL NtRemoveIoCompletion
  * @param PreviousCount An optional pointer to a variable that receives the previous count for the semaphore.
  * @return The status of the release operation, STATUS_SUCCESS on success.
  */
-XBAPI NTSTATUS STDCALL NtReleaseSemaphore
+NTSTATUS STDCALL NtReleaseSemaphore
 (
     IN HANDLE SemaphoreHandle,
     IN LONG ReleaseCount,
@@ -2755,13 +2755,13 @@ XBAPI NTSTATUS STDCALL NtReleaseSemaphore
  * @param PreviousCount An optional pointer to a variable that receives the previous mutant count.
  * @return The status of the operation.
  */
-XBAPI NTSTATUS STDCALL NtReleaseMutant
+NTSTATUS STDCALL NtReleaseMutant
 (
     IN HANDLE MutantHandle,
     OUT PLONG PreviousCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtReadFileScatter
+NTSTATUS STDCALL NtReadFileScatter
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -2773,7 +2773,7 @@ XBAPI NTSTATUS STDCALL NtReadFileScatter
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtReadFile
+NTSTATUS STDCALL NtReadFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -2785,7 +2785,7 @@ XBAPI NTSTATUS STDCALL NtReadFile
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtQueueApcThread
+NTSTATUS STDCALL NtQueueApcThread
 (
     IN HANDLE ThreadHandle,
     IN PPS_APC_ROUTINE ApcRoutine,
@@ -2794,7 +2794,7 @@ XBAPI NTSTATUS STDCALL NtQueueApcThread
     IN PVOID ApcArgument3
 );
 
-XBAPI NTSTATUS STDCALL NtQueryVolumeInformationFile
+NTSTATUS STDCALL NtQueryVolumeInformationFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock,
@@ -2803,19 +2803,19 @@ XBAPI NTSTATUS STDCALL NtQueryVolumeInformationFile
     IN FS_INFORMATION_CLASS FsInformationClass
 );
 
-XBAPI NTSTATUS STDCALL NtQueryVirtualMemory
+NTSTATUS STDCALL NtQueryVirtualMemory
 (
     IN PVOID BaseAddress,
     OUT PMEMORY_BASIC_INFORMATION MemoryInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryTimer
+NTSTATUS STDCALL NtQueryTimer
 (
     IN HANDLE TimerHandle,
     OUT PTIMER_BASIC_INFORMATION TimerInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQuerySymbolicLinkObject
+NTSTATUS STDCALL NtQuerySymbolicLinkObject
 (
     IN HANDLE LinkHandle,
     IN OUT POBJECT_STRING LinkTarget,
@@ -2828,7 +2828,7 @@ XBAPI NTSTATUS STDCALL NtQuerySymbolicLinkObject
  * @param SemaphoreInformation A pointer to a buffer (SEMAPHORE_BASIC_INFORMATION-structure) that receives the queried information.
  * @return The status code of the query operation, STATUS_SUCCESS on success.
  */
-XBAPI NTSTATUS STDCALL NtQuerySemaphore
+NTSTATUS STDCALL NtQuerySemaphore
 (
     IN HANDLE SemaphoreHandle,
     OUT PSEMAPHORE_BASIC_INFORMATION SemaphoreInformation
@@ -2840,19 +2840,19 @@ XBAPI NTSTATUS STDCALL NtQuerySemaphore
  * @param MutantInformation A pointer to a MUTANT_BASIC_INFORMATION-structure that receives the requested information.
  * @return The status of the operation.
  */
-XBAPI NTSTATUS STDCALL NtQueryMutant
+NTSTATUS STDCALL NtQueryMutant
 (
     IN HANDLE MutantHandle,
     OUT PMUTANT_BASIC_INFORMATION MutantInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryIoCompletion
+NTSTATUS STDCALL NtQueryIoCompletion
 (
     IN HANDLE IoCompletionHandle,
     OUT PIO_COMPLETION_BASIC_INFORMATION IoCompletionInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryInformationFile
+NTSTATUS STDCALL NtQueryInformationFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock,
@@ -2861,19 +2861,19 @@ XBAPI NTSTATUS STDCALL NtQueryInformationFile
     IN FILE_INFORMATION_CLASS FileInformationClass
 );
 
-XBAPI NTSTATUS STDCALL NtQueryFullAttributesFile
+NTSTATUS STDCALL NtQueryFullAttributesFile
 (
     IN POBJECT_ATTRIBUTES ObjectAttributes,
     OUT PFILE_NETWORK_OPEN_INFORMATION FileInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryEvent
+NTSTATUS STDCALL NtQueryEvent
 (
     IN HANDLE EventHandle,
     OUT PEVENT_BASIC_INFORMATION EventInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryDirectoryObject
+NTSTATUS STDCALL NtQueryDirectoryObject
 (
     IN HANDLE DirectoryHandle,
     OUT PVOID Buffer,
@@ -2883,7 +2883,7 @@ XBAPI NTSTATUS STDCALL NtQueryDirectoryObject
     OUT PULONG ReturnLength OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtQueryDirectoryFile
+NTSTATUS STDCALL NtQueryDirectoryFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -2903,13 +2903,13 @@ XBAPI NTSTATUS STDCALL NtQueryDirectoryFile
  * @param PreviousState An optional pointer to a variable that will get set to the previous state of the event object.
  * @return STATUS_SUCCESS on success, an NTSTATUS error code otherwise.
  */
-XBAPI NTSTATUS STDCALL NtPulseEvent
+NTSTATUS STDCALL NtPulseEvent
 (
     IN HANDLE EventHandle,
     OUT PLONG PreviousState OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtProtectVirtualMemory
+NTSTATUS STDCALL NtProtectVirtualMemory
 (
     IN OUT PVOID *BaseAddress,
     IN OUT PSIZE_T RegionSize,
@@ -2917,13 +2917,13 @@ XBAPI NTSTATUS STDCALL NtProtectVirtualMemory
     OUT PULONG OldProtect
 );
 
-XBAPI NTSTATUS STDCALL NtOpenSymbolicLinkObject
+NTSTATUS STDCALL NtOpenSymbolicLinkObject
 (
     OUT PHANDLE LinkHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-XBAPI NTSTATUS STDCALL NtOpenFile
+NTSTATUS STDCALL NtOpenFile
 (
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -2933,7 +2933,7 @@ XBAPI NTSTATUS STDCALL NtOpenFile
     IN ULONG OpenOptions
 );
 
-XBAPI NTSTATUS STDCALL NtOpenDirectoryObject
+NTSTATUS STDCALL NtOpenDirectoryObject
 (
     OUT PHANDLE DirectoryHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes
@@ -2952,7 +2952,7 @@ XBAPI NTSTATUS STDCALL NtOpenDirectoryObject
 #define FILE_DEVICE_FILE_SYSTEM 0x00000009
 #define FSCTL_DISMOUNT_VOLUME CTL_CODE(FILE_DEVICE_FILE_SYSTEM, 8, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
-XBAPI NTSTATUS STDCALL NtFsControlFile
+NTSTATUS STDCALL NtFsControlFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -2966,20 +2966,20 @@ XBAPI NTSTATUS STDCALL NtFsControlFile
     IN ULONG OutputBufferLength
 );
 
-XBAPI NTSTATUS STDCALL NtFreeVirtualMemory
+NTSTATUS STDCALL NtFreeVirtualMemory
 (
     IN OUT PVOID *BaseAddress,
     IN OUT PSIZE_T RegionSize,
     IN ULONG FreeType
 );
 
-XBAPI NTSTATUS STDCALL NtFlushBuffersFile
+NTSTATUS STDCALL NtFlushBuffersFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock
 );
 
-XBAPI NTSTATUS STDCALL NtDuplicateObject
+NTSTATUS STDCALL NtDuplicateObject
 (
     IN HANDLE SourceHandle,
     OUT PHANDLE TargetHandle,
@@ -3042,7 +3042,7 @@ typedef struct _PARTITION_INFORMATION
 #define IOCTL_DISK_GET_DRIVE_GEOMETRY CTL_CODE(IOCTL_DISK_BASE, 0x0000, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_DISK_GET_PARTITION_INFO CTL_CODE(IOCTL_DISK_BASE, 0x0001, METHOD_BUFFERED, FILE_READ_ACCESS)
 
-XBAPI NTSTATUS STDCALL NtDeviceIoControlFile
+NTSTATUS STDCALL NtDeviceIoControlFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -3057,12 +3057,12 @@ XBAPI NTSTATUS STDCALL NtDeviceIoControlFile
 );
 
 
-XBAPI BOOLEAN STDCALL NtDeleteFile
+BOOLEAN STDCALL NtDeleteFile
 (
     IN POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-XBAPI NTSTATUS STDCALL NtCreateTimer
+NTSTATUS STDCALL NtCreateTimer
 (
     OUT PHANDLE TimerHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes,
@@ -3077,7 +3077,7 @@ XBAPI NTSTATUS STDCALL NtCreateTimer
  * @param MaximumCount The maximum count for the semaphore, this value must be greater than zero.
  * @return STATUS_SUCCESS on success or error code.
  */
-XBAPI NTSTATUS STDCALL NtCreateSemaphore
+NTSTATUS STDCALL NtCreateSemaphore
 (
     OUT PHANDLE SemaphoreHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -3092,14 +3092,14 @@ XBAPI NTSTATUS STDCALL NtCreateSemaphore
  * @param InitialOwner A boolean value that specifies whether the creator of the mutant object wants immediate ownership.
  * @return The status of the operation.
  */
-XBAPI NTSTATUS STDCALL NtCreateMutant
+NTSTATUS STDCALL NtCreateMutant
 (
     OUT PHANDLE MutantHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
     IN BOOLEAN InitialOwner
 );
 
-XBAPI NTSTATUS STDCALL NtCreateIoCompletion
+NTSTATUS STDCALL NtCreateIoCompletion
 (
     OUT PHANDLE IoCompletionHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -3107,7 +3107,7 @@ XBAPI NTSTATUS STDCALL NtCreateIoCompletion
     IN ULONG Count OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtCreateFile
+NTSTATUS STDCALL NtCreateFile
 (
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -3246,7 +3246,7 @@ XBAPI NTSTATUS STDCALL NtCreateFile
  * @param InitialState The initial state of the event object. Set to TRUE to initialize the event object to the Signaled state. Set to FALSE to initialize the event object to the not-Signaled state.
  * @return STATUS_SUCCESS when the call is successfull, otherwise an NTSTATUS error code. STATUS_OBJECT_NAME_EXISTS if an event object of the same name already exists and was opened instead of creating a new one.
  */
-XBAPI NTSTATUS STDCALL NtCreateEvent
+NTSTATUS STDCALL NtCreateEvent
 (
     OUT PHANDLE EventHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -3254,7 +3254,7 @@ XBAPI NTSTATUS STDCALL NtCreateEvent
     IN BOOLEAN InitialState
 );
 
-XBAPI NTSTATUS STDCALL NtCreateDirectoryObject
+NTSTATUS STDCALL NtCreateDirectoryObject
 (
     OUT PHANDLE DirectoryHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes
@@ -3265,7 +3265,7 @@ XBAPI NTSTATUS STDCALL NtCreateDirectoryObject
  * @param Handle Handle to an object
  * @return STATE_SUCCESS on success, error code (e.g. STATUS_INVALID_HANDLE, STATUS_HANDLE_NOT_CLOSABLE) otherwise
  */
-XBAPI NTSTATUS STDCALL NtClose
+NTSTATUS STDCALL NtClose
 (
     IN HANDLE Handle
 );
@@ -3275,18 +3275,18 @@ XBAPI NTSTATUS STDCALL NtClose
  * @param EventHandle A HANDLE to the event object that is to be reset.
  * @return STATE_SUCCESS on success, an NTSTATUS error code otherwise.
  */
-XBAPI NTSTATUS STDCALL NtClearEvent
+NTSTATUS STDCALL NtClearEvent
 (
     IN HANDLE EventHandle
 );
 
-XBAPI NTSTATUS STDCALL NtCancelTimer
+NTSTATUS STDCALL NtCancelTimer
 (
     IN HANDLE TimerHandle,
     OUT PBOOLEAN CurrentState OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtAllocateVirtualMemory
+NTSTATUS STDCALL NtAllocateVirtualMemory
 (
     IN OUT PVOID *BaseAddress,
     IN ULONG_PTR ZeroBits,
@@ -3324,30 +3324,30 @@ XBAPI NTSTATUS STDCALL NtAllocateVirtualMemory
 #define MEM_LARGE_PAGES 0x20000000
 #define MEM_4MB_PAGES 0x80000000
 
-XBAPI PVOID STDCALL MmUnmapIoSpace
+PVOID STDCALL MmUnmapIoSpace
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI VOID STDCALL MmSetAddressProtect
+VOID STDCALL MmSetAddressProtect
 (
     IN PVOID BaseAddress,
     IN ULONG NumberOfBytes,
     IN ULONG NewProtect
 );
 
-XBAPI NTSTATUS STDCALL MmQueryStatistics
+NTSTATUS STDCALL MmQueryStatistics
 (
     IN OUT PMM_STATISTICS MemoryStatistics
 );
 
-XBAPI SIZE_T STDCALL MmQueryAllocationSize
+SIZE_T STDCALL MmQueryAllocationSize
 (
     IN PVOID BaseAddress
 );
 
-XBAPI ULONG STDCALL MmQueryAddressProtect
+ULONG STDCALL MmQueryAddressProtect
 (
     IN PVOID VirtualAddress
 );
@@ -3358,27 +3358,27 @@ XBAPI ULONG STDCALL MmQueryAddressProtect
  * @param NumberOfBytes The number of bytes to be preserved.
  * @param Persist TRUE if the memory should be persistent, else FALSE.
  */
-XBAPI VOID STDCALL MmPersistContiguousMemory
+VOID STDCALL MmPersistContiguousMemory
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes,
     IN BOOLEAN Persist
 );
 
-XBAPI PVOID STDCALL MmMapIoSpace
+PVOID STDCALL MmMapIoSpace
 (
     IN ULONG_PTR PhysicalAddress,
     IN SIZE_T NumberOfBytes,
     IN ULONG Protect
 );
 
-XBAPI VOID STDCALL MmLockUnlockPhysicalPage
+VOID STDCALL MmLockUnlockPhysicalPage
 (
     IN ULONG_PTR PhysicalAddress,
     IN BOOLEAN UnlockPage
 );
 
-XBAPI VOID STDCALL MmLockUnlockBufferPages
+VOID STDCALL MmLockUnlockBufferPages
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes,
@@ -3390,7 +3390,7 @@ XBAPI VOID STDCALL MmLockUnlockBufferPages
  * @param VirtualAddress The virtual address to be checked.
  * @return TRUE if a page fault would occur, FALSE if not.
  */
-XBAPI BOOLEAN STDCALL MmIsAddressValid
+BOOLEAN STDCALL MmIsAddressValid
 (
     IN PVOID VirtualAddress
 );
@@ -3402,73 +3402,73 @@ XBAPI MMGLOBALDATA MmGlobalData;
  * @param BaseAddress A valid virtual address for which the physical address is to be returned.
  * @return The corresponding physical address.
  */
-XBAPI ULONG_PTR STDCALL MmGetPhysicalAddress
+ULONG_PTR STDCALL MmGetPhysicalAddress
 (
     IN PVOID BaseAddress
 );
 
-XBAPI ULONG STDCALL MmFreeSystemMemory
+ULONG STDCALL MmFreeSystemMemory
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI VOID STDCALL MmFreeContiguousMemory
+VOID STDCALL MmFreeContiguousMemory
 (
     IN PVOID BaseAddress
 );
 
-XBAPI VOID STDCALL MmDeleteKernelStack
+VOID STDCALL MmDeleteKernelStack
 (
     IN PVOID KernelStackBase,
     IN PVOID KernelStackLimit
 );
 
-XBAPI PVOID STDCALL MmDbgWriteCheck
+PVOID STDCALL MmDbgWriteCheck
 (
     IN PVOID VirtualAddress,
     IN PHARDWARE_PTE Opaque
 );
 
-XBAPI VOID STDCALL MmDbgReleaseAddress
+VOID STDCALL MmDbgReleaseAddress
 (
     IN PVOID VirtualAddress,
     IN PHARDWARE_PTE Opaque
 );
 
-XBAPI PFN_COUNT STDCALL MmDbgQueryAvailablePages (void);
+PFN_COUNT STDCALL MmDbgQueryAvailablePages (void);
 
-XBAPI ULONG STDCALL MmDbgFreeMemory
+ULONG STDCALL MmDbgFreeMemory
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI PVOID STDCALL MmDbgAllocateMemory
+PVOID STDCALL MmDbgAllocateMemory
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG Protect
 );
 
-XBAPI PVOID STDCALL MmCreateKernelStack
+PVOID STDCALL MmCreateKernelStack
 (
     IN SIZE_T NumberOfBytes,
     IN BOOLEAN DebuggerThread
 );
 
-XBAPI PVOID STDCALL MmClaimGpuInstanceMemory
+PVOID STDCALL MmClaimGpuInstanceMemory
 (
     IN SIZE_T NumberOfBytes,
     OUT SIZE_T *NumberOfPaddingBytes
 );
 
-XBAPI PVOID STDCALL MmAllocateSystemMemory
+PVOID STDCALL MmAllocateSystemMemory
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG Protect
 );
 
-XBAPI PVOID STDCALL MmAllocateContiguousMemoryEx
+PVOID STDCALL MmAllocateContiguousMemoryEx
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG_PTR LowestAcceptableAddress,
@@ -3477,7 +3477,7 @@ XBAPI PVOID STDCALL MmAllocateContiguousMemoryEx
     IN ULONG Protect
 );
 
-XBAPI PVOID STDCALL MmAllocateContiguousMemory
+PVOID STDCALL MmAllocateContiguousMemory
 (
     IN SIZE_T NumberOfBytes
 );
@@ -3486,7 +3486,7 @@ XBAPI PLAUNCH_DATA_PAGE LaunchDataPage;
 
 XBAPI ULONG KiBugCheckData[];
 
-XBAPI NTSTATUS STDCALL KeWaitForSingleObject
+NTSTATUS STDCALL KeWaitForSingleObject
 (
     IN PVOID Object,
     IN KWAIT_REASON WaitReason,
@@ -3495,7 +3495,7 @@ XBAPI NTSTATUS STDCALL KeWaitForSingleObject
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL KeWaitForMultipleObjects
+NTSTATUS STDCALL KeWaitForMultipleObjects
 (
     IN ULONG Count,
     IN PVOID Object[],
@@ -3514,21 +3514,21 @@ XBAPI CONST ULONG KeTimeIncrement;
  */
 XBAPI volatile DWORD KeTickCount;
 
-XBAPI BOOLEAN STDCALL KeTestAlertThread
+BOOLEAN STDCALL KeTestAlertThread
 (
     IN KPROCESSOR_MODE ProcessorMode
 );
 
 XBAPI volatile KSYSTEM_TIME KeSystemTime;
 
-XBAPI BOOLEAN STDCALL KeSynchronizeExecution
+BOOLEAN STDCALL KeSynchronizeExecution
 (
     IN PKINTERRUPT Interrupt,
     IN PKSYNCHRONIZE_ROUTINE SynchronizeRoutine,
     IN PVOID SynchronizeContext
 );
 
-XBAPI ULONG STDCALL KeSuspendThread
+ULONG STDCALL KeSuspendThread
 (
     IN PKTHREAD Thread
 );
@@ -3537,12 +3537,12 @@ XBAPI ULONG STDCALL KeSuspendThread
  * Stalls the caller on the current processor for a specified time Interval.
  * @param MicroSeconds Specifies the number of microseconds to stall.
  */
-XBAPI VOID STDCALL KeStallExecutionProcessor
+VOID STDCALL KeStallExecutionProcessor
 (
     IN ULONG MicroSeconds
 );
 
-XBAPI BOOLEAN STDCALL KeSetTimerEx
+BOOLEAN STDCALL KeSetTimerEx
 (
     IN PKTIMER Timer,
     IN LARGE_INTEGER DueTime,
@@ -3550,7 +3550,7 @@ XBAPI BOOLEAN STDCALL KeSetTimerEx
     IN PKDPC Dpc OPTIONAL
 );
 
-XBAPI BOOLEAN STDCALL KeSetTimer
+BOOLEAN STDCALL KeSetTimer
 (
     IN PKTIMER Timer,
     IN LARGE_INTEGER DueTime,
@@ -3563,64 +3563,64 @@ XBAPI BOOLEAN STDCALL KeSetTimer
  * @param Priority Specifies the priority of the thread, usually to the real-time priority value, LOW_REALTIME_PRIORITY. The value LOW_PRIORITY is reserved for system use.
  * @return Returns the old priority of the thread.
  */
-XBAPI KPRIORITY STDCALL KeSetPriorityThread
+KPRIORITY STDCALL KeSetPriorityThread
 (
     IN PKTHREAD Thread,
     IN KPRIORITY Priority
 );
 
-XBAPI KPRIORITY STDCALL KeSetPriorityProcess
+KPRIORITY STDCALL KeSetPriorityProcess
 (
     IN PKPROCESS Process,
     IN KPRIORITY BasePriority
 );
 
-XBAPI VOID STDCALL KeSetEventBoostPriority
+VOID STDCALL KeSetEventBoostPriority
 (
     IN PRKEVENT Event,
     IN PRKTHREAD *Thread OPTIONAL
 );
 
-XBAPI LONG STDCALL KeSetEvent
+LONG STDCALL KeSetEvent
 (
     IN PRKEVENT Event,
     IN KPRIORITY Increment,
     IN BOOLEAN Wait
 );
 
-XBAPI LOGICAL STDCALL KeSetDisableBoostThread
+LOGICAL STDCALL KeSetDisableBoostThread
 (
     IN PKTHREAD Thread,
     IN LOGICAL Disable
 );
 
-XBAPI LONG STDCALL KeSetBasePriorityThread
+LONG STDCALL KeSetBasePriorityThread
 (
     IN PKTHREAD Thread,
     IN LONG Increment
 );
 
-XBAPI NTSTATUS STDCALL KeSaveFloatingPointState
+NTSTATUS STDCALL KeSaveFloatingPointState
 (
     OUT PKFLOATING_SAVE FloatSave
 );
 
-XBAPI PLIST_ENTRY STDCALL KeRundownQueue
+PLIST_ENTRY STDCALL KeRundownQueue
 (
     IN PRKQUEUE Queue
 );
 
-XBAPI ULONG STDCALL KeResumeThread
+ULONG STDCALL KeResumeThread
 (
     IN PKTHREAD Thread
 );
 
-XBAPI NTSTATUS STDCALL KeRestoreFloatingPointState
+NTSTATUS STDCALL KeRestoreFloatingPointState
 (
     IN PKFLOATING_SAVE FloatSave
 );
 
-XBAPI LONG STDCALL KeResetEvent
+LONG STDCALL KeResetEvent
 (
     IN PRKEVENT Event
 );
@@ -3629,36 +3629,36 @@ XBAPI LONG STDCALL KeResetEvent
  * Removes a DPC object from the deferred procedure call queue
  * @param Dpc A pointer to the DPC object
  **/
-XBAPI BOOLEAN STDCALL KeRemoveQueueDpc
+BOOLEAN STDCALL KeRemoveQueueDpc
 (
     IN PRKDPC Dpc
 );
 
-XBAPI PLIST_ENTRY STDCALL KeRemoveQueue
+PLIST_ENTRY STDCALL KeRemoveQueue
 (
     IN PRKQUEUE Queue,
     IN KPROCESSOR_MODE WaitMode,
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI BOOLEAN STDCALL KeRemoveEntryDeviceQueue
+BOOLEAN STDCALL KeRemoveEntryDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN PKDEVICE_QUEUE DeviceQueueEntry
 );
 
-XBAPI PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveDeviceQueue
+PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue
 );
 
-XBAPI PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveByKeyDeviceQueue
+PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveByKeyDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN ULONG SortKey
 );
 
-XBAPI LONG STDCALL KeReleaseSemaphore
+LONG STDCALL KeReleaseSemaphore
 (
     IN PRKSEMAPHORE Semaphore,
     IN KPRIORITY Increment,
@@ -3666,7 +3666,7 @@ XBAPI LONG STDCALL KeReleaseSemaphore
     IN BOOLEAN Wait
 );
 
-XBAPI LONG STDCALL KeReleaseMutant
+LONG STDCALL KeReleaseMutant
 (
     IN PRKMUTANT Mutant,
     IN KPRIORITY Increment,
@@ -3674,54 +3674,54 @@ XBAPI LONG STDCALL KeReleaseMutant
     IN BOOLEAN Wait
 );
 
-XBAPI KIRQL STDCALL KeRaiseIrqlToSynchLevel (void);
-XBAPI KIRQL STDCALL KeRaiseIrqlToDpcLevel (void);
+KIRQL STDCALL KeRaiseIrqlToSynchLevel (void);
+KIRQL STDCALL KeRaiseIrqlToDpcLevel (void);
 
 /**
  * Obtains the current system time.
  * @param CurrentTime The system time in 100-nanosecond intervals since January 1, 1601, in GMT.
  */
-XBAPI VOID STDCALL KeQuerySystemTime
+VOID STDCALL KeQuerySystemTime
 (
     OUT PLARGE_INTEGER CurrentTime
 );
 
-XBAPI ULONGLONG STDCALL KeQueryPerformanceFrequency(void);
+ULONGLONG STDCALL KeQueryPerformanceFrequency(void);
 
-XBAPI ULONGLONG STDCALL KeQueryPerformanceCounter(void);
+ULONGLONG STDCALL KeQueryPerformanceCounter(void);
 
-XBAPI ULONGLONG STDCALL KeQueryInterruptTime (void);
+ULONGLONG STDCALL KeQueryInterruptTime (void);
 
-XBAPI LONG STDCALL KeQueryBasePriorityThread
+LONG STDCALL KeQueryBasePriorityThread
 (
     IN PKTHREAD Thread
 );
 
-XBAPI LONG STDCALL KePulseEvent
+LONG STDCALL KePulseEvent
 (
     IN PRKEVENT Event,
     IN KPRIORITY Increment,
     IN BOOLEAN Wait
 );
 
-XBAPI VOID STDCALL KeLeaveCriticalRegion (void);
+VOID STDCALL KeLeaveCriticalRegion (void);
 
 /**
  * Checks whether the code is executed in a DPC context
  * @return TRUE if the code is running in a DPC context, FALSE otherwise
  **/
-XBAPI BOOLEAN STDCALL KeIsExecutingDpc (void);
+BOOLEAN STDCALL KeIsExecutingDpc (void);
 
 XBAPI volatile KSYSTEM_TIME KeInterruptTime;
 
-XBAPI BOOLEAN STDCALL KeInsertQueueDpc
+BOOLEAN STDCALL KeInsertQueueDpc
 (
     IN PRKDPC Dpc,
     IN PVOID SystemArgument1,
     IN PVOID SystemArgument2
 );
 
-XBAPI BOOLEAN STDCALL KeInsertQueueApc
+BOOLEAN STDCALL KeInsertQueueApc
 (
     IN PRKAPC Apc,
     IN PVOID SystemArgument1,
@@ -3729,57 +3729,57 @@ XBAPI BOOLEAN STDCALL KeInsertQueueApc
     IN KPRIORITY Increment
 );
 
-XBAPI LONG STDCALL KeInsertQueue
+LONG STDCALL KeInsertQueue
 (
     IN PRKQUEUE Queue,
     IN PLIST_ENTRY Entry
 );
 
-XBAPI LONG STDCALL KeInsertHeadQueue
+LONG STDCALL KeInsertHeadQueue
 (
     IN PRKQUEUE Queue,
     IN PLIST_ENTRY Entry
 );
 
-XBAPI BOOLEAN STDCALL KeInsertDeviceQueue
+BOOLEAN STDCALL KeInsertDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN PKDEVICE_QUEUE_ENTRY DeviceQueueEntry
 );
 
-XBAPI BOOLEAN STDCALL KeInsertByKeyDeviceQueue
+BOOLEAN STDCALL KeInsertByKeyDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN PKDEVICE_QUEUE_ENTRY DeviceQueueEntry,
     IN ULONG SortKey
 );
 
-XBAPI VOID STDCALL KeInitializeTimerEx
+VOID STDCALL KeInitializeTimerEx
 (
     IN PKTIMER Timer,
     IN TIMER_TYPE Type
 );
 
-XBAPI VOID STDCALL KeInitializeSemaphore
+VOID STDCALL KeInitializeSemaphore
 (
     IN PRKSEMAPHORE Semaphore,
     IN LONG Count,
     IN LONG Limit
 );
 
-XBAPI VOID STDCALL KeInitializeQueue
+VOID STDCALL KeInitializeQueue
 (
     IN PRKQUEUE Queue,
     IN ULONG Count OPTIONAL
 );
 
-XBAPI VOID STDCALL KeInitializeMutant
+VOID STDCALL KeInitializeMutant
 (
     IN PRKMUTANT Mutant,
     IN BOOLEAN InitialOwner
 );
 
-XBAPI VOID STDCALL KeInitializeInterrupt
+VOID STDCALL KeInitializeInterrupt
 (
     IN PKINTERRUPT Interrupt,
     IN PKSERVICE_ROUTINE ServiceRoutine,
@@ -3790,7 +3790,7 @@ XBAPI VOID STDCALL KeInitializeInterrupt
     IN BOOLEAN ShareVector
 );
 
-XBAPI VOID STDCALL KeInitializeEvent
+VOID STDCALL KeInitializeEvent
 (
     IN PRKEVENT Event,
     IN EVENT_TYPE Type,
@@ -3804,19 +3804,19 @@ XBAPI VOID STDCALL KeInitializeEvent
  * @param DeferredRoutine Pointer to the function that gets called by the DPC
  * @param DeferredContext An arbitrary user-defined pointer that gets passed to the procedure when called
  **/
-XBAPI VOID STDCALL KeInitializeDpc
+VOID STDCALL KeInitializeDpc
 (
     OUT KDPC *Dpc,
     IN PKDEFERRED_ROUTINE DeferredRoutine,
     IN PVOID DeferredContext OPTIONAL
 );
 
-XBAPI VOID STDCALL KeInitializeDeviceQueue
+VOID STDCALL KeInitializeDeviceQueue
 (
     OUT PKDEVICE_QUEUE DeviceQueue
 );
 
-XBAPI VOID STDCALL KeInitializeApc
+VOID STDCALL KeInitializeApc
 (
     IN PRKAPC Apc,
     IN PRKTHREAD Thread,
@@ -3831,13 +3831,13 @@ XBAPI VOID STDCALL KeInitializeApc
  * Returns a pointer to the thread object belonging to the current thread.
  * @return A pointer to an opaque thread object.
  */
-XBAPI PKTHREAD STDCALL KeGetCurrentThread(void);
+PKTHREAD STDCALL KeGetCurrentThread(void);
 
-XBAPI KIRQL STDCALL KeGetCurrentIrql(void);
+KIRQL STDCALL KeGetCurrentIrql(void);
 
-XBAPI VOID STDCALL KeEnterCriticalRegion(void);
+VOID STDCALL KeEnterCriticalRegion(void);
 
-XBAPI BOOLEAN STDCALL KeDisconnectInterrupt
+BOOLEAN STDCALL KeDisconnectInterrupt
 (
     IN PKINTERRUPT Interrupt
 );
@@ -3849,7 +3849,7 @@ XBAPI BOOLEAN STDCALL KeDisconnectInterrupt
  * @param Interval Specifies the absolute or relative time, in units of 100 nanoseconds, for which the wait is to occur. A negative value indicates relative time. Absolute expiration times track any changes in system time, relative expiration times are not affected by system time changes.
  * @return STATUS_SUCCESS (the delay completed because the specified interval elapsed), STATUS_ALERTED (the delay completed because the thread was alerted) or STATUS_USER_APC (a user-mode APC was delivered before the specified interval expired).
  */
-XBAPI NTSTATUS STDCALL KeDelayExecutionThread
+NTSTATUS STDCALL KeDelayExecutionThread
 (
     IN KPROCESSOR_MODE WaitMode,
     IN BOOLEAN Alertable,
@@ -3860,17 +3860,17 @@ XBAPI NTSTATUS STDCALL KeDelayExecutionThread
  * Connects an interrupt object, allowing it to receive interrupts
  * @return FALSE if the interrupt is already connected or cannot be connected, TRUE if it was conected successfully
  **/
-XBAPI BOOLEAN STDCALL KeConnectInterrupt
+BOOLEAN STDCALL KeConnectInterrupt
 (
     IN PKINTERRUPT Interrupt
 );
 
-XBAPI BOOLEAN STDCALL KeCancelTimer
+BOOLEAN STDCALL KeCancelTimer
 (
     IN PKTIMER Timer
 );
 
-XBAPI VOID STDCALL DECLSPEC_NORETURN KeBugCheckEx
+VOID STDCALL DECLSPEC_NORETURN KeBugCheckEx
 (
     IN ULONG BugCheckCode,
     IN ULONG_PTR BugCheckParameter1,
@@ -3879,24 +3879,24 @@ XBAPI VOID STDCALL DECLSPEC_NORETURN KeBugCheckEx
     IN ULONG_PTR BugCheckParameter4
 );
 
-XBAPI VOID STDCALL DECLSPEC_NORETURN KeBugCheck
+VOID STDCALL DECLSPEC_NORETURN KeBugCheck
 (
     IN ULONG BugCheckCode
 );
 
-XBAPI VOID STDCALL KeBoostPriorityThread
+VOID STDCALL KeBoostPriorityThread
 (
     IN PKTHREAD Thread,
     IN KPRIORITY Increment
 );
 
-XBAPI BOOLEAN STDCALL KeAlertThread
+BOOLEAN STDCALL KeAlertThread
 (
     IN PKTHREAD Thread,
     IN KPROCESSOR_MODE ProcessorMode
 );
 
-XBAPI ULONG STDCALL KeAlertResumeThread
+ULONG STDCALL KeAlertResumeThread
 (
     IN PKTHREAD Thread
 );
@@ -3904,7 +3904,7 @@ XBAPI ULONG STDCALL KeAlertResumeThread
 XBAPI BOOLEAN KdDebuggerNotPresent;
 XBAPI BOOLEAN KdDebuggerEnabled;
 
-XBAPI NTSTATUS STDCALL IoSynchronousFsdRequest
+NTSTATUS STDCALL IoSynchronousFsdRequest
 (
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,
@@ -3913,7 +3913,7 @@ XBAPI NTSTATUS STDCALL IoSynchronousFsdRequest
     IN PLARGE_INTEGER StartingOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL IoSynchronousDeviceIoControlRequest
+NTSTATUS STDCALL IoSynchronousDeviceIoControlRequest
 (
     IN ULONG IoControlCode,
     IN PDEVICE_OBJECT DeviceObject,
@@ -3925,25 +3925,25 @@ XBAPI NTSTATUS STDCALL IoSynchronousDeviceIoControlRequest
     IN BOOLEAN InternalDeviceIoControl
 );
 
-XBAPI VOID STDCALL IoStartPacket
+VOID STDCALL IoStartPacket
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp,
     IN PULONG Key OPTIONAL
 );
 
-XBAPI VOID STDCALL IoStartNextPacketByKey
+VOID STDCALL IoStartNextPacketByKey
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN ULONG Key
 );
 
-XBAPI VOID STDCALL IoStartNextPacket
+VOID STDCALL IoStartNextPacket
 (
     IN PDEVICE_OBJECT DeviceObject
 );
 
-XBAPI VOID STDCALL IoSetShareAccess
+VOID STDCALL IoSetShareAccess
 (
     IN ACCESS_MASK DesiredAccess,
     IN ULONG DesiredShareAccess,
@@ -3951,7 +3951,7 @@ XBAPI VOID STDCALL IoSetShareAccess
     OUT PSHARE_ACCESS ShareAccess
 );
 
-XBAPI NTSTATUS STDCALL IoSetIoCompletion
+NTSTATUS STDCALL IoSetIoCompletion
 (
     IN PVOID IoCompletion,
     IN PVOID KeyContext,
@@ -3960,18 +3960,18 @@ XBAPI NTSTATUS STDCALL IoSetIoCompletion
     IN ULONG_PTR IoStatusInformation
 );
 
-XBAPI VOID STDCALL IoRemoveShareAccess
+VOID STDCALL IoRemoveShareAccess
 (
     IN PFILE_OBJECT FileObject,
     IN OUT PSHARE_ACCESS ShareAccess
 );
 
-XBAPI VOID STDCALL IoQueueThreadIrp
+VOID STDCALL IoQueueThreadIrp
 (
     IN PIRP Irp
 );
 
-XBAPI NTSTATUS STDCALL IoQueryVolumeInformation
+NTSTATUS STDCALL IoQueryVolumeInformation
 (
     IN PFILE_OBJECT FileObject,
     IN FS_INFORMATION_CLASS FsInformationClass,
@@ -3980,7 +3980,7 @@ XBAPI NTSTATUS STDCALL IoQueryVolumeInformation
     OUT PULONG ReturnedLength
 );
 
-XBAPI NTSTATUS STDCALL IoQueryFileInformation
+NTSTATUS STDCALL IoQueryFileInformation
 (
     IN PFILE_OBJECT FileObject,
     IN FILE_INFORMATION_CLASS FileInformationClass,
@@ -3989,60 +3989,60 @@ XBAPI NTSTATUS STDCALL IoQueryFileInformation
     OUT PULONG ReturnedLength
 );
 
-XBAPI VOID STDCALL IoMarkIrpMustComplete
+VOID STDCALL IoMarkIrpMustComplete
 (
     IN OUT PIRP Irp
 );
 
-XBAPI NTSTATUS STDCALL IoInvalidDeviceRequest
+NTSTATUS STDCALL IoInvalidDeviceRequest
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN PIRP Irp
 );
 
-XBAPI VOID STDCALL IoInitializeIrp
+VOID STDCALL IoInitializeIrp
 (
     IN OUT PIRP Irp,
     IN USHORT PacketSize,
     IN CCHAR StackSize
 );
 
-XBAPI VOID STDCALL IoFreeIrp
+VOID STDCALL IoFreeIrp
 (
     IN PIRP Irp
 );
 
 XBAPI OBJECT_TYPE IoFileObjectType;
 
-XBAPI NTSTATUS STDCALL IoDismountVolumeByName
+NTSTATUS STDCALL IoDismountVolumeByName
 (
     IN POBJECT_STRING DeviceName
 );
 
-XBAPI NTSTATUS STDCALL IoDismountVolume
+NTSTATUS STDCALL IoDismountVolume
 (
     IN PDEVICE_OBJECT DeviceObject
 );
 
 XBAPI OBJECT_TYPE IoDeviceObjectType;
 
-XBAPI NTSTATUS STDCALL IoDeleteSymbolicLink
+NTSTATUS STDCALL IoDeleteSymbolicLink
 (
     IN POBJECT_STRING SymbolicLinkName
 );
 
-XBAPI VOID STDCALL IoDeleteDevice
+VOID STDCALL IoDeleteDevice
 (
     IN PDEVICE_OBJECT DeviceObject
 );
 
-XBAPI NTSTATUS STDCALL IoCreateSymbolicLink
+NTSTATUS STDCALL IoCreateSymbolicLink
 (
     IN POBJECT_STRING SymbolicLinkName,
     IN POBJECT_STRING DeviceName
 );
 
-XBAPI NTSTATUS STDCALL IoCreateFile
+NTSTATUS STDCALL IoCreateFile
 (
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -4056,7 +4056,7 @@ XBAPI NTSTATUS STDCALL IoCreateFile
     IN ULONG Options
 );
 
-XBAPI NTSTATUS STDCALL IoCreateDevice
+NTSTATUS STDCALL IoCreateDevice
 (
     IN PDRIVER_OBJECT DriverObject,
     IN ULONG DeviceExtensionSize,
@@ -4068,7 +4068,7 @@ XBAPI NTSTATUS STDCALL IoCreateDevice
 
 XBAPI OBJECT_TYPE IoCompletionObjectType;
 
-XBAPI NTSTATUS STDCALL IoCheckShareAccess
+NTSTATUS STDCALL IoCheckShareAccess
 (
     IN ACCESS_MASK DesiredAccess,
     IN ULONG DesiredShareAccess,
@@ -4077,7 +4077,7 @@ XBAPI NTSTATUS STDCALL IoCheckShareAccess
     IN BOOLEAN Update
 );
 
-XBAPI PIRP STDCALL IoBuildSynchronousFsdRequest
+PIRP STDCALL IoBuildSynchronousFsdRequest
 (
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,
@@ -4088,7 +4088,7 @@ XBAPI PIRP STDCALL IoBuildSynchronousFsdRequest
     OUT PIO_STATUS_BLOCK IoStatusBlock
 );
 
-XBAPI PIRP STDCALL IoBuildDeviceIoControlRequest
+PIRP STDCALL IoBuildDeviceIoControlRequest
 (
     IN ULONG IoControlCode,
     IN PDEVICE_OBJECT DeviceObject,
@@ -4101,7 +4101,7 @@ XBAPI PIRP STDCALL IoBuildDeviceIoControlRequest
     OUT PIO_STATUS_BLOCK IoStatusBlock
 );
 
-XBAPI PIRP STDCALL IoBuildAsynchronousFsdRequest
+PIRP STDCALL IoBuildAsynchronousFsdRequest
 (
     IN ULONG MajorFunction,
     IN PDEVICE_OBJECT DeviceObject,
@@ -4111,19 +4111,19 @@ XBAPI PIRP STDCALL IoBuildAsynchronousFsdRequest
     IN PIO_STATUS_BLOCK IoStatusBlock OPTIONAL
 );
 
-XBAPI PIRP STDCALL IoAllocateIrp
+PIRP STDCALL IoAllocateIrp
 (
     IN CCHAR StackSize
 );
 
 XBAPI IDE_CHANNEL_OBJECT IdexChannelObject;
 
-XBAPI NTSTATUS STDCALL HalWriteSMCScratchRegister
+NTSTATUS STDCALL HalWriteSMCScratchRegister
 (
     IN ULONG ScratchRegister
 );
 
-XBAPI NTSTATUS STDCALL HalWriteSMBusValue
+NTSTATUS STDCALL HalWriteSMBusValue
 (
     IN UCHAR SlaveAddress,
     IN UCHAR CommandCode,
@@ -4131,7 +4131,7 @@ XBAPI NTSTATUS STDCALL HalWriteSMBusValue
     IN ULONG DataValue
 );
 
-XBAPI VOID DECLSPEC_NORETURN STDCALL HalReturnToFirmware
+VOID DECLSPEC_NORETURN STDCALL HalReturnToFirmware
 (
     IN FIRMWARE_REENTRY Routine
 );
@@ -4142,13 +4142,13 @@ XBAPI VOID DECLSPEC_NORETURN STDCALL HalReturnToFirmware
  * @param ShutdownRegistration Pointer to a HAL_SHUTDOWN_REGISTRATION describing the notification settings
  * @param Register TRUE to register the notification, FALSE to unregister
  */
-XBAPI VOID STDCALL HalRegisterShutdownNotification
+VOID STDCALL HalRegisterShutdownNotification
 (
     IN PHAL_SHUTDOWN_REGISTRATION ShutdownRegistration,
     IN BOOLEAN Register
 );
 
-XBAPI VOID STDCALL HalReadWritePCISpace
+VOID STDCALL HalReadWritePCISpace
 (
     IN ULONG BusNumber,
     IN ULONG SlotNumber,
@@ -4158,13 +4158,13 @@ XBAPI VOID STDCALL HalReadWritePCISpace
     IN BOOLEAN WritePCISpace
 );
 
-XBAPI NTSTATUS STDCALL HalReadSMCTrayState
+NTSTATUS STDCALL HalReadSMCTrayState
 (
     OUT PULONG TrayState,
     OUT PULONG TrayStateChangeCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL HalReadSMBusValue
+NTSTATUS STDCALL HalReadSMBusValue
 (
     IN UCHAR SlaveAddress,
     IN UCHAR CommandCode,
@@ -4176,20 +4176,20 @@ XBAPI NTSTATUS STDCALL HalReadSMBusValue
  * Checks whether the console is in the middle of a reset or shutdown sequence.
  * @return TRUE if the console is in the middle of a reset or shutdown sequence, else FALSE.
  */
-XBAPI BOOLEAN STDCALL HalIsResetOrShutdownPending(void);
+BOOLEAN STDCALL HalIsResetOrShutdownPending(void);
 
 /**
  * Initiates a shutdown. May return if the SMBus-lock is already owned, the shutdown will start as soon as the lock is available.
  **/
-XBAPI VOID STDCALL HalInitiateShutdown(void);
+VOID STDCALL HalInitiateShutdown(void);
 
-XBAPI ULONG STDCALL HalGetInterruptVector
+ULONG STDCALL HalGetInterruptVector
 (
     IN ULONG BusInterruptLevel,
     OUT PKIRQL Irql
 );
 
-XBAPI VOID STDCALL HalEnableSystemInterrupt
+VOID STDCALL HalEnableSystemInterrupt
 (
     IN ULONG BusInterruptLevel,
     IN KINTERRUPT_MODE InterruptMode
@@ -4198,12 +4198,12 @@ XBAPI VOID STDCALL HalEnableSystemInterrupt
 /**
  * Switches the console to secure mode, where a tray eject or tray open interrupt causes the console to reboot. After the console is switched into secure mode, it cannot switch back.
  */
-XBAPI VOID STDCALL HalEnableSecureTrayEject(void);
+VOID STDCALL HalEnableSecureTrayEject(void);
 XBAPI STRING HalDiskSerialNumber;
 XBAPI STRING HalDiskModelNumber;
 XBAPI ULONG HalDiskCachePartitionCount;
 
-XBAPI VOID STDCALL HalDisableSystemInterrupt
+VOID STDCALL HalDisableSystemInterrupt
 (
     IN ULONG BusInterruptLevel
 );
@@ -4211,14 +4211,14 @@ XBAPI VOID STDCALL HalDisableSystemInterrupt
 XBAPI DWORD HalBootSMCVideoMode;
 
 
-XBAPI NTSTATUS STDCALL FscSetCacheSize
+NTSTATUS STDCALL FscSetCacheSize
 (
     IN PFN_COUNT NumberOfCachePages
 );
 
-XBAPI VOID STDCALL FscInvalidateIdleBlocks (void);
+VOID STDCALL FscInvalidateIdleBlocks (void);
 
-XBAPI PFN_COUNT STDCALL FscGetCacheSize (void);
+PFN_COUNT STDCALL FscGetCacheSize (void);
 
 XBAPI OBJECT_TYPE ExTimerObjectType;
 XBAPI OBJECT_TYPE ExSemaphoreObjectType;
@@ -4257,7 +4257,7 @@ XBAPI OBJECT_TYPE ExSemaphoreObjectType;
 // This bit is set in XC_MISC when automatic daylight savings time (DST) adjustment is disabled
 #define XC_MISC_FLAG_DISABLE_DST 0x02
 
-XBAPI NTSTATUS STDCALL ExSaveNonVolatileSetting
+NTSTATUS STDCALL ExSaveNonVolatileSetting
 (
     IN ULONG ValueIndex,
     IN ULONG Type,
@@ -4265,24 +4265,24 @@ XBAPI NTSTATUS STDCALL ExSaveNonVolatileSetting
     IN ULONG ValueLength
 );
 
-XBAPI VOID STDCALL ExReleaseReadWriteLock
+VOID STDCALL ExReleaseReadWriteLock
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI NTSTATUS STDCALL ExReadWriteRefurbInfo
+NTSTATUS STDCALL ExReadWriteRefurbInfo
 (
     OUT XBOX_REFURB_INFO *RefurbInfo,
     IN ULONG ValueLength,
     BOOLEAN DoWrite
 );
 
-XBAPI VOID STDCALL ExRaiseStatus
+VOID STDCALL ExRaiseStatus
 (
     IN NTSTATUS Status
 );
 
-XBAPI VOID STDCALL ExRaiseException
+VOID STDCALL ExRaiseException
 (
     PEXCEPTION_RECORD ExceptionRecord
 );
@@ -4292,12 +4292,12 @@ XBAPI VOID STDCALL ExRaiseException
  * @param PoolBlock The address of the pool block.
  * @return The size of the pool block.
  */
-XBAPI ULONG STDCALL ExQueryPoolBlockSize
+ULONG STDCALL ExQueryPoolBlockSize
 (
     IN PVOID PoolBlock
 );
 
-XBAPI NTSTATUS STDCALL ExQueryNonVolatileSetting
+NTSTATUS STDCALL ExQueryNonVolatileSetting
 (
     IN ULONG ValueIndex,
     OUT PULONG Type,
@@ -4308,14 +4308,14 @@ XBAPI NTSTATUS STDCALL ExQueryNonVolatileSetting
 
 XBAPI OBJECT_TYPE ExMutantObjectType;
 
-XBAPI LARGE_INTEGER STDCALL ExInterlockedAddLargeInteger
+LARGE_INTEGER STDCALL ExInterlockedAddLargeInteger
 (
     IN OUT PLARGE_INTEGER Addend,
     IN LARGE_INTEGER Increment,
     IN PVOID Lock
 );
 
-XBAPI VOID STDCALL ExInitializeReadWriteLock
+VOID STDCALL ExInitializeReadWriteLock
 (
     IN PERWLOCK ReadWriteLock
 );
@@ -4324,7 +4324,7 @@ XBAPI VOID STDCALL ExInitializeReadWriteLock
  * Deallocates a block of pool memory.
  * @param P Specifies the address of the block of pool memory being deallocated.
  */
-XBAPI VOID STDCALL ExFreePool
+VOID STDCALL ExFreePool
 (
     IN PVOID P
 );
@@ -4337,7 +4337,7 @@ XBAPI OBJECT_TYPE ExEventObjectType;
  * @param Tag The pool tag to use for the allocated memory. Specify the pool tag as a character literal of up to four characters delimited by single quotation marks (for example, 'Tag1'). The string is usually specified in reverse order (for example, '1gaT'). Each ASCII character in the tag must be a value in the range 0x20 (space) to 0x126 (tilde). Each allocation code path should use a unique pool tag to help debuggers and verifiers identify the code path.
  * @return NULL if there is insufficient memory in the free pool to satisfy the request. Otherwise, the routine returns a pointer to the allocated memory.
  */
-XBAPI PVOID STDCALL ExAllocatePoolWithTag
+PVOID STDCALL ExAllocatePoolWithTag
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG Tag
@@ -4348,22 +4348,22 @@ XBAPI PVOID STDCALL ExAllocatePoolWithTag
  * @param NumberOfBytes The number of bytes to allocate.
  * @return NULL if there is insufficient memory in the free pool to satisfy the request. Otherwise, the routine returns a pointer to the allocated memory.
  */
-XBAPI PVOID STDCALL ExAllocatePool
+PVOID STDCALL ExAllocatePool
 (
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI VOID STDCALL ExAcquireReadWriteLockShared
+VOID STDCALL ExAcquireReadWriteLockShared
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI VOID STDCALL ExAcquireReadWriteLockExclusive
+VOID STDCALL ExAcquireReadWriteLockExclusive
 (
     IN PERWLOCK ReadWriteLock
 );
 
-XBAPI VOID STDCALL DbgUnLoadImageSymbols
+VOID STDCALL DbgUnLoadImageSymbols
 (
     PSTRING FileName,
     PVOID ImageBase,
@@ -4378,7 +4378,7 @@ XBAPI VOID STDCALL DbgUnLoadImageSymbols
  * @param MaximumResponseLength Maximum number of characters that fit into the response-buffer.
  * @return Number of characters stored into the response buffer, including newline.
  */
-XBAPI ULONG STDCALL DbgPrompt
+ULONG STDCALL DbgPrompt
 (
     PCH Prompt,
     PCH Response,
@@ -4391,32 +4391,32 @@ XBAPI ULONG STDCALL DbgPrompt
  * @param ... Arguments matching the format string.
  * @return A status-code.
  */
-XBAPI ULONG CDECL DbgPrint
+ULONG CDECL DbgPrint
 (
     PCSTR Format,
     ...
 );
 
-XBAPI VOID STDCALL DbgLoadImageSymbols
+VOID STDCALL DbgLoadImageSymbols
 (
     PSTRING FileName,
     PVOID ImageBase,
     ULONG_PTR ProcessId
 );
 
-XBAPI VOID STDCALL DbgBreakPointWithStatus
+VOID STDCALL DbgBreakPointWithStatus
 (
     IN ULONG Status
 );
 
-XBAPI VOID STDCALL DbgBreakPoint (void);
+VOID STDCALL DbgBreakPoint (void);
 
-XBAPI VOID STDCALL AvSetSavedDataAddress
+VOID STDCALL AvSetSavedDataAddress
 (
     IN PVOID Address
 );
 
-XBAPI ULONG STDCALL AvSetDisplayMode
+ULONG STDCALL AvSetDisplayMode
 (
     IN PVOID RegisterBase,
     IN ULONG Step,
@@ -4426,7 +4426,7 @@ XBAPI ULONG STDCALL AvSetDisplayMode
     IN ULONG FrameBuffer
 );
 
-XBAPI VOID STDCALL AvSendTVEncoderOption
+VOID STDCALL AvSendTVEncoderOption
 (
     IN PVOID RegisterBase,
     IN ULONG Option,
@@ -4434,14 +4434,14 @@ XBAPI VOID STDCALL AvSendTVEncoderOption
     OUT PULONG Result
 );
 
-XBAPI PVOID STDCALL AvGetSavedDataAddress(void);
+PVOID STDCALL AvGetSavedDataAddress(void);
 
 /**
  * Performs a byte-swap (big-endian <-> little-endian) conversion of a USHORT
  * @param Source The USHORT-value which is to be swapped
  * @return The byte-swapped value
  */
-XBAPI USHORT FASTCALL RtlUshortByteSwap
+USHORT FASTCALL RtlUshortByteSwap
 (
     IN USHORT Source
 );
@@ -4451,22 +4451,22 @@ XBAPI USHORT FASTCALL RtlUshortByteSwap
  * @param Source The ULONG-value which is to be swapped
  * @return The byte-swapped value
  */
-XBAPI ULONG FASTCALL RtlUlongByteSwap
+ULONG FASTCALL RtlUlongByteSwap
 (
     IN ULONG Source
 );
 
-XBAPI VOID FASTCALL ObfReferenceObject
+VOID FASTCALL ObfReferenceObject
 (
     IN PVOID Object
 );
 
-XBAPI VOID FASTCALL ObfDereferenceObject
+VOID FASTCALL ObfDereferenceObject
 (
     IN PVOID Object
 );
 
-XBAPI VOID FASTCALL KiUnlockDispatcherDatabase
+VOID FASTCALL KiUnlockDispatcherDatabase
 (
     IN KIRQL OldIrql
 );
@@ -4476,7 +4476,7 @@ XBAPI VOID FASTCALL KiUnlockDispatcherDatabase
  * @param NewIrql Specifies the new IRQL to which the hardware priority is to be raised.
  * @return The original IRQL value to be used in a subsequent call to KfLowerIrql.
  */
-XBAPI KIRQL FASTCALL KfRaiseIrql
+KIRQL FASTCALL KfRaiseIrql
 (
     IN KIRQL NewIrql
 );
@@ -4485,30 +4485,30 @@ XBAPI KIRQL FASTCALL KfRaiseIrql
  * Restores the IRQL on the current processor to its original value.
  * @param NewIrql Specifies the IRQL that was returned from KfRaiseIrql.
  */
-XBAPI VOID FASTCALL KfLowerIrql
+VOID FASTCALL KfLowerIrql
 (
     IN KIRQL NewIrql
 );
 
-XBAPI VOID FASTCALL IofCompleteRequest
+VOID FASTCALL IofCompleteRequest
 (
     IN PIRP Irp,
     IN CCHAR PriorityBoost
 );
 
-XBAPI NTSTATUS FASTCALL IofCallDriver
+NTSTATUS FASTCALL IofCallDriver
 (
     IN PDEVICE_OBJECT DeviceObject,
     IN OUT PIRP Irp
 );
 
-XBAPI PSINGLE_LIST_ENTRY FASTCALL InterlockedPushEntrySList
+PSINGLE_LIST_ENTRY FASTCALL InterlockedPushEntrySList
 (
     IN PSLIST_HEADER ListHead,
     IN PSINGLE_LIST_ENTRY ListEntry
 );
 
-XBAPI PSINGLE_LIST_ENTRY FASTCALL InterlockedPopEntrySList
+PSINGLE_LIST_ENTRY FASTCALL InterlockedPopEntrySList
 (
     IN PSLIST_HEADER ListHead
 );
@@ -4518,23 +4518,23 @@ XBAPI PSINGLE_LIST_ENTRY FASTCALL InterlockedPopEntrySList
  * @param Addend Pointer to the LONG-variable which is to be incremented
  * @return The resulting incremented value (also stored at 'Addend')
  */
-XBAPI LONG FASTCALL InterlockedIncrement
+LONG FASTCALL InterlockedIncrement
 (
     IN OUT LONG volatile *Addend
 );
 
-XBAPI PSINGLE_LIST_ENTRY FASTCALL InterlockedFlushSList
+PSINGLE_LIST_ENTRY FASTCALL InterlockedFlushSList
 (
     IN PSLIST_HEADER ListHead
 );
 
-XBAPI LONG FASTCALL InterlockedExchangeAdd
+LONG FASTCALL InterlockedExchangeAdd
 (
     IN OUT LONG volatile *Addend,
     IN LONG Increment
 );
 
-XBAPI LONG FASTCALL InterlockedExchange
+LONG FASTCALL InterlockedExchange
 (
     IN OUT LONG volatile *Target,
     IN LONG Value
@@ -4545,12 +4545,12 @@ XBAPI LONG FASTCALL InterlockedExchange
  * @param Addend Pointer to the LONG-variable which is to be decremented
  * @return The resulting decremented value (also stored at 'Addend')
  */
-XBAPI LONG FASTCALL InterlockedDecrement
+LONG FASTCALL InterlockedDecrement
 (
     IN OUT LONG volatile *Addend
 );
 
-XBAPI LONG FASTCALL InterlockedCompareExchange
+LONG FASTCALL InterlockedCompareExchange
 (
     IN OUT LONG volatile *Destination,
     IN LONG ExChange,
@@ -4561,7 +4561,7 @@ XBAPI LONG FASTCALL InterlockedCompareExchange
  * Requests a software interrupt.
  * @param RequestIrql The request IRQL value.
  */
-XBAPI VOID FASTCALL HalRequestSoftwareInterrupt
+VOID FASTCALL HalRequestSoftwareInterrupt
 (
     KIRQL RequestIrql
 );
@@ -4570,7 +4570,7 @@ XBAPI VOID FASTCALL HalRequestSoftwareInterrupt
  * Clears a possible pending software interrupt.
  * @param RequestIrql The request IRQL value.
  */
-XBAPI VOID FASTCALL HalClearSoftwareInterrupt
+VOID FASTCALL HalClearSoftwareInterrupt
 (
     IN KIRQL RequestIrql
 );
@@ -4580,7 +4580,7 @@ XBAPI VOID FASTCALL HalClearSoftwareInterrupt
  * @param ListHead Pointer to the LIST_ENTRY that serves as the list's head
  * @return A pointer to the LIST_ENTRY which was removed from the list (NULL if the list was empty).
  */
-XBAPI PLIST_ENTRY FASTCALL ExfInterlockedRemoveHeadList
+PLIST_ENTRY FASTCALL ExfInterlockedRemoveHeadList
 (
     IN PLIST_ENTRY ListHead
 );
@@ -4591,7 +4591,7 @@ XBAPI PLIST_ENTRY FASTCALL ExfInterlockedRemoveHeadList
  * @param ListEntry Pointer to the LIST_ENTRY that is to be inserted
  * @return A pointer to the last list entry before the new entry was inserted (NULL if the list was empty).
  */
-XBAPI PLIST_ENTRY FASTCALL ExfInterlockedInsertTailList
+PLIST_ENTRY FASTCALL ExfInterlockedInsertTailList
 (
     IN PLIST_ENTRY ListHead,
     IN PLIST_ENTRY ListEntry
@@ -4603,7 +4603,7 @@ XBAPI PLIST_ENTRY FASTCALL ExfInterlockedInsertTailList
  * @param ListEntry Pointer to the LIST_ENTRY that is to be inserted
  * @return A pointer to the first list entry before the new entry was inserted (NULL if the list was empty).
  */
-XBAPI PLIST_ENTRY FASTCALL ExfInterlockedInsertHeadList
+PLIST_ENTRY FASTCALL ExfInterlockedInsertHeadList
 (
     IN PLIST_ENTRY ListHead,
     IN PLIST_ENTRY ListEntry
@@ -4616,7 +4616,7 @@ XBAPI PLIST_ENTRY FASTCALL ExfInterlockedInsertHeadList
  * @param Comparand A pointer to an integer with which the value at Destination will be compared.
  * @return The inital value of the variable at Destination when the call occured.
  */
-XBAPI LONGLONG FASTCALL ExInterlockedCompareExchange64
+LONGLONG FASTCALL ExInterlockedCompareExchange64
 (
     IN OUT LONGLONG volatile *Destination,
     IN PLONGLONG Exchange,
@@ -4628,7 +4628,7 @@ XBAPI LONGLONG FASTCALL ExInterlockedCompareExchange64
  * @param Addend A pointer to the LARGE_INTEGER variable that is incremented by the value of Increment.
  * @param Increment Specifies a ULONG value that is added to the variable that Addend points to.
  */
-XBAPI VOID FASTCALL ExInterlockedAddLargeStatistic
+VOID FASTCALL ExInterlockedAddLargeStatistic
 (
     IN PLARGE_INTEGER Addend,
     IN ULONG Increment

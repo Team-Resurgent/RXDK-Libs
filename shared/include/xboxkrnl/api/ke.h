@@ -1,29 +1,29 @@
 #ifndef XBOXKRNL_API_KE_H
 #define XBOXKRNL_API_KE_H
 
-XBAPI ULONG STDCALL KeAlertResumeThread
+ULONG STDCALL KeAlertResumeThread
 (
     IN PKTHREAD Thread
 );
 
-XBAPI BOOLEAN STDCALL KeAlertThread
+BOOLEAN STDCALL KeAlertThread
 (
     IN PKTHREAD Thread,
     IN KPROCESSOR_MODE ProcessorMode
 );
 
-XBAPI VOID STDCALL KeBoostPriorityThread
+VOID STDCALL KeBoostPriorityThread
 (
     IN PKTHREAD Thread,
     IN KPRIORITY Increment
 );
 
-XBAPI VOID STDCALL DECLSPEC_NORETURN KeBugCheck
+VOID STDCALL DECLSPEC_NORETURN KeBugCheck
 (
     IN ULONG BugCheckCode
 );
 
-XBAPI VOID STDCALL DECLSPEC_NORETURN KeBugCheckEx
+VOID STDCALL DECLSPEC_NORETURN KeBugCheckEx
 (
     IN ULONG BugCheckCode,
     IN ULONG_PTR BugCheckParameter1,
@@ -32,35 +32,35 @@ XBAPI VOID STDCALL DECLSPEC_NORETURN KeBugCheckEx
     IN ULONG_PTR BugCheckParameter4
 );
 
-XBAPI BOOLEAN STDCALL KeCancelTimer
+BOOLEAN STDCALL KeCancelTimer
 (
     IN PKTIMER Timer
 );
 
-XBAPI BOOLEAN STDCALL KeConnectInterrupt
+BOOLEAN STDCALL KeConnectInterrupt
 (
     IN PKINTERRUPT Interrupt
 );
 
-XBAPI NTSTATUS STDCALL KeDelayExecutionThread
+NTSTATUS STDCALL KeDelayExecutionThread
 (
     IN KPROCESSOR_MODE WaitMode,
     IN BOOLEAN Alertable,
     IN PLARGE_INTEGER Interval
 );
 
-XBAPI BOOLEAN STDCALL KeDisconnectInterrupt
+BOOLEAN STDCALL KeDisconnectInterrupt
 (
     IN PKINTERRUPT Interrupt
 );
 
-XBAPI VOID STDCALL KeEnterCriticalRegion(void);
+VOID STDCALL KeEnterCriticalRegion(void);
 
-XBAPI KIRQL STDCALL KeGetCurrentIrql(void);
+KIRQL STDCALL KeGetCurrentIrql(void);
 
-XBAPI PKTHREAD STDCALL KeGetCurrentThread(void);
+PKTHREAD STDCALL KeGetCurrentThread(void);
 
-XBAPI VOID STDCALL KeInitializeApc
+VOID STDCALL KeInitializeApc
 (
     IN PRKAPC Apc,
     IN PRKTHREAD Thread,
@@ -71,26 +71,26 @@ XBAPI VOID STDCALL KeInitializeApc
     IN PVOID NormalContext OPTIONAL
 );
 
-XBAPI VOID STDCALL KeInitializeDeviceQueue
+VOID STDCALL KeInitializeDeviceQueue
 (
     OUT PKDEVICE_QUEUE DeviceQueue
 );
 
-XBAPI VOID STDCALL KeInitializeDpc
+VOID STDCALL KeInitializeDpc
 (
     OUT KDPC *Dpc,
     IN PKDEFERRED_ROUTINE DeferredRoutine,
     IN PVOID DeferredContext OPTIONAL
 );
 
-XBAPI VOID STDCALL KeInitializeEvent
+VOID STDCALL KeInitializeEvent
 (
     IN PRKEVENT Event,
     IN EVENT_TYPE Type,
     IN BOOLEAN State
 );
 
-XBAPI VOID STDCALL KeInitializeInterrupt
+VOID STDCALL KeInitializeInterrupt
 (
     IN PKINTERRUPT Interrupt,
     IN PKSERVICE_ROUTINE ServiceRoutine,
@@ -101,57 +101,57 @@ XBAPI VOID STDCALL KeInitializeInterrupt
     IN BOOLEAN ShareVector
 );
 
-XBAPI VOID STDCALL KeInitializeMutant
+VOID STDCALL KeInitializeMutant
 (
     IN PRKMUTANT Mutant,
     IN BOOLEAN InitialOwner
 );
 
-XBAPI VOID STDCALL KeInitializeQueue
+VOID STDCALL KeInitializeQueue
 (
     IN PRKQUEUE Queue,
     IN ULONG Count OPTIONAL
 );
 
-XBAPI VOID STDCALL KeInitializeSemaphore
+VOID STDCALL KeInitializeSemaphore
 (
     IN PRKSEMAPHORE Semaphore,
     IN LONG Count,
     IN LONG Limit
 );
 
-XBAPI VOID STDCALL KeInitializeTimerEx
+VOID STDCALL KeInitializeTimerEx
 (
     IN PKTIMER Timer,
     IN TIMER_TYPE Type
 );
 
-XBAPI BOOLEAN STDCALL KeInsertByKeyDeviceQueue
+BOOLEAN STDCALL KeInsertByKeyDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN PKDEVICE_QUEUE_ENTRY DeviceQueueEntry,
     IN ULONG SortKey
 );
 
-XBAPI BOOLEAN STDCALL KeInsertDeviceQueue
+BOOLEAN STDCALL KeInsertDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN PKDEVICE_QUEUE_ENTRY DeviceQueueEntry
 );
 
-XBAPI LONG STDCALL KeInsertHeadQueue
+LONG STDCALL KeInsertHeadQueue
 (
     IN PRKQUEUE Queue,
     IN PLIST_ENTRY Entry
 );
 
-XBAPI LONG STDCALL KeInsertQueue
+LONG STDCALL KeInsertQueue
 (
     IN PRKQUEUE Queue,
     IN PLIST_ENTRY Entry
 );
 
-XBAPI BOOLEAN STDCALL KeInsertQueueApc
+BOOLEAN STDCALL KeInsertQueueApc
 (
     IN PRKAPC Apc,
     IN PVOID SystemArgument1,
@@ -159,7 +159,7 @@ XBAPI BOOLEAN STDCALL KeInsertQueueApc
     IN KPRIORITY Increment
 );
 
-XBAPI BOOLEAN STDCALL KeInsertQueueDpc
+BOOLEAN STDCALL KeInsertQueueDpc
 (
     IN PRKDPC Dpc,
     IN PVOID SystemArgument1,
@@ -168,38 +168,38 @@ XBAPI BOOLEAN STDCALL KeInsertQueueDpc
 
 XBAPI volatile KSYSTEM_TIME KeInterruptTime;
 
-XBAPI BOOLEAN STDCALL KeIsExecutingDpc (void);
+BOOLEAN STDCALL KeIsExecutingDpc (void);
 
-XBAPI VOID STDCALL KeLeaveCriticalRegion (void);
+VOID STDCALL KeLeaveCriticalRegion (void);
 
-XBAPI LONG STDCALL KePulseEvent
+LONG STDCALL KePulseEvent
 (
     IN PRKEVENT Event,
     IN KPRIORITY Increment,
     IN BOOLEAN Wait
 );
 
-XBAPI LONG STDCALL KeQueryBasePriorityThread
+LONG STDCALL KeQueryBasePriorityThread
 (
     IN PKTHREAD Thread
 );
 
-XBAPI ULONGLONG STDCALL KeQueryInterruptTime (void);
+ULONGLONG STDCALL KeQueryInterruptTime (void);
 
-XBAPI ULONGLONG STDCALL KeQueryPerformanceCounter(void);
+ULONGLONG STDCALL KeQueryPerformanceCounter(void);
 
-XBAPI ULONGLONG STDCALL KeQueryPerformanceFrequency(void);
+ULONGLONG STDCALL KeQueryPerformanceFrequency(void);
 
-XBAPI VOID STDCALL KeQuerySystemTime
+VOID STDCALL KeQuerySystemTime
 (
     OUT PLARGE_INTEGER CurrentTime
 );
 
-XBAPI KIRQL STDCALL KeRaiseIrqlToDpcLevel (void);
+KIRQL STDCALL KeRaiseIrqlToDpcLevel (void);
 
-XBAPI KIRQL STDCALL KeRaiseIrqlToSynchLevel (void);
+KIRQL STDCALL KeRaiseIrqlToSynchLevel (void);
 
-XBAPI LONG STDCALL KeReleaseMutant
+LONG STDCALL KeReleaseMutant
 (
     IN PRKMUTANT Mutant,
     IN KPRIORITY Increment,
@@ -207,7 +207,7 @@ XBAPI LONG STDCALL KeReleaseMutant
     IN BOOLEAN Wait
 );
 
-XBAPI LONG STDCALL KeReleaseSemaphore
+LONG STDCALL KeReleaseSemaphore
 (
     IN PRKSEMAPHORE Semaphore,
     IN KPRIORITY Increment,
@@ -215,105 +215,105 @@ XBAPI LONG STDCALL KeReleaseSemaphore
     IN BOOLEAN Wait
 );
 
-XBAPI PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveByKeyDeviceQueue
+PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveByKeyDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN ULONG SortKey
 );
 
-XBAPI PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveDeviceQueue
+PKDEVICE_QUEUE_ENTRY STDCALL KeRemoveDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue
 );
 
-XBAPI BOOLEAN STDCALL KeRemoveEntryDeviceQueue
+BOOLEAN STDCALL KeRemoveEntryDeviceQueue
 (
     IN PKDEVICE_QUEUE DeviceQueue,
     IN PKDEVICE_QUEUE DeviceQueueEntry
 );
 
-XBAPI PLIST_ENTRY STDCALL KeRemoveQueue
+PLIST_ENTRY STDCALL KeRemoveQueue
 (
     IN PRKQUEUE Queue,
     IN KPROCESSOR_MODE WaitMode,
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI BOOLEAN STDCALL KeRemoveQueueDpc
+BOOLEAN STDCALL KeRemoveQueueDpc
 (
     IN PRKDPC Dpc
 );
 
-XBAPI LONG STDCALL KeResetEvent
+LONG STDCALL KeResetEvent
 (
     IN PRKEVENT Event
 );
 
-XBAPI NTSTATUS STDCALL KeRestoreFloatingPointState
+NTSTATUS STDCALL KeRestoreFloatingPointState
 (
     IN PKFLOATING_SAVE FloatSave
 );
 
-XBAPI ULONG STDCALL KeResumeThread
+ULONG STDCALL KeResumeThread
 (
     IN PKTHREAD Thread
 );
 
-XBAPI PLIST_ENTRY STDCALL KeRundownQueue
+PLIST_ENTRY STDCALL KeRundownQueue
 (
     IN PRKQUEUE Queue
 );
 
-XBAPI NTSTATUS STDCALL KeSaveFloatingPointState
+NTSTATUS STDCALL KeSaveFloatingPointState
 (
     OUT PKFLOATING_SAVE FloatSave
 );
 
-XBAPI LONG STDCALL KeSetBasePriorityThread
+LONG STDCALL KeSetBasePriorityThread
 (
     IN PKTHREAD Thread,
     IN LONG Increment
 );
 
-XBAPI LOGICAL STDCALL KeSetDisableBoostThread
+LOGICAL STDCALL KeSetDisableBoostThread
 (
     IN PKTHREAD Thread,
     IN LOGICAL Disable
 );
 
-XBAPI LONG STDCALL KeSetEvent
+LONG STDCALL KeSetEvent
 (
     IN PRKEVENT Event,
     IN KPRIORITY Increment,
     IN BOOLEAN Wait
 );
 
-XBAPI VOID STDCALL KeSetEventBoostPriority
+VOID STDCALL KeSetEventBoostPriority
 (
     IN PRKEVENT Event,
     IN PRKTHREAD *Thread OPTIONAL
 );
 
-XBAPI KPRIORITY STDCALL KeSetPriorityProcess
+KPRIORITY STDCALL KeSetPriorityProcess
 (
     IN PKPROCESS Process,
     IN KPRIORITY BasePriority
 );
 
-XBAPI KPRIORITY STDCALL KeSetPriorityThread
+KPRIORITY STDCALL KeSetPriorityThread
 (
     IN PKTHREAD Thread,
     IN KPRIORITY Priority
 );
 
-XBAPI BOOLEAN STDCALL KeSetTimer
+BOOLEAN STDCALL KeSetTimer
 (
     IN PKTIMER Timer,
     IN LARGE_INTEGER DueTime,
     IN PKDPC Dpc OPTIONAL
 );
 
-XBAPI BOOLEAN STDCALL KeSetTimerEx
+BOOLEAN STDCALL KeSetTimerEx
 (
     IN PKTIMER Timer,
     IN LARGE_INTEGER DueTime,
@@ -321,17 +321,17 @@ XBAPI BOOLEAN STDCALL KeSetTimerEx
     IN PKDPC Dpc OPTIONAL
 );
 
-XBAPI VOID STDCALL KeStallExecutionProcessor
+VOID STDCALL KeStallExecutionProcessor
 (
     IN ULONG MicroSeconds
 );
 
-XBAPI ULONG STDCALL KeSuspendThread
+ULONG STDCALL KeSuspendThread
 (
     IN PKTHREAD Thread
 );
 
-XBAPI BOOLEAN STDCALL KeSynchronizeExecution
+BOOLEAN STDCALL KeSynchronizeExecution
 (
     IN PKINTERRUPT Interrupt,
     IN PKSYNCHRONIZE_ROUTINE SynchronizeRoutine,
@@ -340,7 +340,7 @@ XBAPI BOOLEAN STDCALL KeSynchronizeExecution
 
 XBAPI volatile KSYSTEM_TIME KeSystemTime;
 
-XBAPI BOOLEAN STDCALL KeTestAlertThread
+BOOLEAN STDCALL KeTestAlertThread
 (
     IN KPROCESSOR_MODE ProcessorMode
 );
@@ -349,7 +349,7 @@ XBAPI volatile DWORD KeTickCount;
 
 XBAPI CONST ULONG KeTimeIncrement;
 
-XBAPI NTSTATUS STDCALL KeWaitForMultipleObjects
+NTSTATUS STDCALL KeWaitForMultipleObjects
 (
     IN ULONG Count,
     IN PVOID Object[],
@@ -361,7 +361,7 @@ XBAPI NTSTATUS STDCALL KeWaitForMultipleObjects
     IN PKWAIT_BLOCK WaitBlockArray
 );
 
-XBAPI NTSTATUS STDCALL KeWaitForSingleObject
+NTSTATUS STDCALL KeWaitForSingleObject
 (
     IN PVOID Object,
     IN KWAIT_REASON WaitReason,

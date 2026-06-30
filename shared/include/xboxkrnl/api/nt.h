@@ -1,7 +1,7 @@
 #ifndef XBOXKRNL_API_NT_H
 #define XBOXKRNL_API_NT_H
 
-XBAPI NTSTATUS STDCALL NtAllocateVirtualMemory
+NTSTATUS STDCALL NtAllocateVirtualMemory
 (
     IN OUT PVOID *BaseAddress,
     IN ULONG_PTR ZeroBits,
@@ -10,29 +10,29 @@ XBAPI NTSTATUS STDCALL NtAllocateVirtualMemory
     IN ULONG Protect
 );
 
-XBAPI NTSTATUS STDCALL NtCancelTimer
+NTSTATUS STDCALL NtCancelTimer
 (
     IN HANDLE TimerHandle,
     OUT PBOOLEAN CurrentState OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtClearEvent
+NTSTATUS STDCALL NtClearEvent
 (
     IN HANDLE EventHandle
 );
 
-XBAPI NTSTATUS STDCALL NtClose
+NTSTATUS STDCALL NtClose
 (
     IN HANDLE Handle
 );
 
-XBAPI NTSTATUS STDCALL NtCreateDirectoryObject
+NTSTATUS STDCALL NtCreateDirectoryObject
 (
     OUT PHANDLE DirectoryHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-XBAPI NTSTATUS STDCALL NtCreateEvent
+NTSTATUS STDCALL NtCreateEvent
 (
     OUT PHANDLE EventHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -40,7 +40,7 @@ XBAPI NTSTATUS STDCALL NtCreateEvent
     IN BOOLEAN InitialState
 );
 
-XBAPI NTSTATUS STDCALL NtCreateFile
+NTSTATUS STDCALL NtCreateFile
 (
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -53,7 +53,7 @@ XBAPI NTSTATUS STDCALL NtCreateFile
     IN ULONG CreateOptions
 );
 
-XBAPI NTSTATUS STDCALL NtCreateIoCompletion
+NTSTATUS STDCALL NtCreateIoCompletion
 (
     OUT PHANDLE IoCompletionHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -61,14 +61,14 @@ XBAPI NTSTATUS STDCALL NtCreateIoCompletion
     IN ULONG Count OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtCreateMutant
+NTSTATUS STDCALL NtCreateMutant
 (
     OUT PHANDLE MutantHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
     IN BOOLEAN InitialOwner
 );
 
-XBAPI NTSTATUS STDCALL NtCreateSemaphore
+NTSTATUS STDCALL NtCreateSemaphore
 (
     OUT PHANDLE SemaphoreHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes OPTIONAL,
@@ -76,19 +76,19 @@ XBAPI NTSTATUS STDCALL NtCreateSemaphore
     IN LONG MaximumCount
 );
 
-XBAPI NTSTATUS STDCALL NtCreateTimer
+NTSTATUS STDCALL NtCreateTimer
 (
     OUT PHANDLE TimerHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes,
     IN TIMER_TYPE TimerType
 );
 
-XBAPI BOOLEAN STDCALL NtDeleteFile
+BOOLEAN STDCALL NtDeleteFile
 (
     IN POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-XBAPI NTSTATUS STDCALL NtDeviceIoControlFile
+NTSTATUS STDCALL NtDeviceIoControlFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -102,27 +102,27 @@ XBAPI NTSTATUS STDCALL NtDeviceIoControlFile
     IN ULONG OutputBufferLength
 );
 
-XBAPI NTSTATUS STDCALL NtDuplicateObject
+NTSTATUS STDCALL NtDuplicateObject
 (
     IN HANDLE SourceHandle,
     OUT PHANDLE TargetHandle,
     IN ULONG Options
 );
 
-XBAPI NTSTATUS STDCALL NtFlushBuffersFile
+NTSTATUS STDCALL NtFlushBuffersFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock
 );
 
-XBAPI NTSTATUS STDCALL NtFreeVirtualMemory
+NTSTATUS STDCALL NtFreeVirtualMemory
 (
     IN OUT PVOID *BaseAddress,
     IN OUT PSIZE_T RegionSize,
     IN ULONG FreeType
 );
 
-XBAPI NTSTATUS STDCALL NtFsControlFile
+NTSTATUS STDCALL NtFsControlFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -136,13 +136,13 @@ XBAPI NTSTATUS STDCALL NtFsControlFile
     IN ULONG OutputBufferLength
 );
 
-XBAPI NTSTATUS STDCALL NtOpenDirectoryObject
+NTSTATUS STDCALL NtOpenDirectoryObject
 (
     OUT PHANDLE DirectoryHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-XBAPI NTSTATUS STDCALL NtOpenFile
+NTSTATUS STDCALL NtOpenFile
 (
     OUT PHANDLE FileHandle,
     IN ACCESS_MASK DesiredAccess,
@@ -152,13 +152,13 @@ XBAPI NTSTATUS STDCALL NtOpenFile
     IN ULONG OpenOptions
 );
 
-XBAPI NTSTATUS STDCALL NtOpenSymbolicLinkObject
+NTSTATUS STDCALL NtOpenSymbolicLinkObject
 (
     OUT PHANDLE LinkHandle,
     IN POBJECT_ATTRIBUTES ObjectAttributes
 );
 
-XBAPI NTSTATUS STDCALL NtProtectVirtualMemory
+NTSTATUS STDCALL NtProtectVirtualMemory
 (
     IN OUT PVOID *BaseAddress,
     IN OUT PSIZE_T RegionSize,
@@ -166,13 +166,13 @@ XBAPI NTSTATUS STDCALL NtProtectVirtualMemory
     OUT PULONG OldProtect
 );
 
-XBAPI NTSTATUS STDCALL NtPulseEvent
+NTSTATUS STDCALL NtPulseEvent
 (
     IN HANDLE EventHandle,
     OUT PLONG PreviousState OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtQueryDirectoryFile
+NTSTATUS STDCALL NtQueryDirectoryFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -186,7 +186,7 @@ XBAPI NTSTATUS STDCALL NtQueryDirectoryFile
     IN BOOLEAN RestartScan
 );
 
-XBAPI NTSTATUS STDCALL NtQueryDirectoryObject
+NTSTATUS STDCALL NtQueryDirectoryObject
 (
     IN HANDLE DirectoryHandle,
     OUT PVOID Buffer,
@@ -196,19 +196,19 @@ XBAPI NTSTATUS STDCALL NtQueryDirectoryObject
     OUT PULONG ReturnLength OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtQueryEvent
+NTSTATUS STDCALL NtQueryEvent
 (
     IN HANDLE EventHandle,
     OUT PEVENT_BASIC_INFORMATION EventInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryFullAttributesFile
+NTSTATUS STDCALL NtQueryFullAttributesFile
 (
     IN POBJECT_ATTRIBUTES ObjectAttributes,
     OUT PFILE_NETWORK_OPEN_INFORMATION FileInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryInformationFile
+NTSTATUS STDCALL NtQueryInformationFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock,
@@ -217,44 +217,44 @@ XBAPI NTSTATUS STDCALL NtQueryInformationFile
     IN FILE_INFORMATION_CLASS FileInformationClass
 );
 
-XBAPI NTSTATUS STDCALL NtQueryIoCompletion
+NTSTATUS STDCALL NtQueryIoCompletion
 (
     IN HANDLE IoCompletionHandle,
     OUT PIO_COMPLETION_BASIC_INFORMATION IoCompletionInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryMutant
+NTSTATUS STDCALL NtQueryMutant
 (
     IN HANDLE MutantHandle,
     OUT PMUTANT_BASIC_INFORMATION MutantInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQuerySemaphore
+NTSTATUS STDCALL NtQuerySemaphore
 (
     IN HANDLE SemaphoreHandle,
     OUT PSEMAPHORE_BASIC_INFORMATION SemaphoreInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQuerySymbolicLinkObject
+NTSTATUS STDCALL NtQuerySymbolicLinkObject
 (
     IN HANDLE LinkHandle,
     IN OUT POBJECT_STRING LinkTarget,
     OUT PULONG ReturnedLength OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtQueryTimer
+NTSTATUS STDCALL NtQueryTimer
 (
     IN HANDLE TimerHandle,
     OUT PTIMER_BASIC_INFORMATION TimerInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryVirtualMemory
+NTSTATUS STDCALL NtQueryVirtualMemory
 (
     IN PVOID BaseAddress,
     OUT PMEMORY_BASIC_INFORMATION MemoryInformation
 );
 
-XBAPI NTSTATUS STDCALL NtQueryVolumeInformationFile
+NTSTATUS STDCALL NtQueryVolumeInformationFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock,
@@ -263,7 +263,7 @@ XBAPI NTSTATUS STDCALL NtQueryVolumeInformationFile
     IN FS_INFORMATION_CLASS FsInformationClass
 );
 
-XBAPI NTSTATUS STDCALL NtQueueApcThread
+NTSTATUS STDCALL NtQueueApcThread
 (
     IN HANDLE ThreadHandle,
     IN PPS_APC_ROUTINE ApcRoutine,
@@ -272,7 +272,7 @@ XBAPI NTSTATUS STDCALL NtQueueApcThread
     IN PVOID ApcArgument3
 );
 
-XBAPI NTSTATUS STDCALL NtReadFile
+NTSTATUS STDCALL NtReadFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -284,7 +284,7 @@ XBAPI NTSTATUS STDCALL NtReadFile
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtReadFileScatter
+NTSTATUS STDCALL NtReadFileScatter
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -296,20 +296,20 @@ XBAPI NTSTATUS STDCALL NtReadFileScatter
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtReleaseMutant
+NTSTATUS STDCALL NtReleaseMutant
 (
     IN HANDLE MutantHandle,
     OUT PLONG PreviousCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtReleaseSemaphore
+NTSTATUS STDCALL NtReleaseSemaphore
 (
     IN HANDLE SemaphoreHandle,
     IN LONG ReleaseCount,
     OUT PLONG PreviousCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtRemoveIoCompletion
+NTSTATUS STDCALL NtRemoveIoCompletion
 (
     IN HANDLE IoCompletionHandle,
     OUT PVOID *KeyContext,
@@ -318,19 +318,19 @@ XBAPI NTSTATUS STDCALL NtRemoveIoCompletion
     IN PLARGE_INTEGER Timeout
 );
 
-XBAPI NTSTATUS STDCALL NtResumeThread
+NTSTATUS STDCALL NtResumeThread
 (
     IN HANDLE ThreadHandle,
     OUT PULONG PreviousSuspendCount OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSetEvent
+NTSTATUS STDCALL NtSetEvent
 (
     IN HANDLE EventHandle,
     OUT PLONG PreviousState OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSetInformationFile
+NTSTATUS STDCALL NtSetInformationFile
 (
     IN HANDLE FileHandle,
     OUT PIO_STATUS_BLOCK IoStatusBlock,
@@ -339,7 +339,7 @@ XBAPI NTSTATUS STDCALL NtSetInformationFile
     IN FILE_INFORMATION_CLASS FileInformationClass
 );
 
-XBAPI NTSTATUS STDCALL NtSetIoCompletion
+NTSTATUS STDCALL NtSetIoCompletion
 (
     IN HANDLE IoCompletionHandle,
     IN PVOID KeyContext,
@@ -348,13 +348,13 @@ XBAPI NTSTATUS STDCALL NtSetIoCompletion
     IN ULONG_PTR IoStatusInformation
 );
 
-XBAPI NTSTATUS STDCALL NtSetSystemTime
+NTSTATUS STDCALL NtSetSystemTime
 (
     IN PLARGE_INTEGER SystemTime,
     OUT PLARGE_INTEGER PreviousTime OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSetTimerEx
+NTSTATUS STDCALL NtSetTimerEx
 (
     IN HANDLE TimerHandle,
     IN PLARGE_INTEGER DueTime,
@@ -366,7 +366,7 @@ XBAPI NTSTATUS STDCALL NtSetTimerEx
     OUT PBOOLEAN PreviousState OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSignalAndWaitForSingleObjectEx
+NTSTATUS STDCALL NtSignalAndWaitForSingleObjectEx
 (
     IN HANDLE SignalHandle,
     IN HANDLE WaitHandle,
@@ -375,20 +375,20 @@ XBAPI NTSTATUS STDCALL NtSignalAndWaitForSingleObjectEx
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtSuspendThread
+NTSTATUS STDCALL NtSuspendThread
 (
     IN HANDLE ThreadHandle,
     OUT PULONG PreviousSuspendCount OPTIONAL
 );
 
-XBAPI VOID STDCALL NtUserIoApcDispatcher
+VOID STDCALL NtUserIoApcDispatcher
 (
     IN PVOID ApcContext,
     IN PIO_STATUS_BLOCK IoStatusBlock,
     IN ULONG Reserved
 );
 
-XBAPI NTSTATUS STDCALL NtWaitForMultipleObjectsEx
+NTSTATUS STDCALL NtWaitForMultipleObjectsEx
 (
     IN ULONG Count,
     IN CONST HANDLE Handles[],
@@ -398,14 +398,14 @@ XBAPI NTSTATUS STDCALL NtWaitForMultipleObjectsEx
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtWaitForSingleObject
+NTSTATUS STDCALL NtWaitForSingleObject
 (
     IN HANDLE Handle,
     IN BOOLEAN Alertable,
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtWaitForSingleObjectEx
+NTSTATUS STDCALL NtWaitForSingleObjectEx
 (
     IN HANDLE Handle,
     IN KPROCESSOR_MODE WaitMode,
@@ -413,7 +413,7 @@ XBAPI NTSTATUS STDCALL NtWaitForSingleObjectEx
     IN PLARGE_INTEGER Timeout OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtWriteFile
+NTSTATUS STDCALL NtWriteFile
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -425,7 +425,7 @@ XBAPI NTSTATUS STDCALL NtWriteFile
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI BOOLEAN STDCALL NtWriteFileGather
+BOOLEAN STDCALL NtWriteFileGather
 (
     IN HANDLE FileHandle,
     IN HANDLE Event OPTIONAL,
@@ -437,6 +437,6 @@ XBAPI BOOLEAN STDCALL NtWriteFileGather
     IN PLARGE_INTEGER ByteOffset OPTIONAL
 );
 
-XBAPI NTSTATUS STDCALL NtYieldExecution(void);
+NTSTATUS STDCALL NtYieldExecution(void);
 
 #endif

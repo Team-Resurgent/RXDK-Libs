@@ -1,12 +1,12 @@
 #ifndef XBOXKRNL_API_MM_H
 #define XBOXKRNL_API_MM_H
 
-XBAPI PVOID STDCALL MmAllocateContiguousMemory
+PVOID STDCALL MmAllocateContiguousMemory
 (
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI PVOID STDCALL MmAllocateContiguousMemoryEx
+PVOID STDCALL MmAllocateContiguousMemoryEx
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG_PTR LowestAcceptableAddress,
@@ -15,129 +15,129 @@ XBAPI PVOID STDCALL MmAllocateContiguousMemoryEx
     IN ULONG Protect
 );
 
-XBAPI PVOID STDCALL MmAllocateSystemMemory
+PVOID STDCALL MmAllocateSystemMemory
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG Protect
 );
 
-XBAPI PVOID STDCALL MmClaimGpuInstanceMemory
+PVOID STDCALL MmClaimGpuInstanceMemory
 (
     IN SIZE_T NumberOfBytes,
     OUT SIZE_T *NumberOfPaddingBytes
 );
 
-XBAPI PVOID STDCALL MmCreateKernelStack
+PVOID STDCALL MmCreateKernelStack
 (
     IN SIZE_T NumberOfBytes,
     IN BOOLEAN DebuggerThread
 );
 
-XBAPI PVOID STDCALL MmDbgAllocateMemory
+PVOID STDCALL MmDbgAllocateMemory
 (
     IN SIZE_T NumberOfBytes,
     IN ULONG Protect
 );
 
-XBAPI ULONG STDCALL MmDbgFreeMemory
+ULONG STDCALL MmDbgFreeMemory
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI PFN_COUNT STDCALL MmDbgQueryAvailablePages (void);
+PFN_COUNT STDCALL MmDbgQueryAvailablePages (void);
 
-XBAPI VOID STDCALL MmDbgReleaseAddress
+VOID STDCALL MmDbgReleaseAddress
 (
     IN PVOID VirtualAddress,
     IN PHARDWARE_PTE Opaque
 );
 
-XBAPI PVOID STDCALL MmDbgWriteCheck
+PVOID STDCALL MmDbgWriteCheck
 (
     IN PVOID VirtualAddress,
     IN PHARDWARE_PTE Opaque
 );
 
-XBAPI VOID STDCALL MmDeleteKernelStack
+VOID STDCALL MmDeleteKernelStack
 (
     IN PVOID KernelStackBase,
     IN PVOID KernelStackLimit
 );
 
-XBAPI VOID STDCALL MmFreeContiguousMemory
+VOID STDCALL MmFreeContiguousMemory
 (
     IN PVOID BaseAddress
 );
 
-XBAPI ULONG STDCALL MmFreeSystemMemory
+ULONG STDCALL MmFreeSystemMemory
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes
 );
 
-XBAPI ULONG_PTR STDCALL MmGetPhysicalAddress
+ULONG_PTR STDCALL MmGetPhysicalAddress
 (
     IN PVOID BaseAddress
 );
 
 XBAPI MMGLOBALDATA MmGlobalData;
 
-XBAPI BOOLEAN STDCALL MmIsAddressValid
+BOOLEAN STDCALL MmIsAddressValid
 (
     IN PVOID VirtualAddress
 );
 
-XBAPI VOID STDCALL MmLockUnlockBufferPages
+VOID STDCALL MmLockUnlockBufferPages
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes,
     IN BOOLEAN UnlockPages
 );
 
-XBAPI VOID STDCALL MmLockUnlockPhysicalPage
+VOID STDCALL MmLockUnlockPhysicalPage
 (
     IN ULONG_PTR PhysicalAddress,
     IN BOOLEAN UnlockPage
 );
 
-XBAPI PVOID STDCALL MmMapIoSpace
+PVOID STDCALL MmMapIoSpace
 (
     IN ULONG_PTR PhysicalAddress,
     IN SIZE_T NumberOfBytes,
     IN ULONG Protect
 );
 
-XBAPI VOID STDCALL MmPersistContiguousMemory
+VOID STDCALL MmPersistContiguousMemory
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes,
     IN BOOLEAN Persist
 );
 
-XBAPI ULONG STDCALL MmQueryAddressProtect
+ULONG STDCALL MmQueryAddressProtect
 (
     IN PVOID VirtualAddress
 );
 
-XBAPI SIZE_T STDCALL MmQueryAllocationSize
+SIZE_T STDCALL MmQueryAllocationSize
 (
     IN PVOID BaseAddress
 );
 
-XBAPI NTSTATUS STDCALL MmQueryStatistics
+NTSTATUS STDCALL MmQueryStatistics
 (
     IN OUT PMM_STATISTICS MemoryStatistics
 );
 
-XBAPI VOID STDCALL MmSetAddressProtect
+VOID STDCALL MmSetAddressProtect
 (
     IN PVOID BaseAddress,
     IN ULONG NumberOfBytes,
     IN ULONG NewProtect
 );
 
-XBAPI PVOID STDCALL MmUnmapIoSpace
+PVOID STDCALL MmUnmapIoSpace
 (
     IN PVOID BaseAddress,
     IN SIZE_T NumberOfBytes

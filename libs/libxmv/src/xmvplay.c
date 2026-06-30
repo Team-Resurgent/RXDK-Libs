@@ -60,6 +60,17 @@ struct XMVDecoder {
     XBOXADPCMWAVEFORMAT  wfx;                       // big enough for PCM or ADPCM
     DWORD                pkt_status[XMV_AUDIO_PACKETS];
     int                  next_pkt;
+
+    // A/V pacing. We decode one frame ahead and present it only once its PTS is
+    // due on a wall clock (GetTickCount, ms), so playback runs at the stream's
+    // real frame rate -- audio (submitted as each frame is decoded, ~1 frame
+    // ahead) and video stay in lockstep. The title just presents whatever
+    // XMV_NEWFRAME hands it; XMV_NOFRAME means "not yet, keep the current frame".
+    int    clock_started;
+    DWORD  clock_base;        // tick when frame 0 was presented
+    int    held;             // a decoded frame is waiting for its presentation time
+    DWORD  held_pts;         // that frame's PTS (ms)
+    int    held_keyframe;
 };
 
 // ---------------------------------------------------------------------------
@@ -211,7 +222,7 @@ void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder *pDecoder,
         return;
     pVideoDescriptor->Width            = pDecoder->demux.width;
     pVideoDescriptor->Height           = pDecoder->demux.height;
-    pVideoDescriptor->FramesPerSecond  = 0;   // derived once we decode (Phase 2)
+    pVideoDescriptor->FramesPerSecond  = pDecoder->demux.fps;   // probed from frame PTS deltas
     pVideoDescriptor->AudioStreamCount = pDecoder->demux.audio_track_count;
 }
 
@@ -348,70 +359,104 @@ static void RenderPlaceholder(D3DSurface *pSurface, int keyframe, DWORD frameIdx
     D3DSurface_UnlockRect(pSurface);
 }
 
-HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface8 *pSurface,
-                                          XMVRESULT *pResult, DWORD *pTimeOfFrame)
+// Decode the next frame from the demuxer into the core's planes (or placeholder),
+// submit its audio, and stage it as the "held" frame awaiting its presentation
+// time. Returns 1 on success, 0 at end of stream, <0 on error.
+static int DecodeNextHeld(XMVDecoder *dec)
 {
     const BYTE *frame;
     DWORD       size, pts = 0;
     int         keyframe = 0, rc;
+
+    rc = XmvDemuxNextVideoFrame(&dec->demux, &frame, &size, &keyframe, &pts);
+    if (rc <= 0)
+        return rc;   // 0 = EOF, <0 = error
+
+    // Full decode. Keyframes go through the leak I-frame kernel; P-frames through
+    // the ported WMV2 path (header parse + MB loop + motion comp + residual),
+    // reconstructing into the building planes from the displayed (reference)
+    // planes, then promoted with a swap. Decoded in sequence (P depends on the
+    // previous frame). No core (unsupported geometry) -> placeholder render.
+    if (dec->core) {
+        if (keyframe) {
+            XmvCoreDecodeKeyframe(dec->core, frame, size);   // decodes + swaps
+            if (dec->wmv2_ok) {
+                dec->wmv2.no_rounding = 1;   // I-frame: rounding base state
+                Wmv2ResetMotion(&dec->wmv2);
+            }
+            dec->have_keyframe = 1;
+        } else if (dec->have_keyframe && dec->wmv2_ok) {
+            XmvCoreSetupBits(dec->core, frame);
+            if (Wmv2DecodePictureHeader(&dec->wmv2) == WMV2_PICT_P &&
+                Wmv2DecodeSecondaryHeader(&dec->wmv2) == 0) {
+                Wmv2DecodePFrame(&dec->wmv2, frame, size);
+                XmvCoreSwap(dec->core);      // promote building -> displayed
+            }
+            // On parse failure, keep the previous displayed frame (freeze).
+        }
+    }
+
+    // Feed this frame's audio slice to the APU stream now (one frame ahead of its
+    // video presentation), so the stream stays primed against the wall clock.
+    PumpAudio(dec);
+
+    dec->held          = 1;
+    dec->held_pts      = pts;
+    dec->held_keyframe = keyframe;
+    return 1;
+}
+
+HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface8 *pSurface,
+                                          XMVRESULT *pResult, DWORD *pTimeOfFrame)
+{
+    DWORD now;
 
     if (!pDecoder) {
         if (pResult) *pResult = XMV_FAIL;
         return E_INVALIDARG;
     }
 
-    rc = XmvDemuxNextVideoFrame(&pDecoder->demux, &frame, &size, &keyframe, &pts);
-    if (rc < 0) {
-        if (pResult) *pResult = XMV_FAIL;
-        return E_FAIL;
+    // Decode one frame ahead: if nothing is staged, pull and decode the next.
+    if (!pDecoder->held) {
+        int rc = DecodeNextHeld(pDecoder);
+        if (rc < 0) {
+            if (pResult) *pResult = XMV_FAIL;
+            return E_FAIL;
+        }
+        if (rc == 0) {
+            if (pResult) *pResult = XMV_ENDOFFILE;
+            if (pTimeOfFrame) *pTimeOfFrame = pDecoder->demux.video_pts_ms;
+            return S_OK;
+        }
     }
-    if (rc == 0) {
-        if (pResult) *pResult = XMV_ENDOFFILE;
-        if (pTimeOfFrame) *pTimeOfFrame = pts;
+
+    // Present the staged frame only once its PTS is due on the playback clock;
+    // until then the title keeps showing the current frame (XMV_NOFRAME).
+    if (!pDecoder->clock_started) {
+        pDecoder->clock_started = 1;
+        pDecoder->clock_base    = GetTickCount();
+    }
+    now = GetTickCount();
+    if ((DWORD)(now - pDecoder->clock_base) < pDecoder->held_pts) {
+        if (pResult) *pResult = XMV_NOFRAME;
+        if (pTimeOfFrame) *pTimeOfFrame = pDecoder->held_pts;
         return S_OK;
     }
 
-    // Phase 2: full decode. Keyframes go through the leak I-frame kernel; P-frames
-    // through the ported WMV2 path (header parse + MB loop + half-pel motion comp
-    // + residual), reconstructing into the building planes from the displayed
-    // (reference) planes, then promoted with a swap. Every frame is decoded in
-    // sequence (P depends on the previous). No core (bad geometry) -> placeholder.
-    if (pDecoder->core) {
-        if (keyframe) {
-            XmvCoreDecodeKeyframe(pDecoder->core, frame, size);   // decodes + swaps
-            if (pDecoder->wmv2_ok) {
-                pDecoder->wmv2.no_rounding = 1;   // I-frame: rounding base state
-                Wmv2ResetMotion(&pDecoder->wmv2);
-            }
-            pDecoder->have_keyframe = 1;
-        } else if (pDecoder->have_keyframe && pDecoder->wmv2_ok) {
-            XmvCoreSetupBits(pDecoder->core, frame);
-            if (Wmv2DecodePictureHeader(&pDecoder->wmv2) == WMV2_PICT_P &&
-                Wmv2DecodeSecondaryHeader(&pDecoder->wmv2) == 0) {
-                Wmv2DecodePFrame(&pDecoder->wmv2, frame, size);
-                XmvCoreSwap(pDecoder->core);      // promote building -> displayed
-            }
-            // On parse failure, keep the previous displayed frame (freeze).
-        }
-
-        if (pDecoder->have_keyframe)
-            XmvCoreRender(pDecoder->core, (void *)pSurface);
-        else
-            RenderPlaceholder((D3DSurface *)pSurface, keyframe, pDecoder->frames_shown);
-    } else {
-        RenderPlaceholder((D3DSurface *)pSurface, keyframe, pDecoder->frames_shown);
-    }
-
-    // Phase 3: feed this frame's audio slice to the APU stream.
-    PumpAudio(pDecoder);
+    // Due: render the held frame into the caller's surface and retire it.
+    if (pDecoder->core && pDecoder->have_keyframe)
+        XmvCoreRender(pDecoder->core, (void *)pSurface);
+    else
+        RenderPlaceholder((D3DSurface *)pSurface, pDecoder->held_keyframe, pDecoder->frames_shown);
 
     if (pDecoder->frames_shown < 5) {
-        DbgPrint("xmv: frame %u %s size=%u pts=%ums\n",
-                 pDecoder->frames_shown, keyframe ? "[KEY]" : "", size, pts);
+        DbgPrint("xmv: frame %u %s pts=%ums\n", pDecoder->frames_shown,
+                 pDecoder->held_keyframe ? "[KEY]" : "", pDecoder->held_pts);
     }
-    pDecoder->frames_shown++;
 
     if (pResult) *pResult = XMV_NEWFRAME;
-    if (pTimeOfFrame) *pTimeOfFrame = pts;
+    if (pTimeOfFrame) *pTimeOfFrame = pDecoder->held_pts;
+    pDecoder->held = 0;
+    pDecoder->frames_shown++;
     return S_OK;
 }

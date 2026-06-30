@@ -187,6 +187,22 @@ int XmvDemuxOpen(XmvDemux *d, const uint8_t *file, uint32_t file_size,
     if (xmv_fetch_new_packet(d) != 0)
         return -6;
 
+    // Probe the (constant) inter-frame interval -> fps, by walking a throwaway
+    // copy of the iteration state until the first non-zero PTS delta. duration_ms
+    // is unreliable for this (it can include trailing audio), so we derive the
+    // rate from the bitstream's own frame timestamps.
+    {
+        XmvDemux tmp = *d;
+        const uint8_t *fd; uint32_t fsz, pts, prev = 0; int kf, n = 0;
+        d->frame_duration_ms = 0;
+        while (n++ < 64 && XmvDemuxNextVideoFrame(&tmp, &fd, &fsz, &kf, &pts) == 1) {
+            if (pts > prev) { d->frame_duration_ms = pts - prev; break; }
+            prev = pts;
+        }
+        d->fps = d->frame_duration_ms
+            ? (1000u + d->frame_duration_ms / 2) / d->frame_duration_ms : 0;
+    }
+
     return 0;
 }
 

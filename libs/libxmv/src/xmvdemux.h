@@ -37,6 +37,8 @@ typedef struct XmvDemux {
     uint32_t width;
     uint32_t height;
     uint32_t duration_ms;
+    uint32_t frame_duration_ms;   // inter-frame interval (constant in XMV), probed at open
+    uint32_t fps;                 // derived frame rate (round(1000 / frame_duration_ms))
     uint16_t audio_track_count;
     XmvAudioDesc audio[XMV_MAX_AUDIO_TRACKS];
 

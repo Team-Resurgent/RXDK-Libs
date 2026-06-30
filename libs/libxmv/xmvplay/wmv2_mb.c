@@ -351,7 +351,13 @@ static void wmv2_decode_motion(Wmv2 *w, int px, int py, int *mx_out, int *my_out
     my += py - 32;
     if (mx <= -64) mx += 64; else if (mx >= 64) mx -= 64;
     if (my <= -64) my += 64; else if (my >= 64) my -= 64;
-    // mspel == 0 for our stream, so no hshift bit.
+
+    // mspel: an extra "half-pel shift" bit when the MV is half-pel and mspel is on.
+    if (((mx | my) & 1) && w->mspel)
+        w->hshift = (int)ReadOneBit(c);
+    else
+        w->hshift = 0;
+
     *mx_out = mx;
     *my_out = my;
 }

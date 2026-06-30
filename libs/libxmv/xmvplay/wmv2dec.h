@@ -33,6 +33,7 @@ typedef struct Wmv2 {
     int per_mb_rl_table, rl_table_index, rl_chroma_table_index;
     int dc_table_index, mv_table_index;
     int mspel, cbp_table_index;
+    int hshift;             // mspel half-pel-shift bit (per MV)
     int per_mb_abt, abt_type, per_block_abt;
     int esc3_run_length, esc3_level_length;
 

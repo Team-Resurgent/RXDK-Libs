@@ -33,21 +33,24 @@ static unsigned ext_get(ExtBits *b, int n)
     return v;
 }
 
-// decode_ext_header (wmv2dec.c): 32-bit sequence header.
+// Decode the XMV sequence extradata. This is the RAW XMV format: a little-endian
+// uint32 bitfield (mspel=bit0, loop=bit1, abt=bit2, j_type=bit3, top_left_mv=bit4,
+// per_mb_rl=bit5, slice_count=bits6..8) -- NOT the "standard WMV2 extradata"
+// layout. FFmpeg's demuxer (libavformat/xmv.c xmv_read_extradata) repacks it into
+// the WMV2 layout before its decoder reads it; we decode the raw bitfield directly.
 static void wmv2_decode_ext_header(Wmv2 *w, const uint8_t ext[4])
 {
-    ExtBits b;
-    b.p = ext; b.pos = 0;
+    uint32_t data = (uint32_t)ext[0] | ((uint32_t)ext[1] << 8) |
+                    ((uint32_t)ext[2] << 16) | ((uint32_t)ext[3] << 24);
 
-    (void)ext_get(&b, 5);                       // fps
-    w->bit_rate         = (int)ext_get(&b, 11) * 1024;
-    w->mspel_bit        = (int)ext_get(&b, 1);
-    w->loop_filter      = (int)ext_get(&b, 1);
-    w->abt_flag         = (int)ext_get(&b, 1);
-    w->j_type_bit       = (int)ext_get(&b, 1);
-    w->top_left_mv_flag = (int)ext_get(&b, 1);
-    w->per_mb_rl_bit    = (int)ext_get(&b, 1);
-    w->slice_code       = (int)ext_get(&b, 3);
+    w->mspel_bit        = (int)((data >> 0) & 1);
+    w->loop_filter      = (int)((data >> 1) & 1);
+    w->abt_flag         = (int)((data >> 2) & 1);
+    w->j_type_bit       = (int)((data >> 3) & 1);
+    w->top_left_mv_flag = (int)((data >> 4) & 1);
+    w->per_mb_rl_bit    = (int)((data >> 5) & 1);
+    w->slice_code       = (int)((data >> 6) & 7);
+    w->bit_rate         = 0;   // not encoded in the raw XMV extradata
 }
 
 int Wmv2Init(Wmv2 *w, XmvVideoCore *core, const uint8_t extradata[4])

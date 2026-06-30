@@ -6,9 +6,6 @@ pub const Slice = struct {
     name: []const u8,
     sources: []const []const u8,
     is_cpp: bool,
-    // USB driver slices build -fdefault-calling-conv=stdcall (the Xbox USB stack
-    // was /Gz) so bare vendor kernel decls bind direct to libkernel -- no facades.
-    stdcall: bool = false,
 };
 
 pub const k32_sources = [_][]const u8{
@@ -106,9 +103,10 @@ pub const ohcd_sources = [_][]const u8{
     "libs/libxapi/usb/ohcd/transfer.c",
     "libs/libxapi/usb/ohcd/roothub.c",
     "libs/libxapi/usb/ohcd/isoch.c",
+    "libs/libxapi/port/usb_kernel_imports.c",
+    "libs/libxapi/port/usb_kernel_wrap.c",
     "libs/libxapi/port/usbd_pool.c",
 };
-
 
 pub const usbd_sources = [_][]const u8{
     "libs/libxapi/usb/usbd/usbd.cpp",
@@ -142,12 +140,11 @@ pub const xid_sources = [_][]const u8{
 //   c    - k32 + dll + rtl + ohcd  (libxapi internal headers, C)
 //   cpp  - usbd + usbhub + mu + xid (C++)
 //   uuid - COM/RPC IDL against the full XDK SDK headers (include/sdk)
-pub const c_sources = k32_sources ++ dll_sources ++ rtl_sources;
+pub const c_sources = k32_sources ++ dll_sources ++ rtl_sources ++ ohcd_sources;
 pub const cpp_sources = usbd_sources ++ usbhub_sources ++ mu_sources ++ xid_sources;
 
 pub const slices = [_]Slice{
     .{ .name = "c", .is_cpp = false, .sources = &c_sources },
-    .{ .name = "ohcd", .is_cpp = false, .sources = &ohcd_sources, .stdcall = true },
-    .{ .name = "cpp", .is_cpp = true, .sources = &cpp_sources, .stdcall = true },
+    .{ .name = "cpp", .is_cpp = true, .sources = &cpp_sources },
     .{ .name = "uuid", .is_cpp = false, .sources = &uuid_sources },
 };

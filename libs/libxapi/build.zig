@@ -151,10 +151,12 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         .name = "stage-libxapi-headers",
         .owner = b,
     });
-    // Public umbrella set in shared/include (xt.h pulls windef/winbase; the
-    // xboxkrnl/ and xbox/ subdirs are staged by the libc header step).
+    // libxapi's public headers + the Win32 base they need, from shared/include.
+    // The master umbrella (<xtl.h>) is not a libxapi header -- it ships to the
+    // distribution from shared/include directly (see build-iso.ps1). The
+    // xboxkrnl/ and xbox/ subdirs are staged by the libc header step.
     const public_headers = [_][]const u8{
-        "xt.h", "xapi.h", "xbox.h", "xkbd.h",
+        "xapi.h", "xbox.h", "xkbd.h",
         "windef.h", "winbase.h", "winerror.h",
     };
     for (public_headers) |name| {

@@ -23,6 +23,25 @@ typedef unsigned char boolean;
 
 typedef double DOUBLE;
 
+/*
+ * COM calling-convention macros. In-tree these arrive via the libdsound /
+ * libd3dx8 site bridge force-includes; a dist consumer has no such force-
+ * include, so xobjbase.h supplies them itself. Guarded, so an existing bridge
+ * definition still wins and in-tree builds are unaffected.
+ */
+#ifndef STDMETHODCALLTYPE
+#define STDMETHODCALLTYPE   __stdcall
+#endif
+#ifndef STDMETHODVCALLTYPE
+#define STDMETHODVCALLTYPE  __cdecl
+#endif
+#ifndef STDAPICALLTYPE
+#define STDAPICALLTYPE      __stdcall
+#endif
+#ifndef STDAPIVCALLTYPE
+#define STDAPIVCALLTYPE     __cdecl
+#endif
+
 #ifdef CONST_VTABLE
 #define CONST_VTBL const
 #else

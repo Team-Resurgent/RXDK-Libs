@@ -9,6 +9,10 @@
 
 #pragma once
 
+/* XMV's decoder API references DirectSound types (DSMIXBINS, IDirectSoundStream)
+   for its audio path; pull dsound.h (which brings the base + D3DX math it uses). */
+#include <dsound.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

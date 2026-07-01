@@ -172,7 +172,7 @@ typedef unsigned int        *PUINT;
 #else
 /* winnt.h is skipped: the NT base types come from xboxkrnl. Provide the few
    BaseTsd pointer types and the handle macro that winnt would otherwise supply,
-   so this header is self-sufficient for distribution (e.g. via xt.h). */
+   so this header is self-sufficient for distribution (e.g. via xtl.h). */
 #ifndef UINT_PTR
 typedef unsigned int UINT_PTR, *PUINT_PTR;
 typedef int          INT_PTR, *PINT_PTR;

@@ -476,10 +476,23 @@ function Invoke-DistBuild {
         }
     }
 
-    # Public headers: the staged libc/libc++/xapi set (zig-out\include) plus the
-    # device-library public headers (shared\include: d3d8.h, dsound.h, xmv.h,
-    # d3dx8*.h, winsockx.h, ...). -Path (not -LiteralPath) so '*' is expanded.
-    foreach ($incSrc in @((Join-Path $root 'zig-out\include'), (Join-Path $root 'shared\include'))) {
+    # Public headers, in three layers:
+    #   1. zig-out\include   - the staged libc/libc++/xapi set + xboxkrnl/ subdir.
+    #   2. shared\include    - the device-library public headers (d3d8.h, dsound.h,
+    #                          xmv.h, d3dx8*.h, winsockx.h, ...) + the Win32 base.
+    #   3. dist-include      - the distribution-only master umbrella (xtl.h) and
+    #                          its shims (xdk_compat.h, guiddef.h). These are kept
+    #                          OUT of shared\include on purpose: shared\include is
+    #                          a source include dir, and a public <xtl.h> there
+    #                          shadows libs\libxapi\internal\xtl.h in the in-tree
+    #                          library builds. Copied last so they land in dist.
+    # -Path (not -LiteralPath) so '*' is expanded.
+    $incSources = @(
+        (Join-Path $root 'zig-out\include'),
+        (Join-Path $root 'shared\include'),
+        (Join-Path $root 'dist-include')
+    )
+    foreach ($incSrc in $incSources) {
         if (Test-Path -LiteralPath $incSrc) {
             Copy-Item -Path (Join-Path $incSrc '*') -Destination $distInc -Recurse -Force
         }

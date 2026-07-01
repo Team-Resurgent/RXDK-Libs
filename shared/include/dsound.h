@@ -11,7 +11,6 @@
 #define __DSOUND_INCLUDED__
 
 #include <xtl.h>
-#include <d3dx8math.h>   /* D3DXVECTOR3, used by DS3DBUFFER/DS3DLISTENER below */
 #include <dsfxparm.h>
 
 #pragma warning(disable:4201)

@@ -238,8 +238,33 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
 
+    // Standalone title-compiled XapiTitleStartup object, shipped in the dist as
+    // xapi_start.obj so an external builder (RXDK-VSCode) links it without having
+    // to recompile the startup against the flattened dist headers. Compiled with
+    // the *title* recipe (cFlags + -D_XAPI_/-fms-*), never the internal libxapi
+    // recipe -- that is the whole point (RXDK_LIBXAPI_BUILD would break the ABI).
+    const xapi_start_batch = compile_c.addBatch(b, .{
+        .name = "xapi-start",
+        .target = xbox_target.target_triple,
+        .out_subdir = "startup",
+        .sources = &.{"libs/libxapi/dll/xapi_start.c"},
+        .flags = xbox_target.appendFlags(b, xbox_target.cFlags(b), &.{
+            "-D_XAPI_", "-fms-extensions", "-fms-compatibility",
+            "-include", "build/generated/picolibc.h",
+        }),
+        .include_dirs = &.{
+            "shared/include", "libs/libxapi/internal", "build/generated",
+            "shared/picolibc/include", "shared/picolibc/machine/x86",
+        },
+        .opt_flag = opt_flag,
+        .is_cpp = false,
+    });
+    const install_xapi_start = b.addInstallFile(xapi_start_batch.outputs[0], "lib/xapi_start.obj");
+    install_xapi_start.step.dependOn(xapi_start_batch.step);
+    b.getInstallStep().dependOn(&install_xapi_start.step);
+
     const xapi_smoke_extra = [_][]const u8{
-        "samples/xapi-smoke/src/xapi_boot.c",
+        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
         "samples/xapi-smoke/src/test_content.c",
         "samples/xapi-smoke/src/test_copyfile.c",
@@ -284,15 +309,16 @@ pub fn build(b: *std.Build) void {
             "-include",
             "build/generated/picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_smoke_step = b.step("xapi-smoke", "Build xAPI category smoke tests (27 tests, kit hardware)");
     xapi_smoke_step.dependOn(xapi_smoke.install);
 
-    // xAPI input-device monitor. Reuses xapi-smoke's boot + trace helpers
-    // (xapi_boot.c / common.c) -- the only new file is its own main.c.
+    // xAPI input-device monitor. Reuses xapi-smoke's trace helpers (common.c);
+    // the title startup now comes from libxapi (XapiTitleStartup), so the only
+    // new file is its own main.c.
     const xapi_input_inc = [_]std.Build.LazyPath{
         b.path("samples/xapi-smoke/src"), // common.h
         b.path("shared/include"),
@@ -302,7 +328,7 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const xapi_input_extra = [_][]const u8{
-        "samples/xapi-smoke/src/xapi_boot.c",
+        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
     };
     const xapi_input = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -319,7 +345,7 @@ pub fn build(b: *std.Build) void {
             "-include",
             "build/generated/picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
@@ -338,7 +364,7 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const d3d8_tri_extra = [_][]const u8{
-        "samples/xapi-smoke/src/xapi_boot.c",
+        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
     };
     const d3d8_tri = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -359,7 +385,7 @@ pub fn build(b: *std.Build) void {
             "-include",
             "picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, picolibc_objs.step, xbox_objs.step },
     });
@@ -370,7 +396,7 @@ pub fn build(b: *std.Build) void {
     // D3DXCreateTextureFromFile and draws a 3x2 grid of drifting textured quads.
     // Links libd3dx8 + libxgraphics (swizzle) + libd3d8 + libxapi + krnl.
     const d3d8_tex_extra = [_][]const u8{
-        "samples/xapi-smoke/src/xapi_boot.c",
+        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
     };
     // libd3dx8's C++ image codecs use global operator new/delete; this C title has
@@ -410,7 +436,7 @@ pub fn build(b: *std.Build) void {
             "-include",
             "picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, &install_libxgraphics.step, opnew_batch.step, picolibc_objs.step, xbox_objs.step },
     });
@@ -436,7 +462,7 @@ pub fn build(b: *std.Build) void {
             "-include",
             "picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libxmv.step, &install_libd3d8.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
     });
@@ -456,7 +482,7 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const dsmusic_extra = [_][]const u8{
-        "samples/xapi-smoke/src/xapi_boot.c",
+        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
         "samples/dsound-music/src/stb_vorbis_impl.c",
     };
@@ -475,7 +501,7 @@ pub fn build(b: *std.Build) void {
             "-include",
             "picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
     });
@@ -495,7 +521,7 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const xnet_extra = [_][]const u8{
-        "samples/xapi-smoke/src/xapi_boot.c",
+        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
         // MSVC 64-bit math helpers (__alldiv etc.) for the MSVC-ABI libxnet.
         // Linked directly into the sample (GNU ABI -> lowers to compiler-rt).
@@ -516,7 +542,7 @@ pub fn build(b: *std.Build) void {
             "-include",
             "picolibc.h",
         },
-        .entry = "xapi_smoke_boot_entry",
+        .entry = "XapiTitleStartup",
         .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libxnet.step, picolibc_objs.step, xbox_objs.step },
     });

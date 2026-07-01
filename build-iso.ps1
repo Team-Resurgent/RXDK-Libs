@@ -26,6 +26,12 @@
 .PARAMETER Dist
     Skip the menu, build the lib distribution into dist\, then exit.
 
+.PARAMETER Clean
+    Remove the zig build cache (.zig-cache) and all generated outputs, forcing a
+    full recompile. On its own it just cleans; combined with -Sample / -Dist /
+    -All it cleans first, then does that build -- a guaranteed-fresh build with
+    no risk of a stale object (e.g. an edited libxapi source) leaking through.
+
 .PARAMETER Optimize
     Zig optimize mode. Defaults to Debug (prompts if not given interactively).
 
@@ -119,12 +125,20 @@ function Save-DeployConfig {
     $Config | ConvertTo-Json | Set-Content -LiteralPath $deployConfigPath -Encoding utf8
 }
 
-# Remove built artifact folders (the XBEs and ISOs) so the next build is fresh.
-# Leaves zig-out\samples/lib/include and the zig cache alone.
+# Remove the zig build cache AND all generated outputs so the next build
+# recompiles every source from scratch. This is the safe hammer: it guarantees
+# no stale object (e.g. an edited libxapi source that didn't get recompiled)
+# leaks into a dist or sample build. Slower (full rebuild), so it only runs when
+# -Clean is passed. Combine it with -Dist / -Sample / -All for a clean build.
 function Invoke-Clean {
     Write-Host ''
-    Write-Host '==> clean: removing built artifacts' -ForegroundColor Cyan
-    foreach ($rel in @('zig-out\xbe', 'zig-out\iso')) {
+    Write-Host '==> clean: removing zig cache + generated outputs (forces full recompile)' -ForegroundColor Cyan
+    $targets = @(
+        '.zig-cache',
+        'zig-out\obj', 'zig-out\lib', 'zig-out\include',
+        'zig-out\samples', 'zig-out\link', 'zig-out\xbe', 'zig-out\iso'
+    )
+    foreach ($rel in $targets) {
         $p = Join-Path $root $rel
         if (Test-Path -LiteralPath $p) {
             Remove-Item -LiteralPath $p -Recurse -Force
@@ -498,10 +512,44 @@ function Invoke-DistBuild {
         }
     }
 
+    # Title-link objects every Xbox title needs (a title = title objects + these
+    # + the SDK libs), shipped in dist\lib so an external builder (RXDK-VSCode's
+    # Build-XboxProject) links a title with a fixed recipe:
+    #   - xboxkrnl_xbld.obj : kernel build-number/descriptor data (_XboxKrnlBuildNumber)
+    #   - xapi_start.obj    : the XapiTitleStartup entry, TITLE-compiled by build.zig
+    #                         (never the internal libxapi recipe -- that breaks ABI).
+    foreach ($obj in @(
+            (Join-Path $root 'prebuilt\xboxkrnl_xbld.obj'),
+            (Join-Path $root 'zig-out\lib\xapi_start.obj'))) {
+        if (Test-Path -LiteralPath $obj) {
+            Copy-Item -LiteralPath $obj -Destination $distLib -Force
+        } else {
+            Write-Warning "expected title-link object not found: $obj"
+        }
+    }
+
+    # Bootstrap sources for the per-title .bss-zeroing (image_init). An external
+    # builder compiles image_init.c twice: once with the stub header (probe), then
+    # with the header generated from the probe XBE's .data/.bss RVAs, and links the
+    # result. Shipped as source so it is compiled with each title's exact recipe.
+    $distStartup = Join-Path $root 'dist\startup'
+    if (Test-Path -LiteralPath $distStartup) { Remove-Item -LiteralPath $distStartup -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $distStartup | Out-Null
+    foreach ($f in @(
+            (Join-Path $root 'libs\libc\xbox\image_init.c'),
+            (Join-Path $root 'build\generated\xbox_image_init_stub.h'))) {
+        if (Test-Path -LiteralPath $f) {
+            Copy-Item -LiteralPath $f -Destination $distStartup -Force
+        } else {
+            Write-Warning "expected bootstrap source not found: $f"
+        }
+    }
+
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
-    Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
+    Write-Host ('OK  dist\lib      {0} libs + xboxkrnl_xbld.obj + xapi_start.obj: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
+    Write-Host  'OK  dist\startup  image_init.c + xbox_image_init_stub.h' -ForegroundColor Green
 }
 
 # Resolve optimize mode: an explicit -Optimize on the command line wins;
@@ -592,9 +640,13 @@ if ($cfgDirty -and -not $Sample -and -not $Dist -and -not $All) {
 }
 
 # ---- Non-interactive: run once and exit (errors propagate). ----------------
+# -Clean on its own just cleans; combined with -Sample/-Dist/-All it cleans
+# first, then falls through to the requested build (a guaranteed clean build).
 if ($Clean) {
     Invoke-Clean
-    return
+    if (-not $Sample -and -not $Dist -and -not $All) {
+        return
+    }
 }
 if ($All) {
     Invoke-AllSamples -Opt (Resolve-Optimize -ConfigOptimize $deployCfg.Optimize) -UseNoHdd:([bool]$NoHdd) -Config $deployCfg

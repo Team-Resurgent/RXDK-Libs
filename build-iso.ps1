@@ -13,7 +13,7 @@
 
     Or pick "dist" to build all the libraries (libkernel, libc, libcpp, libxapi,
     libd3d8, libd3dx8, libxgraphics, libdsound, libxnet, libxmv) and stage the .lib files
-    plus the public headers into dist\libs and dist\include (dist\ is gitignored).
+    plus the public headers into dist\lib and dist\include (dist\ is gitignored).
 
     Run with no arguments for a looping menu: after each action it waits for
     Enter and returns to the menu. Pass -Sample or -Dist to run once and exit
@@ -449,9 +449,9 @@ function Invoke-DistBuild {
     # (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv).
     & $compile -Target libs -Optimize $Opt
 
-    $distLibs = Join-Path $root 'dist\libs'
+    $distLib = Join-Path $root 'dist\lib'
     $distInc = Join-Path $root 'dist\include'
-    foreach ($d in @($distLibs, $distInc)) {
+    foreach ($d in @($distLib, $distInc)) {
         if (Test-Path -LiteralPath $d) { Remove-Item -LiteralPath $d -Recurse -Force }
         New-Item -ItemType Directory -Force -Path $d | Out-Null
     }
@@ -468,7 +468,7 @@ function Invoke-DistBuild {
     foreach ($name in $shipLibs) {
         $src = Join-Path $root ('zig-out\lib\{0}' -f $name)
         if (Test-Path -LiteralPath $src) {
-            Copy-Item -LiteralPath $src -Destination $distLibs -Force
+            Copy-Item -LiteralPath $src -Destination $distLib -Force
             $copied += $name
         }
         else {
@@ -500,7 +500,7 @@ function Invoke-DistBuild {
 
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
-    Write-Host ('OK  dist\libs     {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
+    Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
 }
 

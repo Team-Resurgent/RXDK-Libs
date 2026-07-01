@@ -3,6 +3,19 @@
 
 #include <stdint.h>
 
+/*
+ * Every title's XBE must carry the kernel build/descriptor data that lives in
+ * the .XBLD section (symbol _XboxKrnlBuildNumber), shipped as the prebuilt
+ * object prebuilt/xboxkrnl_xbld.obj and packed into libc.lib. startup.c is
+ * force-linked into every title (crt0 _start / XapiTitleStartup both reach
+ * xbox_runtime_init), so a genuine reference from here pulls that archive member
+ * and keeps its section from being GC'd -- no per-title loose object needed. A
+ * real reference (not a /include linker directive) is used deliberately: the
+ * x86-windows-gnu / MinGW toolchain does not honor /include for archive pull.
+ */
+extern char XboxKrnlBuildNumber[];
+const void *volatile xbox_xbld_anchor;
+
 typedef void (*xbox_ctor_fn)(void);
 
 extern int main(void);
@@ -29,6 +42,11 @@ static void xbox_run_global_ctors(void)
 
 void xbox_runtime_init(void)
 {
+    /* Anchor the .XBLD kernel descriptor (see xbox_xbld_anchor above): the
+       volatile store can't be elided, and its relocation against
+       XboxKrnlBuildNumber pulls prebuilt/xboxkrnl_xbld.obj out of libc.lib. */
+    xbox_xbld_anchor = XboxKrnlBuildNumber;
+
     if (!xbox_runtime_ready) {
         xbox_runtime_ready = 1;
         DbgPrint("RXDK-Libs: runtime init\n");

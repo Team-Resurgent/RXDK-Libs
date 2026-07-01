@@ -512,25 +512,15 @@ function Invoke-DistBuild {
         }
     }
 
-    # Title-link objects every Xbox title needs (a title = title objects + these
-    # + the SDK libs), shipped in dist\lib so an external builder (RXDK-VSCode's
-    # Build-XboxProject) links a title with a fixed recipe:
-    #   - xboxkrnl_xbld.obj : kernel build-number/descriptor data (_XboxKrnlBuildNumber)
-    #   - xapi_start.obj    : the XapiTitleStartup entry, TITLE-compiled by build.zig
-    #                         (never the internal libxapi recipe -- that breaks ABI).
-    foreach ($obj in @(
-            (Join-Path $root 'prebuilt\xboxkrnl_xbld.obj'),
-            (Join-Path $root 'zig-out\lib\xapi_start.obj'))) {
-        if (Test-Path -LiteralPath $obj) {
-            Copy-Item -LiteralPath $obj -Destination $distLib -Force
-        } else {
-            Write-Warning "expected title-link object not found: $obj"
-        }
-    }
+    # The two title-link objects every Xbox title used to need as loose files are
+    # now baked into the archives: xboxkrnl_xbld.obj (kernel build/descriptor data,
+    # _XboxKrnlBuildNumber) is packed into libc.lib, and xapi_start.obj (the
+    # XapiTitleStartup entry) into libxapi.lib. An external builder just links the
+    # libs -- no loose objects, and no need to know whether libxapi is in use.
 
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
-    Write-Host ('OK  dist\lib      {0} libs + xboxkrnl_xbld.obj + xapi_start.obj: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
+    Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
 }
 

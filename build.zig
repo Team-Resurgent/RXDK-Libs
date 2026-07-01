@@ -46,6 +46,10 @@ pub fn build(b: *std.Build) void {
     var libc_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     libc_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     libc_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
+    // Kernel build/descriptor data (.XBLD / _XboxKrnlBuildNumber) every title's
+    // XBE must carry. Packed into libc.lib (always linked) so external builders
+    // need no loose object; startup.c pulls it via a /include linker directive.
+    libc_objects.append(b.allocator, b.path("prebuilt/xboxkrnl_xbld.obj")) catch @panic("OOM");
 
     var libc_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     libc_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
@@ -87,11 +91,38 @@ pub fn build(b: *std.Build) void {
     const stage_cxx_headers = libcxx.stageHeaders(b);
     stage_cxx_headers.dependOn(&install_libcpp.step);
 
+    // Title-compiled XapiTitleStartup object: the XAPI title entry (XAPI+CRT+TLS
+    // bring-up before main). Compiled with the *title* recipe (cFlags + -D_XAPI_/
+    // -fms-*), never the internal libxapi recipe -- RXDK_LIBXAPI_BUILD would break
+    // the ABI. Packed into libxapi.lib (and _core) so any title that links libxapi
+    // resolves the entry from the archive (pulled by -e XapiTitleStartup); no loose
+    // dist object, and no need to know at stage time whether libxapi is in use.
+    const xapi_start_batch = compile_c.addBatch(b, .{
+        .name = "xapi-start",
+        .target = xbox_target.target_triple,
+        .out_subdir = "startup",
+        .sources = &.{"libs/libxapi/dll/xapi_start.c"},
+        .flags = xbox_target.appendFlags(b, xbox_target.cFlags(b), &.{
+            "-D_XAPI_", "-fms-extensions", "-fms-compatibility",
+            "-include", "build/generated/picolibc.h",
+        }),
+        .include_dirs = &.{
+            "shared/include", "libs/libxapi/internal", "build/generated",
+            "shared/picolibc/include", "shared/picolibc/machine/x86",
+        },
+        .opt_flag = opt_flag,
+        .is_cpp = false,
+    });
+
     const xapi_objs = libxapi_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xapi_lib_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
+    xapi_lib_objects.appendSlice(b.allocator, xapi_objs.outputs) catch @panic("OOM");
+    xapi_lib_objects.append(b.allocator, xapi_start_batch.outputs[0]) catch @panic("OOM");
     var xapi_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     xapi_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
     xapi_deps.append(b.allocator, xapi_objs.step) catch @panic("OOM");
-    const libxapi = coff_lib.pack(b, "libxapi", xapi_objs.outputs, xapi_deps.items);
+    xapi_deps.append(b.allocator, xapi_start_batch.step) catch @panic("OOM");
+    const libxapi = coff_lib.pack(b, "libxapi", xapi_lib_objects.items, xapi_deps.items);
     const install_libxapi = b.addInstallFile(libxapi.path, "lib/libxapi.lib");
     install_libxapi.step.dependOn(libxapi.step);
 
@@ -102,9 +133,11 @@ pub fn build(b: *std.Build) void {
             xapi_core_objects.append(b.allocator, obj) catch @panic("OOM");
         }
     }
+    xapi_core_objects.append(b.allocator, xapi_start_batch.outputs[0]) catch @panic("OOM");
     var xapi_core_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     xapi_core_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
     xapi_core_deps.append(b.allocator, xapi_objs.step) catch @panic("OOM");
+    xapi_core_deps.append(b.allocator, xapi_start_batch.step) catch @panic("OOM");
     const libxapi_core = coff_lib.pack(b, "libxapi_core", xapi_core_objects.items, xapi_core_deps.items);
     const install_libxapi_core = b.addInstallFile(libxapi_core.path, "lib/libxapi_core.lib");
     install_libxapi_core.step.dependOn(libxapi_core.step);
@@ -238,33 +271,7 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
 
-    // Standalone title-compiled XapiTitleStartup object, shipped in the dist as
-    // xapi_start.obj so an external builder (RXDK-VSCode) links it without having
-    // to recompile the startup against the flattened dist headers. Compiled with
-    // the *title* recipe (cFlags + -D_XAPI_/-fms-*), never the internal libxapi
-    // recipe -- that is the whole point (RXDK_LIBXAPI_BUILD would break the ABI).
-    const xapi_start_batch = compile_c.addBatch(b, .{
-        .name = "xapi-start",
-        .target = xbox_target.target_triple,
-        .out_subdir = "startup",
-        .sources = &.{"libs/libxapi/dll/xapi_start.c"},
-        .flags = xbox_target.appendFlags(b, xbox_target.cFlags(b), &.{
-            "-D_XAPI_", "-fms-extensions", "-fms-compatibility",
-            "-include", "build/generated/picolibc.h",
-        }),
-        .include_dirs = &.{
-            "shared/include", "libs/libxapi/internal", "build/generated",
-            "shared/picolibc/include", "shared/picolibc/machine/x86",
-        },
-        .opt_flag = opt_flag,
-        .is_cpp = false,
-    });
-    const install_xapi_start = b.addInstallFile(xapi_start_batch.outputs[0], "lib/xapi_start.obj");
-    install_xapi_start.step.dependOn(xapi_start_batch.step);
-    b.getInstallStep().dependOn(&install_xapi_start.step);
-
     const xapi_smoke_extra = [_][]const u8{
-        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
         "samples/xapi-smoke/src/test_content.c",
         "samples/xapi-smoke/src/test_copyfile.c",
@@ -327,7 +334,6 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const xapi_input_extra = [_][]const u8{
-        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
     };
     const xapi_input = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -362,7 +368,6 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const d3d8_tri_extra = [_][]const u8{
-        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
     };
     const d3d8_tri = link_pe.addPeSample(b, target, optimize, xbox_target, .{
@@ -393,7 +398,6 @@ pub fn build(b: *std.Build) void {
     // D3DXCreateTextureFromFile and draws a 3x2 grid of drifting textured quads.
     // Links libd3dx8 + libxgraphics (swizzle) + libd3d8 + libxapi + krnl.
     const d3d8_tex_extra = [_][]const u8{
-        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
     };
     // libd3dx8's C++ image codecs use global operator new/delete; this C title has
@@ -477,7 +481,6 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const dsmusic_extra = [_][]const u8{
-        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
         "samples/dsound-music/src/stb_vorbis_impl.c",
     };
@@ -515,7 +518,6 @@ pub fn build(b: *std.Build) void {
         b.path("shared/picolibc/machine/x86"),
     };
     const xnet_extra = [_][]const u8{
-        "libs/libxapi/dll/xapi_start.c",
         "samples/xapi-smoke/src/common.c",
         // MSVC 64-bit math helpers (__alldiv etc.) for the MSVC-ABI libxnet.
         // Linked directly into the sample (GNU ABI -> lowers to compiler-rt).

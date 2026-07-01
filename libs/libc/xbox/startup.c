@@ -30,7 +30,6 @@ static void xbox_run_global_ctors(void)
 void xbox_runtime_init(void)
 {
     if (!xbox_runtime_ready) {
-        xbox_zero_uninitialized_data();
         xbox_runtime_ready = 1;
         DbgPrint("RXDK-Libs: runtime init\n");
     }

@@ -310,7 +310,6 @@ pub fn build(b: *std.Build) void {
             "build/generated/picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_smoke_step = b.step("xapi-smoke", "Build xAPI category smoke tests (27 tests, kit hardware)");
@@ -346,7 +345,6 @@ pub fn build(b: *std.Build) void {
             "build/generated/picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_input_step = b.step("xapi-input", "Build xAPI input device monitor (controller/mouse/IR/keyboard)");
@@ -386,7 +384,6 @@ pub fn build(b: *std.Build) void {
             "picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, picolibc_objs.step, xbox_objs.step },
     });
     const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
@@ -437,7 +434,6 @@ pub fn build(b: *std.Build) void {
             "picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, &install_libxgraphics.step, opnew_batch.step, picolibc_objs.step, xbox_objs.step },
     });
     const d3d8_tex_step = b.step("d3d8-textures", "Build the D3D8 texture-grid sample");
@@ -463,7 +459,6 @@ pub fn build(b: *std.Build) void {
             "picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libxmv.step, &install_libd3d8.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
     });
     const xmv_sample_step = b.step("xmv-play", "Build the XMV video-playback sample");
@@ -502,7 +497,6 @@ pub fn build(b: *std.Build) void {
             "picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libdsound.step, picolibc_objs.step, xbox_objs.step },
     });
     const dsmusic_step = b.step("dsound-music", "Build the DirectSound OGG-music sample");
@@ -543,7 +537,6 @@ pub fn build(b: *std.Build) void {
             "picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libxnet.step, picolibc_objs.step, xbox_objs.step },
     });
     const xnet_sample_step = b.step("xnet-net", "Build the XNet network bring-up sample");
@@ -572,7 +565,6 @@ pub fn build(b: *std.Build) void {
         .libs = &.{krnl},
         .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("shared/picolibc/include") },
         .entry = "start",
-        .bootstrap = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, picolibc_objs.step, xbox_objs.step },
     });
     const libc_smoke_step = b.step("libc-smoke", "Build libc / C23 runtime smoke (kit ISO)");
@@ -596,7 +588,6 @@ pub fn build(b: *std.Build) void {
             "-include", "__config_site",
         },
         .entry = "start",
-        .bootstrap = true,
         .eh_frame_bracket = true,
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step, libunwind_objs.step },
     });

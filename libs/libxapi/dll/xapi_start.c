@@ -23,7 +23,7 @@ extern const IMAGE_TLS_DIRECTORY _tls_used;
 extern ULONG XapiTlsSize;
 extern ULONG _tls_index;
 
-/* libc / per-title runtime: crt0 _start calls this; it zeroes .bss (image_init). */
+/* libc / per-title runtime init hook; crt0 _start calls this. */
 void xbox_runtime_init(void);
 
 /* XAPI + MSVC-style CRT init entry points (resolved from libxapi at link). */

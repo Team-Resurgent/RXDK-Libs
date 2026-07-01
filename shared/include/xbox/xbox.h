@@ -6,7 +6,6 @@
 #define _X86_ 1
 
 void xbox_runtime_init(void);
-void xbox_zero_uninitialized_data(void);
 void xbox_halt(void) __attribute__((noreturn));
 
 #endif /* RXDK_XBOX_H */

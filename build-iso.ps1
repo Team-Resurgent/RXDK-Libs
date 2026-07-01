@@ -528,28 +528,10 @@ function Invoke-DistBuild {
         }
     }
 
-    # Bootstrap sources for the per-title .bss-zeroing (image_init). An external
-    # builder compiles image_init.c twice: once with the stub header (probe), then
-    # with the header generated from the probe XBE's .data/.bss RVAs, and links the
-    # result. Shipped as source so it is compiled with each title's exact recipe.
-    $distStartup = Join-Path $root 'dist\startup'
-    if (Test-Path -LiteralPath $distStartup) { Remove-Item -LiteralPath $distStartup -Recurse -Force }
-    New-Item -ItemType Directory -Force -Path $distStartup | Out-Null
-    foreach ($f in @(
-            (Join-Path $root 'libs\libc\xbox\image_init.c'),
-            (Join-Path $root 'build\generated\xbox_image_init_stub.h'))) {
-        if (Test-Path -LiteralPath $f) {
-            Copy-Item -LiteralPath $f -Destination $distStartup -Force
-        } else {
-            Write-Warning "expected bootstrap source not found: $f"
-        }
-    }
-
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
     Write-Host ('OK  dist\lib      {0} libs + xboxkrnl_xbld.obj + xapi_start.obj: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
-    Write-Host  'OK  dist\startup  image_init.c + xbox_image_init_stub.h' -ForegroundColor Green
 }
 
 # Resolve optimize mode: an explicit -Optimize on the command line wins;

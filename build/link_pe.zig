@@ -66,8 +66,6 @@ pub const Options = struct {
     extra_flags: []const []const u8 = &.{},
     entry: []const u8 = "start",
     deps: []const *std.Build.Step = &.{},
-    /// Probe-link PE, emit zig-out/link/<name>_image_init.h, then link image_init.o.
-    bootstrap: bool = false,
     /// Bracket the merged .eh_frame with crtbegin/crtend markers so libunwind
     /// (baremetal) can discover it via __eh_frame_start/__eh_frame_end. Needed
     /// by C++ samples that use exceptions.
@@ -111,7 +109,6 @@ fn addLinkExe(
     libs: []const std.Build.LazyPath,
     rsp: ?RspInfo,
     extra_src_objs: []const []const u8,
-    bootstrap_objs: []const []const u8,
     entry: []const u8,
     deps: []const *std.Build.Step,
     eh_begin: ?[]const u8,
@@ -134,9 +131,6 @@ fn addLinkExe(
         link.step.dependOn(r.step);
     }
     for (extra_src_objs) |obj| {
-        link.addArg(obj);
-    }
-    for (bootstrap_objs) |obj| {
         link.addArg(obj);
     }
     // libxapi (and other archives) before xboxkrnl.lib so objects pulled from
@@ -184,7 +178,6 @@ pub fn addPeSample(
     const out_dir = b.fmt("zig-out/samples/{s}", .{opts.name});
     const obj_path = b.fmt("{s}/{s}.o", .{ out_dir, opts.name });
     const exe_path = b.fmt("{s}/{s}.exe", .{ out_dir, opts.name });
-    const link_dir_mkdir = addMkdir(b, "zig-out/link");
     const mkdir = addMkdir(b, out_dir);
 
     const std_flags = if (opts.is_cpp) xbox_target.cppFlags(b) else xbox_target.cFlags(b);
@@ -290,85 +283,11 @@ pub fn addPeSample(
         eh_end_obj = end;
     }
 
-    const final_link = if (opts.bootstrap) blk: {
-        const probe_exe = b.fmt("zig-out/link/{s}_probe.exe", .{opts.name});
-        const probe_image_init_obj = b.fmt("zig-out/link/{s}_image_init_probe.o", .{opts.name});
-        const image_init_obj = b.fmt("zig-out/link/{s}_image_init.o", .{opts.name});
-
-        const compile_probe_image_init = b.addSystemCommand(&.{
-            b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
-        });
-        compile_probe_image_init.addArg("-march=pentium3"); // Xbox P3: SSE1, no SSE2
-        compile_probe_image_init.addArgs(&.{ "-c", "-o" });
-        compile_probe_image_init.addArg(probe_image_init_obj);
-        compile_probe_image_init.addArgs(xbox_target.cFlags(b));
-        compile_probe_image_init.addArg(opt_flag);
-        compile_probe_image_init.addArg("-D_XBOX=1");
-        compile_probe_image_init.addArg("-D_WIN32=1");
-        compile_probe_image_init.addArg("-Ishared/include");
-        compile_probe_image_init.addArg("-Ibuild/generated");
-        compile_probe_image_init.addArg("-include");
-        compile_probe_image_init.addArg("build/generated/xbox_image_init_stub.h");
-        compile_probe_image_init.addFileArg(b.path("libs/libc/xbox/image_init.c"));
-        compile_probe_image_init.setCwd(b.path("."));
-        compile_probe_image_init.step.dependOn(link_dir_mkdir);
-
-        const probe_link = addLinkExe(
-            b, xbox_target, opt_flag, link_flags, probe_exe, obj_path,
-            opts.libs, object_rsp, extra_obj_paths.items, &.{probe_image_init_obj}, opts.entry, link_deps.items,
-            eh_begin_obj, eh_end_obj,
-        );
-        probe_link.dependOn(&compile_probe_image_init.step);
-        probe_link.dependOn(link_dir_mkdir);
-
-        // Write-XboxImageInit only reads section RVAs (for the .data/.bss clear
-        // region), so the probe needs no PE pre-patch.
-        const gen_header = b.addSystemCommand(&.{
-            "powershell", "-NoProfile", "-ExecutionPolicy", "Bypass",
-            "-File", "scripts/Write-XboxImageInit.ps1",
-            "-Name", opts.name,
-            "-InputExe",
-        });
-        gen_header.addArg(probe_exe);
-        gen_header.setCwd(b.path("."));
-        gen_header.step.dependOn(probe_link);
-
-        const compile_image_init = b.addSystemCommand(&.{
-            b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
-        });
-        compile_image_init.addArg("-march=pentium3"); // Xbox P3: SSE1, no SSE2
-        compile_image_init.addArgs(&.{ "-c", "-o" });
-        compile_image_init.addArg(image_init_obj);
-        compile_image_init.addArgs(xbox_target.cFlags(b));
-        compile_image_init.addArg(opt_flag);
-        compile_image_init.addArg("-D_XBOX=1");
-        compile_image_init.addArg("-D_WIN32=1");
-        compile_image_init.addArg("-Ishared/include");
-        compile_image_init.addArg("-Ibuild/generated");
-        compile_image_init.addArg("-Izig-out/link");
-        compile_image_init.addArg("-include");
-        compile_image_init.addArg(b.fmt("zig-out/link/{s}_image_init.h", .{opts.name}));
-        compile_image_init.addFileArg(b.path("libs/libc/xbox/image_init.c"));
-        compile_image_init.setCwd(b.path("."));
-        compile_image_init.step.dependOn(&gen_header.step);
-        compile_image_init.step.dependOn(link_dir_mkdir);
-
-        const link = addLinkExe(
-            b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
-            opts.libs, object_rsp, extra_obj_paths.items, &.{image_init_obj}, opts.entry, link_deps.items,
-            eh_begin_obj, eh_end_obj,
-        );
-        link.dependOn(&compile_image_init.step);
-        link.dependOn(link_dir_mkdir);
-        break :blk link;
-    } else blk: {
-        const link = addLinkExe(
-            b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
-            opts.libs, object_rsp, extra_obj_paths.items, &.{}, opts.entry, link_deps.items,
-            eh_begin_obj, eh_end_obj,
-        );
-        break :blk link;
-    };
+    const final_link = addLinkExe(
+        b, xbox_target, opt_flag, link_flags, exe_path, obj_path,
+        opts.libs, object_rsp, extra_obj_paths.items, opts.entry, link_deps.items,
+        eh_begin_obj, eh_end_obj,
+    );
 
     // No PE pre-patch: imagebld coerces the subsystem to Xbox and resolves the
     // real TLS directory itself, so the linker output ships to imagebld as-is.

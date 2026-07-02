@@ -394,6 +394,54 @@ pub fn build(b: *std.Build) void {
     const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
     d3d8_tri_step.dependOn(d3d8_tri.install);
 
+    // D3D8/D3DX8 matrix math smoke test. C title: exercises D3DXMatrixMultiply,
+    // D3DXVec3TransformCoord, D3DXVec3Project, D3DXMatrixLookAtLH,
+    // D3DXMatrixPerspectiveFovLH (libd3dx8) and MatrixProduct4x4 (libd3d8, via
+    // the RxdkTestMatrixProduct4x4 wrapper in math.cpp -- the actual SSE
+    // function the real render pipeline uses) against hand-computed expected
+    // values. Same include pattern as d3d8-triangle, own common.h/common.c.
+    const d3dmath_smoke_inc = [_]std.Build.LazyPath{
+        b.path("samples/d3dmath-smoke/src"),
+        b.path("shared/include"),
+        b.path("libs/libxapi/internal"),
+        b.path("libs/libxapi/nt"), // guiddef.h (GUID/REFGUID for d3d8.h)
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const d3dmath_smoke_extra = [_][]const u8{
+        "samples/d3dmath-smoke/src/common.cpp",
+        "samples/d3dmath-smoke/src/test_matrix_multiply.cpp",
+        "samples/d3dmath-smoke/src/test_matrix_product4x4.cpp",
+        "samples/d3dmath-smoke/src/test_vec3_transform.cpp",
+        "samples/d3dmath-smoke/src/test_lookat_perspective.cpp",
+        "samples/d3dmath-smoke/src/test_vec3_project.cpp",
+        "samples/d3dmath-smoke/src/test_matrix_transpose.cpp",
+        "samples/d3dmath-smoke/src/test_matrix_inverse.cpp",
+    };
+    const d3dmath_smoke = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "d3dmath-smoke",
+        .src = "samples/d3dmath-smoke/src/main.cpp",
+        .extra_srcs = &d3dmath_smoke_extra,
+        .is_cpp = true,
+        .objects = sample_objects.items,
+        .libs = &.{ libd3dx8_lib, libd3d8_lib, libxapi_lib, krnl },
+        .include_paths = &d3dmath_smoke_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-nostdinc++",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "XapiTitleStartup",
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libd3dx8.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const d3dmath_smoke_step = b.step("d3dmath-smoke", "Build the D3D8/D3DX8 matrix math smoke test");
+    d3dmath_smoke_step.dependOn(d3dmath_smoke.install);
+
     // D3D8 texture-grid sample. C title: loads the media images via libd3dx8's
     // D3DXCreateTextureFromFile and draws a 3x2 grid of drifting textured quads.
     // Links libd3dx8 + libxgraphics (swizzle) + libd3d8 + libxapi + krnl.

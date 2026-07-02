@@ -806,11 +806,15 @@ void WINAPI D3DDevice_DrawIndexedVertices(
             //memcpy(pPush + 1, pIndexData, Align * sizeof(DWORD));
             __asm
             {
+                push esi
+                push edi
                 mov esi,pIndexData
                 mov edi,pPush
                 add edi,4
                 mov ecx,dwAlign
                 rep movsd
+                pop edi
+                pop esi
             }
 
             pPush += dwAlign + 1;
@@ -871,11 +875,15 @@ void WINAPI D3DDevice_DrawIndexedVertices(
     //memcpy(pPush + 1, pIndexData, arrayCount * sizeof(DWORD));
     __asm
     {
+        push esi
+        push edi
         mov esi,pIndexData
         mov edi,pPush
         add edi,4
         mov ecx,arrayCount
         rep movsd
+        pop edi
+        pop esi
     }
 
     pIndexData += 2 * arrayCount;

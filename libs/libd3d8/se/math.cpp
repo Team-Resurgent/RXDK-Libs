@@ -22,6 +22,15 @@
 
 #include "precomp.hpp"
 
+// Diagnostic toggle: define this to force MatrixProduct4x4 below to use its
+// portable-C fallback instead of the raw MSVC-style SSE __asm block, to test
+// whether Clang/Zig is miscompiling that inline asm. Remove once resolved.
+// Currently OFF -- samples/d3dmath-smoke's matrix_product4x4_known /
+// matrix_multiply_vs_product4x4 tests had actually only been exercising this
+// C fallback (this define was still 1 from the earlier diagnostic session),
+// never the real SSE asm below. Flipping to 0 to actually test the asm path.
+// #define RXDK_FORCE_C_MATRIXPRODUCT 1
+
 #ifdef STARTUPANIMATION
 namespace D3DK
 #else
@@ -199,7 +208,13 @@ void XformBy4x3 (D3DVECTOR *res, CONST D3DVECTOR *v, FLOAT w, CONST D3DMATRIX *m
 
 void MatrixProduct4x4 (D3DMATRIX *res, CONST D3DMATRIX *a, CONST D3DMATRIX *b)
 {
-#ifdef _X86_
+// Diagnostic: force the portable-C fallback for this one function, bypassing
+// the raw MSVC-style SSE __asm block. This is the function that actually
+// feeds the GPU's MODEL_VIEW/COMPOSITE transform registers for every draw
+// call, so if the blank-cube bug is Clang/Zig mishandling these legacy
+// __asm blocks (likely, since this build always defines _X86_ unconditionally
+// and Clang's MS-inline-asm support has known gaps), this isolates it cleanly.
+#if defined(_X86_) && !defined(RXDK_FORCE_C_MATRIXPRODUCT)
 
     __asm {
         mov     eax, a
@@ -325,6 +340,17 @@ void MatrixProduct4x4 (D3DMATRIX *res, CONST D3DMATRIX *a, CONST D3DMATRIX *b)
     res->_43 = a->_41*b->_13 + a->_42*b->_23 + a->_43*b->_33 + a->_44*b->_43;
     res->_44 = a->_41*b->_14 + a->_42*b->_24 + a->_43*b->_34 + a->_44*b->_44;
 #endif
+}
+
+// Plain-C-linkage wrapper so samples/tests outside this namespace (which have
+// no access to the internal D3D:: symbols) can exercise the actual function
+// the real render pipeline uses (lazy.cpp's LazySetTransform) to combine
+// WORLD/VIEW/PROJECTION for the GPU, rather than only the public D3DX8 math
+// API. See samples/d3dmath-smoke.
+extern "C" void WINAPI RxdkTestMatrixProduct4x4(
+    D3DMATRIX *res, CONST D3DMATRIX *a, CONST D3DMATRIX *b)
+{
+    MatrixProduct4x4(res, a, b);
 }
 
 //---------------------------------------------------------------------------
@@ -507,6 +533,17 @@ int Inverse4x4 (D3DMATRIX *inverse, CONST D3DMATRIX *src, BOOL bNormalize)
 #undef z21
 #undef z31
 
+}
+
+// Plain-C-linkage wrapper for samples/tests -- see RxdkTestMatrixProduct4x4
+// above. Inverse4x4 has no _X86_ asm/goto shape (plain C Cramer's-rule), so
+// it isn't a suspect for the goto+internal-asm-loop miscompile class, but
+// it's still on the real render path (LazySetTransform computes the inverse
+// modelview whenever lighting or texgen requires it) and untested so far.
+extern "C" int WINAPI RxdkTestInverse4x4(
+    D3DMATRIX *inverse, CONST D3DMATRIX *src, BOOL bNormalize)
+{
+    return Inverse4x4(inverse, src, bNormalize);
 }
 
 //---------------------------------------------------------------------------

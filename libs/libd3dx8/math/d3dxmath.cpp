@@ -1055,10 +1055,38 @@ D3DXMATRIX* WINAPI D3DXMatrixMultiply
         return NULL;
 #endif
 
-#ifdef _X86_
+// This function's asm is entered via a C-level `goto` into a label
+// (LRowByColumn / LColumnByRow) whose __asm block contains its own internal
+// backward jump (`jnz LLoopRow`/`jnz LLoopColumn`) implementing a 4-iteration
+// loop over the matrix rows/columns. Under this toolchain (Zig/Clang's
+// MS-inline-asm compatibility mode), that shape reliably miscompiles: the
+// loop body runs once instead of iterating all 16 elements, leaving the rest
+// of *pOut as whatever stack garbage was already there. Confirmed via
+// samples/d3dmath-smoke on real hardware/xemu -- e.g. multiplying a matrix by
+// itself under aliasing left the output byte-for-byte identical to the input
+// except one lone corrupted element, and non-aliased cases came back full of
+// uninitialized-looking values (including raw pointer/return-address bit
+// patterns reinterpreted as absurd floats). MatrixProduct4x4 in
+// libs/libd3d8/se/math.cpp, by contrast, is a single straight-line __asm
+// block with no goto entry and no internal loop labels, and tests clean --
+// consistent with the goto+internal-loop shape being what breaks here.
+// Permanently forced to the portable C fallback below; do not re-enable the
+// asm path without first fixing (or replacing with real Clang extended-asm)
+// this control-flow pattern.
+#if defined(_X86_) && 0
 #define MAT(m,a,b) DWORD PTR [(m)+(a)*4+(b)*4]
 
     D3DXMATRIX Out;
+
+    // ebx/esi/edi are callee-saved under __stdcall; the blocks below clobber
+    // them directly, so they must be preserved explicitly around both paths
+    // or callers lose whatever they were holding in those registers across
+    // this call.
+    __asm {
+        push ebx
+        push esi
+        push edi
+    }
 
     if(pM2 != pOut)
         goto LRowByColumn;
@@ -1117,6 +1145,11 @@ LRowByColumn:
         jnz LLoopRow
     }
 
+    __asm {
+        pop edi
+        pop esi
+        pop ebx
+    }
     return pOut;
 
 
@@ -1165,6 +1198,11 @@ LColumnByRow:
         jnz LLoopColumn2
     }
 
+    __asm {
+        pop edi
+        pop esi
+        pop ebx
+    }
     return pOut;
 #undef MAT
 #else //!_X86_

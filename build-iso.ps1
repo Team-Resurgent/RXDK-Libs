@@ -65,7 +65,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play')]
+    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play')]
     [string]$Sample,
     [switch]$All,
     [switch]$Clean,
@@ -214,6 +214,7 @@ $samples = @(
     [pscustomobject]@{ Target = 'libc-smoke';   Iso = 'libc-smoke.iso';   Desc = 'libc / C23 runtime conformance matrix' }
     [pscustomobject]@{ Target = 'libcpp-smoke'; Iso = 'libcpp-smoke.iso'; Desc = 'libc++ / C++23 smoke (expected, string_view, iostream)' }
     [pscustomobject]@{ Target = 'd3d8-triangle'; Iso = 'd3d8-triangle.iso'; Desc = 'libd3d8 / NV2A rotating colored triangle' }
+    [pscustomobject]@{ Target = 'd3dmath-smoke'; Iso = 'd3dmath-smoke.iso'; Desc = 'libd3dx8 + libd3d8 matrix math smoke (MatrixMultiply/Project/MatrixProduct4x4)' }
     [pscustomobject]@{ Target = 'd3d8-textures'; Iso = 'd3d8-textures.iso'; Desc = 'libd3dx8 + libxgraphics / 3x2 texture grid (deploys media\)' }
     [pscustomobject]@{ Target = 'dsound-music'; Iso = 'dsound-music.iso'; Desc = 'libdsound + stb_vorbis / looping OGG music (deploys media\)' }
     [pscustomobject]@{ Target = 'xnet-net';     Iso = 'xnet-net.iso';     Desc = 'libxnet / XNet bring-up - DHCP IP + single-page HTTP server on :80' }

@@ -542,7 +542,7 @@ function Invoke-DistBuild {
     # symbol, including the ones (cos/sin) that happened to resolve correctly
     # this time, since a different link graph could tip them the other way.
     #
-    # These 32 objects are archived into libcomdatfix.lib (an ordinary-looking
+    # These 32 objects are archived into libcompat.lib (an ordinary-looking
     # .lib, not 32 loose files cluttering dist\lib) and the title link wraps it
     # in -Wl,--whole-archive / --no-whole-archive (RXDK-VSCode's
     # Invoke-XdkLink.ps1), which force-extracts every member unconditionally --
@@ -600,7 +600,7 @@ function Invoke-DistBuild {
             Write-Warning "expected object not found: zig-out\obj\picolibc\$($comdatFixObjs[$destName])"
         }
     }
-    $comdatFixLib = Join-Path $distLib 'libcomdatfix.lib'
+    $comdatFixLib = Join-Path $distLib 'libcompat.lib'
     if (Test-Path -LiteralPath $comdatFixLib) { Remove-Item -LiteralPath $comdatFixLib -Force }
     & zig ar rcs $comdatFixLib @comdatFixSrcs
     if ($LASTEXITCODE -ne 0) { throw "Archiving $comdatFixLib failed (exit $LASTEXITCODE)" }
@@ -608,7 +608,7 @@ function Invoke-DistBuild {
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
     Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
-    Write-Host ('OK  dist\lib      libcomdatfix.lib ({0} objs)' -f $comdatFixSrcs.Count) -ForegroundColor Green
+    Write-Host ('OK  dist\lib      libcompat.lib ({0} objs)' -f $comdatFixSrcs.Count) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
 }
 

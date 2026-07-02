@@ -519,36 +519,44 @@ function Invoke-DistBuild {
     # XapiTitleStartup entry) into libxapi.lib. An external builder just links the
     # libs -- no loose objects, and no need to know whether libxapi is in use.
 
-    # These are the deliberate exception to the above, and stay loose. picolibc's
-    # own copies (in libc.lib) are compiled -fno-builtin, but zig's own bundled
-    # compiler-rt ALSO ships its own implementations of a surprisingly large set of
-    # ordinary libc/libm entry points (lib/compiler_rt/{mem{move,cpy},fabs,cos,sin,
-    # sqrt,floor,ceil,round,trunc,fmod,fmax,fmin,exp,log,tan,rem_pio2*}.zig, ...) --
-    # not just the __divdi3-style builtins a title's link legitimately needs
-    # -rtlib=compiler-rt for. Both picolibc's and zig's versions are comdat "select
-    # any" sections (-ffunction-sections), so which one wins a real multi-library
-    # link is decided by comdat tie-breaking PER SYMBOL, not by archive/library
-    # order on the command line, and not consistently either way: confirmed on
-    # hardware that a title linking libc+libd3d8+libdsound+libcpp got zig's
-    # compiler-rt `memmove` (which uses SSE2 the real Xbox Pentium III can't
-    # execute -> STATUS_ILLEGAL_INSTRUCTION, a hard crash) while its `cos`
-    # correctly resolved to picolibc's own -- then, once memmove/memcpy were fixed,
-    # its `fabs` ALSO turned out to have lost the tie-break to zig's compiler-rt
-    # version (an ABI/calling-convention mismatch that corrupts the x87 FPU stack,
-    # manifesting as an unrelated-looking hang deep inside __rem_pio2's fabs()
-    # call). Given the tie-break is apparently arbitrary per-symbol, don't wait to
-    # find each one the hard way -- ship every overlapping symbol as a loose
-    # object, including the ones (cos/sin) that happened to resolve correctly this
-    # time, since a different link graph could tip them the other way. A
-    # directly-specified loose object is unconditionally included before any
-    # archive/comdat candidate is even considered, so shipping these loose (unlike
-    # the archive-only xboxkrnl_xbld.obj/xapi_start.obj above) is what actually
-    # guarantees picolibc's versions win. RXDK-Libs' own samples never hit this
-    # because build.zig's sample_objects already links picolibc's objects loose
-    # (see build.zig); this ships the same objects so external SDK-based title
-    # builds (RXDK-VSCode's Invoke-XdkLink.ps1) get the same guarantee,
-    # transparently -- a title author never references these.
-    $shipObjs = @{
+    # These are the deliberate exception to the above, and stay in their own
+    # archive, force-linked whole. picolibc's own copies (in libc.lib) are
+    # compiled -fno-builtin, but zig's own bundled compiler-rt ALSO ships its own
+    # implementations of a surprisingly large set of ordinary libc/libm entry
+    # points (lib/compiler_rt/{mem{move,cpy},fabs,cos,sin,sqrt,floor,ceil,round,
+    # trunc,fmod,fmax,fmin,exp,log,tan,rem_pio2*}.zig, ...) -- not just the
+    # __divdi3-style builtins a title's link legitimately needs -rtlib=compiler-rt
+    # for. Both picolibc's and zig's versions are comdat "select any" sections
+    # (-ffunction-sections), so which one wins a real multi-library link is
+    # decided by comdat tie-breaking PER SYMBOL, not by archive/library order on
+    # the command line, and not consistently either way: confirmed on hardware
+    # that a title linking libc+libd3d8+libdsound+libcpp got zig's compiler-rt
+    # `memmove` (which uses SSE2 the real Xbox Pentium III can't execute ->
+    # STATUS_ILLEGAL_INSTRUCTION, a hard crash) while its `cos` correctly
+    # resolved to picolibc's own -- then, once memmove/memcpy were fixed, its
+    # `fabs` ALSO turned out to have lost the tie-break to zig's compiler-rt
+    # version (an ABI/calling-convention mismatch that corrupts the x87 FPU
+    # stack, manifesting as an unrelated-looking hang deep inside __rem_pio2's
+    # fabs() call). Given the tie-break is apparently arbitrary per-symbol,
+    # don't wait to find each one the hard way -- force every overlapping
+    # symbol, including the ones (cos/sin) that happened to resolve correctly
+    # this time, since a different link graph could tip them the other way.
+    #
+    # These 32 objects are archived into libcomdatfix.lib (an ordinary-looking
+    # .lib, not 32 loose files cluttering dist\lib) and the title link wraps it
+    # in -Wl,--whole-archive / --no-whole-archive (RXDK-VSCode's
+    # Invoke-XdkLink.ps1), which force-extracts every member unconditionally --
+    # the same "already included before any comdat candidate is considered"
+    # guarantee a loose object gets, just packaged as one archive. Verified
+    # byte-identical (mod PE timestamp) linked output vs. the old loose-object
+    # approach. RXDK-Libs' own in-tree samples (build.zig) never hit this
+    # because they pass these same picolibc objects loose via the Zig build
+    # system's own .objects list (a different but equally coercive mechanism,
+    # native to `zig build` rather than a raw `zig cc` command line) -- this
+    # archive exists purely for external SDK-based title builds that link via
+    # plain `zig cc`, transparently -- a title author never references any of
+    # this.
+    $comdatFixObjs = @{
         'memmove.o'  = 'vendor_picolibc_libc_string_memmove_c.o'
         'memcpy.o'   = 'vendor_picolibc_libc_string_memcpy_c.o'
         'fabs.o'     = 'vendor_picolibc_libm_math_s_fabs_c.o'
@@ -582,22 +590,25 @@ function Invoke-DistBuild {
         'rem_pio2.o'  = 'vendor_picolibc_libm_math_s_rem_pio2_c.o'
         'rem_pio2f.o' = 'vendor_picolibc_libm_math_sf_rem_pio2_c.o'
     }
-    $copiedObjs = @()
-    foreach ($destName in $shipObjs.Keys) {
-        $src = Join-Path $root ('zig-out\obj\picolibc\{0}' -f $shipObjs[$destName])
+    $comdatFixSrcs = @()
+    foreach ($destName in $comdatFixObjs.Keys) {
+        $src = Join-Path $root ('zig-out\obj\picolibc\{0}' -f $comdatFixObjs[$destName])
         if (Test-Path -LiteralPath $src) {
-            Copy-Item -LiteralPath $src -Destination (Join-Path $distLib $destName) -Force
-            $copiedObjs += $destName
+            $comdatFixSrcs += $src
         }
         else {
-            Write-Warning "expected loose object not found: zig-out\obj\picolibc\$($shipObjs[$destName])"
+            Write-Warning "expected object not found: zig-out\obj\picolibc\$($comdatFixObjs[$destName])"
         }
     }
+    $comdatFixLib = Join-Path $distLib 'libcomdatfix.lib'
+    if (Test-Path -LiteralPath $comdatFixLib) { Remove-Item -LiteralPath $comdatFixLib -Force }
+    & zig ar rcs $comdatFixLib @comdatFixSrcs
+    if ($LASTEXITCODE -ne 0) { throw "Archiving $comdatFixLib failed (exit $LASTEXITCODE)" }
 
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
     Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
-    Write-Host ('OK  dist\lib      {0} loose objs: {1}' -f $copiedObjs.Count, ($copiedObjs -join ', ')) -ForegroundColor Green
+    Write-Host ('OK  dist\lib      libcomdatfix.lib ({0} objs)' -f $comdatFixSrcs.Count) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
 }
 

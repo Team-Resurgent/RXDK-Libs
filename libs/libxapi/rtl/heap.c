@@ -275,6 +275,8 @@ Return Value:
 
     RTL_PAGED_CODE();
 
+    RXDK_INIT_TRACE("heap: RtlCreateHeap enter");
+
 #ifndef NTOS_KERNEL_RUNTIME
 #ifdef NTHEAP_ENABLED
     {
@@ -389,7 +391,9 @@ Return Value:
 
             if (Parameters->Length == sizeof( *Parameters )) {
 
+                RXDK_INIT_TRACE("heap: before TempParameters RtlMoveMemory");
                 RtlMoveMemory( &TempParameters, Parameters, sizeof( *Parameters ) );
+                RXDK_INIT_TRACE("heap: after TempParameters RtlMoveMemory");
             }
 
         } except( EXCEPTION_EXECUTE_HANDLER ) {
@@ -782,11 +786,13 @@ Return Value:
         //  Reserve the amount of virtual address space requested.
         //
 
+        RXDK_INIT_TRACE("heap: before ZwAllocateVirtualMemory MEM_RESERVE");
         Status = ZwAllocateVirtualMemory( (PVOID *)&Heap,
                                           0,
                                           &ReserveSize,
                                           MEM_RESERVE,
                                           PAGE_READWRITE );
+        RXDK_INIT_TRACE("heap: after ZwAllocateVirtualMemory MEM_RESERVE");
 
         if (!NT_SUCCESS( Status )) {
 
@@ -826,11 +832,13 @@ Return Value:
 
     if (CommittedBase == UnCommittedBase) {
 
+        RXDK_INIT_TRACE("heap: before ZwAllocateVirtualMemory MEM_COMMIT");
         Status = ZwAllocateVirtualMemory( (PVOID *)&CommittedBase,
                                           0,
                                           &CommitSize,
                                           MEM_COMMIT,
                                           PAGE_READWRITE );
+        RXDK_INIT_TRACE("heap: after ZwAllocateVirtualMemory MEM_COMMIT");
 
         //
         //  In the non successful case we need to back out any vm reservation
@@ -1012,6 +1020,7 @@ Return Value:
     //  Initialize the first segment for the heap
     //
 
+    RXDK_INIT_TRACE("heap: before RtlpInitializeHeapSegment");
     if (!RtlpInitializeHeapSegment( Heap,
                                     (PHEAP_SEGMENT)((PCHAR)Heap + SizeOfHeapHeader),
                                     0,
@@ -1022,6 +1031,7 @@ Return Value:
 
         return NULL;
     }
+    RXDK_INIT_TRACE("heap: after RtlpInitializeHeapSegment");
 
     //
     //  Fill in additional heap entry fields
@@ -1093,9 +1103,11 @@ Return Value:
 
         ULONG i;
 
+        RXDK_INIT_TRACE("heap: before lookaside RtlAllocateHeap");
         Heap->Lookaside = RtlAllocateHeap( Heap,
                                            Flags,
                                            sizeof(HEAP_LOOKASIDE) * HEAP_MAXIMUM_FREELISTS );
+        RXDK_INIT_TRACE("heap: after lookaside RtlAllocateHeap");
 
         if (Heap->Lookaside != NULL) {
 
@@ -1113,6 +1125,7 @@ Return Value:
     //  And return the fully initialized heap to our caller
     //
 
+    RXDK_INIT_TRACE("heap: RtlCreateHeap return");
     return (PVOID)Heap;
 }
 

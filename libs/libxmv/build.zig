@@ -44,6 +44,7 @@ const common_flags = [_][]const u8{
     "-fasm-blocks",
     "-fno-operator-names",
     "-fno-sanitize=undefined",
+    "-fno-builtin",
     "-Wno-everything",
     "-D_XAPI_",
     "-include",

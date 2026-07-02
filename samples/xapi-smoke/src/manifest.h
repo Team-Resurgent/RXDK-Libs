@@ -10,6 +10,7 @@ typedef struct XapiSmokeTest {
 static const XapiSmokeTest kXapiSmokeTests[] = {
     { "error",       test_error },
     { "memory",      test_memory },
+    { "memory_cpp",  test_memory_cpp },
     { "files",       test_files },
     { "copyfile",    test_copyfile },
     { "dirs",        test_dirs },

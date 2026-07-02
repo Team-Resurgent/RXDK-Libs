@@ -2,6 +2,7 @@
 
 int test_error(void);
 int test_memory(void);
+int test_memory_cpp(void); /* samples/xapi-smoke/src/test_memory_cpp.cpp, compiled as real C++ */
 int test_files(void);
 int test_copyfile(void);
 int test_dirs(void);

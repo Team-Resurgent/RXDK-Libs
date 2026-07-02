@@ -273,6 +273,41 @@ unsigned char buf[4];
     return 0;
 }
 
+static int test_string_memmove(void)
+{
+/* Non-overlapping, plus the exact shape that hung on real hardware/xemu
+       until -fno-builtin was added to picolibcFlags (build/xbox_target.zig):
+       Clang recognizing memmove's own manual copy loop as a memcpy/memmove
+       idiom and substituting a recursive call back into itself. This 48-byte,
+       4-byte-aligned, non-overlapping copy is what RtlCreateHeap
+       (libs/libxapi/rtl/heap.c) does to snapshot its RTL_HEAP_PARAMETERS
+       argument, and is what actually hung indefinitely on boot. */
+    char dst[8];
+    RXDK_TEST_EQ(memmove(dst, "xy", 3), dst);
+    RXDK_TEST_STR_EQ(dst, "xy");
+
+    struct {
+        long a, b, c, d, e, f, g, h, i, j, k, l;
+    } src48, dst48; /* 48 bytes, matches sizeof(RTL_HEAP_PARAMETERS) */
+    for (unsigned i = 0; i < sizeof(src48) / sizeof(long); i++)
+        ((long *)&src48)[i] = (long)(i + 1);
+    memset(&dst48, 0, sizeof(dst48));
+    RXDK_TEST_EQ(memmove(&dst48, &src48, sizeof(src48)), &dst48);
+    if (memcmp(&dst48, &src48, sizeof(src48)) != 0)
+        RXDK_TEST_FAIL();
+
+    /* Overlapping forward (dst > src) and backward (dst < src) shifts --
+       the two cases memmove must get right that memcpy doesn't handle. */
+    char buf[10] = "0123456789";
+    memmove(buf + 2, buf, 6); /* forward-overlapping: shift right by 2 */
+    RXDK_TEST_TRUE(memcmp(buf, "01012345", 8) == 0);
+
+    char buf2[10] = "0123456789";
+    memmove(buf2, buf2 + 2, 6); /* backward-overlapping: shift left by 2 */
+    RXDK_TEST_TRUE(memcmp(buf2, "234567", 6) == 0);
+    return 0;
+}
+
 static int test_string_strchr(void)
 {
 const char *p = strchr("abc", 'b');
@@ -1202,6 +1237,7 @@ static const conformance_test tests[] = {
     { "string", "strcmp", test_string_strcmp },
     { "string", "memcpy", test_string_memcpy },
     { "string", "memset", test_string_memset },
+    { "string", "memmove", test_string_memmove },
     { "string", "strchr", test_string_strchr },
     { "stdlib", "atoi", test_stdlib_atoi },
     { "stdlib", "strtol", test_stdlib_strtol },

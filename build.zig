@@ -302,11 +302,39 @@ pub fn build(b: *std.Build) void {
         "samples/xapi-smoke/src/test_xinput.c",
     };
 
+    // test_memory_cpp.cpp probes whether the memmove/memcpy self-recursion hang
+    // (build/xbox_target.zig picolibcFlags -fno-builtin fix) can reappear when the
+    // *caller* is compiled through the real C++ flag set instead of C. That fix
+    // only covers picolibc's own sources (libs/libc); libd3d8/libdsound/libcpp all
+    // compile via a separate cppFlags() with no -fno-builtin (see
+    // libs/libd3d8/build.zig). Mirrors the opnew.cpp precedent: the sample builder
+    // compiles all of main.c's sources in one language mode, so a real .cpp TU has
+    // to be its own object.
+    const xapi_smoke_cpp_batch = compile_c.addBatch(b, .{
+        .name = "xapi-smoke-memory-cpp",
+        .target = xbox_target.target_triple,
+        .out_subdir = "xapi-smoke",
+        .sources = &.{"samples/xapi-smoke/src/test_memory_cpp.cpp"},
+        .flags = &.{
+            "-std=c++17", "-ffreestanding", "-fno-exceptions", "-fno-rtti",
+            "-fms-extensions", "-fms-compatibility",
+            "-fno-sanitize=undefined", "-Wno-everything", "-D_XAPI_", "-include", "picolibc.h",
+        },
+        .include_dirs = &.{
+            "shared/include", "libs/libxapi/internal", "build/generated",
+            "shared/picolibc/include", "shared/picolibc/machine/x86",
+        },
+        .opt_flag = opt_flag,
+        .is_cpp = true,
+    });
+    var xapi_smoke_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
+    xapi_smoke_objects.appendSlice(b.allocator, sample_objects.items) catch @panic("OOM");
+    xapi_smoke_objects.appendSlice(b.allocator, xapi_smoke_cpp_batch.outputs) catch @panic("OOM");
     const xapi_smoke = link_pe.addPeSample(b, target, optimize, xbox_target, .{
         .name = "xapi-smoke",
         .src = "samples/xapi-smoke/src/main.c",
         .extra_srcs = &xapi_smoke_extra,
-        .objects = sample_objects.items,
+        .objects = xapi_smoke_objects.items,
         .libs = &.{ libxapi_lib, krnl },
         .include_paths = &xapi_inc,
         .extra_flags = &.{
@@ -317,7 +345,7 @@ pub fn build(b: *std.Build) void {
             "build/generated/picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, xapi_smoke_cpp_batch.step, picolibc_objs.step, xbox_objs.step },
     });
     const xapi_smoke_step = b.step("xapi-smoke", "Build xAPI category smoke tests (27 tests, kit hardware)");
     xapi_smoke_step.dependOn(xapi_smoke.install);

@@ -51,6 +51,7 @@ pub fn cppFlags(_: *std.Build) []const []const u8 {
         "-fms-compatibility",
         "-fasm-blocks",
         "-fno-sanitize=undefined",
+        "-fno-builtin",
         "-Wno-everything",
         "-D_XAPI_",
         "-include",

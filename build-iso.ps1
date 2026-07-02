@@ -519,9 +519,85 @@ function Invoke-DistBuild {
     # XapiTitleStartup entry) into libxapi.lib. An external builder just links the
     # libs -- no loose objects, and no need to know whether libxapi is in use.
 
+    # These are the deliberate exception to the above, and stay loose. picolibc's
+    # own copies (in libc.lib) are compiled -fno-builtin, but zig's own bundled
+    # compiler-rt ALSO ships its own implementations of a surprisingly large set of
+    # ordinary libc/libm entry points (lib/compiler_rt/{mem{move,cpy},fabs,cos,sin,
+    # sqrt,floor,ceil,round,trunc,fmod,fmax,fmin,exp,log,tan,rem_pio2*}.zig, ...) --
+    # not just the __divdi3-style builtins a title's link legitimately needs
+    # -rtlib=compiler-rt for. Both picolibc's and zig's versions are comdat "select
+    # any" sections (-ffunction-sections), so which one wins a real multi-library
+    # link is decided by comdat tie-breaking PER SYMBOL, not by archive/library
+    # order on the command line, and not consistently either way: confirmed on
+    # hardware that a title linking libc+libd3d8+libdsound+libcpp got zig's
+    # compiler-rt `memmove` (which uses SSE2 the real Xbox Pentium III can't
+    # execute -> STATUS_ILLEGAL_INSTRUCTION, a hard crash) while its `cos`
+    # correctly resolved to picolibc's own -- then, once memmove/memcpy were fixed,
+    # its `fabs` ALSO turned out to have lost the tie-break to zig's compiler-rt
+    # version (an ABI/calling-convention mismatch that corrupts the x87 FPU stack,
+    # manifesting as an unrelated-looking hang deep inside __rem_pio2's fabs()
+    # call). Given the tie-break is apparently arbitrary per-symbol, don't wait to
+    # find each one the hard way -- ship every overlapping symbol as a loose
+    # object, including the ones (cos/sin) that happened to resolve correctly this
+    # time, since a different link graph could tip them the other way. A
+    # directly-specified loose object is unconditionally included before any
+    # archive/comdat candidate is even considered, so shipping these loose (unlike
+    # the archive-only xboxkrnl_xbld.obj/xapi_start.obj above) is what actually
+    # guarantees picolibc's versions win. RXDK-Libs' own samples never hit this
+    # because build.zig's sample_objects already links picolibc's objects loose
+    # (see build.zig); this ships the same objects so external SDK-based title
+    # builds (RXDK-VSCode's Invoke-XdkLink.ps1) get the same guarantee,
+    # transparently -- a title author never references these.
+    $shipObjs = @{
+        'memmove.o'  = 'vendor_picolibc_libc_string_memmove_c.o'
+        'memcpy.o'   = 'vendor_picolibc_libc_string_memcpy_c.o'
+        'fabs.o'     = 'vendor_picolibc_libm_math_s_fabs_c.o'
+        'fabsf.o'    = 'vendor_picolibc_libm_math_sf_fabs_c.o'
+        'sqrt.o'     = 'vendor_picolibc_libm_math_s_sqrt_c.o'
+        'sqrtf.o'    = 'vendor_picolibc_libm_math_sf_sqrt_c.o'
+        'floor.o'    = 'vendor_picolibc_libm_math_s_floor_c.o'
+        'floorf.o'   = 'vendor_picolibc_libm_math_sf_floor_c.o'
+        'ceil.o'     = 'vendor_picolibc_libm_math_s_ceil_c.o'
+        'ceilf.o'    = 'vendor_picolibc_libm_math_sf_ceil_c.o'
+        'round.o'    = 'vendor_picolibc_libm_common_s_round_c.o'
+        'roundf.o'   = 'vendor_picolibc_libm_common_sf_round_c.o'
+        'trunc.o'    = 'vendor_picolibc_libm_common_s_trunc_c.o'
+        'truncf.o'   = 'vendor_picolibc_libm_common_sf_trunc_c.o'
+        'fmod.o'     = 'vendor_picolibc_libm_math_s_fmod_c.o'
+        'fmodf.o'    = 'vendor_picolibc_libm_math_sf_fmod_c.o'
+        'fmax.o'     = 'vendor_picolibc_libm_common_s_fmax_c.o'
+        'fmaxf.o'    = 'vendor_picolibc_libm_common_sf_fmax_c.o'
+        'fmin.o'     = 'vendor_picolibc_libm_common_s_fmin_c.o'
+        'fminf.o'    = 'vendor_picolibc_libm_common_sf_fmin_c.o'
+        'exp.o'      = 'vendor_picolibc_libm_math_s_exp_c.o'
+        'expf.o'     = 'vendor_picolibc_libm_math_sf_exp_c.o'
+        'log.o'      = 'vendor_picolibc_libm_math_s_log_c.o'
+        'logf.o'     = 'vendor_picolibc_libm_math_sf_log_c.o'
+        'tan.o'      = 'vendor_picolibc_libm_math_s_tan_c.o'
+        'tanf.o'     = 'vendor_picolibc_libm_math_sf_tan_c.o'
+        'cos.o'      = 'vendor_picolibc_libm_math_s_cos_c.o'
+        'cosf.o'     = 'vendor_picolibc_libm_math_sf_cos_c.o'
+        'sin.o'      = 'vendor_picolibc_libm_math_s_sin_c.o'
+        'sinf.o'     = 'vendor_picolibc_libm_math_sf_sin_c.o'
+        'rem_pio2.o'  = 'vendor_picolibc_libm_math_s_rem_pio2_c.o'
+        'rem_pio2f.o' = 'vendor_picolibc_libm_math_sf_rem_pio2_c.o'
+    }
+    $copiedObjs = @()
+    foreach ($destName in $shipObjs.Keys) {
+        $src = Join-Path $root ('zig-out\obj\picolibc\{0}' -f $shipObjs[$destName])
+        if (Test-Path -LiteralPath $src) {
+            Copy-Item -LiteralPath $src -Destination (Join-Path $distLib $destName) -Force
+            $copiedObjs += $destName
+        }
+        else {
+            Write-Warning "expected loose object not found: zig-out\obj\picolibc\$($shipObjs[$destName])"
+        }
+    }
+
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
     Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
+    Write-Host ('OK  dist\lib      {0} loose objs: {1}' -f $copiedObjs.Count, ($copiedObjs -join ', ')) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
 }
 

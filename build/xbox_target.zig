@@ -21,6 +21,13 @@ pub fn cFlags(_: *std.Build) []const []const u8 {
         "-fdata-sections",
         "-ffunction-sections",
         "-fno-sanitize=undefined",
+        // See picolibcFlags()'s -fno-builtin comment: without this, Clang is free
+        // to recognize a memmove/memcpy/RtlMoveMemory-shaped call site as a known
+        // builtin and inline-expand it directly at the call site (bypassing the
+        // fixed picolibc implementation entirely), rather than emit a genuine
+        // external call. Applies everywhere a call site could be miscompiled,
+        // not just inside picolibc's own implementation.
+        "-fno-builtin",
     };
 }
 
@@ -35,6 +42,7 @@ pub fn cppFlags(_: *std.Build) []const []const u8 {
         "-frtti",
         "-nostdinc++",
         "-fno-sanitize=undefined",
+        "-fno-builtin",
         // C++ thread_local storage: emulated TLS (a per-thread table reached via
         // __emutls_get_address) instead of the Windows __tls_index/TEB model, which
         // raw libc/libcpp threads don't set up. Backed by libc tss (see emutls.c).
@@ -54,6 +62,21 @@ pub fn picolibcFlags(_: *std.Build) []const []const u8 {
         "-fno-stack-protector",
         "-fno-zero-initialized-in-bss",
         "-fno-sanitize=undefined",
+        // picolibc's memcpy/memmove/memset/strlen etc. (libc/string) rely on
+        // their `__no_builtin` function attribute to stop the compiler from
+        // recognizing their own manual copy/scan loops as a memcpy/memmove/
+        // strlen idiom and substituting a call back to that same builtin --
+        // which, since these functions ARE that builtin's real implementation,
+        // is direct infinite self-recursion (no stack growth if tail-call
+        // folded, so it presents as a silent hang, not a crash or stack
+        // overflow fault). Confirmed on real hardware/xemu: RtlCreateHeap's
+        // 48-byte RtlMoveMemory(&TempParameters, Parameters, ...) call (see
+        // libs/libxapi/rtl/heap.c) hung indefinitely and was traced to this.
+        // `__no_builtin` alone isn't reliably honored by Clang on this niche
+        // freestanding x86-windows-gnu target; `-fno-builtin` is the strong,
+        // translation-unit-wide guarantee and is the right fix for a libc
+        // implementation regardless.
+        "-fno-builtin",
         // Vendored picolibc — silence its upstream warnings (macro redefines
         // from our force-included picolibc.h, wint_t va_arg, etc.), matching
         // how the first-party cFlags / libxapi / libcxx batches are compiled.
@@ -84,6 +107,7 @@ pub fn xapiCFlags(_: *std.Build) []const []const u8 {
         "-fdata-sections",
         "-ffunction-sections",
         "-fno-sanitize=undefined",
+        "-fno-builtin",
         "-Wno-everything",
         "-nostdinc",
         "-fms-extensions",
@@ -111,6 +135,7 @@ pub fn xapiCppFlags(_: *std.Build) []const []const u8 {
         "-nostdinc",
         "-nostdinc++",
         "-fno-sanitize=undefined",
+        "-fno-builtin",
         "-Wno-everything",
         "-fms-extensions",
         "-fms-compatibility",

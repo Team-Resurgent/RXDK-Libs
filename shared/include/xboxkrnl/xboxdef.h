@@ -184,6 +184,36 @@ typedef struct _RTL_CRITICAL_SECTION {
 #define FILE_ATTRIBUTE_TEMPORARY 0x00000100
 #define INVALID_FILE_ATTRIBUTES  0xFFFFFFFF
 
+//
+// Generic access rights (dwDesiredAccess for CreateFile and other securable
+// objects). Guarded so the libxapi-internal win32 bridge headers can coexist.
+//
+#ifndef GENERIC_READ
+#define GENERIC_READ     0x80000000L
+#endif
+#ifndef GENERIC_WRITE
+#define GENERIC_WRITE    0x40000000L
+#endif
+#ifndef GENERIC_EXECUTE
+#define GENERIC_EXECUTE  0x20000000L
+#endif
+#ifndef GENERIC_ALL
+#define GENERIC_ALL      0x10000000L
+#endif
+
+//
+// File share modes (dwShareMode for CreateFile).
+//
+#ifndef FILE_SHARE_READ
+#define FILE_SHARE_READ   0x00000001
+#endif
+#ifndef FILE_SHARE_WRITE
+#define FILE_SHARE_WRITE  0x00000002
+#endif
+#ifndef FILE_SHARE_DELETE
+#define FILE_SHARE_DELETE 0x00000004
+#endif
+
 typedef struct _XBE_SECTION_HEADER {
     DWORD Flags;
     DWORD VirtualAddress;

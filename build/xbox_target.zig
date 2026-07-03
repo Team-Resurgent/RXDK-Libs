@@ -28,6 +28,12 @@ pub fn cFlags(_: *std.Build) []const []const u8 {
         // external call. Applies everywhere a call site could be miscompiled,
         // not just inside picolibc's own implementation.
         "-fno-builtin",
+        // Title/sample code links the retail SDK libs (built DBG=0), which don't
+        // export the debug-only param-check helpers the public d3d8.h guards
+        // behind #ifdef _DEBUG. Some Clang builds predefine _DEBUG in
+        // ms-compatibility mode, which would take that path and fail the link.
+        // Pin the retail path so a title compiles the same on any toolchain.
+        "-U_DEBUG",
     };
 }
 
@@ -43,6 +49,9 @@ pub fn cppFlags(_: *std.Build) []const []const u8 {
         "-nostdinc++",
         "-fno-sanitize=undefined",
         "-fno-builtin",
+        // See cFlags() -- keep title/sample compiles on the retail SDK path
+        // regardless of whether the toolchain predefines _DEBUG.
+        "-U_DEBUG",
         // C++ thread_local storage: emulated TLS (a per-thread table reached via
         // __emutls_get_address) instead of the Windows __tls_index/TEB model, which
         // raw libc/libcpp threads don't set up. Backed by libc tss (see emutls.c).

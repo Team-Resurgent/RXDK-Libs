@@ -14,6 +14,7 @@ const libxnet_pkg = @import("libs/libxnet/build.zig");
 const libxmv_pkg = @import("libs/libxmv/build.zig");
 const libxfont_pkg = @import("libs/libxfont/build.zig");
 const libkernel_pkg = @import("libs/libkernel/build.zig");
+const libxbdm_pkg = @import("libs/libxbdm/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
 const verify_no_vs = @import("build/verify_no_vs.zig");
@@ -287,6 +288,19 @@ pub fn build(b: *std.Build) void {
 
     const krnl = libkernel.path;
 
+    // libxbdm: the Xbox debug-monitor (xbdm.dll) import library, generated from
+    // the checked-in decorated .def (libs/libxbdm/xbdm.def) via `zig lib`. DXT
+    // debug-monitor extensions link this for their Dm* imports (by ordinal),
+    // alongside libkernel.lib for xboxkrnl.exe.
+    const libxbdm = libxbdm_pkg.add(b, &.{&mkdir_lib.step});
+    const install_libxbdm = b.addInstallFile(libxbdm.path, "lib/libxbdm.lib");
+    install_libxbdm.step.dependOn(libxbdm.step);
+    b.getInstallStep().dependOn(&install_libxbdm.step);
+    const libxbdm_step = b.step("libxbdm", "Build libxbdm.lib (Xbox debug-monitor import library)");
+    libxbdm_step.dependOn(&install_libxbdm.step);
+
+    const xbdm = libxbdm.path;
+
     var sample_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     sample_objects.appendSlice(b.allocator, picolibc_objs.outputs) catch @panic("OOM");
     sample_objects.appendSlice(b.allocator, xbox_objs.outputs) catch @panic("OOM");
@@ -543,6 +557,41 @@ pub fn build(b: *std.Build) void {
     });
     const d3dmath_smoke_step = b.step("d3dmath-smoke", "Build the D3D8/D3DX8 matrix math smoke test");
     d3dmath_smoke_step.dependOn(d3dmath_smoke.install);
+
+    // dxt-fps: a debug-monitor extension (DXT), not a title/XBE. Produces a raw
+    // PE (dxt-fps.dxt) entered at DxtEntry and loaded by xbdm from E:\dxt -- no
+    // imagebld, no ISO. Links libxbdm (Dm* by ordinal) + libkernel (xboxkrnl by
+    // ordinal) + picolibc objects. --dynamicbase retains the base-relocation
+    // table that xbdm's LdrRelocateImage requires. Ported from RXDK-FPS.
+    const dxt_fps_inc = [_]std.Build.LazyPath{
+        b.path("samples/dxt-fps/src"),
+        b.path("shared/include"),
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const dxt_fps = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "dxt-fps",
+        .src = "samples/dxt-fps/src/main.c",
+        // Link libc.lib as a lazy archive (not the raw sample_objects): a DXT has
+        // no title CRT, so the startup.c/_main object must NOT be force-linked;
+        // only leaf libc symbols (sprintf/str*/mem*) get pulled.
+        .libs = &.{ xbdm, krnl, b.path("zig-out/lib/libc.lib") },
+        .include_paths = &dxt_fps_inc,
+        .extra_flags = &.{
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .extra_link_flags = &.{"-Wl,--dynamicbase"},
+        .entry = "DxtEntry",
+        .out_ext = "dxt",
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libxbdm.step, libc.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const dxt_fps_step = b.step("dxt-fps", "Build the dxt-fps debug-monitor extension (FPS/memory overlay)");
+    dxt_fps_step.dependOn(dxt_fps.install);
 
     // D3D8 texture-grid sample. C title: loads the media images via libd3dx8's
     // D3DXCreateTextureFromFile and draws a 3x2 grid of drifting textured quads.

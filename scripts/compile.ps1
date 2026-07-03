@@ -3,7 +3,7 @@ param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
         'all', 'libs', 'samples', 'verify-no-vs',
-        'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play', 'xfont-smoke'
+        'libc-smoke', 'libcpp-smoke', 'xapi-smoke', 'xapi-input', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play', 'xfont-smoke', 'dxt-fps'
     )]
     [string]$Target = 'all',
     [ValidateSet('Debug', 'ReleaseSafe', 'ReleaseFast', 'ReleaseSmall')]
@@ -149,6 +149,24 @@ switch ($Target) {
     }
     'samples' {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso
+    }
+    'dxt-fps' {
+        # A DXT (debug-monitor extension) is a raw PE, not an XBE: no XBE wrap, no
+        # ISO. Build zig-out\samples\dxt-fps\dxt-fps.dxt, then patch its PE
+        # subsystem to Xbox(14) via imagebld /DXT so it matches a retail .dxt.
+        # xbdm ignores the subsystem, so an older imagebld without /DXT is a
+        # non-fatal warning. Deploy is a copy to the console's E:\dxt + a warm
+        # reboot (handled by the VS Code flow).
+        Invoke-ZigBuild -Step @('dxt-fps') -Opt $Optimize
+        $dxt = Join-Path $Root 'zig-out\samples\dxt-fps\dxt-fps.dxt'
+        if (Test-Path -LiteralPath $dxt) {
+            try {
+                & (Join-Path $PSScriptRoot 'Invoke-DxtPatch.ps1') -InputDxt $dxt
+            }
+            catch {
+                Write-Warning ("imagebld /DXT subsystem patch skipped: {0}" -f $_.Exception.Message)
+            }
+        }
     }
     { $_ -in $singleSampleTargets } {
         Build-Sample -Target $Target -Opt $Optimize -Xbe:$Xbe -Iso:$Iso -Deploy:$Deploy -NoHdd:$NoHdd -FormatHdd:$FormatHdd

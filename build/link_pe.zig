@@ -64,7 +64,12 @@ pub const Options = struct {
     objects: []const std.Build.LazyPath = &.{},
     include_paths: []const std.Build.LazyPath = &.{},
     extra_flags: []const []const u8 = &.{},
+    /// Extra link-only flags (e.g. -Wl,--dynamicbase to retain PE base relocations).
+    extra_link_flags: []const []const u8 = &.{},
     entry: []const u8 = "start",
+    /// Output file extension. "exe" for XBE-bound titles (imagebld wraps later);
+    /// "dxt" for debug-monitor extensions (raw PE loaded by xbdm, no imagebld).
+    out_ext: []const u8 = "exe",
     deps: []const *std.Build.Step = &.{},
     /// Bracket the merged .eh_frame with crtbegin/crtend markers so libunwind
     /// (baremetal) can discover it via __eh_frame_start/__eh_frame_end. Needed
@@ -177,11 +182,15 @@ pub fn addPeSample(
     };
     const out_dir = b.fmt("zig-out/samples/{s}", .{opts.name});
     const obj_path = b.fmt("{s}/{s}.o", .{ out_dir, opts.name });
-    const exe_path = b.fmt("{s}/{s}.exe", .{ out_dir, opts.name });
+    const exe_path = b.fmt("{s}/{s}.{s}", .{ out_dir, opts.name, opts.out_ext });
     const mkdir = addMkdir(b, out_dir);
 
     const std_flags = if (opts.is_cpp) xbox_target.cppFlags(b) else xbox_target.cFlags(b);
-    const link_flags = xbox_target.peLinkFlags(b);
+    var link_flags_list = std.ArrayListUnmanaged([]const u8).empty;
+    defer link_flags_list.deinit(b.allocator);
+    link_flags_list.appendSlice(b.allocator, xbox_target.peLinkFlags(b)) catch @panic("OOM");
+    link_flags_list.appendSlice(b.allocator, opts.extra_link_flags) catch @panic("OOM");
+    const link_flags = link_flags_list.items;
 
     const compile = b.addSystemCommand(&.{
         b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
@@ -291,7 +300,7 @@ pub fn addPeSample(
 
     // No PE pre-patch: imagebld coerces the subsystem to Xbox and resolves the
     // real TLS directory itself, so the linker output ships to imagebld as-is.
-    const install = b.addInstallFile(b.path(exe_path), b.fmt("samples/{s}/{s}.exe", .{ opts.name, opts.name }));
+    const install = b.addInstallFile(b.path(exe_path), b.fmt("samples/{s}/{s}.{s}", .{ opts.name, opts.name, opts.out_ext }));
     install.step.dependOn(final_link);
 
     return .{ .step = final_link, .install = &install.step };

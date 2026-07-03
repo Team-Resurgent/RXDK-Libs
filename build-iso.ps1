@@ -72,7 +72,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play', 'xfont-smoke')]
+    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play', 'xfont-smoke', 'dxt-fps')]
     [string]$Sample,
     [switch]$All,
     [switch]$Clean,
@@ -227,6 +227,7 @@ $samples = @(
     [pscustomobject]@{ Target = 'xnet-net';     Iso = 'xnet-net.iso';     Desc = 'libxnet / XNet bring-up - DHCP IP + single-page HTTP server on :80' }
     [pscustomobject]@{ Target = 'xmv-play';     Iso = 'xmv-play.iso';     Desc = 'libxmv / XMV FMV decode -> D3D overlay (deploys media\)' }
     [pscustomobject]@{ Target = 'xfont-smoke'; Iso = 'xfont-smoke.iso'; Desc = 'libxfont / bitmap-font text rendering - demoscene scroller (default font)' }
+    [pscustomobject]@{ Target = 'dxt-fps';     Iso = $null; Dxt = $true; Desc = 'libxbdm / debug-monitor extension (DXT) - FPS+memory overlay (deploys to E:\dxt, warm reboot)' }
 )
 
 # Submenu reached via 'm. more' on the main menu: the actions/settings that
@@ -351,6 +352,55 @@ function Invoke-SampleIso {
     }
     else {
         Write-Warning "Build reported success but ISO not found at $isoPath"
+    }
+}
+
+function Invoke-SampleDxt {
+    param(
+        [Parameter(Mandatory)] [pscustomobject]$Chosen,
+        [Parameter(Mandatory)] [string]$Opt,
+        [string]$XboxIp,
+        [switch]$Deploy
+    )
+    Write-Host ''
+    Write-Host ('==> building {0} DXT ({1})' -f $Chosen.Target, $Opt) -ForegroundColor Cyan
+
+    # compile.ps1 builds the raw PE and patches its subsystem to Xbox via
+    # imagebld /DXT. A DXT is not an XBE -- no /Iso, no /Deploy XBE flags.
+    & $compile -Target $Chosen.Target -Optimize $Opt
+
+    $dxt = Join-Path $root ('zig-out\samples\{0}\{0}.dxt' -f $Chosen.Target)
+    if (-not (Test-Path -LiteralPath $dxt)) {
+        throw "Build reported success but DXT not found at $dxt"
+    }
+    $size = (Get-Item -LiteralPath $dxt).Length
+    Write-Host ('OK  {0}  ({1:N0} bytes)' -f $dxt, $size) -ForegroundColor Green
+
+    if (-not $Deploy) { return }
+
+    if ([string]::IsNullOrWhiteSpace($XboxIp)) {
+        throw "No Xbox IP set. Pick 'i' in the menu (or pass -XboxIp) before deploying."
+    }
+
+    $xbcp = Get-RxdkTool 'xbcp.exe'
+    $launch = Get-RxdkTool 'xbox-launch.exe'
+
+    # xbdm scans E:\dxt for *.DXT at debug-monitor init, so a DXT deploys to
+    # xe:\dxt\<name>.dxt and loads on the next (warm) reboot.
+    $remoteDxt = 'xe:\dxt\{0}.dxt' -f $Chosen.Target
+    Write-Host ''
+    Write-Host ('==> copying {0} -> {1} on {2}' -f $Chosen.Target, $remoteDxt, $XboxIp) -ForegroundColor Cyan
+    & $xbcp $dxt $remoteDxt -x $XboxIp -y -t
+    if ($LASTEXITCODE -ne 0) { throw "xbcp failed (exit $LASTEXITCODE)." }
+
+    Write-Host ''
+    Write-Host ('==> warm-rebooting {0} to load the DXT' -f $XboxIp) -ForegroundColor Cyan
+    & $launch /rebootonly /x $XboxIp
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "xbox-launch /rebootonly failed (exit $LASTEXITCODE). Reboot the console manually to load the DXT."
+    }
+    else {
+        Write-Host ('  DXT loaded from E:\dxt\{0}.dxt after reboot.' -f $Chosen.Target) -ForegroundColor Green
     }
 }
 
@@ -589,7 +639,7 @@ function Invoke-DistBuild {
     # Ship every library by name (zig-out\lib can also hold stale/intermediate
     # artifacts -- libxapi_core.lib etc. -- so copy an explicit list).
     $shipLibs = @(
-        'libkernel.lib',
+        'libkernel.lib', 'libxbdm.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',
         'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
         'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib'
@@ -676,7 +726,12 @@ function Invoke-SampleAction {
         [bool]$UseNoHdd,
         [Parameter(Mandatory)] [pscustomobject]$Config
     )
-    if ($Config.Mode -eq 'deploy') {
+    if ($Chosen.Dxt) {
+        # A DXT has no ISO; deploy mode copies to E:\dxt + warm reboots, ISO mode
+        # just builds it.
+        Invoke-SampleDxt -Chosen $Chosen -Opt $Opt -XboxIp $Config.XboxIp -Deploy:($Config.Mode -eq 'deploy')
+    }
+    elseif ($Config.Mode -eq 'deploy') {
         Invoke-SampleDeploy -Chosen $Chosen -Opt $Opt -UseNoHdd:$UseNoHdd -XboxIp $Config.XboxIp
     }
     else {
@@ -703,7 +758,12 @@ function Invoke-AllSamples {
         Write-Host ''
         Write-Host ('===== {0} =====' -f $s.Target) -ForegroundColor Cyan
         try {
-            if ($deploying) {
+            if ($s.Dxt) {
+                # Build-all: build every DXT but don't reboot the kit mid-sweep
+                # (a warm reboot would interrupt the remaining deploys).
+                Invoke-SampleDxt -Chosen $s -Opt $Opt -XboxIp $Config.XboxIp
+            }
+            elseif ($deploying) {
                 Invoke-SampleDeploy -Chosen $s -Opt $Opt -UseNoHdd:$UseNoHdd -XboxIp $Config.XboxIp -NoLaunch
             }
             else {

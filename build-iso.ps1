@@ -65,7 +65,7 @@
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play')]
+    [ValidateSet('xapi-smoke', 'xapi-input', 'libc-smoke', 'libcpp-smoke', 'd3d8-triangle', 'd3dmath-smoke', 'd3d8-textures', 'dsound-music', 'xnet-net', 'xmv-play', 'xfont-smoke')]
     [string]$Sample,
     [switch]$All,
     [switch]$Clean,
@@ -219,6 +219,7 @@ $samples = @(
     [pscustomobject]@{ Target = 'dsound-music'; Iso = 'dsound-music.iso'; Desc = 'libdsound + stb_vorbis / looping OGG music (deploys media\)' }
     [pscustomobject]@{ Target = 'xnet-net';     Iso = 'xnet-net.iso';     Desc = 'libxnet / XNet bring-up - DHCP IP + single-page HTTP server on :80' }
     [pscustomobject]@{ Target = 'xmv-play';     Iso = 'xmv-play.iso';     Desc = 'libxmv / XMV FMV decode -> D3D overlay (deploys media\)' }
+    [pscustomobject]@{ Target = 'xfont-smoke'; Iso = 'xfont-smoke.iso'; Desc = 'libxfont / bitmap-font text rendering - demoscene scroller (default font)' }
 )
 
 # Submenu reached via 'm. more' on the main menu: the actions/settings that
@@ -477,7 +478,7 @@ function Invoke-DistBuild {
         'libkernel.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',
         'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
-        'libdsound.lib', 'libxnet.lib', 'libxmv.lib'
+        'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib'
     )
     $copied = @()
     foreach ($name in $shipLibs) {

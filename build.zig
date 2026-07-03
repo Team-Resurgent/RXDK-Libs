@@ -12,6 +12,7 @@ const libxgraphics_pkg = @import("libs/libxgraphics/build.zig");
 const libdsound_pkg = @import("libs/libdsound/build.zig");
 const libxnet_pkg = @import("libs/libxnet/build.zig");
 const libxmv_pkg = @import("libs/libxmv/build.zig");
+const libxfont_pkg = @import("libs/libxfont/build.zig");
 const libkernel_pkg = @import("libs/libkernel/build.zig");
 const compile_c = @import("build/compile_c.zig");
 const link_pe = @import("build/link_pe.zig");
@@ -221,6 +222,22 @@ pub fn build(b: *std.Build) void {
     const xmv_step = b.step("libxmv", "Build libxmv.lib (Xbox XMV FMV decoder)");
     xmv_step.dependOn(&install_libxmv.step);
 
+    // libxfont: the Xbox XFONT bitmap-font text-rendering library, ported from
+    // the leak (private/windows/directx/dxg/xfont/library). Bitmap fonts only
+    // (embedded default font + memory-loaded fonts); TrueType and disk-file
+    // font loading are out of scope for this pass. Title-side code, same shape
+    // as libd3dx8 -- links against the public d3d8.h surface + CRT, no direct
+    // xboxkrnl calls. Not in the default install.
+    const xfont_objs = libxfont_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xfont_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xfont_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xfont_deps.append(b.allocator, xfont_objs.step) catch @panic("OOM");
+    const libxfont = coff_lib.pack(b, "libxfont", xfont_objs.outputs, xfont_deps.items);
+    const install_libxfont = b.addInstallFile(libxfont.path, "lib/libxfont.lib");
+    install_libxfont.step.dependOn(libxfont.step);
+    const xfont_step = b.step("libxfont", "Build libxfont.lib (Xbox XFONT bitmap-font text rendering)");
+    xfont_step.dependOn(&install_libxfont.step);
+
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
@@ -263,6 +280,7 @@ pub fn build(b: *std.Build) void {
     const libdsound_lib = b.path("zig-out/lib/libdsound.lib");
     const libxmv_lib = b.path("zig-out/lib/libxmv.lib");
     const libxnet_lib = b.path("zig-out/lib/libxnet.lib");
+    const libxfont_lib = b.path("zig-out/lib/libxfont.lib");
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -421,6 +439,44 @@ pub fn build(b: *std.Build) void {
     });
     const d3d8_tri_step = b.step("d3d8-triangle", "Build the D3D8 rotating-triangle sample");
     d3d8_tri_step.dependOn(d3d8_tri.install);
+
+    // XFONT bitmap-font text rendering sample: opens the embedded default font
+    // and renders a demoscene-style scroller (per-character sine bounce, manual
+    // stretch-blit size pulse, rainbow color cycle). Links libxfont.lib +
+    // libd3d8.lib (+ libxapi + krnl) -- no D3DX8 needed, this sample does no 3D
+    // transforms.
+    const xfont_smoke_inc = [_]std.Build.LazyPath{
+        b.path("samples/xapi-smoke/src"), // common.h
+        b.path("shared/include"),
+        b.path("libs/libxapi/internal"),
+        b.path("libs/libxapi/nt"), // guiddef.h (GUID/REFGUID for d3d8.h)
+        b.path("build/generated"),
+        b.path("shared/picolibc/include"),
+        b.path("shared/picolibc/machine/x86"),
+    };
+    const xfont_smoke_extra = [_][]const u8{
+        "samples/xapi-smoke/src/common.c",
+    };
+    const xfont_smoke = link_pe.addPeSample(b, target, optimize, xbox_target, .{
+        .name = "xfont-smoke",
+        .src = "samples/xfont-smoke/src/main.c",
+        .extra_srcs = &xfont_smoke_extra,
+        .objects = sample_objects.items,
+        .libs = &.{ libxfont_lib, libd3d8_lib, libxapi_lib, krnl },
+        .include_paths = &xfont_smoke_inc,
+        .extra_flags = &.{
+            "-D_XAPI_",
+            "-fms-extensions",
+            "-fms-compatibility",
+            "-nostdinc",
+            "-include",
+            "picolibc.h",
+        },
+        .entry = "XapiTitleStartup",
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libxfont.step, picolibc_objs.step, xbox_objs.step },
+    });
+    const xfont_smoke_step = b.step("xfont-smoke", "Build the XFONT bitmap-font text rendering smoke test");
+    xfont_smoke_step.dependOn(xfont_smoke.install);
 
     // D3D8/D3DX8 matrix math smoke test. C title: exercises D3DXMatrixMultiply,
     // D3DXVec3TransformCoord, D3DXVec3Project, D3DXMatrixLookAtLH,

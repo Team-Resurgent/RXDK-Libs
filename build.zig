@@ -585,6 +585,10 @@ pub fn build(b: *std.Build) void {
             "-include",
             "picolibc.h",
         },
+        // --dynamicbase keeps the .reloc table xbdm relocates against. zig cc
+        // can't set FileAlignment, so the linker output is NOT flat (RVA !=
+        // file offset); imagebld /DXT flattens it (file offset == RVA) so
+        // xbdm's raw-file loader jumps to the right entry point.
         .extra_link_flags = &.{"-Wl,--dynamicbase"},
         .entry = "DxtEntry",
         .out_ext = "dxt",

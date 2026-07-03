@@ -601,6 +601,20 @@ function Invoke-DistBuild {
             Write-Warning "expected object not found: zig-out\obj\picolibc\$($comdatFixObjs[$destName])"
         }
     }
+
+    # MSVC __alldiv/__aulldiv/__allrem/__aullrem/__allmul shims libxnet's
+    # MSVC-C++-ABI object code calls into (see build.zig's msvc_lldiv_batch and
+    # libs/libxapi/port/msvc_lldiv.c). Packed into the same libcompat.lib, whole-
+    # archive-linked into every title, so a libxnet consumer needs no loose
+    # source file of its own for this.
+    $msvcLldivObj = Join-Path $root 'zig-out\obj\compat\libs_libxapi_port_msvc_lldiv_c.o'
+    if (Test-Path -LiteralPath $msvcLldivObj) {
+        $comdatFixSrcs += $msvcLldivObj
+    }
+    else {
+        Write-Warning "expected object not found: zig-out\obj\compat\libs_libxapi_port_msvc_lldiv_c.o"
+    }
+
     $comdatFixLib = Join-Path $distLib 'libcompat.lib'
     if (Test-Path -LiteralPath $comdatFixLib) { Remove-Item -LiteralPath $comdatFixLib -Force }
     & zig ar rcs $comdatFixLib @comdatFixSrcs

@@ -209,6 +209,24 @@ pub fn build(b: *std.Build) void {
     const xnet_step = b.step("libxnet", "Build libxnet.lib (Xbox XNet stack, XNetStartup)");
     xnet_step.dependOn(&install_libxnet.step);
 
+    // MSVC 64-bit divide/mod/mul helpers (__alldiv/__aulldiv/__allrem/__aullrem/
+    // __allmul) that libxnet's MSVC-C++-ABI object code calls into (see
+    // libs/libxapi/port/msvc_lldiv.c for the ABI-shim rationale). Compiled once
+    // here (GNU ABI, so the C operators inside lower to compiler-rt) and packed
+    // into libcompat.lib by build-iso.ps1 -Dist, so every consumer of libxnet
+    // gets it for free instead of needing its own copy of this file.
+    const msvc_lldiv_batch = compile_c.addBatch(b, .{
+        .name = "msvc-lldiv",
+        .target = xbox_target.target_triple,
+        .out_subdir = "compat",
+        .sources = &.{"libs/libxapi/port/msvc_lldiv.c"},
+        .flags = &.{ "-std=c17", "-ffreestanding", "-fno-stack-protector", "-fno-sanitize=undefined" },
+        .include_dirs = &.{},
+        .opt_flag = opt_flag,
+        .is_cpp = false,
+    });
+    xnet_step.dependOn(msvc_lldiv_batch.step);
+
     // libxmv: the Xbox XMV (FMV) video decoder ported from the leak
     // (private/windows/xmv/decoder). Title-side software codec -> YUY2 D3D surface;
     // links with libd3d8 + libdsound + libxapi. Not in the default install.

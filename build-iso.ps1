@@ -12,8 +12,10 @@
     zig-out\iso\.
 
     Or pick "dist" to build all the libraries (libkernel, libc, libcpp, libxapi,
-    libd3d8, libd3dx8, libxgraphics, libdsound, libxnet, libxmv) and stage the .lib files
-    plus the public headers into dist\lib and dist\include (dist\ is gitignored).
+    libd3d8, libd3dx8, libxgraphics, libdsound, libxnet, libxmv, libxfont) twice
+    -- once Debug, once ReleaseSmall -- and stage the .lib files into
+    dist\lib\debug and dist\lib\release, plus the public headers (shared
+    between both variants) into dist\include (dist\ is gitignored).
 
     Run with no arguments for a looping menu: after each action it waits for
     Enter and returns to the menu. Pass -Sample or -Dist to run once and exit
@@ -24,7 +26,9 @@
     (xapi-smoke | libc-smoke | libcpp-smoke).
 
 .PARAMETER Dist
-    Skip the menu, build the lib distribution into dist\, then exit.
+    Skip the menu, build the lib distribution (Debug + ReleaseSmall, into
+    dist\lib\debug and dist\lib\release), then exit. -Optimize has no effect
+    on this -- both variants are always built.
 
 .PARAMETER Clean
     Remove the zig build cache (.zig-cache) and all generated outputs, forcing a
@@ -33,7 +37,9 @@
     no risk of a stale object (e.g. an edited libxapi source) leaking through.
 
 .PARAMETER Optimize
-    Zig optimize mode. Defaults to Debug (prompts if not given interactively).
+    Zig optimize mode for -Sample / -All. Defaults to Debug (prompts if not
+    given interactively). Ignored by -Dist, which always builds both Debug
+    and ReleaseSmall.
 
 .PARAMETER NoHdd
     xapi-smoke only: build a boot-disc image without mounting/formatting the
@@ -60,8 +66,9 @@
         Build the libcpp-smoke XBE, copy it to the kit, and launch it.
 
 .EXAMPLE
-    .\build-iso.ps1 -Dist -Optimize ReleaseFast
-        Build all libraries and stage them (+ headers) into dist\.
+    .\build-iso.ps1 -Dist
+        Build all libraries (Debug + ReleaseSmall) and stage them (+ headers)
+        into dist\lib\debug, dist\lib\release, and dist\include.
 #>
 [CmdletBinding()]
 param(
@@ -454,109 +461,60 @@ function Invoke-Watson {
     Write-Host ('OK  xbWatson started for {0}' -f $XboxIp) -ForegroundColor Green
 }
 
-function Invoke-DistBuild {
-    param([Parameter(Mandatory)] [string]$Opt)
-    Write-Host ''
-    Write-Host ('==> building lib distribution (all libs, {0})' -f $Opt) -ForegroundColor Cyan
-
-    # compile.ps1 -Target libs builds every shippable .lib: the default install
-    # (libkernel/libc/libcpp/libxapi + their public headers into zig-out\lib +
-    # zig-out\include) plus the device libs
-    # (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv).
-    & $compile -Target libs -Optimize $Opt
-
-    $distLib = Join-Path $root 'dist\lib'
-    $distInc = Join-Path $root 'dist\include'
-    foreach ($d in @($distLib, $distInc)) {
-        if (Test-Path -LiteralPath $d) { Remove-Item -LiteralPath $d -Recurse -Force }
-        New-Item -ItemType Directory -Force -Path $d | Out-Null
-    }
-
-    # Ship every library by name (zig-out\lib can also hold stale/intermediate
-    # artifacts -- libxapi_core.lib etc. -- so copy an explicit list).
-    $shipLibs = @(
-        'libkernel.lib',
-        'libc.lib', 'libcpp.lib', 'libxapi.lib',
-        'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
-        'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib'
+# The two title-link objects every Xbox title used to need as loose files are
+# now baked into the archives: xboxkrnl_xbld.obj (kernel build/descriptor data,
+# _XboxKrnlBuildNumber) is packed into libc.lib, and xapi_start.obj (the
+# XapiTitleStartup entry) into libxapi.lib. An external builder just links the
+# libs -- no loose objects, and no need to know whether libxapi is in use.
+#
+# libcompat.lib is the deliberate exception to the above, and stays in its own
+# archive, force-linked whole. picolibc's own copies (in libc.lib) are
+# compiled -fno-builtin, but zig's own bundled compiler-rt ALSO ships its own
+# implementations of a surprisingly large set of ordinary libc/libm entry
+# points (lib/compiler_rt/{mem{move,cpy},fabs,cos,sin,sqrt,floor,ceil,round,
+# trunc,fmod,fmax,fmin,exp,log,tan,rem_pio2*}.zig, ...) -- not just the
+# __divdi3-style builtins a title's link legitimately needs -rtlib=compiler-rt
+# for. Both picolibc's and zig's versions are comdat "select any" sections
+# (-ffunction-sections), so which one wins a real multi-library link is
+# decided by comdat tie-breaking PER SYMBOL, not by archive/library order on
+# the command line, and not consistently either way: confirmed on hardware
+# that a title linking libc+libd3d8+libdsound+libcpp got zig's compiler-rt
+# `memmove` (which uses SSE2 the real Xbox Pentium III can't execute ->
+# STATUS_ILLEGAL_INSTRUCTION, a hard crash) while its `cos` correctly
+# resolved to picolibc's own -- then, once memmove/memcpy were fixed, its
+# `fabs` ALSO turned out to have lost the tie-break to zig's compiler-rt
+# version (an ABI/calling-convention mismatch that corrupts the x87 FPU
+# stack, manifesting as an unrelated-looking hang deep inside __rem_pio2's
+# fabs() call). Given the tie-break is apparently arbitrary per-symbol,
+# don't wait to find each one the hard way -- force every overlapping
+# symbol, including the ones (cos/sin) that happened to resolve correctly
+# this time, since a different link graph could tip them the other way.
+#
+# These 32 objects are archived into libcompat.lib (an ordinary-looking .lib,
+# not 32 loose files cluttering dist\lib) and the title link wraps it in
+# -Wl,--whole-archive / --no-whole-archive (RXDK-VSCode's Invoke-XdkLink.ps1),
+# which force-extracts every member unconditionally -- the same "already
+# included before any comdat candidate is considered" guarantee a loose
+# object gets, just packaged as one archive. RXDK-Libs' own in-tree samples
+# (build.zig) never hit this because they pass these same picolibc objects
+# loose via the Zig build system's own .objects list (a different but equally
+# coercive mechanism, native to `zig build` rather than a raw `zig cc`
+# command line) -- this archive exists purely for external SDK-based title
+# builds that link via plain `zig cc`, transparently -- a title author never
+# references any of this.
+#
+# Also carries the MSVC __alldiv/__aulldiv/__allrem/__aullrem/__allmul shims
+# libxnet's MSVC-C++-ABI object code calls into (see build.zig's
+# msvc_lldiv_batch and libs/libxapi/port/msvc_lldiv.c).
+#
+# Both object sets live under fixed zig-out\obj paths that the NEXT -Optimize
+# build overwrites in place, so this must run once per variant, right after
+# that variant's `compile.ps1 -Target libs` and before switching to the next.
+function Copy-DistCompatLib {
+    param(
+        [Parameter(Mandatory)] [string]$DistLib,
+        [Parameter(Mandatory)] [string]$Variant
     )
-    $copied = @()
-    foreach ($name in $shipLibs) {
-        $src = Join-Path $root ('zig-out\lib\{0}' -f $name)
-        if (Test-Path -LiteralPath $src) {
-            Copy-Item -LiteralPath $src -Destination $distLib -Force
-            $copied += $name
-        }
-        else {
-            Write-Warning "expected lib not found: zig-out\lib\$name"
-        }
-    }
-
-    # Public headers, in three layers:
-    #   1. zig-out\include   - the staged libc/libc++/xapi set + xboxkrnl/ subdir.
-    #   2. shared\include    - the device-library public headers (d3d8.h, dsound.h,
-    #                          xmv.h, d3dx8*.h, winsockx.h, ...) + the Win32 base.
-    #   3. dist-include      - the distribution-only master umbrella (xtl.h) and
-    #                          its shims (xdk_compat.h, guiddef.h). These are kept
-    #                          OUT of shared\include on purpose: shared\include is
-    #                          a source include dir, and a public <xtl.h> there
-    #                          shadows libs\libxapi\internal\xtl.h in the in-tree
-    #                          library builds. Copied last so they land in dist.
-    # -Path (not -LiteralPath) so '*' is expanded.
-    $incSources = @(
-        (Join-Path $root 'zig-out\include'),
-        (Join-Path $root 'shared\include'),
-        (Join-Path $root 'dist-include')
-    )
-    foreach ($incSrc in $incSources) {
-        if (Test-Path -LiteralPath $incSrc) {
-            Copy-Item -Path (Join-Path $incSrc '*') -Destination $distInc -Recurse -Force
-        }
-    }
-
-    # The two title-link objects every Xbox title used to need as loose files are
-    # now baked into the archives: xboxkrnl_xbld.obj (kernel build/descriptor data,
-    # _XboxKrnlBuildNumber) is packed into libc.lib, and xapi_start.obj (the
-    # XapiTitleStartup entry) into libxapi.lib. An external builder just links the
-    # libs -- no loose objects, and no need to know whether libxapi is in use.
-
-    # These are the deliberate exception to the above, and stay in their own
-    # archive, force-linked whole. picolibc's own copies (in libc.lib) are
-    # compiled -fno-builtin, but zig's own bundled compiler-rt ALSO ships its own
-    # implementations of a surprisingly large set of ordinary libc/libm entry
-    # points (lib/compiler_rt/{mem{move,cpy},fabs,cos,sin,sqrt,floor,ceil,round,
-    # trunc,fmod,fmax,fmin,exp,log,tan,rem_pio2*}.zig, ...) -- not just the
-    # __divdi3-style builtins a title's link legitimately needs -rtlib=compiler-rt
-    # for. Both picolibc's and zig's versions are comdat "select any" sections
-    # (-ffunction-sections), so which one wins a real multi-library link is
-    # decided by comdat tie-breaking PER SYMBOL, not by archive/library order on
-    # the command line, and not consistently either way: confirmed on hardware
-    # that a title linking libc+libd3d8+libdsound+libcpp got zig's compiler-rt
-    # `memmove` (which uses SSE2 the real Xbox Pentium III can't execute ->
-    # STATUS_ILLEGAL_INSTRUCTION, a hard crash) while its `cos` correctly
-    # resolved to picolibc's own -- then, once memmove/memcpy were fixed, its
-    # `fabs` ALSO turned out to have lost the tie-break to zig's compiler-rt
-    # version (an ABI/calling-convention mismatch that corrupts the x87 FPU
-    # stack, manifesting as an unrelated-looking hang deep inside __rem_pio2's
-    # fabs() call). Given the tie-break is apparently arbitrary per-symbol,
-    # don't wait to find each one the hard way -- force every overlapping
-    # symbol, including the ones (cos/sin) that happened to resolve correctly
-    # this time, since a different link graph could tip them the other way.
-    #
-    # These 32 objects are archived into libcompat.lib (an ordinary-looking
-    # .lib, not 32 loose files cluttering dist\lib) and the title link wraps it
-    # in -Wl,--whole-archive / --no-whole-archive (RXDK-VSCode's
-    # Invoke-XdkLink.ps1), which force-extracts every member unconditionally --
-    # the same "already included before any comdat candidate is considered"
-    # guarantee a loose object gets, just packaged as one archive. Verified
-    # byte-identical (mod PE timestamp) linked output vs. the old loose-object
-    # approach. RXDK-Libs' own in-tree samples (build.zig) never hit this
-    # because they pass these same picolibc objects loose via the Zig build
-    # system's own .objects list (a different but equally coercive mechanism,
-    # native to `zig build` rather than a raw `zig cc` command line) -- this
-    # archive exists purely for external SDK-based title builds that link via
-    # plain `zig cc`, transparently -- a title author never references any of
-    # this.
     $comdatFixObjs = @{
         'memmove.o'  = 'vendor_picolibc_libc_string_memmove_c.o'
         'memcpy.o'   = 'vendor_picolibc_libc_string_memcpy_c.o'
@@ -598,32 +556,107 @@ function Invoke-DistBuild {
             $comdatFixSrcs += $src
         }
         else {
-            Write-Warning "expected object not found: zig-out\obj\picolibc\$($comdatFixObjs[$destName])"
+            Write-Warning "expected object not found: zig-out\obj\picolibc\$($comdatFixObjs[$destName]) ($Variant)"
         }
     }
 
-    # MSVC __alldiv/__aulldiv/__allrem/__aullrem/__allmul shims libxnet's
-    # MSVC-C++-ABI object code calls into (see build.zig's msvc_lldiv_batch and
-    # libs/libxapi/port/msvc_lldiv.c). Packed into the same libcompat.lib, whole-
-    # archive-linked into every title, so a libxnet consumer needs no loose
-    # source file of its own for this.
     $msvcLldivObj = Join-Path $root 'zig-out\obj\compat\libs_libxapi_port_msvc_lldiv_c.o'
     if (Test-Path -LiteralPath $msvcLldivObj) {
         $comdatFixSrcs += $msvcLldivObj
     }
     else {
-        Write-Warning "expected object not found: zig-out\obj\compat\libs_libxapi_port_msvc_lldiv_c.o"
+        Write-Warning "expected object not found: zig-out\obj\compat\libs_libxapi_port_msvc_lldiv_c.o ($Variant)"
     }
 
-    $comdatFixLib = Join-Path $distLib 'libcompat.lib'
+    $comdatFixLib = Join-Path $DistLib 'libcompat.lib'
     if (Test-Path -LiteralPath $comdatFixLib) { Remove-Item -LiteralPath $comdatFixLib -Force }
     & zig ar rcs $comdatFixLib @comdatFixSrcs
     if ($LASTEXITCODE -ne 0) { throw "Archiving $comdatFixLib failed (exit $LASTEXITCODE)" }
+    Write-Host ('OK  {0}  libcompat.lib ({1} objs)' -f $DistLib, $comdatFixSrcs.Count) -ForegroundColor Green
+}
+
+function Invoke-DistBuild {
+    Write-Host ''
+    Write-Host '==> building lib distribution (Debug + ReleaseSmall)' -ForegroundColor Cyan
+
+    $distLibRoot = Join-Path $root 'dist\lib'
+    $distInc = Join-Path $root 'dist\include'
+    foreach ($d in @($distLibRoot, $distInc)) {
+        if (Test-Path -LiteralPath $d) { Remove-Item -LiteralPath $d -Recurse -Force }
+    }
+    New-Item -ItemType Directory -Force -Path $distInc | Out-Null
+
+    # Ship every library by name (zig-out\lib can also hold stale/intermediate
+    # artifacts -- libxapi_core.lib etc. -- so copy an explicit list).
+    $shipLibs = @(
+        'libkernel.lib',
+        'libc.lib', 'libcpp.lib', 'libxapi.lib',
+        'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
+        'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib'
+    )
+
+    # Two variants, side by side: Debug (full symbols, -O0, for the normal
+    # dev-kit-attached debug loop) and ReleaseSmall (a title that wants a
+    # smaller/faster SDK build without pulling debug info into its own link).
+    # compile.ps1 -Target libs builds every shippable .lib: the default install
+    # (libkernel/libc/libcpp/libxapi + their public headers into zig-out\lib +
+    # zig-out\include) plus the device libs
+    # (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv/libxfont). Each
+    # variant's libs + libcompat.lib must be copied/archived out of zig-out
+    # BEFORE building the next variant, since zig-out\lib and zig-out\obj are
+    # fixed paths that the next -Optimize build overwrites in place.
+    $variants = @(
+        @{ Optimize = 'Debug'; Dir = 'debug' }
+        @{ Optimize = 'ReleaseSmall'; Dir = 'release' }
+    )
+    foreach ($variant in $variants) {
+        Write-Host ('==> {0}' -f $variant.Optimize) -ForegroundColor Cyan
+        & $compile -Target libs -Optimize $variant.Optimize
+
+        $distLib = Join-Path $distLibRoot $variant.Dir
+        New-Item -ItemType Directory -Force -Path $distLib | Out-Null
+
+        $copied = @()
+        foreach ($name in $shipLibs) {
+            $src = Join-Path $root ('zig-out\lib\{0}' -f $name)
+            if (Test-Path -LiteralPath $src) {
+                Copy-Item -LiteralPath $src -Destination $distLib -Force
+                $copied += $name
+            }
+            else {
+                Write-Warning "expected lib not found: zig-out\lib\$name ($($variant.Optimize))"
+            }
+        }
+
+        Copy-DistCompatLib -DistLib $distLib -Variant $variant.Optimize
+
+        Write-Host ('OK  dist\lib\{0}  {1} libs: {2}' -f $variant.Dir, $copied.Count, ($copied -join ', ')) -ForegroundColor Green
+    }
+
+    # Public headers, in three layers (optimize-independent -- copied once,
+    #   1. zig-out\include   - the staged libc/libc++/xapi set + xboxkrnl/ subdir.
+    #   2. shared\include    - the device-library public headers (d3d8.h, dsound.h,
+    #                          xmv.h, d3dx8*.h, winsockx.h, ...) + the Win32 base.
+    #   3. dist-include      - the distribution-only master umbrella (xtl.h) and
+    #                          its shims (xdk_compat.h, guiddef.h). These are kept
+    #                          OUT of shared\include on purpose: shared\include is
+    #                          a source include dir, and a public <xtl.h> there
+    #                          shadows libs\libxapi\internal\xtl.h in the in-tree
+    #                          library builds. Copied last so they land in dist.
+    # -Path (not -LiteralPath) so '*' is expanded.
+    $incSources = @(
+        (Join-Path $root 'zig-out\include'),
+        (Join-Path $root 'shared\include'),
+        (Join-Path $root 'dist-include')
+    )
+    foreach ($incSrc in $incSources) {
+        if (Test-Path -LiteralPath $incSrc) {
+            Copy-Item -Path (Join-Path $incSrc '*') -Destination $distInc -Recurse -Force
+        }
+    }
 
     $hdrCount = @(Get-ChildItem -LiteralPath $distInc -Recurse -File -ErrorAction SilentlyContinue).Count
     Write-Host ''
-    Write-Host ('OK  dist\lib      {0} libs: {1}' -f $copied.Count, ($copied -join ', ')) -ForegroundColor Green
-    Write-Host ('OK  dist\lib      libcompat.lib ({0} objs)' -f $comdatFixSrcs.Count) -ForegroundColor Green
     Write-Host ('OK  dist\include  {0} headers' -f $hdrCount) -ForegroundColor Green
 }
 
@@ -728,7 +761,7 @@ if ($All) {
     return
 }
 if ($Dist) {
-    Invoke-DistBuild -Opt (Resolve-Optimize -ConfigOptimize $deployCfg.Optimize)
+    Invoke-DistBuild
     return
 }
 if ($Sample) {
@@ -777,7 +810,7 @@ while ($true) {
 
     try {
         if ($chosen -eq 'dist') {
-            Invoke-DistBuild -Opt (Resolve-Optimize -ConfigOptimize $deployCfg.Optimize)
+            Invoke-DistBuild
         }
         elseif ($chosen -eq 'build-all') {
             Invoke-AllSamples -Opt (Resolve-Optimize -ConfigOptimize $deployCfg.Optimize) `

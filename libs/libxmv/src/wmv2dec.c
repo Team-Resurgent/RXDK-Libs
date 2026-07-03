@@ -106,9 +106,6 @@ int Wmv2Init(Wmv2 *w, XmvVideoCore *core, const uint8_t extradata[4])
     w->no_rounding  = 0;
     w->initialized  = 1;
 
-    DbgPrint("wmv2: ext mspel=%d loop=%d abt=%d jtype=%d tlmv=%d permbrl=%d slices=%d br=%dk\n",
-             w->mspel_bit, w->loop_filter, w->abt_flag, w->j_type_bit,
-             w->top_left_mv_flag, w->per_mb_rl_bit, w->slice_code, w->bit_rate / 1024);
     return 0;
 }
 
@@ -153,8 +150,6 @@ int Wmv2DecodePictureHeader(Wmv2 *w)
 }
 
 // parse_mb_skip (wmv2dec.c): fills w->mb_skip[mb_y*mb_width + mb_x].
-static int g_dbg_skip_frames;
-
 static int wmv2_parse_mb_skip(Wmv2 *w)
 {
     XmvVideoCore *c = w->core;
@@ -163,10 +158,6 @@ static int wmv2_parse_mb_skip(Wmv2 *w)
     int x, y, skip_type;
 
     skip_type = (int)ReadBits(c, 2);
-    if (g_dbg_skip_frames == 0) {
-        DbgPrint("wmv2:   P-frame skip_type=%d q=%d\n", skip_type, w->qscale);
-        g_dbg_skip_frames++;
-    }
     switch (skip_type) {
     case SKIP_TYPE_NONE:
         for (y = 0; y < mbh; y++)

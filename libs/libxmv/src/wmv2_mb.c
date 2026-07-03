@@ -21,10 +21,6 @@
 
 #define decode012(c) ((int)ReadTriStateBits(c))
 
-// Diagnostic counters (see Wmv2DecodePFrame).
-static int g_dbg_coded, g_dbg_abt;          // coded / ABT blocks this frame
-static int g_dbg_pframes;                    // P-frames decoded so far (log gate)
-
 // ---------------------------------------------------------------------------
 // Inverse DCT (classic IEEE-1180 reference integer IDCT), producing raw spatial
 // values; the caller clamps and either stores (intra) or adds (inter residual).
@@ -670,10 +666,9 @@ void Wmv2ResetMotion(Wmv2 *w)
 
 // ---------------------------------------------------------------------------
 // Whole-frame P decode. Bit walker must be at the start of the frame; the
-// primary + secondary headers have already consumed their bits. `frame`/`size`
-// are only for the diagnostic bit-consumption check.
+// primary + secondary headers have already consumed their bits.
 // ---------------------------------------------------------------------------
-int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
+int Wmv2DecodePFrame(Wmv2 *w)
 {
     XmvVideoCore *c = w->core;
     int mbw = (int)c->MBWidth, mbh = (int)c->MBHeight;
@@ -681,10 +676,7 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
     int round = !w->no_rounding;
     int slice_h = (w->slice_code > 0) ? (mbh / w->slice_code) : mbh;
     int mb_x, mb_y, n;
-    int n_skip = 0, n_inter = 0, n_intra = 0;
 
-    g_dbg_coded = 0;
-    g_dbg_abt   = 0;
     Wmv2ResetMotion(w);
 
     // Reset the intra DC-prediction grids: 1024 everywhere (= default DC), so
@@ -711,7 +703,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
 
             if (w->mb_skip[idx]) {
                 // Skipped: zero MV, copy co-located block from the reference.
-                n_skip++;
                 w->mv_x[g] = 0; w->mv_y[g] = 0;
                 mc_block(Ydst, Ypitch, c->pYDisplayed, Ypitch, (int)c->Width, (int)c->Height,
                          16, 16, mb_x * 16, mb_y * 16, 0, round);
@@ -729,7 +720,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
             if (!mb_intra) {
                 int px, py, mx, my, dxy, uvdxy, src_x, src_y, uvsx, uvsy;
 
-                n_inter++;
                 wmv2_pred_motion(w, mb_x, mb_y, first_slice_line, &px, &py);
 
                 if (cbp) {
@@ -780,7 +770,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
 
                     if (!coded)
                         continue;
-                    g_dbg_coded++;
 
                     switch (n) {
                     case 0: bd = Ydst;                  bstride = Ypitch;  break;
@@ -811,7 +800,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
                             idct48_add(bd, bstride, blk1);
                             idct48_add(bd + 4, bstride, blk2);
                         }
-                        g_dbg_abt++;
                     } else {
                         decode_inter_block(c, w, 1, w->rl_table_index, bd, bstride);
                     }
@@ -819,7 +807,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
             } else {
                 // Intra macroblock inside a P-frame.
                 int ac_pred;
-                n_intra++;
                 w->mv_x[g] = 0; w->mv_y[g] = 0;
 
                 ac_pred = (int)ReadOneBit(c);
@@ -846,16 +833,6 @@ int Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size)
             }
         }
     }
-
-    // First-frame sanity: MB composition + bit consumption vs frame size.
-    // consumed ~= size (within a few bytes of bit-reader lookahead) means the
-    // parse stayed in sync end-to-end.
-    if (g_dbg_pframes == 0) {
-        int consumed = (int)(c->pDecodingPosition - (BYTE *)frame);
-        DbgPrint("wmv2: P-frame skip=%d inter=%d intra=%d | coded=%d abt=%d | consumed=%d/%u\n",
-                 n_skip, n_inter, n_intra, g_dbg_coded, g_dbg_abt, consumed, size);
-    }
-    g_dbg_pframes++;
 
     return 0;
 }

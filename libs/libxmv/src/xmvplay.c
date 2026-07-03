@@ -159,23 +159,10 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
     rc = XmvDemuxOpen(&dec->demux, dec->file, dec->file_size,
                       dec->scratch, dec->scratch_size);
     if (rc != 0) {
-        DbgPrint("xmv: XmvDemuxOpen failed rc=%d\n", rc);
         free(dec->scratch);
         free(dec->file);
         free(dec);
         return E_FAIL;
-    }
-
-    DbgPrint("xmv: opened %ux%u dur=%ums audio=%u (track0: comp=%u ch=%u %uHz %ubit)\n",
-             dec->demux.width, dec->demux.height, dec->demux.duration_ms,
-             dec->demux.audio_track_count,
-             dec->demux.audio[0].compression, dec->demux.audio[0].channels,
-             dec->demux.audio[0].sample_rate, dec->demux.audio[0].bits_per_sample);
-
-    if (dec->demux.has_extradata) {
-        DbgPrint("xmv: WMV2 extradata %02x %02x %02x %02x\n",
-                 dec->demux.video_extradata[0], dec->demux.video_extradata[1],
-                 dec->demux.video_extradata[2], dec->demux.video_extradata[3]);
     }
 
     // Phase 2: spin up the leak software video kernel for keyframe (I-frame)
@@ -183,16 +170,11 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
     // these keyframes are baseline-I or XINTRA8-coded). A NULL core (unsupported
     // geometry) degrades to the placeholder render.
     dec->core = XmvCoreCreate(dec->demux.width, dec->demux.height, 0);
-    if (!dec->core)
-        DbgPrint("xmv: video core unavailable (geometry %ux%u) -- placeholder render\n",
-                 dec->demux.width, dec->demux.height);
 
     // WMV2 P-frame layer: needs the sequence extradata + the core geometry.
     if (dec->core && dec->demux.has_extradata) {
         if (Wmv2Init(&dec->wmv2, dec->core, dec->demux.video_extradata) == 0)
             dec->wmv2_ok = 1;
-        else
-            DbgPrint("xmv: Wmv2Init failed (P-frame decode unavailable)\n");
     }
 
     *ppDecoder = dec;
@@ -203,7 +185,6 @@ void __stdcall XMVDecoder_CloseDecoder(XMVDecoder *pDecoder)
 {
     if (!pDecoder)
         return;
-    DbgPrint("xmv: closing (%u frames shown)\n", pDecoder->frames_shown);
     if (pDecoder->pStream) {
         IDirectSoundStream_Flush(pDecoder->pStream);
         IDirectSoundStream_Release(pDecoder->pStream);
@@ -281,7 +262,6 @@ HRESULT __stdcall XMVDecoder_EnableAudioStream(XMVDecoder *dec, DWORD AudioStrea
 
     hr = DirectSoundCreateStream(&desc, &dec->pStream);
     if (FAILED(hr)) {
-        DbgPrint("xmv: DirectSoundCreateStream failed 0x%08x\n", (unsigned)hr);
         return hr;
     }
 
@@ -289,10 +269,6 @@ HRESULT __stdcall XMVDecoder_EnableAudioStream(XMVDecoder *dec, DWORD AudioStrea
     dec->audio_enabled = 1;
     dec->next_pkt      = 0;
     memset(dec->pkt_status, 0, sizeof(dec->pkt_status));
-
-    DbgPrint("xmv: audio stream %u enabled (%s %uch %uHz)\n", AudioStream,
-             (a->compression == WAVE_FORMAT_XBOX_ADPCM) ? "ADPCM" : "PCM",
-             a->channels, a->sample_rate);
 
     if (ppStream) *ppStream = dec->pStream;
     return S_OK;
@@ -389,7 +365,7 @@ static int DecodeNextHeld(XMVDecoder *dec)
             XmvCoreSetupBits(dec->core, frame);
             if (Wmv2DecodePictureHeader(&dec->wmv2) == WMV2_PICT_P &&
                 Wmv2DecodeSecondaryHeader(&dec->wmv2) == 0) {
-                Wmv2DecodePFrame(&dec->wmv2, frame, size);
+                Wmv2DecodePFrame(&dec->wmv2);
                 XmvCoreSwap(dec->core);      // promote building -> displayed
             }
             // On parse failure, keep the previous displayed frame (freeze).
@@ -448,11 +424,6 @@ HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface
         XmvCoreRender(pDecoder->core, (void *)pSurface);
     else
         RenderPlaceholder((D3DSurface *)pSurface, pDecoder->held_keyframe, pDecoder->frames_shown);
-
-    if (pDecoder->frames_shown < 5) {
-        DbgPrint("xmv: frame %u %s pts=%ums\n", pDecoder->frames_shown,
-                 pDecoder->held_keyframe ? "[KEY]" : "", pDecoder->held_pts);
-    }
 
     if (pResult) *pResult = XMV_NEWFRAME;
     if (pTimeOfFrame) *pTimeOfFrame = pDecoder->held_pts;

@@ -81,7 +81,7 @@ int  Wmv2DecodeSecondaryHeader(Wmv2 *w);
 // the frame and the primary+secondary headers have already been parsed. Motion-
 // compensates from the core's displayed planes (reference) into its building
 // planes and adds the inter/intra residual. Returns 0 on success, <0 on error.
-int  Wmv2DecodePFrame(Wmv2 *w, const unsigned char *frame, unsigned size);
+int  Wmv2DecodePFrame(Wmv2 *w);
 
 // Reset the motion-vector grid (called at I-frames: no MVs to predict from).
 void Wmv2ResetMotion(Wmv2 *w);

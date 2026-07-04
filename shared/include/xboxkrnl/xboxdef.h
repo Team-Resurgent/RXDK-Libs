@@ -17,7 +17,20 @@ typedef long long LONGLONG, *PLONGLONG;
 typedef unsigned char BYTE;
 typedef unsigned char UCHAR, *PUCHAR;
 typedef unsigned short USHORT, *PUSHORT, CSHORT;
-typedef unsigned short WORD, WCHAR, *PWSTR;
+typedef unsigned short WORD;
+// In C++, WCHAR must be the built-in `wchar_t` (16-bit here) so idiomatic Xbox
+// code like `const WCHAR s[] = L"..."` compiles -- L"" literals are wchar_t,
+// which is a distinct type from unsigned short in C++. This also matches real
+// winnt.h and this SDK's ntdef.h (both wchar_t in C++). The WCHAR APIs are
+// extern "C" and wchar_t is 16-bit, so the ABI is identical. In C, wchar_t is
+// already a 16-bit typedef and L"" matches unsigned short, so keep that (and
+// avoid needing <stddef.h> included before this early header).
+#ifdef __cplusplus
+typedef wchar_t        WCHAR;
+#else
+typedef unsigned short WCHAR;
+#endif
+typedef WCHAR *PWSTR;
 typedef unsigned int UINT, *PUINT, *LPUINT;
 typedef unsigned long DWORD, *PDWORD, *LPDWORD;
 typedef unsigned long ULONG, *PULONG;

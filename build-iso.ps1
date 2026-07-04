@@ -395,9 +395,9 @@ function Invoke-SampleDxt {
 
     Write-Host ''
     Write-Host ('==> warm-rebooting {0} to load the DXT' -f $XboxIp) -ForegroundColor Cyan
-    & $launch /rebootonly /x $XboxIp
+    & $launch -rebootonly -x $XboxIp
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "xbox-launch /rebootonly failed (exit $LASTEXITCODE). Reboot the console manually to load the DXT."
+        Write-Warning "xbox-launch -rebootonly failed (exit $LASTEXITCODE). Reboot the console manually to load the DXT."
     }
     else {
         Write-Host ('  DXT loaded from E:\dxt\{0}.dxt after reboot.' -f $Chosen.Target) -ForegroundColor Green
@@ -480,7 +480,7 @@ function Invoke-SampleDeploy {
     # waiting for a debugger -- so the app thread never runs (it just looks hung).
     # Stream the output through the cleaner so the title's debug strings read
     # plainly (the kit puts notify/debugstr/exec lines on stdout).
-    & $launch /go /dir $remoteDir /title $deployRemoteXbe /x $XboxIp /timeout $deployLaunchTimeoutMs |
+    & $launch -go -dir $remoteDir -title $deployRemoteXbe -x $XboxIp -timeout $deployLaunchTimeoutMs |
         ForEach-Object { Write-LaunchLine $_ }
     $code = $LASTEXITCODE
 
@@ -507,7 +507,7 @@ function Invoke-Watson {
     }
     $watson = Get-RxdkTool 'xbwatson.exe'
     Write-Host ('==> launching xbWatson on {0}' -f $XboxIp) -ForegroundColor Cyan
-    Start-Process -FilePath $watson -ArgumentList '/x', $XboxIp | Out-Null
+    Start-Process -FilePath $watson -ArgumentList '-x', $XboxIp | Out-Null
     Write-Host ('OK  xbWatson started for {0}' -f $XboxIp) -ForegroundColor Green
 }
 

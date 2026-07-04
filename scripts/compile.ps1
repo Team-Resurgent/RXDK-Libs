@@ -85,7 +85,11 @@ function Convert-SampleXbe {
     $bootDisc = $Iso -or $Deploy
     $xbe = & (Join-Path $PSScriptRoot 'Invoke-ImageBuild.ps1') -InputExe $pe -XbeDebug -NoLibWarn -BootDisc:$bootDisc -MountHdd:$MountHdd -FormatHdd:$FormatHdd -MaxImportThunks $MaxImportThunks -StackSize $StackSize
     if ($Iso) {
-        & (Join-Path $PSScriptRoot 'Invoke-XbeIsoBuild.ps1') -InputXbe $xbe
+        # Stage the sample's media\ (if any) into the image so D:\media\ assets
+        # (dsound-music's OGG, d3d8-textures' bitmaps) load from a self-contained
+        # ISO -- matching what a deploy xbcp's to the console.
+        $mediaDir = Join-Path $Root "samples\$SampleName\media"
+        & (Join-Path $PSScriptRoot 'Invoke-XbeIsoBuild.ps1') -InputXbe $xbe -MediaDir $mediaDir
     }
 }
 

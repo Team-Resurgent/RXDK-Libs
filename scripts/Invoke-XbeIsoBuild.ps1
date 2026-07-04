@@ -3,7 +3,12 @@ param(
     [Parameter(Mandatory)]
     [string]$InputXbe,
     [string]$OutputIso,
-    [string]$DefaultName = 'default.xbe'
+    [string]$DefaultName = 'default.xbe',
+    # Optional folder whose files are staged under \media in the image, so a
+    # title that loads assets from D:\media\ (dsound-music, d3d8-textures, ...)
+    # works from a self-contained ISO -- not just from a deploy (which xbcp's
+    # media\ to the console separately).
+    [string]$MediaDir
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,6 +36,12 @@ $staging = Join-Path ([IO.Path]::GetTempPath()) ("rxdk-xbe-iso-" + [Guid]::NewGu
 New-Item -ItemType Directory -Force -Path $staging | Out-Null
 try {
     Copy-Item -LiteralPath $inputFull -Destination (Join-Path $staging $DefaultName) -Force
+
+    if ($MediaDir -and (Test-Path -LiteralPath $MediaDir)) {
+        # Copy the whole folder in -- it lands as $staging\media (packed at \media).
+        Copy-Item -LiteralPath $MediaDir -Destination (Join-Path $staging 'media') -Recurse -Force
+        Write-Host "Staged media\ from $MediaDir"
+    }
 
     Write-Host "$xdvdfs pack $staging $outputFull"
     & $xdvdfs pack $staging $outputFull

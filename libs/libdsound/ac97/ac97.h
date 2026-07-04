@@ -174,7 +174,11 @@ namespace DirectSound
 
     #ifdef AC97_USE_MIO
 
-        return *(LPBYTE)dwRegister;
+        // RXDK: MMIO must be volatile. Without it, at -O the optimizer narrows a
+        // dword register read + bitmask (e.g. GLB_STATUS & 0x100) into a byte read
+        // of just the tested lane -- an illegal sub-width register access that
+        // faults on HW (and trips xemu's nabm_readb assert). See PeekRegister32.
+        return *(volatile BYTE *)dwRegister;
 
     #else // AC97_USE_MIO
 
@@ -189,7 +193,7 @@ namespace DirectSound
 
     #ifdef AC97_USE_MIO
 
-        *(LPBYTE)dwRegister = bValue;
+        *(volatile BYTE *)dwRegister = bValue;
 
     #else // AC97_USE_MIO
 
@@ -204,7 +208,7 @@ namespace DirectSound
 
     #ifdef AC97_USE_MIO
 
-        return *(LPWORD)dwRegister;
+        return *(volatile WORD *)dwRegister;
 
     #else // AC97_USE_MIO
 
@@ -219,7 +223,7 @@ namespace DirectSound
 
     #ifdef AC97_USE_MIO
 
-        *(LPWORD)dwRegister = wValue;
+        *(volatile WORD *)dwRegister = wValue;
 
     #else // AC97_USE_MIO
 
@@ -234,7 +238,7 @@ namespace DirectSound
 
     #ifdef AC97_USE_MIO
 
-        return *(LPDWORD)dwRegister;
+        return *(volatile DWORD *)dwRegister;
 
     #else // AC97_USE_MIO
 
@@ -249,7 +253,7 @@ namespace DirectSound
 
     #ifdef AC97_USE_MIO
 
-        *(LPDWORD)dwRegister = dwValue;
+        *(volatile DWORD *)dwRegister = dwValue;
 
     #else // AC97_USE_MIO
 

@@ -163,36 +163,31 @@ namespace DirectSound
 // Interlocked and/or operations
 //
 
+// RXDK: originally MSVC __asm { or/and word/dword ptr [ecx], dx/edx } -- which
+// hardcodes the __fastcall arg registers (ecx=dst, edx=src). That is correct
+// only when the helper is a real CALL; when clang INLINES it (at any -O) nothing
+// guarantees dst/src are in ecx/edx at the asm site, so it reads whatever garbage
+// is in those registers and corrupts memory (bug hunted to here: every -Os
+// libdsound crash was a bad `this`/member pointer surfacing at one of these). The
+// asm was never atomic (no LOCK), so plain C is equivalent and optimizes safely.
 static void __fastcall and(volatile unsigned short *dst, unsigned short src)
 {
-    __asm
-    {
-        and word ptr [ecx], dx
-    }
+    *dst &= src;
 }
 
 static void __fastcall or(volatile unsigned short *dst, unsigned short src)
 {
-    __asm
-    {
-        or word ptr [ecx], dx
-    }
+    *dst |= src;
 }
 
 static void __fastcall and(volatile unsigned long *dst, unsigned long src)
 {
-    __asm
-    {
-        and dword ptr [ecx], edx
-    }                        
+    *dst &= src;
 }
 
 static void __fastcall or(volatile unsigned long *dst, unsigned long src)
 {
-    __asm
-    {
-        or dword ptr [ecx], edx
-    }
+    *dst |= src;
 }
 
 #endif // __cplusplus

@@ -78,19 +78,32 @@ pub fn addAllObjects(
     var all_outputs = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
+    // mpintr.cpp (the NV2A interrupt module) documents itself "optimize this
+    // module for speed, not for size" -- the original MSVC #pragma optimize("t").
+    // That intent was lost in the port, so under ReleaseSmall (-Os) Clang's size
+    // optimizations miscompile its SoftwareMethod handler and the GPU scans out
+    // garbage from the second frame on (visible corruption; xemu pfifo_run_pusher
+    // assert). -O2 and -O0 are both correct. So honor the original intent: build
+    // mpintr for speed (-O2) in any release mode; Debug stays -O0.
+    const mpintr_opt: []const u8 = if (std.mem.eql(u8, opt_flag, "-O0")) opt_flag else "-O2";
+
     for (d3d8_sources.slices) |slice| {
-        const batch = compile_c.addBatch(b, .{
-            .name = b.fmt("d3d8-{s}", .{slice.name}),
-            .target = xbox_target.target_triple,
-            .out_subdir = b.fmt("d3d8/{s}", .{slice.name}),
-            .sources = slice.sources,
-            .flags = cppFlags(b),
-            .include_dirs = includeDirs(),
-            .opt_flag = opt_flag,
-            .is_cpp = slice.is_cpp,
-        });
-        all_outputs.appendSlice(allocator, batch.outputs) catch @panic("OOM");
-        all_steps.append(allocator, batch.step) catch @panic("OOM");
+        for (slice.sources) |src| {
+            const use_opt = if (std.mem.indexOf(u8, src, "mpintr") != null) mpintr_opt else opt_flag;
+            const one = allocator.dupe([]const u8, &.{src}) catch @panic("OOM");
+            const batch = compile_c.addBatch(b, .{
+                .name = b.fmt("d3d8-{s}", .{std.fs.path.stem(src)}),
+                .target = xbox_target.target_triple,
+                .out_subdir = b.fmt("d3d8/{s}", .{slice.name}),
+                .sources = one,
+                .flags = cppFlags(b),
+                .include_dirs = includeDirs(),
+                .opt_flag = use_opt,
+                .is_cpp = slice.is_cpp,
+            });
+            all_outputs.appendSlice(allocator, batch.outputs) catch @panic("OOM");
+            all_steps.append(allocator, batch.step) catch @panic("OOM");
+        }
     }
 
     const aggregate = b.allocator.create(std.Build.Step) catch @panic("OOM");

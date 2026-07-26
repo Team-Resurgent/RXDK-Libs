@@ -33,6 +33,8 @@ typedef struct D3DXVECTOR3 { float x, y, z; } D3DXVECTOR3;
 #include "xmvdemux.h"
 #include "xmvcore.h"
 #include "wmv2dec.h"
+#include "wmv2_x8.h"
+#include "decoder.h"    // bit walker + DecodeBaselineIFrame for the I-header path
 
 #define XMV_AUDIO_PACKETS 64   // in-flight audio packet ring depth
 
@@ -52,6 +54,11 @@ struct XMVDecoder {
     // WMV2 P-frame layer (increment 1: header parse + diagnostics).
     Wmv2          wmv2;
     int           wmv2_ok;
+
+    // X8 (XINTRA8 / J-frame) keyframe layer, used when the picture header's
+    // j_type bit is set.
+    Wmv2X8        x8;
+    int           x8_ok;
 
     // Audio (one enabled track for now).
     LPDIRECTSOUNDSTREAM  pStream;
@@ -177,6 +184,10 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
             dec->wmv2_ok = 1;
     }
 
+    // X8 keyframe layer: needs only the core geometry.
+    if (dec->core && Wmv2X8Init(&dec->x8, dec->core) == 0)
+        dec->x8_ok = 1;
+
     *ppDecoder = dec;
     return S_OK;
 }
@@ -189,6 +200,7 @@ void __stdcall XMVDecoder_CloseDecoder(XMVDecoder *pDecoder)
         IDirectSoundStream_Flush(pDecoder->pStream);
         IDirectSoundStream_Release(pDecoder->pStream);
     }
+    if (pDecoder->x8_ok)   Wmv2X8Free(&pDecoder->x8);
     if (pDecoder->wmv2_ok) Wmv2Free(&pDecoder->wmv2);
     if (pDecoder->core)    XmvCoreDestroy(pDecoder->core);
     if (pDecoder->scratch) free(pDecoder->scratch);
@@ -201,8 +213,12 @@ void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder *pDecoder,
 {
     if (!pDecoder || !pVideoDescriptor)
         return;
-    pVideoDescriptor->Width            = pDecoder->demux.width;
-    pVideoDescriptor->Height           = pDecoder->demux.height;
+    // Report the macroblock-aligned CODED size (e.g. 810x540 -> 816x544): the
+    // decoder renders whole macroblocks, so surfaces created from these
+    // dimensions are always large enough. Titles wanting the exact display
+    // size can crop the few padding pixels (e.g. via the overlay source rect).
+    pVideoDescriptor->Width            = (pDecoder->demux.width + 15) & ~15u;
+    pVideoDescriptor->Height           = (pDecoder->demux.height + 15) & ~15u;
     pVideoDescriptor->FramesPerSecond  = pDecoder->demux.fps;   // probed from frame PTS deltas
     pVideoDescriptor->AudioStreamCount = pDecoder->demux.audio_track_count;
 }
@@ -355,7 +371,29 @@ static int DecodeNextHeld(XMVDecoder *dec)
     // previous frame). No core (unsupported geometry) -> placeholder render.
     if (dec->core) {
         if (keyframe) {
-            XmvCoreDecodeKeyframe(dec->core, frame, size);   // decodes + swaps
+            if (dec->wmv2_ok && dec->x8_ok) {
+                // Parse the I picture header honoring the sequence options.
+                // The leak kernel's own header parse predates the j_type bit:
+                // when the extradata sets j_type_bit, not consuming it desyncs
+                // the whole keyframe.
+                XmvCoreSetupBits(dec->core, frame);
+                if (ReadOneBit(dec->core) == 0) {  // I-frame marker
+                    DWORD qscale;
+                    SkipBits(dec->core, 7);        // buffer fullness
+                    qscale = ReadBits(dec->core, 5);
+                    if (dec->wmv2.j_type_bit && ReadOneBit(dec->core)) {
+                        // X8 (XINTRA8 / J-frame) coded keyframe.
+                        Wmv2X8DecodeFrame(&dec->x8, (int)qscale,
+                                          dec->wmv2.loop_filter,
+                                          frame + ((size + 3) & ~3u));
+                    } else {
+                        DecodeBaselineIFrame(dec->core, qscale);
+                    }
+                    XmvCoreSwap(dec->core);        // promote building -> displayed
+                }
+            } else {
+                XmvCoreDecodeKeyframe(dec->core, frame, size);   // decodes + swaps
+            }
             if (dec->wmv2_ok) {
                 dec->wmv2.no_rounding = 1;   // I-frame: rounding base state
                 Wmv2ResetMotion(&dec->wmv2);

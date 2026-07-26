@@ -47,9 +47,9 @@ static int xmv_process_packet_header(XmvDemux *d)
     {
         int has_extradata = (vid & 0x80000000u) != 0;
 
-        if (d->video_data_size < d->audio_track_count * 4)
+        if (d->video_data_size < (uint32_t)d->audio_track_count * 4)
             return -1;
-        d->video_data_size -= d->audio_track_count * 4;
+        d->video_data_size -= (uint32_t)d->audio_track_count * 4;
 
         if (d->video_frame_count == 0)
             d->video_frame_count = 1;
@@ -115,8 +115,8 @@ static int xmv_fetch_new_packet(XmvDemux *d)
 
     if (d->this_packet_size < (uint32_t)(12 + d->audio_track_count * 4))
         return -1;
-    if (d->this_packet_offset + d->this_packet_size > d->file_size + 0)
-        ; // tolerate a short final packet; reads are individually bounds-checked
+    // A short final packet (offset + size past EOF) is tolerated; reads are
+    // individually bounds-checked.
 
     if (xmv_process_packet_header(d) != 0)
         return -1;

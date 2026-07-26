@@ -18,8 +18,10 @@
 // The leak decode context; full layout lives in decoder/decoder.h.
 typedef struct XmvVideoCore XmvVideoCore;
 
-// Create a decode core for a width x height video (both must be /16). xintra8 is
-// the sequence-level XINTRA8 I-picture coding flag (consumed by DecodeIFrame).
+// Create a decode core for a width x height video. Dimensions are aligned up
+// to 16 (macroblock) multiples internally; the rendered output covers the
+// aligned size, so the caller crops to the display size. xintra8 is the
+// sequence-level XINTRA8 I-picture coding flag (consumed by DecodeIFrame).
 // Returns NULL on allocation failure.
 XmvVideoCore *XmvCoreCreate(unsigned width, unsigned height, int xintra8_enabled);
 

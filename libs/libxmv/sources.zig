@@ -26,6 +26,9 @@ pub const xmv_c_sources = [_][]const u8{
     "libs/libxmv/src/wmv2_vlc.c",
     "libs/libxmv/src/wmv2dec.c",
     "libs/libxmv/src/wmv2_mb.c",
+    // X8 (XINTRA8 / J-frame) keyframe decode (FFmpeg intrax8 port): used when
+    // the sequence sets j_type_bit and an I-frame's j_type bit is 1.
+    "libs/libxmv/src/wmv2_x8.c",
     // Leak software video kernel (Phase 2 keyframe/I-frame decode). frontend.c +
     // backend.c carry MSVC __asm{} MMX (InverseDCT / YUV->YUY2) -- built >= -O2.
     "libs/libxmv/decoder/frontend.c",

@@ -24,8 +24,15 @@ XmvVideoCore *XmvCoreCreate(unsigned width, unsigned height, int xintra8_enabled
     DWORD aux_bytes, plane_bytes;
     BYTE *aux, *walk, *planes_raw, *planes;
 
-    if (width == 0 || height == 0 || (width % MACROBLOCK_SIZE) || (height % MACROBLOCK_SIZE))
+    if (width == 0 || height == 0)
         return NULL;
+
+    // WMV2 codes 16x16 macroblocks: align the coded planes up to macroblock
+    // multiples (XMV display sizes are often not /16, e.g. 810x540 -> coded
+    // 816x544). Every internal Width/Height use is a coded pitch/bound; the
+    // caller renders the coded frame and crops to the display size.
+    width  = (width  + MACROBLOCK_SIZE - 1) & ~(unsigned)(MACROBLOCK_SIZE - 1);
+    height = (height + MACROBLOCK_SIZE - 1) & ~(unsigned)(MACROBLOCK_SIZE - 1);
 
     c = (XmvVideoCore *)malloc(sizeof(*c));
     if (!c)

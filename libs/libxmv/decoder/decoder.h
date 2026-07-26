@@ -272,6 +272,14 @@ extern BYTE g_NormalZigzag[];
 
 void DecodeOneFrame(XmvVideoCore *pDecoder);
 
+/* RXDK: the baseline (non-X8) I-frame decoder, exposed so xmvplay.c can drive
+   it after parsing the picture header itself. The leak's DecodeIFrame header
+   parse predates the sequence j_type bit: when the extradata sets j_type_bit,
+   every I-frame carries a 1-bit j_type flag after the qscale field, and not
+   consuming it desyncs the whole keyframe. Decodes into the building planes;
+   the caller promotes with XmvCoreSwap. */
+void DecodeBaselineIFrame(XmvVideoCore *pDecoder, DWORD PictureQuantizerScale);
+
 /*
  * The rendering backend (backend.c)
  */

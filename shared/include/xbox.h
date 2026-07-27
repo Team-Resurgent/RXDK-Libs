@@ -845,6 +845,25 @@ XBOXAPI DWORD __attribute__((__stdcall__)) XWriteStatStore(IN LPCWSTR lpLocalUse
 XBOXAPI DWORD __attribute__((__stdcall__)) XClearStatStore(IN LPCWSTR lpLocalUserName);
 
 
+//========================================================================
+//  FATX volume format + on-disk volume metadata (libxapi k32/format.c)
+//========================================================================
+#define FAT_VOLUME_NAME_LENGTH   32
+#define FAT_ONLINE_DATA_LENGTH   2048
+
+typedef struct _FAT_VOLUME_METADATA {
+    ULONG Signature;
+    ULONG SerialNumber;
+    ULONG SectorsPerCluster;
+    ULONG RootDirFirstCluster;
+    WCHAR VolumeName[FAT_VOLUME_NAME_LENGTH];
+    UCHAR OnlineData[FAT_ONLINE_DATA_LENGTH];
+    // Unused space in the block is filled with 0xFF bytes.
+} FAT_VOLUME_METADATA, *PFAT_VOLUME_METADATA;
+
+XBOXAPI BOOL __attribute__((__stdcall__)) XapiFormatFATVolumeEx(IN POBJECT_STRING VolumePath, IN ULONG BytesPerCluster);
+
+
 #ifdef __cplusplus
 }
 #endif

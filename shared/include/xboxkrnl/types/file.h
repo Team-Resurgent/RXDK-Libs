@@ -416,11 +416,18 @@ typedef struct _OBJECT_ATTRIBUTES {
 #define OBJ_OPENIF                    0x00000080L
 #define OBJ_OPENLINK                  0x00000100L
 #define OBJ_VALID_ATTRIBUTES          0x000001F2L
-#define InitializeObjectAttributes(p, n, a, r, s) { \
-    (p)->RootDirectory = r; \
-    (p)->Attributes = a; \
-    (p)->ObjectName = n; \
+// The Xbox OBJECT_ATTRIBUTES has no SecurityDescriptor, so the XDK macro takes 4 args
+// (p, n, a, r). Desktop-NT code (and some of our own libs) passes a 5th. Accept both: the
+// body ignores the security descriptor either way.
+#define RXDK_IOA4(p, n, a, r) { \
+    (p)->RootDirectory = (r); \
+    (p)->Attributes = (a); \
+    (p)->ObjectName = (n); \
 }
+#define RXDK_IOA5(p, n, a, r, s) RXDK_IOA4(p, n, a, r)
+#define RXDK_IOA_PICK(_1, _2, _3, _4, _5, NAME, ...) NAME
+#define InitializeObjectAttributes(...) \
+    RXDK_IOA_PICK(__VA_ARGS__, RXDK_IOA5, RXDK_IOA4)(__VA_ARGS__)
 
 #define ObDosDevicesDirectory()        ((HANDLE)-3)
 #define ObWin32NamedObjectsDirectory() ((HANDLE)-4)

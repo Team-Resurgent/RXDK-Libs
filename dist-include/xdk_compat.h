@@ -132,3 +132,10 @@ typedef unsigned int   DWORD32;
 #ifndef _strnicmp
 #define _strnicmp strncasecmp
 #endif
+// MSVC printf-family spellings -> the C standard names picolibc provides.
+#ifndef _snprintf
+#define _snprintf  snprintf
+#endif
+#ifndef _vsnprintf
+#define _vsnprintf vsnprintf
+#endif

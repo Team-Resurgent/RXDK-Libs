@@ -215,6 +215,22 @@ typedef struct _RTL_CRITICAL_SECTION {
 #endif
 
 //
+// Standard access rights (the type-independent upper bits of an access mask).
+//
+#ifndef DELETE
+#define DELETE                   0x00010000L
+#define READ_CONTROL             0x00020000L
+#define WRITE_DAC                0x00040000L
+#define WRITE_OWNER              0x00080000L
+#define SYNCHRONIZE              0x00100000L
+#define STANDARD_RIGHTS_REQUIRED 0x000F0000L
+#define STANDARD_RIGHTS_READ     READ_CONTROL
+#define STANDARD_RIGHTS_WRITE    READ_CONTROL
+#define STANDARD_RIGHTS_EXECUTE  READ_CONTROL
+#define STANDARD_RIGHTS_ALL      0x001F0000L
+#endif
+
+//
 // File share modes (dwShareMode for CreateFile).
 //
 #ifndef FILE_SHARE_READ
@@ -225,6 +241,26 @@ typedef struct _RTL_CRITICAL_SECTION {
 #endif
 #ifndef FILE_SHARE_DELETE
 #define FILE_SHARE_DELETE 0x00000004
+#endif
+
+//
+// File-specific access rights (the low 9 bits of a file access mask).
+//
+#ifndef FILE_READ_DATA
+#define FILE_READ_DATA            0x0001  // file & pipe
+#define FILE_LIST_DIRECTORY       0x0001  // directory
+#define FILE_WRITE_DATA           0x0002  // file & pipe
+#define FILE_ADD_FILE             0x0002  // directory
+#define FILE_APPEND_DATA          0x0004  // file
+#define FILE_ADD_SUBDIRECTORY     0x0004  // directory
+#define FILE_CREATE_PIPE_INSTANCE 0x0004  // named pipe
+#define FILE_READ_EA              0x0008  // file & directory
+#define FILE_WRITE_EA             0x0010  // file & directory
+#define FILE_EXECUTE              0x0020  // file
+#define FILE_TRAVERSE             0x0020  // directory
+#define FILE_DELETE_CHILD         0x0040  // directory
+#define FILE_READ_ATTRIBUTES      0x0080  // all
+#define FILE_WRITE_ATTRIBUTES     0x0100  // all
 #endif
 
 typedef struct _XBE_SECTION_HEADER {

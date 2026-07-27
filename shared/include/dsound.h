@@ -574,6 +574,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBVOLUME_MIN               -10000          // Maximum valid attenuation value
 #define DSBVOLUME_MAX               0               // Minimum valid attenuation value
+#define DSBVOLUME_HW_MIN            -10000          // Minimum hardware-mix attenuation (full)
+#define DSBVOLUME_HW_MAX            0               // Maximum hardware-mix attenuation (none)
 
 //
 // Buffer headroom range 

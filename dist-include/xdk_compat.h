@@ -115,3 +115,20 @@ typedef unsigned int   DWORD32;
 #ifndef _MAX_PATH
 #define _MAX_PATH 260
 #endif
+
+// MSVC CRT case-insensitive string compares. picolibc provides the POSIX names
+// (strcasecmp / strncasecmp, in <strings.h>); a lot of legacy Windows/Xbox code uses the
+// MSVC spellings without the leading underscore. Map the common ones so ported titles build.
+#include <strings.h>
+#ifndef stricmp
+#define stricmp   strcasecmp
+#endif
+#ifndef strnicmp
+#define strnicmp  strncasecmp
+#endif
+#ifndef strcmpi
+#define strcmpi   strcasecmp
+#endif
+#ifndef _strnicmp
+#define _strnicmp strncasecmp
+#endif

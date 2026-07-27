@@ -45,6 +45,15 @@ NTSTATUS STDCALL HalReadSMBusValue
     OUT ULONG *DataValue
 );
 
+/* Tray-state values returned by HalReadSMCTrayState (SMC register 0x03). */
+#define SMC_TRAY_STATE_CLOSED         0x00
+#define SMC_TRAY_STATE_OPEN           0x10
+#define SMC_TRAY_STATE_UNLOADING      0x20
+#define SMC_TRAY_STATE_OPENING        0x30
+#define SMC_TRAY_STATE_NO_MEDIA       0x40
+#define SMC_TRAY_STATE_CLOSING        0x50
+#define SMC_TRAY_STATE_MEDIA_DETECT   0x60
+
 NTSTATUS STDCALL HalReadSMCTrayState
 (
     OUT PULONG TrayState,

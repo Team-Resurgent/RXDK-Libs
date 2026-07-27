@@ -197,6 +197,17 @@ VOID STDCALL RtlInitializeCriticalSection
     IN PRTL_CRITICAL_SECTION CriticalSection
 );
 
+/* The Xbox kernel exports no RtlDeleteCriticalSection (there is no such ordinal) — a
+   critical section owns no allocated resources, so teardown is a no-op. Provided inline
+   so code using it (and winbase.h's DeleteCriticalSection macro) compiles and links. */
+static __inline VOID RtlDeleteCriticalSection
+(
+    IN PRTL_CRITICAL_SECTION CriticalSection
+)
+{
+    (void)CriticalSection;
+}
+
 VOID STDCALL RtlInitUnicodeString
 (
     PUNICODE_STRING DestinationString,

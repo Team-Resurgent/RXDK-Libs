@@ -266,6 +266,9 @@ extern XPP_DEVICE_TYPE XDEVICE_TYPE_HIGHFIDELITY_MICROPHONE_TABLE;
 extern  XPP_DEVICE_TYPE            XDEVICE_TYPE_DEBUG_MOUSE_TABLE;
 #define XDEVICE_TYPE_DEBUG_MOUSE (&XDEVICE_TYPE_DEBUG_MOUSE_TABLE)
 
+extern  XPP_DEVICE_TYPE            XDEVICE_TYPE_IR_REMOTE_TABLE;
+#define XDEVICE_TYPE_IR_REMOTE   (&XDEVICE_TYPE_IR_REMOTE_TABLE)
+
 
 #define     XDEVICE_PORT0               0
 #define     XDEVICE_PORT1               1
@@ -491,6 +494,11 @@ XBOXAPI DWORD __attribute__((__stdcall__)) XMUSlotFromDriveLetterA(IN CHAR chDri
 #define MAX_MUNAME 32
 
 XBOXAPI DWORD __attribute__((__stdcall__)) XMUNameFromDriveLetter(IN CHAR chDrive, OUT LPWSTR lpName, IN UINT cchName);
+
+// Low-level Memory Unit device objects (libxapi usb/mu). Port/Slot addressed.
+NTSTATUS MU_CreateDeviceObject(IN ULONG Port, IN ULONG Slot, IN POBJECT_STRING DeviceName);
+VOID MU_CloseDeviceObject(IN ULONG Port, IN ULONG Slot);
+PDEVICE_OBJECT MU_GetExistingDeviceObject(IN ULONG Port, IN ULONG Slot);
 
 
 #define XINIT_MOUNT_UTILITY_DRIVE               0x00000001

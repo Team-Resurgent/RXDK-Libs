@@ -129,6 +129,9 @@ typedef unsigned int   DWORD32;
 #ifndef strcmpi
 #define strcmpi   strcasecmp
 #endif
+#ifndef _stricmp
+#define _stricmp strcasecmp
+#endif
 #ifndef _strnicmp
 #define _strnicmp strncasecmp
 #endif
@@ -138,4 +141,11 @@ typedef unsigned int   DWORD32;
 #endif
 #ifndef _vsnprintf
 #define _vsnprintf vsnprintf
+#endif
+// MSVC aligned allocation -> C11 aligned_alloc (note the swapped argument order) + free.
+#ifndef _aligned_malloc
+#define _aligned_malloc(size, alignment) aligned_alloc((alignment), (size))
+#endif
+#ifndef _aligned_free
+#define _aligned_free free
 #endif

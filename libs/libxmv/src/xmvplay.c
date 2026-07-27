@@ -223,6 +223,20 @@ void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder *pDecoder,
     pVideoDescriptor->AudioStreamCount = pDecoder->demux.audio_track_count;
 }
 
+void __stdcall XMVDecoder_GetAudioDescriptor(XMVDecoder *pDecoder, DWORD AudioStream,
+                                             XMVAUDIO_DESC *pAudioDescriptor)
+{
+    if (!pDecoder || !pAudioDescriptor ||
+        AudioStream >= pDecoder->demux.audio_track_count)
+        return;
+    const XmvAudioDesc *a = &pDecoder->demux.audio[AudioStream];
+    pAudioDescriptor->WaveFormat       = a->compression;      // WAVE_FORMAT tag (PCM / XBOX ADPCM)
+    pAudioDescriptor->ChannelCount     = a->channels;
+    pAudioDescriptor->SamplesPerSecond = a->sample_rate;
+    pAudioDescriptor->BitsPerSample    = a->bits_per_sample;
+    pAudioDescriptor->Flags            = a->flags;
+}
+
 // ---------------------------------------------------------------------------
 // Audio: create a DirectSound stream (PCM or XBOX ADPCM) for one track.
 // ---------------------------------------------------------------------------

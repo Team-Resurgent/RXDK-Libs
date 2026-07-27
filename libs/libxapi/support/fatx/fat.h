@@ -24,6 +24,9 @@ Abstract:
 // equal to MAX_MUNAME (from xbox.h).
 //
 
+#ifndef _FAT_VOLUME_METADATA_DEFINED
+#define _FAT_VOLUME_METADATA_DEFINED
+
 #define FAT_VOLUME_NAME_LENGTH          32
 
 //
@@ -47,6 +50,7 @@ typedef struct _FAT_VOLUME_METADATA {
     UCHAR OnlineData[FAT_ONLINE_DATA_LENGTH];
     // Unused space in the block is filled with 0xFF bytes.
 } FAT_VOLUME_METADATA, *PFAT_VOLUME_METADATA;
+#endif
 
 //
 // Define the volume signature value contained in the volume metadata block.

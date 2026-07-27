@@ -31,6 +31,7 @@ typedef wchar_t        WCHAR;
 typedef unsigned short WCHAR;
 #endif
 typedef WCHAR *PWSTR;
+typedef WCHAR *PWCHAR;
 typedef unsigned int UINT, *PUINT, *LPUINT;
 typedef unsigned long DWORD, *PDWORD, *LPDWORD;
 typedef unsigned long ULONG, *PULONG;
@@ -231,6 +232,23 @@ typedef struct _RTL_CRITICAL_SECTION {
 #endif
 
 //
+// Memory-protection constants (flProtect).
+//
+#ifndef PAGE_NOACCESS
+#define PAGE_NOACCESS          0x01
+#define PAGE_READONLY          0x02
+#define PAGE_READWRITE         0x04
+#define PAGE_WRITECOPY         0x08
+#define PAGE_EXECUTE           0x10
+#define PAGE_EXECUTE_READ      0x20
+#define PAGE_EXECUTE_READWRITE 0x40
+#define PAGE_EXECUTE_WRITECOPY 0x80
+#define PAGE_GUARD             0x100
+#define PAGE_NOCACHE           0x200
+#define PAGE_WRITECOMBINE      0x400
+#endif
+
+//
 // File share modes (dwShareMode for CreateFile).
 //
 #ifndef FILE_SHARE_READ
@@ -261,6 +279,10 @@ typedef struct _RTL_CRITICAL_SECTION {
 #define FILE_DELETE_CHILD         0x0040  // directory
 #define FILE_READ_ATTRIBUTES      0x0080  // all
 #define FILE_WRITE_ATTRIBUTES     0x0100  // all
+#define FILE_ALL_ACCESS      (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0x1FF)
+#define FILE_GENERIC_READ    (STANDARD_RIGHTS_READ | FILE_READ_DATA | FILE_READ_ATTRIBUTES | FILE_READ_EA | SYNCHRONIZE)
+#define FILE_GENERIC_WRITE   (STANDARD_RIGHTS_WRITE | FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES | FILE_WRITE_EA | FILE_APPEND_DATA | SYNCHRONIZE)
+#define FILE_GENERIC_EXECUTE (STANDARD_RIGHTS_EXECUTE | FILE_READ_ATTRIBUTES | FILE_EXECUTE | SYNCHRONIZE)
 #endif
 
 typedef struct _XBE_SECTION_HEADER {

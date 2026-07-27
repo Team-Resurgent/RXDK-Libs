@@ -5,7 +5,13 @@
 #define OUT
 #define UNALIGNED
 #define OPTIONAL
+/* extern for the MSVC IntelliSense parser so `XBAPI CONST <t> Var;` reads as a declaration,
+   not a definition (C++ gives const file-scope internal linkage). The clang build is unchanged. */
+#if defined(_MSC_VER) && !defined(__clang__)
+#define XBAPI              extern __declspec(dllimport)
+#else
 #define XBAPI              __declspec(dllimport)
+#endif
 #define STDCALL            __attribute__((__stdcall__))
 #define NTAPI              STDCALL
 #define CDECL              __attribute__((__cdecl__))

@@ -135,12 +135,29 @@ typedef unsigned int   DWORD32;
 #ifndef _strnicmp
 #define _strnicmp strncasecmp
 #endif
-// MSVC printf-family spellings -> the C standard names picolibc provides.
+#include <stdarg.h> // va_list, for the _vsnprintf/_vscprintf declarations below
+#include <stddef.h> // size_t
+// MSVC printf-family spellings. These are real functions (libs/libc/xbox/
+// msvc_printf.c), NOT aliases for snprintf/vsnprintf: the size argument means
+// something different. C99 treats it as the buffer size including the NUL and
+// always terminates; MSVC treats it as the maximum number of characters to
+// write and only terminates when the result fits in fewer. Aliasing them made
+// the common Xbox idiom
+//     len = _vsnprintf(NULL, 0, fmt, ap);
+//     _vsnprintf(buf, len, fmt, ap); buf[len] = 0;
+// drop its last character.
 #ifndef _snprintf
-#define _snprintf  snprintf
+int _snprintf(char *buffer, size_t count, const char *format, ...);
 #endif
 #ifndef _vsnprintf
-#define _vsnprintf vsnprintf
+int _vsnprintf(char *buffer, size_t count, const char *format, va_list ap);
+#endif
+// MSVC's portable way to ask how long a formatted string would be.
+#ifndef _scprintf
+int _scprintf(const char *format, ...);
+#endif
+#ifndef _vscprintf
+int _vscprintf(const char *format, va_list ap);
 #endif
 // MSVC aligned allocation -> C11 aligned_alloc (note the swapped argument order) + free.
 #ifndef _aligned_malloc

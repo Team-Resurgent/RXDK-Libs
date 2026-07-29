@@ -1557,37 +1557,46 @@ HRESULT WINAPI D3DDevice_SetRenderState_ParameterCheck(
 //------------------------------------------------------------------------------
 // D3DDevice_SetRenderState_Simple[_Fast]
 
+// This was originally hand-written MSVC assembly in a __declspec(naked)
+// function. It cannot stay that way under Clang: MSVC encodes
+// "g_Device.m_Pusher.m_pPut" as an absolute [imm32] operand needing no
+// register, but Clang materializes the base into a register it picks itself --
+// in practice a callee-saved one (ESI) -- and a naked function emits no
+// prologue to save it. The caller's ESI is then silently destroyed, so any
+// caller holding a live pointer there (e.g. a title caching
+// &D3D__TextureState across SetTextureStageState calls) writes through a
+// corrupt pointer. Because g_pDevice lands in that register, the stray writes
+// hit g_Device -- whose first member is m_Pusher.m_pPut -- leaving the
+// push-buffer pointer non-DWORD-aligned and wedging the GPU pusher.
+//
+// Written in C, the compiler honors the ABI and saves whatever it uses. The
+// emitted fast path is the same handful of instructions.
 extern "C"
 #if DBG
-_declspec(naked) void D3DFASTCALL D3DDevice_SetRenderState_Simple_Fast(
+void D3DFASTCALL D3DDevice_SetRenderState_Simple_Fast(
 #else
-_declspec(naked) void D3DFASTCALL D3DDevice_SetRenderState_Simple(
+void D3DFASTCALL D3DDevice_SetRenderState_Simple(
 #endif
     DWORD Method, // Already encoded with one-dword count
     DWORD Value)
-{ 
-    _asm
+{
+    CDevice* pDevice = g_pDevice;
+
+    for (;;)
     {
-        ; ecx = Method
-        ; edx = Value
+        PPUSH pEnd = pDevice->m_Pusher.m_pPut + 2;
 
-    Simple_Start:
-        mov     eax, g_Device.m_Pusher.m_pPut
-        add     eax, 8
-        cmp     eax, g_Device.m_Pusher.m_pThreshold
-        jae     Simple_MakeSpace
-        mov     [g_Device.m_Pusher.m_pPut], eax
-        mov     [eax-8], ecx
-        mov     [eax-4], edx
-        ret     
+        if (pEnd < pDevice->m_Pusher.m_pThreshold)
+        {
+            pDevice->m_Pusher.m_pPut = pEnd;
 
-    Simple_MakeSpace:
-        push    edx
-        push    ecx
-        call    MakeSpace
-        pop     ecx
-        pop     edx
-        jmp     Simple_Start
+            pEnd[-2] = Method;
+            pEnd[-1] = Value;
+
+            return;
+        }
+
+        MakeSpace();
     }
 }
 

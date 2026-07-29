@@ -2641,43 +2641,40 @@ void WINAPI D3DDevice_SetTexture(
 //------------------------------------------------------------------------------
 // D3DDevice_SwitchTexture[_Fast]
 
+// Was __declspec(naked) MSVC assembly; rewritten in C for the same reason as
+// D3DDevice_SetRenderState_Simple (see state.cpp): under Clang the reference to
+// g_Device.m_Pusher.m_pPut needs a base register, and a naked function saves
+// no callee-saved register, so the caller's ESI was silently clobbered.
 extern "C"
 #if DBG
-_declspec(naked) void D3DFASTCALL D3DDevice_SwitchTexture_Fast(
+void D3DFASTCALL D3DDevice_SwitchTexture_Fast(
 #else
-_declspec(naked) void D3DFASTCALL D3DDevice_SwitchTexture(
+void D3DFASTCALL D3DDevice_SwitchTexture(
 #endif
     DWORD Method, // Already encoded with two-dword count
     DWORD Data,
     DWORD Format)
-{ 
+{
     COUNT_API(API_D3DDEVICE_SWITCHTEXTURE);
 
-    _asm
+    CDevice* pDevice = g_pDevice;
+
+    for (;;)
     {
-        ; ecx = Method 
-        ; edx = Data 
-        ; [esp+4] = Format 
+        PPUSH pEnd = pDevice->m_Pusher.m_pPut + 3;
 
-    Switch_Start:
-        mov     eax, g_Device.m_Pusher.m_pPut
-        add     eax, 12
-        cmp     eax, g_Device.m_Pusher.m_pThreshold
-        jae     Switch_MakeSpace
-        mov     [g_Device.m_Pusher.m_pPut], eax
-        mov     [eax-12], ecx
-        mov     ecx, [esp+4]
-        mov     [eax-8], edx
-        mov     [eax-4], ecx
-        ret     4
+        if (pEnd < pDevice->m_Pusher.m_pThreshold)
+        {
+            pDevice->m_Pusher.m_pPut = pEnd;
 
-    Switch_MakeSpace:
-        push    edx
-        push    ecx
-        call    MakeSpace
-        pop     ecx
-        pop     edx
-        jmp     Switch_Start
+            pEnd[-3] = Method;
+            pEnd[-2] = Data;
+            pEnd[-1] = Format;
+
+            return;
+        }
+
+        MakeSpace();
     }
 }
 

@@ -10,6 +10,7 @@ int test_find(void);
 int test_path(void);
 int test_sync(void);
 int test_sync2(void);
+int test_cs_stress(void);
 int test_handle(void);
 int test_threads(void);
 int test_tls(void);

@@ -18,6 +18,7 @@ static const XapiSmokeTest kXapiSmokeTests[] = {
     { "path",        test_path },
     { "sync",        test_sync },
     { "sync2",       test_sync2 },
+    { "cs-stress",   test_cs_stress },
     { "handle",      test_handle },
     { "threads",     test_threads },
     { "tls",         test_tls },

@@ -107,35 +107,17 @@ CMcpxStream::~CMcpxStream
 )
 {
     DWORD                   i;
-    
-    DPF_ENTER();
 
+    DPF_ENTER();
 
     //
     // Make sure all deferred commands are dequeued
     //
 
-    //
-    // RXDK: CHECKSTUCK/COMPLETEPACKETS/FLUSH are flagged PERSIST, which means the
-    // DPC re-queues them after servicing. Unscheduling alone therefore loses a
-    // race during teardown: the command comes straight back, still carrying
-    // pCmd->pVoice == this, and the DPC then walks a list entry belonging to an
-    // object that is being destroyed. (Observed directly: the destructor removes
-    // every command, and Flush() a moment later still finds command 0 with
-    // SCHEDULED set.) Drop PERSIST first so nothing re-arms behind us, and hold
-    // off the idle handler across the whole sequence so the DPC cannot interleave.
-    //
-
-    m_pMcpxApu->BlockIdleHandler();
-
     for(i = 0; i < NUMELMS(m_aDeferredCommands); i++)
     {
-        m_aDeferredCommands[i].dwFlags &= ~MCPX_DEFERREDCMDF_PERSIST;
         RemoveDeferredCommand(i);
     }
-
-    m_pMcpxApu->UnblockIdleHandler();
-
 
     //
     // Flush the stream

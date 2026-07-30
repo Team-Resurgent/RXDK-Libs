@@ -1411,10 +1411,21 @@ CMcpxAPU::HandleIdleVoice
 
 #ifdef MCPX_DEBUG_STUCK_VOICES
 
-                pClient->m_dwIgnoredTraps = 0;
+                // RXDK: guard the NULL map slot. This runs at device IRQL from the
+                // idle-voice trap, and m_apVoiceMap[dwIdleVoice] legitimately goes
+                // NULL when the stream that owned the voice has been torn down
+                // (RemoveVoiceResources clears the slot) while the hardware still
+                // had an idle notification queued for it. The original guarded this
+                // only with an ASSERT, which is compiled out of retail, so a NULL
+                // slot wrote to m_dwIgnoredTraps (offset 0x88) -> bugcheck 0xA at
+                // IRQL 0x15. Dropping the trap is safe; it re-posts next frame.
+                if(pClient)
+                {
+                    pClient->m_dwIgnoredTraps = 0;
+                }
 
 #endif // MCPX_DEBUG_STUCK_VOICES
-        
+
                 //
                 // We don't want to remove the voice from the processing list until the
                 // last hardware voice is done processing.  Because the voices are always
@@ -1476,7 +1487,11 @@ CMcpxAPU::HandleIdleVoice
             pClient = m_apVoiceMap[dwIdleVoice];
             ASSERT(pClient);
 
-            pClient->m_dwIgnoredTraps++;
+            // RXDK: same NULL-slot guard as above (torn-down voice at device IRQL).
+            if(pClient)
+            {
+                pClient->m_dwIgnoredTraps++;
+            }
         }
 
 #endif // MCPX_DEBUG_STUCK_VOICES

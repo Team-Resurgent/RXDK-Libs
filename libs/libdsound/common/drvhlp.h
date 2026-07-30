@@ -168,26 +168,37 @@ namespace DirectSound
 // only when the helper is a real CALL; when clang INLINES it (at any -O) nothing
 // guarantees dst/src are in ecx/edx at the asm site, so it reads whatever garbage
 // is in those registers and corrupts memory (bug hunted to here: every -Os
-// libdsound crash was a bad `this`/member pointer surfacing at one of these). The
-// asm was never atomic (no LOCK), so plain C is equivalent and optimizes safely.
+// libdsound crash was a bad `this`/member pointer surfacing at one of these).
+//
+// Replacing the asm was right, but "the asm was never atomic (no LOCK), so plain
+// C is equivalent" was not: `or [mem], reg` is a SINGLE instruction, and an
+// interrupt cannot be taken inside one. On this uniprocessor it was therefore
+// atomic against the ISR without needing a LOCK prefix. Plain `*dst |= src`
+// compiles to load/or/store, and the APU interrupt can land between those three
+// and have its update dropped.
+//
+// These helpers maintain m_dwStatus, which the voice ISR and thread context both
+// write (the ISR clears VOICEOFF to say a voice really stopped). A lost bit there
+// strands the voice as still-active and wedges stream teardown. Use a real atomic
+// read-modify-write so the guarantee is explicit rather than incidental.
 static void __fastcall and(volatile unsigned short *dst, unsigned short src)
 {
-    *dst &= src;
+    __sync_fetch_and_and(dst, src);
 }
 
 static void __fastcall or(volatile unsigned short *dst, unsigned short src)
 {
-    *dst |= src;
+    __sync_fetch_and_or(dst, src);
 }
 
 static void __fastcall and(volatile unsigned long *dst, unsigned long src)
 {
-    *dst &= src;
+    __sync_fetch_and_and(dst, src);
 }
 
 static void __fastcall or(volatile unsigned long *dst, unsigned long src)
 {
-    *dst |= src;
+    __sync_fetch_and_or(dst, src);
 }
 
 #endif // __cplusplus

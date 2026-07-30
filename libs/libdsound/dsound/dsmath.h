@@ -65,13 +65,22 @@ namespace DirectSound
         float NormalizeVector2(D3DVECTOR *pdst, const D3DVECTOR *psrc);
         float NormalizeVector2(D3DVECTOR *pdst);
 
-        static _declspec(naked) long FloatToLong(float x)
+        // RXDK: was __declspec(naked) { cvttss2si eax,[esp+4]; ret 4 }. A naked
+        // body hardcodes both the argument's stack slot and the callee-pops-4
+        // (stdcall) return, so it is only correct if the call site is emitted
+        // with exactly that convention. Clang decides that independently, and a
+        // mismatch leaves ESP off by 4 on every call -- after which every
+        // frame-relative access in the caller reads the wrong slot. That is not
+        // hypothetical here: ConvertVolumeValues reaches this through the
+        // amplitude->volume helpers below, and was writing through a bogus
+        // pointer parameter.
+        //
+        // cvttss2si is just C's truncating float->long conversion, and the build
+        // targets pentium3 (SSE1), so the compiler emits the same instruction
+        // from plain C while getting the convention right by construction.
+        static long FloatToLong(float x)
         {
-            __asm
-            {
-                cvttss2si eax, [esp+4]
-                ret 4
-            }
+            return (long)x;
         }
 
         __inline double MagnitudeVector3(double x, double y, double z)

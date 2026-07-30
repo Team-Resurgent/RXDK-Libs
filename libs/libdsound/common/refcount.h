@@ -42,26 +42,36 @@ namespace DirectSound
         ASSERT(!m_dwRefCount);
     }
 
+    //
+    // These were plain ++/-- , which is only safe if every AddRef/Release runs
+    // under the global DirectSound lock. That does not hold here: the interrupt
+    // and DPC paths run at raised IRQL, where DirectSoundEnterCriticalSection
+    // deliberately takes no lock at all (it returns FALSE above PASSIVE_LEVEL).
+    // A lost decrement leaks the object; a doubled one frees it while still
+    // referenced, which reads back as a garbage 'this'. Make the counter atomic.
+    //
+
     __inline DWORD CRefCount::AddRef(void)
     {
         ASSERT(m_dwRefCount < ~0UL);
-        return ++m_dwRefCount;
+        return (DWORD)InterlockedIncrement((LONG *)&m_dwRefCount);
     }
 
     __inline DWORD CRefCount::Release(void)
     {
+        LONG lRefCount;
+
         ASSERT(m_dwRefCount);
 
-        if(m_dwRefCount > 0)
+        lRefCount = InterlockedDecrement((LONG *)&m_dwRefCount);
+
+        if(lRefCount <= 0)
         {
-            if(!--m_dwRefCount)
-            {
-                delete this;
-                return 0;
-            }
+            delete this;
+            return 0;
         }
 
-        return m_dwRefCount;
+        return (DWORD)lRefCount;
     }
 
     template <class type> type *__AddRef(type *p)

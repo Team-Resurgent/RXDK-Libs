@@ -444,10 +444,12 @@ CMcpxAPU::AllocateVoices
         bVoiceIndex = 0;
         nVoice = nFirstVoice;
 
-        while(bVoiceIndex < pVoice->m_bVoiceCount)
+        // RXDK: nVoice <= nLastVoice was only an ASSERT, i.e. unchecked in
+        // retail. If the free-voice counter ever disagrees with the map, this
+        // walks off the end of m_apVoiceMap and starts handing out (and writing
+        // to) slots past the array.
+        while(bVoiceIndex < pVoice->m_bVoiceCount && nVoice <= nLastVoice)
         {
-            ASSERT(nVoice <= nLastVoice);
-
             if(!m_apVoiceMap[nVoice])
             {
                 DPF_INFO("Voice client %x allocated hardware voice %x", pVoice, nVoice);
@@ -525,9 +527,36 @@ CMcpxAPU::FreeVoices
     {
         dwVoiceIndex = (DWORD)pVoice->m_ahVoices[i];
         pVoice->m_ahVoices[i] = MCPX_VOICE_HANDLE_INVALID;
-        
-        ASSERT(dwVoiceIndex < MCPX_HW_MAX_VOICES);
-        ASSERT(m_apVoiceMap[dwVoiceIndex] == pVoice);
+
+        //
+        // RXDK: both of these were ASSERT-only, i.e. absent from retail, and
+        // both matter.
+        //
+        // An unallocated slot holds MCPX_VOICE_HANDLE_INVALID, which as a DWORD
+        // index runs off the end of m_apVoiceMap and writes over whatever member
+        // follows it.
+        //
+        // The ownership test is the important one: if this handle has already
+        // been freed and handed to another voice client, clearing the map entry
+        // steals a voice that is currently in use -- observed as a still-playing
+        // music stream going silent the moment an unrelated short sound was torn
+        // down, leaving the APU with a voice no client owns.
+        //
+        // Skipping is correct in both cases: the handle has been cleared above,
+        // so this client no longer claims it either way. Only give the voice back
+        // to the free pool when we really were the owner, or the counts drift.
+        //
+
+        if(dwVoiceIndex >= MCPX_HW_MAX_VOICES)
+        {
+            continue;
+        }
+
+        if(m_apVoiceMap[dwVoiceIndex] != pVoice)
+        {
+            DPF_ERROR("Voice %x is no longer owned by client %x -- not freeing", dwVoiceIndex, pVoice);
+            continue;
+        }
 
         m_apVoiceMap[dwVoiceIndex] = NULL;
 
@@ -576,6 +605,10 @@ CMcpxAPU::FreeVoices
  ****************************************************************************/
 
 #undef DPF_FNAME
+/* RXDK DIAGNOSTIC: are APU interrupts actually arriving? */
+extern "C" {
+}
+
 #define DPF_FNAME "CMcpxAPU::ServiceApuInterrupt"
 
 BOOL
@@ -586,6 +619,7 @@ CMcpxAPU::ServiceApuInterrupt
 {
     R_INTR                  rInterruptStatus;
     BOOL                    fServiced;
+
 
     //
     // Get the pending interrupt
@@ -1388,7 +1422,20 @@ CMcpxAPU::HandleIdleVoice
                 // should be the last one to finish.
                 //
 
-                if(dwIdleVoice == (DWORD)pClient->m_ahVoices[pClient->m_bVoiceCount - 1])
+                //
+                // RXDK: pClient must be checked here. The only guard upstream is
+                // an ASSERT, which is compiled out of retail, so a NULL map slot
+                // is dereferenced -- at device IRQL, where it bugchecks 0xA
+                // (referencing NULL + a member offset) rather than faulting
+                // cleanly. The slot legitimately goes NULL when a stream is torn
+                // down while the hardware still has an idle notification queued
+                // for its voice. Dropping the message is safe and is what this
+                // routine already does for a bad voice index above: it will be
+                // posted again on the next frame.
+                //
+
+                if(pClient &&
+                   dwIdleVoice == (DWORD)pClient->m_ahVoices[pClient->m_bVoiceCount - 1])
                 {
                     if(IsEntryInList(&pClient->m_leActiveVoice))
                     {

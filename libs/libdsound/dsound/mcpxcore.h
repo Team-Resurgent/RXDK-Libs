@@ -46,8 +46,15 @@ DEFINETYPE(MCPX_VOICE_HANDLE, WORD);
 #define MCPX_REF_SHIFT(drf) \
     (0 ? drf)
 
+// RXDK: shift in 64-bit. For a full-width field (e.g. 31:0) the width is 32, and
+// the original `1 << 32` is shift-width UB. MSVC constant-folded it to 0 (mask
+// 0xFFFFFFFF, correct); clang folds the UB differently and produces a garbage mask,
+// which mis-decoded NV_PAPU_FEDECPARAM_VALUE (31:0) -- the SE2FE_IDLE_VOICE voice
+// index -- so every idle trap was misrouted and every voice hung on the 5000ms
+// stuck-voice timeout. 1ULL << 32 is well-defined; result is identical for all
+// widths < 32.
 #define MCPX_REF_MASK(drf) \
-    ((1 << ((1 ? drf) - (0 ? drf) + 1)) - 1)
+    ((DWORD)((1ULL << ((1 ? drf) - (0 ? drf) + 1)) - 1ULL))
 
 #define MCPX_CLEAR_REG_VALUE(arg, drf) \
     ((arg) & ~(MCPX_REF_MASK(drf) << MCPX_REF_SHIFT(drf)))

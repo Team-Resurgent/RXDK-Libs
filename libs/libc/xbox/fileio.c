@@ -165,10 +165,13 @@ const char *__rxdk_fd_path(int fd)
 
 static long long file_size(HANDLE h)
 {
-    FILE_STANDARD_INFORMATION info;
+    /* The Xbox kernel rejects NtQueryInformationFile(FileStandardInformation)
+     * with STATUS_INVALID_PARAMETER. Use FileNetworkOpenInformation instead --
+     * it carries EndOfFile and is the same class retail GetFileSizeEx uses. */
+    FILE_NETWORK_OPEN_INFORMATION info;
     IO_STATUS_BLOCK iosb;
     NTSTATUS st = NtQueryInformationFile(h, &iosb, &info, sizeof(info),
-                                         FileStandardInformation);
+                                         FileNetworkOpenInformation);
     if (!NT_SUCCESS(st))
         return -1;
     return (long long)info.EndOfFile.QuadPart;
@@ -543,8 +546,7 @@ static void set_stat(struct stat *st, long long size, unsigned long attrs)
 int fstat(int fd, struct stat *st)
 {
     rxdk_ofd *o = get_fd(fd);
-    FILE_STANDARD_INFORMATION sinfo;
-    FILE_BASIC_INFORMATION binfo;
+    FILE_NETWORK_OPEN_INFORMATION ninfo;
     IO_STATUS_BLOCK iosb;
     long long size = 0;
     unsigned long attrs = 0;
@@ -557,12 +559,14 @@ int fstat(int fd, struct stat *st)
         return 0;
     }
 
-    if (NT_SUCCESS(NtQueryInformationFile(o->handle, &iosb, &sinfo,
-                                          sizeof(sinfo), FileStandardInformation)))
-        size = (long long)sinfo.EndOfFile.QuadPart;
-    if (NT_SUCCESS(NtQueryInformationFile(o->handle, &iosb, &binfo,
-                                          sizeof(binfo), FileBasicInformation)))
-        attrs = binfo.FileAttributes;
+    /* FileStandardInformation/FileBasicInformation are rejected by the Xbox
+     * kernel (STATUS_INVALID_PARAMETER); FileNetworkOpenInformation returns both
+     * the size and the attributes in one supported query. */
+    if (NT_SUCCESS(NtQueryInformationFile(o->handle, &iosb, &ninfo,
+                                          sizeof(ninfo), FileNetworkOpenInformation))) {
+        size = (long long)ninfo.EndOfFile.QuadPart;
+        attrs = ninfo.FileAttributes;
+    }
 
     set_stat(st, size, attrs);
     return 0;

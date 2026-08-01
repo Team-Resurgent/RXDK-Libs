@@ -45,6 +45,7 @@ struct XMVDecoder {
     DWORD     scratch_size;
     XmvDemux  demux;
     DWORD     frames_shown;
+    int       loop;            // XMVFLAG_FULL_LOOP: rewind + continue at EOF
 
     // Phase 2: leak software video kernel (I-frame/keyframe decode). NULL if the
     // geometry is unsupported (not /16) -> falls back to the placeholder render.
@@ -134,7 +135,6 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
     HRESULT     hr;
     int         rc;
 
-    (void)Flags;
     if (!szFileName || !ppDecoder)
         return E_INVALIDARG;
     *ppDecoder = NULL;
@@ -143,6 +143,7 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
     if (!dec)
         return E_OUTOFMEMORY;
     memset(dec, 0, sizeof(*dec));
+    dec->loop = (Flags & XMVFLAG_FULL_LOOP) != 0;
 
     hr = LoadWholeFile(szFileName, &dec->file, &dec->file_size);
     if (FAILED(hr)) {
@@ -375,8 +376,18 @@ static int DecodeNextHeld(XMVDecoder *dec)
     int         keyframe = 0, rc;
 
     rc = XmvDemuxNextVideoFrame(&dec->demux, &frame, &size, &keyframe, &pts);
+    if (rc == 0 && dec->loop) {
+        // XMVFLAG_FULL_LOOP: rewind by re-opening the demuxer over the same in-memory
+        // file image, reset the decode + presentation-clock state, and pull the first
+        // frame again so the title never sees end-of-stream.
+        XmvDemuxOpen(&dec->demux, dec->file, dec->file_size, dec->scratch, dec->scratch_size);
+        dec->have_keyframe = 0;
+        dec->clock_started = 0;
+        dec->frames_shown  = 0;
+        rc = XmvDemuxNextVideoFrame(&dec->demux, &frame, &size, &keyframe, &pts);
+    }
     if (rc <= 0)
-        return rc;   // 0 = EOF, <0 = error
+        return rc;   // 0 = EOF (no loop), <0 = error
 
     // Full decode. Keyframes go through the leak I-frame kernel; P-frames through
     // the ported WMV2 path (header parse + MB loop + motion comp + residual),

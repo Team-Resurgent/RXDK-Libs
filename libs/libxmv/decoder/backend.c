@@ -158,6 +158,61 @@ void RenderToYUY2
 }
 
 /*
+ * Convert our internal YUV 4:2:0 planes into linear A8R8G8B8 (D3DFMT_LIN_A8R8G8B8),
+ * a full render of the coded frame (the caller crops to the display size). BT.601
+ * limited-range coefficients. Plain C on purpose: titles that texture the video as
+ * ARGB (e.g. PrometheOS's xmvPlayer) need this format, and the MMX RenderToYUY2 path
+ * above uses inline __asm that doesn't survive the clang toolchain port.
+ */
+
+static
+void RenderToARGB
+(
+    DWORD MBWidth,
+    DWORD MBHeight,
+    BYTE *pY,
+    BYTE *pU,
+    BYTE *pV,
+    BYTE *pDestination,
+    DWORD DestinationPitch
+)
+{
+    DWORD width   = MBWidth  * MACROBLOCK_SIZE;   // coded luma width  (pY pitch)
+    DWORD height  = MBHeight * MACROBLOCK_SIZE;   // coded luma height
+    DWORD uvWidth = MBWidth  * BLOCK_SIZE;        // chroma width (pU/pV pitch, 4:2:0)
+    DWORD x, y;
+
+    for (y = 0; y < height; y++)
+    {
+        BYTE       *dst  = pDestination + y * DestinationPitch;
+        const BYTE *yrow = pY + y * width;
+        const BYTE *urow = pU + (y >> 1) * uvWidth;
+        const BYTE *vrow = pV + (y >> 1) * uvWidth;
+
+        for (x = 0; x < width; x++)
+        {
+            int C = (int)yrow[x]      - 16;
+            int D = (int)urow[x >> 1] - 128;
+            int E = (int)vrow[x >> 1] - 128;
+
+            int R = (298 * C + 409 * E + 128) >> 8;
+            int G = (298 * C - 100 * D - 208 * E + 128) >> 8;
+            int B = (298 * C + 516 * D + 128) >> 8;
+
+            if (R < 0) R = 0; else if (R > 255) R = 255;
+            if (G < 0) G = 0; else if (G > 255) G = 255;
+            if (B < 0) B = 0; else if (B > 255) B = 255;
+
+            // A8R8G8B8 in memory (little-endian) is B, G, R, A.
+            dst[x * 4 + 0] = (BYTE)B;
+            dst[x * 4 + 1] = (BYTE)G;
+            dst[x * 4 + 2] = (BYTE)R;
+            dst[x * 4 + 3] = 0xFF;
+        }
+    }
+}
+
+/*
  * Converts the current YUV buffer into the format we want to display.
  */
 
@@ -186,12 +241,24 @@ void RenderBitmap
     {
     case D3DFMT_YUY2:
 
-        RenderToYUY2(pDecoder->MBWidth, 
-                     pDecoder->MBHeight, 
-                     pDecoder->pYDisplayed, 
-                     pDecoder->pUDisplayed, 
+        RenderToYUY2(pDecoder->MBWidth,
+                     pDecoder->MBHeight,
+                     pDecoder->pYDisplayed,
+                     pDecoder->pUDisplayed,
                      pDecoder->pVDisplayed,
-                     Rect.pBits, 
+                     Rect.pBits,
+                     Rect.Pitch);
+
+        break;
+
+    case D3DFMT_LIN_A8R8G8B8:
+
+        RenderToARGB(pDecoder->MBWidth,
+                     pDecoder->MBHeight,
+                     pDecoder->pYDisplayed,
+                     pDecoder->pUDisplayed,
+                     pDecoder->pVDisplayed,
+                     Rect.pBits,
                      Rect.Pitch);
 
         break;

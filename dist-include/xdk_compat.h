@@ -176,3 +176,40 @@ int _vscprintf(const char *format, va_list ap);
 #ifndef _aligned_free
 #define _aligned_free free
 #endif
+
+// Legacy MSVC/XDK 2-argument swprintf(dst, fmt, ...) -- the pre-C99 form with no
+// size argument. Picolibc declares only the C99 swprintf(dst, n, fmt, ...), so
+// XDK title code that calls the 2-arg form (e.g. the sample framework's
+// on-screen text: swprintf(buf, L"%.2f", v)) fails to compile. Provide a C++
+// overload forwarding to vswprintf with an unbounded size. Overload resolution
+// selects this only when the 2nd argument is a wide string (not a size_t), so
+// the C99 3-arg form still binds to the real picolibc swprintf. C++ only: the
+// C99 swprintf keeps C linkage, this overload has C++ linkage (a name may have
+// at most one C-linkage function, which is satisfied).
+#ifdef __cplusplus
+#include <wchar.h>
+#include <stdarg.h>
+inline int swprintf(wchar_t *_Dst, const wchar_t *_Fmt, ...)
+{
+    va_list _Args;
+    va_start(_Args, _Fmt);
+    int _Ret = vswprintf(_Dst, (size_t)-1, _Fmt, _Args);
+    va_end(_Args);
+    return _Ret;
+}
+#endif
+
+// D3D performance-instrumentation hook (XDK D3D8Perf.h, pulled implicitly by the
+// XDK's d3d8.h). RXDK has no PIX-style perf capture, so QueryRepeatFrame always
+// reports "don't repeat this frame" (FALSE). The XDK sample framework
+// (Common/XBApp.cpp) calls it once per frame.
+#if defined(__cplusplus) && !defined(_D3D8PERF_H_) && !defined(_RXDK_D3DPERF_SHIM)
+#define _RXDK_D3DPERF_SHIM
+inline BOOL WINAPI D3DPERF_QueryRepeatFrame(void) { return FALSE; }
+#endif
+
+// MAXULONG_PTR (basetsd.h) — largest ULONG_PTR value, used as a sentinel by a few
+// XDK samples. ULONG_PTR is 32-bit on the Xbox target.
+#ifndef MAXULONG_PTR
+#define MAXULONG_PTR (~(ULONG_PTR)0)
+#endif

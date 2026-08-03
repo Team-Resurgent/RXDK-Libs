@@ -15,6 +15,7 @@ const libxmv_pkg = @import("libs/libxmv/build.zig");
 const libxfont_pkg = @import("libs/libxfont/build.zig");
 const libxact_pkg = @import("libs/libxact/build.zig");
 const libxonline_pkg = @import("libs/libxonline/build.zig");
+const libdmusic_pkg = @import("libs/libdmusic/build.zig");
 const libkernel_pkg = @import("libs/libkernel/build.zig");
 const libxbdm_pkg = @import("libs/libxbdm/build.zig");
 const compile_c = @import("build/compile_c.zig");
@@ -290,6 +291,22 @@ pub fn build(b: *std.Build) void {
     install_libxonline.step.dependOn(libxonline.step);
     const xonline_step = b.step("libxonline", "Build libxonline.lib (Xbox Live client)");
     xonline_step.dependOn(&install_libxonline.step);
+
+    // libdmusic: the Xbox DirectMusic runtime (dmusic.lib), ported from the leak
+    // (private/windows/directx/dmusic). Title-side, COM-heavy interactive-music
+    // stack -- software synthesizer (dmsynth) + performance/segment/track engine
+    // (dmime) + loader + band/style/compos/script components -- that outputs audio
+    // through libdsound's public API. Not in the default install (archives fine;
+    // undefined externals only surface at title link).
+    const dmusic_objs = libdmusic_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var dmusic_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    dmusic_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    dmusic_deps.append(b.allocator, dmusic_objs.step) catch @panic("OOM");
+    const libdmusic = coff_lib.pack(b, "libdmusic", dmusic_objs.outputs, dmusic_deps.items);
+    const install_libdmusic = b.addInstallFile(libdmusic.path, "lib/libdmusic.lib");
+    install_libdmusic.step.dependOn(libdmusic.step);
+    const dmusic_step = b.step("libdmusic", "Build libdmusic.lib (Xbox DirectMusic runtime)");
+    dmusic_step.dependOn(&install_libdmusic.step);
 
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);

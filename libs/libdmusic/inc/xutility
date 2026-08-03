@@ -1,0 +1,46 @@
+#ifndef _RXDK_DMUSIC_XUTILITY_
+#define _RXDK_DMUSIC_XUTILITY_
+/*
+ * Minimal <xutility> for the Xbox DirectMusic port. The MSVC STL header the
+ * leak pulls (via each pch, and used bare in shared/miscutil.h) only provides,
+ * as far as DirectMusic needs, std::min / std::max / std::swap. RXDK builds
+ * -nostdinc++ with no libc++ on the include path, so provide just those in
+ * namespace std. C++-only.
+ */
+#ifdef __cplusplus
+/* windef.h defines min/max as function-like macros, which would mangle the
+   template signatures below. DirectMusic uses std::min/std::max explicitly, so
+   drop the macros. */
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+namespace std {
+
+template<class T> inline const T& min(const T& a, const T& b) { return b < a ? b : a; }
+template<class T> inline const T& max(const T& a, const T& b) { return a < b ? b : a; }
+template<class T, class Cmp> inline const T& min(const T& a, const T& b, Cmp c) { return c(b, a) ? b : a; }
+template<class T, class Cmp> inline const T& max(const T& a, const T& b, Cmp c) { return c(a, b) ? b : a; }
+template<class T> inline void swap(T& a, T& b) { T t = a; a = b; b = t; }
+
+// MSVC STL internal spellings the leak uses directly (e.g. smartref.cpp).
+template<class T> inline const T& _cpp_min(const T& a, const T& b) { return b < a ? b : a; }
+template<class T> inline const T& _cpp_max(const T& a, const T& b) { return a < b ? b : a; }
+
+} // namespace std
+
+/* Restore the windef-style min/max function macros for the DirectMusic sites
+   that use bare min()/max(). These are function-like macros, so they stay
+   dormant in `std::min<T>(...)` (the token after `min` is `<`, not `(`), leaving
+   the templates above to serve the explicit-template-argument callers. */
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+#endif /* __cplusplus */
+
+#endif /* _RXDK_DMUSIC_XUTILITY_ */

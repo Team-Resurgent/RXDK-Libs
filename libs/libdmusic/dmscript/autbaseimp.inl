@@ -160,7 +160,9 @@ CAutBaseImp<T_derived, T_ITarget, T_piid>::Invoke(
 
 	// Call the handler
 
-	for (const DispatchHandlerEntry<T_derived> *pdhe = T_derived::ms_Handlers;
+	// RXDK/clang: hoist pdhe (used after the loop); MSVC for-scope leak.
+	const DispatchHandlerEntry<T_derived> *pdhe;
+	for (pdhe = T_derived::ms_Handlers;
 			pdhe->dispid != DISPID_UNKNOWN && pdhe->dispid != dispIdMember;
 			++pdhe)
 	{

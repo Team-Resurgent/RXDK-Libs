@@ -384,7 +384,8 @@ void Lexer::err(LexErr iErr)
 	// copy error into the buffer
 	const char *psz = s_rgpszErrorText[iErr];
 	const char *pszMax = m_szStr + g_iMaxBuffer - 1;
-	for (char *pszDest = m_szStr; pszDest < pszMax && *psz; *pszDest++ = *psz++)
+	char *pszDest; // RXDK/clang: hoisted (used after loop); MSVC for-scope leak.
+	for (pszDest = m_szStr; pszDest < pszMax && *psz; *pszDest++ = *psz++)
 	{}
 
 	assert(!*psz); // since this function is used with hard-coded strings we shouldn't ever get one too long

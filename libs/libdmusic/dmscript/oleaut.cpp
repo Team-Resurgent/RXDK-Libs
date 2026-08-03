@@ -327,7 +327,7 @@ DMS_VariantChangeType(
                 if( pvarSrc->vt == VT_EMPTY )
                     wsz[0] = L'\0';
                 else
-                    swprintf( wsz, L"%d", pvarSrc->lVal );
+                    swprintf( wsz, 12, L"%d", pvarSrc->lVal ); // RXDK: picolibc swprintf is C99 (size arg).
 
                 pvargDest->vt = VT_BSTR;
                 pvargDest->bstrVal = DMS_SysAllocString( fUseOleAut, wsz );

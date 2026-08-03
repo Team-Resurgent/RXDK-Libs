@@ -36,8 +36,8 @@ const AutDispatchMethod CAutDirectMusicAudioPathConfig::ms_Methods[] =
 
 const DispatchHandlerEntry<CAutDirectMusicAudioPathConfig> CAutDirectMusicAudioPathConfig::ms_Handlers[] =
 	{
-		{ DMPDISP_Load, Load },
-		{ DMPDISP_Create, Create },
+		{ DMPDISP_Load, &CAutDirectMusicAudioPathConfig::Load },
+		{ DMPDISP_Create, &CAutDirectMusicAudioPathConfig::Create },
 		{ DISPID_UNKNOWN }
 	};
 

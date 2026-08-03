@@ -1,0 +1,26 @@
+#ifndef _RXDK_DMUSIC_LIMITS_
+#define _RXDK_DMUSIC_LIMITS_
+/*
+ * Minimal <limits> for the Xbox DirectMusic port (dmscript). RXDK builds
+ * -nostdinc++ with no libc++; dmscript only needs std::numeric_limits<T>::max()
+ * / min(). Back it with picolibc's <limits.h> integer bounds.
+ */
+#ifdef __cplusplus
+#include <limits.h>
+namespace std {
+template<class T> struct numeric_limits {
+    static T max() { return T(); }
+    static T min() { return T(); }
+};
+template<> struct numeric_limits<char>           { static char           max(){return CHAR_MAX;}  static char           min(){return CHAR_MIN;}  };
+template<> struct numeric_limits<signed char>    { static signed char    max(){return SCHAR_MAX;} static signed char    min(){return SCHAR_MIN;} };
+template<> struct numeric_limits<unsigned char>  { static unsigned char  max(){return UCHAR_MAX;} static unsigned char  min(){return 0;}         };
+template<> struct numeric_limits<short>          { static short          max(){return SHRT_MAX;}  static short          min(){return SHRT_MIN;}  };
+template<> struct numeric_limits<unsigned short> { static unsigned short max(){return USHRT_MAX;} static unsigned short min(){return 0;}         };
+template<> struct numeric_limits<int>            { static int            max(){return INT_MAX;}   static int            min(){return INT_MIN;}   };
+template<> struct numeric_limits<unsigned int>   { static unsigned int   max(){return UINT_MAX;}  static unsigned int   min(){return 0;}         };
+template<> struct numeric_limits<long>           { static long           max(){return LONG_MAX;}  static long           min(){return LONG_MIN;}  };
+template<> struct numeric_limits<unsigned long>  { static unsigned long  max(){return ULONG_MAX;} static unsigned long  min(){return 0;}         };
+} // namespace std
+#endif
+#endif

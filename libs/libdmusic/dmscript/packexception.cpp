@@ -9,7 +9,7 @@
 
 #include "pchscript.h"
 
-const WCHAR g_wszDescriptionFileSeparator[] = L"»"; // magic character for separating the filename, line, and description
+const WCHAR g_wszDescriptionFileSeparator[] = L"\xBB"; // magic character for separating the filename, line, and description
 const WCHAR g_wchDescriptionFileSeparator = g_wszDescriptionFileSeparator[0];
 
 void SeparateDescriptionFileAndLine(BSTR bstrDescription, const WCHAR **ppwszFilename, const WCHAR **ppwszLine, const WCHAR **ppwszDescription)
@@ -28,7 +28,7 @@ void SeparateDescriptionFileAndLine(BSTR bstrDescription, const WCHAR **ppwszFil
         return;
 
     // String looks like this:
-    //                             MyScript.spt»23»Description of the error
+    //                             MyScript.spt\xBB23\xBBDescription of the error
     // pExcepInfo->bstrDescription-^  pwszLine-^  ^-pwszDescription
 
     *ppwszFilename = bstrDescription;
@@ -115,7 +115,7 @@ void UnpackExceptionFileAndLine(BSTR bstrDescription, DMUS_SCRIPT_ERRORINFO *pEr
         SeparateDescriptionFileAndLine(bstrDescription, &pwszDescrFilename, &pwszDescrLine, &pwszDescrDescription);
 
         // String looks like this:
-        //                             CoolScriptFile.spt»23»Description of the error
+        //                             CoolScriptFile.spt\xBB23\xBBDescription of the error
         //           pwszDescrFilename-^    pwszDescrLine-^  ^-pwszDescrDescription
         // Except that if these weren't found then they point to a separate empty string.
 

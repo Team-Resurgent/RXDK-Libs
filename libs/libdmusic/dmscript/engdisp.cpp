@@ -372,7 +372,8 @@ EngineDispatch::GetVarDesc(
 	// Count until we find the global (non-dispatch-based) variable at the index position.
 	UINT cFuncs = 0;
 	Variables::index iLastGlobal = m_script.globals.Next();
-	for (Variables::index  iGlobal = g_cBuiltInConstants; iGlobal < iLastGlobal; ++iGlobal)
+	Variables::index iGlobal; // RXDK/clang: hoisted (used after loop); MSVC for-scope leak.
+	for (iGlobal = g_cBuiltInConstants; iGlobal < iLastGlobal; ++iGlobal)
 	{
 		if (m_script.globals[iGlobal].dispid == DISPID_UNKNOWN)
 		{
@@ -389,6 +390,7 @@ EngineDispatch::GetVarDesc(
 		return E_INVALIDARG;
 	}
 
+	// (iGlobal below is the leaked loop var from the for-loop above -- MSVC for-scope leak)
 	*ppVarDesc = new VARDESC;
 	if (!*ppVarDesc)
 		return E_OUTOFMEMORY;

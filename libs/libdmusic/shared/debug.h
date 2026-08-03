@@ -120,6 +120,7 @@ typedef enum enumClass
     DMTRACK_TIMESIG_TRACK,
     DMTRACK_CONTAINER,
     DMTRACK_SYNTH,
+    DMTRACK_BUFFER, // RXDK: used by dmime/buffer.cpp (phoneyds sink), absent from the leak enum.
     DMTRACK_MAX
 } debugClass;
 

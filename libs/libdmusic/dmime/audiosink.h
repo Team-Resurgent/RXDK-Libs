@@ -41,6 +41,10 @@ public:
     STDMETHODIMP PlayEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags) ;
     STDMETHODIMP Stop() ;
     STDMETHODIMP StopEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags) ;
+    // RXDK/clang: buffer.cpp defines CBuffer::SetPlayRegion out-of-line but the
+    // class (built !SILVER, so not inheriting IDirectSoundBuffer) never declared
+    // it -- MSVC tolerated the orphan definition. Declare it to match.
+    STDMETHODIMP SetPlayRegion(DWORD dwPlayStart, DWORD dwPlayLength) ;
     STDMETHODIMP SetLoopRegion(DWORD dwLoopStart, DWORD dwLoopLength) ;
     STDMETHODIMP GetStatus(LPDWORD pdwStatus) ;
     STDMETHODIMP GetCurrentPosition(LPDWORD pdwPlayCursor, LPDWORD pdwWriteCursor) ;
@@ -61,8 +65,11 @@ public:
     STDMETHODIMP SetEG(LPCDSENVELOPEDESC pEnvelopeDesc);    
     STDMETHODIMP SetFilter(LPCDSFILTERDESC pFilterDesc);
     STDMETHODIMP SetOutputBuffer(LPDIRECTSOUNDBUFFER pOutputBuffer);
-    STDMETHODIMP SetMixBins(DWORD dwMixBins);
-    STDMETHODIMP SetMixBinVolumes(DWORD dwMixBins, const LONG *alVolumes);
+    // RXDK/clang: align to buffer.cpp's out-of-line definitions (the leak's
+    // header and the un-built buffer.cpp had drifted to different IDirectSound-
+    // Buffer revisions; buffer.cpp is the authoritative body here).
+    STDMETHODIMP SetMixBins(LPCDSMIXBINS pMixBins);
+    STDMETHODIMP SetMixBinVolumes(LPCDSMIXBINS pMixBins);
     STDMETHODIMP SetHeadroom(THIS_ DWORD dwHeadroom);
 
 #endif // SILVER

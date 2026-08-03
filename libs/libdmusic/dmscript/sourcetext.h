@@ -17,14 +17,18 @@ extern const GUID IID_IDirectMusicSourceText;
 #define INTERFACE IDirectMusicSourceText
 DECLARE_INTERFACE_(IDirectMusicSourceText, IUnknown)
 {
-	STDMETHOD_(void, GetTextLength)(DWORD *pcwchRequiredBufferSize); // size of buffer to allocate (includes a space for the terminator)
-	STDMETHOD_(void, GetText)(WCHAR *pwszText); // buffer must be of size from GetTextLength
+	// RXDK/clang: the leak omitted PURE here; without it these are non-pure
+	// virtual declarations with no definition, so the interface's own vtable
+	// (_ZTV22IDirectMusicSourceText) is referenced during CSourceText
+	// construction but never emitted. A COM interface's methods are pure.
+	STDMETHOD_(void, GetTextLength)(THIS_ DWORD *pcwchRequiredBufferSize) PURE; // size of buffer to allocate (includes a space for the terminator)
+	STDMETHOD_(void, GetText)(THIS_ WCHAR *pwszText) PURE; // buffer must be of size from GetTextLength
 };
 
 //////////////////////////////////////////////////////////////////////
 // The object iteself
 
-// §§ Does this object need a critical section?  GetObject should serialize access and nobody but the
+// ï¿½ï¿½ Does this object need a critical section?  GetObject should serialize access and nobody but the
 // script can hold onto it.
 
 class CSourceText

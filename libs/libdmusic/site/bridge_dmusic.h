@@ -171,6 +171,7 @@ DECLARE_HANDLE(HICON);
 #ifndef _snprintf
 #define _snprintf  snprintf
 #endif
+#include <ctype.h>   /* tolower/toupper/isspace ... (dmscript lexer) */
 #include <strings.h>
 #ifndef _stricmp
 #define _stricmp   strcasecmp
@@ -206,6 +207,27 @@ DECLARE_HANDLE(HICON);
 #ifndef _wcsnicmp
 #define _wcsnicmp  wcsncasecmp
 #endif
+
+/* MSVC CRT helpers the scripting engine uses that picolibc doesn't spell:
+   _Pow_int (STL integer power) and _ultow (unsigned-long -> wide string). */
+#ifdef __cplusplus
+static __inline long _Pow_int(long base, long exp)
+{
+    long result = 1;
+    if (exp < 0) return 0;
+    while (exp-- > 0) result *= base;
+    return result;
+}
+#endif
+static __inline wchar_t *_ultow(unsigned long value, wchar_t *str, int radix)
+{
+    wchar_t tmp[33]; int i = 0;
+    if (radix < 2 || radix > 36) { str[0] = 0; return str; }
+    if (value == 0) tmp[i++] = L'0';
+    while (value) { unsigned d = (unsigned)(value % (unsigned)radix); tmp[i++] = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10); value /= (unsigned)radix; }
+    int j = 0; while (i > 0) str[j++] = tmp[--i]; str[j] = 0;
+    return str;
+}
 
 /* Force RETAIL: the components' #if DBG paths pull DirectMusic debug diagnostics
    (DbgPrint traces + debug-context globals) not built for playback. */

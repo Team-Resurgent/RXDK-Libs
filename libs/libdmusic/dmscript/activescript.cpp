@@ -1180,7 +1180,8 @@ CActiveScriptManager *CActiveScriptManager::GetCurrentContext()
 	DWORD dwThreadId = GetCurrentThreadId();
 	UINT uiSize = ms_svecContext.size();
 
-	for (UINT i = 0; i < uiSize; ++i)
+	UINT i; // RXDK/clang: hoisted (used after loop); MSVC for-scope leak.
+	for (i = 0; i < uiSize; ++i)
 	{
 		if (ms_svecContext[i].dwThreadId == dwThreadId)
 			break;
@@ -1201,7 +1202,8 @@ CActiveScriptManager::SetCurrentContext(CActiveScriptManager *pActiveScriptManag
 	DWORD dwThreadId = GetCurrentThreadId();
 	UINT uiSize = ms_svecContext.size();
 
-	for (UINT i = 0; i < uiSize; ++i)
+	UINT i; // RXDK/clang: hoisted (used after loop); MSVC for-scope leak.
+	for (i = 0; i < uiSize; ++i)
 	{
 		if (ms_svecContext[i].dwThreadId == dwThreadId)
 			break;

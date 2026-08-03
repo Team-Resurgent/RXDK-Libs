@@ -93,16 +93,16 @@ const AutDispatchMethod CAutDirectMusicPerformance::ms_Methods[] =
 
 const DispatchHandlerEntry<CAutDirectMusicPerformance> CAutDirectMusicPerformance::ms_Handlers[] =
 	{
-		{ DMPDISP_SetMasterTempo, SetMasterTempo },
-		{ DMPDISP_GetMasterTempo, GetMasterTempo },
-		{ DMPDISP_SetMasterVolume, SetMasterVolume },
-		{ DMPDISP_GetMasterVolume, GetMasterVolume },
-		{ DMPDISP_SetMasterGrooveLevel, SetMasterGrooveLevel },
-		{ DMPDISP_GetMasterGrooveLevel, GetMasterGrooveLevel },
-		{ DMPDISP_SetMasterTranspose, SetMasterTranspose },
-		{ DMPDISP_GetMasterTranspose, GetMasterTranspose },
-		{ DMPDISP_Trace, _Trace },
-		{ DMPDISP_Rand, Rand },
+		{ DMPDISP_SetMasterTempo, &CAutDirectMusicPerformance::SetMasterTempo },
+		{ DMPDISP_GetMasterTempo, &CAutDirectMusicPerformance::GetMasterTempo },
+		{ DMPDISP_SetMasterVolume, &CAutDirectMusicPerformance::SetMasterVolume },
+		{ DMPDISP_GetMasterVolume, &CAutDirectMusicPerformance::GetMasterVolume },
+		{ DMPDISP_SetMasterGrooveLevel, &CAutDirectMusicPerformance::SetMasterGrooveLevel },
+		{ DMPDISP_GetMasterGrooveLevel, &CAutDirectMusicPerformance::GetMasterGrooveLevel },
+		{ DMPDISP_SetMasterTranspose, &CAutDirectMusicPerformance::SetMasterTranspose },
+		{ DMPDISP_GetMasterTranspose, &CAutDirectMusicPerformance::GetMasterTranspose },
+		{ DMPDISP_Trace, &CAutDirectMusicPerformance::_Trace },
+		{ DMPDISP_Rand, &CAutDirectMusicPerformance::Rand },
         { DISPID_UNKNOWN }
 	};
 

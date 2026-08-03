@@ -674,7 +674,7 @@ STDMETHODIMP CAudioSink::KsEvent(PKSEVENT Event OPTIONAL,ULONG EventLength,
 }
 
 
-/*
+// RXDK: un-commented leak-disabled ResizeBusArrays/FillBusArrays/RemoveBuffer
 void CAudioSink::ResizeBusArrays()
 
 {
@@ -733,7 +733,7 @@ void CAudioSink::RemoveBuffer(CBuffer *pBuffer)
     ResizeBusArrays();
 	LeaveCriticalSection( &m_CriticalSection );
 }
-*/
+// RXDK: end un-commented block
 #ifndef XMIX
 
 void CAudioSink::Mix(short *pnBuffer,DWORD dwLength)

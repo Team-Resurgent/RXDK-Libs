@@ -5,6 +5,8 @@
 #define IDirectSoundConnect IUnknown
 
 #include <xutility>
+#include <oaidl.h>   // RXDK: complete IDispatch/ITypeInfo + DISPID/DISPATCH consts
+#include <activscp.h> // RXDK: IActiveScript* interface decls + SCRIPT* consts
 
 #include "dmusicip.h"
 #include "Validate.h"
@@ -18,7 +20,7 @@
 #undef max
 
 //const g_ScriptCallTraceLevel = -1; // always log
-const g_ScriptCallTraceLevel = 4; // only log at level 4 and above
+const int g_ScriptCallTraceLevel = 4; // RXDK/clang: MSVC accepted implicit-int const.
 
 // Pragma reminders
 #define QUOTE0(a)           #a

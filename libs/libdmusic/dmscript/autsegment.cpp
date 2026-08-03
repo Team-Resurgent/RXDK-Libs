@@ -61,12 +61,12 @@ const AutDispatchMethod CAutDirectMusicSegment::ms_Methods[] =
 
 const DispatchHandlerEntry<CAutDirectMusicSegment> CAutDirectMusicSegment::ms_Handlers[] =
 	{
-		{ DMPDISP_Load, Load },
-		{ DMPDISP_Play, Play },
-		{ DMPDISP_Stop, Stop },
-		{ DMPDISP_DownloadSoundData, DownloadSoundData },
-		{ DMPDISP_UnloadSoundData, UnloadSoundData },
-		{ DMPDISP_Recompose, Recompose },
+		{ DMPDISP_Load, &CAutDirectMusicSegment::Load },
+		{ DMPDISP_Play, &CAutDirectMusicSegment::Play },
+		{ DMPDISP_Stop, &CAutDirectMusicSegment::Stop },
+		{ DMPDISP_DownloadSoundData, &CAutDirectMusicSegment::DownloadSoundData },
+		{ DMPDISP_UnloadSoundData, &CAutDirectMusicSegment::UnloadSoundData },
+		{ DMPDISP_Recompose, &CAutDirectMusicSegment::Recompose },
 		{ DISPID_UNKNOWN }
 	};
 

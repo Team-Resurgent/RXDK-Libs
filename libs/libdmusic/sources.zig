@@ -105,6 +105,9 @@ const dmcompos_cpp = [_][]const u8{
     D ++ "dmcompos/perstrk.cpp",
     D ++ "dmcompos/dmcomp2.cpp",
     D ++ "dmcompos/memstm.cpp",
+    // RXDK-added: in-lib stub for the OLE32 _ExceptionContext() accessor the
+    // sem.hxx/except.hxx CTry machinery references (see the file).
+    D ++ "dmcompos/except_stub_rxdk.cpp",
 };
 
 // dmime: the performance / segment / audiopath / track engine (pchime.h PCH).
@@ -131,10 +134,24 @@ const dmime_cpp = [_][]const u8{
     D ++ "dmime/song.cpp",
     D ++ "dmime/trackhelp.cpp",
     D ++ "dmime/wavtrack.cpp",
-    D ++ "dmime/phoneyds.cpp",
+    // NOTE: phoneyds.cpp (the CPhoneyDSound software-DirectSound emulator) is
+    // EXCLUDED. Under XMIX (Xbox hardware mixing) CPhoneyDSound is never
+    // instantiated -- nothing in the lib references it (audpath drives the real
+    // DirectSound), so phoneyds.o is dead code never pulled at title link. It
+    // also cannot be emitted cleanly here: RXDK's public dsound.h declares
+    // IDirectSound in the MIDL C-compatible style (an lpVtbl member + inline
+    // forwarders), not the pure-virtual DECLARE_INTERFACE style CPhoneyDSound's
+    // overrides assume, so clang never emits its vtable. CAudioSink/CBuffer (the
+    // audiosink.cpp/buffer.cpp the audiopath DOES use) stay in the build.
     D ++ "dmime/dowork.cpp",
     D ++ "dmime/dmcreate.cpp",
     D ++ "dmime/CMixBins.cpp",
+    // RXDK-added (not in the leak's dmime SOURCES, which resolved these from
+    // dsound): the CAudioSink/CBuffer software-DirectSound sink that phoneyds.cpp
+    // (the CPhoneyDSound software mixer, vestigial under XMIX) references. Adding
+    // them keeps libdmusic self-sufficient instead of leaving those undefined.
+    D ++ "dmime/audiosink.cpp",
+    D ++ "dmime/buffer.cpp",
 };
 
 // dmime C file (MIDL-generated IMediaParams IIDs).
@@ -190,10 +207,10 @@ pub const slices = [_]Slice{
     // form for this TU only, giving every DirectMusic class/interface/param GUID
     // pulled through pchime real storage here (all other TUs see the extern form).
     .{ .name = "dmguids", .is_cpp = true, .sources = &dmguids_cpp, .extra_defines = &.{ "-DINITGUID", "-DXMIX" } },
-    // dmscript: the interactive-music scripting engine. TEMPORARILY DISABLED --
-    // it needs the full OLE-Automation surface (a complete IDispatch/ITypeInfo +
-    // IActiveScript/oaidl) that this port's minimal oleauto shim does not yet
-    // provide. Every other component builds without it. Re-enable once the
-    // automation headers are shimmed.
-    // .{ .name = "dmscript", .is_cpp = true, .sources = &dmscript_cpp, .pch = D ++ "dmscript/pchscript.h", .extra_defines = &.{"-DDMS_NEVER_USE_OLEAUT"} },
+    // dmscript: the interactive-music scripting engine. Its OLE-Automation
+    // interface surface (complete IDispatch/ITypeInfo via inc/oaidl.h, the
+    // IActiveScript* family via the stripped inc/activscp.h) is shimmed as
+    // declarations only -- Xbox has no VBScript runtime, so this compiles+links
+    // like the rest of the lib but does not provide a functional script engine.
+    .{ .name = "dmscript", .is_cpp = true, .sources = &dmscript_cpp, .pch = D ++ "dmscript/pchscript.h", .extra_defines = &.{"-DDMS_NEVER_USE_OLEAUT"} },
 };

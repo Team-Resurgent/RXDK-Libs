@@ -344,7 +344,7 @@ Executor::ExecStatements(Statements::index istmt, EXCEPINFO *pExcepInfo, UINT iL
 
 	for (Statements::index istmtCur = istmt; /* ever */; ++istmtCur)
 	{
-		// §§ Check if this generates fast retail code.  If not, walk a pointer instead of using the index.
+		// ï¿½ï¿½ Check if this generates fast retail code.  If not, walk a pointer instead of using the index.
 
 		Statement s = m_script.statements[istmtCur];
 		switch (s.k)
@@ -458,13 +458,12 @@ HRESULT Executor::ExecCall(Calls::index icall, bool fPushResult, EXCEPINFO *pExc
 	// This is a wrapper for ExecCallInternal, which actually does the work.  Here, we just want
 	// to catch a potential stack overflow and return it as an error instead of GPF-ing.
 	HRESULT hr = E_FAIL;
-	__try
+	// RXDK/clang: the leak wrapped this call in SEH __try/__except to convert a
+	// stack overflow into a returned error. SEH (__try/__except) is unsupported on
+	// the x86-windows-gnu target -- it emits unresolved __ehtable$ /
+	// $parent_frame_offset assembler labels -- and Xbox has no script runtime, so
+	// call ExecCallInternal directly without the stack-overflow trap.
 	{
-		// It is better to fail now than to actually go ahead and call the routine and fail at some point we
-		// can't predict.  Routines could do lots of different things including calling into DirectMusic or the
-		// OS and we can't be sure we'd get the stack overflow exception and return in a good state.  This
-		// routine uses more stack space than we'd expect recursive calls to require to get back to this point
-		// again.  In essence, it clears the way, checking if there's enough stack space in a way we know is safe.
 		ExecCallCheckStack();
 
 #ifdef DBG
@@ -492,33 +491,6 @@ HRESULT Executor::ExecCall(Calls::index icall, bool fPushResult, EXCEPINFO *pExc
 		// If we fail inside this call, it means g_uiExecCallCheckStackBytes probably needs to be increased because
 		// ExecCallCheckStack didn't catch the stack overflow.
 		hr = ExecCallInternal(icall, fPushResult, pExcepInfo, iLocals);
-	}
-	__except(ExecCallExceptionFilter(GetExceptionCode()))
-	{
-		Trace(1, "Error: Stack overflow.\n");
-
-		// determine routine name
-		Call &c = m_script.calls[icall];
-		const char *pszCall = NULL;
-		if (c.k == Call::_global)
-		{
-			pszCall = m_script.strings[c.istrname];
-		}
-		else
-		{
-			// name to use is last of the call's reference names
-			for (ReferenceNames::index irname = m_script.varrefs[c.ivarref].irname; m_script.rnames[irname].istrIdentifier != -1; ++irname)
-			{}
-			pszCall = m_script.strings[m_script.rnames[irname - 1].istrIdentifier];
-		}
-		if (GetExceptionCode() == EXCEPTION_STACK_OVERFLOW)
-		{
-			hr = Error(pExcepInfo, false, L"Out of stack space: '", pszCall, L"'.  Too many nested function calls.");
-		}
-		else
-		{
-			hr = Error(pExcepInfo, false, L"Out of stack space or catastrophic error: '", pszCall, L"'.");
-		}
 	}
 	return hr;
 }
@@ -567,7 +539,8 @@ HRESULT Executor::ExecCallInternal(Calls::index icall, bool fPushResult, EXCEPIN
 	{
 		assert(c.k == Call::_dereferenced);
 		// count the reference names (needed later)
-		for (ReferenceNames::index irname = m_script.varrefs[c.ivarref].irname; m_script.rnames[irname].istrIdentifier != -1; ++irname)
+		ReferenceNames::index irname; // RXDK/clang: hoisted (used after loop); MSVC for-scope leak.
+		for (irname = m_script.varrefs[c.ivarref].irname; m_script.rnames[irname].istrIdentifier != -1; ++irname)
 		{}
 		assert(irname - m_script.varrefs[c.ivarref].irname > 1); // if there was only one name, this should have been a global call
 
@@ -595,7 +568,8 @@ HRESULT Executor::ExecCallInternal(Calls::index icall, bool fPushResult, EXCEPIN
 
 	// First, count the parameters.
 	UINT cParams = 0;
-	for (ExprBlocks::index iexpr = c.iexprParams; m_script.exprs[iexpr]; ++iexpr)
+	ExprBlocks::index iexpr; // RXDK/clang: hoisted (reused below); MSVC for-scope leak.
+	for (iexpr = c.iexprParams; m_script.exprs[iexpr]; ++iexpr)
 	{
 		// each parameter is an expression terminated by an end block
 		++cParams;

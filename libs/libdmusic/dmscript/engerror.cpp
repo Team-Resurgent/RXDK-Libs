@@ -20,7 +20,8 @@ CActiveScriptError::CActiveScriptError(HRESULT hr, Lexer &lexer, const char *psz
 	assert(pszDescription && lexer.line() > 0 && lexer.column() > 0);
 
 	// build the near text from the lexer's current position to the end of the line
-	for (const WCHAR *pwsz = lexer.m_p; *pwsz && *pwsz != '\n' && *pwsz != '\r'; ++pwsz)
+	const WCHAR *pwsz; // RXDK/clang: hoisted; MSVC for-scope leak.
+	for (pwsz = lexer.m_p; *pwsz && *pwsz != '\n' && *pwsz != '\r'; ++pwsz)
 	{}
 
 	m_wstrSourceLine.Assign(lexer.m_p, pwsz - lexer.m_p);

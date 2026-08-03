@@ -429,7 +429,8 @@ CContainerDispatch::GetIDsOfNames(
 		return S_OK;
 
 	// Clear out dispid's
-	for (UINT c = 0; c < cNames; ++c)
+	UINT c; // RXDK/clang: hoisted (reused below); MSVC for-scope leak.
+	for (c = 0; c < cNames; ++c)
 	{
 		rgDispId[c] = DISPID_UNKNOWN;
 	}

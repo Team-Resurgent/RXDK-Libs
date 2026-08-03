@@ -39,8 +39,8 @@ const AutDispatchMethod CAutDirectMusicSegmentState::ms_Methods[] =
 
 const DispatchHandlerEntry<CAutDirectMusicSegmentState> CAutDirectMusicSegmentState::ms_Handlers[] =
 	{
-		{ DMPDISP_IsPlaying, IsPlaying },
-		{ DMPDISP_Stop, Stop },
+		{ DMPDISP_IsPlaying, &CAutDirectMusicSegmentState::IsPlaying },
+		{ DMPDISP_Stop, &CAutDirectMusicSegmentState::Stop },
 		{ DISPID_UNKNOWN }
 	};
 

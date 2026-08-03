@@ -69,6 +69,8 @@ struct tagSAFEARRAY {
 
 typedef struct tagVARIANT VARIANT;
 struct tagVARIANT {
+    // RXDK: anonymous union/struct (MS-extension, enabled by -fms-extensions) so
+    // the automation code reaches .vt/.lVal/.bstrVal etc. directly.
     union {
         struct {
             VARTYPE vt; WORD wReserved1; WORD wReserved2; WORD wReserved3;
@@ -85,10 +87,10 @@ struct tagVARIANT {
                 ULONG ulVal; ULONGLONG ullVal; INT intVal; UINT uintVal;
                 DECIMAL *pdecVal; CHAR *pcVal; USHORT *puiVal; ULONG *pulVal;
                 INT *pintVal; UINT *puintVal;
-            } DUMMYUNIONNAME;
-        } DUMMYSTRUCTNAME;
+            };
+        };
         DECIMAL decVal;
-    } DUMMYUNIONNAME;
+    };
 };
 typedef VARIANT VARIANTARG;
 typedef VARIANT *LPVARIANT;

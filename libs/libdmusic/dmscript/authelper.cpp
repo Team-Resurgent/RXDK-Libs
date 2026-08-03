@@ -106,7 +106,8 @@ AutDispatchGetIDsOfNames(
 		return S_OK;
 
 	// Clear out dispid's
-	for (UINT c = 0; c < cNames; ++c)
+	UINT c; // RXDK/clang: hoisted (reused by the loop below); MSVC for-scope leak.
+	for (c = 0; c < cNames; ++c)
 	{
 		rgDispId[c] = DISPID_UNKNOWN;
 	}
@@ -314,7 +315,8 @@ AutDispatchInvokeDecode(
 
 	// Find the method
 
-	for (const AutDispatchMethod *pMethodCalled = pMethods;
+	const AutDispatchMethod *pMethodCalled; // RXDK/clang: hoisted; MSVC for-scope leak.
+	for (pMethodCalled = pMethods;
 			pMethodCalled->dispid != DISPID_UNKNOWN && pMethodCalled->dispid != dispIdMember;
 			++pMethodCalled)
 	{
@@ -367,7 +369,8 @@ AutDispatchInvokeDecode(
 
 	// Count the expected parameters
 	UINT cParamMin = 0;
-	for (UINT cParamMax = 0;
+	UINT cParamMax; // RXDK/clang: hoisted (used after loop); MSVC for-scope leak.
+	for (cParamMax = 0;
 			pMethodCalled->rgadpParams[cParamMax].adt != ADT_None;
 			++cParamMax)
 	{
@@ -462,7 +465,8 @@ AutDispatchInvokeFree(
 	}
 
 	// Find the method
-	for (const AutDispatchMethod *pMethodCalled = pMethods;
+	const AutDispatchMethod *pMethodCalled; // RXDK/clang: hoisted; MSVC for-scope leak.
+	for (pMethodCalled = pMethods;
 			pMethodCalled->dispid != DISPID_UNKNOWN && pMethodCalled->dispid != dispIdMember;
 			++pMethodCalled)
 	{
@@ -496,7 +500,8 @@ HRESULT AutDispatchHrToException(
 		return DISP_E_EXCEPTION;
 
 	// Find the method
-	for (const AutDispatchMethod *pMethodCalled = pMethods;
+	const AutDispatchMethod *pMethodCalled; // RXDK/clang: hoisted; MSVC for-scope leak.
+	for (pMethodCalled = pMethods;
 			pMethodCalled->dispid != DISPID_UNKNOWN && pMethodCalled->dispid != dispIdMember;
 			++pMethodCalled)
 	{

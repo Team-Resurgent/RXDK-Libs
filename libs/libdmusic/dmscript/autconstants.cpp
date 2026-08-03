@@ -80,7 +80,8 @@ AutConstantsGetIDsOfNames(
 		return S_OK;
 
 	// Clear out dispid's
-	for (UINT c = 0; c < cNames; ++c)
+	UINT c; // RXDK/clang: hoisted (reused by the loop below); MSVC for-scope leak.
+	for (c = 0; c < cNames; ++c)
 	{
 		rgDispId[c] = DISPID_UNKNOWN;
 	}
@@ -148,7 +149,8 @@ HRESULT AutConstantsInvoke(
 
 	// Find the constant
 
-	for (const AutConstantDef *pConst = gs_Constants;
+	const AutConstantDef *pConst; // RXDK/clang: hoisted; MSVC for-scope leak.
+	for (pConst = gs_Constants;
 			pConst->dispid != DISPID_UNKNOWN && pConst->dispid != dispIdMember;
 			++pConst)
 	{

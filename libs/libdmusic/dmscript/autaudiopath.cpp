@@ -36,8 +36,8 @@ const AutDispatchMethod CAutDirectMusicAudioPath::ms_Methods[] =
 
 const DispatchHandlerEntry<CAutDirectMusicAudioPath> CAutDirectMusicAudioPath::ms_Handlers[] =
 	{
-		{ DMPDISP_SetVolume, SetVolume },
-		{ DMPDISP_GetVolume, GetVolume },
+		{ DMPDISP_SetVolume, &CAutDirectMusicAudioPath::SetVolume },
+		{ DMPDISP_GetVolume, &CAutDirectMusicAudioPath::GetVolume },
 		{ DISPID_UNKNOWN }
 	};
 

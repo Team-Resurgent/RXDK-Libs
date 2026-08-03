@@ -13,6 +13,8 @@ const libdsound_pkg = @import("libs/libdsound/build.zig");
 const libxnet_pkg = @import("libs/libxnet/build.zig");
 const libxmv_pkg = @import("libs/libxmv/build.zig");
 const libxfont_pkg = @import("libs/libxfont/build.zig");
+const libxact_pkg = @import("libs/libxact/build.zig");
+const libxonline_pkg = @import("libs/libxonline/build.zig");
 const libkernel_pkg = @import("libs/libkernel/build.zig");
 const libxbdm_pkg = @import("libs/libxbdm/build.zig");
 const compile_c = @import("build/compile_c.zig");
@@ -256,6 +258,38 @@ pub fn build(b: *std.Build) void {
     install_libxfont.step.dependOn(libxfont.step);
     const xfont_step = b.step("libxfont", "Build libxfont.lib (Xbox XFONT bitmap-font text rendering)");
     xfont_step.dependOn(&install_libxfont.step);
+
+    // libxact: the Xbox XACT runtime audio engine (xacteng.lib), ported from the
+    // leak (private/windows/directx/xact/runtime/engine). Title-side code, same
+    // shape as libxmv -- drives DirectSound's public API + xboxkrnl timer/DPC/pool,
+    // no direct APU/PCI pokes. Not in the default install (archives fine;
+    // undefined externals -- XactMemAlloc/DwDbg* -- only surface at title link).
+    const xact_objs = libxact_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xact_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xact_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xact_deps.append(b.allocator, xact_objs.step) catch @panic("OOM");
+    const libxact = coff_lib.pack(b, "libxact", xact_objs.outputs, xact_deps.items);
+    const install_libxact = b.addInstallFile(libxact.path, "lib/libxact.lib");
+    install_libxact.step.dependOn(libxact.step);
+    const xact_step = b.step("libxact", "Build libxact.lib (Xbox XACT runtime audio engine)");
+    xact_step.dependOn(&install_libxact.step);
+
+    // libxonline: the Xbox Live client (xonline.lib), ported from the leak
+    // (private/online). Title-side client on top of libxnet + libkernel + libxapi +
+    // libc: logon/presence/accounts/billing/match/stats/users/service/msgclient,
+    // content download+patching, the XDK's own crypto (Kerberos/MD5/ASN.1) and LZX
+    // decompressor. Compiled with the MSVC C++ ABI (see libs/libxonline/build.zig).
+    // Xbox Live servers are long dead -- compile + link only. Not in the default
+    // install.
+    const xonline_objs = libxonline_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xonline_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xonline_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xonline_deps.append(b.allocator, xonline_objs.step) catch @panic("OOM");
+    const libxonline = coff_lib.pack(b, "libxonline", xonline_objs.outputs, xonline_deps.items);
+    const install_libxonline = b.addInstallFile(libxonline.path, "lib/libxonline.lib");
+    install_libxonline.step.dependOn(libxonline.step);
+    const xonline_step = b.step("libxonline", "Build libxonline.lib (Xbox Live client)");
+    xonline_step.dependOn(&install_libxonline.step);
 
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);

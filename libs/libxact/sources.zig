@@ -25,6 +25,9 @@ pub const Slice = struct {
     name: []const u8,
     sources: []const []const u8,
     is_cpp: bool,
+    // Minimal-C slices (the ported ffmpeg WMA decoder) build against picolibc only, WITHOUT the
+    // XACT engine's bridge_xact.h/COM/DPF force-includes (which would clash with the decoder's shim).
+    minimal_c: bool = false,
 };
 
 pub const xact_cpp_sources = [_][]const u8{
@@ -42,6 +45,17 @@ pub const xact_cpp_sources = [_][]const u8{
     "libs/libxact/common/memmgr.cpp",
 };
 
+// Self-contained ffmpeg WMA v1/v2 decoder (from XBMC4Xbox's mplayer/libavcodec), PC-verified
+// (0.99998 correlation vs ffmpeg). Pure C, built minimal (picolibc only) via wma/wmashim.h.
+pub const xact_wma_sources = [_][]const u8{
+    "libs/libxact/wma/wmadec.c",
+    "libs/libxact/wma/fft.c",
+    "libs/libxact/wma/mdct.c",
+    "libs/libxact/wma/get_bits.c",
+    "libs/libxact/wma/wmabridge.c",
+};
+
 pub const slices = [_]Slice{
     .{ .name = "xact", .is_cpp = true, .sources = &xact_cpp_sources },
+    .{ .name = "wma", .is_cpp = false, .minimal_c = true, .sources = &xact_wma_sources },
 };

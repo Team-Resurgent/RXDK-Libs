@@ -13,6 +13,7 @@ pub fn includeDirs() []const []const u8 {
     return &.{
         X ++ "/inc",
         X ++ "/site",
+        X ++ "/wma",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
@@ -68,6 +69,27 @@ pub fn cFlags(b: *std.Build) []const []const u8 {
     return std.mem.concat(b.allocator, []const u8, &.{ &c, &common_flags }) catch @panic("OOM");
 }
 
+// Minimal C environment for the ported ffmpeg WMA decoder: picolibc + freestanding only, WITHOUT
+// the engine's bridge_xact.h/profile.h/DPF force-includes and MS-extension flags (the decoder is
+// plain C99 and its shim would clash with the XACT/COM umbrella).
+const wma_common_flags = [_][]const u8{
+    "-ffreestanding",
+    "-fno-stack-protector",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-nostdinc",
+    "-fno-sanitize=undefined",
+    "-fno-builtin",
+    "-Wno-everything",
+    "-include",
+    "picolibc.h",
+};
+
+pub fn wmaFlags(b: *std.Build) []const []const u8 {
+    const c = [_][]const u8{"-std=c99"};
+    return std.mem.concat(b.allocator, []const u8, &.{ &c, &wma_common_flags }) catch @panic("OOM");
+}
+
 pub const ObjectBatch = struct {
     step: *std.Build.Step,
     outputs: []const std.Build.LazyPath,
@@ -83,7 +105,7 @@ pub fn addAllObjects(
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
     for (xact_sources.slices) |slice| {
-        const flags = if (slice.is_cpp) cppFlags(b) else cFlags(b);
+        const flags = if (slice.is_cpp) cppFlags(b) else if (slice.minimal_c) wmaFlags(b) else cFlags(b);
         const batch = compile_c.addBatch(b, .{
             .name = b.fmt("xact-{s}", .{slice.name}),
             .target = xbox_target.target_triple,

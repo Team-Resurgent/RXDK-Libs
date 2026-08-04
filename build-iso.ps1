@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     Interactive menu to build a sample ISO (or a redistributable lib bundle) for
@@ -12,7 +12,7 @@
     zig-out\iso\.
 
     Or pick "dist" to build all the libraries (libkernel, libc, libcpp, libxapi,
-    libd3d8, libd3dx8, libxgraphics, libdsound, libxnet, libxmv, libxfont) twice
+    libd3d8, libd3dx8, libxgraphics, libdsound, libxnet, libxmv) twice
     -- once Debug, once ReleaseSmall -- and stage the .lib files into
     dist\lib\debug and dist\lib\release, plus the public headers (shared
     between both variants) into dist\include (dist\ is gitignored).
@@ -226,7 +226,7 @@ $samples = @(
     [pscustomobject]@{ Target = 'dsound-music'; Iso = 'dsound-music.iso'; Desc = 'libdsound + stb_vorbis / looping OGG music (deploys media\)' }
     [pscustomobject]@{ Target = 'xnet-net';     Iso = 'xnet-net.iso';     Desc = 'libxnet / XNet bring-up - DHCP IP + single-page HTTP server on :80' }
     [pscustomobject]@{ Target = 'xmv-play';     Iso = 'xmv-play.iso';     Desc = 'libxmv / XMV FMV decode -> D3D overlay (deploys media\)' }
-    [pscustomobject]@{ Target = 'xfont-smoke'; Iso = 'xfont-smoke.iso'; Desc = 'libxfont / bitmap-font text rendering - demoscene scroller (default font)' }
+    [pscustomobject]@{ Target = 'xfont-smoke'; Iso = 'xfont-smoke.iso'; Desc = 'XFONT (in libxgraphics) / bitmap-font text rendering - demoscene scroller (default font)' }
     [pscustomobject]@{ Target = 'dxt-fps';     Iso = $null; Dxt = $true; Desc = 'libxbdm / debug-monitor extension (DXT) - FPS+memory overlay (deploys to E:\dxt, warm reboot)' }
 )
 
@@ -642,7 +642,7 @@ function Invoke-DistBuild {
         'libkernel.lib', 'libxbdm.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',
         'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
-        'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib',
+        'libdsound.lib', 'libxnet.lib', 'libxmv.lib',
         # Middleware (opt-in via <RxdkLibraries>, but shipped: the XDK sample
         # suite links them). See scripts\compile.ps1 -Target libs.
         'libxact.lib', 'libxonline.lib', 'libxvoice.lib', 'libdmusic.lib'
@@ -654,7 +654,7 @@ function Invoke-DistBuild {
     # compile.ps1 -Target libs builds every shippable .lib: the default install
     # (libkernel/libc/libcpp/libxapi + their public headers into zig-out\lib +
     # zig-out\include) plus the device libs
-    # (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv/libxfont). Each
+    # (libd3d8/libd3dx8/libxgraphics/libdsound/libxnet/libxmv). Each
     # variant's libs + libcompat.lib must be copied/archived out of zig-out
     # BEFORE building the next variant, since zig-out\lib and zig-out\obj are
     # fixed paths that the next -Optimize build overwrites in place.

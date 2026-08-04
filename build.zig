@@ -178,11 +178,23 @@ pub fn build(b: *std.Build) void {
     // libxgraphics: the Xbox xgraphics helper library (swizzle/format helpers,
     // S3TC, shader assembler, xgmath). d3dx8's texture path needs the XGSwizzle*
     // functions. Built >= -O2 (asm-blocks). Not in the default install.
+    //
+    // XFONT is packed in here too, because that is where the retail XDK keeps it
+    // -- xgraphics.lib exports the whole XFONT_* set, there is no xfont.lib. Its
+    // sources stay under libs/libxfont and build with their own flags (the
+    // TrueType scan converter in particular needs an isolated environment), the
+    // objects just land in this archive. Same shape as dsac97 folding into
+    // libdsound.
     const xg_objs = libxgraphics_pkg.addAllObjects(b, xbox_target, opt_flag);
+    const xfont_objs = libxfont_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xg_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
+    xg_objects.appendSlice(b.allocator, xg_objs.outputs) catch @panic("OOM");
+    xg_objects.appendSlice(b.allocator, xfont_objs.outputs) catch @panic("OOM");
     var xg_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     xg_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
     xg_deps.append(b.allocator, xg_objs.step) catch @panic("OOM");
-    const libxgraphics = coff_lib.pack(b, "libxgraphics", xg_objs.outputs, xg_deps.items);
+    xg_deps.append(b.allocator, xfont_objs.step) catch @panic("OOM");
+    const libxgraphics = coff_lib.pack(b, "libxgraphics", xg_objects.items, xg_deps.items);
     const install_libxgraphics = b.addInstallFile(libxgraphics.path, "lib/libxgraphics.lib");
     install_libxgraphics.step.dependOn(libxgraphics.step);
     const xg_step = b.step("libxgraphics", "Build libxgraphics.lib (Xbox xgraphics helper library)");
@@ -245,21 +257,11 @@ pub fn build(b: *std.Build) void {
     const xmv_step = b.step("libxmv", "Build libxmv.lib (Xbox XMV FMV decoder)");
     xmv_step.dependOn(&install_libxmv.step);
 
-    // libxfont: the Xbox XFONT bitmap-font text-rendering library, ported from
-    // the leak (private/windows/directx/dxg/xfont/library). Bitmap fonts only
-    // (embedded default font + memory-loaded fonts); TrueType and disk-file
-    // font loading are out of scope for this pass. Title-side code, same shape
-    // as libd3dx8 -- links against the public d3d8.h surface + CRT, no direct
-    // xboxkrnl calls. Not in the default install.
-    const xfont_objs = libxfont_pkg.addAllObjects(b, xbox_target, opt_flag);
-    var xfont_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
-    xfont_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
-    xfont_deps.append(b.allocator, xfont_objs.step) catch @panic("OOM");
-    const libxfont = coff_lib.pack(b, "libxfont", xfont_objs.outputs, xfont_deps.items);
-    const install_libxfont = b.addInstallFile(libxfont.path, "lib/libxfont.lib");
-    install_libxfont.step.dependOn(libxfont.step);
-    const xfont_step = b.step("libxfont", "Build libxfont.lib (Xbox XFONT bitmap-font text rendering)");
-    xfont_step.dependOn(&install_libxfont.step);
+    // XFONT has no library of its own: its objects are packed into libxgraphics
+    // above, matching the retail XDK. `zig build libxfont` is kept as an alias so
+    // the name still works and so the font samples' build step is unchanged.
+    const xfont_step = b.step("libxfont", "Build XFONT (packed into libxgraphics.lib, as in the retail XDK)");
+    xfont_step.dependOn(&install_libxgraphics.step);
 
     // libxact: the Xbox XACT runtime audio engine (xacteng.lib), ported from the
     // leak (private/windows/directx/xact/runtime/engine). Title-side code, same
@@ -380,7 +382,7 @@ pub fn build(b: *std.Build) void {
     const libdsound_lib = b.path("zig-out/lib/libdsound.lib");
     const libxmv_lib = b.path("zig-out/lib/libxmv.lib");
     const libxnet_lib = b.path("zig-out/lib/libxnet.lib");
-    const libxfont_lib = b.path("zig-out/lib/libxfont.lib");
+
     const xapi_inc = [_]std.Build.LazyPath{
         b.path("shared/include"),
         b.path("libs/libxapi/internal"),
@@ -544,7 +546,7 @@ pub fn build(b: *std.Build) void {
 
     // XFONT bitmap-font text rendering sample: opens the embedded default font
     // and renders a demoscene-style scroller (per-character sine bounce, manual
-    // stretch-blit size pulse, rainbow color cycle). Links libxfont.lib +
+    // stretch-blit size pulse, rainbow color cycle). Links libxgraphics.lib +
     // libd3d8.lib (+ libxapi + krnl) -- no D3DX8 needed, this sample does no 3D
     // transforms.
     const xfont_smoke_inc = [_]std.Build.LazyPath{
@@ -564,7 +566,7 @@ pub fn build(b: *std.Build) void {
         .src = "samples/xfont-smoke/src/main.c",
         .extra_srcs = &xfont_smoke_extra,
         .objects = sample_objects.items,
-        .libs = &.{ libxfont_lib, libd3d8_lib, libxapi_lib, krnl },
+        .libs = &.{ libxgraphics_lib, libd3d8_lib, libxapi_lib, krnl },
         .include_paths = &xfont_smoke_inc,
         .extra_flags = &.{
             "-D_XAPI_",
@@ -575,7 +577,7 @@ pub fn build(b: *std.Build) void {
             "picolibc.h",
         },
         .entry = "XapiTitleStartup",
-        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libxfont.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, &install_libd3d8.step, &install_libxgraphics.step, picolibc_objs.step, xbox_objs.step },
     });
     const xfont_smoke_step = b.step("xfont-smoke", "Build the XFONT bitmap-font text rendering smoke test");
     xfont_smoke_step.dependOn(xfont_smoke.install);

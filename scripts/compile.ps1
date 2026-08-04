@@ -1,4 +1,4 @@
-# Build RXDK-Libs (Zig-only runtime, samples, optional XBE conversion).
+﻿# Build RXDK-Libs (Zig-only runtime, samples, optional XBE conversion).
 param(
     [string]$Root = (Join-Path $PSScriptRoot '..'),
     [ValidateSet(
@@ -149,7 +149,7 @@ switch ($Target) {
         # the device libs have their own named steps -> build them all so "libs"
         # means every shippable .lib.
         Invoke-ZigBuild -Step @() -Opt $Optimize
-        Invoke-ZigBuild -Step @('libd3d8', 'libd3dx8', 'libxgraphics', 'libdsound', 'libxnet', 'libxmv', 'libxfont') -Opt $Optimize
+        Invoke-ZigBuild -Step @('libd3d8', 'libd3dx8', 'libxgraphics', 'libdsound', 'libxnet', 'libxmv') -Opt $Optimize
         # Middleware: XACT audio, the Xbox Live client (+ the UIX drop-in UI),
         # XHV voice and DirectMusic. Titles opt in by naming them in
         # <RxdkLibraries>, but they must still ship in the SDK -- the imported

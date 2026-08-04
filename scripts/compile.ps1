@@ -150,6 +150,11 @@ switch ($Target) {
         # means every shippable .lib.
         Invoke-ZigBuild -Step @() -Opt $Optimize
         Invoke-ZigBuild -Step @('libd3d8', 'libd3dx8', 'libxgraphics', 'libdsound', 'libxnet', 'libxmv', 'libxfont') -Opt $Optimize
+        # Middleware: XACT audio, the Xbox Live client (+ the UIX drop-in UI),
+        # XHV voice and DirectMusic. Titles opt in by naming them in
+        # <RxdkLibraries>, but they must still ship in the SDK -- the imported
+        # XDK sample suite links them.
+        Invoke-ZigBuild -Step @('libxact', 'libxonline', 'libxvoice', 'libdmusic') -Opt $Optimize
     }
     'samples' {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso

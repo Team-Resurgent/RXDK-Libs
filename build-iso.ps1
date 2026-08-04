@@ -642,7 +642,10 @@ function Invoke-DistBuild {
         'libkernel.lib', 'libxbdm.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',
         'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
-        'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib'
+        'libdsound.lib', 'libxnet.lib', 'libxmv.lib', 'libxfont.lib',
+        # Middleware (opt-in via <RxdkLibraries>, but shipped: the XDK sample
+        # suite links them). See scripts\compile.ps1 -Target libs.
+        'libxact.lib', 'libxonline.lib', 'libxvoice.lib', 'libdmusic.lib'
     )
 
     # Two variants, side by side: Debug (full symbols, -O0, for the normal

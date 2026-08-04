@@ -110,6 +110,11 @@ pub fn addAllObjects(
                     // vendored May-2020 leak; place them ahead of shared/include
                     // so their windef/winbase shadow the slimmed shared copies.
                     if (std.mem.eql(u8, dir, "shared/include")) {
+                        // site/uuid_shim goes first: it shadows winnt.h with a copy whose
+                        // Int64Sh*Mod32 definitions are static, so they stop being emitted
+                        // with external linkage in every one of this slice's objects. See
+                        // the note at the top of that file.
+                        list.append(b.allocator, XAPI ++ "/site/uuid_shim") catch @panic("OOM");
                         list.append(b.allocator, "vendor/xbox_leak_may_2020/xbox_leak_may_2020/xbox trunk/xbox/public/sdk/inc") catch @panic("OOM");
                     }
                     list.append(b.allocator, dir) catch @panic("OOM");

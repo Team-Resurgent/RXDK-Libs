@@ -15,7 +15,11 @@ V_INAME(DMCompose)
 /////////////////////////////////////////////////////////////////////////////
 // ReadMBSfromWCS
 
-void ReadMBSfromWCS( IStream* pIStream, DWORD dwSize, String& pstrText )
+// RXDK: static. dmstyle.cpp has its own ReadMBSfromWCS with a different
+// signature; the leak built these components as separate libraries so the two
+// never met, but RXDK packs them into one libdmusic.lib and they collide.
+// Neither is used outside its own translation unit.
+static void ReadMBSfromWCS( IStream* pIStream, DWORD dwSize, String& pstrText )
 {
     HRESULT     hr = S_OK;
     wchar_t*    wstrText = NULL;

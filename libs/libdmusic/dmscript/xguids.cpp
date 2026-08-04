@@ -12,4 +12,6 @@ typedef struct _SECURITY_ATTRIBUTES
 #include <activscp.h>
 //#endif
 
-DEFINE_GUID(GUID_NULL, 0L, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+// RXDK: GUID_NULL is NOT defined here -- libxapi's uuid component (uuid/cguid.c) owns it,
+// and defining it again makes every link pulling both libraries fail on a duplicate symbol.
+// Same reason the standard OLE IIDs were dropped from dmguids/comguids_rxdk.cpp.

@@ -6,7 +6,14 @@
 #define COM_NO_WINDOWS_H
 #define RPC_NO_WINDOWS_H
 #define _WINGDI_
-DEFINE_GUID(GUID_NULL, 0L, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+// RXDK: GUID_NULL is NOT defined here. libxapi's uuid component (uuid/cguid.c) owns it,
+// and this header is pulled by a TU compiled with INITGUID, so DEFINE_GUID would allocate
+// a second copy and every link pulling both libraries would fail on a duplicate symbol.
+// Same reason the standard OLE IIDs were dropped from dmguids/comguids_rxdk.cpp.
+// The declaration still arrives with <guiddef.h> via xtl.h, so uses of GUID_NULL below
+// Declare it here so uses below (smartref.h, dmgraph.h) still compile: DEFINE_GUID would
+// allocate, because this header is pulled by a TU compiled with INITGUID.
+EXTERN_C const GUID GUID_NULL;
 #include <objbase.h> // Need IClassFactory
 //#include <initguid.h>
 #include <mmsystem.h>

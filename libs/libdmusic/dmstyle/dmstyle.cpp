@@ -112,7 +112,8 @@ static char achMappings[128] = {
 /////////////////////////////////////////////////////////////////////////////
 // ReadMBSfromWCS
 
-HRESULT ReadMBSfromWCS( IStream* pIStream, DWORD dwSize, String& pstrText )
+// RXDK: static -- see the note on dmcompos/dmpers.cpp's namesake.
+static HRESULT ReadMBSfromWCS( IStream* pIStream, DWORD dwSize, String& pstrText )
 {
     HRESULT     hr = S_OK;
     wchar_t*    wstrText = NULL;

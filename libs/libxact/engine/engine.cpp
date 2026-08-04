@@ -13,6 +13,7 @@
 
 #include "xacti.h"
 #include "xboxdbg.h"
+#include "wmabridge.h"   // RXDK 5849 uplift: WMA bank transcode-on-load
 
 
 #undef DPF_FNAME
@@ -1111,12 +1112,25 @@ HRESULT CEngine::CreateSoundBank(PVOID pvBuffer, DWORD dwSize, PXACTSOUNDBANK *p
 HRESULT CEngine::RegisterWaveBank(PVOID pvData, DWORD dwSize, PXACTWAVEBANK *ppWaveBank)
 {
     HRESULT hr = S_OK;
-    CWaveBank *pWaveBank;    
+    CWaveBank *pWaveBank;
 
     DPF_ENTER();
 
     ASSERT_IN_PASSIVE;
     ENTER_EXTERNAL_METHOD();
+
+    // RXDK 5849 uplift: if this is a WMA bank (xactbld's private RXWM container), decode every WMA
+    // entry to PCM and rebuild a standard .xwb in memory, then register that. The decoded PCM buffer
+    // backs the wave bank for its lifetime (a load-all simplification -- the whole bank is resident).
+    {
+        PVOID pvPcmBank = NULL;
+        unsigned int cbPcmBank = 0;
+        if (XactMaybeTranscodeWmaBank((const unsigned char *)pvData, dwSize, &pvPcmBank, &cbPcmBank))
+        {
+            pvData = pvPcmBank;
+            dwSize = cbPcmBank;
+        }
+    }
 
 #ifdef VALIDATE_PARAMETERS
 

@@ -20,6 +20,13 @@ int XactWmaDecode(unsigned short formatTag,
 
 void XactWmaFree(short *pPcm);
 
+// If pvData is a private "RXWM" WMA wave-bank container (xactbld emits this when a bank has WMA
+// entries), decode all entries to PCM and rebuild a standard .xwb (WBND) in memory: *ppOut receives
+// a malloc'd buffer (free with XactWmaFreeBank), *pcbOut its size, and returns 1. If pvData is a
+// plain buffer, returns 0 and the caller uses it unchanged.
+int XactMaybeTranscodeWmaBank(const unsigned char *pvData, unsigned int dwSize, void **ppOut, unsigned int *pcbOut);
+void XactWmaFreeBank(void *pBank);
+
 #ifdef __cplusplus
 }
 #endif

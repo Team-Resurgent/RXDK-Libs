@@ -12,6 +12,9 @@ pub const Slice = struct {
     name: []const u8,
     sources: []const []const u8,
     is_cpp: bool,
+    // The WMA decoder is plain C99 from ffmpeg; it builds against picolibc alone, WITHOUT the
+    // DirectSound bridge/precomp umbrella (see build.zig's wmaFlags).
+    minimal_c: bool = false,
 };
 
 // The dsound/sources SOURCES= set (exact filenames). globals.c is C.
@@ -34,6 +37,8 @@ pub const dsound_cpp_sources = [_][]const u8{
     "libs/libdsound/dsound/mcpvoice.cpp",
     "libs/libdsound/dsound/mcpxcore.cpp",
     "libs/libdsound/dsound/wavexmo.cpp",
+    // RXDK 5849 uplift: WMA decoder XMO (the leak has no WMA support at all).
+    "libs/libdsound/dsound/wmaxmo.cpp",
     // dsac97.lib is an OBJLIB of dsound.lib (the AC97 codec hardware channel
     // driver); fold its single source in so libdsound is self-contained.
     "libs/libdsound/ac97/ac97.cpp",
@@ -42,7 +47,22 @@ pub const dsound_c_sources = [_][]const u8{
     "libs/libdsound/dsound/globals.c",
 };
 
+// Self-contained ffmpeg WMA v1/v2 decoder (from XBMC4Xbox's mplayer/libavcodec), PC-verified
+// (0.99998 correlation vs ffmpeg), plus the ASF reader and streaming front end the XMO decoders
+// need. Lives here rather than in libxact because 5849's dsound.lib owns the WMA decoder and
+// xact.lib calls into it -- and a title can stream WMA without linking XACT at all.
+pub const dsound_wma_sources = [_][]const u8{
+    "libs/libdsound/wma/wmadec.c",
+    "libs/libdsound/wma/fft.c",
+    "libs/libdsound/wma/mdct.c",
+    "libs/libdsound/wma/get_bits.c",
+    "libs/libdsound/wma/wmabridge.c",
+    "libs/libdsound/wma/wmastream.c",
+    "libs/libdsound/wma/asf.c",
+};
+
 pub const slices = [_]Slice{
     .{ .name = "dsound", .is_cpp = true, .sources = &dsound_cpp_sources },
     .{ .name = "dsound-c", .is_cpp = false, .sources = &dsound_c_sources },
+    .{ .name = "wma", .is_cpp = false, .minimal_c = true, .sources = &dsound_wma_sources },
 };

@@ -14,6 +14,7 @@ pub fn includeDirs() []const []const u8 {
         DS ++ "/common",
         DS ++ "/ac97",
         DS ++ "/tools_inc",
+        DS ++ "/wma",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
@@ -75,6 +76,28 @@ pub fn cFlags(b: *std.Build) []const []const u8 {
     return std.mem.concat(b.allocator, []const u8, &.{ &c, &common_flags }) catch @panic("OOM");
 }
 
+// Minimal C environment for the ported ffmpeg WMA decoder and the ASF reader beside it: picolibc +
+// freestanding only, WITHOUT the DirectSound bridge/precomp force-includes, the MS-extension flags
+// or the stdcall default. That code is plain C99 and its own shim would clash with the DirectSound
+// umbrella; keeping it cdecl also keeps it callable from libxact unchanged.
+const wma_common_flags = [_][]const u8{
+    "-ffreestanding",
+    "-fno-stack-protector",
+    "-fdata-sections",
+    "-ffunction-sections",
+    "-nostdinc",
+    "-fno-sanitize=undefined",
+    "-fno-builtin",
+    "-Wno-everything",
+    "-include",
+    "picolibc.h",
+};
+
+pub fn wmaFlags(b: *std.Build) []const []const u8 {
+    const c = [_][]const u8{"-std=c99"};
+    return std.mem.concat(b.allocator, []const u8, &.{ &c, &wma_common_flags }) catch @panic("OOM");
+}
+
 pub const ObjectBatch = struct {
     step: *std.Build.Step,
     outputs: []const std.Build.LazyPath,
@@ -90,7 +113,7 @@ pub fn addAllObjects(
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
     for (ds_sources.slices) |slice| {
-        const flags = if (slice.is_cpp) cppFlags(b) else cFlags(b);
+        const flags = if (slice.is_cpp) cppFlags(b) else if (slice.minimal_c) wmaFlags(b) else cFlags(b);
         const batch = compile_c.addBatch(b, .{
             .name = b.fmt("dsound-{s}", .{slice.name}),
             .target = xbox_target.target_triple,

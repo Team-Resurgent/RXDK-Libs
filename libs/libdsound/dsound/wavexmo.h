@@ -51,6 +51,7 @@ namespace DirectSound
         // XFileMediaObject methods
         virtual HRESULT STDMETHODCALLTYPE Seek(LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute);
         virtual HRESULT STDMETHODCALLTYPE GetLength(LPDWORD pdwLength);
+        virtual VOID STDMETHODCALLTYPE DoWork(void);   // RXDK 5849 uplift
 
         // XWaveFileMediaObject methods
         virtual HRESULT STDMETHODCALLTYPE GetFormat(LPCWAVEFORMATEX *ppwfxFormat);
@@ -86,6 +87,11 @@ namespace DirectSound
     __inline HRESULT CWaveFileMediaObject::Discontinuity(void)
     {
         return S_OK;
+    }
+
+    // RXDK 5849 uplift: this XMO's reads are synchronous, so there is never deferred work.
+    __inline VOID CWaveFileMediaObject::DoWork(void)
+    {
     }
 
     __inline HRESULT CWaveFileMediaObject::Flush(void)
@@ -141,6 +147,7 @@ namespace DirectSound
         // XFileMediaObject methods
         virtual HRESULT STDMETHODCALLTYPE Seek(LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute);
         virtual HRESULT STDMETHODCALLTYPE GetLength(LPDWORD pdwLength);
+        virtual VOID STDMETHODCALLTYPE DoWork(void);   // RXDK 5849 uplift
     };
 
     __inline ULONG CFileMediaObject::AddRef(void)
@@ -173,6 +180,11 @@ namespace DirectSound
     __inline HRESULT CFileMediaObject::Discontinuity(void)
     {
         return S_OK;
+    }
+
+    // RXDK 5849 uplift: this XMO's reads are synchronous, so there is never deferred work.
+    __inline VOID CFileMediaObject::DoWork(void)
+    {
     }
 
     __inline HRESULT CFileMediaObject::Flush(void)

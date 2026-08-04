@@ -13,7 +13,7 @@ pub fn includeDirs() []const []const u8 {
     return &.{
         X ++ "/inc",
         X ++ "/site",
-        X ++ "/wma",
+        "libs/libdsound/wma",   // RXDK 5849 uplift: the WMA decoder moved to libdsound (5849 owns it there); we still call XactWmaDecode
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",

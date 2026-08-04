@@ -1216,6 +1216,7 @@ STDAPI_(void) XAudioCreateAdpcmFormat(WORD nChannels, DWORD nSamplesPerSec, LPXB
 
 STDAPI_(LONG) XAudioCalculatePitch(DWORD dwFrequency);
 
+STDAPI XWmaDecoderCreateMediaObject(LPCWMAXMODECODERPARAMETERS pParameters, XWmaFileMediaObject **ppMediaObject);
 STDAPI WmaCreateDecoder(LPCSTR pszFileName, HANDLE hFile, BOOL fAsyncMode, DWORD dwLookaheadBufferSize, DWORD dwMaxPackets, DWORD dwYieldRate, LPWAVEFORMATEX pwfxCompressed, XFileMediaObject **ppMediaObject);
 STDAPI WmaCreateInMemoryDecoder(LPFNWMAXMODATACALLBACK pfnCallback, LPVOID pvContext, DWORD dwYieldRate, LPWAVEFORMATEX pwfxCompressed, LPXMEDIAOBJECT *ppMediaObject);
 
@@ -1226,6 +1227,7 @@ STDAPI Ac97CreateMediaObject(DWORD dwChannel, LPFNXMEDIAOBJECTCALLBACK pfnCallba
 
 STDAPI XFileCreateMediaObject(LPCSTR pszFileName, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, XFileMediaObject **ppMediaObject);
 STDAPI XFileCreateMediaObjectEx(HANDLE hFile, XFileMediaObject **ppMediaObject);
+STDAPI XFileCreateMediaObjectAsync(HANDLE hFile, DWORD dwMaxPackets, XFileMediaObject **ppMediaObject);
 STDAPI XWaveFileCreateMediaObject(LPCSTR pszFileName, LPCWAVEFORMATEX *ppwfxFormat, XFileMediaObject **ppMediaObject);
 STDAPI XWaveFileCreateMediaObjectEx(LPCSTR pszFileName, HANDLE hFile, XWaveFileMediaObject **ppMediaObject);
 
@@ -1316,6 +1318,7 @@ DECLARE_INTERFACE_(XFileMediaObject, XMediaObject)
     // XFileMediaObject methods
     STDMETHOD(Seek)(THIS_ LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute) PURE;
     STDMETHOD(GetLength)(THIS_ LPDWORD pdwLength) PURE;
+    STDMETHOD_(VOID, DoWork)(THIS) PURE;
 };
 
 #define XFileMediaObject_AddRef             IUnknown_AddRef
@@ -1331,11 +1334,13 @@ DECLARE_INTERFACE_(XFileMediaObject, XMediaObject)
 
 #define XFileMediaObject_Seek(p, a, b, c)   p->Seek(a, b, c)
 #define XFileMediaObject_GetLength(p, a)    p->GetLength(a)
+#define XFileMediaObject_DoWork(p)          p->DoWork()
 
 #else // defined(__cplusplus) && !defined(CINTERFACE)
 
 #define XFileMediaObject_Seek(p, a, b, c)   p->lpVtbl->Seek(p, a, b, c)
 #define XFileMediaObject_GetLength(p, a)    p->lpVtbl->GetLength(p, a)
+#define XFileMediaObject_DoWork(p)          p->lpVtbl->DoWork(p)
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)
 
@@ -1378,6 +1383,7 @@ DECLARE_INTERFACE_(XWaveFileMediaObject, XFileMediaObject)
 #define XWaveFileMediaObject_Flush          XFileMediaObject_Flush
 #define XWaveFileMediaObject_Seek           XFileMediaObject_Seek
 #define XWaveFileMediaObject_GetLength      XFileMediaObject_GetLength
+#define XWaveFileMediaObject_DoWork         XFileMediaObject_DoWork
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
 
@@ -1414,11 +1420,12 @@ DECLARE_INTERFACE_(XWmaFileMediaObject, XFileMediaObject)
     // XFileMediaObject methods
     STDMETHOD(Seek)(THIS_ LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute) PURE;
     STDMETHOD(GetLength)(THIS_ LPDWORD pdwLength) PURE;
+    STDMETHOD_(VOID, DoWork)(THIS) PURE;
 
     // XWmaFileMediaObject methods
     STDMETHOD(GetFileHeader)(THIS_ WMAXMOFileHeader* pFileHeader) PURE;
     STDMETHOD(GetFileContentDescription)(THIS_ WMAXMOFileContDesc* pContentDesc) PURE;
-    
+    STDMETHOD(SeekToTime)(THIS_ DWORD dwSeek, LPDWORD pdwActualSeek) PURE;
 };
 
 #define XWmaFileMediaObject_AddRef          IUnknown_AddRef
@@ -1431,17 +1438,20 @@ DECLARE_INTERFACE_(XWmaFileMediaObject, XFileMediaObject)
 #define XWmaFileMediaObject_Flush           XMediaObject_Flush
 
 #define XWmaFileMediaObject_Seek            XFileMediaObject_Seek
-#define XWmaFileMediaObject_GetLength       XFileMediaOjbect_GetLength
+#define XWmaFileMediaObject_GetLength       XFileMediaObject_GetLength
+#define XWmaFileMediaObject_DoWork          XFileMediaObject_DoWork
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
 
 #define XWmaFileMediaObject_GetFileHeader(p, a)             p->GetFileHeader(a)
 #define XWmaFileMediaObject_GetFileContentDescription(p, a) p->GetFileContentDescription(a)
+#define XWmaFileMediaObject_SeekToTime(p, a, b)             p->SeekToTime(a, b)
 
 #else // defined(__cplusplus) && !defined(CINTERFACE)
 
 #define XWmaFileMediaObject_GetFileHeader(p, a)             p->lpVtbl->GetFileHeader(p, a)
 #define XWmaFileMediaObject_GetFileContentDescription(p, a) p->lpVtbl->GetFileContentDescription(p,a)
+#define XWmaFileMediaObject_SeekToTime(p, a, b)             p->lpVtbl->SeekToTime(p, a, b)
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)
 

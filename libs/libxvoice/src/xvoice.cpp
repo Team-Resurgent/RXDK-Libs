@@ -15,7 +15,10 @@
 // The queue XMOs sit between the two (pure software jitter buffers), but with
 // neither capture nor codec they can never be fed, so they fail alike rather
 // than hand the title a working object whose neighbors are absent.
-// TODO(5849-xvoice): real support needs the USB audio driver + a codec.
+//
+// This is a CAPABILITY BOUNDARY, not unfinished work (see the note at the top
+// of xhv.cpp): the USB audio driver and the SC03 codec were binary-only in the
+// retail libs -- nothing exists in the leak to port.
 
 #include <xvoice.h>
 

@@ -13,6 +13,9 @@
 DefineTag(AuthVerbose,TAG_ENABLE);
 DefineTag(AuthWarn,TAG_ENABLE);
 
+// RXDK 5849 uplift: service-ID capture for XOnlineSaveLogonState (uplift5849.cpp).
+extern "C" VOID WINAPI RxdkCaptureLogonServices(const DWORD *pdwServiceIDs, DWORD cServices);
+
 #define TEMP_SEND_REQUESTS_SEQUENTIALLY 1
 
 #define AP_REQUEST_OVERHEAD_ABOVE_TICKET 280
@@ -2935,6 +2938,11 @@ HRESULT CXo::XOnlineLogon(
     XoEnter("XOnlineLogon");
     XoCheck((cServices == 0) == (pdwServiceIDs == NULL));
     XoCheck(pHandle != NULL);
+
+    // RXDK 5849 uplift: record the requested service IDs so XOnlineSaveLogonState
+    // (uplift5849.cpp) can persist them -- the leak keeps them only inside the
+    // opaque logon task.
+    RxdkCaptureLogonServices(pdwServiceIDs, cServices);
 
     BOOL fHasUsers = FALSE;
     HRESULT hr;

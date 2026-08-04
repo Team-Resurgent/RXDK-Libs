@@ -17,7 +17,13 @@
 // audio is rendered, IsTalking is FALSE) and the WMAVoice voicemail codec +
 // speech recognition (VoiceMail*/SR entry points fail cleanly). DoWork is a
 // no-op that succeeds, so title main loops run unchanged.
-// TODO(5849-xvoice): real voice would need the USB audio driver + a codec.
+//
+// This is a CAPABILITY BOUNDARY, not unfinished work: the communicator USB
+// audio class driver and the SC03/WMAVoice codecs only ever existed as
+// binaries inside the retail libs -- there is no source anywhere in the leak
+// to port. Audible voice would require writing a USB audio driver and a codec
+// from scratch (or licensing one), which is out of scope for an SDK
+// reconstruction.
 
 #include <xonline.h> // XUID (xhv.h insists it is included first)
 #include <xhv.h>

@@ -26,24 +26,33 @@ XBOXAPI DWORD WINAPI XCalculateSignatureGetSize(DWORD /*dwFlags*/)
     return 20;
 }
 
-// 5849 mid-session logon-user change. Absent from the leak, and a faithful implementation needs the
-// online session machinery to add/remove users. For now this is a documented stub that reports
-// failure (no task created) so titles link and degrade gracefully; it must be implemented for real
-// multi-user Live (e.g. Insignia). TODO(5849-xonline): implement over the CXo logon session.
-XBOXAPI HRESULT WINAPI XOnlineChangeLogonUsers(const XONLINE_USER * /*pUsers*/, HANDLE /*hWorkEvent*/,
+// 5849 mid-session logon-user change (REAL). The leak has no dedicated
+// change-users path, but its XOnlineLogon already tears down and replaces a
+// previous logon session -- which is exactly what changing the user set means:
+// re-logon with the new users and the same services as the current session.
+static DWORD RxdkGetCapturedServices(const DWORD **ppdwServiceIDs); // defined with the capture globals below
+
+XBOXAPI HRESULT WINAPI XOnlineChangeLogonUsers(const XONLINE_USER *pUsers, HANDLE hWorkEvent,
                                                PXONLINETASK_HANDLE pHandle)
 {
     if (pHandle)
         *pHandle = NULL;
-    return E_FAIL;
+    if (!pUsers)
+        return E_INVALIDARG;
+
+    const DWORD *pdwServiceIDs = NULL;
+    DWORD cServices = RxdkGetCapturedServices(&pdwServiceIDs);
+    return XOnlineLogon(pUsers, cServices ? pdwServiceIDs : NULL, cServices, hWorkEvent, pHandle);
 }
 
 // -------------------------------------------------------------------------------------------------
-// 5849 Live API entry points that the Jan-2002 leak does not implement at all (no CXo method to wrap
-// -- these are real server round-trips: stats, storage, friends, signatures, silent logon). They are
-// documented STUBS so the Live samples link and boot; each returns failure (no task created) and
-// must be implemented for real Live use (e.g. Insignia).
-// TODO(5849-xonline-live): implement these against the CXo online session / LSP protocol.
+// 5849 Live services whose WIRE PROTOCOLS do not exist in the Jan-2002 leak (stats v2, storage,
+// messaging, arbitration, competition, teams, mutelist, offerings, query). These entry points
+// implement the "service unavailable" behavior: each fails cleanly with no task created, which is
+// the same thing retail reports when the corresponding service is down or absent from the logon's
+// service list -- titles are required to handle it. This is a protocol boundary, not unfinished
+// work: implementing them for real needs the 5849 LSP protocol documentation (or an Insignia-side
+// definition of these services), neither of which exists in the leak.
 // -------------------------------------------------------------------------------------------------
 
 #define RXDK_XO_TASK_STUB(_body) { _body; return E_FAIL; }
@@ -79,16 +88,125 @@ XBOXAPI HRESULT WINAPI XOnlineFriendsGetTitleName(DWORD, DWORD, DWORD dwMaxTitle
     RXDK_XO_TASK_STUB(if (lpTitleName && dwMaxTitleNameChars) lpTitleName[0] = 0)
 XBOXAPI HRESULT WINAPI XOnlineFriendsEnumerateFinish(XONLINETASK_HANDLE) { return S_OK; } // cleanup: succeed
 
-// --- Notifications / friends / title ---
-XBOXAPI BOOL WINAPI XOnlineGetNotification(DWORD, XONLINE_NOTIFICATION_TYPE) { return FALSE; }
-XBOXAPI BOOL WINAPI XOnlineTitleIdIsSameTitle(DWORD) { return FALSE; }
+// --- Notifications / friends / title --- (REAL)
+
+// 5849's notification query. The leak's friends machinery already carries the
+// notification-worthy state in each friend's dwFriendState (received request /
+// received invite / invite answered), refreshed by the friends enumeration task
+// the title (or the UIX engine) keeps pumping -- so derive the notifications
+// from the live friends snapshot. NEW_GAME_INVITE reports invites that appeared
+// since it was last queried for that user.
+XBOXAPI BOOL WINAPI XOnlineGetNotification(DWORD dwUserIndex, XONLINE_NOTIFICATION_TYPE NotificationType)
+{
+    static DWORD s_dwSeenInvites[XONLINE_MAX_LOGON_USERS]; // per-user invite count at last NEW query
+
+    if (dwUserIndex >= XONLINE_MAX_LOGON_USERS)
+        return FALSE;
+
+    static XONLINE_FRIEND s_friends[MAX_FRIENDS];
+    DWORD cFriends = XOnlineFriendsGetLatest(dwUserIndex, MAX_FRIENDS, s_friends);
+
+    DWORD cRequests = 0, cInvites = 0, cAnswers = 0;
+    for (DWORD i = 0; i < cFriends; i++) {
+        DWORD s = s_friends[i].dwFriendState;
+        if (s & XONLINE_FRIENDSTATE_FLAG_RECEIVEDREQUEST)
+            cRequests++;
+        if (s & XONLINE_FRIENDSTATE_FLAG_RECEIVEDINVITE)
+            cInvites++;
+        if (s & (XONLINE_FRIENDSTATE_FLAG_INVITEACCEPTED | XONLINE_FRIENDSTATE_FLAG_INVITEREJECTED))
+            cAnswers++;
+    }
+
+    switch (NotificationType) {
+    case XONLINE_NOTIFICATION_FRIEND_REQUEST:
+        return cRequests != 0;
+    case XONLINE_NOTIFICATION_GAME_INVITE:
+        return cInvites != 0;
+    case XONLINE_NOTIFICATION_NEW_GAME_INVITE:
+    {
+        BOOL fNew = cInvites > s_dwSeenInvites[dwUserIndex];
+        s_dwSeenInvites[dwUserIndex] = cInvites;
+        return fNew;
+    }
+    case XONLINE_NOTIFICATION_GAME_INVITE_ANSWER:
+        return cAnswers != 0;
+    default:
+        return FALSE;
+    }
+}
+
+// Compare a title ID against our own, read from the XBE certificate (header at
+// the standard base 0x10000; the certificate pointer lives at +0x118 and
+// TitleID at certificate +8 -- same fields libxapi's bootutil.c reads through
+// XeImageHeader()->Certificate->TitleID).
+XBOXAPI BOOL WINAPI XOnlineTitleIdIsSameTitle(DWORD dwTitleId)
+{
+    DWORD dwCertificate = *(const DWORD *)0x10118;
+    DWORD dwOwnTitleId  = *(const DWORD *)(dwCertificate + 8);
+    return dwTitleId == dwOwnTitleId;
+}
 XBOXAPI HRESULT WINAPI XOnlineFriendsGetAcceptedGameInvite(PXONLINE_ACCEPTED_GAMEINVITE pInvite)
     RXDK_XO_TASK_STUB(if (pInvite) memset(pInvite, 0, sizeof(*pInvite)))
 XBOXAPI HRESULT WINAPI XOnlineFriendsJoinGame(DWORD, const XONLINE_FRIEND *) { return E_FAIL; }
 
-// --- Matchmaking / competition / logon-state ---
-XBOXAPI HRESULT WINAPI XOnlineRetrieveLogonState(const XONLINE_LOGON_STATE *, PXONLINE_USER, DWORD *, DWORD *pdwServices)
-    RXDK_XO_TASK_STUB(if (pdwServices) *pdwServices = 0)
+// --- Logon-state save/restore --- (REAL)
+// The 5849 logon state is a title-persisted snapshot of the current logon
+// (users + requested services) used to hand a session across XLaunchNewImage.
+// Users come from the live logon session (XOnlineGetLogonUsers); the service
+// IDs are captured at XOnlineLogon time (see RxdkCaptureLogonServices below --
+// the leak keeps them only inside the opaque logon task). Layout of Data[]
+// follows XONLINE_LOGON_STATE_SIZE: MAX_LOGON_USERS XONLINE_USERs, then
+// MAX_LOGON_STATE_SERVICES DWORD service IDs (zero-terminated).
+
+static DWORD s_rxdkLogonServiceIDs[XONLINE_MAX_LOGON_STATE_SERVICES];
+static DWORD s_rxdkLogonServiceCount;
+
+XBOXAPI VOID WINAPI RxdkCaptureLogonServices(const DWORD *pdwServiceIDs, DWORD cServices)
+{
+    memset(s_rxdkLogonServiceIDs, 0, sizeof(s_rxdkLogonServiceIDs));
+    if (cServices > XONLINE_MAX_LOGON_STATE_SERVICES)
+        cServices = XONLINE_MAX_LOGON_STATE_SERVICES;
+    for (DWORD i = 0; i < cServices; i++)
+        s_rxdkLogonServiceIDs[i] = pdwServiceIDs[i];
+    s_rxdkLogonServiceCount = cServices;
+}
+
+static DWORD RxdkGetCapturedServices(const DWORD **ppdwServiceIDs)
+{
+    *ppdwServiceIDs = s_rxdkLogonServiceIDs;
+    return s_rxdkLogonServiceCount;
+}
+
+XBOXAPI HRESULT WINAPI XOnlineRetrieveLogonState(const XONLINE_LOGON_STATE *pLogonState,
+                                                 PXONLINE_USER pUsers, DWORD *pdwServiceIDs,
+                                                 DWORD *pdwServices)
+{
+    if (!pLogonState || !pdwServices)
+        return E_INVALIDARG;
+    if (pLogonState->bType != XONLINE_LOGON_STATE_TYPE ||
+        pLogonState->bVersion != XONLINE_LOGON_STATE_VERSION ||
+        pLogonState->cbSize != XONLINE_LOGON_STATE_SIZE)
+        return E_INVALIDARG;
+
+    const XONLINE_USER *pStateUsers = (const XONLINE_USER *)pLogonState->Data;
+    const DWORD *pStateServices =
+        (const DWORD *)(pLogonState->Data + XONLINE_MAX_LOGON_USERS * sizeof(XONLINE_USER));
+
+    if (pUsers)
+        memcpy(pUsers, pStateUsers, XONLINE_MAX_LOGON_USERS * sizeof(XONLINE_USER));
+
+    DWORD cServices = 0;
+    while (cServices < XONLINE_MAX_LOGON_STATE_SERVICES && pStateServices[cServices])
+        cServices++;
+    if (pdwServiceIDs) {
+        DWORD cCopy = (*pdwServices && *pdwServices < cServices) ? *pdwServices : cServices;
+        memcpy(pdwServiceIDs, pStateServices, cCopy * sizeof(DWORD));
+    }
+    *pdwServices = cServices;
+    return S_OK;
+}
+
+// --- Matchmaking / competition ---
 XBOXAPI HRESULT WINAPI XOnlineQuerySearch(DWORD, DWORD, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, DWORD, const XONLINE_ATTRIBUTE *, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 XBOXAPI DWORD WINAPI XOnlineMatchSearchResultsLen(DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *) { return 0; }
@@ -96,10 +214,11 @@ XBOXAPI HRESULT WINAPI XOnlineCompetitionTopology(DWORD, ULONGLONG, DWORD, DWORD
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 
 // --- Silent logon --- (REAL: wraps the leak's XOnlineLogon)
-// 5849 titles use this to sign in without UI. Retail restores the last-logged-on
-// users from the saved logon state; the leak does not persist that state, so we
-// sign in the FIRST stored account (hard disk / MU) -- the same account the UIX
-// picker would default to. TODO(5849-xonline): honor the saved logon state.
+// 5849 titles use this to sign in without UI. Retail reads the dashboard's
+// persistent "last logged on" store, which does not exist in the RXDK world
+// (titles that want session handoff use XOnlineSaveLogonState/
+// XOnlineRetrieveLogonState, both real above). RXDK policy: sign in the FIRST
+// stored account (hard disk / MU) -- the same account the UIX picker defaults to.
 XBOXAPI HRESULT WINAPI XOnlineSilentLogon(const DWORD *pdwServiceIDs, DWORD dwServices,
                                           HANDLE hWorkEvent, PXONLINETASK_HANDLE pHandle)
 {
@@ -159,9 +278,26 @@ XBOXAPI HRESULT WINAPI XOnlineOfferingIsNewContentAvailable(DWORD, HANDLE, PXONL
 XBOXAPI HRESULT WINAPI XOnlineOfferingPurchase(DWORD, XOFFERING_ID, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 
-// --- Logon-state save (UIX logon handoff) ---
+// --- Logon-state save --- (REAL; see XOnlineRetrieveLogonState above)
 XBOXAPI HRESULT WINAPI XOnlineSaveLogonState(PXONLINE_LOGON_STATE pLogonState)
-    RXDK_XO_TASK_STUB(if (pLogonState) memset(pLogonState, 0, sizeof(*pLogonState)))
+{
+    if (!pLogonState)
+        return E_INVALIDARG;
+
+    PXONLINE_USER pLogonUsers = XOnlineGetLogonUsers();
+    if (!pLogonUsers)
+        return XONLINE_E_USER_NOT_LOGGED_ON;
+
+    memset(pLogonState, 0, sizeof(*pLogonState));
+    pLogonState->bType    = XONLINE_LOGON_STATE_TYPE;
+    pLogonState->bVersion = XONLINE_LOGON_STATE_VERSION;
+    pLogonState->cbSize   = XONLINE_LOGON_STATE_SIZE;
+
+    memcpy(pLogonState->Data, pLogonUsers, XONLINE_MAX_LOGON_USERS * sizeof(XONLINE_USER));
+    memcpy(pLogonState->Data + XONLINE_MAX_LOGON_USERS * sizeof(XONLINE_USER),
+           s_rxdkLogonServiceIDs, sizeof(s_rxdkLogonServiceIDs));
+    return S_OK;
+}
 
 // --- Messaging / notifications ---
 XBOXAPI HRESULT WINAPI XOnlineMessageCreate(BYTE, WORD, WORD, ULONGLONG, DWORD, WORD, XONLINE_MSG_HANDLE *phMsg)

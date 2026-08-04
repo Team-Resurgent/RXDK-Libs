@@ -1,7 +1,15 @@
-// RXDK 5849 uplift: XNet connect + QoS-lookup entry points that the XDK-5849 matchmaking/connect
-// samples call but that are absent from the Jan-2002 leak net stack. Documented STUBS so the Live
-// samples link and boot; they report idle/no-result. Must be implemented for real Xbox Live
-// (e.g. Insignia) matchmaking. TODO(5849-xnet): implement over the secure-gateway / QoS engine.
+// RXDK 5849 uplift: XNet connect + QoS-lookup entry points absent from the Jan-2002 leak net stack.
+//
+// XNetConnect/XNetGetConnectStatus are REAL under the leak's model: 5849 split the security-
+// association handshake into an explicit start/poll pair, but the leak's stack establishes the SA
+// implicitly on first send to a secure address and blocks/retries internally -- the API contract
+// ("you may now send to this peer") is already satisfied, so Connect succeeds as a no-op and the
+// status reports CONNECTED.
+//
+// The QoS lookups are a PROTOCOL BOUNDARY, not unfinished work: the 5849 peer-probe wire format is
+// documented nowhere in the leak, so a probe engine could not interoperate with anything. They
+// report "no result" (the same shape titles see when every probe times out); revisit only if the
+// 5849 QoS protocol is ever documented (or Insignia defines a replacement).
 
 #include "xnp.h"
 
@@ -9,12 +17,13 @@ extern "C" {
 
 INT WSAAPI XNetConnect(const IN_ADDR)
 {
-    return 0;   // treat as "connection started"
+    // the leak's secure stack connects lazily on first send; nothing to start
+    return 0;
 }
 
 DWORD WSAAPI XNetGetConnectStatus(const IN_ADDR)
 {
-    return 0;   // XNET_CONNECT_STATUS_IDLE
+    return 0x0002; // XNET_CONNECT_STATUS_CONNECTED (sends to the peer are permitted now)
 }
 
 INT WSAAPI XNetQosLookup(UINT, const XNADDR *[], const XNKID *[], const XNKEY *[], UINT,

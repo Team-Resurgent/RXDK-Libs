@@ -169,6 +169,78 @@ int _vscprintf(const char *format, va_list ap);
 #ifdef __cplusplus
 }
 #endif
+
+// NT RtlXxxMemory intrinsics -- XDK samples use these; the picolibc/xtl umbrella doesn't supply them.
+#ifndef RtlCopyMemory
+#define RtlCopyMemory(Destination, Source, Length) memcpy((Destination), (Source), (Length))
+#endif
+#ifndef RtlMoveMemory
+#define RtlMoveMemory(Destination, Source, Length) memmove((Destination), (Source), (Length))
+#endif
+#ifndef RtlFillMemory
+#define RtlFillMemory(Destination, Length, Fill) memset((Destination), (Fill), (Length))
+#endif
+#ifndef RtlZeroMemory
+#define RtlZeroMemory(Destination, Length) memset((Destination), 0, (Length))
+#endif
+
+// MSVC CRT spellings that alias directly onto the picolibc/POSIX equivalents.
+#ifndef _fcvt
+#define _fcvt fcvt
+#endif
+#ifndef _itoa
+#define _itoa itoa
+#endif
+#ifndef _wcsnicmp
+#define _wcsnicmp wcsncasecmp
+#endif
+
+// MSVC wide CRT helpers the samples call. _snwprintf/_vsnwprintf map to C99 vswprintf (same arg
+// shape); _itow/_i64tow are small base-radix conversions (picolibc has no _itow/_i64tow).
+#ifdef __cplusplus
+#include <wchar.h>  // vswprintf
+#ifndef _vsnwprintf
+static inline int _vsnwprintf(wchar_t *buffer, size_t count, const wchar_t *format, va_list ap)
+{
+    return vswprintf(buffer, count, format, ap);
+}
+#endif
+#ifndef _i64tow
+static inline wchar_t *_i64tow(long long value, wchar_t *str, int radix)
+{
+    wchar_t *p = str, *lo, *hi;
+    unsigned long long uv = (radix == 10 && value < 0) ? (*p++ = L'-', (unsigned long long)(-value)) : (unsigned long long)value;
+    lo = p;
+    do { unsigned d = (unsigned)(uv % (unsigned)radix); *p++ = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10); uv /= (unsigned)radix; } while (uv);
+    *p = 0;
+    for (hi = p - 1; lo < hi; ++lo, --hi) { wchar_t t = *lo; *lo = *hi; *hi = t; }
+    return str;
+}
+#endif
+#ifndef _snwprintf
+static inline int _snwprintf(wchar_t *buffer, size_t count, const wchar_t *format, ...)
+{
+    va_list ap; int r;
+    va_start(ap, format);
+    r = vswprintf(buffer, count, format, ap);
+    va_end(ap);
+    return r;
+}
+#endif
+#ifndef _itow
+static inline wchar_t *_itow(int value, wchar_t *str, int radix)
+{
+    wchar_t *p = str, *lo, *hi;
+    unsigned int uv = (radix == 10 && value < 0) ? (*p++ = L'-', (unsigned)(-value)) : (unsigned)value;
+    lo = p;
+    do { unsigned d = uv % (unsigned)radix; *p++ = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10); uv /= (unsigned)radix; } while (uv);
+    *p = 0;
+    for (hi = p - 1; lo < hi; ++lo, --hi) { wchar_t t = *lo; *lo = *hi; *hi = t; }
+    return str;
+}
+#endif
+#endif // __cplusplus
+
 // MSVC aligned allocation -> C11 aligned_alloc (note the swapped argument order) + free.
 #ifndef _aligned_malloc
 #define _aligned_malloc(size, alignment) aligned_alloc((alignment), (size))

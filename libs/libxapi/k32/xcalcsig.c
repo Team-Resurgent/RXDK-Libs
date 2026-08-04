@@ -399,6 +399,6 @@ DWORD __attribute__((__stdcall__)) XCalculateSignatureGetSize(
     DWORD dwFlags
     )
 {
-    UNREFERENCED_PARAMETER(dwFlags);
+    (VOID)dwFlags;
     return XCALCSIG_SIGNATURE_SIZE;
 }

@@ -633,7 +633,7 @@ XapipLaunchNewImageInternal(
     BOOL fPreserveDDrive;
     BOOL fTitlePathType;
     NTSTATUS Status;
-    UNREFERENCED_PARAMETER(pvUnused);
+    (VOID)pvUnused;   // RXDK: UNREFERENCED_PARAMETER's definition (nt/ntdef.h) is not in scope here
 
     if (NULL == pszLaunchPath)
     {

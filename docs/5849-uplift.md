@@ -57,7 +57,7 @@ carries full `.debug$T`.
 | libcpp | `libcp.lib` / `libcpmt.lib` | ➖ n/a | |
 | libkernel | `xboxkrnl.lib` | ❌ leak | Kernel import surface; drift low-risk but check. |
 | libxbdm | `xbdm.lib` | ❌ leak | Debug monitor. |
-| libxfont | *(none)* | ➖ n/a | No standalone `xfont.lib` in 5849; font lives in xapi/xgraphics. |
+| libxfont | (inside `xgraphics.lib`) | ✅ full | **Full export parity (30/30).** Was bitmap-fonts-from-memory only; TrueType (`truetype.cpp` + the leak's third-party scan converter under `scaler/`, its own `xfonttt` library there) and the disk-file load path are both ported, so `XFONT_OpenTrueTypeFont` and `XFONT_OpenBitmapFont` exist. `font.h`/`xfont.c`/`bitmap.cpp` restored to the leak's full content. The scaler builds in its own slice on picolibc alone — it declares its own `ULONG`/`LPSTR`/`LARGE_INTEGER`, which redefine libxapi's; a small shim supplies the only two things it wants from the NT headers (`RtlZeroMemory`/`RtlCopyMemory`, and `ULONG_PTR` for `ClientIDType`). Note retail keeps XFONT **inside xgraphics.lib**, so the importer maps `xgraphics` → `libxgraphics;libxfont`. **Verified: DynamicFont + TrueTypeFont build to bootable .xbe.** Glyph rendering not HW-tested. |
 
 ## Not yet ported (5849 libs with no RXDK counterpart)
 
@@ -150,6 +150,6 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **149 of 182 XDKSamples projects build to .xbe** (`Platform=Xbox`)._
+_Sample sweep: **153 of 182 XDKSamples projects build to .xbe** (`Platform=Xbox`)._
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

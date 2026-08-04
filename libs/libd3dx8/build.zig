@@ -107,7 +107,9 @@ pub fn addAllObjects(
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
     for (d3dx8_sources.slices) |slice| {
-        const flags = if (slice.is_cpp) cppFlags(b) else cFlags(b);
+        const base_flags = if (slice.is_cpp) cppFlags(b) else cFlags(b);
+        const flags = if (slice.extra_flags.len == 0) base_flags else
+            std.mem.concat(b.allocator, []const u8, &.{ base_flags, slice.extra_flags }) catch @panic("OOM");
         const batch = compile_c.addBatch(b, .{
             .name = b.fmt("d3dx8-{s}", .{slice.name}),
             .target = xbox_target.target_triple,

@@ -47,13 +47,27 @@
 // matching header, which now has its prerequisites already in place.
 //
 #include <d3d8.h>
-#include <d3dx8math.h>
 
-// The XDK's XTL.h pulls <xgmath.h> right after d3d8.h when a title builds with
-// _USE_XGMATH (the XGVECTOR*/XGMATRIX SIMD math types, and the D3DX* aliases
-// that map onto them). Samples compiled -D_USE_XGMATH expect the types from
-// <xtl.h> alone, so mirror that here.
+// The XDK's XTL.h pulls <xgmath.h> right after d3d8.h and BEFORE d3dx8, when a
+// title builds with _USE_XGMATH (the XGVECTOR*/XGMATRIX SIMD math types, and
+// the D3DX* aliases that map onto them). The order matters: xgmath.h aliases
+// with #define D3DXMATRIX XGMATRIX, so it must be seen before d3dx8math.h
+// declares anything, or the title's D3DXMATRIX is an XGMATRIX while the D3DX
+// functions still take the real one. The two are layout-compatible -- each XG
+// type derives from the same D3DVECTOR/D3DMATRIX -- so aliasing is ABI-safe.
 #ifdef _USE_XGMATH
 #include <xgmath.h>
 #endif
+
+#include <d3dx8math.h>
 #include <dsound.h>
+
+//
+// The XDK's XTL.h did NOT expose the kernel's PAGE_SIZE to titles -- XDK
+// samples define their own (Common/Src/xbperf.cpp, CustomMemoryAllocator's
+// CHeapAlloc.h), which a leaked macro turns into a syntax error. RXDK pulls
+// the whole of xboxkrnl for its base types, so drop this one name back out
+// at the title boundary. RXDK's own libraries include <xboxkrnl/xboxkrnl.h>
+// directly and are unaffected; a title that wants it can do the same.
+//
+#undef PAGE_SIZE

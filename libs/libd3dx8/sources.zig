@@ -16,6 +16,10 @@ pub const Slice = struct {
     name: []const u8,
     sources: []const []const u8,
     is_cpp: bool,
+    // Extra flags for this slice only. site/bridge_d3dx8.h force-includes <d3dx8.h> ahead of
+    // every TU, so a TU cannot set INITGUID itself -- the headers are already parsed by the time
+    // its first line runs. The GUID slice gets -DINITGUID on the command line instead.
+    extra_flags: []const []const u8 = &.{},
 };
 
 // --- core: D3DXCreate*, sprite, buffer, .X file, render-to-surface/envmap ---
@@ -172,7 +176,17 @@ pub const zlib_sources = [_][]const u8{
     "libs/libd3dx8/misc/zlib113/zutil.cpp",
 };
 
+// RXDK: instantiates the D3DX8 interface GUIDs. The headers declare them with DEFINE_GUID,
+// which only emits data when INITGUID is set before they are parsed; core/init.c does this for
+// the .X-file GUIDs but cannot include the D3DX8 headers (they do not compile as C). Without
+// this, IID_ID3DXSprite / IID_ID3DXEffect / IID_ID3DXBaseMesh and friends were declared and
+// never defined, and a title naming one failed at link.
+pub const guid_sources = [_][]const u8{
+    "libs/libd3dx8/core/d3dxguids.cpp",
+};
+
 pub const slices = [_]Slice{
+    .{ .name = "guids", .is_cpp = true, .sources = &guid_sources, .extra_flags = &.{"-DINITGUID"} },
     .{ .name = "core", .is_cpp = true, .sources = &core_cpp_sources },
     .{ .name = "core-c", .is_cpp = false, .sources = &core_c_sources },
     .{ .name = "math", .is_cpp = true, .sources = &math_sources },

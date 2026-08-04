@@ -58,6 +58,10 @@ const common_flags = [_][]const u8{
     "-fno-operator-names",
     "-fno-sanitize=undefined",
     "-fno-builtin",
+    // RXDK: MSVC-ABI clang emits __chkstk (allocate+probe) for >4KB stack frames, but the GNU
+    // compiler-rt only supplies __chkstk_ms. Xbox stacks are fully committed (no guard pages to
+    // probe), so disable the probe -- the compiler does a direct ESP subtraction instead.
+    "-mno-stack-arg-probe",
     "-fwrapv",
     "-Wno-everything",
     "-D_XAPI_",

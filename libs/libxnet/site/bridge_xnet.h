@@ -11,16 +11,19 @@
  * [[libxnet-newstack-upgrade]] memory.
  */
 
-/* Build identity: standard xnet.lib, Xbox target, retail (DBG=0). xnp.h selects
-   the kernel include path on _XBOX and the feature set on XNET_BUILD_LIBX. */
+/* Build identity: xnet ONLINE lib (xneto), Xbox target, retail (DBG=0). RXDK 5849 uplift: switched
+   from XNET_BUILD_LIBX (plain xnet.lib) to XNET_BUILD_LIBO so xnp.h coherently enables the online
+   feature set (XNET_FEATURE_ONLINE + _QOS + _SG) -- the CXoBase/CXn secure-gateway logon layer that
+   libxonline's CXo derives from. Needed for Xbox Live incl. community revivals (Insignia). LIBO is a
+   superset of LIBX's features (adds ONLINE/QOS/SG), so non-Live titles are unaffected. */
 #ifndef NT
 #define NT 1
 #endif
 #ifndef _XBOX
 #define _XBOX 1
 #endif
-#ifndef XNET_BUILD_LIBX
-#define XNET_BUILD_LIBX 1
+#ifndef XNET_BUILD_LIBO
+#define XNET_BUILD_LIBO 1
 #endif
 #ifndef DBG
 #define DBG 0

@@ -32,6 +32,7 @@ const X = "libs/libxonline";
 // The exact SOURCES= list from private/online/sources.inc (LIBTAG=X / xonline.lib).
 pub const cpp_sources = [_][]const u8{
     X ++ "/src/stats.cpp",
+    X ++ "/src/uplift5849.cpp",
     X ++ "/src/xonline.cpp",
     X ++ "/src/kerberos.cpp",
     X ++ "/src/krb5.cpp",

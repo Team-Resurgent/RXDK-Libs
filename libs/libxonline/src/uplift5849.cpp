@@ -121,6 +121,22 @@ XBOXAPI HRESULT WINAPI XOnlineStorageEnumerateGetResults(XONLINETASK_HANDLE, DWO
 XBOXAPI HRESULT WINAPI XOnlineStorageUploadByServerPath(DWORD, DWORD, LPCWSTR, FILETIME, LPCSTR, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 
+// --- Offerings / content install (5849 renamed content-download surface) ---
+XBOXAPI HRESULT WINAPI XOnlineContentInstall(XOFFERING_ID, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineOfferingCancel(DWORD, XOFFERING_ID, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineOfferingDetails(DWORD, XOFFERING_ID, DWORD, DWORD, PBYTE, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineOfferingDetailsGetResults(XONLINETASK_HANDLE, PXONLINEOFFERING_DETAILS pDetails)
+    RXDK_XO_TASK_STUB(if (pDetails) memset(pDetails, 0, sizeof(*pDetails)))
+XBOXAPI HRESULT WINAPI XOnlineOfferingEnumerate(DWORD, const XONLINEOFFERING_ENUM_PARAMS *, PBYTE, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineOfferingIsNewContentAvailable(DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineOfferingPurchase(DWORD, XOFFERING_ID, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+
 // --- Logon-state save (UIX logon handoff) ---
 XBOXAPI HRESULT WINAPI XOnlineSaveLogonState(PXONLINE_LOGON_STATE pLogonState)
     RXDK_XO_TASK_STUB(if (pLogonState) memset(pLogonState, 0, sizeof(*pLogonState)))

@@ -281,4 +281,71 @@ HRESULT WINAPI LiveEngine_UseVoiceMail(LiveEngine *pThis, UIX_VOICE_MAIL_ENTRY_P
     return E_FAIL; // voicemail needs the WMAVoice codec + UIX voice-mail UI
 }
 
+// ---------------------------------------------------------------- plugin ---
+// PluginSupport: the skin-resource access interface UIX hands to a title's
+// custom UI plugin. With no UIX engine there is never a live PluginSupport
+// object; these exist so custom-plugin samples link. Every getter fails
+// cleanly (no skin is ever loaded).
+
+ULONG WINAPI PluginSupport_AddRef(PluginSupport *pThis)
+{
+    (void)pThis;
+    return 1;
+}
+
+ULONG WINAPI PluginSupport_Release(PluginSupport *pThis)
+{
+    (void)pThis;
+    return 0;
+}
+
+HRESULT WINAPI PluginSupport_GetString(PluginSupport *pThis, DWORD StringResID, LPCWSTR *ppString)
+{
+    (void)pThis;
+    (void)StringResID;
+    if (ppString)
+        *ppString = NULL;
+    return E_FAIL;
+}
+
+HRESULT WINAPI PluginSupport_GetLayout(PluginSupport *pThis, DWORD ScreenResID, DWORD ObjectResID,
+                                       UIX_SKIN_LAYOUT_INFO **ppLayout)
+{
+    (void)pThis;
+    (void)ScreenResID;
+    (void)ObjectResID;
+    if (ppLayout)
+        *ppLayout = NULL;
+    return E_FAIL;
+}
+
+HRESULT WINAPI PluginSupport_GetImage(PluginSupport *pThis, DWORD ImageResID, IDirect3DTexture8 **ppTexture)
+{
+    (void)pThis;
+    (void)ImageResID;
+    if (ppTexture)
+        *ppTexture = NULL;
+    return E_FAIL;
+}
+
+HRESULT WINAPI PluginSupport_GetScreenImage(PluginSupport *pThis, DWORD ScreenResID, DWORD ImageResID,
+                                            IDirect3DTexture8 **ppTexture)
+{
+    (void)pThis;
+    (void)ScreenResID;
+    (void)ImageResID;
+    if (ppTexture)
+        *ppTexture = NULL;
+    return E_FAIL;
+}
+
+HRESULT WINAPI PluginSupport_GetWordLength(PluginSupport *pThis, LPCWSTR pString, DWORD *pWordLength)
+{
+    (void)pThis;
+    (void)pString;
+    if (pWordLength)
+        *pWordLength = 0;
+    return E_FAIL;
+}
+
 } // extern "C"

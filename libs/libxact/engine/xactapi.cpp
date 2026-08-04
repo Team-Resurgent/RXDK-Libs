@@ -59,10 +59,13 @@ STDAPI IXACTEngine_RegisterWaveBank(PXACTENGINE pEngine, PVOID pvData, DWORD dwS
     return ((CEngine *)pEngine)->RegisterWaveBank(pvData, dwSize, ppWaveBank);
 }
 
-STDAPI IXACTEngine_RegisterStreamedWaveBank(PXACTENGINE pEngine, PVOID pvStreamingBuffer, DWORD dwSize, HANDLE hFileHandle, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank)
+// RXDK 5849 uplift: 5849 passes streaming parameters (file + packet timing) instead of the leak's
+// caller-provided buffer. CEngine::RegisterStreamedWaveBank now loads the whole bank into memory, so
+// the buffer args are unused (NULL/0).
+STDAPI IXACTEngine_RegisterStreamedWaveBank(PXACTENGINE pEngine, PCXACT_WAVEBANK_STREAMING_PARAMETERS pParams, PXACTWAVEBANK *ppWaveBank)
 {
     using namespace XACT;
-    return ((CEngine *)pEngine)->RegisterStreamedWaveBank(pvStreamingBuffer, dwSize, hFileHandle, dwOffset, ppWaveBank);
+    return ((CEngine *)pEngine)->RegisterStreamedWaveBank(NULL, 0, pParams->hFile, pParams->dwOffset, ppWaveBank);
 }
 
 STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBank)
@@ -71,7 +74,9 @@ STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBa
     return ((CEngine *)pEngine)->UnRegisterWaveBank(pWaveBank);
 }
 
-STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, LONG lVolume)
+// RXDK 5849 uplift: 5849 added a wCategory selector (per-category master volume). The leak has a
+// single master volume, so the category is ignored.
+STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD /*wCategory*/, LONG lVolume)
 {
     using namespace XACT;
     return ((CEngine *)pEngine)->SetMasterVolume(lVolume);
@@ -150,6 +155,16 @@ STDAPI IXACTSoundBank_Play(PXACTSOUNDBANK pBank, DWORD dwCueIndex, PXACTSOUNDSOU
 {
     using namespace XACT;
     return ((CSoundBank *)pBank)->Play(dwCueIndex, pSoundSource, dwFlags, ppCue);
+}
+
+// RXDK 5849 uplift: 5849 made PlayEx the exported entry point and turned Play into a
+// header-inline that packs an XACT_PREPARE_SOUNDCUE and calls PlayEx. Adapt it back to
+// the leak's 5-arg CSoundBank::Play (the extra pParameterControls field is not honored).
+STDAPI IXACTSoundBank_PlayEx(PXACTSOUNDBANK pBank, PCXACT_PREPARE_SOUNDCUE pPrepareData, PXACTSOUNDCUE *ppCue)
+{
+    using namespace XACT;
+    return ((CSoundBank *)pBank)->Play(pPrepareData->dwCueIndex, pPrepareData->pSoundSource,
+                                       pPrepareData->dwFlags, ppCue);
 }
 
 STDAPI IXACTSoundBank_Stop(PXACTSOUNDBANK pBank, DWORD dwCueIndex, DWORD dwFlags, PXACTSOUNDCUE pCue)

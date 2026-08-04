@@ -1221,8 +1221,11 @@ VOID CSoundCue::ProcessRuntimeEvent(XACT_TRACK_EVENT *pEventDesc)
         // copy data to cached context
         //
 
-        memcpy(pContext->PendingNotification.Data.Marker.bData,
-            pEventDesc->EventData.Marker.bData, XACT_SIZEOF_MARKER_DATA);
+        // 5849: the delivered marker is a single DWORD (the authored Value). The 8-byte
+        // track-event marker holds Value in its first DWORD (xactbld writes Value first);
+        // the remaining 4 bytes are type/duration metadata the title never receives.
+        pContext->PendingNotification.Data.Marker.dwData =
+            *(DWORD *)pEventDesc->EventData.Marker.bData;
 
         break;
     }

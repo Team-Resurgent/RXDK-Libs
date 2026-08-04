@@ -184,6 +184,23 @@ typedef struct _DSMIXBINVOLUMEPAIR
 
 typedef const DSMIXBINVOLUMEPAIR *LPCDSMIXBINVOLUMEPAIR;
 
+// RXDK 5849 uplift: hardware-voice property snapshot (added in XDK-5849; absent from the
+// Jan-2002 leak). Layout recovered from the 5849 dsound.lib CodeView types (sizeof 92).
+// Referenced by XACT_SOUNDSOURCE_PROPERTIES in the 5849 public xact.h.
+typedef struct _DSVOICEPROPS
+{
+    DWORD               dwMixBinCount;              // +0
+    DSMIXBINVOLUMEPAIR  MixBinVolumePairs[8];       // +4  (8 pairs * 8 bytes)
+    LONG                lPitch;                     // +68
+    LONG                l3DDistanceVolume;          // +72
+    LONG                l3DConeVolume;              // +76
+    LONG                l3DDopplerPitch;            // +80
+    LONG                lI3DL2DirectVolume;         // +84
+    LONG                lI3DL2RoomVolume;           // +88
+} DSVOICEPROPS, *LPDSVOICEPROPS;
+
+typedef const DSVOICEPROPS *LPCDSVOICEPROPS;
+
 typedef struct _DSMIXBINS
 {
     DWORD                   dwMixBinCount;          // Count of mixbins to assign the voice to or mixbins to set volume on

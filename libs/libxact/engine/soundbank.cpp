@@ -369,7 +369,7 @@ HRESULT CSoundBank::Play( DWORD dwCueIndex, PXACTSOUNDSOURCE pSoundSourceObject,
                         sizeof(Desc));
 
                     Desc.pSoundCue = (PXACTSOUNDCUE) pNewCue;
-                    Desc.pSoundBank = NULL;
+                    Desc.u.pSoundBank = NULL;
                     Desc.dwSoundCueIndex = XACT_SOUNDCUE_INDEX_UNUSED;
 
                     //

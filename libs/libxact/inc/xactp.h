@@ -71,16 +71,23 @@ typedef enum _XACT_NOTIFICATION_TYPE {
 };
 
 #define XACT_MASK_NOTIFICATION_TYPE		0x0000FFFF
-#define XACT_MASK_NOTIFICATION_FLAGS	0xFFFF0000
 
-
-#define XACT_NOTIFICATION_TYPE_UNUSED	0xFFFFFFFF
+// RXDK 5849 uplift: the notification type/flags moved from one DWORD dwType (type in the
+// low word, flags in the high word) to a WORD wType + a separate WORD wFlags. The type
+// sentinel is therefore a WORD, and PERSIST relocated from 0x00010000 to wFlags bit 0x8000.
+#define XACT_NOTIFICATION_TYPE_UNUSED	0xFFFF
 
 //
-// flags used when registering notifications
+// flags used when registering notifications (5849: the wFlags WORD)
 //
 
-#define XACT_FLAG_NOTIFICATION_PERSIST	0x00010000
+#define XACT_FLAG_NOTIFICATION_USE_WAVEBANK          0x0001
+#define XACT_FLAG_NOTIFICATION_USE_SOUNDCUE_INDEX    0x0002
+#define XACT_FLAG_NOTIFICATION_USE_SOUNDCUE_INSTANCE 0x0004
+#define XACT_FLAG_NOTIFICATION_SOUNDCUE_DESTROYED    0x0008
+#define XACT_FLAG_NOTIFICATION_PERSIST	             0x8000
+
+#define XACT_MASK_NOTIFICATION_FLAGS	(XACT_FLAG_NOTIFICATION_USE_SOUNDCUE_INSTANCE | XACT_FLAG_NOTIFICATION_USE_WAVEBANK | XACT_FLAG_NOTIFICATION_USE_SOUNDCUE_INDEX)
 
 
 typedef struct _XACT_NOTIFICATION_START {
@@ -97,7 +104,7 @@ typedef struct _XACT_NOTIFICATION_STOP {
  
 typedef struct _XACT_NOTIFICATION_MARKER {
 
-    BYTE    bData[XACT_SIZEOF_MARKER_DATA];
+    DWORD   dwData;     // 5849: the delivered marker is the authored Value (a single DWORD)
 
 } XACT_NOTIFICATION_MARKER, *PXACT_NOTIFICATION_MARKER, *LPXACT_NOTIFICATION_MARKER;
 
@@ -110,13 +117,20 @@ union XACT_NOTIFICATION_UNION {
 }; 
 
 typedef struct _XACT_NOTIFICATION_DESCRIPTION{
-    
-    DWORD            dwType;
-    PXACTSOUNDBANK   pSoundBank;
-    PXACTSOUNDCUE    pSoundCue;	
-	DWORD			 dwSoundCueIndex;
+
+    WORD             wType;
+    WORD             wFlags;
+
+    union {
+        PXACTSOUNDBANK   pSoundBank;
+        PXACTWAVEBANK    pWaveBank;
+    } u;
+
+    DWORD            dwSoundCueIndex;
+    PXACTSOUNDCUE    pSoundCue;
+
     PVOID            pvContext;
-	HANDLE			 hEvent;
+    HANDLE           hEvent;
 
 } XACT_NOTIFICATION_DESCRIPTION, *PXACT_NOTIFICATION_DESCRIPTION, *LPXACT_NOTIFICATION_DESCRIPTION;
 
@@ -133,8 +147,8 @@ typedef struct _XACT_RUNTIME_PARAMETERS {
     DWORD dwMax2DHwVoices;
     DWORD dwMax3DHwVoices;
     DWORD dwMaxConcurrentStreams;
-    PVOID pvHeap;
-    DWORD dwHeapSize;
+    DWORD dwMaxNotifications;               // 5849: replaced pvHeap (engine never read it)
+    DWORD dwInteractiveAudioLookaheadTime;  // 5849: replaced dwHeapSize
 } XACT_RUNTIME_PARAMETERS, *PXACT_RUNTIME_PARAMETERS, *LPXACT_RUNTIME_PARAMETERS;
 
 //
@@ -159,7 +173,7 @@ typedef struct _XACT_RUNTIME_PARAMETERS {
 // IXACTEngine
 //
 
-STDAPI XACTEngineCreate(PXACTENGINE *ppEngine, PXACT_RUNTIME_PARAMETERS pParams);
+STDAPI XACTEngineCreate(PXACT_RUNTIME_PARAMETERS pParams, PXACTENGINE *ppEngine);  // 5849: args reversed
 STDAPI_(void) XACTEngineDoWork(void);
 
 STDAPI_(ULONG) IXACTEngine_AddRef(PXACTENGINE pEngine);
@@ -168,10 +182,35 @@ STDAPI IXACTEngine_LoadDspImage(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize,
 STDAPI IXACTEngine_CreateSoundSource(PXACTENGINE pEngine, DWORD dwFlags, PXACTSOUNDSOURCE *ppSoundSource);
 STDAPI IXACTEngine_CreateSoundBank(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize, PXACTSOUNDBANK *ppSoundBank);
 STDAPI IXACTEngine_RegisterWaveBank(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize, PXACTWAVEBANK * ppWaveBank);
-STDAPI IXACTEngine_RegisterStreamedWaveBank(PXACTENGINE pEngine, PVOID pvStreamingBuffer, DWORD dwSize, HANDLE hFile, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank);
+
+// RXDK 5849 uplift: 5849 replaced the leak's (pvStreamingBuffer,dwSize,hFile,dwOffset) form with a
+// params block -- the runtime owns the buffer, sized from the packet timing.
+typedef struct _XACT_WAVEBANK_STREAMING_PARAMETERS
+{
+    HANDLE  hFile;
+    DWORD   dwOffset;
+    DWORD   dwPacketSizeInMilliSecs;
+    DWORD   dwPrimePacketSizeInMilliSecs;
+} XACT_WAVEBANK_STREAMING_PARAMETERS, *PXACT_WAVEBANK_STREAMING_PARAMETERS;
+typedef const XACT_WAVEBANK_STREAMING_PARAMETERS *PCXACT_WAVEBANK_STREAMING_PARAMETERS;
+
+STDAPI IXACTEngine_RegisterStreamedWaveBank(PXACTENGINE pEngine, PCXACT_WAVEBANK_STREAMING_PARAMETERS pParams, PXACTWAVEBANK *ppWaveBank);
+
+// RXDK 5849 uplift: the interactive-audio runtime-variable + parameter-control subsystems are new
+// in 5849 -- the Jan-2002 leak has no such runtime. These exports exist so 5849 titles link and
+// boot; they are no-op stubs (return S_OK) and do NOT modulate audio. See engine/uplift5849.cpp.
+typedef const void *PCXACT_PARAMETER_CONTROL_DESC;
+STDAPI IXACTEngine_SetVariable(PXACTENGINE pEngine, DWORD dwVariable, WORD wValue, DWORD dwApply);
+STDAPI IXACTEngine_GetVariable(PXACTENGINE pEngine, DWORD dwVariable, PWORD pwValue);
+STDAPI IXACTEngine_SetParameterControl(PXACTENGINE pEngine, PCXACT_PARAMETER_CONTROL_DESC pParams);
 STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBank);
-STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, LONG lVolume);
+STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD wCategory, LONG lVolume);  // 5849: +wCategory
 STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
+// RXDK 5849 uplift: 5849 split the combined SetListenerParameters into per-component setters.
+// The leak has no per-component listener path, so these are no-op stubs (see engine/uplift5849.cpp).
+STDAPI IXACTEngine_SetListenerPosition(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
+STDAPI IXACTEngine_SetListenerVelocity(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
+STDAPI IXACTEngine_SetListenerOrientation(PXACTENGINE pEngine, FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
 STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, BOOL bPause);
 STDAPI IXACTEngine_RegisterNotification(PXACTENGINE pEngine, PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
 STDAPI IXACTEngine_UnRegisterNotification(PXACTENGINE pEngine, PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
@@ -217,9 +256,9 @@ struct IXACTEngine
         return IXACTEngine_RegisterWaveBank(this, pvData, dwSize, ppWaveBank);
     }
 
-    __inline HRESULT STDMETHODCALLTYPE RegisterStreamedWaveBank(PVOID pvStreamingBuffer, DWORD dwSize, HANDLE hFile, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank)
+    __inline HRESULT STDMETHODCALLTYPE RegisterStreamedWaveBank(PCXACT_WAVEBANK_STREAMING_PARAMETERS pParams, PXACTWAVEBANK *ppWaveBank)
     {
-        return IXACTEngine_RegisterStreamedWaveBank(this, pvStreamingBuffer, dwSize, hFile, dwOffset, ppWaveBank);
+        return IXACTEngine_RegisterStreamedWaveBank(this, pParams, ppWaveBank);
     }
 
     __inline HRESULT STDMETHODCALLTYPE UnRegisterWaveBank(PXACTWAVEBANK pWaveBank)
@@ -227,9 +266,9 @@ struct IXACTEngine
         return IXACTEngine_UnRegisterWaveBank(this, pWaveBank);
     }
 
-    __inline HRESULT STDMETHODCALLTYPE SetMasterVolume(LONG lVolume)
+    __inline HRESULT STDMETHODCALLTYPE SetMasterVolume(WORD wCategory, LONG lVolume)
     {
-        return IXACTEngine_SetMasterVolume(this, lVolume);
+        return IXACTEngine_SetMasterVolume(this, wCategory, lVolume);
     }
 
     __inline HRESULT STDMETHODCALLTYPE SetListenerParameters(LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply)
@@ -356,6 +395,20 @@ STDAPI IXACTSoundBank_GetSoundCueIndexFromFriendlyName(PXACTSOUNDBANK pBank, LPC
 STDAPI IXACTSoundBank_Play(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, PXACTSOUNDSOURCE pSoundSource, DWORD dwFlags, PXACTSOUNDCUE *ppSoundCue);
 STDAPI IXACTSoundBank_Stop(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, DWORD dwFlags, PXACTSOUNDCUE pSoundCue);
 STDAPI IXACTSoundBank_SetSliderValue(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, DWORD dwSliderIndex, PVOID pvValue);
+
+// RXDK 5849 uplift: PlayEx entry point + its parameter block (matches the 5849 public
+// xact.h). pParameterControls is carried for layout compatibility but not honored here.
+typedef struct _XACT_PREPARE_SOUNDCUE
+{
+    DWORD               dwFlags;
+    DWORD               dwCueIndex;
+    PXACTSOUNDSOURCE    pSoundSource;
+    const void         *pParameterControls;
+} XACT_PREPARE_SOUNDCUE, *PXACT_PREPARE_SOUNDCUE;
+typedef const XACT_PREPARE_SOUNDCUE *PCXACT_PREPARE_SOUNDCUE;
+
+STDAPI IXACTSoundBank_PlayEx(PXACTSOUNDBANK pBank, PCXACT_PREPARE_SOUNDCUE pPrepareData, PXACTSOUNDCUE *ppCue);
+STDAPI IXACTSoundBank_PrepareEx(PXACTSOUNDBANK pBank, PCXACT_PREPARE_SOUNDCUE pPrepareData, PXACTSOUNDCUE *ppCue);
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
 

@@ -29,6 +29,7 @@ pub const Slice = struct {
 
 pub const xact_cpp_sources = [_][]const u8{
     "libs/libxact/engine/xactapi.cpp",
+    "libs/libxact/engine/uplift5849.cpp",
     "libs/libxact/engine/common.cpp",
     "libs/libxact/engine/engine.cpp",
     "libs/libxact/engine/soundbank.cpp",

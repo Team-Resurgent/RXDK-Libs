@@ -192,7 +192,14 @@ public:
     HRESULT STDMETHODCALLTYPE UnRegisterWaveBank(PXACTWAVEBANK pWaveBank);
     HRESULT STDMETHODCALLTYPE SetMasterVolume(LONG lVolume);
     HRESULT STDMETHODCALLTYPE SetListenerParameters(LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
-    HRESULT STDMETHODCALLTYPE GlobalPause(BOOL bPause); 
+    // RXDK 5849 uplift: 5849's per-component listener setters, backed by a persistent listener that
+    // delegates to the (real) SetListenerParameters; and a runtime-variable table.
+    HRESULT STDMETHODCALLTYPE SetListenerPosition(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
+    HRESULT STDMETHODCALLTYPE SetListenerVelocity(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
+    HRESULT STDMETHODCALLTYPE SetListenerOrientation(FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
+    HRESULT STDMETHODCALLTYPE SetVariable(DWORD dwVariable, WORD wValue);
+    HRESULT STDMETHODCALLTYPE GetVariable(DWORD dwVariable, PWORD pwValue);
+    HRESULT STDMETHODCALLTYPE GlobalPause(BOOL bPause);
     HRESULT STDMETHODCALLTYPE RegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
     HRESULT STDMETHODCALLTYPE UnRegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
     HRESULT STDMETHODCALLTYPE GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc, PXACT_NOTIFICATION pNotificationEvent);
@@ -287,6 +294,11 @@ protected:
 
     LPDSEFFECTIMAGEDESC     m_pDspImageDesc;
     LPDIRECTSOUND           m_pDirectSound;
+
+    // RXDK 5849 uplift: persistent 3D listener (updated by the per-component setters) + a runtime-
+    // variable table (SetVariable/GetVariable round-trip; RPC modulation is not implemented).
+    DS3DLISTENER            m_ds3dListener;
+    WORD                    m_aVariables[64];
 
     LIST_ENTRY  m_lstAvailable2DBuffers;
     LIST_ENTRY  m_lstAvailable3DBuffers;

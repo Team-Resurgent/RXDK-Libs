@@ -43,7 +43,7 @@ XACTEngineDoWork()
 HRESULT
 XACTEngineCreate
 (
-    PXACTENGINE *ppEngine,PXACT_RUNTIME_PARAMETERS pParams
+    PXACT_RUNTIME_PARAMETERS pParams,PXACTENGINE *ppEngine   // 5849: args reversed
 )
 {
     using namespace XACT;
@@ -144,6 +144,16 @@ CEngine::CEngine
     InitializeListHead(&m_lstActiveCues);
     KeInitializeTimer(&m_TimerObject);
     KeInitializeDpc(&m_DpcObject, DPCTimerCallBack, this);
+
+    // RXDK 5849 uplift: default 3D listener (front +Z, top +Y, unit factors) + zeroed variables.
+    memset(&m_ds3dListener, 0, sizeof(m_ds3dListener));
+    m_ds3dListener.dwSize = sizeof(m_ds3dListener);
+    m_ds3dListener.vOrientFront.z = 1.0f;
+    m_ds3dListener.vOrientTop.y = 1.0f;
+    m_ds3dListener.flDistanceFactor = 1.0f;
+    m_ds3dListener.flRolloffFactor = 1.0f;
+    m_ds3dListener.flDopplerFactor = 1.0f;
+    memset(m_aVariables, 0, sizeof(m_aVariables));
 
     DPF_LEAVE_VOID();
 }
@@ -649,18 +659,18 @@ VOID CEngine::HandleNotificationRegistration(PXACT_NOTIFICATION_DESCRIPTION pNot
         DPF_ERROR("No pNotificationDesc supplied");
     }
 
-    if (pNotificationDesc->pSoundBank && pNotificationDesc->pSoundCue) {
+    if (pNotificationDesc->u.pSoundBank && pNotificationDesc->pSoundCue) {
 
         DPF_ERROR("You cant supply pSoundBank AND pSoundCue");
     }
 
-    if (!pNotificationDesc->pSoundBank && !pNotificationDesc->pSoundCue) {
+    if (!pNotificationDesc->u.pSoundBank && !pNotificationDesc->pSoundCue) {
 
         DPF_ERROR("You must supply pSoundBank OR pSoundCue");
     }
 
     if ((pNotificationDesc->dwSoundCueIndex != XACT_SOUNDCUE_INDEX_UNUSED) &&
-        (!pNotificationDesc->pSoundBank)) { 
+        (!pNotificationDesc->u.pSoundBank)) { 
 
         DPF_WARNING("YOu must supply pSoundBank if dwSoundCueIndex is specified");
 
@@ -670,21 +680,21 @@ VOID CEngine::HandleNotificationRegistration(PXACT_NOTIFICATION_DESCRIPTION pNot
     // validate notification type
     //
 
-    if ((pNotificationDesc->dwType & XACT_MASK_NOTIFICATION_TYPE) >= eXACTNotification_Max) {
+    if ((pNotificationDesc->wType) >= eXACTNotification_Max) {
         DPF_ERROR("Invalid notification type");
     }
 
 #endif // VALIDATE_PARAMETERS
 
-    DWORD dwType = pNotificationDesc->dwType & XACT_MASK_NOTIFICATION_TYPE;
+    DWORD dwType = pNotificationDesc->wType;
 
     //
     // first retrieve the correct notification context from a soundbank or a cue
     //
 
-    if (pNotificationDesc->pSoundBank) {
+    if (pNotificationDesc->u.pSoundBank) {
 
-        pContext = ((CSoundBank *)pNotificationDesc->pSoundBank)->GetNotificationContext(dwType);
+        pContext = ((CSoundBank *)pNotificationDesc->u.pSoundBank)->GetNotificationContext(dwType);
 
     } else if (pNotificationDesc->pSoundCue) {
 
@@ -769,14 +779,14 @@ VOID CEngine::HandleNotificationRegistration(PXACT_NOTIFICATION_DESCRIPTION pNot
                     InsertTailList(&pContext->lstRegisteredCues,
                         &pCueContext->ListEntry);
 
-                    pCueContext->bPersist = pNotificationDesc->dwType & XACT_FLAG_NOTIFICATION_PERSIST;
+                    pCueContext->bPersist = pNotificationDesc->wFlags & XACT_FLAG_NOTIFICATION_PERSIST;
                 }
 
             } else {
 
                 DPF_WARNING("SoundCue index %d already registered on soundbank 0x%x",
                     pNotificationDesc->dwSoundCueIndex,
-                    pContext->PendingNotification.Header.pSoundBank);
+                    pContext->PendingNotification.Header.u.pSoundBank);
 
             }
 
@@ -786,7 +796,7 @@ VOID CEngine::HandleNotificationRegistration(PXACT_NOTIFICATION_DESCRIPTION pNot
 
                 DPF_WARNING("SoundCue index %d never registered on soundbank 0x%x",
                     pNotificationDesc->dwSoundCueIndex,
-                    pContext->PendingNotification.Header.pSoundBank);
+                    pContext->PendingNotification.Header.u.pSoundBank);
 
             } else {
 
@@ -1168,37 +1178,50 @@ HRESULT CEngine::RegisterWaveBank(PVOID pvData, DWORD dwSize, PXACTWAVEBANK *ppW
 #undef DPF_FNAME
 #define DPF_FNAME "CEngine::RegisterStreamedWaveBank"
 
-HRESULT CEngine::RegisterStreamedWaveBank(PVOID pvStreamingBuffer, DWORD dwSize, HANDLE hFileHandle, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank)
+HRESULT CEngine::RegisterStreamedWaveBank(PVOID /*pvStreamingBuffer*/, DWORD /*dwSize*/, HANDLE hFileHandle, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank)
 {
+    // RXDK 5849 uplift: the leak left true streaming unimplemented (this method was an empty stub
+    // that never even set *ppWaveBank). Rather than stream, load the whole bank file into memory
+    // and register it as an in-memory wave bank, so streamed cues actually play (fully resident).
     HRESULT hr = S_OK;
 
     DPF_ENTER();
     ASSERT_IN_PASSIVE;
     ENTER_EXTERNAL_METHOD();
 
-#ifdef VALIDATE_PARAMETERS
-
-    if(!pvStreamingBuffer)
+    if (ppWaveBank)
+        *ppWaveBank = NULL;
+    if (!hFileHandle || !ppWaveBank)
     {
-        DPF_ERROR("No pvStreamingBuffer supplied");
+        DPF_LEAVE_HRESULT(E_INVALIDARG);
+        return E_INVALIDARG;
     }
 
-    if (dwSize == 0)
+    DWORD dwFileSize = GetFileSize(hFileHandle, NULL);
+    if (dwFileSize == INVALID_FILE_SIZE || dwFileSize <= dwOffset)
     {
-        DPF_ERROR("Invalid buffer size");
+        DPF_LEAVE_HRESULT(E_FAIL);
+        return E_FAIL;
+    }
+    DWORD dwBankSize = dwFileSize - dwOffset;
+
+    PVOID pvData = XactMemAlloc(dwBankSize, FALSE);
+    if (!pvData)
+    {
+        DPF_LEAVE_HRESULT(E_OUTOFMEMORY);
+        return E_OUTOFMEMORY;
     }
 
-    if(!hFileHandle)
+    SetFilePointer(hFileHandle, (LONG)dwOffset, NULL, FILE_BEGIN);
+    DWORD dwRead = 0;
+    if (!ReadFile(hFileHandle, pvData, dwBankSize, &dwRead, NULL) || dwRead != dwBankSize)
     {
-        DPF_ERROR("Invalid hFileHandle");
+        XactMemFree(pvData);
+        DPF_LEAVE_HRESULT(E_FAIL);
+        return E_FAIL;
     }
 
-    if(!ppWaveBank)
-    {
-        DPF_ERROR("No ppWaveBank supplied");
-    }
-
-#endif // VALIDATE_PARAMETERS
+    hr = RegisterWaveBank(pvData, dwBankSize, ppWaveBank);
 
     DPF_LEAVE_HRESULT(hr);
 
@@ -1353,14 +1376,14 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
         DPF_ERROR("No pNotificationDesc supplied");
     }
 
-    ASSERT(!(pNotificationDesc->dwType & XACT_MASK_NOTIFICATION_FLAGS));
+    ASSERT(!(pNotificationDesc->wFlags & XACT_MASK_NOTIFICATION_FLAGS));
 
     if(!pNotification)
     {
         DPF_ERROR("No pNotification supplied");
     }
 
-    if (pNotificationDesc->pSoundBank && pNotificationDesc->pSoundCue) {
+    if (pNotificationDesc->u.pSoundBank && pNotificationDesc->pSoundCue) {
 
         DPF_ERROR("You cant specify a notification desc that has both pSoundBank and pSoundCue");
 
@@ -1372,16 +1395,16 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
 
     }
         
-    if ((pNotificationDesc->dwType != XACT_NOTIFICATION_TYPE_UNUSED) && 
-        (pNotificationDesc->dwType >= eXACTNotification_Max)) {
+    if ((pNotificationDesc->wType != XACT_NOTIFICATION_TYPE_UNUSED) && 
+        (pNotificationDesc->wType >= eXACTNotification_Max)) {
 
         DPF_ERROR("Invalid notification type specified (%d)",
-            pNotificationDesc->dwType);
+            pNotificationDesc->wType);
 
     }
 
-    if ((pNotificationDesc->dwType == XACT_NOTIFICATION_TYPE_UNUSED) && 
-        (pNotificationDesc->pSoundBank || pNotificationDesc->pSoundCue)) {
+    if ((pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) && 
+        (pNotificationDesc->u.pSoundBank || pNotificationDesc->pSoundCue)) {
 
         DPF_ERROR("dwType must be valid if pSoundBank or pSoundCue is supplied");
 
@@ -1394,7 +1417,7 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
     // based on the criteria specified
     //
 
-    if (pNotificationDesc->dwType == XACT_NOTIFICATION_TYPE_UNUSED) {
+    if (pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) {
 
         PLIST_ENTRY pEntry;
 
@@ -1410,12 +1433,12 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
 
         }
 
-    } else if (pNotificationDesc->pSoundBank) {
-        CSoundBank *pSoundBank = (CSoundBank *) pNotificationDesc->pSoundBank;
-        pContext = pSoundBank->GetNotificationContext(pNotificationDesc->dwType);        
+    } else if (pNotificationDesc->u.pSoundBank) {
+        CSoundBank *pSoundBank = (CSoundBank *) pNotificationDesc->u.pSoundBank;
+        pContext = pSoundBank->GetNotificationContext(pNotificationDesc->wType);        
     } else {
         CSoundCue *pSoundCue = (CSoundCue *) pNotificationDesc->pSoundCue;
-        pContext = pSoundCue->GetNotificationContext(pNotificationDesc->dwType);
+        pContext = pSoundCue->GetNotificationContext(pNotificationDesc->wType);
     }
 
     if (IsListEmpty(&pContext->ListEntry)) {
@@ -1438,7 +1461,7 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
     if (pContext && pContext->bRegistered) {
 
         RemoveEntryList(&pContext->ListEntry);
-        if (!(pContext->PendingNotification.Header.dwType & XACT_FLAG_NOTIFICATION_PERSIST)){
+        if (!(pContext->PendingNotification.Header.wFlags & XACT_FLAG_NOTIFICATION_PERSIST)){
             
             //
             // auto-unregister notification
@@ -1488,24 +1511,24 @@ HRESULT CEngine::FlushNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationD
         DPF_ERROR("No pNotificationDesc supplied");
     }
 
-    ASSERT(pNotificationDesc->dwType & XACT_MASK_NOTIFICATION_FLAGS);
+    ASSERT(pNotificationDesc->wFlags & XACT_MASK_NOTIFICATION_FLAGS);
 
-    if ((pNotificationDesc->dwType != XACT_NOTIFICATION_TYPE_UNUSED) && 
-        (pNotificationDesc->dwType >= eXACTNotification_Max)) {
+    if ((pNotificationDesc->wType != XACT_NOTIFICATION_TYPE_UNUSED) && 
+        (pNotificationDesc->wType >= eXACTNotification_Max)) {
 
         DPF_ERROR("Invalid notification type specified (%d)",
-            pNotificationDesc->dwType);
+            pNotificationDesc->wType);
 
     }
 
-    if (pNotificationDesc->pSoundBank && pNotificationDesc->pSoundCue) {
+    if (pNotificationDesc->u.pSoundBank && pNotificationDesc->pSoundCue) {
 
         DPF_ERROR("You cant specify a notification desc that has both pSoundBank and pSoundCue");
 
     }
 
     if ((pNotificationDesc->dwSoundCueIndex != XACT_SOUNDCUE_INDEX_UNUSED) &&
-        !pNotificationDesc->pSoundBank){
+        !pNotificationDesc->u.pSoundBank){
 
         DPF_WARNING("You must supply pSoundBank if dwSoundCueIndex is valid");
 
@@ -1513,18 +1536,18 @@ HRESULT CEngine::FlushNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationD
 
 #endif // VALIDATE_PARAMETERS
 
-    if (pNotificationDesc->pSoundBank &&
+    if (pNotificationDesc->u.pSoundBank &&
         (pNotificationDesc->dwSoundCueIndex != XACT_SOUNDCUE_INDEX_UNUSED)) {
         
         PCUE_INDEX_NOTIFICATION_CONTEXT pCueContext;
-        CSoundBank *pSoundBank = (CSoundBank *) pNotificationDesc->pSoundBank;
+        CSoundBank *pSoundBank = (CSoundBank *) pNotificationDesc->u.pSoundBank;
 
         //
         // soundCueIndex was specified which means we need to remove it from the soundbanks
         // list of registered cue indices
         //
 
-        pContext = pSoundBank->GetNotificationContext(pNotificationDesc->dwType);        
+        pContext = pSoundBank->GetNotificationContext(pNotificationDesc->wType);        
         pCueContext = GetCueNotificationContext(pContext,pNotificationDesc->dwSoundCueIndex);
         if (pCueContext && !(pCueContext->bPersist)) {
 
@@ -1543,12 +1566,12 @@ HRESULT CEngine::FlushNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationD
     while (pEntry != &m_lstPendingNotifications) {
         
         pContext = CONTAINING_RECORD(pEntry,NOTIFICATION_CONTEXT,ListEntry);
-        if (pNotificationDesc->dwType == XACT_NOTIFICATION_TYPE_UNUSED)
+        if (pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED)
         {
             bFlush = TRUE;
 
-        } else if (pNotificationDesc->dwType == 
-            (pContext->PendingNotification.Header.dwType & XACT_MASK_NOTIFICATION_TYPE)){
+        } else if (pNotificationDesc->wType == 
+            (pContext->PendingNotification.Header.wType)){
 
             bFlush = TRUE;
         }
@@ -1558,8 +1581,8 @@ HRESULT CEngine::FlushNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationD
         // flush all notification associated with that soundbank. Same with pSoundCue
         //
         
-        if (pContext->PendingNotification.Header.pSoundBank &&
-            (pContext->PendingNotification.Header.pSoundBank != pNotificationDesc->pSoundBank)) {
+        if (pContext->PendingNotification.Header.u.pSoundBank &&
+            (pContext->PendingNotification.Header.u.pSoundBank != pNotificationDesc->u.pSoundBank)) {
             
             bFlush = FALSE;
             
@@ -1575,7 +1598,7 @@ HRESULT CEngine::FlushNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationD
         if (bFlush) {
 
             RemoveEntryList(&pContext->ListEntry);
-            if (!(pContext->PendingNotification.Header.dwType & XACT_FLAG_NOTIFICATION_PERSIST)){
+            if (!(pContext->PendingNotification.Header.wFlags & XACT_FLAG_NOTIFICATION_PERSIST)){
 
                 //
                 // unregister notification

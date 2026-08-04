@@ -46,7 +46,7 @@ carries full `.debug$T`.
 | libxonline | `xonline.lib` (+ `xonlinen`/`xonlines`, `uix.lib`) | ✅ 5849* | 5849 public `xonline.h` adopted; leak client compiles+links on libxnet(LIBO). **The UIX drop-in UI (`src/uix5849.cpp`) is fully functional** over the leak's real Live client: **logon** (multi-user 1–4 per-controller claims, guest sign-in, passcode entry, SILENT / RETRIEVED_STATE / RETRIEVED_GAME_INVITE starts, real `XOnlineLogon` task pumped in `DoWork`, connection held open after success), **friends** (real enumeration; accept/decline requests+invites, join, remove, invite-to-game, sign-out; `FRIENDS_JOIN_GAME[_CROSS_TITLE]` exits with the `XONLINE_FRIEND`), **players** (real `ILivePlayersList` registry + screen + mute menu + selection info), **notifications** (real, friends-state derived, property-gated), **`ILiveFriendsList`**, and a real `Reboot` (`XLaunchNewImage` to the dashboard). Also real: `XOnlineSilentLogon`, `XOnlineChangeLogonUsers` (re-logon with captured services), `XOnlineSave/RetrieveLogonState`, `XOnlineGetNotification` (friends-state derived), `XOnlineTitleIdIsSameTitle` (XBE cert). Rendering is the font-renderer contract by design (the retail skin pipeline is unbuildable on modern hosts). *Remaining asterisk: the 5849-new LSP services (stats v2/storage/messaging/arbitration/competition/teams/mutelist/offerings/query and peer QoS probes) report service-unavailable — a **protocol boundary** (wire formats absent from the leak), not open work. |
 | libxvoice | `xvoice.lib` | ✅ 5849 | **Fresh implementation, NOT a leak port** — the leak has no xvoice source at all (only an older public header; codec + USB audio driver were binary-only). Adopted 5849 `xhv.h`/`xvoice.h`; XHV engine (`XHVEngineCreate` + 27 C exports + `_xhv_*_mode` globals) with REAL talker/mode/callback bookkeeping; communicator/codec paths faithfully report no-headset (`GetLocalTalkerStatus`=REMOVED, `IsTalking`=FALSE, packets accepted+discarded, VoiceMail/SR fail cleanly). Low-level `XVoiceCreate*` XMO factories fail as with no communicator (SC03 codec is binary-only in the retail lib). Exports `XDEVICE_TYPE_VOICE_{MICROPHONE,HEADPHONE}_TABLE` (zeroed → `XGetDevices` sees none). All 5849 stdcall decorations verified against the retail lib. |
 | libdmusic | `dmusic.lib` | ❌ leak | Largest COM surface. Assess drift once XACT proven. |
-| libd3d8 | `d3d8.lib` | ❌ leak | Samples want a few newer D3D constants (`D3DRS_DEPTHCLIPCONTROL`, `D3DDevice_GetBackBuffer2`, …). **WARNING: the `D3DRENDERSTATETYPE` enum layout DIVERGES at value 82** — leak has `D3DRS_FOGENABLE=82`/`FOGTABLEMODE=83`…, 5849 has `DEPTHCLIPCONTROL=82`/`STIPPLEENABLE=83` with everything after shifted. Do NOT graft individual 5849 render-state values into the leak header; the numeric values are driver-dispatch indices. (UIX plugin samples' `D3DRS_STIPPLEENABLE` calls are commented out with a note instead.) |
+| libd3d8 | `d3d8.lib` | 🔶 in progress | **Survey complete (see "libd3d8 uplift plan" below).** The `D3DRENDERSTATETYPE` divergence at 82+ is fully mapped: three shifts (+10 simple / +19 deferred / +20 complex) with new states inserted at the range boundaries; the header-embedded dispatch tables (`D3DSIMPLERENDERSTATEENCODE` etc.) are byte-verified identical for entries 0–81 and append-only. |
 | libd3dx8 | `d3dx8.lib` | ❌ leak | |
 | libxgraphics | `xgraphics.lib` | ❌ leak | |
 | libdsound | `dsound.lib` | 🔶 partial | Added `DSVOICEPROPS` (5849, recovered via cvdump) — needed by the 5849 xact.h. Added (header-only) `DSBCAPS_FXIN2`, `DSMIXBIN_VOICE_0..3`, `DSMIXBINVOLUMEPAIRS_{REQUIRED,DEFAULT}_5CHANNEL_3D[_PLUS_LFE]` for the voice/Marketplace samples. Still: a few newer constants (`DSBPLAY_SYNCHPLAYBACK`…). |
@@ -88,6 +88,57 @@ will recur:
    stale (missing `_vsnprintf` etc.). Re-deploy the current `zig-out/lib` before link-testing.
 5. **Stale imported sample vcxprojs.** Samples imported before a LibMap change carry an outdated
    `<RxdkLibraries>` (missing the middleware lib). Re-import (or patch) so the manifest links it.
+
+## libd3d8 uplift plan (survey 2026-08-04 — ground truth verified)
+
+Full symbol delta (leak `public/xdk/inc` vs 5849 headers, semantic diff ignoring reordering):
+**131 deltas total** — d3d8types.h 47 added / 1 removed (`D3DTSS_TCI_SPHERE`) / 68 renumbered;
+d3d8.h 13 added / 1 changed (`D3DVERTEXBUFFER_ALIGNMENT` 4→1); d3d8caps.h +`D3DPRESENT_INTERVAL_THREE_OR_IMMEDIATE`.
+
+**1. Render-state renumbering (mechanical, verified safe).** Three shifts: simple section
+grows +10 (`DEPTHCLIPCONTROL=82`, `STIPPLEENABLE=83`, `SIMPLE_UNUSED8..1=84..91`,
+`SIMPLE_MAX` 82→92); deferred +9 more (`PRESENTATIONINTERVAL=127`, `DEFERRED_UNUSED8..1=128..135`,
+`DEFERRED_MAX` 117→136); complex +1 more (`SAMPLEALPHA=158`, `MAX` 146→166). The runtime
+(`se/state.cpp`) is fully symbolic with compile-time `VerifyHeaderFileEncodings()` asserts tying
+every table size to the boundary constants — renumbering is a header change + table appends:
+- `D3DSIMPLERENDERSTATEENCODE` (in BOTH shared/include/d3d8.h AND mirrored in se/state.cpp
+  `g_RenderStateEncodings`): entries 0–81 verified numerically identical leak↔5849; append 10:
+  `0x41d78` (=NV097 zmin/max control, DEPTHCLIPCONTROL), `0x4147c` (stipple enable), 8×`0x41d90`
+  (the driver's parameterized-NOP method, same one the leak already uses for reserved slot 54).
+- `D3DDIRTYFROMRENDERSTATE`: append 9 zeros (PRESENTATIONINTERVAL + 8 unused).
+- `g_ComplexRenderStateFunctionTable` (state.cpp): insert `SetRenderState_SampleAlpha` at index
+  158−136; `g_InitialRenderStates` (dxgcreate.cpp) gains matching initial values
+  (DEPTHCLIPCONTROL=`D3DDCC_CULLPRIMITIVE`, STIPPLEENABLE=FALSE, rest 0).
+
+**2. The 5849 `BeginState/EndState` direct-push contract.** 5849 titles inline push-buffer writes:
+`D3D__Device[0]`=Put, `D3D__Device[4/4]`=Threshold, with exports `D3DDevice_MakeSpace` (slow path),
+`D3DDevice_BeginStateBig(Count)`, `D3DDevice_EndState` (debug: `*ParameterCheck`). The leak already
+guarantees the layout: `CDevice g_Device` (se/d3ddev.cpp) has `XMETAL_PushBuffer m_Pusher
+{m_pPut,m_pThreshold}` as its FIRST member ("must be the first variable"), no vtable → the contract
+is satisfied by exporting `g_Device` under the alias `D3D__Device` (+ `D3D__pDevice`) and thin
+exports wrapping the existing `MakeSpace()`/pusher internals.
+
+**3. New API surface (46 fns).** Classified:
+- ~20 mechanical `*2` adapters (return-pointer variants of HRESULT+out-param originals:
+  `CreateTexture2`, `GetBackBuffer2`, `GetRenderTarget2`, `Lock2`, `GetSurfaceLevel2`, …).
+- 6 `SetVertexShaderConstant` variants (`1`, `4`, `Fast`, `1Fast`, `NotInline[Fast]`) — adapters.
+- New NV2A features with real hardware paths: `Set/GetStipple` (stipple pattern methods),
+  `Set/GetDepthClipPlanes` (+`D3DSDCP_*`/`D3DGDCP_*`), `SetRenderState_SampleAlpha`,
+  `D3DRS_PRESENTATIONINTERVAL`.
+- Pusher/misc: `MakeSpace`, `GetPushDistance`, `SetWaitCallback`, `SetTimerCallback`
+  (+`D3DWAIT_*`/`D3DDISTANCE_*`), `GetViewportOffsetAndScale` (D3DVECTOR4),
+  `SetRenderTargetFast`, `GetPersistedSurface2`, `PushBuffer_SetRenderState`,
+  `PushBuffer_CopyRects`, `BeginState*`/`EndState*`.
+- 5849 REMOVED `D3DDevice_Suspend/Resume` (keep ours; harmless superset).
+
+**4. Header adoption.** Apply the delta to the RXDK-ported shared/include headers (hand-apply —
+wholesale adoption would lose the RXDK portability transforms). The header-embedded tables and the
+big `SetRenderState` inline dispatch must be lifted to 5849 content verbatim; lib-internal mirrors
+must match (the debug verify catches drift).
+
+**5. Rebuild order.** libd3d8 → every lib compiled against the d3d8 headers (libd3dx8, libxgraphics,
+libdsound, libxact, libxonline/uix, libxvoice) → full sample sweep. `D3DVERTEXBUFFER_ALIGNMENT`
+4→1: audit runtime alignment assumptions before relaxing.
 
 Additional cross-cutting issue surfaced by the voice-sample sweep:
 

@@ -150,6 +150,12 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **153 of 182 XDKSamples projects build to .xbe** (`Platform=Xbox`)._
+_Sample sweep: **151 of 182 XDKSamples projects build to .xbe** (`Platform=Xbox`)._
+
+**What the remaining 31 are actually blocked on** (established by inspection, not assumed):
+- **Assembled shader output (5+):** FocusBlur, Fur, HighDynamicRange, QuadLerp, Trees include `*.inl` files that are the assembler's output for the `.psh`/`.vsh` sitting in each sample's `Media/Shaders/`. Inputs are all present — what is missing is a host tool and a pre-build step. RXDK already has the assembler ported (`libs/libxgraphics/shadeasm`, `XGAssembleShader`).
+- **DirectMusic (7):** the sample projects were never listing libdmusic; fixed. Now blocked on `RtlAllocateHeap` resolving to a C++-mangled name in `dmime/debug.cpp`, plus a missing `DirectSoundCreateSequencer`.
+- **Genuinely missing art (≈10):** DolphinHDTV / FieldRender / PerPixelLightingVS have no `.rdf` at all (hence the bundler's "resource .rdf not found"); Lensflare / PerPixelLighting / XRay are missing `.bmp` textures; WaveBank / WaveBankStream / CustomMemoryAllocator are missing `.wav`.
+- **Out of scope:** PerfTest needs `D3DPERF_*`, which exists only in `d3d8d.lib` / `d3d8i.lib` (the debug and instrumented D3D variants); TechCertGame/demo pull MSVC's `<yvals.h>`, which drags in zig's mingw CRT.
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

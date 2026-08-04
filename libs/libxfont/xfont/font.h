@@ -2,21 +2,27 @@
 //
 // XBox internal font header.
 //
-// Ported from the leaked Xbox SDK source. TT_OpenTrueTypeFont and
-// BP_OpenBitmapFont prototypes are dropped -- this port doesn't implement
-// either (TrueType support and disk-file font loading are both out of scope
-// for this pass), so declaring them here would just be dead, unimplemented
-// prototypes. Everything else is unedited.
-//
 // History:
 //
 //   07/06/00 [andrewso] - Created
 //   08/04/00 [andrewso] - Added compressed glyph bitmaps
 //
 //****************************************************************************
+//
+// RXDK: restored to the leak's full content. The earlier pass trimmed TrueType
+// support and disk-file font loading; both are back, so this file is once again
+// unedited apart from this note. The `#ifdef _XBOX` branches resolve correctly
+// on their own -- the build defines _XBOX, so the PC branch (xfont-pc.h) is
+// never reached and needs no surgery.
+//
 
 #include <d3d8.h>
+
+#ifdef _XBOX
 #include "xfontformat.h"
+#else
+#include "xfontformat-pc.h"
+#endif
 
 #pragma once
 
@@ -27,11 +33,11 @@ extern "C" {
 #endif
 
 //
-// Callbacks used to communicate to the true-type font package.  We go
+// Callbacks used to communicate to the true-type font package.  We go 
 // through these callbacks to give the linker the opportunity to
 // throw all of the true type stuff away...if the user doesn't call
-// XFONT_OpenTrueTypeFont, then none of the TrueType methods get
-// referenced
+// XFONT_OpenTrueTypeFont, then none of the TrueType methods get 
+// referenced 
 //
 
 typedef void (__stdcall *CB_UnloadFont)(struct _Font *);
@@ -72,7 +78,7 @@ typedef struct _Font
 
     unsigned uReferenceCount;
 
-    //
+    // 
     // Metrics information about this font.
     //
 
@@ -85,7 +91,7 @@ typedef struct _Font
     unsigned uMaxBitmapWidth;       // width of the widest glyph
     unsigned uStyle;                // the style of the font to simulate (truetype only)
     unsigned uIntercharacterSpacing;// how many extra pixels to put between each character
-
+    
     unsigned uAlignmentMode;        // how to align the text
     D3DCOLOR TextColor;             // the color of the text
     D3DCOLOR BackgroundColor;       // the color of the background
@@ -126,6 +132,11 @@ typedef struct _Font
 // Exposed functions.
 //
 
+// Open a TrueType font.
+HRESULT __stdcall TT_OpenTrueTypeFont(LPCWSTR wszFileName, struct _Font **ppFont);
+
+// Open a bitmap font.
+HRESULT __stdcall BP_OpenBitmapFont(LPCWSTR wszFileName, unsigned uCacheSize, struct _Font **ppFont, BOOL *pfUseCache);
 HRESULT __stdcall BP_OpenBitmapFontFromMemory(CONST void *pFontData, unsigned uFontDataSize, struct _Font **ppFont);
 
 // Render a single character.
@@ -135,7 +146,7 @@ HRESULT __stdcall PaintText(Font *, LPCVOID, unsigned, D3DFORMAT, LPCWSTR, unsig
 HRESULT AddToCache(Font *, WCHAR wch, unsigned cbGlyph, Glyph **ppGlyph);
 void ClearCache(Font *);
 
-//
+// 
 // Debug helpers.
 //
 
@@ -143,7 +154,7 @@ void ClearCache(Font *);
 
 void XFRIP(PCHAR Format, ...);
 
-#define XFNULL(x, y)  { if (x == NULL) XFRIP(y); }
+#define XFNULL(x, y)  { if (x == NULL) XFRIP(y); } 
 #define XFASSERT(x, y) { if (!(x)) XFRIP(y); }
 
 #else

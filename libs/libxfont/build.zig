@@ -12,6 +12,7 @@ const XFONT = "libs/libxfont";
 pub fn includeDirs() []const []const u8 {
     return &.{
         XFONT ++ "/xfont",
+        XFONT ++ "/scaler",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
@@ -83,6 +84,43 @@ pub fn cFlags(b: *std.Build) []const []const u8 {
     return std.mem.concat(b.allocator, []const u8, &.{ &base, &force_includes }) catch @panic("OOM");
 }
 
+// Minimal C environment for the third-party TrueType scan converter: picolibc +
+// freestanding only, WITHOUT the RXDK bridge/profile force-includes. The scaler
+// declares its own ULONG/LPSTR/LARGE_INTEGER and friends (fscdefs.h/fsconfig.h),
+// which redefine libxapi's -- the leak built it as its own library (xfonttt) for
+// exactly that reason.
+pub fn scalerFlags(b: *std.Build) []const []const u8 {
+    const base = [_][]const u8{
+        "-std=c17",
+        "-ffreestanding",
+        "-fno-stack-protector",
+        "-fdata-sections",
+        "-ffunction-sections",
+        "-nostdinc",
+        "-fms-extensions",
+        "-fms-compatibility",
+        "-fno-sanitize=undefined",
+        "-fno-builtin",
+        "-Wno-everything",
+        "-include",
+        "picolibc.h",
+    };
+    return b.allocator.dupe([]const u8, &base) catch @panic("OOM");
+}
+
+// Include path for the scaler slice: its own directory plus picolibc. Deliberately
+// NOT libxapi's -- letting those on the path is what drags in ntdef.h and reopens
+// the type collisions this slice exists to avoid.
+pub fn scalerIncludeDirs() []const []const u8 {
+    return &.{
+        XFONT ++ "/site/scaler_shim",
+        XFONT ++ "/scaler",
+        "build/generated",
+        "shared/picolibc/include",
+        "shared/picolibc/machine/x86",
+    };
+}
+
 pub const ObjectBatch = struct {
     step: *std.Build.Step,
     outputs: []const std.Build.LazyPath,
@@ -98,14 +136,16 @@ pub fn addAllObjects(
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
     for (xfont_sources.slices) |slice| {
-        const flags = if (slice.is_cpp) cppFlags(b) else cFlags(b);
+        const base_flags = if (slice.is_cpp) cppFlags(b) else if (slice.minimal_c) scalerFlags(b) else cFlags(b);
+        const flags = if (slice.extra_flags.len == 0) base_flags else
+            std.mem.concat(b.allocator, []const u8, &.{ base_flags, slice.extra_flags }) catch @panic("OOM");
         const batch = compile_c.addBatch(b, .{
             .name = b.fmt("xfont-{s}", .{slice.name}),
             .target = xbox_target.target_triple,
             .out_subdir = b.fmt("xfont/{s}", .{slice.name}),
             .sources = slice.sources,
             .flags = flags,
-            .include_dirs = includeDirs(),
+            .include_dirs = if (slice.minimal_c) scalerIncludeDirs() else includeDirs(),
             .opt_flag = opt_flag,
             .is_cpp = slice.is_cpp,
         });

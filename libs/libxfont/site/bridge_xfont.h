@@ -94,3 +94,12 @@ DECLARE_HANDLE(HMODULE);
 #ifndef _snprintf
 #define _snprintf  snprintf
 #endif
+
+/*
+ * _MAX_PATH: the MSVC CRT spelling, used by bitmap.cpp's disk-file font loader.
+ * windef.h has MAX_PATH; the underscored alias lives in the title-facing
+ * xdk_compat.h, which the libraries do not pull.
+ */
+#ifndef _MAX_PATH
+#define _MAX_PATH 260
+#endif

@@ -1740,15 +1740,27 @@ typedef struct {
     IN_ADDR     aina[8];                        // Vector of IP addresses for the given host
 } XNDNS;
 
+// RXDK 5849 uplift: XDK-5849 XNQOSINFO layout (the leak's bDone/cXmit/dwPingTime shape differs).
 typedef struct {
-    BYTE        bDone;                          // FALSE if pending; TRUE if completed
-    BYTE        cXmit;                          // Number of packets transmitted
-    BYTE        cRecv;                          // Number of packets received
+    BYTE        bFlags;                         // See XNET_XNQOSINFO_* below
     BYTE        bReserved;                      // Reserved
-    DWORD       dwPingTime;                     // Average ping time in milliseconds
+    WORD        cProbesXmit;                    // Count of Qos probes transmitted
+    WORD        cProbesRecv;                    // Count of Qos probes successfully received
+    WORD        cbData;                         // Size of Qos data supplied by target (may be zero)
     BYTE *      pbData;                         // Qos data supplied by target (may be NULL)
-    UINT        cbData;                         // Size of Qos data supplied by target (may be zero)
+    WORD        wRttMinInMsecs;                 // Minimum round-trip time in milliseconds
+    WORD        wRttMedInMsecs;                 // Median round-trip time in milliseconds
+    DWORD       dwUpBitsPerSec;                 // Upstream bandwidth in bits per second
+    DWORD       dwDnBitsPerSec;                 // Downstream bandwidth in bits per second
 } XNQOSINFO;
+
+typedef XNADDR TSADDR;                          // 5849: Title-Server address (== XNADDR)
+
+#define XNET_XNQOSINFO_COMPLETE         0x01
+#define XNET_XNQOSINFO_TARGET_CONTACTED 0x02
+#define XNET_XNQOSINFO_TARGET_DISABLED  0x04
+#define XNET_XNQOSINFO_DATA_RECEIVED    0x08
+#define XNET_XNQOSINFO_PARTIAL_COMPLETE 0x10
 
 typedef struct {
     UINT        cxnqos;                         // Count of items in axnqosinfo[] array
@@ -1787,6 +1799,24 @@ INT   WSAAPI XNetQosRelease(XNQOS * pxnqos);
 #define XNET_QOS_LISTEN_SET_BITSPERSEC  0x04    // Sets max bandwidth that query reponses may consume
 #define XNET_QOS_XNADDR_RESERVED        0x00    // No flags currently defined
 #define XNET_QOS_SERVER_RESERVED        0x00    // No flags currently defined
+
+// RXDK 5849 uplift: the XDK-5849 connect + QoS-lookup API (absent from the leak public header).
+INT   WSAAPI XNetTsAddrToInAddr(const TSADDR * ptsa, DWORD dwServiceId, const XNKID * pxnkid, IN_ADDR * pina);
+INT   WSAAPI XNetXnAddrToMachineId(const XNADDR * pxnaddr, ULONGLONG * pqwMachineId);
+INT   WSAAPI XNetInAddrToServer(const IN_ADDR ina, IN_ADDR * pina);
+
+INT   WSAAPI XNetConnect(const IN_ADDR ina);
+DWORD WSAAPI XNetGetConnectStatus(const IN_ADDR ina);
+#define XNET_CONNECT_STATUS_IDLE            0x0000
+#define XNET_CONNECT_STATUS_PENDING         0x0001
+#define XNET_CONNECT_STATUS_CONNECTED       0x0002
+#define XNET_CONNECT_STATUS_LOST            0x0003
+
+INT   WSAAPI XNetQosLookup(UINT cxna, const XNADDR * apxna[], const XNKID * apxnkid[], const XNKEY * apxnkey[], UINT cina, const IN_ADDR aina[], const DWORD adwServiceId[], UINT cProbes, DWORD dwBitsPerSec, DWORD dwFlags, WSAEVENT hEvent, XNQOS ** ppxnqos);
+INT   WSAAPI XNetQosServiceLookup(DWORD dwFlags, WSAEVENT hEvent, XNQOS ** ppxnqos);
+#define XNET_QOS_LISTEN_RELEASE             0x10
+#define XNET_QOS_LOOKUP_RESERVED            0x00
+#define XNET_QOS_SERVICE_LOOKUP_RESERVED    0x00
 
 DWORD WSAAPI XNetGetTitleXnAddr(XNADDR * pxna);
 DWORD WSAAPI XNetGetDebugXnAddr(XNADDR * pxna);

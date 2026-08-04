@@ -84,6 +84,15 @@ XBOXAPI HRESULT WINAPI XOnlineFriendsGetAcceptedGameInvite(PXONLINE_ACCEPTED_GAM
     RXDK_XO_TASK_STUB(if (pInvite) memset(pInvite, 0, sizeof(*pInvite)))
 XBOXAPI HRESULT WINAPI XOnlineFriendsJoinGame(DWORD, const XONLINE_FRIEND *) { return E_FAIL; }
 
+// --- Matchmaking / competition / logon-state ---
+XBOXAPI HRESULT WINAPI XOnlineRetrieveLogonState(const XONLINE_LOGON_STATE *, PXONLINE_USER, DWORD *, DWORD *pdwServices)
+    RXDK_XO_TASK_STUB(if (pdwServices) *pdwServices = 0)
+XBOXAPI HRESULT WINAPI XOnlineQuerySearch(DWORD, DWORD, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, DWORD, const XONLINE_ATTRIBUTE *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI DWORD WINAPI XOnlineMatchSearchResultsLen(DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *) { return 0; }
+XBOXAPI HRESULT WINAPI XOnlineCompetitionTopology(DWORD, ULONGLONG, DWORD, DWORD, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+
 // --- Silent logon ---
 XBOXAPI HRESULT WINAPI XOnlineSilentLogon(const DWORD *, DWORD, HANDLE, PXONLINETASK_HANDLE pHandle)
     RXDK_XO_TASK_STUB(if (pHandle) *pHandle = NULL)

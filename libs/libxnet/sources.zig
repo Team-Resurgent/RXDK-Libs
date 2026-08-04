@@ -40,6 +40,7 @@ pub const cpp_sources = [_][]const u8{
     X ++ "/net/sockudp.cpp",
     X ++ "/net/xnet.cpp",
     X ++ "/net/xnetp.cpp",
+    X ++ "/net/uplift5849.cpp",
 };
 
 pub const slices = [_]Slice{

@@ -95,9 +95,31 @@ XBOXAPI DWORD WINAPI XOnlineMatchSearchResultsLen(DWORD, DWORD, const XONLINE_AT
 XBOXAPI HRESULT WINAPI XOnlineCompetitionTopology(DWORD, ULONGLONG, DWORD, DWORD, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 
-// --- Silent logon ---
-XBOXAPI HRESULT WINAPI XOnlineSilentLogon(const DWORD *, DWORD, HANDLE, PXONLINETASK_HANDLE pHandle)
-    RXDK_XO_TASK_STUB(if (pHandle) *pHandle = NULL)
+// --- Silent logon --- (REAL: wraps the leak's XOnlineLogon)
+// 5849 titles use this to sign in without UI. Retail restores the last-logged-on
+// users from the saved logon state; the leak does not persist that state, so we
+// sign in the FIRST stored account (hard disk / MU) -- the same account the UIX
+// picker would default to. TODO(5849-xonline): honor the saved logon state.
+XBOXAPI HRESULT WINAPI XOnlineSilentLogon(const DWORD *pdwServiceIDs, DWORD dwServices,
+                                          HANDLE hWorkEvent, PXONLINETASK_HANDLE pHandle)
+{
+    if (pHandle)
+        *pHandle = NULL;
+
+    XONLINE_USER storedUsers[XONLINE_MAX_STORED_ONLINE_USERS];
+    DWORD cStored = 0;
+    HRESULT hr = XOnlineGetUsers(storedUsers, &cStored);
+    if (FAILED(hr))
+        return hr;
+    if (cStored == 0)
+        return XONLINE_E_USER_NOT_PRESENT;
+
+    XONLINE_USER logonUsers[XONLINE_MAX_LOGON_USERS];
+    memset(logonUsers, 0, sizeof(logonUsers));
+    logonUsers[0] = storedUsers[0];
+
+    return XOnlineLogon(logonUsers, pdwServiceIDs, dwServices, hWorkEvent, pHandle);
+}
 
 // --- Signatures ---
 XBOXAPI HRESULT WINAPI XOnlineSignatureVerify(const XONLINE_SIGNATURE_TO_VERIFY *, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)

@@ -86,6 +86,11 @@ PPUSH MakeSpace();
 
 #define ARRAYSIZE(_a) (sizeof(_a) / sizeof((_a)[0]))
 
+// RXDK 5849 uplift: the polygon stipple pattern is a 32x32 bitmask, one DWORD
+// per scanline (NV097_SET_STIPPLE_PATTERN takes 32 values).
+
+#define D3D_STIPPLE_PATTERN_COUNT 32
+
 // The following macro reduces code by telling the compiler that the 'default'
 // case in a switch statement should never be reached:
 
@@ -917,6 +922,24 @@ public:
     // 2^24 - 1:
 
     FLOAT m_ZScale;
+
+    // RXDK 5849 uplift state (see se/uplift5849.cpp).
+    //
+    // Explicit depth clip planes, per pipeline, as set by SetDepthClipPlanes;
+    // the stipple pattern shadow for GetStipple; and the wait/timer callbacks.
+
+    FLOAT m_VertexProgramClipNear;
+    FLOAT m_VertexProgramClipFar;
+    FLOAT m_FixedFunctionClipNear;
+    FLOAT m_FixedFunctionClipFar;
+
+    DWORD m_StipplePattern[D3D_STIPPLE_PATTERN_COUNT];
+
+    D3DWAITCALLBACK m_pWaitCallback;
+
+    ULONGLONG   m_TimerCallbackTime;
+    D3DCALLBACK m_pTimerCallback;
+    DWORD       m_TimerCallbackContext;
 
     // A bit array for every stage that indicates whether that stage has
     // a tex-gen mode set that requires the inverse modelview transform:

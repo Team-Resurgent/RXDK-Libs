@@ -1298,22 +1298,15 @@ VOID WINAPI D3DDevice_InsertCallback(
     PPUSH g_pEndPush;
 #endif
 
+// RXDK 5849 uplift: BeginPush now RETURNS the push pointer (the leak filled an
+// out-parameter). Same reservation semantics.
 extern "C"
-VOID WINAPI D3DDevice_BeginPush(
-    DWORD Count,
-    DWORD **ppPush)
+DWORD* WINAPI D3DDevice_BeginPush(
+    DWORD Count)
 {
     COUNT_API(API_D3DDEVICE_BEGINPUSH);
 
     CDevice* pDevice = g_pDevice;
-
-    if (DBG_CHECK(TRUE))
-    {
-        if (ppPush == NULL)
-        {
-            DPF_ERR("NULL ppPush parameter");
-        }
-    }
 
     pDevice->SetStateVB(0);
 
@@ -1352,7 +1345,7 @@ VOID WINAPI D3DDevice_BeginPush(
     *g_pEndPush = 0x0badbeef;
 #endif
 
-    *ppPush = (DWORD*) pPush;
+    return (DWORD*) pPush;
 }
 
 //------------------------------------------------------------------------------

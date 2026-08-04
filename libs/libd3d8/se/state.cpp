@@ -11,6 +11,12 @@
  
 #include "precomp.hpp"
 
+// RXDK 5849 uplift: the 5849 public header removed D3DTSS_TCI_SPHERE from the
+// title-facing surface; the driver keeps handling the legacy value.
+#ifndef D3DTSS_TCI_SPHERE
+#define D3DTSS_TCI_SPHERE 0x00050000
+#endif
+
 #ifdef STARTUPANIMATION
 namespace D3DK
 #else
@@ -67,6 +73,7 @@ D3DCONST SetComplexRenderStateFunction g_ComplexRenderStateFunctionTable[] =
     D3DDevice_SetRenderState_MultiSampleRenderTargetMode,
     D3DDevice_SetRenderState_ShadowFunc,
     D3DDevice_SetRenderState_LineWidth,
+    D3DDevice_SetRenderState_SampleAlpha,   // RXDK 5849 uplift: D3DRS_SAMPLEALPHA
     D3DDevice_SetRenderState_Dxt1NoiseEnable,
     D3DDevice_SetRenderState_YuvEnable,
     D3DDevice_SetRenderState_OcclusionCullEnable,
@@ -190,6 +197,20 @@ D3DCONST DWORD g_RenderStateEncodings[] =
     E(NV097_SET_POLY_OFFSET_POINT_ENABLE),     D3DRS_POINTOFFSETENABLE,
     E(NV097_SET_POLY_OFFSET_LINE_ENABLE),      D3DRS_WIREFRAMEOFFSETENABLE,
     E(NV097_SET_POLY_OFFSET_FILL_ENABLE),      D3DRS_SOLIDOFFSETENABLE,
+
+    // RXDK 5849 uplift: the simple section grew by ten states.  The unused
+    // slots use NV097_SET_COLOR_CLEAR_VALUE as the parameterized NOP, same as
+    // the reserved slot above (and byte-identical to the 5849 header table).
+    E(NV097_SET_ZMIN_MAX_CONTROL),             D3DRS_DEPTHCLIPCONTROL,
+    E(NV097_SET_STIPPLE_CONTROL),              D3DRS_STIPPLEENABLE,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED8,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED7,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED6,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED5,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED4,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED3,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED2,
+    E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED1,
 };
 
 //------------------------------------------------------------------------------

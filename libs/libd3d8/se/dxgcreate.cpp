@@ -246,6 +246,16 @@ D3DCONST DWORD g_InitialRenderStates[] =
     FALSE,                      // D3DRS_POINTOFFSETENABLE         
     FALSE,                      // D3DRS_WIREFRAMEOFFSETENABLE     
     FALSE,                      // D3DRS_SOLIDOFFSETENABLE         
+    D3DDCC_CULLPRIMITIVE,       // D3DRS_DEPTHCLIPCONTROL (RXDK 5849 uplift)
+    FALSE,                      // D3DRS_STIPPLEENABLE
+    0,                          // D3DRS_SIMPLE_UNUSED8
+    0,                          // D3DRS_SIMPLE_UNUSED7
+    0,                          // D3DRS_SIMPLE_UNUSED6
+    0,                          // D3DRS_SIMPLE_UNUSED5
+    0,                          // D3DRS_SIMPLE_UNUSED4
+    0,                          // D3DRS_SIMPLE_UNUSED3
+    0,                          // D3DRS_SIMPLE_UNUSED2
+    0,                          // D3DRS_SIMPLE_UNUSED1
     FALSE,                      // D3DRS_FOGENABLE                 
     D3DFOG_NONE,                // D3DRS_FOGTABLEMODE              
     0,                          // D3DRS_FOGSTART                  
@@ -281,6 +291,15 @@ D3DCONST DWORD g_InitialRenderStates[] =
     D3DPATCHEDGE_DISCRETE,      // D3DRS_PATCHEDGESTYLE            
     F_ONE,                      // D3DRS_PATCHSEGMENTS             
     0xdeadbeef,                 // D3DRS_SWAPFILTER (already set)
+    D3DPRESENT_INTERVAL_DEFAULT,// D3DRS_PRESENTATIONINTERVAL (RXDK 5849 uplift)
+    0,                          // D3DRS_DEFERRED_UNUSED8
+    0,                          // D3DRS_DEFERRED_UNUSED7
+    0,                          // D3DRS_DEFERRED_UNUSED6
+    0,                          // D3DRS_DEFERRED_UNUSED5
+    0,                          // D3DRS_DEFERRED_UNUSED4
+    0,                          // D3DRS_DEFERRED_UNUSED3
+    0,                          // D3DRS_DEFERRED_UNUSED2
+    0,                          // D3DRS_DEFERRED_UNUSED1
     0,                          // D3DRS_PSTEXTUREMODES            
     D3DVBF_DISABLE,             // D3DRS_VERTEXBLEND               
     0,                          // D3DRS_FOGCOLOR                  
@@ -303,6 +322,7 @@ D3DCONST DWORD g_InitialRenderStates[] =
     D3DMULTISAMPLEMODE_1X,      // D3DRS_MULTISAMPLEMODERENDERTARGETS
     D3DCMP_NEVER,               // D3DRS_SHADOWFUNC                
     F_ONE,                      // D3DRS_LINEWIDTH                 
+    0,                          // D3DRS_SAMPLEALPHA (RXDK 5849 uplift)
     TRUE,                       // D3DRS_DXT1NOISEENABLE
     FALSE,                      // D3DRS_YUVENABLE
     TRUE,                       // D3DRS_OCCLUSIONCULLENABLE

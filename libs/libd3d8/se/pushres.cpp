@@ -831,7 +831,7 @@ VOID AddToFixup(
 
 DWORD* StartFixup(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     DWORD Count)
 {
     DWORD* pSrc = (DWORD*) ((BYTE*) pPushBuffer->Data + Offset);
@@ -902,7 +902,7 @@ DWORD* StartFixup(
 extern "C"
 VOID WINAPI D3DPushBuffer_RunPushBuffer(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     D3DPushBuffer* pDestinationPushBuffer,
     D3DFixup* pDestinationFixup)
 {
@@ -977,7 +977,7 @@ VOID WINAPI D3DPushBuffer_RunPushBuffer(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetModelView(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     CONST D3DMATRIX* pModelView,
     CONST D3DMATRIX* pInverseModelView,
     CONST D3DMATRIX* pComposite)
@@ -1010,7 +1010,7 @@ VOID WINAPI D3DPushBuffer_SetModelView(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetVertexBlendModelView(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     UINT Count,
     CONST D3DMATRIX* pModelViews,
     CONST D3DMATRIX* pInverseModelViews,
@@ -1073,7 +1073,7 @@ VOID WINAPI D3DPushBuffer_SetVertexBlendModelView(
 extern "C"
 void WINAPI D3DPushBuffer_SetVertexShaderInputDirect(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     D3DVERTEXATTRIBUTEFORMAT *pVAF,
     UINT StreamCount,
     CONST D3DSTREAM_INPUT *pStreamInputs)
@@ -1101,7 +1101,7 @@ void WINAPI D3DPushBuffer_SetVertexShaderInputDirect(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetVertexShaderInput(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     DWORD Handle,
     UINT StreamCount,
     CONST D3DSTREAM_INPUT *pStreamInputs)
@@ -1183,7 +1183,7 @@ VOID WINAPI D3DPushBuffer_SetVertexShaderInput(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetRenderTarget(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     D3DSurface* pRenderTarget,
     D3DSurface* pZBuffer)
 {
@@ -1256,7 +1256,7 @@ VOID WINAPI D3DPushBuffer_SetRenderTarget(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetTexture(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     DWORD Stage,
     D3DBaseTexture *pTexture)
 {
@@ -1317,7 +1317,7 @@ VOID WINAPI D3DPushBuffer_SetTexture(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetPalette(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     DWORD Stage,
     D3DPalette *pPalette)
 {
@@ -1359,7 +1359,7 @@ VOID WINAPI D3DPushBuffer_SetPalette(
 extern "C"
 HRESULT WINAPI D3DPushBuffer_EndVisibilityTest(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     DWORD Index)
 {
     COUNT_API(API_D3DPUSHBUFFER_ENDVISIBILITYTEST);
@@ -1395,7 +1395,7 @@ HRESULT WINAPI D3DPushBuffer_EndVisibilityTest(
 extern "C"
 VOID WINAPI D3DPushBuffer_SetVertexShaderConstant(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     INT Register, // Not used
     CONST VOID* pConstantData,
     DWORD ConstantCount)
@@ -1444,7 +1444,7 @@ VOID WINAPI D3DPushBuffer_SetVertexShaderConstant(
 extern "C"
 VOID WINAPI D3DPushBuffer_Jump(
     D3DPushBuffer* pPushBuffer,
-    UINT Offset,
+    DWORD Offset,
     UINT DestinationOffset)
 {
     COUNT_API(API_D3DPUSHBUFFER_JUMP);

@@ -195,6 +195,7 @@ Direct3D * WINAPI Direct3DCreate8(UINT SDKVersion);
 #define D3DERR_DRIVERINTERNALERROR              MAKE_D3DHRESULT(2087)
 #define D3DERR_TESTINCOMPLETE                   MAKE_D3DHRESULT(2088) // Xbox extension
 #define D3DERR_BUFFERTOOSMALL                   MAKE_D3DHRESULT(2089) // Xbox extension
+#define D3DERR_TIMEEXPIRED                      MAKE_D3DHRESULT(2090) // Xbox extension
 
 #define D3DERR_NOTFOUND                         MAKE_D3DHRESULT(2150)
 #define D3DERR_MOREDATA                         MAKE_D3DHRESULT(2151)
@@ -334,7 +335,7 @@ D3DCONST UINT D3DPRIMITIVETOVERTEXCOUNT[11][2] =
 };
 
 D3DCONST DWORD D3DSIMPLERENDERSTATEENCODE[] =
-{                                          
+{
     0x040260,    0x040264,    0x040268,    0x04026c,    // 0
     0x040270,    0x040274,    0x040278,    0x04027c,    // 4
     0x040288,    0x04028c,    0x040a60,    0x040a64,    // 8
@@ -355,7 +356,9 @@ D3DCONST DWORD D3DSIMPLERENDERSTATEENCODE[] =
     0x040374,    0x040378,    0x040364,    0x040368,    // 68
     0x04036c,    0x040360,    0x040350,    0x04034c,    // 72
     0x0409f8,    0x040384,    0x040388,    0x040330,    // 76
-    0x040334,    0x040338,    
+    0x040334,    0x040338,    0x041d78,    0x04147c,    // 80
+    0x041d90,    0x041d90,    0x041d90,    0x041d90,    // 84
+    0x041d90,    0x041d90,    0x041d90,    0x041d90,    // 88
 };
 
 D3DCONST DWORD D3DTEXTUREDIRECTENCODE[] =
@@ -379,46 +382,65 @@ D3DCONST DWORD D3DTEXTUREDIRECTENCODE[] =
 #define D3DDIRTYFLAG_LIGHTS                       0x00001000
 #define D3DDIRTYFLAG_SPECFOG_COMBINER             0x00002000
 #define D3DDIRTYFLAG_SHADER_STAGE_PROGRAM         0x00004000
+#define D3DDIRTYFLAG_LIGHT_MATERIAL               0x00008000
+#define D3DDIRTYFLAG_LIGHT_SLOTS                  0x00ff0000
+#define D3DDIRTYFLAG_LIGHT_SLOT_0                 0x00010000
+#define D3DDIRTYFLAG_LIGHT_SLOT_1                 0x00020000
+#define D3DDIRTYFLAG_LIGHT_SLOT_2                 0x00040000
+#define D3DDIRTYFLAG_LIGHT_SLOT_3                 0x00080000
+#define D3DDIRTYFLAG_LIGHT_SLOT_4                 0x00100000
+#define D3DDIRTYFLAG_LIGHT_SLOT_5                 0x00200000
+#define D3DDIRTYFLAG_LIGHT_SLOT_6                 0x00400000
+#define D3DDIRTYFLAG_LIGHT_SLOT_7                 0x00800000
 
 D3DCONST DWORD D3DDIRTYFROMRENDERSTATE[] =
 {
-    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGENABLE                 
-    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGTABLEMODE              
-    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGSTART                  
-    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGEND                    
-    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGDENSITY                
-    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_RANGEFOGENABLE            
-    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP0                     
-    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP1                     
-    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP2                     
-    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP3                     
+    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGENABLE
+    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGTABLEMODE
+    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGSTART
+    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGEND
+    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_FOGDENSITY
+    D3DDIRTYFLAG_SPECFOG_COMBINER,                      // D3DRS_RANGEFOGENABLE
+    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP0
+    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP1
+    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP2
+    D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DRS_WRAP3
     // D3DRS_LIGHTING dirties the transform because of the inverse-model-
     // view optimization:
-    (D3DDIRTYFLAG_LIGHTS | D3DDIRTYFLAG_TRANSFORM),     // D3DRS_LIGHTING                   
-    (D3DDIRTYFLAG_LIGHTS | D3DDIRTYFLAG_SPECFOG_COMBINER),// D3DRS_SPECULARENABLE             
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_LOCALVIEWER                
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_COLORVERTEX                
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKSPECULARMATERIALSOURCE 
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKDIFFUSEMATERIALSOURCE  
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKAMBIENTMATERIALSOURCE  
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKEMISSIVEMATERIALSOURCE 
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_SPECULARMATERIALSOURCE     
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_DIFFUSEMATERIALSOURCE      
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_AMBIENTMATERIALSOURCE      
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_EMISSIVEMATERIALSOURCE     
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKAMBIENT                
-    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_AMBIENT                    
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSIZE                 
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSIZE_MIN             
-    (D3DDIRTYFLAG_POINTPARAMS | D3DDIRTYFLAG_COMBINERS),// D3DRS_POINTSPRITEENABLE         
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALEENABLE          
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALE_A              
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALE_B              
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALE_C              
-    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSIZE_MAX             
-    0,                                                  // D3DRS_PATCHEDGESTYLE            
-    0,                                                  // D3DRS_PATCHSEGMENTS             
+    (D3DDIRTYFLAG_LIGHTS | D3DDIRTYFLAG_TRANSFORM),     // D3DRS_LIGHTING
+    (D3DDIRTYFLAG_LIGHTS | D3DDIRTYFLAG_SPECFOG_COMBINER),// D3DRS_SPECULARENABLE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_LOCALVIEWER
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_COLORVERTEX
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKSPECULARMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKDIFFUSEMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKAMBIENTMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKEMISSIVEMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_SPECULARMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_DIFFUSEMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_AMBIENTMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_EMISSIVEMATERIALSOURCE
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_BACKAMBIENT
+    D3DDIRTYFLAG_LIGHTS,                                // D3DRS_AMBIENT
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSIZE
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSIZE_MIN
+    (D3DDIRTYFLAG_POINTPARAMS | D3DDIRTYFLAG_COMBINERS),// D3DRS_POINTSPRITEENABLE
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALEENABLE
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALE_A
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALE_B
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSCALE_C
+    D3DDIRTYFLAG_POINTPARAMS,                           // D3DRS_POINTSIZE_MAX
+    0,                                                  // D3DRS_PATCHEDGESTYLE
+    0,                                                  // D3DRS_PATCHSEGMENTS
     0,                                                  // D3DRS_MULTISAMPLEFILTER
+    0,                                                  // D3DRS_PRESENTATIONINTERVAL
+    0,                                                  // D3DRS_DEFERRED_UNUSED8
+    0,                                                  // D3DRS_DEFERRED_UNUSED7
+    0,                                                  // D3DRS_DEFERRED_UNUSED6
+    0,                                                  // D3DRS_DEFERRED_UNUSED5
+    0,                                                  // D3DRS_DEFERRED_UNUSED4
+    0,                                                  // D3DRS_DEFERRED_UNUSED3
+    0,                                                  // D3DRS_DEFERRED_UNUSED2
+    0,                                                  // D3DRS_DEFERRED_UNUSED1
 };
 
 D3DCONST DWORD D3DDIRTYFROMTEXTURESTATE[] =
@@ -435,16 +457,15 @@ D3DCONST DWORD D3DDIRTYFROMTEXTURESTATE[] =
     D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DTSS_COLORKEYOP
     D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DTSS_COLORSIGN
     D3DDIRTYFLAG_TEXTURE_STATE,                         // D3DTSS_ALPHAKILL
-    (D3DDIRTYFLAG_COMBINERS | D3DDIRTYFLAG_SHADER_STAGE_PROGRAM | D3DDIRTYFLAG_TEXTURE_STATE),
-                                                        // D3DTSS_COLOROP (special cased)
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLORARG0           
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLORARG1           
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLORARG2           
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAOP             
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAARG0           
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAARG1           
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAARG2           
-    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_RESULTARG           
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLOROP (D3DTOP_BUMPENVMAP and D3DTOP_BUMPENVMAPLUMINANCE dirty more)
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLORARG0
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLORARG1
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_COLORARG2
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAOP
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAARG0
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAARG1
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_ALPHAARG2
+    D3DDIRTYFLAG_COMBINERS,                             // D3DTSS_RESULTARG
     D3DDIRTYFLAG_TEXTURE_TRANSFORM,                     // D3DTSS_TEXTURETRANSFORMFLAGS
 };
 
@@ -479,6 +500,21 @@ D3DEXTERN BOOL D3D__NullHardware;
 // weird hardware crashes and hangs down to the problem API call.
 // 
 D3DEXTERN BOOL D3D__SingleStepPusher;
+
+// Points to the active IDirect3DDevice8 device (NULL if one hasn't been
+// created yet).
+//
+D3DEXTERN IDirect3DDevice8 *D3D__pDevice;
+
+// This is what D3D__pDevice actually points to.  Only the first 8 bytes
+// are publicly accessible, for inline use by the BeginState/EndState APIs.
+//
+D3DEXTERN DWORD* D3D__Device[];
+
+// Byte offsets into D3D__Device for useful stuff.
+//
+#define D3DDEVICE_PUT 0
+#define D3DDEVICE_THRESHOLD 4
 
 /****************************************************************************
  *
@@ -530,6 +566,7 @@ D3DEXTERN WORD* D3D__IndexData;
 typedef void (__cdecl * D3DCALLBACK)(DWORD Context);
 typedef void (__cdecl * D3DVBLANKCALLBACK)(D3DVBLANKDATA *pData);
 typedef void (__cdecl * D3DSWAPCALLBACK)(D3DSWAPDATA *pData);
+typedef void (__cdecl * D3DWAITCALLBACK)(DWORD Flags);
 
 /*
  * NOTE: The C version of the methods for all of these interfaces
@@ -586,17 +623,17 @@ struct D3DDevice
     static HRESULT WINAPI GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS *pParameters);
     static HRESULT WINAPI Reset(D3DPRESENT_PARAMETERS *pPresentationParameters);
     static HRESULT WINAPI Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, void *pUnused, void *pUnused2);
-    static HRESULT WINAPI GetBackBuffer(INT BackBuffer, D3DBACKBUFFER_TYPE Type, D3DSurface **ppBackBuffer);
+    static HRESULT WINAPI GetBackBuffer(INT BackBuffer, D3DBACKBUFFER_TYPE UnusedType, D3DSurface **ppBackBuffer);
     static HRESULT WINAPI GetRasterStatus(D3DRASTER_STATUS *pRasterStatus);
     static void    WINAPI SetGammaRamp(DWORD Flags, CONST D3DGAMMARAMP *pRamp);
     static void    WINAPI GetGammaRamp(D3DGAMMARAMP *pRamp);
-    static HRESULT WINAPI CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DTexture **ppTexture);
-    static HRESULT WINAPI CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DVolumeTexture **ppVolumeTexture);
-    static HRESULT WINAPI CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DCubeTexture **ppCubeTexture);
-    static HRESULT WINAPI CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, D3DVertexBuffer **ppVertexBuffer);
-    static HRESULT WINAPI CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DIndexBuffer **ppIndexBuffer);
-    static HRESULT WINAPI CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, D3DSurface **ppSurface);
-    static HRESULT WINAPI CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, D3DSurface **ppSurface);
+    static HRESULT WINAPI CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DTexture **ppTexture);
+    static HRESULT WINAPI CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DVolumeTexture **ppVolumeTexture);
+    static HRESULT WINAPI CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DCubeTexture **ppCubeTexture);
+    static HRESULT WINAPI CreateVertexBuffer(UINT Length, DWORD UnusedUsage, DWORD UnusedFVF, D3DPOOL UnusedPool, D3DVertexBuffer **ppVertexBuffer);
+    static HRESULT WINAPI CreateIndexBuffer(UINT Length, DWORD UnusedUsage, D3DFORMAT UnusedFormat, D3DPOOL UnusedPool, D3DIndexBuffer **ppIndexBuffer);
+    static HRESULT WINAPI CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, BOOL UnusedLockable, D3DSurface **ppSurface);
+    static HRESULT WINAPI CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, D3DSurface **ppSurface);
     static HRESULT WINAPI CreateImageSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DSurface **ppSurface);
     static HRESULT WINAPI CopyRects(D3DSurface *pSourceSurface, CONST RECT *pSourceRectsArray, UINT cRects, D3DSurface *pDestinationSurface, CONST POINT *pDestPointsArray);
     static HRESULT WINAPI SetRenderTarget(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil);
@@ -631,14 +668,15 @@ struct D3DDevice
     static HRESULT WINAPI GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD *pValue);
     static HRESULT WINAPI SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value);
     static HRESULT WINAPI DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount);
-    static HRESULT WINAPI DrawIndexedPrimitive(D3DPRIMITIVETYPE, UINT MinIndex, UINT NumIndices, UINT StartIndex, UINT PrimitiveCount);
+    static HRESULT WINAPI DrawIndexedPrimitive(D3DPRIMITIVETYPE, UINT UnusedMinIndex, UINT UnusedNumIndices, UINT StartIndex, UINT PrimitiveCount);
     static HRESULT WINAPI DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride);
-    static HRESULT WINAPI DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT IndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride);
+    static HRESULT WINAPI DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT UnusedMinIndex, UINT UnusedNumVertices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT UnusedIndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride);
     static HRESULT WINAPI CreateVertexShader(CONST DWORD *pDeclaration, CONST DWORD *pFunction, DWORD *pHandle, DWORD Usage);
     static HRESULT WINAPI SetVertexShader(DWORD Handle);
     static HRESULT WINAPI GetVertexShader(DWORD *pHandle);
     static HRESULT WINAPI DeleteVertexShader(DWORD Handle);
     static HRESULT WINAPI SetVertexShaderConstant(INT Register, CONST void *pConstantData, DWORD ConstantCount);
+    static HRESULT WINAPI SetVertexShaderConstantFast(INT Register, CONST void *pConstantData, DWORD ConstantCount);
     static HRESULT WINAPI GetVertexShaderConstant(INT Register, void *pConstantData, DWORD ConstantCount);
     static HRESULT WINAPI GetVertexShaderDeclaration(DWORD Handle, void *pData, DWORD *pSizeOfData);
     static HRESULT WINAPI GetVertexShaderFunction(DWORD Handle,void *pData, DWORD *pSizeOfData);
@@ -712,8 +750,6 @@ struct D3DDevice
     static HRESULT WINAPI SetVertexShaderInputDirect(D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT* pStreamInputs);
     static HRESULT WINAPI GetVertexShaderInput(DWORD* pHandle, UINT* pStreamCount, D3DSTREAM_INPUT* pStreamInputs);
     static HRESULT WINAPI SwitchTexture(DWORD Stage, D3DBaseTexture *pTexture);
-    static HRESULT WINAPI Suspend();
-    static HRESULT WINAPI Resume(BOOL Reset);
     static HRESULT WINAPI SetScissors(DWORD Count, BOOL Exclusive, CONST D3DRECT *pRects);
     static HRESULT WINAPI GetScissors(DWORD* pCount, BOOL *pExclusive, D3DRECT *pRects);
     static HRESULT WINAPI SetTile(DWORD Index, CONST D3DTILE* pTile);
@@ -723,6 +759,8 @@ struct D3DDevice
     static void    WINAPI GetTileCompressionTagBits(DWORD Partition, DWORD Address, DWORD *pData, DWORD Count);
     static HRESULT WINAPI BeginPush(DWORD Count, DWORD **ppPush);
     static HRESULT WINAPI EndPush(DWORD *pPush);
+    static HRESULT WINAPI BeginState(DWORD Count, DWORD **ppPush);
+    static HRESULT WINAPI EndState(DWORD *pPush);
     static BOOL    WINAPI IsBusy();
     static void    WINAPI BlockUntilIdle();
     static void    WINAPI KickPushBuffer();
@@ -747,8 +785,17 @@ struct D3DDevice
     static HRESULT WINAPI GetScreenSpaceOffset(float *pX, float *pY);
     static void    WINAPI SetOverscanColor(D3DCOLOR Color);
     static D3DCOLOR WINAPI GetOverscanColor();
+    static void    WINAPI SetDepthClipPlanes(float Near, float Far, DWORD Flags);
+    static void    WINAPI GetDepthClipPlanes(float *pNear, float *pFar, DWORD Flags);
+    static void    WINAPI GetViewportOffsetAndScale(D3DVECTOR4 *pOffset, D3DVECTOR4 *pScale);
     static DWORD   WINAPI SetDebugMarker(DWORD Marker);
     static DWORD   WINAPI GetDebugMarker();
+    static void    WINAPI SetStipple(CONST DWORD *pPattern);
+    static void    WINAPI GetStipple(DWORD *pPattern);
+    static void    WINAPI SetWaitCallback(D3DWAITCALLBACK pCallback);
+    static DWORD   WINAPI GetPushDistance(DWORD Handle);
+    static HRESULT WINAPI SetTimerCallback(ULONGLONG Time, D3DCALLBACK pCallback, DWORD Context);
+    static void    WINAPI SetRenderTargetFast(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil, DWORD Flags);
 };
 
 #endif __cplusplus
@@ -779,7 +826,7 @@ struct D3DDevice
 //
 #define D3DCOMMON_VIDEOMEMORY        0
 
-// Internal flag to indicate that this resource was created by Direct3D 
+// Internal flag to indicate that this resource was created by Direct3D
 //
 #define D3DCOMMON_D3DCREATED         0x01000000
 
@@ -787,15 +834,16 @@ struct D3DDevice
 #define D3DCOMMON_UNUSED_MASK        0xFE000000
 #define D3DCOMMON_UNUSED_SHIFT       25
 
-#ifdef __cplusplus
-
 struct D3DResource
 {
+
+#ifdef __cplusplus
+
     ULONG WINAPI AddRef();
 
-    // DOC:  If the GPU is currently using this object when the last call 
-    //   to release is made then this call will block until the GPU is done 
-    //   with this object.  The caller will have to manually check this if 
+    // DOC:  If the GPU is currently using this object when the last call
+    //   to release is made then this call will block until the GPU is done
+    //   with this object.  The caller will have to manually check this if
     //   they do not want this call to block.
     //
     ULONG WINAPI Release();
@@ -820,21 +868,21 @@ struct D3DResource
     //
     void    WINAPI BlockUntilNotBusy();
 
-    // DOC: On pre-beta development kits, this API set whether the we should 
-    //  ; use video or AGP memory for the data of this resource.  
+    // DOC: On pre-beta development kits, this API set whether the we should
+    //  ; use video or AGP memory for the data of this resource.
     //  ;
     //  ; This API has been deprecated on the final hardware.
     //
     void    WINAPI MoveResourceMemory(D3DMEMORY where);
 
-    // DOC: Performs some debug checks and maps the resource's 
+    // DOC: Performs some debug checks and maps the resource's
     //  : data field from a contiguous memory address to the physical memory
     //  : address.  It should be called for any resource that is not created
     //  : through an D3DDevice "Create" routine.
     //  :
     //  : This API does not modify any state in the resource besides the
     //  : Data field nor does the library keep track of what resources
-    //  : have been registered.  
+    //  : have been registered.
     //  :
     //  : This method takes a contiguous memory address, adds the current
     //  : contents of the Data field to it, converts it to a physical
@@ -842,14 +890,14 @@ struct D3DResource
     //
     void    WINAPI Register(void *pBase);
 
+#endif __cplusplus
+
     // All resources need these fields.  Inherit them in C++.
 
     DWORD Common;           // Refcount and flags common to all resources
     DWORD Data;             // Offset to the data held by this resource
     DWORD Lock;             // Lock information, initialize to zero
 };
-
-#endif __cplusplus
 
 /*
  * D3DPixelContainer interface
@@ -861,7 +909,7 @@ struct D3DResource
 // The layout of the Format field.
 
 #define D3DFORMAT_RESERVED1_MASK        0x00000003      // Must be zero
-                                        
+
 #define D3DFORMAT_DMACHANNEL_MASK       0x00000003
 #define D3DFORMAT_DMACHANNEL_A          0x00000001      // DMA channel A - the default for all system memory
 #define D3DFORMAT_DMACHANNEL_B          0x00000002      // DMA channel B - unused
@@ -871,7 +919,7 @@ struct D3DResource
 #define D3DFORMAT_DIMENSION_SHIFT       4
 #define D3DFORMAT_FORMAT_MASK           0x0000FF00
 #define D3DFORMAT_FORMAT_SHIFT          8
-#define D3DFORMAT_MIPMAP_MASK           0x000F0000 
+#define D3DFORMAT_MIPMAP_MASK           0x000F0000
 #define D3DFORMAT_MIPMAP_SHIFT          16
 #define D3DFORMAT_USIZE_MASK            0x00F00000      // Log 2 of the U size of the base texture
 #define D3DFORMAT_USIZE_SHIFT           20
@@ -881,9 +929,9 @@ struct D3DResource
 #define D3DFORMAT_PSIZE_SHIFT           28
 
 // The layout of the size field, used for non swizzled or compressed textures.
-// 
+//
 // The Size field of a container will be zero if the texture is swizzled or compressed.
-// It is guarenteed to be non-zero otherwise because either the height/width will be 
+// It is guarenteed to be non-zero otherwise because either the height/width will be
 // greater than one or the pitch adjust will be nonzero because the minimum texture
 // pitch is 8 bytes.
 
@@ -949,17 +997,31 @@ struct D3DBaseTexture
  * A normal texture.  Inherits from D3DBaseTexture
  */
 
-#ifdef __cplusplus
-
-struct D3DTexture : public D3DBaseTexture
+struct D3DTexture 
+    #ifdef __cplusplus
+        : public D3DBaseTexture
+    #endif
 {
+
+#ifdef __cplusplus
     HRESULT WINAPI GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc);
     HRESULT WINAPI GetSurfaceLevel(UINT Level, D3DSurface **ppSurfaceLevel);
     HRESULT WINAPI LockRect(UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
     HRESULT WINAPI UnlockRect(UINT Level);
-};
+#endif
 
-#endif __cplusplus
+#ifndef __cplusplus
+
+    // Manually inherit these from D3DBaseTexture
+    DWORD Common;
+    DWORD Data;
+    DWORD Lock;
+
+    DWORD Format;   // Format information about the texture.
+    DWORD Size;     // Size of a non power-of-2 texture, must be zero otherwise
+#endif
+
+};
 
 
 /*
@@ -968,17 +1030,31 @@ struct D3DTexture : public D3DBaseTexture
  * A volume texture.  Inherits from D3DBaseTexture
  */
 
-#ifdef __cplusplus
-
-struct D3DVolumeTexture : public D3DBaseTexture
+struct D3DVolumeTexture 
+    #ifdef __cplusplus
+        : public D3DBaseTexture
+    #endif
 {
+
+#ifdef __cplusplus
     HRESULT WINAPI GetLevelDesc(UINT Level, D3DVOLUME_DESC *pDesc);
     HRESULT WINAPI GetVolumeLevel(UINT Level, D3DVolume **ppVolumeLevel);
     HRESULT WINAPI LockBox(UINT Level, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags);
     HRESULT WINAPI UnlockBox(UINT Level);
-};
+#endif
 
-#endif __cplusplus
+#ifndef __cplusplus
+
+    // Manually inherit these from D3DBaseTexture
+    DWORD Common;
+    DWORD Data;
+    DWORD Lock;
+
+    DWORD Format;   // Format information about the texture.
+    DWORD Size;     // Size of a non power-of-2 texture, must be zero otherwise
+#endif
+
+};
 
 
 /*
@@ -987,17 +1063,31 @@ struct D3DVolumeTexture : public D3DBaseTexture
  * A cube texture.  Inherits from D3DBaseTexture
  */
 
-#ifdef __cplusplus
-
-struct D3DCubeTexture : public D3DBaseTexture
+struct D3DCubeTexture 
+    #ifdef __cplusplus
+        : public D3DBaseTexture
+    #endif
 {
+
+#ifdef __cplusplus
     HRESULT WINAPI GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc);
     HRESULT WINAPI GetCubeMapSurface(D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface);
     HRESULT WINAPI LockRect(D3DCUBEMAP_FACES FaceType, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
     HRESULT WINAPI UnlockRect(D3DCUBEMAP_FACES FaceType, UINT Level);
-};
+#endif
 
-#endif __cplusplus
+#ifndef __cplusplus
+
+    // Manually inherit these from D3DBaseTexture
+    DWORD Common;
+    DWORD Data;
+    DWORD Lock;
+
+    DWORD Format;   // Format information about the texture.
+    DWORD Size;     // Size of a non power-of-2 texture, must be zero otherwise
+#endif
+
+};
 
 
 /*
@@ -1005,11 +1095,11 @@ struct D3DCubeTexture : public D3DBaseTexture
  *
  * A vertex buffer.
  *
- * The data for the vertex buffer must be aligned on a 
+ * The data for the vertex buffer must be aligned on a
  * D3DVERTEXBUFFER_ALIGNMENT byte multiple.
  */
 
-#define D3DVERTEXBUFFER_ALIGNMENT     4    
+#define D3DVERTEXBUFFER_ALIGNMENT     1
 
 struct D3DVertexBuffer
     #ifdef __cplusplus
@@ -1018,7 +1108,7 @@ struct D3DVertexBuffer
 {
 #ifdef __cplusplus
 
-    HRESULT WINAPI Lock(UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags);
+    HRESULT WINAPI Lock(UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD Flags);
     HRESULT WINAPI Unlock();
     HRESULT WINAPI GetDesc(D3DVERTEXBUFFER_DESC *pDesc);
 
@@ -1045,7 +1135,7 @@ struct D3DVertexBuffer
  * byte multiple.
  */
 
-#define D3DINDEXBUFFER_ALIGNMENT        4      
+#define D3DINDEXBUFFER_ALIGNMENT        4
 
 struct D3DIndexBuffer
     #ifdef __cplusplus
@@ -1054,7 +1144,7 @@ struct D3DIndexBuffer
 {
 #ifdef __cplusplus
 
-    HRESULT WINAPI Lock(UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags);
+    HRESULT WINAPI Lock(UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD Flags);
     HRESULT WINAPI Unlock();
     HRESULT WINAPI GetDesc(D3DINDEXBUFFER_DESC *pDesc);
 
@@ -1063,7 +1153,7 @@ struct D3DIndexBuffer
 #ifndef __cplusplus
 
     // Manually inherit these from D3DResource
-    DWORD Common;                    
+    DWORD Common;
     DWORD Data;
     DWORD Lock;
 
@@ -1149,7 +1239,7 @@ struct D3DSurface
 
 #endif
 
-    D3DBaseTexture *Parent; 
+    D3DBaseTexture *Parent;
 };
 
 
@@ -1180,12 +1270,12 @@ struct D3DVolume
     DWORD Common;
     DWORD Data;
     DWORD Lock;
-    DWORD Format; 
+    DWORD Format;
     DWORD Size;
 
 #endif
 
-    D3DBaseTexture *Parent; 
+    D3DBaseTexture *Parent;
 };
 
 
@@ -1197,8 +1287,8 @@ struct D3DVolume
 
 #define D3DPUSHBUFFER_ALIGNMENT 4
 
-// The following flag, when set in the Common field, dictates that when 
-// RunPushBuffer is called, the push-buffer is copied using the CPU instead 
+// The following flag, when set in the Common field, dictates that when
+// RunPushBuffer is called, the push-buffer is copied using the CPU instead
 // of executed in-place by the GPU.  This should be used for small push-
 // buffers to avoid the high latency cost of the GPU JUMP command.  In this
 // case, the memory should be cacheable (not write-combined), and need not
@@ -1225,6 +1315,8 @@ struct D3DPushBuffer
     HRESULT WINAPI SetPalette(DWORD Offset, DWORD Stage,D3DPalette *pPalette);
     HRESULT WINAPI EndVisibilityTest(DWORD Offset, DWORD Index);
     HRESULT WINAPI SetVertexShaderConstant(DWORD Offset, INT Register, CONST VOID* pConstantData, DWORD ConstantCount);
+    HRESULT WINAPI SetRenderState(DWORD Offset, D3DRENDERSTATETYPE State, DWORD Value);
+    HRESULT WINAPI CopyRects(DWORD Offset, D3DSurface *pSourceSurface, D3DSurface *pDestinationSurface);
     HRESULT WINAPI Jump(DWORD Offset, UINT DestinationOffset);
     HRESULT WINAPI GetSize(DWORD* pSize);
 
@@ -1232,10 +1324,10 @@ struct D3DPushBuffer
 
 #ifndef __cplusplus
 
-    // Manually inherit these from D3DResource.  
+    // Manually inherit these from D3DResource.
     //
-    // Note (in an exception to all other resources) that 'Data' is a virtual 
-    // address for the D3DPUSHBUFFER_RUN_USING_CPU_COPY case.
+    // Note (in an exception to all other resources) that 'Data' is a virtual
+    // address for push-buffers.
     DWORD Common;
     DWORD Data;
     DWORD Lock;
@@ -1247,6 +1339,11 @@ struct D3DPushBuffer
 
     // Size, in bytes, of the allocation of the buffer pointed to by 'Data'.
     DWORD AllocationSize;
+
+    // Internal D3D-only field that identifies the interrupt that the fix-up 
+    // will be done on for the most recent RunPushBuffer call when using 
+    // non-COPY push-buffers.
+    DWORD InterruptId;
 };
 
 
@@ -1265,7 +1362,7 @@ struct D3DFixup
 {
 #ifdef __cplusplus
 
-    HRESULT WINAPI Reset(); 
+    HRESULT WINAPI Reset();
     HRESULT WINAPI GetSize(DWORD* pSize);
     HRESULT WINAPI GetSpace(DWORD* pSpace);
 
@@ -1273,7 +1370,7 @@ struct D3DFixup
 
 #ifndef __cplusplus
 
-    // Manually inherit these from D3DResource.  
+    // Manually inherit these from D3DResource.
     //
     // Note that 'Data' is always a virtual address.
     DWORD Common;
@@ -1410,7 +1507,29 @@ D3DMINLINE HRESULT WINAPI Direct3D::SetPushBufferSize(DWORD PushBufferSize, DWOR
 
 #endif __cplusplus
 
-/* D3DDevice */
+/****************************************************************************
+ *
+ * D3DDevice_*
+ *
+ * Private internal interfaces - Please don't access these directly, as they're
+ *                               subject to change.
+ *
+ ****************************************************************************/
+
+D3DSurface*         WINAPI D3DDevice_GetBackBuffer2(INT BackBuffer);
+D3DTexture*         WINAPI D3DDevice_CreateTexture2(DWORD Width, DWORD Height, DWORD Depth, DWORD Levels, DWORD Usage, D3DFORMAT Format, D3DRESOURCETYPE D3DType);
+D3DSurface*         WINAPI D3DDevice_CreateSurface2(DWORD Width, DWORD Height, DWORD Usage, D3DFORMAT Format);
+D3DVertexBuffer*    WINAPI D3DDevice_CreateVertexBuffer2(UINT Length);
+D3DIndexBuffer*     WINAPI D3DDevice_CreateIndexBuffer2(UINT Length);
+D3DPalette*         WINAPI D3DDevice_CreatePalette2(D3DPALETTESIZE Size);
+D3DSurface*         WINAPI D3DDevice_GetRenderTarget2();
+D3DSurface*         WINAPI D3DDevice_GetDepthStencilSurface2();
+D3DBaseTexture*     WINAPI D3DDevice_GetTexture2(DWORD Stage);
+D3DPalette*         WINAPI D3DDevice_GetPalette2(DWORD Stage);
+D3DVertexBuffer*    WINAPI D3DDevice_GetStreamSource2(UINT StreamNumber, UINT *pStride);
+D3DIndexBuffer*     WINAPI D3DDevice_GetIndices2(UINT *pBaseVertexIndex);
+D3DFixup*           WINAPI D3DDevice_CreateFixup2(UINT Size);
+D3DPushBuffer*      WINAPI D3DDevice_CreatePushBuffer2(UINT Size, BOOL RunUsingCpuCopy);
 
 ULONG   WINAPI D3DDevice_AddRef();
 ULONG   WINAPI D3DDevice_Release();
@@ -1419,27 +1538,15 @@ void    WINAPI D3DDevice_GetDeviceCaps(D3DCAPS8 *pCaps);
 void    WINAPI D3DDevice_GetDisplayMode(D3DDISPLAYMODE *pMode);
 void    WINAPI D3DDevice_GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS *pParameters);
 HRESULT WINAPI D3DDevice_Reset(D3DPRESENT_PARAMETERS *pPresentationParameters);
-void    WINAPI D3DDevice_GetBackBuffer(INT BackBuffer, D3DBACKBUFFER_TYPE Type, D3DSurface **ppBackBuffer);
 void    WINAPI D3DDevice_GetRasterStatus(D3DRASTER_STATUS *pRasterStatus);
 void    WINAPI D3DDevice_SetFlickerFilter(DWORD Filter);
 void    WINAPI D3DDevice_SetSoftDisplayFilter(BOOL Enable);
 void    WINAPI D3DDevice_SetGammaRamp(DWORD Flags, CONST D3DGAMMARAMP *pRamp);
 void    WINAPI D3DDevice_GetGammaRamp(D3DGAMMARAMP *pRamp);
-HRESULT WINAPI D3DDevice_CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DTexture **ppTexture);
-HRESULT WINAPI D3DDevice_CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DVolumeTexture **ppVolumeTexture);
-HRESULT WINAPI D3DDevice_CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DCubeTexture **ppCubeTexture);
-HRESULT WINAPI D3DDevice_CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, D3DVertexBuffer **ppVertexBuffer);
-HRESULT WINAPI D3DDevice_CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DIndexBuffer **ppIndexBuffer);
-HRESULT WINAPI D3DDevice_CreatePalette(D3DPALETTESIZE Size, D3DPalette **ppPalette);
-HRESULT WINAPI D3DDevice_CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, D3DSurface **ppSurface);
-HRESULT WINAPI D3DDevice_CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, D3DSurface **ppSurface);
-HRESULT WINAPI D3DDevice_CreateImageSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DSurface **ppSurface);
 void    WINAPI D3DDevice_CopyRects(D3DSurface *pSourceSurface, CONST RECT *pSourceRectsArray, UINT cRects, D3DSurface *pDestinationSurface, CONST POINT *pDestPointsArray);
 void    WINAPI D3DDevice_SetCopyRectsState(CONST D3DCOPYRECTSTATE *pCopyRectState, CONST D3DCOPYRECTROPSTATE *pCopyRectRopState);
 void    WINAPI D3DDevice_GetCopyRectsState(D3DCOPYRECTSTATE *pCopyRectState, D3DCOPYRECTROPSTATE *pCopyRectRopState);
 void    WINAPI D3DDevice_SetRenderTarget(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil);
-HRESULT WINAPI D3DDevice_GetRenderTarget(D3DSurface **ppRenderTarget);
-HRESULT WINAPI D3DDevice_GetDepthStencilSurface(D3DSurface **ppZStencilSurface);
 D3DINLINE void    WINAPI D3DDevice_BeginScene() { }
 D3DINLINE void    WINAPI D3DDevice_EndScene() { }
 void    WINAPI D3DDevice_Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil);
@@ -1481,6 +1588,7 @@ void    WINAPI D3DDevice_SetRenderState_MultiSampleMode(DWORD Value);
 void    WINAPI D3DDevice_SetRenderState_MultiSampleRenderTargetMode(DWORD Value);
 void    WINAPI D3DDevice_SetRenderState_ShadowFunc(DWORD Value);
 void    WINAPI D3DDevice_SetRenderState_LineWidth(DWORD Value);
+void    WINAPI D3DDevice_SetRenderState_SampleAlpha(DWORD Value);
 void    WINAPI D3DDevice_SetRenderState_Dxt1NoiseEnable(DWORD Value);
 void    WINAPI D3DDevice_SetRenderState_YuvEnable(DWORD Value);
 void    WINAPI D3DDevice_SetRenderState_OcclusionCullEnable(DWORD Value);
@@ -1502,9 +1610,7 @@ void    WINAPI D3DDevice_ApplyStateBlock(DWORD Token);
 void    WINAPI D3DDevice_CaptureStateBlock(DWORD Token);
 void    WINAPI D3DDevice_DeleteStateBlock(DWORD Token);
 HRESULT WINAPI D3DDevice_CreateStateBlock(D3DSTATEBLOCKTYPE Type,DWORD *pToken);
-void    WINAPI D3DDevice_GetTexture(DWORD Stage, D3DBaseTexture **ppTexture);
 void    WINAPI D3DDevice_SetTexture(DWORD Stage, D3DBaseTexture *pTexture);
-void    WINAPI D3DDevice_GetPalette(DWORD Stage, D3DPalette **ppPalette);
 void    WINAPI D3DDevice_SetPalette(DWORD Stage, D3DPalette *pPalette);
 void    WINAPI D3DDevice_DrawVertices(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT VertexCount);
 void    WINAPI D3DDevice_DrawIndexedVertices(D3DPRIMITIVETYPE, UINT VertexCount, CONST WORD *pIndexData);
@@ -1515,7 +1621,11 @@ HRESULT WINAPI D3DDevice_CreateVertexShader(CONST DWORD *pDeclaration, CONST DWO
 void    WINAPI D3DDevice_SetVertexShader(DWORD Handle);
 void    WINAPI D3DDevice_GetVertexShader(DWORD *pHandle);
 void    WINAPI D3DDevice_DeleteVertexShader(DWORD Handle);
-void    WINAPI D3DDevice_SetVertexShaderConstant(INT Register, CONST void *pConstantData, DWORD ConstantCount);
+void    D3DFASTCALL D3DDevice_SetVertexShaderConstant1(INT Register, CONST void *pConstantData);
+void    D3DFASTCALL D3DDevice_SetVertexShaderConstant1Fast(INT Register, CONST void *pConstantData);
+void    D3DFASTCALL D3DDevice_SetVertexShaderConstant4(INT Register, CONST void *pConstantData);
+void    D3DFASTCALL D3DDevice_SetVertexShaderConstantNotInline(INT Register, CONST void *pConstantData, DWORD ConstantCount);
+void    D3DFASTCALL D3DDevice_SetVertexShaderConstantNotInlineFast(INT Register, CONST void *pConstantData, DWORD ConstantCount);
 void    WINAPI D3DDevice_GetVertexShaderConstant(INT Register, void *pConstantData, DWORD ConstantCount);
 void    WINAPI D3DDevice_SetShaderConstantMode(D3DSHADERCONSTANTMODE Mode);
 void    WINAPI D3DDevice_GetShaderConstantMode(D3DSHADERCONSTANTMODE *pMode);
@@ -1529,10 +1639,8 @@ void    WINAPI D3DDevice_GetVertexShaderType(DWORD Handle, DWORD* pType);
 HRESULT WINAPI D3DDevice_GetVertexShaderDeclaration(DWORD Handle, void *pData, DWORD *pSizeOfData);
 HRESULT WINAPI D3DDevice_GetVertexShaderFunction(DWORD Handle,void *pData, DWORD *pSizeOfData);
 void    WINAPI D3DDevice_SetStreamSource(UINT StreamNumber, D3DVertexBuffer *pStreamData, UINT Stride);
-void    WINAPI D3DDevice_GetStreamSource(UINT StreamNumber, D3DVertexBuffer **ppStreamData, UINT *pStride);
 void    WINAPI D3DDevice_SetIndices(D3DIndexBuffer* pIndexData, UINT BaseVertexIndex);
-void    WINAPI D3DDevice_GetIndices(D3DIndexBuffer** ppIndexData, UINT *pBaseVertexIndex);
-HRESULT WINAPI D3DDevice_CreatePixelShader(CONST D3DPIXELSHADERDEF *pPSDef, DWORD *pHandle);
+void    WINAPI D3DDevice_CreatePixelShader(CONST D3DPIXELSHADERDEF *pPSDef, DWORD *pHandle);
 void    WINAPI D3DDevice_SetPixelShader(DWORD Handle);
 void    WINAPI D3DDevice_SetPixelShaderProgram(CONST D3DPIXELSHADERDEF *pPSDef);
 void    WINAPI D3DDevice_GetPixelShader(DWORD *pHandle);
@@ -1560,7 +1668,7 @@ VOID    WINAPI D3DDevice_BlockOnFence(DWORD Fence);
 void    WINAPI D3DDevice_InsertCallback(D3DCALLBACKTYPE Type, D3DCALLBACK pCallback, DWORD Context);
 void    WINAPI D3DDevice_FlushVertexCache();
 HRESULT WINAPI D3DDevice_PersistDisplay();
-void    WINAPI D3DDevice_GetPersistedSurface(IDirect3DSurface8 **ppSurface);
+D3DSurface* WINAPI D3DDevice_GetPersistedSurface2();
 BOOL    WINAPI D3DDevice_GetOverlayUpdateStatus();
 void    WINAPI D3DDevice_GetDisplayFieldStatus(D3DFIELD_STATUS *pFieldStatus);
 void    WINAPI D3DDevice_SetVertexData2f(INT Register, float a, float b);
@@ -1571,8 +1679,6 @@ void    WINAPI D3DDevice_SetVertexData4ub(INT Register, BYTE a, BYTE b, BYTE c, 
 void    WINAPI D3DDevice_SetVertexDataColor(INT Register, D3DCOLOR Color);
 void    WINAPI D3DDevice_Begin(D3DPRIMITIVETYPE PrimitiveType);
 void    WINAPI D3DDevice_End();
-HRESULT WINAPI D3DDevice_CreateFixup(UINT Size, D3DFixup **ppFixup);
-HRESULT WINAPI D3DDevice_CreatePushBuffer(UINT Size, BOOL RunUsingCpuCopy, D3DPushBuffer **ppPushBuffer);
 void    WINAPI D3DDevice_BeginPushBuffer(D3DPushBuffer *pPushBuffer);
 HRESULT WINAPI D3DDevice_EndPushBuffer();
 void    WINAPI D3DDevice_RunPushBuffer(D3DPushBuffer *pPushBuffer, D3DFixup *pFixup);
@@ -1587,8 +1693,6 @@ void    WINAPI D3DDevice_SetVertexShaderInput(DWORD Handle, UINT StreamCount, CO
 void    WINAPI D3DDevice_SetVertexShaderInputDirect(D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT* pStreamInputs);
 HRESULT WINAPI D3DDevice_GetVertexShaderInput(DWORD* pHandle, UINT* pStreamCount, D3DSTREAM_INPUT* pStreamInputs);
 void    D3DFASTCALL D3DDevice_SwitchTexture(DWORD Method, DWORD Data, DWORD Format);
-void    WINAPI D3DDevice_Suspend();
-void    WINAPI D3DDevice_Resume(BOOL Reset);
 void    WINAPI D3DDevice_SetScissors(DWORD Count, BOOL Exclusive, CONST D3DRECT *pRects);
 void    WINAPI D3DDevice_GetScissors(DWORD* pCount, BOOL *pExclusive, D3DRECT *pRects);
 void    WINAPI D3DDevice_SetTile(DWORD Index, CONST D3DTILE* pTile);
@@ -1596,7 +1700,7 @@ void    WINAPI D3DDevice_GetTile(DWORD Index, D3DTILE* pTile);
 DWORD   WINAPI D3DDevice_GetTileCompressionTags(DWORD ZStartTag, DWORD ZEndTag);
 void    WINAPI D3DDevice_SetTileCompressionTagBits(DWORD Partition, DWORD Address, CONST DWORD *pData, DWORD Count);
 void    WINAPI D3DDevice_GetTileCompressionTagBits(DWORD Partition, DWORD Address, DWORD *pData, DWORD Count);
-void    WINAPI D3DDevice_BeginPush(DWORD Count, DWORD **ppPush);
+DWORD*  WINAPI D3DDevice_BeginPush(DWORD Count);
 void    WINAPI D3DDevice_EndPush(DWORD *pPush);
 DWORD   WINAPI D3DDevice_Swap(DWORD Flags);
 void    WINAPI D3DDevice_SetBackBufferScale(float x, float y);
@@ -1605,6 +1709,19 @@ void    WINAPI D3DDevice_SetScreenSpaceOffset(float x, float y);
 void    WINAPI D3DDevice_GetScreenSpaceOffset(float *pX, float *pY);
 void    WINAPI D3DDevice_SetOverscanColor(D3DCOLOR Color);
 D3DCOLOR WINAPI D3DDevice_GetOverscanColor();
+void    WINAPI D3DDevice_SetDepthClipPlanes(float Near, float Far, DWORD Flags);
+void    WINAPI D3DDevice_GetDepthClipPlanes(float *pNear, float *pFar, DWORD Flags);
+void    WINAPI D3DDevice_GetViewportOffsetAndScale(D3DVECTOR4 *pOffset, D3DVECTOR4 *pScale);
+void    WINAPI D3DDevice_SetStipple(CONST DWORD *pPattern);
+void    WINAPI D3DDevice_GetStipple(DWORD *pPattern);
+void    WINAPI D3DDevice_SetWaitCallback(D3DWAITCALLBACK pCallback);
+DWORD   WINAPI D3DDevice_GetPushDistance(DWORD Handle);
+HRESULT WINAPI D3DDevice_SetTimerCallback(ULONGLONG Time, D3DCALLBACK pCallback, DWORD Context);
+DWORD*  WINAPI D3DDevice_MakeSpace();
+void    WINAPI D3DDevice_BeginStateParameterCheck(DWORD Count);
+void    WINAPI D3DDevice_EndStateParameterCheck(DWORD *pPush);
+DWORD*  WINAPI D3DDevice_BeginStateBig(DWORD Count);
+void    WINAPI D3DDevice_SetRenderTargetFast(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil, DWORD Flags);
 
 #ifdef _DEBUG
 DWORD   WINAPI D3DDevice_SetDebugMarker(DWORD Marker);
@@ -1624,7 +1741,7 @@ D3DINLINE void D3DDevice_GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATET
 }
 
 #if D3DCOMPILE_NOTINLINE
-    
+
     D3DINLINE void D3DDevice_SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
     {
         D3DDevice_SetRenderStateNotInline(State, Value);
@@ -1635,16 +1752,20 @@ D3DINLINE void D3DDevice_GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATET
     }
 
 #else
-    
+
     // This D3DINLINE version of SetRenderState has the nice advantage that it
     // essentially moves to compile-time the big 'switch' statement for
-    // handling all the render state types.  When given a constant value for 
-    // 'State', all of these 'if's get nicely compiled away.  We can't use a 
-    // static call-table because the compiler cannot remove the indirect.
+    // handling all the render state types.  When given a constant value for
+    // 'State', all of these 'if's get nicely compiled away when compiler
+    // optimizations are enabled.  We can't use a static call-table because the
+    // compiler cannot remove the indirect.
     //
     // If you're calling SetRenderState with a non-constant value for 'State',
     // it's better to call SetRenderStateNotInline (it will reduce code bloat
     // and be a bit faster because the non-D3DINLINE version uses a call-table).
+    //
+    // Please don't call any of the D3DDevice_ routines directly; they're
+    // subject to change.
     //
     D3DINLINE void D3DDevice_SetRenderState(D3DRENDERSTATETYPE State, DWORD Value)
     {
@@ -1655,6 +1776,10 @@ D3DINLINE void D3DDevice_GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATET
 
         if (State < D3DRS_SIMPLE_MAX)
         {
+            // D3DCONST arrays like D3DSIMPLERENDERSTATEENCODE have the nice
+            // property that the lookup of a constant index is done at compile-
+            // time, not run-time.
+            //
             D3DDevice_SetRenderState_Simple(D3DSIMPLERENDERSTATEENCODE[State], Value);
             #if !D3DCOMPILE_PUREDEVICE
             D3D__RenderState[State] = Value;
@@ -1753,6 +1878,10 @@ D3DINLINE void D3DDevice_GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATET
         {
             D3DDevice_SetRenderState_LineWidth(Value);
         }
+        else if (State == D3DRS_SAMPLEALPHA)
+        {
+            D3DDevice_SetRenderState_SampleAlpha(Value);
+        }
         else if (State == D3DRS_DXT1NOISEENABLE)
         {
             D3DDevice_SetRenderState_Dxt1NoiseEnable(Value);
@@ -1791,23 +1920,10 @@ D3DINLINE void D3DDevice_GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATET
         if (D3DDevice_SetTextureState_ParameterCheck(Stage, Type, Value) != S_OK)
             return;
         #endif
-        
+
         if (Type < D3DTSS_DEFERRED_TEXTURE_STATE_MAX)
         {
             D3D__DirtyFlags |= (D3DDIRTYFLAG_TEXTURE_STATE_0 << Stage);
-            D3D__TextureState[Stage][Type] = Value;
-        }
-        else if (Type == D3DTSS_COLOROP)
-        {
-            // Only D3DTOP_BUMPENVMAP and D3DTOP_BUMPENVMAPLUMINANCE require the
-            // sign flags and shader program to be recomputed:
-
-            D3D__DirtyFlags |= (Value < D3DTOP_BUMPENVMAP)
-                             ? (D3DDIRTYFLAG_COMBINERS)
-                             : (D3DDIRTYFLAG_COMBINERS | 
-                                D3DDIRTYFLAG_SHADER_STAGE_PROGRAM | 
-                                D3DDIRTYFLAG_TEXTURE_STATE);
-
             D3D__TextureState[Stage][Type] = Value;
         }
         else if (Type < D3DTSS_DEFERRED_MAX)
@@ -1835,6 +1951,68 @@ D3DINLINE void D3DDevice_GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATET
 
 #endif
 
+D3DINLINE void D3DDevice_SetVertexShaderConstant(INT Register, CONST void *pConstantData, DWORD ConstantCount)
+{
+    if (ConstantCount == 1)
+    {
+        D3DDevice_SetVertexShaderConstant1(Register + 96, pConstantData);
+    }
+    else if (ConstantCount == 4)
+    {
+        D3DDevice_SetVertexShaderConstant4(Register + 96, pConstantData);
+    }
+    else
+    {
+        D3DDevice_SetVertexShaderConstantNotInline(Register + 96, pConstantData, 4 * ConstantCount);
+    }
+}
+
+D3DINLINE void D3DDevice_SetVertexShaderConstantFast(INT Register, CONST void *pConstantData, DWORD ConstantCount)
+{
+    if (ConstantCount == 1)
+    {
+        D3DDevice_SetVertexShaderConstant1Fast(Register + 96, pConstantData);
+    }
+    else
+    {
+        D3DDevice_SetVertexShaderConstantNotInlineFast(Register + 96, pConstantData, 4 * ConstantCount);
+    }
+}
+
+// For constant values of 'Count', D3DDevice_BeginState compiles into a 'mov', 
+// 'cmp', and 'jb' for the common case:
+
+D3DINLINE DWORD* D3DDevice_BeginState(DWORD Count)
+{
+    DWORD* pPush;
+    
+    if (Count < 128)
+    {
+        pPush = D3D__Device[D3DDEVICE_PUT / 4];
+        if (pPush >= D3D__Device[D3DDEVICE_THRESHOLD / 4])
+            pPush = D3DDevice_MakeSpace();
+    }
+    else
+    {
+        pPush = D3DDevice_BeginStateBig(Count);
+    }
+
+    #ifdef _DEBUG
+    D3DDevice_BeginStateParameterCheck(Count);
+    #endif
+
+    return pPush;
+}
+
+D3DINLINE void D3DDevice_EndState(DWORD* pPush)
+{
+    #ifdef _DEBUG
+    D3DDevice_EndStateParameterCheck(pPush);
+    #endif
+    
+    D3D__Device[D3DDEVICE_PUT / 4] = pPush;
+}
+
 // Compatibility wrappers.
 
 D3DINLINE ULONG   WINAPI IDirect3DDevice8_AddRef(D3DDevice *pThis) { return D3DDevice_AddRef(); }
@@ -1845,27 +2023,27 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetDisplayMode(D3DDevice *pThis, D3DDI
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetCreationParameters(D3DDevice *pThis, D3DDEVICE_CREATION_PARAMETERS *pParameters) { D3DDevice_GetCreationParameters(pParameters); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_Reset(D3DDevice *pThis, D3DPRESENT_PARAMETERS *pPresentationParameters) { return D3DDevice_Reset(pPresentationParameters); }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_Present(D3DDevice *pThis, CONST RECT *pSourceRect, CONST RECT *pDestRect, void *pUnused, void *pUnused2) { D3DDevice_Swap(0); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetBackBuffer(D3DDevice *pThis, INT BackBuffer, D3DBACKBUFFER_TYPE Type, D3DSurface **ppBackBuffer) { D3DDevice_GetBackBuffer(BackBuffer, Type, ppBackBuffer); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetBackBuffer(D3DDevice *pThis, INT BackBuffer, D3DBACKBUFFER_TYPE UnusedType, D3DSurface **ppBackBuffer) { *ppBackBuffer = D3DDevice_GetBackBuffer2(BackBuffer); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetRasterStatus(D3DDevice *pThis, D3DRASTER_STATUS *pRasterStatus) { D3DDevice_GetRasterStatus(pRasterStatus); return S_OK; }
 D3DINLINE void    WINAPI IDirect3DDevice8_SetFlickerFilter(D3DDevice *pThis, DWORD Filter) { D3DDevice_SetFlickerFilter(Filter); }
 D3DINLINE void    WINAPI IDirect3DDevice8_SetSoftDisplayFilter(D3DDevice *pThis, BOOL Enable) { D3DDevice_SetSoftDisplayFilter(Enable); }
 D3DINLINE void    WINAPI IDirect3DDevice8_SetGammaRamp(D3DDevice *pThis, DWORD Flags, CONST D3DGAMMARAMP *pRamp) { D3DDevice_SetGammaRamp(Flags, pRamp); }
 D3DINLINE void    WINAPI IDirect3DDevice8_GetGammaRamp(D3DDevice *pThis, D3DGAMMARAMP *pRamp) { D3DDevice_GetGammaRamp(pRamp); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateTexture(D3DDevice *pThis, UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DTexture **ppTexture) { return D3DDevice_CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateVolumeTexture(D3DDevice *pThis, UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DVolumeTexture **ppVolumeTexture) { return D3DDevice_CreateVolumeTexture(Width, Height, Depth, Levels, Usage, Format, Pool, ppVolumeTexture); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateCubeTexture(D3DDevice *pThis, UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DCubeTexture **ppCubeTexture) { return D3DDevice_CreateCubeTexture(EdgeLength, Levels, Usage, Format, Pool, ppCubeTexture); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateVertexBuffer(D3DDevice *pThis, UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, D3DVertexBuffer **ppVertexBuffer) { return D3DDevice_CreateVertexBuffer(Length, Usage, FVF, Pool, ppVertexBuffer); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateIndexBuffer(D3DDevice *pThis, UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DIndexBuffer **ppIndexBuffer) { return D3DDevice_CreateIndexBuffer(Length, Usage, Format, Pool, ppIndexBuffer); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreatePalette(D3DDevice *pThis, D3DPALETTESIZE Size, D3DPalette **ppPalette) { return D3DDevice_CreatePalette(Size, ppPalette); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateRenderTarget(D3DDevice *pThis, UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, D3DSurface **ppSurface) { return D3DDevice_CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateDepthStencilSurface(D3DDevice *pThis, UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, D3DSurface **ppSurface) { return D3DDevice_CreateDepthStencilSurface(Width, Height, Format, MultiSample, ppSurface); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateImageSurface(D3DDevice *pThis, UINT Width, UINT Height, D3DFORMAT Format, D3DSurface **ppSurface) { return D3DDevice_CreateImageSurface(Width, Height, Format, ppSurface); }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateTexture(D3DDevice *pThis, UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DTexture **ppTexture) { return (*ppTexture = D3DDevice_CreateTexture2(Width, Height, 1, Levels, Usage, Format, D3DRTYPE_TEXTURE)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateVolumeTexture(D3DDevice *pThis, UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DVolumeTexture **ppVolumeTexture) { return (*ppVolumeTexture = (D3DVolumeTexture*) D3DDevice_CreateTexture2(Width, Height, Depth, Levels, Usage, Format, D3DRTYPE_VOLUMETEXTURE)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateCubeTexture(D3DDevice *pThis, UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DCubeTexture **ppCubeTexture) { return (*ppCubeTexture = (D3DCubeTexture*) D3DDevice_CreateTexture2(EdgeLength, EdgeLength, 1, Levels, Usage, Format, D3DRTYPE_CUBETEXTURE)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateVertexBuffer(D3DDevice *pThis, UINT Length, DWORD UnusedUsage, DWORD UnusedFVF, D3DPOOL UnusedPool, D3DVertexBuffer **ppVertexBuffer) { return (*ppVertexBuffer = D3DDevice_CreateVertexBuffer2(Length)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateIndexBuffer(D3DDevice *pThis, UINT Length, DWORD UnusedUsage, D3DFORMAT UnusedFormat, D3DPOOL UnusedPool, D3DIndexBuffer **ppIndexBuffer) { return (*ppIndexBuffer = D3DDevice_CreateIndexBuffer2(Length)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreatePalette(D3DDevice *pThis, D3DPALETTESIZE Size, D3DPalette **ppPalette) { return (*ppPalette = D3DDevice_CreatePalette2(Size)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateRenderTarget(D3DDevice *pThis, UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, BOOL UnusedLockable, D3DSurface **ppSurface) { return (*ppSurface = D3DDevice_CreateSurface2(Width, Height, D3DUSAGE_RENDERTARGET, Format)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateDepthStencilSurface(D3DDevice *pThis, UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, D3DSurface **ppSurface) { return (*ppSurface = D3DDevice_CreateSurface2(Width, Height, D3DUSAGE_DEPTHSTENCIL, Format)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateImageSurface(D3DDevice *pThis, UINT Width, UINT Height, D3DFORMAT Format, D3DSurface **ppSurface) { return (*ppSurface = D3DDevice_CreateSurface2(Width, Height, 0, Format)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_CopyRects(D3DDevice *pThis, D3DSurface *pSourceSurface, CONST RECT *pSourceRectsArray, UINT cRects, D3DSurface *pDestinationSurface, CONST POINT *pDestPointsArray) { D3DDevice_CopyRects(pSourceSurface, pSourceRectsArray, cRects, pDestinationSurface, pDestPointsArray); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetCopyRectsState(CONST D3DCOPYRECTSTATE *pCopyRectState, CONST D3DCOPYRECTROPSTATE *pCopyRectRopState) { D3DDevice_SetCopyRectsState(pCopyRectState, pCopyRectRopState); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetCopyRectsState(D3DCOPYRECTSTATE *pCopyRectState, D3DCOPYRECTROPSTATE *pCopyRectRopState) { D3DDevice_GetCopyRectsState(pCopyRectState, pCopyRectRopState); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetRenderTarget(D3DDevice *pThis, D3DSurface *pRenderTarget, D3DSurface *pNewZStencil) { D3DDevice_SetRenderTarget(pRenderTarget, pNewZStencil); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetRenderTarget(D3DDevice *pThis, D3DSurface **ppRenderTarget) { D3DDevice_GetRenderTarget(ppRenderTarget); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetDepthStencilSurface(D3DDevice *pThis, D3DSurface **ppZStencilSurface) { return D3DDevice_GetDepthStencilSurface(ppZStencilSurface); }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetRenderTarget(D3DDevice *pThis, D3DSurface **ppRenderTarget) { *ppRenderTarget = D3DDevice_GetRenderTarget2(); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetDepthStencilSurface(D3DDevice *pThis, D3DSurface **ppZStencilSurface) { return (*ppZStencilSurface = D3DDevice_GetDepthStencilSurface2()) != NULL ? S_OK : D3DERR_NOTFOUND; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_BeginScene(D3DDevice *pThis) { D3DDevice_BeginScene(); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_EndScene(D3DDevice *pThis) { D3DDevice_EndScene(); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_Clear(D3DDevice *pThis, DWORD Count, CONST D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil) { D3DDevice_Clear(Count, pRects, Flags, Color, Z, Stencil); return S_OK; }
@@ -1893,17 +2071,17 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_ApplyStateBlock(D3DDevice *pThis, DWOR
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_CaptureStateBlock(D3DDevice *pThis, DWORD Token) { D3DDevice_CaptureStateBlock(Token); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DeleteStateBlock(D3DDevice *pThis, DWORD Token) { D3DDevice_DeleteStateBlock(Token); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateStateBlock(D3DDevice *pThis, D3DSTATEBLOCKTYPE Type,DWORD *pToken) { return D3DDevice_CreateStateBlock(Type, pToken); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetTexture(D3DDevice *pThis, DWORD Stage, D3DBaseTexture **ppTexture) { D3DDevice_GetTexture(Stage, ppTexture); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetTexture(D3DDevice *pThis, DWORD Stage, D3DBaseTexture **ppTexture) { *ppTexture = D3DDevice_GetTexture2(Stage); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetTexture(D3DDevice *pThis, DWORD Stage, D3DBaseTexture *pTexture) { D3DDIRTY_TEXTURE(Stage); D3DDevice_SetTexture(Stage, pTexture); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetPalette(D3DDevice *pThis, DWORD Stage, D3DPalette **ppPalette) { D3DDevice_GetPalette(Stage, ppPalette); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetPalette(D3DDevice *pThis, DWORD Stage, D3DPalette **ppPalette) { *ppPalette = D3DDevice_GetPalette2(Stage); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetPalette(D3DDevice *pThis, DWORD Stage, D3DPalette *pPalette) { D3DDevice_SetPalette(Stage, pPalette); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetTextureStageState(D3DDevice *pThis, DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD *pValue) { D3DDevice_GetTextureStageState(Stage, Type, pValue); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetTextureStageState(D3DDevice *pThis, DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value) { D3DDIRTY_TEXTURESTATE(Stage, Type); D3DDevice_SetTextureStageState(Stage, Type, Value); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetTextureStageStateNotInline(D3DDevice *pThis, DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value) { D3DDIRTY_TEXTURESTATE(Stage, Type); D3DDevice_SetTextureStageStateNotInline(Stage, Type, Value); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawPrimitive(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount) { D3DDevice_DrawVertices(PrimitiveType, StartVertex, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount)); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawIndexedPrimitive(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT MinIndex, UINT NumIndices, UINT StartIndex, UINT PrimitiveCount) { D3DDevice_DrawIndexedVertices(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), D3D__IndexData + StartIndex); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawIndexedPrimitive(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT UnusedMinIndex, UINT UnusedNumIndices, UINT StartIndex, UINT PrimitiveCount) { D3DDevice_DrawIndexedVertices(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), D3D__IndexData + StartIndex); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawPrimitiveUP(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawVerticesUP(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawIndexedPrimitiveUP(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT IndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawIndexedVerticesUP(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), pIndexData, pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawIndexedPrimitiveUP(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT UnusedMinIndex, UINT UnusedNumVertices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT UnusedIndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawIndexedVerticesUP(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), pIndexData, pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawVertices(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT VertexCount) { D3DDevice_DrawVertices(PrimitiveType, StartVertex, VertexCount); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawIndexedVertices(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT VertexCount, WORD *pIndexData) { D3DDevice_DrawIndexedVertices(PrimitiveType, VertexCount, pIndexData); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DrawVerticesUP(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType, UINT VertexCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawVerticesUP(PrimitiveType, VertexCount, pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
@@ -1914,6 +2092,7 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexShader(D3DDevice *pThis, DWOR
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetVertexShader(D3DDevice *pThis, DWORD *pHandle) { D3DDevice_GetVertexShader(pHandle); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_DeleteVertexShader(D3DDevice *pThis, DWORD Handle) { D3DDevice_DeleteVertexShader(Handle); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexShaderConstant(D3DDevice *pThis, INT Register, CONST void *pConstantData, DWORD ConstantCount) { D3DDIRTY_VERTEXSHADERCONSTANT(Register, ConstantCount); D3DDevice_SetVertexShaderConstant(Register, pConstantData, ConstantCount); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexShaderConstantFast(D3DDevice *pThis, INT Register, CONST void *pConstantData, DWORD ConstantCount) { D3DDIRTY_VERTEXSHADERCONSTANT(Register, ConstantCount); D3DDevice_SetVertexShaderConstantFast(Register, pConstantData, ConstantCount); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetVertexShaderConstant(D3DDevice *pThis, INT Register, void *pConstantData, DWORD ConstantCount) { D3DDevice_GetVertexShaderConstant(Register, pConstantData, ConstantCount); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetShaderConstantMode(D3DDevice *pThis, D3DSHADERCONSTANTMODE Mode) { D3DDevice_SetShaderConstantMode(Mode); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetShaderConstantMode(D3DDevice *pThis, D3DSHADERCONSTANTMODE *pMode) { D3DDevice_GetShaderConstantMode(pMode); return S_OK; }
@@ -1927,9 +2106,9 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetVertexShaderType(D3DDevice *pThis, 
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetVertexShaderDeclaration(D3DDevice *pThis, DWORD Handle, void *pData, DWORD *pSizeOfData) { return D3DDevice_GetVertexShaderDeclaration(Handle, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetVertexShaderFunction(D3DDevice *pThis, DWORD Handle,void *pData, DWORD *pSizeOfData) { return D3DDevice_GetVertexShaderFunction(Handle, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetStreamSource(D3DDevice *pThis, UINT StreamNumber, D3DVertexBuffer *pStreamData, UINT Stride) { D3DDIRTY_STREAM(StreamNumber); D3DDevice_SetStreamSource(StreamNumber, pStreamData, Stride); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetStreamSource(D3DDevice *pThis, UINT StreamNumber, D3DVertexBuffer **ppStreamData, UINT *pStride) { D3DDevice_GetStreamSource(StreamNumber, ppStreamData, pStride); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetStreamSource(D3DDevice *pThis, UINT StreamNumber, D3DVertexBuffer **ppStreamData, UINT *pStride) { *ppStreamData = D3DDevice_GetStreamSource2(StreamNumber, pStride); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetIndices(D3DDevice *pThis, D3DIndexBuffer* pIndexData, UINT BaseVertexIndex) { D3DDIRTY_INDICES(); D3DDevice_SetIndices(pIndexData, BaseVertexIndex); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetIndices(D3DDevice *pThis, D3DIndexBuffer** ppIndexData, UINT *pBaseVertexIndex) { D3DDevice_GetIndices(ppIndexData, pBaseVertexIndex); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetIndices(D3DDevice *pThis, D3DIndexBuffer** ppIndexData, UINT *pBaseVertexIndex) { *ppIndexData = D3DDevice_GetIndices2(pBaseVertexIndex); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreatePixelShader(D3DDevice *pThis, CONST D3DPIXELSHADERDEF *pPSDef, DWORD *pHandle) { D3DDevice_CreatePixelShader(pPSDef, pHandle); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetPixelShader(D3DDevice *pThis, DWORD Handle) { D3DDIRTY_PIXELSHADER(); D3DDevice_SetPixelShader(Handle); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetPixelShaderProgram(D3DDevice *pThis, CONST D3DPIXELSHADERDEF *pPSDef) { D3DDIRTY_PIXELSHADER(); D3DDevice_SetPixelShaderProgram(pPSDef); return S_OK; }
@@ -1953,7 +2132,7 @@ D3DINLINE VOID    WINAPI IDirect3DDevice8_BlockOnFence(D3DDevice *pThis, DWORD F
 D3DINLINE void    WINAPI IDirect3DDevice8_InsertCallback(D3DDevice *pThis, D3DCALLBACKTYPE Type, D3DCALLBACK pCallback, DWORD Context) { D3DDevice_InsertCallback(Type, pCallback, Context); }
 D3DINLINE void    WINAPI IDirect3DDevice8_FlushVertexCache(D3DDevice *pThis) { D3DDevice_FlushVertexCache(); }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_PersistDisplay(D3DDevice *pThis) { return D3DDevice_PersistDisplay(); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetPersistedSurface(D3DDevice *pThis, IDirect3DSurface8 **ppSurface) { D3DDevice_GetPersistedSurface(ppSurface); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetPersistedSurface(D3DDevice *pThis, IDirect3DSurface8 **ppSurface) { *ppSurface = D3DDevice_GetPersistedSurface2(); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_UpdateOverlay(D3DDevice *pThis, D3DSurface *pSurface, CONST RECT *SrcRect, CONST RECT *DstRect, BOOL EnableColorKey, D3DCOLOR ColorKey) { D3DDevice_UpdateOverlay(pSurface, SrcRect, DstRect, EnableColorKey, ColorKey); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_EnableOverlay(D3DDevice *pThis, BOOL Enable) { D3DDevice_EnableOverlay(Enable); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_BeginVisibilityTest(D3DDevice *pThis) { D3DDevice_BeginVisibilityTest(); return S_OK; }
@@ -1969,8 +2148,8 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexData4ub(D3DDevice *pThis, INT
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexDataColor(D3DDevice *pThis, INT Register, D3DCOLOR Color) { D3DDevice_SetVertexDataColor(Register, Color); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_Begin(D3DDevice *pThis, D3DPRIMITIVETYPE PrimitiveType) { D3DDevice_Begin(PrimitiveType); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_End(D3DDevice *pThis) { D3DDevice_End(); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateFixup(D3DDevice *pThis, UINT Size, D3DFixup **ppFixup) { return D3DDevice_CreateFixup(Size, ppFixup); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreatePushBuffer(D3DDevice *pThis, UINT Size, BOOL RunUsingCpuCopy, D3DPushBuffer** ppPushBuffer) { return D3DDevice_CreatePushBuffer(Size, RunUsingCpuCopy, ppPushBuffer); }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreateFixup(D3DDevice *pThis, UINT Size, D3DFixup **ppFixup) { return (*ppFixup = D3DDevice_CreateFixup2(Size)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_CreatePushBuffer(D3DDevice *pThis, UINT Size, BOOL RunUsingCpuCopy, D3DPushBuffer** ppPushBuffer) { return (*ppPushBuffer = D3DDevice_CreatePushBuffer2(Size, RunUsingCpuCopy)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_BeginPushBuffer(D3DDevice *pThis, D3DPushBuffer *pPushBuffer) { D3DDevice_BeginPushBuffer(pPushBuffer); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_EndPushBuffer(D3DDevice *pThis) { return D3DDevice_EndPushBuffer(); }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_RunPushBuffer(D3DDevice *pThis, D3DPushBuffer* pPushBuffer, D3DFixup *pFixup) { D3DDevice_RunPushBuffer(pPushBuffer, pFixup); return S_OK; }
@@ -1985,8 +2164,6 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexShaderInput(D3DDevice *pThis,
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetVertexShaderInputDirect(D3DDevice *pThis, D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT* pStreamInputs) { D3DDevice_SetVertexShaderInputDirect(pVAF, StreamCount, pStreamInputs); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetVertexShaderInput(D3DDevice *pThis, DWORD* pHandle, UINT* pStreamCount, D3DSTREAM_INPUT* pStreamInputs) { return D3DDevice_GetVertexShaderInput(pHandle, pStreamCount, pStreamInputs); }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SwitchTexture(D3DDevice *pThis, DWORD Stage, D3DBaseTexture *pTexture) { D3DDevice_SwitchTexture(D3DTEXTUREDIRECTENCODE[Stage], (pTexture)->Data, (pTexture)->Format); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_Suspend(D3DDevice *pThis) { D3DDevice_Suspend(); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_Resume(D3DDevice *pThis, BOOL Reset) { D3DDevice_Resume(Reset); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetScissors(D3DDevice *pThis, DWORD Count, BOOL Exclusive, CONST D3DRECT *pRects) { D3DDevice_SetScissors(Count, Exclusive, pRects); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetScissors(D3DDevice *pThis, DWORD* pCount, BOOL *pExclusive, D3DRECT *pRects) { D3DDevice_GetScissors(pCount, pExclusive, pRects); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetTile(D3DDevice *pThis, DWORD Index, CONST D3DTILE* pTile) { D3DDevice_SetTile(Index, pTile); return S_OK; }
@@ -1994,21 +2171,33 @@ D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetTile(D3DDevice *pThis, DWORD Index,
 D3DINLINE DWORD   WINAPI IDirect3DDevice8_GetTileCompressionTags(D3DDevice *pThis, DWORD ZStartTag, DWORD ZEndTag) { return D3DDevice_GetTileCompressionTags(ZStartTag, ZEndTag); }
 D3DINLINE void    WINAPI IDirect3DDevice8_SetTileCompressionTagBits(D3DDevice *pThis, DWORD Partition, DWORD Address, CONST DWORD *pData, DWORD Count) { D3DDevice_SetTileCompressionTagBits(Partition, Address, pData, Count); }
 D3DINLINE void    WINAPI IDirect3DDevice8_GetTileCompressionTagBits(D3DDevice *pThis, DWORD Partition, DWORD Address, DWORD *pData, DWORD Count) { D3DDevice_GetTileCompressionTagBits(Partition, Address, pData, Count); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_BeginPush(D3DDevice *pThis, DWORD Count, DWORD **ppPush) { D3DDevice_BeginPush(Count, ppPush); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_BeginPush(D3DDevice *pThis, DWORD Count, DWORD **ppPush) { *ppPush = D3DDevice_BeginPush(Count); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DDevice8_EndPush(D3DDevice *pThis, DWORD *pPush) { D3DDevice_EndPush(pPush); return S_OK; }
-D3DINLINE DWORD   WINAPI IDirect3DDevice8_Swap(DWORD Flags) { return D3DDevice_Swap(Flags); }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetBackBufferScale(float x, float y) { D3DDevice_SetBackBufferScale(x, y); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetBackBufferScale(float *pX, float *pY) { D3DDevice_GetBackBufferScale(pX, pY); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetScreenSpaceOffset(float x, float y) { D3DDevice_SetScreenSpaceOffset(x, y); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetScreenSpaceOffset(float *pX, float *pY) { D3DDevice_GetScreenSpaceOffset(pX, pY); return S_OK; }
-D3DINLINE void    WINAPI IDirect3DDevice8_SetOverscanColor(D3DCOLOR Color) { D3DDevice_SetOverscanColor(Color); }
-D3DINLINE D3DCOLOR WINAPI IDirect3DDevice8_GetOverscanColor() { return D3DDevice_GetOverscanColor(); }                                                                                                                                 
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_BeginState(D3DDevice *pThis, DWORD Count, DWORD **ppPush) { *ppPush = D3DDevice_BeginState(Count); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_EndState(D3DDevice *pThis, DWORD *pPush) { D3DDevice_EndState(pPush); return S_OK; }
+D3DINLINE DWORD   WINAPI IDirect3DDevice8_Swap(D3DDevice *pThis, DWORD Flags) { return D3DDevice_Swap(Flags); }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetBackBufferScale(D3DDevice *pThis, float x, float y) { D3DDevice_SetBackBufferScale(x, y); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetBackBufferScale(D3DDevice *pThis, float *pX, float *pY) { D3DDevice_GetBackBufferScale(pX, pY); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetScreenSpaceOffset(D3DDevice *pThis, float x, float y) { D3DDevice_SetScreenSpaceOffset(x, y); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_GetScreenSpaceOffset(D3DDevice *pThis, float *pX, float *pY) { D3DDevice_GetScreenSpaceOffset(pX, pY); return S_OK; }
+D3DINLINE void    WINAPI IDirect3DDevice8_SetOverscanColor(D3DDevice *pThis, D3DCOLOR Color) { D3DDevice_SetOverscanColor(Color); }
+D3DINLINE D3DCOLOR WINAPI IDirect3DDevice8_GetOverscanColor(D3DDevice *pThis) { return D3DDevice_GetOverscanColor(); }
+D3DINLINE void    WINAPI IDirect3DDevice8_SetDepthClipPlanes(D3DDevice *pThis, float Near, float Far, DWORD Flags) { D3DDevice_SetDepthClipPlanes(Near, Far, Flags); }
+D3DINLINE void    WINAPI IDirect3DDevice8_GetDepthClipPlanes(D3DDevice *pThis, float *pNear, float *pFar, DWORD Flags) { D3DDevice_GetDepthClipPlanes(pNear, pFar, Flags); }
+D3DINLINE void    WINAPI IDirect3DDevice8_GetViewportOffsetAndScale(D3DDevice *pThis, D3DVECTOR4 *pOffset, D3DVECTOR4 *pScale) { D3DDevice_GetViewportOffsetAndScale(pOffset, pScale); }
+D3DINLINE void    WINAPI IDirect3DDevice8_SetStipple(D3DDevice *pThis, CONST DWORD *pPattern) { D3DDevice_SetStipple(pPattern); }
+D3DINLINE void    WINAPI IDirect3DDevice8_GetStipple(D3DDevice *pThis, DWORD *pPattern) { D3DDevice_GetStipple(pPattern); }
+D3DINLINE void    WINAPI IDirect3DDevice8_SetWaitCallback(D3DDevice *pThis, D3DWAITCALLBACK pCallback) { D3DDevice_SetWaitCallback(pCallback); }
+D3DINLINE DWORD   WINAPI IDirect3DDevice8_GetPushDistance(D3DDevice *pThis, DWORD Handle) { return D3DDevice_GetPushDistance(Handle); }
+D3DINLINE HRESULT WINAPI IDirect3DDevice8_SetTimerCallback(D3DDevice *pThis, ULONGLONG Time, D3DCALLBACK pCallback, DWORD Context) { return D3DDevice_SetTimerCallback(Time, pCallback, Context); }
+D3DINLINE void    WINAPI IDirect3DDevice8_SetRenderTargetFast(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil, DWORD Flags) { D3DDevice_SetRenderTargetFast(pRenderTarget, pNewZStencil, Flags); }
+
 #ifdef _DEBUG
-D3DINLINE DWORD   WINAPI IDirect3DDevice8_SetDebugMarker(DWORD Marker) { return D3DDevice_SetDebugMarker(Marker); }
-D3DINLINE DWORD   WINAPI IDirect3DDevice8_GetDebugMarker() { return D3DDevice_GetDebugMarker(); }
+D3DINLINE DWORD   WINAPI IDirect3DDevice8_SetDebugMarker(D3DDevice *pThis, DWORD Marker) { return D3DDevice_SetDebugMarker(Marker); }
+D3DINLINE DWORD   WINAPI IDirect3DDevice8_GetDebugMarker(D3DDevice *pThis) { return D3DDevice_GetDebugMarker(); }
 #else
-D3DINLINE DWORD   WINAPI IDirect3DDevice8_SetDebugMarker(DWORD Marker) { return 0; }
-D3DINLINE DWORD   WINAPI IDirect3DDevice8_GetDebugMarker() { return 0; }
+D3DINLINE DWORD   WINAPI IDirect3DDevice8_SetDebugMarker(D3DDevice *pThis, DWORD Marker) { return 0; }
+D3DINLINE DWORD   WINAPI IDirect3DDevice8_GetDebugMarker(D3DDevice *pThis) { return 0; }
 #endif
 
 #ifdef __cplusplus
@@ -2021,27 +2210,27 @@ D3DMINLINE HRESULT WINAPI D3DDevice::GetDisplayMode(D3DDISPLAYMODE *pMode) { D3D
 D3DMINLINE HRESULT WINAPI D3DDevice::GetCreationParameters(D3DDEVICE_CREATION_PARAMETERS *pParameters) { D3DDevice_GetCreationParameters(pParameters); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::Reset(D3DPRESENT_PARAMETERS *pPresentationParameters) { return D3DDevice_Reset(pPresentationParameters); }
 D3DMINLINE HRESULT WINAPI D3DDevice::Present(CONST RECT *pSourceRect, CONST RECT *pDestRect, void *pUnused, void *pUnused2) { D3DDevice_Swap(0); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetBackBuffer(INT BackBuffer, D3DBACKBUFFER_TYPE Type, D3DSurface **ppBackBuffer) { D3DDevice_GetBackBuffer(BackBuffer, Type, ppBackBuffer); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetBackBuffer(INT BackBuffer, D3DBACKBUFFER_TYPE UnusedType, D3DSurface **ppBackBuffer) { *ppBackBuffer = D3DDevice_GetBackBuffer2(BackBuffer); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetRasterStatus(D3DRASTER_STATUS *pRasterStatus) { D3DDevice_GetRasterStatus(pRasterStatus); return S_OK; }
 D3DMINLINE void    WINAPI D3DDevice::SetFlickerFilter(DWORD Filter) { D3DDevice_SetFlickerFilter(Filter); }
 D3DMINLINE void    WINAPI D3DDevice::SetSoftDisplayFilter(BOOL Enable) { D3DDevice_SetSoftDisplayFilter(Enable); }
 D3DMINLINE void    WINAPI D3DDevice::SetGammaRamp(DWORD Flags, CONST D3DGAMMARAMP *pRamp) { D3DDevice_SetGammaRamp(Flags, pRamp); }
 D3DMINLINE void    WINAPI D3DDevice::GetGammaRamp(D3DGAMMARAMP *pRamp) { D3DDevice_GetGammaRamp(pRamp); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DTexture **ppTexture) { return D3DDevice_CreateTexture(Width, Height, Levels, Usage, Format, Pool, ppTexture); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DVolumeTexture **ppVolumeTexture) { return D3DDevice_CreateVolumeTexture(Width, Height, Depth, Levels, Usage, Format, Pool, ppVolumeTexture); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DCubeTexture **ppCubeTexture) { return D3DDevice_CreateCubeTexture(EdgeLength, Levels, Usage, Format, Pool, ppCubeTexture); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateVertexBuffer(UINT Length, DWORD Usage, DWORD FVF, D3DPOOL Pool, D3DVertexBuffer **ppVertexBuffer) { return D3DDevice_CreateVertexBuffer(Length, Usage, FVF, Pool, ppVertexBuffer); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateIndexBuffer(UINT Length, DWORD Usage, D3DFORMAT Format, D3DPOOL Pool, D3DIndexBuffer **ppIndexBuffer) { return D3DDevice_CreateIndexBuffer(Length, Usage, Format, Pool, ppIndexBuffer); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreatePalette(D3DPALETTESIZE Size, D3DPalette **ppPalette) { return D3DDevice_CreatePalette(Size, ppPalette); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, BOOL Lockable, D3DSurface **ppSurface) { return D3DDevice_CreateRenderTarget(Width, Height, Format, MultiSample, Lockable, ppSurface); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE MultiSample, D3DSurface **ppSurface) { return D3DDevice_CreateDepthStencilSurface(Width, Height, Format, MultiSample, ppSurface); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateImageSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DSurface **ppSurface) { return D3DDevice_CreateImageSurface(Width, Height, Format, ppSurface); }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateTexture(UINT Width, UINT Height, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DTexture **ppTexture) { return (*ppTexture = D3DDevice_CreateTexture2(Width, Height, 1, Levels, Usage, Format, D3DRTYPE_TEXTURE)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateVolumeTexture(UINT Width, UINT Height, UINT Depth, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DVolumeTexture **ppVolumeTexture) { return (*ppVolumeTexture = (D3DVolumeTexture*) D3DDevice_CreateTexture2(Width, Height, Depth, Levels, Usage, Format, D3DRTYPE_VOLUMETEXTURE)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateCubeTexture(UINT EdgeLength, UINT Levels, DWORD Usage, D3DFORMAT Format, D3DPOOL UnusedPool, D3DCubeTexture **ppCubeTexture) { return (*ppCubeTexture = (D3DCubeTexture*) D3DDevice_CreateTexture2(EdgeLength, EdgeLength, 1, Levels, Usage, Format, D3DRTYPE_CUBETEXTURE)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateVertexBuffer(UINT Length, DWORD UnusedUsage, DWORD UnusedFVF, D3DPOOL UnusedPool, D3DVertexBuffer **ppVertexBuffer) { return (*ppVertexBuffer = D3DDevice_CreateVertexBuffer2(Length)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateIndexBuffer(UINT Length, DWORD UnusedUsage, D3DFORMAT UnusedFormat, D3DPOOL UnusedPool, D3DIndexBuffer **ppIndexBuffer) { return (*ppIndexBuffer = D3DDevice_CreateIndexBuffer2(Length)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreatePalette(D3DPALETTESIZE Size, D3DPalette **ppPalette) { return (*ppPalette = D3DDevice_CreatePalette2(Size)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, BOOL UnusedLockable, D3DSurface **ppSurface) { return (*ppSurface = D3DDevice_CreateSurface2(Width, Height, D3DUSAGE_RENDERTARGET, Format)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, D3DSurface **ppSurface) { return (*ppSurface = D3DDevice_CreateSurface2(Width, Height, D3DUSAGE_DEPTHSTENCIL, Format)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateImageSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DSurface **ppSurface) { return (*ppSurface = D3DDevice_CreateSurface2(Width, Height, 0, Format)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DMINLINE HRESULT WINAPI D3DDevice::CopyRects(D3DSurface *pSourceSurface, CONST RECT *pSourceRectsArray, UINT cRects, D3DSurface *pDestinationSurface, CONST POINT *pDestPointsArray) { D3DDevice_CopyRects(pSourceSurface, pSourceRectsArray, cRects, pDestinationSurface, pDestPointsArray); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetCopyRectsState(CONST D3DCOPYRECTSTATE *pCopyRectState, CONST D3DCOPYRECTROPSTATE *pCopyRectRopState) { D3DDevice_SetCopyRectsState(pCopyRectState, pCopyRectRopState); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetCopyRectsState(D3DCOPYRECTSTATE *pCopyRectState, D3DCOPYRECTROPSTATE *pCopyRectRopState) { D3DDevice_GetCopyRectsState(pCopyRectState, pCopyRectRopState); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetRenderTarget(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil) { D3DDevice_SetRenderTarget(pRenderTarget, pNewZStencil); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetRenderTarget(D3DSurface **ppRenderTarget) { D3DDevice_GetRenderTarget(ppRenderTarget); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetDepthStencilSurface(D3DSurface **ppZStencilSurface) { return D3DDevice_GetDepthStencilSurface(ppZStencilSurface); }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetRenderTarget(D3DSurface **ppRenderTarget) { *ppRenderTarget = D3DDevice_GetRenderTarget2(); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetDepthStencilSurface(D3DSurface **ppZStencilSurface) { return (*ppZStencilSurface = D3DDevice_GetDepthStencilSurface2()) != NULL ? S_OK : D3DERR_NOTFOUND; }
 D3DMINLINE HRESULT WINAPI D3DDevice::BeginScene() { D3DDevice_BeginScene(); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::EndScene() { D3DDevice_EndScene(); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::Clear(DWORD Count, CONST D3DRECT *pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil) { D3DDevice_Clear(Count, pRects, Flags, Color, Z, Stencil); return S_OK; }
@@ -2069,17 +2258,17 @@ D3DMINLINE HRESULT WINAPI D3DDevice::ApplyStateBlock(DWORD Token) { D3DDevice_Ap
 D3DMINLINE HRESULT WINAPI D3DDevice::CaptureStateBlock(DWORD Token) { D3DDevice_CaptureStateBlock(Token); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::DeleteStateBlock(DWORD Token) { D3DDevice_DeleteStateBlock(Token); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::CreateStateBlock(D3DSTATEBLOCKTYPE Type,DWORD *pToken) { return D3DDevice_CreateStateBlock(Type, pToken); }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetTexture(DWORD Stage, D3DBaseTexture **ppTexture) { D3DDevice_GetTexture(Stage, ppTexture); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetTexture(DWORD Stage, D3DBaseTexture **ppTexture) { *ppTexture = D3DDevice_GetTexture2(Stage); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetTexture(DWORD Stage, D3DBaseTexture *pTexture) { D3DDIRTY_TEXTURE(Stage); D3DDevice_SetTexture(Stage, pTexture); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetPalette(DWORD Stage, D3DPalette **ppPalette) { D3DDevice_GetPalette(Stage, ppPalette); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetPalette(DWORD Stage, D3DPalette **ppPalette) { *ppPalette = D3DDevice_GetPalette2(Stage); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetPalette(DWORD Stage, D3DPalette *pPalette) { D3DDevice_SetPalette(Stage, pPalette); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD *pValue) { D3DDevice_GetTextureStageState(Stage, Type, pValue); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetTextureStageState(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value) { D3DDIRTY_TEXTURESTATE(Stage, Type); D3DDevice_SetTextureStageState(Stage, Type, Value); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetTextureStageStateNotInline(DWORD Stage, D3DTEXTURESTAGESTATETYPE Type, DWORD Value) { D3DDIRTY_TEXTURESTATE(Stage, Type); D3DDevice_SetTextureStageStateNotInline(Stage, Type, Value); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount) { D3DDevice_DrawVertices(PrimitiveType, StartVertex, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount)); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT MinIndex, UINT NumIndices, UINT StartIndex, UINT PrimitiveCount) { D3DDevice_DrawIndexedVertices(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), D3D__IndexData + StartIndex); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::DrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT UnusedMinIndex, UINT UnusedNumIndices, UINT StartIndex, UINT PrimitiveCount) { D3DDevice_DrawIndexedVertices(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), D3D__IndexData + StartIndex); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawVerticesUP(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT IndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawIndexedVerticesUP(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), pIndexData, pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT UnusedMinIndex, UINT UnusedNumVertices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT UnusedIndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawIndexedVerticesUP(PrimitiveType, D3DVERTEXCOUNT(PrimitiveType, PrimitiveCount), pIndexData, pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::DrawVertices(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT VertexCount) { D3DDevice_DrawVertices(PrimitiveType, StartVertex, VertexCount); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::DrawIndexedVertices(D3DPRIMITIVETYPE PrimitiveType, UINT VertexCount, CONST WORD* pIndexData) { D3DDevice_DrawIndexedVertices(PrimitiveType, VertexCount, pIndexData); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::DrawVerticesUP(D3DPRIMITIVETYPE PrimitiveType, UINT VertexCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride) { D3DDevice_DrawVerticesUP(PrimitiveType, VertexCount, pVertexStreamZeroData, VertexStreamZeroStride); return S_OK; }
@@ -2101,11 +2290,12 @@ D3DMINLINE HRESULT WINAPI D3DDevice::GetVertexShaderDeclaration(DWORD Handle, vo
 D3DMINLINE HRESULT WINAPI D3DDevice::GetVertexShaderFunction(DWORD Handle, void *pData, DWORD *pSizeOfData) { return D3DDevice_GetVertexShaderFunction(Handle, pData, pSizeOfData); }
 D3DMINLINE HRESULT WINAPI D3DDevice::DeleteVertexShader(DWORD Handle) { D3DDevice_DeleteVertexShader(Handle); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexShaderConstant(INT Register, CONST void *pConstantData, DWORD ConstantCount) { D3DDIRTY_VERTEXSHADERCONSTANT(Register, ConstantCount); D3DDevice_SetVertexShaderConstant(Register, pConstantData, ConstantCount); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexShaderConstantFast(INT Register, CONST void *pConstantData, DWORD ConstantCount) { D3DDIRTY_VERTEXSHADERCONSTANT(Register, ConstantCount); D3DDevice_SetVertexShaderConstantFast(Register, pConstantData, ConstantCount); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetVertexShaderConstant(INT Register, void *pConstantData, DWORD ConstantCount) { D3DDevice_GetVertexShaderConstant(Register, pConstantData, ConstantCount); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetStreamSource(UINT StreamNumber, D3DVertexBuffer *pStreamData, UINT Stride) { D3DDIRTY_STREAM(StreamNumber); D3DDevice_SetStreamSource(StreamNumber, pStreamData, Stride); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetStreamSource(UINT StreamNumber, D3DVertexBuffer **ppStreamData, UINT *pStride) { D3DDevice_GetStreamSource(StreamNumber, ppStreamData, pStride); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetStreamSource(UINT StreamNumber, D3DVertexBuffer **ppStreamData, UINT *pStride) { *ppStreamData = D3DDevice_GetStreamSource2(StreamNumber, pStride); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetIndices(D3DIndexBuffer* pIndexData, UINT BaseVertexIndex) { D3DDIRTY_INDICES(); D3DDevice_SetIndices(pIndexData, BaseVertexIndex); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetIndices(D3DIndexBuffer** ppIndexData, UINT *pBaseVertexIndex) { D3DDevice_GetIndices(ppIndexData, pBaseVertexIndex); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetIndices(D3DIndexBuffer** ppIndexData, UINT *pBaseVertexIndex) { *ppIndexData = D3DDevice_GetIndices2(pBaseVertexIndex); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::CreatePixelShader(CONST D3DPIXELSHADERDEF *pPSDef, DWORD *pHandle) { D3DDevice_CreatePixelShader(pPSDef, pHandle); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetPixelShader(DWORD Handle) { D3DDIRTY_PIXELSHADER(); D3DDevice_SetPixelShader(Handle); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetPixelShaderProgram(CONST D3DPIXELSHADERDEF *pPSDef) { D3DDIRTY_PIXELSHADER(); D3DDevice_SetPixelShaderProgram(pPSDef); return S_OK; }
@@ -2134,7 +2324,7 @@ D3DMINLINE void    WINAPI D3DDevice::BlockOnFence(DWORD Fence) { D3DDevice_Block
 D3DMINLINE void    WINAPI D3DDevice::InsertCallback(D3DCALLBACKTYPE Type, D3DCALLBACK pCallback, DWORD Context) { D3DDevice_InsertCallback(Type, pCallback, Context); }
 D3DMINLINE void    WINAPI D3DDevice::FlushVertexCache() { D3DDevice_FlushVertexCache(); }
 D3DMINLINE HRESULT WINAPI D3DDevice::PersistDisplay() { return D3DDevice_PersistDisplay(); }
-D3DMINLINE HRESULT WINAPI D3DDevice::GetPersistedSurface(IDirect3DSurface8 **ppSurface) { D3DDevice_GetPersistedSurface(ppSurface); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::GetPersistedSurface(D3DSurface **ppSurface) { *ppSurface = D3DDevice_GetPersistedSurface2(); return S_OK; }
 D3DMINLINE BOOL    WINAPI D3DDevice::GetOverlayUpdateStatus() { return D3DDevice_GetOverlayUpdateStatus(); }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetDisplayFieldStatus(D3DFIELD_STATUS *pFieldStatus) { D3DDevice_GetDisplayFieldStatus(pFieldStatus); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexData2f(INT Register, float a, float b) { D3DDevice_SetVertexData2f(Register, a, b); return S_OK; }
@@ -2145,8 +2335,8 @@ D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexData4ub(INT Register, BYTE a, BYTE
 D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexDataColor(INT Register, D3DCOLOR Color) { D3DDevice_SetVertexDataColor(Register, Color); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::Begin(D3DPRIMITIVETYPE PrimitiveType) { D3DDevice_Begin(PrimitiveType); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::End() { D3DDevice_End(); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreateFixup(UINT Size, D3DFixup **ppFixup) { return D3DDevice_CreateFixup(Size, ppFixup); }
-D3DMINLINE HRESULT WINAPI D3DDevice::CreatePushBuffer(UINT Size, BOOL RunUsingCpuCopy, D3DPushBuffer **ppPushBuffer) { return D3DDevice_CreatePushBuffer(Size, RunUsingCpuCopy, ppPushBuffer); }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreateFixup(UINT Size, D3DFixup **ppFixup) { return (*ppFixup = D3DDevice_CreateFixup2(Size)) != NULL ? S_OK : E_OUTOFMEMORY; }
+D3DMINLINE HRESULT WINAPI D3DDevice::CreatePushBuffer(UINT Size, BOOL RunUsingCpuCopy, D3DPushBuffer **ppPushBuffer) { return (*ppPushBuffer = D3DDevice_CreatePushBuffer2(Size, RunUsingCpuCopy)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DMINLINE HRESULT WINAPI D3DDevice::BeginPushBuffer(D3DPushBuffer* pPushBuffer) { D3DDevice_BeginPushBuffer(pPushBuffer); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::EndPushBuffer() { return D3DDevice_EndPushBuffer(); }
 D3DMINLINE HRESULT WINAPI D3DDevice::RunPushBuffer(D3DPushBuffer* pPushBuffer, D3DFixup *pFixup) { D3DDevice_RunPushBuffer(pPushBuffer, pFixup); return S_OK; }
@@ -2161,8 +2351,6 @@ D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexShaderInput(DWORD Handle, UINT Str
 D3DMINLINE HRESULT WINAPI D3DDevice::SetVertexShaderInputDirect(D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT* pStreamInputs) { D3DDevice_SetVertexShaderInputDirect(pVAF, StreamCount, pStreamInputs); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetVertexShaderInput(DWORD* pHandle, UINT* pStreamCount, D3DSTREAM_INPUT* pStreamInputs) { return D3DDevice_GetVertexShaderInput(pHandle, pStreamCount, pStreamInputs); }
 D3DMINLINE HRESULT WINAPI D3DDevice::SwitchTexture(DWORD Stage, D3DBaseTexture *pTexture) { D3DDevice_SwitchTexture(D3DTEXTUREDIRECTENCODE[Stage], (pTexture)->Data, (pTexture)->Format); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::Suspend() { D3DDevice_Suspend(); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DDevice::Resume(BOOL Reset) { D3DDevice_Resume(Reset); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetScissors(DWORD Count, BOOL Exclusive, CONST D3DRECT *pRects) { D3DDevice_SetScissors(Count, Exclusive, pRects); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetScissors(DWORD* pCount, BOOL *pExclusive, D3DRECT *pRects) { D3DDevice_GetScissors(pCount, pExclusive, pRects); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetTile(DWORD Index, CONST D3DTILE* pTile) { D3DDevice_SetTile(Index, pTile); return S_OK; }
@@ -2170,8 +2358,10 @@ D3DMINLINE HRESULT WINAPI D3DDevice::GetTile(DWORD Index, D3DTILE* pTile) { D3DD
 D3DMINLINE DWORD   WINAPI D3DDevice::GetTileCompressionTags(DWORD ZStartTag, DWORD ZEndTag) { return D3DDevice_GetTileCompressionTags(ZStartTag, ZEndTag); }
 D3DMINLINE void    WINAPI D3DDevice::SetTileCompressionTagBits(DWORD Partition, DWORD Address, CONST DWORD *pData, DWORD Count) { D3DDevice_SetTileCompressionTagBits(Partition, Address, pData, Count); }
 D3DMINLINE void    WINAPI D3DDevice::GetTileCompressionTagBits(DWORD Partition, DWORD Address, DWORD *pData, DWORD Count) { D3DDevice_GetTileCompressionTagBits(Partition, Address, pData, Count); }
-D3DMINLINE HRESULT WINAPI D3DDevice::BeginPush(DWORD Count, DWORD **ppPush) { D3DDevice_BeginPush(Count, ppPush); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::BeginPush(DWORD Count, DWORD **ppPush) { *ppPush = D3DDevice_BeginPush(Count); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::EndPush(DWORD *pPush) { D3DDevice_EndPush(pPush); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::BeginState(DWORD Count, DWORD **ppPush) { *ppPush = D3DDevice_BeginState(Count); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DDevice::EndState(DWORD *pPush) { D3DDevice_EndState(pPush); return S_OK; }
 D3DMINLINE DWORD   WINAPI D3DDevice::Swap(DWORD Flags) { return D3DDevice_Swap(Flags); }
 D3DMINLINE HRESULT WINAPI D3DDevice::SetBackBufferScale(float x, float y) { D3DDevice_SetBackBufferScale(x, y); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DDevice::GetBackBufferScale(float *pX, float *pY) { D3DDevice_GetBackBufferScale(pX, pY); return S_OK; }
@@ -2179,6 +2369,16 @@ D3DMINLINE HRESULT WINAPI D3DDevice::SetScreenSpaceOffset(float x, float y) { D3
 D3DMINLINE HRESULT WINAPI D3DDevice::GetScreenSpaceOffset(float *pX, float *pY) { D3DDevice_GetScreenSpaceOffset(pX, pY); return S_OK; }
 D3DMINLINE void    WINAPI D3DDevice::SetOverscanColor(D3DCOLOR Color) { D3DDevice_SetOverscanColor(Color); }
 D3DMINLINE D3DCOLOR WINAPI D3DDevice::GetOverscanColor() { return D3DDevice_GetOverscanColor(); }
+D3DMINLINE void    WINAPI D3DDevice::SetDepthClipPlanes(float Near, float Far, DWORD Flags) { D3DDevice_SetDepthClipPlanes(Near, Far, Flags); }
+D3DMINLINE void    WINAPI D3DDevice::GetDepthClipPlanes(float *pNear, float *pFar, DWORD Flags) { D3DDevice_GetDepthClipPlanes(pNear, pFar, Flags); }
+D3DMINLINE void    WINAPI D3DDevice::GetViewportOffsetAndScale(D3DVECTOR4 *pOffset, D3DVECTOR4 *pScale) { D3DDevice_GetViewportOffsetAndScale(pOffset, pScale); }
+D3DMINLINE void    WINAPI D3DDevice::SetStipple(CONST DWORD *pPattern) { D3DDevice_SetStipple(pPattern); }
+D3DMINLINE void    WINAPI D3DDevice::GetStipple(DWORD *pPattern) { D3DDevice_GetStipple(pPattern); }
+D3DMINLINE void    WINAPI D3DDevice::SetWaitCallback(D3DWAITCALLBACK pCallback) { D3DDevice_SetWaitCallback(pCallback); }
+D3DMINLINE DWORD   WINAPI D3DDevice::GetPushDistance(DWORD Handle) { return D3DDevice_GetPushDistance(Handle); }
+D3DMINLINE HRESULT WINAPI D3DDevice::SetTimerCallback(ULONGLONG Time, D3DCALLBACK pCallback, DWORD Context) { return D3DDevice_SetTimerCallback(Time, pCallback, Context); }
+D3DMINLINE void    WINAPI D3DDevice::SetRenderTargetFast(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil, DWORD Flags) { D3DDevice_SetRenderTargetFast(pRenderTarget, pNewZStencil, Flags); }
+
 #ifdef _DEBUG
 D3DMINLINE DWORD   WINAPI D3DDevice::SetDebugMarker(DWORD Marker) { return D3DDevice_SetDebugMarker(Marker); }
 D3DMINLINE DWORD   WINAPI D3DDevice::GetDebugMarker() { return D3DDevice_GetDebugMarker(); }
@@ -2202,6 +2402,7 @@ BOOL    WINAPI D3DResource_IsBusy(D3DResource *pThis);
 void    WINAPI D3DResource_BlockUntilNotBusy(D3DResource *pThis);
 void    WINAPI D3DResource_Register(D3DResource *pThis, void *pBase);
 D3DINLINE void WINAPI D3DResource_MoveResourceMemory(D3DResource *pThis, D3DMEMORY where) { }
+
 
 // Compatibility wrappers.
 
@@ -2285,10 +2486,10 @@ D3DINLINE HRESULT WINAPI D3DTexture_SetPrivateData(D3DTexture *pThis, REFGUID re
 D3DINLINE HRESULT WINAPI D3DTexture_GetPrivateData(D3DTexture *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DTexture_FreePrivateData(D3DTexture *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-void    WINAPI D3DTexture_GetLevelDesc(D3DTexture *pThis, UINT Level, D3DSURFACE_DESC *pDesc);
-HRESULT WINAPI D3DTexture_GetSurfaceLevel(D3DTexture *pThis, UINT Level, D3DSurface **ppSurfaceLevel);
-void    WINAPI D3DTexture_LockRect(D3DTexture *pThis, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
-D3DINLINE void WINAPI D3DTexture_UnlockRect(D3DTexture *pThis, UINT Level) { }
+void        WINAPI D3DTexture_GetLevelDesc(D3DTexture *pThis, UINT Level, D3DSURFACE_DESC *pDesc);
+D3DSurface* WINAPI D3DTexture_GetSurfaceLevel2(D3DTexture *pThis, UINT Level);
+void        WINAPI D3DTexture_LockRect(D3DTexture *pThis, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
+D3DINLINE   void WINAPI D3DTexture_UnlockRect(D3DTexture *pThis, UINT Level) { }
 
 // Compatibilty wrappers.
 
@@ -2305,14 +2506,14 @@ D3DINLINE HRESULT WINAPI IDirect3DTexture8_SetPrivateData(D3DTexture *pThis, REF
 D3DINLINE HRESULT WINAPI IDirect3DTexture8_GetPrivateData(D3DTexture *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DTexture8_FreePrivateData(D3DTexture *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DTexture8_GetLevelDesc(D3DTexture *pThis, UINT Level, D3DSURFACE_DESC *pDesc) { D3DTexture_GetLevelDesc(pThis, Level, pDesc); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DTexture8_GetSurfaceLevel(D3DTexture *pThis, UINT Level, D3DSurface **ppSurfaceLevel) { return D3DTexture_GetSurfaceLevel(pThis, Level, ppSurfaceLevel); }
+D3DINLINE HRESULT WINAPI IDirect3DTexture8_GetSurfaceLevel(D3DTexture *pThis, UINT Level, D3DSurface **ppSurfaceLevel) { return (*ppSurfaceLevel = D3DTexture_GetSurfaceLevel2(pThis, Level)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DINLINE HRESULT WINAPI IDirect3DTexture8_LockRect(D3DTexture *pThis, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DTexture_LockRect(pThis, Level, pLockedRect, pRect, Flags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DTexture8_UnlockRect(D3DTexture *pThis, UINT Level) { D3DTexture_UnlockRect(pThis, Level); return S_OK; }
 
 #ifdef __cplusplus
 
 D3DMINLINE HRESULT WINAPI D3DTexture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc) { D3DTexture_GetLevelDesc(this, Level, pDesc); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DTexture::GetSurfaceLevel(UINT Level, D3DSurface **ppSurfaceLevel) { return D3DTexture_GetSurfaceLevel(this, Level, ppSurfaceLevel); }
+D3DMINLINE HRESULT WINAPI D3DTexture::GetSurfaceLevel(UINT Level, D3DSurface **ppSurfaceLevel) { return (*ppSurfaceLevel = D3DTexture_GetSurfaceLevel2(this, Level)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DMINLINE HRESULT WINAPI D3DTexture::LockRect(UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DTexture_LockRect(this, Level, pLockedRect, pRect, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DTexture::UnlockRect(UINT Level) { D3DTexture_UnlockRect(this, Level); return S_OK; }
 
@@ -2333,10 +2534,10 @@ D3DINLINE HRESULT WINAPI D3DVolumeTexture_SetPrivateData(D3DVolumeTexture *pThis
 D3DINLINE HRESULT WINAPI D3DVolumeTexture_GetPrivateData(D3DVolumeTexture *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DVolumeTexture_FreePrivateData(D3DVolumeTexture *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-void    WINAPI D3DVolumeTexture_GetLevelDesc(D3DVolumeTexture *pThis, UINT Level, D3DVOLUME_DESC *pDesc);
-HRESULT WINAPI D3DVolumeTexture_GetVolumeLevel(D3DVolumeTexture *pThis, UINT Level, D3DVolume **ppVolumeLevel);
-void    WINAPI D3DVolumeTexture_LockBox(D3DVolumeTexture *pThis, UINT Level, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags);
-D3DINLINE void WINAPI D3DVolumeTexture_UnlockBox(D3DVolumeTexture *pThis, UINT Level) { }
+void       WINAPI D3DVolumeTexture_GetLevelDesc(D3DVolumeTexture *pThis, UINT Level, D3DVOLUME_DESC *pDesc);
+D3DVolume* WINAPI D3DVolumeTexture_GetVolumeLevel2(D3DVolumeTexture *pThis, UINT Level);
+void       WINAPI D3DVolumeTexture_LockBox(D3DVolumeTexture *pThis, UINT Level, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags);
+D3DINLINE  void WINAPI D3DVolumeTexture_UnlockBox(D3DVolumeTexture *pThis, UINT Level) { }
 
 // Compatibilty wrappers.
 
@@ -2353,7 +2554,7 @@ D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_SetPrivateData(D3DVolumeTexture
 D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_GetPrivateData(D3DVolumeTexture *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_FreePrivateData(D3DVolumeTexture *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_GetLevelDesc(D3DVolumeTexture *pThis, UINT Level, D3DVOLUME_DESC *pDesc) { D3DVolumeTexture_GetLevelDesc(pThis, Level, pDesc); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_GetVolumeLevel(D3DVolumeTexture *pThis, UINT Level, D3DVolume **ppVolumeLevel) { return D3DVolumeTexture_GetVolumeLevel(pThis, Level, ppVolumeLevel); }
+D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_GetVolumeLevel(D3DVolumeTexture *pThis, UINT Level, D3DVolume **ppVolumeLevel) { return (*ppVolumeLevel = D3DVolumeTexture_GetVolumeLevel2(pThis, Level)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_LockBox(D3DVolumeTexture *pThis, UINT Level, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags) { D3DVolumeTexture_LockBox(pThis, Level, pLockedVolume, pBox, Flags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_UnlockBox(D3DVolumeTexture *pThis, UINT Level) { D3DVolumeTexture_UnlockBox(pThis, Level); return S_OK; }
 
@@ -2361,7 +2562,7 @@ D3DINLINE HRESULT WINAPI IDirect3DVolumeTexture8_UnlockBox(D3DVolumeTexture *pTh
 #ifdef __cplusplus
 
 D3DMINLINE HRESULT WINAPI D3DVolumeTexture::GetLevelDesc(UINT Level, D3DVOLUME_DESC *pDesc) { D3DVolumeTexture_GetLevelDesc(this, Level, pDesc); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DVolumeTexture::GetVolumeLevel(UINT Level, D3DVolume **ppVolumeLevel) { return D3DVolumeTexture_GetVolumeLevel(this, Level, ppVolumeLevel); }
+D3DMINLINE HRESULT WINAPI D3DVolumeTexture::GetVolumeLevel(UINT Level, D3DVolume **ppVolumeLevel) { return (*ppVolumeLevel = D3DVolumeTexture_GetVolumeLevel2(this, Level)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DMINLINE HRESULT WINAPI D3DVolumeTexture::LockBox(UINT Level, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags) { D3DVolumeTexture_LockBox(this, Level, pLockedVolume, pBox, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVolumeTexture::UnlockBox(UINT Level) { D3DVolumeTexture_UnlockBox(this, Level); return S_OK; }
 
@@ -2382,10 +2583,10 @@ D3DINLINE HRESULT WINAPI D3DCubeTexture_SetPrivateData(D3DCubeTexture *pThis, RE
 D3DINLINE HRESULT WINAPI D3DCubeTexture_GetPrivateData(D3DCubeTexture *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DCubeTexture_FreePrivateData(D3DCubeTexture *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-void    WINAPI D3DCubeTexture_GetLevelDesc(D3DCubeTexture *pThis, UINT Level, D3DSURFACE_DESC *pDesc);
-HRESULT WINAPI D3DCubeTexture_GetCubeMapSurface(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface);
-void    WINAPI D3DCubeTexture_LockRect(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
-D3DINLINE void WINAPI D3DCubeTexture_UnlockRect(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level) { }
+void        WINAPI D3DCubeTexture_GetLevelDesc(D3DCubeTexture *pThis, UINT Level, D3DSURFACE_DESC *pDesc);
+D3DSurface* WINAPI D3DCubeTexture_GetCubeMapSurface2(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level);
+void        WINAPI D3DCubeTexture_LockRect(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
+D3DINLINE   void WINAPI D3DCubeTexture_UnlockRect(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level) { }
 
 D3DINLINE ULONG   WINAPI IDirect3DCubeTexture8_AddRef(D3DCubeTexture *pThis) { return D3DResource_AddRef((D3DResource *)pThis); }
 D3DINLINE ULONG   WINAPI IDirect3DCubeTexture8_Release(D3DCubeTexture *pThis) { return D3DResource_Release((D3DResource *)pThis); }
@@ -2400,14 +2601,14 @@ D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_SetPrivateData(D3DCubeTexture *pT
 D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_GetPrivateData(D3DCubeTexture *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_FreePrivateData(D3DCubeTexture *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_GetLevelDesc(D3DCubeTexture *pThis, UINT Level, D3DSURFACE_DESC *pDesc) { D3DCubeTexture_GetLevelDesc(pThis, Level, pDesc); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_GetCubeMapSurface(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface) { return D3DCubeTexture_GetCubeMapSurface(pThis, FaceType, Level, ppCubeMapSurface); }
+D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_GetCubeMapSurface(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface) { return (*ppCubeMapSurface = D3DCubeTexture_GetCubeMapSurface2(pThis, FaceType, Level)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_LockRect(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DCubeTexture_LockRect(pThis, FaceType, Level, pLockedRect, pRect, Flags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DCubeTexture8_UnlockRect(D3DCubeTexture *pThis, D3DCUBEMAP_FACES FaceType, UINT Level) { D3DCubeTexture_UnlockRect(pThis, FaceType, Level); return S_OK; }
 
 #ifdef __cplusplus
 
 D3DMINLINE HRESULT WINAPI D3DCubeTexture::GetLevelDesc(UINT Level, D3DSURFACE_DESC *pDesc) { D3DCubeTexture_GetLevelDesc(this, Level, pDesc); return S_OK; }
-D3DMINLINE HRESULT WINAPI D3DCubeTexture::GetCubeMapSurface(D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface) { return D3DCubeTexture_GetCubeMapSurface(this, FaceType, Level, ppCubeMapSurface); }
+D3DMINLINE HRESULT WINAPI D3DCubeTexture::GetCubeMapSurface(D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface) { return (*ppCubeMapSurface = D3DCubeTexture_GetCubeMapSurface2(this, FaceType, Level)) != NULL ? S_OK : E_OUTOFMEMORY; }
 D3DMINLINE HRESULT WINAPI D3DCubeTexture::LockRect(D3DCUBEMAP_FACES FaceType, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DCubeTexture_LockRect(this, FaceType, Level, pLockedRect, pRect, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DCubeTexture::UnlockRect(D3DCUBEMAP_FACES FaceType, UINT Level) { D3DCubeTexture_UnlockRect(this, FaceType, Level); return S_OK; }
 
@@ -2427,7 +2628,7 @@ D3DINLINE HRESULT WINAPI D3DVertexBuffer_SetPrivateData(D3DVertexBuffer *pThis, 
 D3DINLINE HRESULT WINAPI D3DVertexBuffer_GetPrivateData(D3DVertexBuffer *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DVertexBuffer_FreePrivateData(D3DVertexBuffer *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-void    WINAPI D3DVertexBuffer_Lock(D3DVertexBuffer *pThis, UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags);
+BYTE*   WINAPI D3DVertexBuffer_Lock2(D3DVertexBuffer *pThis, DWORD Flags);
 void    WINAPI D3DVertexBuffer_GetDesc(D3DVertexBuffer *pThis, D3DVERTEXBUFFER_DESC *pDesc);
 D3DINLINE void WINAPI D3DVertexBuffer_Unlock(D3DVertexBuffer *pThis) { }
 
@@ -2442,13 +2643,13 @@ D3DINLINE void    WINAPI IDirect3DVertexBuffer8_Register(D3DVertexBuffer *pThis,
 D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_SetPrivateData(D3DVertexBuffer *pThis, REFGUID refguid, CONST void *pData, DWORD SizeOfData, DWORD Flags) { return D3DResource_SetPrivateData((D3DResource *)pThis, refguid, pData, SizeOfData, Flags); }
 D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_GetPrivateData(D3DVertexBuffer *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_FreePrivateData(D3DVertexBuffer *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_Lock(D3DVertexBuffer *pThis, UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags) { D3DVertexBuffer_Lock(pThis, OffsetToLock, SizeToLock, ppbData, Flags); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_Lock(D3DVertexBuffer *pThis, UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD Flags) { *ppbData = D3DVertexBuffer_Lock2(pThis, Flags) + OffsetToLock; return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_Unlock(D3DVertexBuffer *pThis) { D3DVertexBuffer_Unlock(pThis); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DVertexBuffer8_GetDesc(D3DVertexBuffer *pThis, D3DVERTEXBUFFER_DESC *pDesc) { D3DVertexBuffer_GetDesc(pThis, pDesc); return S_OK; }
 
 #ifdef __cplusplus
 
-D3DMINLINE HRESULT WINAPI D3DVertexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags) { D3DVertexBuffer_Lock(this, OffsetToLock, SizeToLock, ppbData, Flags); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DVertexBuffer::Lock(UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD Flags) { *ppbData = D3DVertexBuffer_Lock2(this, Flags) + OffsetToLock; return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVertexBuffer::Unlock() { D3DVertexBuffer_Unlock(this); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVertexBuffer::GetDesc(D3DVERTEXBUFFER_DESC *pDesc) { D3DVertexBuffer_GetDesc(this, pDesc); return S_OK; }
 
@@ -2468,7 +2669,7 @@ D3DINLINE HRESULT WINAPI D3DIndexBuffer_SetPrivateData(D3DIndexBuffer *pThis, RE
 D3DINLINE HRESULT WINAPI D3DIndexBuffer_GetPrivateData(D3DIndexBuffer *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DIndexBuffer_FreePrivateData(D3DIndexBuffer *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-D3DINLINE void    WINAPI D3DIndexBuffer_Lock(D3DIndexBuffer *pThis, UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags) { *(ppbData) = (BYTE*) (pThis)->Data + (OffsetToLock); }
+D3DINLINE void    WINAPI D3DIndexBuffer_Lock(D3DIndexBuffer *pThis, UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD UnusedFlags) { *(ppbData) = (BYTE*) (pThis)->Data + (OffsetToLock); }
 D3DINLINE void    WINAPI D3DIndexBuffer_Unlock(D3DIndexBuffer *pThis) { }
 void    WINAPI D3DIndexBuffer_GetDesc(D3DIndexBuffer *pThis, D3DINDEXBUFFER_DESC *pDesc);
 
@@ -2485,13 +2686,13 @@ D3DINLINE void    WINAPI IDirect3DIndexBuffer8_Register(D3DIndexBuffer *pThis, v
 D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_SetPrivateData(D3DIndexBuffer *pThis, REFGUID refguid, CONST void *pData, DWORD SizeOfData, DWORD Flags) { return D3DResource_SetPrivateData((D3DResource *)pThis, refguid, pData, SizeOfData, Flags); }
 D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_GetPrivateData(D3DIndexBuffer *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_FreePrivateData(D3DIndexBuffer *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_Lock(D3DIndexBuffer *pThis, UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags) { D3DIndexBuffer_Lock(pThis, OffsetToLock, SizeToLock, ppbData, Flags); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_Lock(D3DIndexBuffer *pThis, UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD UnusedFlags) { D3DIndexBuffer_Lock(pThis, OffsetToLock, UnusedSizeToLock, ppbData, UnusedFlags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_Unlock(D3DIndexBuffer *pThis) { D3DIndexBuffer_Unlock(pThis); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DIndexBuffer8_GetDesc(D3DIndexBuffer *pThis, D3DINDEXBUFFER_DESC *pDesc) { D3DIndexBuffer_GetDesc(pThis, pDesc); return S_OK; }
 
 #ifdef __cplusplus
 
-D3DMINLINE HRESULT WINAPI D3DIndexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, BYTE **ppbData, DWORD Flags) { D3DIndexBuffer_Lock(this, OffsetToLock, SizeToLock, ppbData, Flags); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DIndexBuffer::Lock(UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD UnusedFlags) { D3DIndexBuffer_Lock(this, OffsetToLock, UnusedSizeToLock, ppbData, UnusedFlags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DIndexBuffer::Unlock() { D3DIndexBuffer_Unlock(this); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DIndexBuffer::GetDesc(D3DINDEXBUFFER_DESC *pDesc) { D3DIndexBuffer_GetDesc(this, pDesc); return S_OK; }
 
@@ -2511,7 +2712,7 @@ D3DINLINE HRESULT WINAPI D3DPalette_SetPrivateData(D3DPalette *pThis, REFGUID re
 D3DINLINE HRESULT WINAPI D3DPalette_GetPrivateData(D3DPalette *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DPalette_FreePrivateData(D3DPalette *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-void    WINAPI D3DPalette_Lock(D3DPalette *pThis, D3DCOLOR **ppColor, DWORD Flags);
+D3DCOLOR*      WINAPI D3DPalette_Lock2(D3DPalette *pThis, DWORD Flags);
 D3DPALETTESIZE WINAPI D3DPalette_GetSize(D3DPalette *pThis);
 D3DINLINE void WINAPI D3DPalette_Unlock(D3DPalette *pThis) { }
 
@@ -2527,13 +2728,13 @@ D3DINLINE HRESULT WINAPI IDirect3DPalette8_SetPrivateData(D3DPalette *pThis, REF
 D3DINLINE HRESULT WINAPI IDirect3DPalette8_GetPrivateData(D3DPalette *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DPalette8_FreePrivateData(D3DPalette *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
 
-D3DINLINE HRESULT WINAPI IDirect3DPalette8_Lock(D3DPalette *pThis, D3DCOLOR **ppColor, DWORD Flags) { D3DPalette_Lock(pThis, ppColor, Flags); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DPalette8_Lock(D3DPalette *pThis, D3DCOLOR **ppColor, DWORD Flags) { *ppColor = D3DPalette_Lock2(pThis, Flags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DPalette8_Unlock(D3DPalette *pThis) { D3DPalette_Unlock(pThis); return S_OK; }
 D3DINLINE D3DPALETTESIZE WINAPI IDirect3DPalette8_GetSize(D3DPalette *pThis) { return D3DPalette_GetSize(pThis); }
 
 #ifdef __cplusplus
 
-D3DMINLINE HRESULT WINAPI D3DPalette::Lock(D3DCOLOR **ppColors, DWORD Flags) { D3DPalette_Lock(this, ppColors, Flags); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DPalette::Lock(D3DCOLOR **ppColor, DWORD Flags) { *ppColor = D3DPalette_Lock2(this, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DPalette::Unlock() { D3DPalette_Unlock(this); return S_OK; }
 D3DMINLINE D3DPALETTESIZE WINAPI D3DPalette::GetSize() { return D3DPalette_GetSize(this); }
 
@@ -2556,17 +2757,19 @@ D3DINLINE void    WINAPI D3DPushBuffer_FreePrivateData(D3DPushBuffer *pThis, REF
 void    WINAPI D3DPushBuffer_Verify(D3DPushBuffer* pPushBuffer, BOOL StampResources);
 void    WINAPI D3DPushBuffer_BeginFixup(D3DPushBuffer* pPushBuffer, D3DFixup* pFixup, BOOL NoWait);
 HRESULT WINAPI D3DPushBuffer_EndFixup(D3DPushBuffer* pPushBuffer);
-void    WINAPI D3DPushBuffer_RunPushBuffer(D3DPushBuffer* pPushBuffer, UINT Offset, D3DPushBuffer* pDestinationPushBuffer, D3DFixup* pDestinationFixup);
-void    WINAPI D3DPushBuffer_SetModelView(D3DPushBuffer* pPushBuffer, UINT Offset, CONST D3DMATRIX* pModelView, CONST D3DMATRIX* pInverseModelView, CONST D3DMATRIX* pComposite);
-void    WINAPI D3DPushBuffer_SetVertexBlendModelView(D3DPushBuffer* pPushBuffer, UINT Offset, UINT Count, CONST D3DMATRIX* pModelViews, CONST D3DMATRIX* pInverseModelViews, CONST D3DMATRIX* pProjectionViewport);
-void    WINAPI D3DPushBuffer_SetVertexShaderInput(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Handle, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
-void    WINAPI D3DPushBuffer_SetVertexShaderInputDirect(D3DPushBuffer* pPushBuffer, UINT Offset, D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
-void    WINAPI D3DPushBuffer_SetRenderTarget(D3DPushBuffer* pPushBuffer, UINT Offset, D3DSurface* pRenderTarget, D3DSurface* pZBuffer);
-void    WINAPI D3DPushBuffer_SetTexture(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Stage, D3DBaseTexture *pTexture);
-void    WINAPI D3DPushBuffer_SetPalette(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Stage,D3DPalette *pPalette);
-HRESULT WINAPI D3DPushBuffer_EndVisibilityTest(D3DPushBuffer* pPushBuffer, UINT Offset, DWORD Index);
-void    WINAPI D3DPushBuffer_SetVertexShaderConstant(D3DPushBuffer* pPushBuffer, UINT Offset, INT Register, CONST void* pConstantData, DWORD ConstantCount);
-void    WINAPI D3DPushBuffer_Jump(D3DPushBuffer* pPushBuffer, UINT Offset, UINT DestinationOffset);
+void    WINAPI D3DPushBuffer_RunPushBuffer(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DPushBuffer* pDestinationPushBuffer, D3DFixup* pDestinationFixup);
+void    WINAPI D3DPushBuffer_SetModelView(D3DPushBuffer* pPushBuffer, DWORD Offset, CONST D3DMATRIX* pModelView, CONST D3DMATRIX* pInverseModelView, CONST D3DMATRIX* pComposite);
+void    WINAPI D3DPushBuffer_SetVertexBlendModelView(D3DPushBuffer* pPushBuffer, DWORD Offset, UINT Count, CONST D3DMATRIX* pModelViews, CONST D3DMATRIX* pInverseModelViews, CONST D3DMATRIX* pProjectionViewport);
+void    WINAPI D3DPushBuffer_SetVertexShaderInput(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Handle, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
+void    WINAPI D3DPushBuffer_SetVertexShaderInputDirect(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DVERTEXATTRIBUTEFORMAT *pVAF, UINT StreamCount, CONST D3DSTREAM_INPUT *pStreamInputs);
+void    WINAPI D3DPushBuffer_SetRenderTarget(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DSurface* pRenderTarget, D3DSurface* pZBuffer);
+void    WINAPI D3DPushBuffer_SetTexture(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Stage, D3DBaseTexture *pTexture);
+void    WINAPI D3DPushBuffer_SetPalette(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Stage,D3DPalette *pPalette);
+HRESULT WINAPI D3DPushBuffer_EndVisibilityTest(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Index);
+void    WINAPI D3DPushBuffer_SetVertexShaderConstant(D3DPushBuffer* pPushBuffer, DWORD Offset, INT Register, CONST void* pConstantData, DWORD ConstantCount);
+void    WINAPI D3DPushBuffer_SetRenderState(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DRENDERSTATETYPE State, DWORD Value);
+void    WINAPI D3DPushBuffer_CopyRects(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DSurface *pSourceSurface, D3DSurface *pDestinationSurface);
+void    WINAPI D3DPushBuffer_Jump(D3DPushBuffer* pPushBuffer, DWORD Offset, UINT DestinationOffset);
 
 D3DINLINE ULONG   WINAPI IDirect3DPushBuffer8_AddRef(D3DPushBuffer *pThis) { return D3DResource_AddRef((D3DResource *)pThis); }
 D3DINLINE ULONG   WINAPI IDirect3DPushBuffer8_Release(D3DPushBuffer *pThis) { return D3DResource_Release((D3DResource *)pThis); }
@@ -2593,6 +2796,8 @@ D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_SetTexture(D3DPushBuffer* pPushBuf
 D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_SetPalette(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Stage,D3DPalette *pPalette) { D3DPushBuffer_SetPalette(pPushBuffer, Offset, Stage, pPalette); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_EndVisibilityTest(D3DPushBuffer* pPushBuffer, DWORD Offset, DWORD Index) { return D3DPushBuffer_EndVisibilityTest(pPushBuffer, Offset, Index); }
 D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_SetVertexShaderConstant(D3DPushBuffer* pPushBuffer, DWORD Offset, INT Register, CONST void* pConstantData, DWORD ConstantCount) { D3DPushBuffer_SetVertexShaderConstant(pPushBuffer, Offset, Register, pConstantData, ConstantCount); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_SetRenderState(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DRENDERSTATETYPE State, DWORD Value) { D3DPushBuffer_SetRenderState(pPushBuffer, Offset, State, Value); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_CopyRects(D3DPushBuffer* pPushBuffer, DWORD Offset, D3DSurface *pSourceSurface, D3DSurface *pDestinationSurface) { D3DPushBuffer_CopyRects(pPushBuffer, Offset, pSourceSurface, pDestinationSurface); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_Jump(D3DPushBuffer* pPushBuffer, DWORD Offset, UINT DestinationOffset) { D3DPushBuffer_Jump(pPushBuffer, Offset, DestinationOffset); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DPushBuffer8_GetSize(D3DPushBuffer* pPushBuffer, DWORD* pSize) { *pSize = pPushBuffer->Size; return S_OK; }
 
@@ -2611,6 +2816,8 @@ D3DMINLINE HRESULT WINAPI D3DPushBuffer::SetTexture(DWORD Offset, DWORD Stage, D
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::SetPalette(DWORD Offset, DWORD Stage,D3DPalette *pPalette) { D3DPushBuffer_SetPalette(this, Offset, Stage, pPalette); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::EndVisibilityTest(DWORD Offset, DWORD Index) { return D3DPushBuffer_EndVisibilityTest(this, Offset, Index); }
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::SetVertexShaderConstant(DWORD Offset, INT Register, CONST void* pConstantData, DWORD ConstantCount) { D3DPushBuffer_SetVertexShaderConstant(this, Offset, Register, pConstantData, ConstantCount); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DPushBuffer::SetRenderState(DWORD Offset, D3DRENDERSTATETYPE State, DWORD Value) { D3DPushBuffer_SetRenderState(this, Offset, State, Value); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DPushBuffer::CopyRects(DWORD Offset, D3DSurface *pSourceSurface, D3DSurface *pDestinationSurface) { D3DPushBuffer_CopyRects(this, Offset, pSourceSurface, pDestinationSurface); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::Jump(DWORD Offset, UINT DestinationOffset) { D3DPushBuffer_Jump(this, Offset, DestinationOffset); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::GetSize(DWORD* pSize) { *pSize = Size; return S_OK; }
 
@@ -2672,10 +2879,10 @@ D3DINLINE HRESULT WINAPI D3DSurface_SetPrivateData(D3DSurface *pThis, REFGUID re
 D3DINLINE HRESULT WINAPI D3DSurface_GetPrivateData(D3DSurface *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DSurface_FreePrivateData(D3DSurface *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-HRESULT WINAPI D3DSurface_GetContainer(D3DSurface *pThis, D3DBaseTexture **ppBaseTexture);
-void    WINAPI D3DSurface_GetDesc(D3DSurface *pThis, D3DSURFACE_DESC *pDesc);
-void    WINAPI D3DSurface_LockRect(D3DSurface *pThis, D3DLOCKED_RECT *pLockedRect,CONST RECT *pRect, DWORD Flags);
-D3DINLINE void WINAPI D3DSurface_UnlockRect(D3DSurface *pThis) { }
+D3DBaseTexture* WINAPI D3DSurface_GetContainer2(D3DSurface *pThis);
+void            WINAPI D3DSurface_GetDesc(D3DSurface *pThis, D3DSURFACE_DESC *pDesc);
+void            WINAPI D3DSurface_LockRect(D3DSurface *pThis, D3DLOCKED_RECT *pLockedRect,CONST RECT *pRect, DWORD Flags);
+D3DINLINE       void WINAPI D3DSurface_UnlockRect(D3DSurface *pThis) { }
 
 D3DINLINE ULONG   WINAPI IDirect3DSurface8_AddRef(D3DSurface *pThis) { return D3DResource_AddRef((D3DResource *)pThis); }
 D3DINLINE ULONG   WINAPI IDirect3DSurface8_Release(D3DSurface *pThis) { return D3DResource_Release((D3DResource *)pThis); }
@@ -2688,14 +2895,14 @@ D3DINLINE void    WINAPI IDirect3DSurface8_Register(D3DSurface *pThis, void *pBa
 D3DINLINE HRESULT WINAPI IDirect3DSurface8_SetPrivateData(D3DSurface *pThis, REFGUID refguid, CONST void *pData, DWORD SizeOfData, DWORD Flags) { return D3DResource_SetPrivateData((D3DResource *)pThis, refguid, pData, SizeOfData, Flags); }
 D3DINLINE HRESULT WINAPI IDirect3DSurface8_GetPrivateData(D3DSurface *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DSurface8_FreePrivateData(D3DSurface *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DSurface8_GetContainer(D3DSurface *pThis, D3DBaseTexture **ppBaseTexture) { return D3DSurface_GetContainer(pThis, ppBaseTexture); }
+D3DINLINE HRESULT WINAPI IDirect3DSurface8_GetContainer(D3DSurface *pThis, D3DBaseTexture **ppBaseTexture) { return (*ppBaseTexture = D3DSurface_GetContainer2(pThis)) != NULL ? S_OK : E_FAIL; }
 D3DINLINE HRESULT WINAPI IDirect3DSurface8_GetDesc(D3DSurface *pThis, D3DSURFACE_DESC *pDesc) { D3DSurface_GetDesc(pThis, pDesc); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DSurface8_LockRect(D3DSurface *pThis, D3DLOCKED_RECT *pLockedRect,CONST RECT *pRect, DWORD Flags) { D3DSurface_LockRect(pThis, pLockedRect,pRect, Flags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DSurface8_UnlockRect(D3DSurface *pThis) { D3DSurface_UnlockRect(pThis); return S_OK; }
 
 #ifdef __cplusplus
 
-D3DMINLINE HRESULT WINAPI D3DSurface::GetContainer(D3DBaseTexture **ppBaseTexture) { return D3DSurface_GetContainer(this, ppBaseTexture); }
+D3DMINLINE HRESULT WINAPI D3DSurface::GetContainer(D3DBaseTexture **ppBaseTexture) { return (*ppBaseTexture = D3DSurface_GetContainer2(this)) != NULL ? S_OK : E_FAIL; }
 D3DMINLINE HRESULT WINAPI D3DSurface::GetDesc(D3DSURFACE_DESC *pDesc) { D3DSurface_GetDesc(this, pDesc); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DSurface::LockRect(D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DSurface_LockRect(this, pLockedRect, pRect, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DSurface::UnlockRect() { D3DSurface_UnlockRect(this); return S_OK; }
@@ -2716,10 +2923,10 @@ D3DINLINE HRESULT WINAPI D3DVolume_SetPrivateData(D3DVolume *pThis, REFGUID refg
 D3DINLINE HRESULT WINAPI D3DVolume_GetPrivateData(D3DVolume *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE void    WINAPI D3DVolume_FreePrivateData(D3DVolume *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); }
 
-HRESULT WINAPI D3DVolume_GetContainer(D3DVolume *pThis, D3DBaseTexture **ppBaseTexture);
-void    WINAPI D3DVolume_GetDesc(D3DVolume *pThis, D3DVOLUME_DESC *pDesc);
-void    WINAPI D3DVolume_LockBox(D3DVolume *pThis, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags);
-D3DINLINE void WINAPI D3DVolume_UnlockBox(D3DVolume *pThis) { }
+D3DBaseTexture* WINAPI D3DVolume_GetContainer2(D3DVolume *pThis);
+void            WINAPI D3DVolume_GetDesc(D3DVolume *pThis, D3DVOLUME_DESC *pDesc);
+void            WINAPI D3DVolume_LockBox(D3DVolume *pThis, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags);
+D3DINLINE void  WINAPI D3DVolume_UnlockBox(D3DVolume *pThis) { }
 
 D3DINLINE ULONG   WINAPI IDirect3DVolume8_AddRef(D3DVolume *pThis) { return D3DResource_AddRef((D3DResource *)pThis); }
 D3DINLINE ULONG   WINAPI IDirect3DVolume8_Release(D3DVolume *pThis) { return D3DResource_Release((D3DResource *)pThis); }
@@ -2732,19 +2939,54 @@ D3DINLINE void    WINAPI IDirect3DVolume8_Register(D3DVolume *pThis, void *pBase
 D3DINLINE HRESULT WINAPI IDirect3DVolume8_SetPrivateData(D3DVolume *pThis, REFGUID refguid, CONST void *pData, DWORD SizeOfData, DWORD Flags) { return D3DResource_SetPrivateData((D3DResource *)pThis, refguid, pData, SizeOfData, Flags); }
 D3DINLINE HRESULT WINAPI IDirect3DVolume8_GetPrivateData(D3DVolume *pThis, REFGUID refguid, void *pData, DWORD *pSizeOfData) { return D3DResource_GetPrivateData((D3DResource *)pThis, refguid, pData, pSizeOfData); }
 D3DINLINE HRESULT WINAPI IDirect3DVolume8_FreePrivateData(D3DVolume *pThis, REFGUID refguid) { D3DResource_FreePrivateData((D3DResource *)pThis, refguid); return S_OK; }
-D3DINLINE HRESULT WINAPI IDirect3DVolume8_GetContainer(D3DVolume *pThis, D3DBaseTexture **ppBaseTexture) { D3DVolume_GetContainer(pThis, ppBaseTexture); return S_OK; }
+D3DINLINE HRESULT WINAPI IDirect3DVolume8_GetContainer(D3DVolume *pThis, D3DBaseTexture **ppBaseTexture) { return (*ppBaseTexture = D3DVolume_GetContainer2(pThis)) != NULL ? S_OK : E_FAIL; }
 D3DINLINE HRESULT WINAPI IDirect3DVolume8_GetDesc(D3DVolume *pThis, D3DVOLUME_DESC *pDesc) { D3DVolume_GetDesc(pThis, pDesc); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DVolume8_LockBox(D3DVolume *pThis, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags) { D3DVolume_LockBox(pThis, pLockedVolume, pBox, Flags); return S_OK; }
 D3DINLINE HRESULT WINAPI IDirect3DVolume8_UnlockBox(D3DVolume *pThis) { D3DVolume_UnlockBox(pThis); return S_OK; }
 
 #ifdef __cplusplus
 
-D3DMINLINE HRESULT WINAPI D3DVolume::GetContainer(D3DBaseTexture **ppBaseTexture) { D3DVolume_GetContainer(this, ppBaseTexture); return S_OK; }
+D3DMINLINE HRESULT WINAPI D3DVolume::GetContainer(D3DBaseTexture **ppBaseTexture) { return (*ppBaseTexture = D3DVolume_GetContainer2(this)) != NULL ? S_OK : E_FAIL; }
 D3DMINLINE HRESULT WINAPI D3DVolume::GetDesc(D3DVOLUME_DESC *pDesc) { D3DVolume_GetDesc(this, pDesc); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVolume::LockBox(D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags) { D3DVolume_LockBox(this, pLockedVolume, pBox, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVolume::UnlockBox() { D3DVolume_UnlockBox(this); return S_OK; }
 
 #endif __cplusplus
+
+#if !D3DCOMPILE_NOTINLINE
+
+    // Backwards compatibility wrappers for people who were directly using
+    // internal interfaces that got changed.  They may not be so lucky the
+    // next time we need to change our internals...
+
+    D3DINLINE void WINAPI D3DDevice_GetBackBuffer(INT BackBuffer,D3DBACKBUFFER_TYPE UnusedType,D3DSurface** ppBackBuffer) {IDirect3DDevice8_GetBackBuffer(D3D__pDevice,BackBuffer,UnusedType,ppBackBuffer); }
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateTexture(UINT Width,UINT Height,UINT Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL UnusedPool, D3DTexture** ppTexture) {return IDirect3DDevice8_CreateTexture(D3D__pDevice,Width,Height,Levels,Usage,Format,UnusedPool,ppTexture );}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateVolumeTexture(UINT Width,UINT Height,UINT Depth,UINT Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL UnusedPool,D3DVolumeTexture** ppVolumeTexture) {return IDirect3DDevice8_CreateVolumeTexture(D3D__pDevice,Width,Height,Depth,Levels,Usage,Format,UnusedPool,ppVolumeTexture);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateCubeTexture(UINT EdgeLength,UINT Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL UnusedPool,D3DCubeTexture** ppCubeTexture) { return IDirect3DDevice8_CreateCubeTexture(D3D__pDevice,EdgeLength,Levels,Usage,Format,UnusedPool,ppCubeTexture);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateVertexBuffer(UINT Length,DWORD UnusedUsage,DWORD UnusedFVF,D3DPOOL UnusedPool,D3DVertexBuffer **ppVertexBuffer){return IDirect3DDevice8_CreateVertexBuffer(D3D__pDevice,Length,UnusedUsage,UnusedFVF,UnusedPool,ppVertexBuffer);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateIndexBuffer(UINT Length,DWORD UnusedUsage,D3DFORMAT UnusedFormat,D3DPOOL UnusedPool,D3DIndexBuffer** ppIndexBuffer) {return IDirect3DDevice8_CreateIndexBuffer(D3D__pDevice,Length,UnusedUsage,UnusedFormat,UnusedPool,ppIndexBuffer);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreatePalette(D3DPALETTESIZE Size, D3DPalette **ppPalette){return IDirect3DDevice8_CreatePalette(D3D__pDevice,Size,ppPalette);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateRenderTarget(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, BOOL UnusedLockable, D3DSurface **ppSurface){return IDirect3DDevice8_CreateRenderTarget(D3D__pDevice,Width,Height,Format,UnusedMultiSample,UnusedLockable,ppSurface);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateDepthStencilSurface(UINT Width, UINT Height, D3DFORMAT Format, D3DMULTISAMPLE_TYPE UnusedMultiSample, D3DSurface **ppSurface){return IDirect3DDevice8_CreateDepthStencilSurface(D3D__pDevice,Width,Height,Format,UnusedMultiSample,ppSurface);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateImageSurface(UINT Width,UINT Height,D3DFORMAT Format,D3DSurface** ppSurface) {return IDirect3DDevice8_CreateImageSurface(D3D__pDevice,Width,Height,Format,ppSurface);}
+    D3DINLINE HRESULT WINAPI D3DDevice_GetRenderTarget(D3DSurface** ppRenderTarget) { return IDirect3DDevice8_GetRenderTarget(D3D__pDevice,ppRenderTarget);}
+    D3DINLINE HRESULT WINAPI D3DDevice_GetDepthStencilSurface(D3DSurface** ppZStencilSurface) { return IDirect3DDevice8_GetDepthStencilSurface(D3D__pDevice,ppZStencilSurface);}
+    D3DINLINE void WINAPI D3DDevice_GetTexture(DWORD Stage,D3DBaseTexture** ppTexture) {IDirect3DDevice8_GetTexture(D3D__pDevice,Stage,ppTexture);}
+    D3DINLINE void WINAPI D3DDevice_GetPalette(DWORD Stage,D3DPalette** ppPalette) { IDirect3DDevice8_GetPalette(D3D__pDevice,Stage,ppPalette);}
+    D3DINLINE void WINAPI D3DDevice_GetStreamSource(UINT StreamNumber,D3DVertexBuffer** ppVertexBuffer,UINT* pStride) {IDirect3DDevice8_GetStreamSource(D3D__pDevice,StreamNumber,ppVertexBuffer,pStride);}
+    D3DINLINE void WINAPI D3DDevice_GetIndices(D3DIndexBuffer** ppIndexData,UINT* pBaseVertexIndex) {IDirect3DDevice8_GetIndices(D3D__pDevice,ppIndexData,pBaseVertexIndex);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreateFixup(UINT Size,D3DFixup** ppFixup){return IDirect3DDevice8_CreateFixup(D3D__pDevice,Size,ppFixup);}
+    D3DINLINE HRESULT WINAPI D3DDevice_CreatePushBuffer(UINT Size,BOOL RunUsingCpuCopy,D3DPushBuffer** ppPushBuffer){return IDirect3DDevice8_CreatePushBuffer(D3D__pDevice,Size,RunUsingCpuCopy,ppPushBuffer);}
+    D3DINLINE void WINAPI D3DVertexBuffer_Lock(D3DVertexBuffer *pBuffer, UINT OffsetToLock, UINT UnusedSizeToLock, BYTE **ppbData, DWORD Flags){IDirect3DVertexBuffer8_Lock(pBuffer,OffsetToLock,UnusedSizeToLock,ppbData,Flags);}
+    D3DINLINE void WINAPI D3DPalette_Lock(D3DPalette *pPalette, D3DCOLOR **ppColors, DWORD Flags){IDirect3DPalette8_Lock(pPalette,ppColors,Flags);}
+    D3DINLINE HRESULT WINAPI D3DSurface_GetContainer(D3DSurface *pSurface,D3DBaseTexture **ppTexture) {return IDirect3DSurface8_GetContainer(pSurface,ppTexture);}
+    D3DINLINE HRESULT WINAPI D3DVolume_GetContainer(D3DVolume *pVolume,D3DBaseTexture **ppTexture){return IDirect3DVolume8_GetContainer(pVolume,ppTexture);}
+    D3DINLINE HRESULT WINAPI D3DTexture_GetSurfaceLevel(D3DTexture *pTexture, UINT Level, D3DSurface **ppSurfaceLevel){return IDirect3DTexture8_GetSurfaceLevel(pTexture,Level,ppSurfaceLevel);}
+    D3DINLINE HRESULT WINAPI D3DVolumeTexture_GetVolumeLevel(D3DVolumeTexture *pTexture, UINT Level, D3DVolume **ppVolumeLevel){ return IDirect3DVolumeTexture8_GetVolumeLevel(pTexture,Level,ppVolumeLevel);}
+    D3DINLINE HRESULT WINAPI D3DCubeTexture_GetCubeMapSurface(D3DCubeTexture *pTexture, D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface){return IDirect3DCubeTexture8_GetCubeMapSurface(pTexture,FaceType,Level,ppCubeMapSurface);}
+    D3DINLINE void WINAPI D3DDevice_GetPersistedSurface(IDirect3DSurface8 **ppSurface){IDirect3DDevice8_GetPersistedSurface(D3D__pDevice,ppSurface);}
+
+#endif !D3DCOMPILE_NOTINLINE
 
 #ifdef __cplusplus
 };

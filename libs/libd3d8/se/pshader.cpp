@@ -295,11 +295,13 @@ namespace D3D
 //------------------------------------------------------------------------------
 // D3DDevice_CreatePixelShader
 
+// RXDK 5849 uplift: the 5849 header declares this void (errors RIP in debug;
+// retail out-of-memory leaves *pHandle untouched, exactly like the retail lib).
 extern "C"
-HRESULT WINAPI D3DDevice_CreatePixelShader(
+VOID WINAPI D3DDevice_CreatePixelShader(
     CONST D3DPIXELSHADERDEF *pPSDef,
-    DWORD* pHandle) 
-{ 
+    DWORD* pHandle)
+{
     COUNT_API(API_D3DDEVICE_CREATEPIXELSHADER);
 
     if (DBG_CHECK(TRUE))
@@ -317,7 +319,8 @@ HRESULT WINAPI D3DDevice_CreatePixelShader(
                                                               sizeof(D3DPIXELSHADERDEF));
     if (pPixelShader == NULL)
     {
-        return E_OUTOFMEMORY;
+        DXGRIP("D3DDevice_CreatePixelShader - Out of memory.");
+        return;
     }
 
 #if DBG
@@ -335,8 +338,6 @@ HRESULT WINAPI D3DDevice_CreatePixelShader(
     memcpy(pPixelShader->pPSDef, pPSDef, sizeof(D3DPIXELSHADERDEF));
     
     *pHandle = (DWORD) pPixelShader;
-
-    return S_OK;
 }
 
 //------------------------------------------------------------------------------

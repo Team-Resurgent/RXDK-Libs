@@ -31,6 +31,38 @@ CDevice* g_pDevice;
 CDevice g_Device;
 
 //----------------------------------------------------------------------------
+// RXDK 5849 uplift: the public BeginState/EndState contract.
+//
+// 5849 titles reserve push-buffer space inline, reading and writing the Put
+// and Threshold pointers straight out of D3D__Device[] (byte offsets
+// D3DDEVICE_PUT / D3DDEVICE_THRESHOLD).  Those are exactly the two members of
+// XMETAL_PushBuffer m_Pusher, which device.hpp deliberately keeps as the FIRST
+// member of CDevice ("this _must_ be the first variable in the device"), and
+// CDevice has no vtable -- so the public array is simply an alias for the
+// device object itself.  D3D__pDevice is the same pointer typed as the public
+// interface.
+
+// The public declaration is `DWORD* D3D__Device[]`, so define the alias with a
+// linker alias rather than a pointer variable: the SYMBOL itself must be the
+// device object's address (an array name is its storage, not a pointer to it).
+
+extern "C" {
+
+IDirect3DDevice8* D3D__pDevice;
+
+}
+
+// (g_Device lives in namespace D3D/D3DK, so reference its mangled name.)
+#ifdef STARTUPANIMATION
+#define RXDK_G_DEVICE_SYMBOL "__ZN4D3DK8g_DeviceE"
+#else
+#define RXDK_G_DEVICE_SYMBOL "__ZN3D3D8g_DeviceE"
+#endif
+
+__asm__(".globl _D3D__Device\n"
+        ".set   _D3D__Device, " RXDK_G_DEVICE_SYMBOL "\n");
+
+//----------------------------------------------------------------------------
 // Direct3D_CreateDevice
 
 extern "C"
@@ -114,6 +146,7 @@ HRESULT WINAPI Direct3D_CreateDevice(
 
     g_pDevice = pDevice;
     g_pPushBuffer = &g_pDevice->m_Pusher;
+    D3D__pDevice = (IDirect3DDevice8*) pDevice;   // RXDK 5849 uplift
 
     // Do not do this inside of Init because that method is also called
     // from Reset.
@@ -143,6 +176,7 @@ HRESULT WINAPI Direct3D_CreateDevice(
 
         g_pPushBuffer = NULL;
         g_pDevice = NULL;
+        D3D__pDevice = NULL;                      // RXDK 5849 uplift
         ZeroMemory(pDevice, sizeof(*pDevice));
 
         return ret;

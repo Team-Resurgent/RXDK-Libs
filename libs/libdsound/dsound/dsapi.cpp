@@ -136,6 +136,12 @@ STDAPI IDirectSound_GetCaps(LPDIRECTSOUND pDirectSound, LPDSCAPS pdsc)
     return ((CDirectSound *)pDirectSound)->GetCaps(pdsc);
 }
 
+// RXDK 5849 uplift: start every buffer/stream played with DSBPLAY_SYNCHPLAYBACK.
+STDAPI IDirectSound_SynchPlayback(LPDIRECTSOUND pDirectSound)
+{
+    return ((CDirectSound *)pDirectSound)->SynchPlayback();
+}
+
 STDAPI IDirectSound_CreateSoundBuffer(LPDIRECTSOUND pDirectSound, LPCDSBUFFERDESC pdsbd, LPDIRECTSOUNDBUFFER *ppBuffer, LPUNKNOWN pUnkOuter)
 {
     return ((CDirectSound *)pDirectSound)->CreateSoundBuffer(pdsbd, ppBuffer, pUnkOuter);
@@ -3079,6 +3085,49 @@ CDirectSound::GetCaps
 
 /****************************************************************************
  *
+ *  SynchPlayback
+ *
+ *  Description:
+ *      Starts every buffer and stream that was played with
+ *      DSBPLAY_SYNCHPLAYBACK, together.
+ *
+ *      RXDK 5849 uplift: those Play calls left their voices configured and
+ *      turned on but paused; this resumes them in one batch so they begin on
+ *      the same sample instead of drifting apart by however long the Play
+ *      calls took.
+ *
+ *  Arguments:
+ *      (void)
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CDirectSound::SynchPlayback"
+
+HRESULT
+CDirectSound::SynchPlayback
+(
+    void
+)
+{
+    HRESULT                 hr;
+
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+
+    hr = m_pDevice->SynchPlayback();
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
  *  CreateSoundBuffer
  *
  *  Description:
@@ -4633,6 +4682,13 @@ CDirectSoundVoiceSettings::Initialize
             m_p3dParams->HrtfParams = DirectSoundDefault3DBuffer;
             m_p3dParams->I3dl2Params = DirectSoundDefaultI3DL2Buffer;
             m_p3dParams->dwParameterMask = DS3DPARAM_BUFFER_MASK;
+
+            //
+            // RXDK 5849 uplift: DSBCAPS_MUTE3DATMAXDISTANCE is a creation-time
+            // property, so latch it here rather than re-reading it per frame.
+            //
+
+            m_p3dParams->fMuteAtMaxDistance = (0 != (m_dwFlags & DSBCAPS_MUTE3DATMAXDISTANCE));
         }
     }
 

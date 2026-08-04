@@ -295,6 +295,7 @@ namespace DirectSound
         HRESULT STDMETHODCALLTYPE EnableHeadphones(BOOL fEnable);
         HRESULT STDMETHODCALLTYPE SetMixBinHeadroom(DWORD dwMixBin, DWORD dwHeadroom);
         HRESULT STDMETHODCALLTYPE GetOutputLevels(DSOUTPUTLEVELS *pOutputLevels, BOOL bReset);
+        HRESULT STDMETHODCALLTYPE SynchPlayback(void);   // RXDK 5849 uplift
 
         // IDirectSound3dListener methods
         HRESULT STDMETHODCALLTYPE SetAllParameters(LPCDS3DLISTENER pds3dl, DWORD dwFlags);

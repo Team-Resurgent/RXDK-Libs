@@ -825,7 +825,7 @@ CMcpxBuffer::Play
             // Just activate the voice.  The hardware takes care of the rest
             //
             
-            ActivateVoice();
+            ActivateVoice(0 != (dwFlags & DSBPLAY_SYNCHPLAYBACK));
         }
         else 
         {
@@ -974,7 +974,7 @@ CMcpxBuffer::PlayFromCurrent
     // Activate the voice
     //
 
-    ActivateVoice();
+    ActivateVoice(0 != (dwFlags & DSBPLAY_SYNCHPLAYBACK));
 
     //
     // By the time we get to this point, any pending SSL or VoiceOff interrupts
@@ -1061,7 +1061,7 @@ CMcpxBuffer::PlayFromPosition
 
     irql.Lower();
 
-    ActivateVoice();
+    ActivateVoice(0 != (dwFlags & DSBPLAY_SYNCHPLAYBACK));
 
     //
     // Wait for the NEW_VOICE bit to clear so we know the first frame of audio

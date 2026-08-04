@@ -68,6 +68,8 @@ CMcpxAPU::CMcpxAPU
     // Initialize defaults
     //
     
+    m_dwSynchPlaybackCount = 0;     // RXDK 5849 uplift (SynchPlayback)
+
     for(i = 0; i < NUMELMS(m_alstActiveVoices); i++)
     {
         InitializeListHead(&m_alstActiveVoices[i]);
@@ -586,6 +588,143 @@ CMcpxAPU::FreeVoices
     UnblockIdleHandler();
 
     DPF_LEAVE_VOID();
+}
+
+
+/****************************************************************************
+ *
+ *  SynchPlayback
+ *
+ *  Description:
+ *      Starts every voice that was armed by a Play(DSBPLAY_SYNCHPLAYBACK).
+ *
+ *      Those voices were configured and turned on by ActivateVoice, but left
+ *      paused (MCPX_VOICESTATUS_SYNCHPENDING). Resuming them here, inside a
+ *      single voice lock and with the FIFO space reserved up front, means the
+ *      hardware picks them all up on the same sample -- which is the whole
+ *      point of the flag: without it, buffers started one Play() at a time
+ *      drift by a few samples and flange against each other.
+ *
+ *      RXDK 5849 uplift. Behaviour follows the retail implementation
+ *      (CMcpxAPU::SynchPlayback in the 5849 dsound.lib): collect the pending
+ *      voice handles, clear their pending state, then write VOICE_PAUSE with
+ *      ACTION_RESUME for each one between a VOICE_LOCK on/off pair.
+ *
+ *  Arguments:
+ *      (void)
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CMcpxAPU::SynchPlayback"
+
+HRESULT
+CMcpxAPU::SynchPlayback
+(
+    void
+)
+{
+    CMcpxVoiceClient *      pVoice;
+    MCPX_VOICE_HANDLE       ahVoices[MCPX_HW_MAX_VOICES];
+    DWORD                   dwVoiceCount = 0;
+    DWORD                   dwIndex;
+    WORD                    i;
+
+    DPF_ENTER();
+
+    //
+    // Nothing armed: nothing to do. This is the common case -- a title that
+    // never uses the flag never pays for the voice-map walk.
+    //
+
+    if(!m_dwSynchPlaybackCount)
+    {
+        DPF_LEAVE_HRESULT(DS_OK);
+        return DS_OK;
+    }
+
+    {
+        CIrql               irql;
+
+        irql.Raise();
+
+        //
+        // Lock the voice map while we walk it.
+        //
+
+        BlockIdleHandler();
+
+        //
+        // Collect every armed voice handle. A voice client owns one hardware
+        // voice per channel (m_bVoiceCount), and all of them have to be
+        // resumed, or a stereo buffer would start one channel late.
+        //
+
+        for(dwIndex = 0; dwIndex < MCPX_HW_MAX_VOICES; dwIndex++)
+        {
+            pVoice = m_apVoiceMap[dwIndex];
+
+            if(!pVoice || !(pVoice->m_dwStatus & MCPX_VOICESTATUS_SYNCHPENDING))
+            {
+                continue;
+            }
+
+            //
+            // The map holds one entry per hardware voice, so a multi-voice
+            // client appears several times; take it on the entry that owns
+            // its first voice and clear the flag so we only add it once.
+            //
+
+            pVoice->m_dwStatus &= ~MCPX_VOICESTATUS_SYNCHPENDING;
+
+            for(i = 0; i < pVoice->m_bVoiceCount; i++)
+            {
+                if(dwVoiceCount >= MCPX_HW_MAX_VOICES)
+                {
+                    break;
+                }
+
+                if(pVoice->m_ahVoices[i] < MCPX_HW_MAX_VOICES)
+                {
+                    ahVoices[dwVoiceCount++] = pVoice->m_ahVoices[i];
+                }
+            }
+        }
+
+        m_dwSynchPlaybackCount = 0;
+
+        //
+        // Reserve the FIFO space for the whole batch before writing any of
+        // it, so the resumes cannot be split across a stall.
+        //
+
+        if(dwVoiceCount)
+        {
+            MCPX_CHECK_VOICE_FIFO(dwVoiceCount + 3);
+
+            MCPX_VOICE_WRITE(VoiceLock, NV1BA0_PIO_VOICE_LOCK_PARAMETER_ON);
+
+            for(dwIndex = 0; dwIndex < dwVoiceCount; dwIndex++)
+            {
+                MCPX_VOICE_WRITE(VoicePause,
+                    MCPX_MAKE_REG_VALUE(NV1BA0_PIO_VOICE_PAUSE_ACTION_RESUME, NV1BA0_PIO_VOICE_PAUSE_ACTION) |
+                    MCPX_MAKE_REG_VALUE(ahVoices[dwIndex], NV1BA0_PIO_VOICE_PAUSE_HANDLE));
+            }
+
+            MCPX_VOICE_WRITE(VoiceLock, NV1BA0_PIO_VOICE_LOCK_PARAMETER_OFF);
+        }
+
+        UnblockIdleHandler();
+
+        irql.Lower();
+    }
+
+    DPF_LEAVE_HRESULT(DS_OK);
+
+    return DS_OK;
 }
 
 

@@ -40,6 +40,14 @@
 #define MCPX_VOICESTATUS_DISCONTINUITY      0x0800
 
 //
+// RXDK 5849 uplift: the voice was activated by a Play(DSBPLAY_SYNCHPLAYBACK)
+// and is sitting on the hardware fully configured but paused, waiting for
+// IDirectSound::SynchPlayback to resume every such voice together.
+//
+
+#define MCPX_VOICESTATUS_SYNCHPENDING       0x1000
+
+//
 // Status masks
 //
                                             
@@ -188,7 +196,7 @@ namespace DirectSound
 
     protected:
         // Voice state
-        void ActivateVoice(void);
+        void ActivateVoice(BOOL fSynchPending = FALSE);
         void DeactivateVoice(BOOL fBlock = FALSE);
         void ReleaseVoice(void);
         void PauseVoice(DWORD dwStatus);

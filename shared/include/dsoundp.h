@@ -586,6 +586,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBCAPS_CTRLVOLUME          0x00000080      // The buffer supports volume changes
 #define DSBCAPS_CTRLPOSITIONNOTIFY  0x00000100      // The buffer supports position notifications
 #define DSBCAPS_MIXIN               0x00002000      // The buffer is to be used as the destination of a submix operation
+#define DSBCAPS_MUTE3DATMAXDISTANCE 0x00020000      // The 3D buffer is muted at max distance and beyond
 #define DSBCAPS_LOCDEFER            0x00040000      // The buffer does not acquire resources at creation
 #define DSBCAPS_FXIN                0x00080000      // The buffer is to be used as the destination of a post-effects submix operation
 //@@BEGIN_MSINTERNAL                                
@@ -593,6 +594,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBCAPS_VALID \
     (DSBCAPS_CTRL3D | \
+     DSBCAPS_MUTE3DATMAXDISTANCE | \
      DSBCAPS_CTRLFREQUENCY | \
      DSBCAPS_CTRLVOLUME | \
      DSBCAPS_CTRLPOSITIONNOTIFY | \
@@ -609,8 +611,11 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBPLAY_LOOPING             0x00000001      // The buffer should play in a loop
 #define DSBPLAY_FROMSTART           0x00000002      // Play the buffer from the beginning, regardless of current position
+#define DSBPLAY_SYNCHPLAYBACK       0x00000004      // Synchronize playback of multiple buffers and streams
 //@@BEGIN_MSINTERNAL
-#define DSBPLAY_VALID               (DSBPLAY_LOOPING | DSBPLAY_FROMSTART)
+// RXDK 5849 uplift: SYNCHPLAYBACK is implemented (CMcpxAPU::SynchPlayback),
+// so it is accepted here.
+#define DSBPLAY_VALID               (DSBPLAY_LOOPING | DSBPLAY_FROMSTART | DSBPLAY_SYNCHPLAYBACK)
 //@@END_MSINTERNAL
 
 //

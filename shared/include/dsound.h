@@ -1463,6 +1463,7 @@ STDAPI IDirectSound_QueryInterfaceC(LPDIRECTSOUND pDirectSound, const IID *iid, 
 STDAPI_(ULONG) IDirectSound_AddRef(LPDIRECTSOUND pDirectSound);
 STDAPI_(ULONG) IDirectSound_Release(LPDIRECTSOUND pDirectSound);
 STDAPI IDirectSound_GetCaps(LPDIRECTSOUND pDirectSound, LPDSCAPS pdsc);
+STDAPI IDirectSound_SynchPlayback(LPDIRECTSOUND pDirectSound);
 STDAPI IDirectSound_CreateSoundBuffer(LPDIRECTSOUND pDirectSound, LPCDSBUFFERDESC pdsbd, LPDIRECTSOUNDBUFFER *ppBuffer, LPUNKNOWN pUnkOuter);
 STDAPI IDirectSound_CreateSoundStream(LPDIRECTSOUND pDirectSound, LPCDSSTREAMDESC pdssd, LPDIRECTSOUNDSTREAM *ppStream, LPUNKNOWN pUnkOuter);
 STDAPI IDirectSound_GetSpeakerConfig(LPDIRECTSOUND pDirectSound, LPDWORD pdwSpeakerConfig);
@@ -1508,6 +1509,10 @@ struct IDirectSound
     __inline HRESULT STDMETHODCALLTYPE GetCaps(LPDSCAPS pdsc)
     {
         return IDirectSound_GetCaps(this, pdsc);
+    }
+    __inline HRESULT STDMETHODCALLTYPE SynchPlayback(void)
+    {
+        return IDirectSound_SynchPlayback(this);
     }
 
     __inline HRESULT STDMETHODCALLTYPE CreateSoundBuffer(LPCDSBUFFERDESC pdsbd, LPDIRECTSOUNDBUFFER *ppBuffer, LPUNKNOWN pUnkOuter)

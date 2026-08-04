@@ -1288,7 +1288,7 @@ CMcpxVoiceClient::GetAntecedentVoice
 void
 CMcpxVoiceClient::ActivateVoice
 (
-    void
+    BOOL                    fSynchPending
 )
 {
     BYTE                    bVoiceList;
@@ -1454,7 +1454,14 @@ CMcpxVoiceClient::ActivateVoice
 
             dwVoiceOn = MCPX_SET_REG_VALUE(m_RegCache.VoiceOn, m_ahVoices[i], NV1BA0_PIO_VOICE_ON_HANDLE);
         
-            if(m_dwStatus & MCPX_VOICESTATUS_ALLPAUSEDMASK)
+            //
+            // RXDK 5849 uplift: a voice armed for SynchPlayback is configured
+            // and turned on here, but held paused -- CMcpxAPU::SynchPlayback
+            // resumes every such voice in one locked batch so that they all
+            // begin on the same sample.
+            //
+
+            if((m_dwStatus & MCPX_VOICESTATUS_ALLPAUSEDMASK) || fSynchPending)
             {
                 dwVoicePause = MCPX_MAKE_REG_VALUE(NV1BA0_PIO_VOICE_PAUSE_ACTION_STOP, NV1BA0_PIO_VOICE_PAUSE_ACTION);
             }
@@ -1495,6 +1502,18 @@ CMcpxVoiceClient::ActivateVoice
 
         ASSERT(MCPX_VOICELIST_INVALID == m_bVoiceList);
         m_bVoiceList = bVoiceList;
+
+        //
+        // RXDK 5849 uplift: remember that this voice is waiting on
+        // SynchPlayback, and count it on the APU so SynchPlayback can skip
+        // the whole walk when nothing is pending.
+        //
+
+        if(fSynchPending)
+        {
+            m_dwStatus |= MCPX_VOICESTATUS_SYNCHPENDING;
+            m_pMcpxApu->m_dwSynchPlaybackCount++;
+        }
 
         //
         // Wait for the method queue to clear so we know the VoiceOn method

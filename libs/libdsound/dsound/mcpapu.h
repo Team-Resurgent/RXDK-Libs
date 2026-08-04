@@ -81,6 +81,7 @@ namespace DirectSound
         LIST_ENTRY                  m_lst3dVoices;                              // List of 3D voices
         CMcpxBufferSgeHeap          m_SgeHeap;                                  // Buffer scatter-gather heap object
         DWORD                       m_dwState;                                  // APU state flags
+        DWORD                       m_dwSynchPlaybackCount;                     // Voices armed for SynchPlayback (RXDK 5849 uplift)
                                                                             
     protected:                                                                  
         volatile DWORD              m_dwVoiceMapLock;                           // Voice map/list lock count
@@ -132,6 +133,10 @@ namespace DirectSound
         // Voice allocation
         HRESULT AllocateVoices(CMcpxVoiceClient *pVoice);
         void FreeVoices(CMcpxVoiceClient *pVoice);
+
+        // RXDK 5849 uplift: resume every voice that a Play(DSBPLAY_SYNCHPLAYBACK)
+        // left armed-but-paused, in one locked batch so they start together.
+        HRESULT SynchPlayback(void);
 
         // Synchronization
         void BlockIdleHandler(void);

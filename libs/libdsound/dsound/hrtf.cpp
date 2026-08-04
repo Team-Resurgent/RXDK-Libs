@@ -603,6 +603,18 @@ CFullHrtfSource::CalcDistanceVolume
 
     if(flMagPos > flMinDistance)
     {
+        //
+        // RXDK 5849 uplift: DSBCAPS_MUTE3DATMAXDISTANCE silences the source
+        // once it reaches MaxDistance instead of holding it at the floored
+        // attenuation.
+        //
+
+        if(pSource->m_3dParams.fMuteAtMaxDistance && (flMagPos >= flMaxDistance))
+        {
+            lDistanceVolume = DSBVOLUME_MIN;
+            goto SetDistanceVolume;
+        }
+
         if(flMagPos > flMaxDistance)
         {
             flMagPos = flMaxDistance;
@@ -660,6 +672,8 @@ CFullHrtfSource::CalcDistanceVolume
     {
         lDistanceVolume = DSBVOLUME_MAX;
     }
+
+SetDistanceVolume:
 
     if(lDistanceVolume != pSource->m_3dVoiceData.lDistanceVolume)
     {

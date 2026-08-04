@@ -170,6 +170,7 @@ BEGIN_DEFINE_STRUCT()
     const FLOAT *   paflRolloffPoints;      // Rolloff curve points
     DWORD           dwRolloffPointCount;    // Number of points in the rolloff curve
     DWORD           dwParameterMask;        // 3D source properties that have changed
+    BOOL            fMuteAtMaxDistance;     // Silence the source at and beyond MaxDistance (DSBCAPS_MUTE3DATMAXDISTANCE)
 END_DEFINE_STRUCT(DS3DSOURCEPARAMS);
 
 #ifdef __cplusplus

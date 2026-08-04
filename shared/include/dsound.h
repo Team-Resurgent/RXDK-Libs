@@ -394,6 +394,17 @@ typedef const DSEFFECTIMAGELOC *LPCDSEFFECTIMAGELOC;
 
 #include <pshpack1.h>
 
+// Parameter block for the 5849 WMA XMO decoder factories (XWmaDecoderCreateMediaObject).
+typedef struct _WMAXMODECODERPARAMETERS
+{
+    LPCSTR  pszFileName;
+    HANDLE  hFile;
+    DWORD   dwFileOffset;
+    DWORD   dwLookaheadBufferSize;
+} WMAXMODECODERPARAMETERS, *LPWMAXMODECODERPARAMETERS;
+
+typedef const WMAXMODECODERPARAMETERS *LPCWMAXMODECODERPARAMETERS;
+
 typedef struct _WMAXMOFileContDesc
 {
     WORD        wTitleLength;
@@ -548,6 +559,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBCAPS_LOCDEFER            0x00040000      // The buffer does not acquire resources at creation
 #define DSBCAPS_FXIN                0x00080000      // The buffer is to be used as the destination of a post-effects submix operation
 #define DSBCAPS_FXIN2               0x00100000      // Does not require SetOutputBuffer; does require Play/Stop
+#define DSBCAPS_MUTE3DATMAXDISTANCE 0x00020000      // The 3D buffer is muted at max distance and beyond
                                                                         
 //
 // IDirectSoundBuffer::Play(Ex) flags
@@ -555,6 +567,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBPLAY_LOOPING             0x00000001      // The buffer should play in a loop
 #define DSBPLAY_FROMSTART           0x00000002      // Play the buffer from the beginning, regardless of current position
+#define DSBPLAY_SYNCHPLAYBACK       0x00000004      // Synchronize playback of multiple buffers and streams
 
 //
 // IDirectSoundBuffer::StopEx flags

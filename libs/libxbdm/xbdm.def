@@ -70,3 +70,17 @@ EXPORTS
     __CAP_Enter_Function@4                   @70 NONAME
     __CAP_Exit_Function@4                    @71 NONAME
     _DmRegisterCommandProcessorEx@12         @72 NONAME
+    _DmStartProfiling@8                      @73 NONAME
+    _DmStopProfiling@0                       @74 NONAME
+    _DmQueryMemoryStatistics@4               @75 NONAME
+    _DmEnableStackTrace@4                    @76 NONAME
+    _DmQueryAllocationTypeName@12            @77 NONAME
+    _DmRegisterAllocationType@8              @78 NONAME
+    _DmInsertAllocationEntry@12              @79 NONAME
+    _DmRemoveAllocationEntry@12              @80 NONAME
+    _DmSetTitleEx@16                         @81 NONAME
+    _DmCaptureStackBackTrace@8               @82 NONAME
+    _DmCrashDump@0                           @83 NONAME
+    _DmIsFastCAPEnabled@0                    @84 NONAME
+    _DmGetFileAccessCount@4                  @85 NONAME
+    _DmGetUtilityDriveInfo@4                 @88 NONAME

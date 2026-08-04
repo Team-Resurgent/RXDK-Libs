@@ -288,6 +288,63 @@ DMHRAPI DmRegisterCommandProcessorEx(LPCSTR szProcessor, PDM_CMDPROC pfn,
 #define DmRegisterThreadedCommandProcessor(sz, pfn) \
     DmRegisterCommandProcessorEx(sz, pfn, CreateThread)
 
+//
+// RXDK 5849 uplift: the debug-monitor entry points added after the leak
+// (ordinals 73-88 in xbdm.def). Profiling, memory statistics, allocation
+// tracking, stack capture and the utility-drive query.
+//
+
+typedef struct _DM_MEMORY_STATISTICS {
+    DWORD cbSize;
+    DWORD TotalPages;
+    DWORD AvailablePages;
+    DWORD StackPages;
+    DWORD VirtualPageTablePages;
+    DWORD SystemPageTablePages;
+    DWORD PoolPages;
+    DWORD VirtualMappedPages;
+    DWORD ImagePages;
+    DWORD FileCachePages;
+    DWORD ContiguousPages;
+    DWORD DebuggerPages;
+} DM_MEMORY_STATISTICS, *PDM_MEMORY_STATISTICS;
+
+typedef struct _DM_UTILITY_DRIVE_INFO
+{
+    DWORD dwFlags;
+    DWORD rgdwTitleId[3];
+} DM_UTILITY_DRIVE_INFO, *PDM_UTILITY_DRIVE_INFO;
+
+#define DM_UTILITY_DRIVE_0_NEVER_USED 0x00000001
+#define DM_UTILITY_DRIVE_1_NEVER_USED 0x00000002
+#define DM_UTILITY_DRIVE_2_NEVER_USED 0x00000004
+#define DM_UTILITY_DRIVE_0_NOT_USED   0x00000010
+#define DM_UTILITY_DRIVE_1_NOT_USED   0x00000020
+#define DM_UTILITY_DRIVE_2_NOT_USED   0x00000040
+
+// Allocation-tracking categories (DmRegisterAllocationType et al).
+#define DM_TRACK_HEAP                   0x0001
+#define DM_TRACK_VIRTUAL_MEMORY         0x0002
+#define DM_TRACK_CONTIGUOUS_MEMORY      0x0004
+#define DM_TRACK_SYSTEM_MEMORY          0x0008
+#define DM_TRACK_DEBUG_MEMORY           0x0010
+#define DM_TRACK_KERNEL_POOL            0x0020
+
+DMHRAPI DmStartProfiling(LPCSTR szLogFileName, DWORD dwDataBufferSize);
+DMHRAPI DmStopProfiling(VOID);
+DMHRAPI DmQueryMemoryStatistics(PDM_MEMORY_STATISTICS MemStat);
+DMHRAPI DmEnableStackTrace(BOOL fEnable);
+DMHRAPI DmQueryAllocationTypeName(USHORT AllocationType, LPSTR pszName, SIZE_T nSize);
+DMHRAPI DmRegisterAllocationType(LPCSTR pszName, USHORT *AllocationnType);
+DMHRAPI DmInsertAllocationEntry(PVOID AllocPtr, SIZE_T AllocSize, USHORT AllocType);
+DMHRAPI DmRemoveAllocationEntry(PVOID AllocPtr, SIZE_T AllocSize, USHORT AllocType);
+DMHRAPI DmSetTitleEx(LPCSTR szDir, LPCSTR szTitle, LPCSTR szCmdLine, DWORD dwFlags);
+DMHRAPI DmCaptureStackBackTrace(ULONG FramesToCapture, PVOID *BackTrace);
+DMHRAPI DmCrashDump(VOID);
+DMHRAPI DmIsFastCAPEnabled(VOID);
+DMHRAPI DmGetFileAccessCount(LPDWORD lpdwFileAccessCount);
+DMHRAPI DmGetUtilityDriveInfo(PDM_UTILITY_DRIVE_INFO pdmUtilityDriveInfo);
+
 DMHRAPI DmSendNotificationString(LPCSTR sz);
 
 // per-thread data

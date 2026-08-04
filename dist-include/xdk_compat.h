@@ -135,6 +135,17 @@ typedef unsigned int   DWORD32;
 #ifndef _strnicmp
 #define _strnicmp strncasecmp
 #endif
+// Wide equivalents (picolibc supplies wcscasecmp / wcsncasecmp in <wchar.h>).
+#include <wchar.h>
+#ifndef _wcsicmp
+#define _wcsicmp  wcscasecmp
+#endif
+#ifndef wcsicmp
+#define wcsicmp   wcscasecmp
+#endif
+#ifndef wcsnicmp
+#define wcsnicmp  wcsncasecmp   /* _wcsnicmp is defined further down */
+#endif
 #include <stdarg.h> // va_list, for the _vsnprintf/_vscprintf declarations below
 #include <stddef.h> // size_t
 // MSVC printf-family spellings. These are real functions (libs/libxapi/port/

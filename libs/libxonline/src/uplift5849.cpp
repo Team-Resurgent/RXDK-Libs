@@ -18,13 +18,9 @@ XBOXAPI DWORD WINAPI XGetDeviceEnumerationStatus(void)
     return 0;
 }
 
-// 5849 signature-buffer sizing helper (Xbox.h). Returns the byte size XCalculateSignature produces
-// for the given flags. The Xbox content signature is an HMAC-SHA1 (20 bytes). Real signing needs
-// the console key; this only sizes the buffer so titles allocate correctly.
-XBOXAPI DWORD WINAPI XCalculateSignatureGetSize(DWORD /*dwFlags*/)
-{
-    return 20;
-}
+// (XCalculateSignatureGetSize moved to libxapi k32/xcalcsig.c, next to the rest
+// of the XCalculateSignature* family -- it is an XAPI export, and titles that
+// use it must not have to link the whole Live client to get it.)
 
 // 5849 mid-session logon-user change (REAL). The leak has no dedicated
 // change-users path, but its XOnlineLogon already tears down and replaces a

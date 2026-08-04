@@ -459,6 +459,39 @@ LocalFree(
     );
 
 
+//
+// Memory protection and allocation-type flags for the Virtual* APIs below.
+// (The XDK carries these in winnt.h; RXDK's NT base does not surface them, so
+// they live here alongside the functions that consume them.)
+//
+#ifndef PAGE_NOACCESS
+#define PAGE_NOACCESS           0x01
+#define PAGE_READONLY           0x02
+#define PAGE_READWRITE          0x04
+#define PAGE_WRITECOPY          0x08
+#define PAGE_EXECUTE            0x10
+#define PAGE_EXECUTE_READ       0x20
+#define PAGE_EXECUTE_READWRITE  0x40
+#define PAGE_EXECUTE_WRITECOPY  0x80
+#define PAGE_GUARD             0x100
+#define PAGE_NOCACHE           0x200
+#define PAGE_WRITECOMBINE      0x400
+#define PAGE_VIDEO               0x0
+#endif
+
+#ifndef MEM_COMMIT
+#define MEM_COMMIT            0x1000
+#define MEM_RESERVE           0x2000
+#define MEM_DECOMMIT          0x4000
+#define MEM_RELEASE           0x8000
+#define MEM_FREE             0x10000
+#define MEM_PRIVATE          0x20000
+#define MEM_RESET            0x80000
+#define MEM_TOP_DOWN        0x100000
+#define MEM_NOZERO          0x800000
+#define MEM_4MB_PAGES     0x80000000
+#endif
+
 WINBASEAPI
 LPVOID
 __attribute__((__stdcall__))

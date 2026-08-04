@@ -387,3 +387,18 @@ DWORD __attribute__((__stdcall__)) XCalculateSignatureEnd(
 }
 
 
+
+//
+// RXDK 5849 uplift: XCalculateSignatureGetSize.
+//
+// Returns the byte size XCalculateSignatureEnd writes for the given flags, so
+// a title can size its signature buffer up front. The Xbox content signature
+// is an HMAC-SHA1 digest, which is always 20 bytes.
+//
+DWORD __attribute__((__stdcall__)) XCalculateSignatureGetSize(
+    DWORD dwFlags
+    )
+{
+    UNREFERENCED_PARAMETER(dwFlags);
+    return XCALCSIG_SIGNATURE_SIZE;
+}

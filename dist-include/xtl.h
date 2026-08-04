@@ -48,4 +48,12 @@
 //
 #include <d3d8.h>
 #include <d3dx8math.h>
+
+// The XDK's XTL.h pulls <xgmath.h> right after d3d8.h when a title builds with
+// _USE_XGMATH (the XGVECTOR*/XGMATRIX SIMD math types, and the D3DX* aliases
+// that map onto them). Samples compiled -D_USE_XGMATH expect the types from
+// <xtl.h> alone, so mirror that here.
+#ifdef _USE_XGMATH
+#include <xgmath.h>
+#endif
 #include <dsound.h>

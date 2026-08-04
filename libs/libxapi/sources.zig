@@ -19,6 +19,7 @@ pub const k32_sources = [_][]const u8{
     "libs/libxapi/k32/dir.c",
     "libs/libxapi/k32/error.c",
     "libs/libxapi/k32/fiber.c",
+    "libs/libxapi/k32/fpudpc.c",
     "libs/libxapi/k32/filehops.c",
     "libs/libxapi/k32/filefind.c",
     "libs/libxapi/k32/findcont.c",

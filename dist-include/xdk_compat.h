@@ -227,6 +227,12 @@ static inline int _snwprintf(wchar_t *buffer, size_t count, const wchar_t *forma
     return r;
 }
 #endif
+#ifndef _wtol
+static inline long _wtol(const wchar_t *str)
+{
+    return wcstol(str, (wchar_t **)0, 10);
+}
+#endif
 #ifndef _itow
 static inline wchar_t *_itow(int value, wchar_t *str, int radix)
 {

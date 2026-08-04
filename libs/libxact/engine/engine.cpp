@@ -251,7 +251,7 @@ CEngine::~CEngine
     DPF_LEAVE_VOID();
 }
 
-__inline ULONG CEngine::AddRef(void)
+ULONG CEngine::AddRef(void)
 {
     _ENTER_EXTERNAL_METHOD("CEngine::AddRef");
     return ++m_dwRefCount;

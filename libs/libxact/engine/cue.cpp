@@ -117,7 +117,7 @@ CSoundCue::~CSoundCue
     DPF_LEAVE_VOID();
 }
 
-__inline ULONG CSoundCue::AddRef(void)
+ULONG CSoundCue::AddRef(void)
 {
     ENTER_EXTERNAL_METHOD("CCueInstance::AddRef");
     return CRefCount::AddRef();

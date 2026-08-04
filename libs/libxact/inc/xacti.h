@@ -199,6 +199,9 @@ public:
     HRESULT STDMETHODCALLTYPE SetListenerOrientation(FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetVariable(DWORD dwVariable, WORD wValue);
     HRESULT STDMETHODCALLTYPE GetVariable(DWORD dwVariable, PWORD pwValue);
+    // RXDK 5849 uplift: 5849 renamed LoadDspImage to DownloadEffectsImage and returns the
+    // downloaded image description (the leak stored it privately).
+    HRESULT STDMETHODCALLTYPE DownloadEffectsImage(PVOID pvData, DWORD dwSize, LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc);
     HRESULT STDMETHODCALLTYPE GlobalPause(BOOL bPause);
     HRESULT STDMETHODCALLTYPE RegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
     HRESULT STDMETHODCALLTYPE UnRegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
@@ -588,6 +591,8 @@ public:
     HRESULT STDMETHODCALLTYPE SetVelocity(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetMixBins(LPCDSMIXBINS pMixBins);
     HRESULT STDMETHODCALLTYPE SetMixBinVolumes(LPCDSMIXBINS pMixBins);
+    // RXDK 5849 uplift: stop whatever is playing through this source's hardware voice.
+    HRESULT STDMETHODCALLTYPE StopSoundCues();
 
     //
     // utility functions

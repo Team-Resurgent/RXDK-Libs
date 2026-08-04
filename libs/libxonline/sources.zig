@@ -33,6 +33,7 @@ const X = "libs/libxonline";
 pub const cpp_sources = [_][]const u8{
     X ++ "/src/stats.cpp",
     X ++ "/src/uplift5849.cpp",
+    X ++ "/src/uix5849.cpp",
     X ++ "/src/xonline.cpp",
     X ++ "/src/kerberos.cpp",
     X ++ "/src/krb5.cpp",

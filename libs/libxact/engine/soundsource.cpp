@@ -65,7 +65,7 @@ CSoundSource::~CSoundSource
     DPF_LEAVE_VOID();
 }
 
-__inline ULONG CSoundSource::AddRef(void)
+ULONG CSoundSource::AddRef(void)
 {
     _ENTER_EXTERNAL_METHOD("CSoundSource::AddRef");
     return CRefCount::AddRef();

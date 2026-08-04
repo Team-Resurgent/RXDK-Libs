@@ -46,4 +46,11 @@ INT WSAAPI XNetInAddrToServer(const IN_ADDR, IN_ADDR *)
     return -1;
 }
 
+// 5849 broadcast title-version mismatch detection. The leak's stack never tracks
+// broadcast version mismatches, so there is never anything to report.
+DWORD WSAAPI XNetGetBroadcastVersionStatus(BOOL /*fReset*/)
+{
+    return 0;
+}
+
 }

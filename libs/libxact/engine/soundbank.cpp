@@ -92,14 +92,14 @@ CSoundBank::~CSoundBank
     DPF_LEAVE_VOID();
 }
 
-__inline ULONG CSoundBank::AddRef(void)
+ULONG CSoundBank::AddRef(void)
 {
     _ENTER_EXTERNAL_METHOD("CSoundBank::AddRef");    
     return CRefCount::AddRef();
 }
 
 
-__inline ULONG CSoundBank::Release(void)
+ULONG CSoundBank::Release(void)
 {
     _ENTER_EXTERNAL_METHOD("CSoundBank::Release");
     return CRefCount::Release();

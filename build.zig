@@ -15,6 +15,7 @@ const libxmv_pkg = @import("libs/libxmv/build.zig");
 const libxfont_pkg = @import("libs/libxfont/build.zig");
 const libxact_pkg = @import("libs/libxact/build.zig");
 const libxonline_pkg = @import("libs/libxonline/build.zig");
+const libxvoice_pkg = @import("libs/libxvoice/build.zig");
 const libdmusic_pkg = @import("libs/libdmusic/build.zig");
 const libkernel_pkg = @import("libs/libkernel/build.zig");
 const libxbdm_pkg = @import("libs/libxbdm/build.zig");
@@ -291,6 +292,22 @@ pub fn build(b: *std.Build) void {
     install_libxonline.step.dependOn(libxonline.step);
     const xonline_step = b.step("libxonline", "Build libxonline.lib (Xbox Live client)");
     xonline_step.dependOn(&install_libxonline.step);
+
+    // libxvoice: the XDK-5849 voice library (xvoice.lib) -- the XHV high-level
+    // voice-chat engine (xhv.h) + the low-level voice XMO/codec API (xvoice.h) +
+    // the XDEVICE_TYPE_VOICE_* device tables. NOT a leak port (the leak has no
+    // xvoice implementation): a fresh RXDK implementation of the 5849 public C
+    // surface -- bookkeeping real, communicator/codec paths report no-headset
+    // failure (see libs/libxvoice/sources.zig). Not in the default install.
+    const xvoice_objs = libxvoice_pkg.addAllObjects(b, xbox_target, opt_flag);
+    var xvoice_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xvoice_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xvoice_deps.append(b.allocator, xvoice_objs.step) catch @panic("OOM");
+    const libxvoice = coff_lib.pack(b, "libxvoice", xvoice_objs.outputs, xvoice_deps.items);
+    const install_libxvoice = b.addInstallFile(libxvoice.path, "lib/libxvoice.lib");
+    install_libxvoice.step.dependOn(libxvoice.step);
+    const xvoice_step = b.step("libxvoice", "Build libxvoice.lib (XDK-5849 XHV voice chat + low-level voice)");
+    xvoice_step.dependOn(&install_libxvoice.step);
 
     // libdmusic: the Xbox DirectMusic runtime (dmusic.lib), ported from the leak
     // (private/windows/directx/dmusic). Title-side, COM-heavy interactive-music

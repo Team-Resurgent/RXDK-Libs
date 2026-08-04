@@ -107,3 +107,36 @@ STDAPI IXACTEngine_SetListenerOrientation(PXACTENGINE pEngine, FLOAT xFront, FLO
 {
     return ((CEngine *)pEngine)->SetListenerOrientation(xFront, yFront, zFront, xTop, yTop, zTop, dwApply);
 }
+
+// ---- 5849 DSP image download (renamed LoadDspImage + returns the image desc) -----------------
+
+HRESULT STDMETHODCALLTYPE CEngine::DownloadEffectsImage(PVOID pvData, DWORD dwSize,
+                                                        LPCDSEFFECTIMAGELOC pEffectLoc,
+                                                        LPDSEFFECTIMAGEDESC *ppImageDesc)
+{
+    HRESULT hr = LoadDspImage(pvData, dwSize, pEffectLoc);
+    if (ppImageDesc) {
+        *ppImageDesc = SUCCEEDED(hr) ? m_pDspImageDesc : NULL;
+    }
+    return hr;
+}
+
+STDAPI IXACTEngine_DownloadEffectsImage(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize,
+                                        LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc)
+{
+    return ((CEngine *)pEngine)->DownloadEffectsImage(pvData, dwSize, pEffectLoc, ppImageDesc);
+}
+
+// ---- 5849 sound-source cue stop --------------------------------------------------------------
+
+HRESULT STDMETHODCALLTYPE CSoundSource::StopSoundCues()
+{
+    // 5849 stops the cues playing through this source; the leak's source owns a single
+    // hardware voice, so stopping that voice stops whatever those cues are rendering.
+    return Stop();
+}
+
+STDAPI IXACTSoundSource_StopSoundCues(PXACTSOUNDSOURCE pSoundSource)
+{
+    return ((CSoundSource *)pSoundSource)->StopSoundCues();
+}

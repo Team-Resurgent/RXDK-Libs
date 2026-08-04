@@ -547,6 +547,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBCAPS_MIXIN               0x00002000      // The buffer is to be used as the destination of a submix operation
 #define DSBCAPS_LOCDEFER            0x00040000      // The buffer does not acquire resources at creation
 #define DSBCAPS_FXIN                0x00080000      // The buffer is to be used as the destination of a post-effects submix operation
+#define DSBCAPS_FXIN2               0x00100000      // Does not require SetOutputBuffer; does require Play/Stop
                                                                         
 //
 // IDirectSoundBuffer::Play(Ex) flags
@@ -913,7 +914,15 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSMIXBIN_FXSEND_FIRST       DSMIXBIN_FXSEND_0
 #define DSMIXBIN_FXSEND_LAST        DSMIXBIN_FXSEND_19
 #define DSMIXBIN_FXSEND_COUNT       (DSMIXBIN_FXSEND_LAST - DSMIXBIN_FXSEND_FIRST + 1)
-                                    
+
+#define DSMIXBIN_VOICE_0            DSMIXBIN_FXSEND_16
+#define DSMIXBIN_VOICE_1            DSMIXBIN_FXSEND_17
+#define DSMIXBIN_VOICE_2            DSMIXBIN_FXSEND_18
+#define DSMIXBIN_VOICE_3            DSMIXBIN_FXSEND_19
+#define DSMIXBIN_VOICE_FIRST        DSMIXBIN_VOICE_0
+#define DSMIXBIN_VOICE_LAST         DSMIXBIN_VOICE_3
+#define DSMIXBIN_VOICE_COUNT        (DSMIXBIN_VOICE_LAST - DSMIXBIN_VOICE_FIRST + 1)
+
 #define DSMIXBIN_SUBMIX             31
 
 #define DSMIXBIN_FIRST              DSMIXBIN_FRONT_LEFT
@@ -969,6 +978,18 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSMIXBINVOLUMEPAIRS_DEFAULT_3D \
     DSMIXBINVOLUMEPAIRS_REQUIRED_3D, \
     { DSMIXBIN_I3DL2, 0 }
+
+#define DSMIXBINVOLUMEPAIRS_REQUIRED_5CHANNEL_3D \
+    DSMIXBINVOLUMEPAIRS_REQUIRED_3D, \
+    { DSMIXBIN_FRONT_CENTER, 0 }
+
+#define DSMIXBINVOLUMEPAIRS_DEFAULT_5CHANNEL_3D \
+    DSMIXBINVOLUMEPAIRS_REQUIRED_5CHANNEL_3D, \
+    { DSMIXBIN_I3DL2, 0 }
+
+#define DSMIXBINVOLUMEPAIRS_DEFAULT_5CHANNEL_3D_PLUS_LFE \
+    DSMIXBINVOLUMEPAIRS_DEFAULT_5CHANNEL_3D, \
+    { DSMIXBIN_LOW_FREQUENCY, 0 }
 
 //
 // WAVEFORMATEXTENSIBLE speaker identifiers

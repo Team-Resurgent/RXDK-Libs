@@ -211,6 +211,7 @@ struct timeval {
 #define IPPROTO_IDP             22              /* xns idp */
 #define IPPROTO_ND              77              /* UNOFFICIAL net disk proto */
 
+#define IPPROTO_VDP             254             /* Xbox Voice Data Protocol (XDK-5849) */
 #define IPPROTO_RAW             255             /* raw IP packet */
 #define IPPROTO_MAX             256
 
@@ -1838,6 +1839,12 @@ DWORD WSAAPI XNetGetEthernetLinkStatus();
 #define XNET_ETHERNET_LINK_10MBPS       0x04    // Ethernet link is set to 10 Mbps
 #define XNET_ETHERNET_LINK_FULL_DUPLEX  0x08    // Ethernet link is in full duplex mode
 #define XNET_ETHERNET_LINK_HALF_DUPLEX  0x10    // Ethernet link is in half duplex mode
+
+// RXDK: XDK-5849 broadcast title-version mismatch detection.
+DWORD WSAAPI XNetGetBroadcastVersionStatus(BOOL fReset);
+
+#define XNET_BROADCAST_VERSION_OLDER        0x0001  // Got broadcast packet(s) from incompatible older version of title
+#define XNET_BROADCAST_VERSION_NEWER        0x0002  // Got broadcast packet(s) from incompatible newer version of title
 
 //
 // Since our socket handles are not file handles, apps can NOT call CancelIO API to cancel

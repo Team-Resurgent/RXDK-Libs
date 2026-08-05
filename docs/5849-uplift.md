@@ -150,7 +150,7 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **170 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
+_Sample sweep: **172 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
 **Three sample sources — check all three before calling anything missing.** Most of what was
 recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
@@ -180,8 +180,11 @@ step invokes the assembler.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
 - **Port issues (4).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a
-  subtle error gives wrong numbers silently), CustomSTLAllocators (`stdext::hash_map`), VolumeSprites
-  (bundler volume textures), PerfTest (`D3DPERF_*` counters, only in d3d8d/d3d8i -- note the event
-  markers BeginEvent/EndEvent/SetMarker ARE retail and are now implemented).
+  subtle error gives wrong numbers silently), CustomSTLAllocators (`stdext::hash_map` / `hash_set`,
+  the MSVC extension containers; libc++ has no equivalent header, so this wants a shim over
+  `std::unordered_*` that keeps the `(Traits, Alloc)` constructor the sample uses), VolumeSprites
+  (Bundler rejects VolumeTexture resources -- needs a 3D swizzle + resampler), PerfTest (`D3DPERF_*`
+  counters, only in d3d8d/d3d8i -- note the event markers BeginEvent/EndEvent/SetMarker ARE retail
+  and are now implemented).
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

@@ -13,14 +13,14 @@
  *  shuffled with or without looping, removing entries, and reading the current
  *  song's title and duration.
  *
- *  WHAT DOES NOT: a playlist is bound to a sound cue, and playing THAT CUE is
- *  supposed to stream the current song. That path is not wired -- the cue plays
- *  whatever its wave bank says, as any other cue does, and the playlist is
- *  inert as far as audio is concerned. Wiring it means teaching CSoundCue to
- *  render from an XMO instead of a wave-bank entry, and pumping it from
- *  CEngine::DoWork; OpenCurrentDecoder above is the hook that path will use,
- *  which is why it exists with no caller yet. A title therefore links, runs,
- *  and can drive and display its playlist -- it just will not hear it.
+ *  Playback is at the bottom of this file. A playlist renders itself rather
+ *  than going through a sound cue's wave-bank path -- its source is a file being
+ *  decoded on the fly, not a bank entry -- so it owns a DirectSound stream,
+ *  CSoundBank::Play/Stop divert to it for a cue that has a playlist bound, and
+ *  CEngine::DoWork pumps it.
+ *
+ *  NOT hardware-tested: this builds and the packet bookkeeping is sound by
+ *  inspection, but no audio has actually been heard from it.
  *
  ****************************************************************************/
 
@@ -98,12 +98,28 @@ CWmaPlayList::CWmaPlayList(void)
       m_dwSongCount(0),
       m_pDecoder(NULL),
       m_pDecoderSong(NULL),
-      m_dwRandomSeed(0)
+      m_dwRandomSeed(0),
+      m_pStream(NULL),
+      m_fPlaying(FALSE),
+      m_dwPacketSize(0),
+      m_fSongEnded(FALSE)
 {
+    for (DWORD i = 0; i < PACKET_COUNT; i++) {
+        m_apvPacket[i] = NULL;
+        m_adwStatus[i] = XMEDIAPACKET_STATUS_SUCCESS;
+    }
+    InitializeListHead(&m_ListEntry);
 }
 
 CWmaPlayList::~CWmaPlayList(void)
 {
+    // Unregister first: the engine's DoWork walks this list, and a half-torn
+    // playlist must not still be on it.
+    if (g_pEngine != NULL) {
+        g_pEngine->UnregisterPlayList(this);
+    }
+
+    StopPlayback();
     CloseDecoder();
 
     CWmaSong *pSong = m_pFirst;
@@ -133,6 +149,14 @@ HRESULT CWmaPlayList::Initialize(CSoundBank *pSoundBank, DWORD dwSoundCueIndex, 
     // attacker, and the Xbox tick count at playlist creation is as good a
     // starting point as anything available this early.
     m_dwRandomSeed = GetTickCount() | 1;
+
+    // The engine keeps a weak list of live playlists so CSoundBank::Play can
+    // find the one bound to a cue, and so DoWork can pump them. Weak on purpose:
+    // the title owns the playlist's lifetime through Release, and the
+    // destructor unregisters.
+    if (g_pEngine != NULL) {
+        g_pEngine->RegisterPlayList(this);
+    }
 
     return S_OK;
 }
@@ -822,4 +846,269 @@ HRESULT STDMETHODCALLTYPE CWmaPlayList::GetProperties(PXACT_WMA_PLAYLIST_PROPERT
     pProperties->pLastSong        = (PXACTWMASONG)m_pLast;
 
     return S_OK;
+}
+
+
+//===========================================================================
+//
+//  Playback.
+//
+//  A playlist does not render through a sound cue's wave-bank path, because its
+//  source is a WMA file being decoded on the fly rather than a bank entry. It
+//  owns a DirectSound stream and feeds it from the decoder, and the engine pumps
+//  it from DoWork alongside the cues. CSoundBank::Play/Stop divert here when the
+//  cue they were handed has a playlist bound to it.
+//
+//===========================================================================
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::OpenStreamForCurrentSong"
+
+HRESULT CWmaPlayList::OpenStreamForCurrentSong(void)
+{
+    HRESULT hr = EnsureDecoder();
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    XMEDIAINFO info;
+    memset(&info, 0, sizeof(info));
+
+    hr = m_pDecoder->GetInfo(&info);
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    // The decoder reports its PCM format through the WAVEFORMATEX it filled in
+    // at create time; ask it again here rather than caching, since the next song
+    // may differ in rate or channel count.
+    WAVEFORMATEX wfx;
+    memset(&wfx, 0, sizeof(wfx));
+
+    WMAXMOFileHeader header;
+    memset(&header, 0, sizeof(header));
+    hr = m_pDecoder->GetFileHeader(&header);
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    wfx.wFormatTag      = WAVE_FORMAT_PCM;
+    wfx.nChannels       = (WORD)header.dwNumChannels;
+    wfx.nSamplesPerSec  = header.dwSampleRate;
+    wfx.wBitsPerSample  = 16;                       // the WMA XMO decodes to 16-bit
+    wfx.nBlockAlign     = (WORD)(wfx.nChannels * wfx.wBitsPerSample / 8);
+    wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+
+    if (wfx.nChannels == 0 || wfx.nSamplesPerSec == 0) {
+        DPF_ERROR("Song header reports no format (%d ch, %d Hz)",
+                  header.dwNumChannels, header.dwSampleRate);
+        return E_FAIL;
+    }
+
+    // XMO_STREAMF_FIXED_SAMPLE_SIZE means dwOutputSize is ONE sample frame, not
+    // a buffer size, so a packet has to be a multiple of it rather than equal to
+    // it. Pick something around a tenth of a second so the ring is a sensible
+    // fraction of a second deep without being wasteful.
+    DWORD dwFrame = (info.dwFlags & XMO_STREAMF_FIXED_SAMPLE_SIZE) && info.dwOutputSize
+                        ? info.dwOutputSize
+                        : wfx.nBlockAlign;
+    if (dwFrame == 0) {
+        dwFrame = wfx.nBlockAlign;
+    }
+
+    m_dwPacketSize = (wfx.nAvgBytesPerSec / 10);
+    m_dwPacketSize -= (m_dwPacketSize % dwFrame);
+    if (m_dwPacketSize == 0) {
+        m_dwPacketSize = dwFrame;
+    }
+
+    DSSTREAMDESC dssd;
+    memset(&dssd, 0, sizeof(dssd));
+    dssd.dwMaxAttachedPackets = PACKET_COUNT;
+    dssd.lpwfxFormat          = &wfx;
+
+    hr = DirectSoundCreateStream(&dssd, &m_pStream);
+    if (FAILED(hr)) {
+        DPF_ERROR("Could not create the playlist stream (0x%08x)", hr);
+        return hr;
+    }
+
+    for (DWORD i = 0; i < PACKET_COUNT; i++) {
+        m_apvPacket[i] = XactMemAlloc(m_dwPacketSize, FALSE);
+        if (m_apvPacket[i] == NULL) {
+            CloseStream();
+            return E_OUTOFMEMORY;
+        }
+        m_adwStatus[i] = XMEDIAPACKET_STATUS_SUCCESS;   // free
+    }
+
+    m_fSongEnded = FALSE;
+
+    return S_OK;
+}
+
+
+VOID CWmaPlayList::CloseStream(void)
+{
+    if (m_pStream != NULL) {
+        m_pStream->Flush();
+        m_pStream->Release();
+        m_pStream = NULL;
+    }
+
+    for (DWORD i = 0; i < PACKET_COUNT; i++) {
+        if (m_apvPacket[i] != NULL) {
+            XactMemFree(m_apvPacket[i]);
+            m_apvPacket[i] = NULL;
+        }
+        m_adwStatus[i] = XMEDIAPACKET_STATUS_SUCCESS;
+    }
+
+    m_dwPacketSize = 0;
+    m_fSongEnded   = FALSE;
+}
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::SubmitPackets"
+
+//
+// Fill every free slot in the ring from the decoder.
+//
+VOID CWmaPlayList::SubmitPackets(void)
+{
+    if (m_pStream == NULL || m_pDecoder == NULL || m_fSongEnded) {
+        return;
+    }
+
+    for (DWORD i = 0; i < PACKET_COUNT; i++) {
+
+        // PENDING means DirectSound still owns this slot.
+        if (m_adwStatus[i] == XMEDIAPACKET_STATUS_PENDING) {
+            continue;
+        }
+
+        XMEDIAPACKET xmp;
+        DWORD        dwDecoded = 0;
+
+        memset(&xmp, 0, sizeof(xmp));
+        xmp.pvBuffer         = m_apvPacket[i];
+        xmp.dwMaxSize        = m_dwPacketSize;
+        xmp.pdwCompletedSize = &dwDecoded;
+
+        // Pull PCM out of the decoder.
+        HRESULT hr = m_pDecoder->Process(NULL, &xmp);
+        if (FAILED(hr) || dwDecoded == 0) {
+            // Out of data: the song is done. Do NOT advance here -- the stream
+            // still has queued packets to play, and cutting to the next song now
+            // would clip the tail. DoWork advances once the ring drains.
+            m_fSongEnded = TRUE;
+            return;
+        }
+
+        XMEDIAPACKET out;
+        memset(&out, 0, sizeof(out));
+        out.pvBuffer  = m_apvPacket[i];
+        out.dwMaxSize = dwDecoded;
+        out.pdwStatus = &m_adwStatus[i];
+
+        m_adwStatus[i] = XMEDIAPACKET_STATUS_PENDING;
+
+        hr = m_pStream->Process(&out, NULL);
+        if (FAILED(hr)) {
+            m_adwStatus[i] = XMEDIAPACKET_STATUS_FAILURE;
+            DPF_ERROR("Stream rejected a packet (0x%08x)", hr);
+            return;
+        }
+    }
+}
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::StartPlayback"
+
+HRESULT CWmaPlayList::StartPlayback(void)
+{
+    if (m_fPlaying) {
+        return S_FALSE;
+    }
+
+    if (m_pCurrent == NULL) {
+        // Nothing selected yet. Playing a playlist without having chosen a song
+        // starts at the beginning, which is what Next() from empty does.
+        HRESULT hr = Next();
+        if (FAILED(hr)) {
+            return hr;
+        }
+    }
+
+    HRESULT hr = OpenStreamForCurrentSong();
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    SubmitPackets();
+
+    hr = m_pStream->Pause(DSSTREAMPAUSE_RESUME);
+    if (FAILED(hr)) {
+        CloseStream();
+        return hr;
+    }
+
+    m_fPlaying = TRUE;
+
+    return S_OK;
+}
+
+
+VOID CWmaPlayList::StopPlayback(void)
+{
+    m_fPlaying = FALSE;
+    CloseStream();
+}
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::DoWork"
+
+VOID CWmaPlayList::DoWork(void)
+{
+    if (!m_fPlaying || m_pStream == NULL) {
+        return;
+    }
+
+    if (!m_fSongEnded) {
+        SubmitPackets();
+        return;
+    }
+
+    // The decoder is exhausted. Wait for the queued packets to finish before
+    // moving on, so the end of the song is actually heard.
+    for (DWORD i = 0; i < PACKET_COUNT; i++) {
+        if (m_adwStatus[i] == XMEDIAPACKET_STATUS_PENDING) {
+            return;
+        }
+    }
+
+    // Song finished. Advance and start the next one; Next() already applies the
+    // random and loop behaviour, and returns S_FALSE at the end of a playlist
+    // that is not looping.
+    CloseStream();
+
+    HRESULT hr = Next();
+    if (hr != S_OK) {
+        m_fPlaying = FALSE;     // end of a non-looping playlist
+        return;
+    }
+
+    if (FAILED(OpenStreamForCurrentSong())) {
+        m_fPlaying = FALSE;
+        return;
+    }
+
+    SubmitPackets();
+
+    if (FAILED(m_pStream->Pause(DSSTREAMPAUSE_RESUME))) {
+        StopPlayback();
+    }
 }

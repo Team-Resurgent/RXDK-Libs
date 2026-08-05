@@ -199,6 +199,28 @@ HRESULT CSoundBank::Play( DWORD dwCueIndex, PXACTSOUNDSOURCE pSoundSourceObject,
     DPF_ENTER();
     ENTER_EXTERNAL_METHOD();
 
+    //
+    // RXDK 5849 uplift: a cue with a WMA playlist bound to it renders from the
+    // playlist's own stream, not from this bank's wave data, so hand off before
+    // any of the wave-bank work below. The title still drives it through the
+    // ordinary Play/Stop on the cue -- that is the whole point of binding a
+    // playlist to a cue index.
+    //
+    if(g_pEngine)
+    {
+        CWmaPlayList *pPlayList = g_pEngine->FindPlayList(this, dwCueIndex);
+        if(pPlayList)
+        {
+            if(ppCue)
+            {
+                *ppCue = NULL;      // no cue object backs a playlist
+            }
+            hr = pPlayList->StartPlayback();
+            DPF_LEAVE_HRESULT(hr);
+            return hr;
+        }
+    }
+
 #ifdef VALIDATE_PARAMETERS
 
     if(!IsValidCue(dwCueIndex))
@@ -410,6 +432,18 @@ HRESULT CSoundBank::Stop( DWORD dwCueIndex, DWORD dwFlags, PXACTSOUNDCUE pCueObj
     CSoundCue *pCue = (CSoundCue *) pCueObject;
     DPF_ENTER();
     ENTER_EXTERNAL_METHOD();
+
+    // See the note in Play: a playlist-bound cue stops the playlist.
+    if(g_pEngine && (dwCueIndex != XACT_SOUNDCUE_INDEX_UNUSED))
+    {
+        CWmaPlayList *pPlayList = g_pEngine->FindPlayList(this, dwCueIndex);
+        if(pPlayList)
+        {
+            pPlayList->StopPlayback();
+            DPF_LEAVE_HRESULT(hr);
+            return hr;
+        }
+    }
 
 #ifdef VALIDATE_PARAMETERS
 

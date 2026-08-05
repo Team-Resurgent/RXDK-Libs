@@ -143,6 +143,7 @@ CEngine::CEngine
     //
 
     InitializeListHead(&m_lstActiveCues);
+    InitializeListHead(&m_lstPlayLists);
     KeInitializeTimer(&m_TimerObject);
     KeInitializeDpc(&m_DpcObject, DPCTimerCallBack, this);
 
@@ -553,9 +554,62 @@ VOID CEngine::DoWork()
         
         pCue->DoWork();        
     }
-    
+
+    //
+    // and the same for any WMA playlist that is playing -- a playlist renders
+    // itself rather than through a cue, so it needs its own pump here.
+    //
+
+    pEntry = m_lstPlayLists.Flink;
+    while (pEntry != &m_lstPlayLists)
+    {
+        CWmaPlayList *pPlayList = CONTAINING_RECORD(pEntry, CWmaPlayList, m_ListEntry);
+        pEntry = pEntry->Flink;
+
+        pPlayList->DoWork();
+    }
+}
 
 
+//
+// WMA playlist registry.
+//
+// Weak references throughout: the title owns each playlist's lifetime through
+// Release, and CWmaPlayList's destructor unregisters itself before tearing down.
+//
+
+VOID CEngine::RegisterPlayList(CWmaPlayList *pPlayList)
+{
+    InsertTailList(&m_lstPlayLists, &pPlayList->m_ListEntry);
+}
+
+VOID CEngine::UnregisterPlayList(CWmaPlayList *pPlayList)
+{
+    if (!IsListEmpty(&pPlayList->m_ListEntry) ||
+        pPlayList->m_ListEntry.Flink != &pPlayList->m_ListEntry)
+    {
+        RemoveEntryList(&pPlayList->m_ListEntry);
+        InitializeListHead(&pPlayList->m_ListEntry);
+    }
+}
+
+CWmaPlayList * CEngine::FindPlayList(CSoundBank *pSoundBank, DWORD dwCueIndex)
+{
+    PLIST_ENTRY pEntry = m_lstPlayLists.Flink;
+
+    while (pEntry != &m_lstPlayLists)
+    {
+        CWmaPlayList *pPlayList = CONTAINING_RECORD(pEntry, CWmaPlayList, m_ListEntry);
+        pEntry = pEntry->Flink;
+
+        if (pPlayList->GetSoundBank() == pSoundBank &&
+            pPlayList->GetSoundCueIndex() == dwCueIndex)
+        {
+            return pPlayList;
+        }
+    }
+
+    return NULL;
 }
 
 #undef DPF_FNAME

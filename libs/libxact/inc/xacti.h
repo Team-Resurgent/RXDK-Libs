@@ -151,6 +151,7 @@ class CWaveBank;
 class CSequencer;
 class CEngine;
 class CPriorityQueue;
+class CWmaPlayList;
 
 //
 // forward declarations
@@ -203,6 +204,13 @@ public:
     // downloaded image description (the leak stored it privately).
     HRESULT STDMETHODCALLTYPE DownloadEffectsImage(PVOID pvData, DWORD dwSize, LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc);
     HRESULT STDMETHODCALLTYPE GlobalPause(BOOL bPause);
+
+    // WMA playlist registry. CWmaPlayList registers on Initialize and
+    // unregisters in its destructor; CSoundBank::Play uses FindPlayList to see
+    // whether the cue it was handed is a playlist cue.
+    VOID           RegisterPlayList(CWmaPlayList *pPlayList);
+    VOID           UnregisterPlayList(CWmaPlayList *pPlayList);
+    CWmaPlayList * FindPlayList(CSoundBank *pSoundBank, DWORD dwCueIndex);
     HRESULT STDMETHODCALLTYPE RegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
     HRESULT STDMETHODCALLTYPE UnRegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
     HRESULT STDMETHODCALLTYPE GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc, PXACT_NOTIFICATION pNotificationEvent);
@@ -311,6 +319,10 @@ protected:
     LIST_ENTRY  m_lstSoundBanks;
 
     LIST_ENTRY  m_lstActiveCues;
+
+    // Live WMA playlists. Weak references: the title owns each one's lifetime
+    // through Release, and CWmaPlayList's destructor unregisters itself.
+    LIST_ENTRY  m_lstPlayLists;
     LIST_ENTRY  m_lstPendingNotifications;
 
     DWORD       m_dwTotalVoiceCount;

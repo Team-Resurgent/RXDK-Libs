@@ -94,13 +94,26 @@ public:
     // non exported
     //
 
-    DWORD       GetSoundCueIndex(void) const { return m_dwSoundCueIndex; }
+    DWORD        GetSoundCueIndex(void) const { return m_dwSoundCueIndex; }
+    CSoundBank * GetSoundBank(void) const     { return m_pSoundBank; }
     CWmaSong *  GetCurrentSong(void) const   { return m_pCurrent; }
 
     // Open the current song's decoder, so a cue can stream from it. The
     // playlist keeps ownership; the caller must not Release it.
     HRESULT     OpenCurrentDecoder(XWmaFileMediaObject **ppDecoder);
     VOID        CloseDecoder(void);
+
+    // Playback. A playlist renders itself rather than going through a sound
+    // cue's wave-bank path: its source is a WMA file being decoded on the fly,
+    // not a bank entry, so it owns a DirectSound stream and feeds it from the
+    // decoder. CSoundBank::Play/Stop divert here for a cue that has a playlist
+    // bound to it, and CEngine::DoWork pumps it.
+    HRESULT     StartPlayback(void);
+    VOID        StopPlayback(void);
+    VOID        DoWork(void);
+    BOOL        IsPlaying(void) const { return m_fPlaying; }
+
+    LIST_ENTRY  m_ListEntry;        // engine's list of live playlists
 
 private:
     HRESULT     AddFile(LPCSTR pszFileName, PXACTWMASONG *ppSong);
@@ -128,6 +141,27 @@ private:
     CWmaSong *              m_pDecoderSong;     // which song m_pDecoder is open on
 
     DWORD                   m_dwRandomSeed;
+
+    // --- playback state ---
+
+    HRESULT     OpenStreamForCurrentSong(void);
+    VOID        CloseStream(void);
+    VOID        SubmitPackets(void);
+
+    LPDIRECTSOUNDSTREAM     m_pStream;
+    BOOL                    m_fPlaying;
+
+    // Packet ring feeding the stream. Each packet's status word is written by
+    // DirectSound when it finishes with it, which is how DoWork knows a slot is
+    // free again without blocking.
+    enum { PACKET_COUNT = 3 };
+    LPVOID                  m_apvPacket[PACKET_COUNT];
+    DWORD                   m_adwStatus[PACKET_COUNT];
+    DWORD                   m_dwPacketSize;
+
+    // Set when the decoder reports end-of-song; DoWork advances the playlist
+    // once the stream has drained rather than cutting the tail off.
+    BOOL                    m_fSongEnded;
 };
 
 } // namespace XACT

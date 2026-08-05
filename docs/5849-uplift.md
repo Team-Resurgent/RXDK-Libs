@@ -175,18 +175,16 @@ managed port (see `tools/shaders/README.md`); regenerating a checked-in `.inl` d
 step invokes the assembler.
 
 **What is actually left:**
-- **XACT WMA playlist -- API DONE, PLAYBACK NOT WIRED.** `IXACTWmaPlayList` is implemented from
-  scratch in `libs/libxact/engine/wmaplaylist.cpp` (the leak has no WmaPlayList source anywhere), so
-  XActWMAPlayList, TechCertGame and TechCertdemo now build. Building the song set, walking it
-  ordered/shuffled/looping, removing entries, and reading the current song's title and duration out
-  of its WMA header all work. What does NOT: a playlist is bound to a sound cue and playing that cue
-  should stream the current song -- that path is still the ordinary wave-bank one, so a title can
-  drive and display its playlist but will not hear it. Wiring it means teaching `CSoundCue` to
-  render from an XMO and pumping it from `CEngine::DoWork`; `CWmaPlayList::OpenCurrentDecoder` is the
-  hook it will use. All four add types work, including
-  the user's own ripped soundtracks -- `XFindFirstSoundtrack`/`XGetSoundtrackSongInfo`/
-  `XOpenSoundtrackSong` were already ported into libxapi (`k32/xsndtrk.c`), so the playlist opens a
-  ripped song by handle instead of by path; `WmaCreateDecoderEx` takes either.
+- **XACT WMA playlist -- DONE, including playback.** `IXACTWmaPlayList` is implemented from scratch
+  in `libs/libxact/engine/wmaplaylist.cpp` (the leak has no WmaPlayList source anywhere). All four add
+  types work, user-ripped soundtracks included -- the enumeration APIs were already ported in
+  `libxapi/k32/xsndtrk.c`, so a ripped song opens by handle where a file song opens by path, and
+  `WmaCreateDecoderEx` takes either. Playback is wired: a playlist owns a DirectSound stream and
+  renders itself rather than going through a cue's wave-bank path, `CSoundBank::Play`/`Stop` divert to
+  it for a playlist-bound cue, and `CEngine::DoWork` pumps it. The ring waits for queued packets to
+  drain before advancing the song (advancing at decoder-EOF would clip every track's tail), and packet
+  size is rounded to a whole sample frame because `XMO_STREAMF_FIXED_SAMPLE_SIZE` makes `dwOutputSize`
+  one frame rather than a buffer size. NOT hardware-tested -- no audio has been heard from it.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
 **There is no art gap.** The last two, FXMultiPass and GlobalFX, needed `DSPImage.h` -- which is

@@ -150,11 +150,23 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **158 of 182 XDKSamples projects build to .xbe** (`Platform=Xbox`)._
+_Sample sweep: **158 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
-**What the remaining 31 are actually blocked on** (established by inspection, not assumed):
-- **Assembled shader output (5+):** FocusBlur, Fur, HighDynamicRange, QuadLerp, Trees include `*.inl` files that are the assembler's output for the `.psh`/`.vsh` sitting in each sample's `Media/Shaders/`. Inputs are all present — what is missing is a host tool and a pre-build step. RXDK already has the assembler ported (`libs/libxgraphics/shadeasm`, `XGAssembleShader`).
-- **Genuinely missing art (≈10):** DolphinHDTV / FieldRender / PerPixelLightingVS have no `.rdf` at all (hence the bundler's "resource .rdf not found"); Lensflare / PerPixelLighting / XRay are missing `.bmp` textures; WaveBank / WaveBankStream / CustomMemoryAllocator are missing `.wav`.
-- **Out of scope:** PerfTest needs `D3DPERF_*`, which exists only in `d3d8d.lib` / `d3d8i.lib` (the debug and instrumented D3D variants); TechCertGame/demo pull MSVC's `<yvals.h>`, which drags in zig's mingw CRT.
+**What the remaining 23 are blocked on** (established by inspection, not assumed):
+- **Missing tools, inputs present (7).** FocusBlur, Fur, HighDynamicRange, QuadLerp and Trees `#include` `*.inl` files that are
+  the assembler's output for the `.psh`/`.vsh` sitting in each sample's `Media/Shaders/`. RXDK already has the assembler
+  ported (`libs/libxgraphics/shadeasm`, `XGAssembleShader`) — what is missing is a host tool and a pre-build step.
+  FXMultiPass and GlobalFX are the same shape but harder: `dspimage.fx` is a binary DSP Builder project, `DSPImage.h` is
+  compiled DSP code embedded as an XBE section, and the `.scr` inputs it names are not in the sample either.
+- **One library feature, 3 samples (3).** XActWMAPlayList, TechCertGame and TechCertdemo all compile fully and stop at the
+  same two symbols: `IXACTSoundBank_CreateWmaPlayList` and `IXACTWmaPlayList_Release`. Much more tractable now that
+  libdsound has a real WMA decoder; only `eXACTWmaPlayListAdd_Soundtrack` needs the unported soundtrack API.
+- **Genuinely missing content (9).** DolphinHDTV / FieldRender / PerPixelLightingVS have no `.rdf` at all (hence the
+  bundler's "resource .rdf not found"); Lensflare / PerPixelLighting / XRay lack `.bmp`; WaveBank / WaveBankStream /
+  CustomMemoryAllocator lack `.wav`.
+- **Port issues (4).** FastCPU needs its hand-tuned SSE asm restructured (deliberately deferred — it is a benchmark, so a
+  subtle error gives wrong numbers silently). CustomSTLAllocators wants `stdext::hash_map`. VolumeSprites needs volume
+  textures in the bundler (3D swizzle + resampler). PerfTest needs `D3DPERF_*`, which exists only in `d3d8d.lib` /
+  `d3d8i.lib`, the debug and instrumented D3D variants.
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

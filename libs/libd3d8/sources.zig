@@ -47,8 +47,6 @@ pub const se_sources = [_][]const u8{
     "libs/libd3d8/se/shadersnapshot.cpp",
     "libs/libd3d8/se/state.cpp",
     "libs/libd3d8/se/uplift5849.cpp",
-    // Alone: its statistics block is ~210KB, so only a title that profiles pays for it.
-    "libs/libd3d8/se/perfstats.cpp",
     "libs/libd3d8/se/stats.cpp",
     "libs/libd3d8/se/surface.cpp",
     "libs/libd3d8/se/texture.cpp",

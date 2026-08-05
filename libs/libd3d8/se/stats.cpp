@@ -676,7 +676,10 @@ void SpewPerfEvent(
             szBuf[0] = '0';
             szBuf[1] = 'x';
 
-            for(int i = 2; i < 6; i++, Type <<= 4)
+            // RXDK: `i` is read after the loop to place the terminator, which
+            // VC6 for-scope allowed. Hoisted.
+            int i;
+            for(i = 2; i < 6; i++, Type <<= 4)
             {
                 szBuf[i] = HexDigits[(Type >> 12) & 0xf];
             }

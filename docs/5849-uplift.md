@@ -210,12 +210,14 @@ halve all three axes and average eight texels across two slices. NOTE: no golden
 the retail bundler for a volume, so this is verified by construction and by the sample building, not
 byte-compared like the rest of the port. **Needs a tools release before it reaches users.**
 
-**PerfTest builds, but read what it reports carefully.** `D3DPERF_GetPushBufferInfo` is REAL -- size,
-segment size/count, base/limit and bytes-written all come from the pusher. Every event counter and
-the GPU busy/idle profile read exactly ZERO, because the XDK gathered those in a separate
-instrumented build (d3d8i.lib) and RXDK ships the retail one. They are zero rather than
-small-but-plausible precisely so the absence is visible; `GetStatistics` also says so once in the
-debug log, and `StartPerfProfile` returns FALSE rather than handing back an all-zero profile that
-would read as an idle GPU.
+**PerfTest links `libd3d8i`, the instrumented D3D, and its counters are real.** The XDK shipped two
+builds of the driver and so do we: the instrumentation (counters, push-buffer accounting, GPU
+profile, and all fifteen D3DPERF entry points in `se/stats.cpp`) sits behind `#if PROFILE`, so
+`libd3d8i` is the same sources with `-DPROFILE=1`, not a fork. The split matches retail exactly --
+5849's `d3d8.lib` carries only `D3DPERF_BeginEvent`/`EndEvent`/`SetMarker` while `d3d8i.lib` and
+`d3d8d.lib` add `GetStatistics`/`Reset`/`GetPushBufferInfo`/`Start`+`StopPerfProfile`. A title that
+profiles selects `libd3d8i` via `RxdkLibraries`; a shipping title keeps retail and pays nothing for
+counters it never reads. The variant is opt-in (not in the default install, since it doubles the d3d8
+compile) but is shipped in `dist`.
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

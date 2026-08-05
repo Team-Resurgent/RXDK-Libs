@@ -642,6 +642,10 @@ function Invoke-DistBuild {
         'libkernel.lib', 'libxbdm.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',
         'libd3d8.lib', 'libd3dx8.lib', 'libxgraphics.lib',
+        # The instrumented D3D (the XDK's d3d8i.lib): same driver with the
+        # D3DPERF counters compiled in. A profiling title links it INSTEAD of
+        # libd3d8; retail deliberately has no counters.
+        'libd3d8i.lib',
         'libdsound.lib', 'libxnet.lib', 'libxmv.lib',
         # Middleware (opt-in via <RxdkLibraries>, but shipped: the XDK sample
         # suite links them). See scripts\compile.ps1 -Target libs.

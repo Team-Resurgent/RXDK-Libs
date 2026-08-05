@@ -162,6 +162,26 @@ pub fn build(b: *std.Build) void {
     const d3d8_step = b.step("libd3d8", "Build libd3d8.lib (Xbox D3D8 / NV2A driver)");
     d3d8_step.dependOn(&install_libd3d8.step);
 
+    // libd3d8i: the same driver with the performance instrumentation compiled in
+    // (-DPROFILE=1), matching the XDK's d3d8i.lib. It exports the D3DPERF
+    // statistics surface -- GetStatistics/Reset/GetPushBufferInfo/Start+
+    // StopPerfProfile and the counters behind them -- which retail d3d8.lib does
+    // not, because counting draw calls and state changes on every call is a cost
+    // a shipping title should not pay. A title that profiles links this INSTEAD
+    // of libd3d8; the event markers (BeginEvent/EndEvent/SetMarker) are in both.
+    //
+    // Not in the default install: it is opt-in, and building it doubles the d3d8
+    // compile.
+    const d3d8i_objs = libd3d8_pkg.addAllObjectsVariant(b, xbox_target, opt_flag, true);
+    var d3d8i_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    d3d8i_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    d3d8i_deps.append(b.allocator, d3d8i_objs.step) catch @panic("OOM");
+    const libd3d8i = coff_lib.pack(b, "libd3d8i", d3d8i_objs.outputs, d3d8i_deps.items);
+    const install_libd3d8i = b.addInstallFile(libd3d8i.path, "lib/libd3d8i.lib");
+    install_libd3d8i.step.dependOn(libd3d8i.step);
+    const d3d8i_step = b.step("libd3d8i", "Build libd3d8i.lib (D3D8 with D3DPERF instrumentation)");
+    d3d8i_step.dependOn(&install_libd3d8i.step);
+
     // libd3dx8: the Xbox D3DX8 helper library (math/mesh/tex/effect/.X + jpeg/png/zlib).
     // Title-side code; same pack pattern as libd3d8. Not in the default install
     // (archives fine; undefined externals only surface at title link-time).

@@ -1,16 +1,26 @@
 //------------------------------------------------------------------------------
 // xmvplay.c -- the retail XMVDecoder_* public API over our XMV demuxer.
 //
-// PHASE 1: retail container parsing + placeholder video (scrolling YUY2).
-// PHASE 3 (now, alongside): AUDIO. XMVDecoder_EnableAudioStream creates a
+// Container parsing, video decode and audio are all implemented. (This header
+// used to describe the video as a "PHASE 1 placeholder" with the real decode as
+// a TODO; that was written before the decoder landed and outlived it by a long
+// way. RenderPlaceholder still exists, but only as a fallback for the frames
+// before the first keyframe arrives, or if the core could not be allocated --
+// it is not the normal path, and geometry is not a reason to fall back.)
+//
+// VIDEO: keyframes decode through the leak I-frame kernel (baseline) or the
+// ported IntraX8 path when the sequence sets the j_type bit; P-frames through
+// the ported WMV2 layer (picture header, macroblock loop, motion compensation,
+// residual). XmvCoreCreate aligns the coded planes up to macroblock multiples,
+// so a display size that is not a multiple of 16 (810x540 -> coded 816x544) is
+// decoded coded-size and cropped on render -- supported, not a fallback.
+//
+// AUDIO: XMVDecoder_EnableAudioStream creates a
 // DirectSound stream whose WAVEFORMATEX is WAVE_FORMAT_PCM or
 // WAVE_FORMAT_XBOX_ADPCM per the track's compression tag; the MCPX APU decodes
 // ADPCM in hardware (libdsound supports it natively), so no software ADPCM
 // decoder is needed. Each video frame we submit that frame's audio slice (a
 // pointer straight into the in-memory file image -- no copy) to the stream.
-//
-// PHASE 2 (TODO): replace the placeholder with the ported FFmpeg WMV2 decode
-// (WMV2 frame -> YUV420 -> YUY2 into the surface).
 //
 // The public API + ABI match shared/include/xmv.h (the retail header); the sample
 // is unchanged.
@@ -47,8 +57,9 @@ struct XMVDecoder {
     DWORD     frames_shown;
     int       loop;            // XMVFLAG_FULL_LOOP: rewind + continue at EOF
 
-    // Phase 2: leak software video kernel (I-frame/keyframe decode). NULL if the
-    // geometry is unsupported (not /16) -> falls back to the placeholder render.
+    // Software video kernel. NULL only if the frame size was zero or the
+    // allocation failed -- geometry is NOT a reason (XmvCoreCreate aligns up to
+    // macroblock multiples and the render crops).
     XmvVideoCore *core;
     int           have_keyframe;   // set once the first keyframe has been decoded
 
@@ -178,8 +189,8 @@ static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
 
     // Phase 2: spin up the leak software video kernel for keyframe (I-frame)
     // decode. XINTRA8 is left disabled for now (the experiment determines whether
-    // these keyframes are baseline-I or XINTRA8-coded). A NULL core (unsupported
-    // geometry) degrades to the placeholder render.
+    // these keyframes are baseline-I or XINTRA8-coded). A NULL core (zero-sized
+    // frame, or allocation failure) degrades to the placeholder render.
     dec->core = XmvCoreCreate(dec->demux.width, dec->demux.height, 0);
 
     // WMV2 P-frame layer: needs the sequence extradata + the core geometry.
@@ -359,7 +370,8 @@ static void PumpAudio(XMVDecoder *dec)
 }
 
 // ---------------------------------------------------------------------------
-// Video: PHASE 1 placeholder render.
+// Video: fallback render, used before the first keyframe decodes (or if the
+// core could not be allocated). Not the normal path.
 // ---------------------------------------------------------------------------
 
 static void RenderPlaceholder(D3DSurface *pSurface, int keyframe, DWORD frameIdx)
@@ -414,7 +426,8 @@ static int DecodeNextHeld(XMVDecoder *dec)
     // the ported WMV2 path (header parse + MB loop + motion comp + residual),
     // reconstructing into the building planes from the displayed (reference)
     // planes, then promoted with a swap. Decoded in sequence (P depends on the
-    // previous frame). No core (unsupported geometry) -> placeholder render.
+    // previous frame). No core (zero-sized frame / allocation failure) ->
+    // placeholder render.
     if (dec->core) {
         if (keyframe) {
             if (dec->wmv2_ok && dec->x8_ok) {

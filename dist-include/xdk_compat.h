@@ -14,11 +14,24 @@
 // available). Every definition is guarded, so it never conflicts with an
 // in-tree bridge or a fuller Win32 header that already supplies the name.
 //
-// (The MSVC CRT function shims -- _finite/_isnan/_stricmp/_controlfp/_fpclass
-// -- live in the bridges too, but are used only by library .cpp sources, never
-// by the public headers, so they are intentionally left out of the title
-// surface.)
+// (The remaining MSVC CRT shims -- _stricmp/_controlfp/_fpclass -- live in the
+// bridges only: they are used by library .cpp sources, never by the public
+// headers. _finite/_isnan used to be in that group, but a title does reach for
+// them -- TechCertGame's physics guards every result with _finite -- so they are
+// part of the title surface below.)
 //
+
+/*
+ * MSVC CRT floating-point predicates. The XDK CRT had these; picolibc spells them
+ * isfinite/isnan. Written against the compiler builtins rather than <math.h> so
+ * this header stays include-free, and guarded like everything else here.
+ */
+#ifndef _finite
+#define _finite(x) (__builtin_isfinite(x))
+#endif
+#ifndef _isnan
+#define _isnan(x)  (__builtin_isnan(x))
+#endif
 
 /* Calling-convention keywords (clang honors them under -fms-extensions). */
 #ifndef WINAPI

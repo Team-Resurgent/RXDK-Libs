@@ -150,7 +150,7 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **179 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
+_Sample sweep: **ALL 181 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
 **Three sample sources — check all three before calling anything missing.** Most of what was
 recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
@@ -189,17 +189,19 @@ step invokes the assembler.
   ripped song by handle instead of by path; `WmaCreateDecoderEx` takes either.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
-**Nothing but the art gap is left.** Every port issue is closed.
+**There is no art gap.** The last two, FXMultiPass and GlobalFX, needed `DSPImage.h` -- which is
+tool output, not art. `dspimage.fx` ships with both samples and the XDK ships `dspbuilder.exe`; it is
+a GUI, but the original `.vcproj` documents a batch rule (`dspbuilder /B <fx> /Ob <bin> /Oh <h> /Oi
+<inidir>`) and `dspbuilder.com` pipes its stdio. It only failed with "Unable to load effects" because
+the XDK here is unpacked rather than installed -- point `_XGPIMAGE_DSP_CODE_PATH` at
+`<XDK>\Source\DSound\dspin` and `_XGPIMAGE_INI_PATH` at `...\ini` and it builds headlessly. The
+generated `.h`/`.bin` are checked in, so building stays cross-platform; only authoring a new DSP graph
+needs the tool.
 
-FastCPU was the last one: its skinning loop's labels were C labels between single-statement `__asm`
-lines, and clang scopes an asm block's labels to that ONE block. Folded into a single block, which
-forced the macros out of the self-contained `__asm { __asm insn ... }` form (a nested asm block will
-not parse inside another) into bare `__asm insn` lines. Because it is a benchmark -- where a subtle
-error yields wrong numbers rather than a failure -- it was verified by DISASSEMBLING the object and
-counting the loop body against the source: movss 8, shufps 24, movaps 36, mulps 32, addps 27,
-movlps 2, mov 9, add 13, sub 1, cmp 9, je 7, jne 2, prefetchnta 2 -- all exact. Still not run on
-hardware, so the numbers it reports are unverified.
-
+Every earlier port issue is closed too. FastCPU was verified by DISASSEMBLING the object and counting
+the loop body against the source (movss 8, shufps 24, movaps 36, mulps 32, addps 27, movlps 2, mov 9,
+add 13, sub 1, cmp 9, je 7, jne 2) -- all exact -- because it is a benchmark, where a subtle error
+gives wrong numbers rather than a failure. Still not run on hardware.
 **VolumeSprites builds**: the Bundler now handles VolumeTexture resources. `Swizzle.SwizzleBox3D` is
 a port of the `Swizzler` class in the public `xgraphics.h` (the one `XGSwizzleBox` drives), NOT an
 extension of `GetMasks2` -- the latter splits U/V by a lower/upper mask, while `Swizzler` interleaves

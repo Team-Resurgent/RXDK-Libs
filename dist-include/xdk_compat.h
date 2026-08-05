@@ -315,3 +315,13 @@ inline BOOL WINAPI D3DPERF_QueryRepeatFrame(void) { return FALSE; }
 #ifndef MAXULONG_PTR
 #define MAXULONG_PTR (~(ULONG_PTR)0)
 #endif
+
+// FIELD_OFFSET (winnt.h) — byte offset of a member. NT_INCLUDED skips winnt.h, so
+// this never reached a title even though libxapi has it internally; GlobalFX uses
+// it to tell SetEffectData which field of a DSP parameter block it is writing.
+// Spelled with the builtin rather than winnt.h's &(((type *)0)->field): same
+// value, but it is a constant expression the compiler blesses instead of a null
+// dereference it warns about.
+#ifndef FIELD_OFFSET
+#define FIELD_OFFSET(type, field) ((LONG)__builtin_offsetof(type, field))
+#endif

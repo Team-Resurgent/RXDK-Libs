@@ -150,7 +150,7 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **176 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
+_Sample sweep: **177 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
 **Three sample sources — check all three before calling anything missing.** Most of what was
 recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
@@ -189,9 +189,16 @@ step invokes the assembler.
   ripped song by handle instead of by path; `WmaCreateDecoderEx` takes either.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
-- **Port issues (3).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a
-  subtle error gives wrong numbers silently), VolumeSprites (Bundler rejects VolumeTexture
-  resources -- needs a 3D swizzle + resampler), PerfTest (`D3DPERF_*` counters, only in d3d8d/d3d8i
-  -- note the event markers BeginEvent/EndEvent/SetMarker ARE retail and are now implemented).
+- **Port issues (2).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a
+  subtle error gives wrong numbers silently) and VolumeSprites (Bundler rejects VolumeTexture
+  resources -- needs a 3D swizzle + resampler).
+
+**PerfTest builds, but read what it reports carefully.** `D3DPERF_GetPushBufferInfo` is REAL -- size,
+segment size/count, base/limit and bytes-written all come from the pusher. Every event counter and
+the GPU busy/idle profile read exactly ZERO, because the XDK gathered those in a separate
+instrumented build (d3d8i.lib) and RXDK ships the retail one. They are zero rather than
+small-but-plausible precisely so the absence is visible; `GetStatistics` also says so once in the
+debug log, and `StartPerfProfile` returns FALSE rather than handing back an all-zero profile that
+would read as an idle GPU.
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

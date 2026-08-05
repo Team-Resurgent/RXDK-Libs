@@ -211,7 +211,7 @@ STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pc
 STDAPI IXACTEngine_SetListenerPosition(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
 STDAPI IXACTEngine_SetListenerVelocity(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
 STDAPI IXACTEngine_SetListenerOrientation(PXACTENGINE pEngine, FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
-STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, BOOL bPause);
+STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD wCategory, BOOL bPause);
 STDAPI IXACTEngine_RegisterNotification(PXACTENGINE pEngine, PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
 STDAPI IXACTEngine_UnRegisterNotification(PXACTENGINE pEngine, PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc);
 STDAPI IXACTEngine_GetNotification(PXACTENGINE pEngine, PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc, PXACT_NOTIFICATION pNotification);
@@ -276,9 +276,9 @@ struct IXACTEngine
 	    return IXACTEngine_SetListenerParameters(this, pcDs3dListener, pds3dl, dwApply);
 	}
 
-    __inline HRESULT STDMETHODCALLTYPE GlobalPause(BOOL bPause)
+    __inline HRESULT STDMETHODCALLTYPE GlobalPause(WORD wCategory, BOOL bPause)
     {
-        return IXACTEngine_GlobalPause(this,bPause);
+        return IXACTEngine_GlobalPause(this, wCategory, bPause);
     }
 
     __inline HRESULT STDMETHODCALLTYPE RegisterNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc)
@@ -805,6 +805,143 @@ struct XACT_TRACK_EVENT {
 
 //@@END_MSINTERNAL
 
+
+
+
+//
+// RXDK 5849 uplift: IXACTWmaPlayList.
+//
+// This is libxact's own copy of the API surface (the public shared/include/xact.h
+// is shadowed by inc/xact.h on this lib's include path), so the playlist
+// declarations have to be mirrored here or the engine cannot see the types it
+// implements. Keep this in step with the public header -- same discipline as
+// dsound.h/dsoundp.h.
+//
+
+typedef struct IXACTWmaPlayList IXACTWmaPlayList;
+typedef IXACTWmaPlayList *LPXACTWMAPLAYLIST;
+typedef IXACTWmaPlayList *PXACTWMAPLAYLIST;
+
+typedef struct IXACTWmaSong IXACTWmaSong;
+typedef IXACTWmaSong *LPXACTWMASONG;
+typedef IXACTWmaSong *PXACTWMASONG;
+
+typedef enum _XACT_WMA_PLAYLIST_ADD_TYPE
+{
+    eXACTWmaPlayListAdd_Directory = 1,
+    eXACTWmaPlayListAdd_File,
+    eXACTWmaPlayListAdd_Soundtrack,
+    eXACTWmaPlayListAdd_SoundtrackSong,
+    eXACTWmaPlayListAdd_Max
+} XACT_WMA_PLAYLIST_ADD_TYPE;
+
+#define XACT_FLAG_WMAPLAYLIST_PLAYBACK_RANDOM   0x00000001
+#define XACT_FLAG_WMAPLAYLIST_PLAYBACK_LOOP     0x00000002
+#define XACT_MASK_WMAPLAYLIST_PLAYBACK_FLAGS    (XACT_FLAG_WMAPLAYLIST_PLAYBACK_RANDOM | XACT_FLAG_WMAPLAYLIST_PLAYBACK_LOOP)
+
+typedef struct _XACT_WMA_PLAYLIST_ADD {
+    DWORD   dwType;
+    PCSTR   pszFileName;
+    DWORD   dwSoundtrackId;
+    DWORD   dwSongId;
+    DWORD   dwSongIndex;
+} XACT_WMA_PLAYLIST_ADD, *PXACT_WMA_PLAYLIST_ADD;
+
+typedef const XACT_WMA_PLAYLIST_ADD *PCXACT_WMA_PLAYLIST_ADD;
+
+typedef struct _XACT_WMASONG_DESCRIPTION
+{
+    WMAXMOFileContDesc  Content;
+    WMAXMOFileHeader    Header;
+} XACT_WMASONG_DESCRIPTION, *PXACT_WMASONG_DESCRIPTION;
+
+typedef struct _XACT_WMA_PLAYLIST_PROPERTIES {
+    DWORD           dwPlaybackFlags;
+    DWORD           dwSongEntryCount;
+    PXACTWMASONG    pFirstSong;
+    PXACTWMASONG    pLastSong;
+} XACT_WMA_PLAYLIST_PROPERTIES, *PXACT_WMA_PLAYLIST_PROPERTIES;
+
+STDAPI IXACTSoundBank_CreateWmaPlayList(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, DWORD dwPlaybackFlags, PXACTWMAPLAYLIST *ppWmaPlayList);
+
+STDAPI_(ULONG) IXACTWmaPlayList_AddRef(PXACTWMAPLAYLIST pPlayList);
+STDAPI_(ULONG) IXACTWmaPlayList_Release(PXACTWMAPLAYLIST pPlayList);
+STDAPI IXACTWmaPlayList_Add(PXACTWMAPLAYLIST pPlayList, PCXACT_WMA_PLAYLIST_ADD pDesc, PXACTWMASONG *ppSong);
+STDAPI IXACTWmaPlayList_Remove(PXACTWMAPLAYLIST pPlayList, PXACTWMASONG pSong);
+STDAPI IXACTWmaPlayList_SetCurrent(PXACTWMAPLAYLIST pPlayList, PXACTWMASONG pSong);
+STDAPI IXACTWmaPlayList_Next(PXACTWMAPLAYLIST pPlayList);
+STDAPI IXACTWmaPlayList_Previous(PXACTWMAPLAYLIST pPlayList);
+STDAPI IXACTWmaPlayList_GetCurrentSongInfo(PXACTWMAPLAYLIST pPlayList, PDWORD pdwSongLength, PWCHAR pszNameBuffer, DWORD dwBufferSize, PXACTWMASONG *ppSong);
+STDAPI IXACTWmaPlayList_GetCurrentSongInfoEx(PXACTWMAPLAYLIST pPlayList, PXACT_WMASONG_DESCRIPTION pDesc, PXACTWMASONG *ppSong);
+STDAPI IXACTWmaPlayList_SetPlaybackBehavior(PXACTWMAPLAYLIST pPlayList, DWORD dwFlags);
+STDAPI IXACTWmaPlayList_GetProperties(PXACTWMAPLAYLIST pPlayList, PXACT_WMA_PLAYLIST_PROPERTIES pProperties);
+
+#ifdef __cplusplus
+
+//
+// Not a vtable interface: like IXACTSoundBank, this is a plain struct of inline
+// forwarders, and the C entry points above cast the pointer back to the engine
+// class. The engine class derives from it for the same reason CSoundBank does.
+//
+struct IXACTWmaPlayList
+{
+    __inline ULONG STDMETHODCALLTYPE AddRef(void)
+    {
+        return IXACTWmaPlayList_AddRef(this);
+    }
+
+    __inline ULONG STDMETHODCALLTYPE Release(void)
+    {
+        return IXACTWmaPlayList_Release(this);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE Add(PCXACT_WMA_PLAYLIST_ADD pDesc, PXACTWMASONG *ppSong)
+    {
+        return IXACTWmaPlayList_Add(this, pDesc, ppSong);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE Remove(PXACTWMASONG pSong)
+    {
+        return IXACTWmaPlayList_Remove(this, pSong);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE SetCurrent(PXACTWMASONG pSong)
+    {
+        return IXACTWmaPlayList_SetCurrent(this, pSong);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE Next()
+    {
+        return IXACTWmaPlayList_Next(this);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE Previous()
+    {
+        return IXACTWmaPlayList_Previous(this);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE GetCurrentSongInfo(PDWORD pdwSongLength, PWCHAR pszNameBuffer, DWORD dwBufferSize, PXACTWMASONG *ppSong)
+    {
+        return IXACTWmaPlayList_GetCurrentSongInfo(this, pdwSongLength, pszNameBuffer, dwBufferSize, ppSong);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE GetCurrentSongInfoEx(PXACT_WMASONG_DESCRIPTION pDesc, PXACTWMASONG *ppSong)
+    {
+        return IXACTWmaPlayList_GetCurrentSongInfoEx(this, pDesc, ppSong);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE SetPlaybackBehavior(DWORD dwFlags)
+    {
+        return IXACTWmaPlayList_SetPlaybackBehavior(this, dwFlags);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE GetProperties(PXACT_WMA_PLAYLIST_PROPERTIES pProperties)
+    {
+        return IXACTWmaPlayList_GetProperties(this, pProperties);
+    }
+};
+
+#endif // __cplusplus
 
 
 #endif // __XACT_ENGINE INCLUDED__

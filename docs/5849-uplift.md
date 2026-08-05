@@ -150,7 +150,7 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **173 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
+_Sample sweep: **176 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
 **Three sample sources — check all three before calling anything missing.** Most of what was
 recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
@@ -175,8 +175,16 @@ managed port (see `tools/shaders/README.md`); regenerating a checked-in `.inl` d
 step invokes the assembler.
 
 **What is actually left:**
-- **XACT WMA playlist, 3 samples.** XActWMAPlayList, TechCertGame and TechCertdemo all stop at
-  `IXACTSoundBank_CreateWmaPlayList` / `IXACTWmaPlayList_Release`.
+- **XACT WMA playlist -- API DONE, PLAYBACK NOT WIRED.** `IXACTWmaPlayList` is implemented from
+  scratch in `libs/libxact/engine/wmaplaylist.cpp` (the leak has no WmaPlayList source anywhere), so
+  XActWMAPlayList, TechCertGame and TechCertdemo now build. Building the song set, walking it
+  ordered/shuffled/looping, removing entries, and reading the current song's title and duration out
+  of its WMA header all work. What does NOT: a playlist is bound to a sound cue and playing that cue
+  should stream the current song -- that path is still the ordinary wave-bank one, so a title can
+  drive and display its playlist but will not hear it. Wiring it means teaching `CSoundCue` to
+  render from an XMO and pumping it from `CEngine::DoWork`; `CWmaPlayList::OpenCurrentDecoder` is the
+  hook it will use. User soundtracks (`eXACTWmaPlayListAdd_Soundtrack`) need xsndtrk, which RXDK does
+  not have, and return `E_NOTIMPL` so a title can fall back to its own music.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
 - **Port issues (3).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a

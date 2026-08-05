@@ -878,6 +878,15 @@ private:
 
 } //namespace
 
+//
+// RXDK 5849 uplift: IXACTWmaPlayList. Declared after the namespace block above
+// because it refers to CSoundBank and CRefCount; it opens namespace XACT again
+// itself.
+//
+
+#include "wmaplaylist.h"
+
+
 
 
 

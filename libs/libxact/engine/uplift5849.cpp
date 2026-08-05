@@ -140,3 +140,95 @@ STDAPI IXACTSoundSource_StopSoundCues(PXACTSOUNDSOURCE pSoundSource)
 {
     return ((CSoundSource *)pSoundSource)->StopSoundCues();
 }
+
+// ---- IXACTWmaPlayList (RXDK 5849 uplift) -----------------------------------------------------
+//
+// The playlist object itself is in engine/wmaplaylist.cpp. These are the C entry points the
+// public xact.h declares, plus the sound-bank factory that creates one.
+
+STDAPI IXACTSoundBank_CreateWmaPlayList(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex,
+                                        DWORD dwPlaybackFlags, PXACTWMAPLAYLIST *ppWmaPlayList)
+{
+    if (pBank == NULL || ppWmaPlayList == NULL) {
+        return E_INVALIDARG;
+    }
+
+    *ppWmaPlayList = NULL;
+
+    CWmaPlayList *pPlayList = new CWmaPlayList;
+    if (pPlayList == NULL) {
+        return E_OUTOFMEMORY;
+    }
+
+    HRESULT hr = pPlayList->Initialize((CSoundBank *)pBank, dwSoundCueIndex, dwPlaybackFlags);
+    if (FAILED(hr)) {
+        pPlayList->Release();
+        return hr;
+    }
+
+    *ppWmaPlayList = (PXACTWMAPLAYLIST)pPlayList;
+
+    return S_OK;
+}
+
+STDAPI_(ULONG) IXACTWmaPlayList_AddRef(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->AddRef();
+}
+
+STDAPI_(ULONG) IXACTWmaPlayList_Release(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->Release();
+}
+
+STDAPI IXACTWmaPlayList_Add(PXACTWMAPLAYLIST pPlayList, PCXACT_WMA_PLAYLIST_ADD pDesc,
+                            PXACTWMASONG *ppSong)
+{
+    return ((CWmaPlayList *)pPlayList)->Add(pDesc, ppSong);
+}
+
+STDAPI IXACTWmaPlayList_Remove(PXACTWMAPLAYLIST pPlayList, PXACTWMASONG pSong)
+{
+    return ((CWmaPlayList *)pPlayList)->Remove(pSong);
+}
+
+STDAPI IXACTWmaPlayList_SetCurrent(PXACTWMAPLAYLIST pPlayList, PXACTWMASONG pSong)
+{
+    return ((CWmaPlayList *)pPlayList)->SetCurrent(pSong);
+}
+
+STDAPI IXACTWmaPlayList_Next(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->Next();
+}
+
+STDAPI IXACTWmaPlayList_Previous(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->Previous();
+}
+
+STDAPI IXACTWmaPlayList_GetCurrentSongInfo(PXACTWMAPLAYLIST pPlayList, PDWORD pdwSongLength,
+                                           PWCHAR pszNameBuffer, DWORD dwBufferSize,
+                                           PXACTWMASONG *ppSong)
+{
+    return ((CWmaPlayList *)pPlayList)->GetCurrentSongInfo(pdwSongLength, pszNameBuffer,
+                                                           dwBufferSize, ppSong);
+}
+
+STDAPI IXACTWmaPlayList_GetCurrentSongInfoEx(PXACTWMAPLAYLIST pPlayList,
+                                             PXACT_WMASONG_DESCRIPTION pDesc,
+                                             PXACTWMASONG *ppSong)
+{
+    return ((CWmaPlayList *)pPlayList)->GetCurrentSongInfoEx(pDesc, ppSong);
+}
+
+STDAPI IXACTWmaPlayList_SetPlaybackBehavior(PXACTWMAPLAYLIST pPlayList, DWORD dwFlags)
+{
+    return ((CWmaPlayList *)pPlayList)->SetPlaybackBehavior(dwFlags);
+}
+
+STDAPI IXACTWmaPlayList_GetProperties(PXACTWMAPLAYLIST pPlayList,
+                                      PXACT_WMA_PLAYLIST_PROPERTIES pProperties)
+{
+    return ((CWmaPlayList *)pPlayList)->GetProperties(pProperties);
+}

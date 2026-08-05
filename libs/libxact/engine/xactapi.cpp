@@ -88,7 +88,11 @@ STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pc
     return ((CEngine *)pEngine)->SetListenerParameters(pcDs3dListener, pds3dl, dwApply);
 }
 
-STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, BOOL bPause)
+// RXDK 5849 uplift: 5849 added a wCategory selector here too, the same way it did to
+// SetMasterVolume. The leak pauses everything at once, so the category is ignored -- a title
+// pausing one category gets everything paused, which is louder-wrong than quieter-wrong, but
+// pausing is what it asked for and unpausing restores the same set.
+STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD /*wCategory*/, BOOL bPause)
 {
     using namespace XACT;
     return ((CEngine *)pEngine)->GlobalPause(bPause);

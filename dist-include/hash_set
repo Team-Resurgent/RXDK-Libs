@@ -1,0 +1,93 @@
+// <hash_set> -- stdext::hash_set / stdext::hash_multiset.
+//
+// The Visual C++ 7.x extension containers the XDK shipped, re-expressed on top of
+// std::unordered_set / std::unordered_multiset. See rxdk_xhash.h for what that
+// does and does not preserve.
+
+#ifndef _RXDK_HASH_SET_
+#define _RXDK_HASH_SET_
+
+#include <rxdk_xhash.h>
+#include <unordered_set>
+
+namespace stdext {
+
+template<class _Kty,
+         class _Tr = hash_compare<_Kty>,
+         class _Alloc = std::allocator<_Kty> >
+class hash_set
+    : public std::unordered_set<_Kty,
+                                _RxdkHashDetail::hasher_of<_Tr>,
+                                _RxdkHashDetail::equal_of<_Tr>,
+                                typename _RxdkHashDetail::rebound<_Alloc, _Kty>::type>
+{
+    typedef std::unordered_set<_Kty,
+                               _RxdkHashDetail::hasher_of<_Tr>,
+                               _RxdkHashDetail::equal_of<_Tr>,
+                               typename _RxdkHashDetail::rebound<_Alloc, _Kty>::type> _Base;
+
+public:
+    typedef _Tr key_compare;
+    typedef _Alloc allocator_type;
+
+    hash_set() : _Base() { }
+
+    explicit hash_set(const _Tr& _Traits)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits)) { }
+
+    hash_set(const _Tr& _Traits, const _Alloc& _Al)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits),
+                typename _Base::allocator_type(_Al)) { }
+
+    // Hand back the allocator type the caller named, not the rebound one, so that
+    // comparing it against the allocator they passed in compares like with like.
+    _Alloc get_allocator() const
+    {
+        return _Alloc(_Base::get_allocator());
+    }
+};
+
+template<class _Kty,
+         class _Tr = hash_compare<_Kty>,
+         class _Alloc = std::allocator<_Kty> >
+class hash_multiset
+    : public std::unordered_multiset<_Kty,
+                                     _RxdkHashDetail::hasher_of<_Tr>,
+                                     _RxdkHashDetail::equal_of<_Tr>,
+                                     typename _RxdkHashDetail::rebound<_Alloc, _Kty>::type>
+{
+    typedef std::unordered_multiset<_Kty,
+                                    _RxdkHashDetail::hasher_of<_Tr>,
+                                    _RxdkHashDetail::equal_of<_Tr>,
+                                    typename _RxdkHashDetail::rebound<_Alloc, _Kty>::type> _Base;
+
+public:
+    typedef _Tr key_compare;
+    typedef _Alloc allocator_type;
+
+    hash_multiset() : _Base() { }
+
+    explicit hash_multiset(const _Tr& _Traits)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits)) { }
+
+    hash_multiset(const _Tr& _Traits, const _Alloc& _Al)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits),
+                typename _Base::allocator_type(_Al)) { }
+
+    _Alloc get_allocator() const
+    {
+        return _Alloc(_Base::get_allocator());
+    }
+};
+
+} // namespace stdext
+
+#endif // _RXDK_HASH_SET_

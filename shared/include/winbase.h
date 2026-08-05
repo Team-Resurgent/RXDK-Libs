@@ -572,6 +572,27 @@ VirtualQueryEx(
     IN DWORD dwLength
     );
 
+//
+// Flags for flOptions above and for the dwFlags of HeapAlloc/HeapFree/HeapReAlloc.
+// These were declared only in libxapi's internal headers, so a title could call
+// HeapCreate but had no way to name what it was passing.
+//
+#ifndef HEAP_NO_SERIALIZE
+#define HEAP_NO_SERIALIZE               0x00000001
+#endif
+#ifndef HEAP_GROWABLE
+#define HEAP_GROWABLE                   0x00000002
+#endif
+#ifndef HEAP_GENERATE_EXCEPTIONS
+#define HEAP_GENERATE_EXCEPTIONS        0x00000004
+#endif
+#ifndef HEAP_ZERO_MEMORY
+#define HEAP_ZERO_MEMORY                0x00000008
+#endif
+#ifndef HEAP_REALLOC_IN_PLACE_ONLY
+#define HEAP_REALLOC_IN_PLACE_ONLY      0x00000010
+#endif
+
 WINBASEAPI
 HANDLE
 __attribute__((__stdcall__))

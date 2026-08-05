@@ -1,0 +1,98 @@
+// <hash_map> -- stdext::hash_map / stdext::hash_multimap.
+//
+// The Visual C++ 7.x extension containers the XDK shipped, re-expressed on top of
+// std::unordered_map / std::unordered_multimap. See rxdk_xhash.h for what that
+// does and does not preserve.
+
+#ifndef _RXDK_HASH_MAP_
+#define _RXDK_HASH_MAP_
+
+#include <rxdk_xhash.h>
+#include <unordered_map>
+#include <utility>
+
+namespace stdext {
+
+template<class _Kty,
+         class _Ty,
+         class _Tr = hash_compare<_Kty>,
+         class _Alloc = std::allocator<std::pair<const _Kty, _Ty> > >
+class hash_map
+    : public std::unordered_map<_Kty, _Ty,
+                                _RxdkHashDetail::hasher_of<_Tr>,
+                                _RxdkHashDetail::equal_of<_Tr>,
+                                typename _RxdkHashDetail::rebound<_Alloc, std::pair<const _Kty, _Ty> >::type>
+{
+    typedef std::unordered_map<_Kty, _Ty,
+                               _RxdkHashDetail::hasher_of<_Tr>,
+                               _RxdkHashDetail::equal_of<_Tr>,
+                               typename _RxdkHashDetail::rebound<_Alloc, std::pair<const _Kty, _Ty> >::type> _Base;
+
+public:
+    typedef _Tr key_compare;
+    typedef _Alloc allocator_type;
+
+    hash_map() : _Base() { }
+
+    explicit hash_map(const _Tr& _Traits)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits)) { }
+
+    // Callers routinely pass an allocator for the mapped type rather than for
+    // pair<const Key, T> -- the XDK sample hands the same one to hash_set and
+    // hash_map -- so the rebind above is what makes that work, and get_allocator
+    // undoes it so the caller can compare against what they passed.
+    hash_map(const _Tr& _Traits, const _Alloc& _Al)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits),
+                typename _Base::allocator_type(_Al)) { }
+
+    _Alloc get_allocator() const
+    {
+        return _Alloc(_Base::get_allocator());
+    }
+};
+
+template<class _Kty,
+         class _Ty,
+         class _Tr = hash_compare<_Kty>,
+         class _Alloc = std::allocator<std::pair<const _Kty, _Ty> > >
+class hash_multimap
+    : public std::unordered_multimap<_Kty, _Ty,
+                                     _RxdkHashDetail::hasher_of<_Tr>,
+                                     _RxdkHashDetail::equal_of<_Tr>,
+                                     typename _RxdkHashDetail::rebound<_Alloc, std::pair<const _Kty, _Ty> >::type>
+{
+    typedef std::unordered_multimap<_Kty, _Ty,
+                                    _RxdkHashDetail::hasher_of<_Tr>,
+                                    _RxdkHashDetail::equal_of<_Tr>,
+                                    typename _RxdkHashDetail::rebound<_Alloc, std::pair<const _Kty, _Ty> >::type> _Base;
+
+public:
+    typedef _Tr key_compare;
+    typedef _Alloc allocator_type;
+
+    hash_multimap() : _Base() { }
+
+    explicit hash_multimap(const _Tr& _Traits)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits)) { }
+
+    hash_multimap(const _Tr& _Traits, const _Alloc& _Al)
+        : _Base(_RxdkHashDetail::_Default_buckets,
+                typename _Base::hasher(_Traits),
+                typename _Base::key_equal(_Traits),
+                typename _Base::allocator_type(_Al)) { }
+
+    _Alloc get_allocator() const
+    {
+        return _Alloc(_Base::get_allocator());
+    }
+};
+
+} // namespace stdext
+
+#endif // _RXDK_HASH_MAP_

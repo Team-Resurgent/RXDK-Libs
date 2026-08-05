@@ -479,7 +479,17 @@
 #endif                           /* !(__STDC__ || __cplusplus) */
 #define __XSTRING(x) __STRING(x) /* expand x, then stringify */
 
-#if !__GNUC_PREREQ__(2, 95)
+/*
+ * RXDK: also skip this under Clang, which always has __alignof as a keyword.
+ * The __GNUC_PREREQ__ test alone is not enough for us: RXDK compiles with
+ * -fms-compatibility, under which Clang defines _MSC_VER and leaves __GNUC__
+ * undefined, so the test reads as "older than GCC 2.95" and this fallback wins.
+ * Defining __alignof as a function-like macro then breaks any C++ that uses the
+ * keyword -- libc++'s _LIBCPP_PREFERRED_ALIGNOF expands to __alignof(_Tp), and
+ * <functional> stopped compiling because the struct below landed where a type
+ * was expected.
+ */
+#if !__GNUC_PREREQ__(2, 95) && !defined(__clang__)
 #define __alignof(x)  \
     __offsetof(       \
         struct {      \

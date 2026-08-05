@@ -82,8 +82,16 @@ public:
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
-    STDMETHOD(Clear)(THIS); // Clear all pending events
-    STDMETHOD(ClearAtOrAfter)(THIS_ REFERENCE_TIME prtClearTime);
+    // RXDK: PURE added. These two were the only methods in either interface
+    // declared without it -- every sibling has it and neither is defined
+    // anywhere, so they were virtual-but-undefined. MSVC tolerated that
+    // (DECLSPEC_NOVTABLE suppresses the vtable for an abstract interface);
+    // clang needs a key function, so the vtable was never emitted and any
+    // title linking the sequencer failed on "undefined symbol: vtable for
+    // IDirectSoundSequencerBuffer/Stream". Making them pure -- which is what
+    // they plainly are -- makes the interfaces fully abstract again.
+    STDMETHOD(Clear)(THIS) PURE; // Clear all pending events
+    STDMETHOD(ClearAtOrAfter)(THIS_ REFERENCE_TIME prtClearTime) PURE;
 
     STDMETHOD(GetSequenceNumber)(THIS_ LPSEQUENCE_NUMBER pSequenceNumber) PURE; // Associated with next event to be queued
     STDMETHOD(GetStatus)        (THIS_ LPDWORD pdwStatus) PURE;
@@ -222,8 +230,16 @@ public:
     STDMETHOD_(ULONG, AddRef)(THIS) PURE;
     STDMETHOD_(ULONG, Release)(THIS) PURE;
 
-    STDMETHOD(Clear)(THIS); // Clear all pending events
-    STDMETHOD(ClearAtOrAfter)(THIS_ REFERENCE_TIME rtTimeStamp);
+    // RXDK: PURE added. These two were the only methods in either interface
+    // declared without it -- every sibling has it and neither is defined
+    // anywhere, so they were virtual-but-undefined. MSVC tolerated that
+    // (DECLSPEC_NOVTABLE suppresses the vtable for an abstract interface);
+    // clang needs a key function, so the vtable was never emitted and any
+    // title linking the sequencer failed on "undefined symbol: vtable for
+    // IDirectSoundSequencerBuffer/Stream". Making them pure -- which is what
+    // they plainly are -- makes the interfaces fully abstract again.
+    STDMETHOD(Clear)(THIS) PURE; // Clear all pending events
+    STDMETHOD(ClearAtOrAfter)(THIS_ REFERENCE_TIME rtTimeStamp) PURE;
 
     STDMETHOD(GetSequenceNumber)(THIS_ LPSEQUENCE_NUMBER pSequenceNumber) PURE; // Associated with next event to be queued
     STDMETHOD(GetStatus)        (THIS_ LPDWORD pdwStatus) PURE;

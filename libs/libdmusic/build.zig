@@ -104,6 +104,55 @@ fn sliceFlags(b: *std.Build, slice: dmusic_sources.Slice) []const []const u8 {
     return list.toOwnedSlice(b.allocator) catch @panic("OOM");
 }
 
+// Flags for the dmsynth-seq slice: libdsound's DRIVER environment, mirroring
+// libs/libdsound/build.zig's common set (it must match -- this TU compiles
+// libdsound's internal headers). -DXMIX because the whole file is guarded on it;
+// POOL_TAG/DPF_LIBRARY because it checks for both at the top.
+fn driverEnvFlags(b: *std.Build) []const []const u8 {
+    const base = [_][]const u8{
+        "-std=c++17",       "-fexceptions",      "-fno-rtti",           "-nostdinc++",
+        "-ffreestanding",   "-fno-stack-protector", "-fdata-sections",  "-ffunction-sections",
+        "-nostdinc",        "-fms-extensions",   "-fms-compatibility",  "-fasm-blocks",
+        "-fno-operator-names", "-fno-sanitize=undefined", "-fno-builtin", "-Wno-everything",
+        "-D_XAPI_",         "-DDPF_LIBRARY=\"DSOUND\"", "-DXMIX",      "-DPOOL_TAG='SUMD'",
+        "-Xclang",          "-fdefault-calling-conv=stdcall",
+        "-include",         "libs/libdsound/site/cdecl_libc.h",
+        "-include",         "picolibc.h",
+        "-include",         "libs/libxapi/site/profile.h",
+        "-include",         "libs/libdsound/site/bridge_dsound.h",
+    };
+    return b.allocator.dupe([]const u8, &base) catch @panic("OOM");
+}
+
+// Include path for the dmsynth-seq slice: dmusic's own directories (for
+// dsoundsequencer.h, dmime/cmixbins.h, xalloc.h) ahead of libdsound's internal
+// tree, then the shared set.
+fn driverEnvIncludeDirs() []const []const u8 {
+    return &.{
+        X ++ "/dmsynth",
+        X ++ "/dmime",
+        X ++ "/xprivate",
+        X ++ "/shared",
+        X ++ "/inc",
+        "libs/libdsound/dsound",
+        "libs/libdsound/common",
+        "libs/libdsound/ac97",
+        "libs/libdsound/tools_inc",
+        "shared/include",
+        "libs/libxapi/internal",
+        "libs/libxapi/internal/shims",
+        "libs/libxapi/support/inc",
+        "libs/libxapi/support/inc/ntos",
+        "libs/libxapi/nt",
+        "libs/libxapi/rtl/inc",
+        "libs/libxapi/port",
+        "libs/libxapi/site",
+        "build/generated",
+        "shared/picolibc/include",
+        "shared/picolibc/machine/x86",
+    };
+}
+
 pub const ObjectBatch = struct {
     step: *std.Build.Step,
     outputs: []const std.Build.LazyPath,
@@ -119,14 +168,14 @@ pub fn addAllObjects(
     var all_steps = std.ArrayListUnmanaged(*std.Build.Step).empty;
 
     for (dmusic_sources.slices) |slice| {
-        const flags = sliceFlags(b, slice);
+        const flags = if (slice.driver_env) driverEnvFlags(b) else sliceFlags(b, slice);
         const batch = compile_c.addBatch(b, .{
             .name = b.fmt("dmusic-{s}", .{slice.name}),
             .target = xbox_target.target_triple,
             .out_subdir = b.fmt("dmusic/{s}", .{slice.name}),
             .sources = slice.sources,
             .flags = flags,
-            .include_dirs = includeDirs(),
+            .include_dirs = if (slice.driver_env) driverEnvIncludeDirs() else includeDirs(),
             .opt_flag = opt_flag,
             .is_cpp = slice.is_cpp,
         });

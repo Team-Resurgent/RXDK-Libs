@@ -27,6 +27,9 @@ pub const Slice = struct {
     pch: ?[]const u8 = null,
     // Per-component C_DEFINES beyond the shared dmusic set (see build.zig).
     extra_defines: []const []const u8 = &.{},
+    // Build in libdsound's DRIVER environment rather than the title-side dmusic
+    // one -- see the dmsynth-seq slice below.
+    driver_env: bool = false,
 };
 
 const D = "libs/libdmusic/";
@@ -51,12 +54,25 @@ const dmsynth_cpp = [_][]const u8{
     D ++ "dmsynth/wave.cpp",
     D ++ "dmsynth/dls.cpp",
     D ++ "dmsynth/dmrand.cpp",
-    // NOTE: dsoundsequencer.cpp (the XMIX DirectSound HW-mix sequencer) is
-    // EXCLUDED: unlike the rest of dmusic it is compiled in the DirectSound
-    // *driver* environment -- it pulls <nt.h>/<ntos.h> + libdsound's internal
-    // tree (dsoundi.h->dscommon.h->nt.h), whose SIZE_T/kernel typedefs collide
-    // with the title-side bridge every other TU uses. It would need its own
-    // driver-env compile (separate bridge + libdsound internal include set).
+    // dsoundsequencer.cpp is not here -- it builds in its own slice below.
+};
+
+// The XMIX DirectSound hardware-mix sequencer, which backs
+// DirectSoundCreateSequencer (the synth's DirectSound event queue).
+//
+// Unlike every other dmusic TU this compiles in libdsound's DRIVER environment:
+// it includes libdsound's internal dsoundi.h, which pulls nt.h/ntos.h, and those
+// kernel typedefs (SIZE_T, LPSTR/LPWSTR, LARGE_INTEGER, ULONG_PTR) redefine the
+// title-side ones the dmusic bridge sets up -- compiling it with the rest is a
+// wall of typedef-redefinition errors. So it gets libdsound's bridge and include
+// set, with dmusic's own directories added for dsoundsequencer.h,
+// dmime/cmixbins.h and xalloc.h. Same shape as libdsound's WMA slice and
+// libxfont's scaler slice: one component, one environment.
+//
+// The file is entirely `#ifdef XMIX` (Xbox hardware mixing -- the path this port
+// targets), so the slice defines it.
+const dmsynth_seq_cpp = [_][]const u8{
+    D ++ "dmsynth/dsoundsequencer.cpp",
 };
 
 // dmloader: the object loader / container (pchloader.h PCH).
@@ -196,6 +212,7 @@ pub const slices = [_]Slice{
     .{ .name = "dmsynth", .is_cpp = true, .sources = &dmsynth_cpp, .extra_defines = &.{
         "-DREVERB_ENABLED", "-D_DMUSIC_USER_MODE_", "-DXMIX",
     } },
+    .{ .name = "dmsynth-seq", .is_cpp = true, .sources = &dmsynth_seq_cpp, .driver_env = true },
     .{ .name = "dmloader", .is_cpp = true, .sources = &dmloader_cpp, .pch = D ++ "dmloader/pchloader.h" },
     .{ .name = "dmband", .is_cpp = true, .sources = &dmband_cpp, .pch = D ++ "dmband/pchdmband.h" },
     .{ .name = "dmstyle", .is_cpp = true, .sources = &dmstyle_cpp },

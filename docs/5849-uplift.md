@@ -152,21 +152,27 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
 
 _Sample sweep: **158 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
-**What the remaining 23 are blocked on** (established by inspection, not assumed):
-- **Missing tools, inputs present (7).** FocusBlur, Fur, HighDynamicRange, QuadLerp and Trees `#include` `*.inl` files that are
-  the assembler's output for the `.psh`/`.vsh` sitting in each sample's `Media/Shaders/`. RXDK already has the assembler
-  ported (`libs/libxgraphics/shadeasm`, `XGAssembleShader`) — what is missing is a host tool and a pre-build step.
-  FXMultiPass and GlobalFX are the same shape but harder: `dspimage.fx` is a binary DSP Builder project, `DSPImage.h` is
-  compiled DSP code embedded as an XBE section, and the `.scr` inputs it names are not in the sample either.
-- **One library feature, 3 samples (3).** XActWMAPlayList, TechCertGame and TechCertdemo all compile fully and stop at the
-  same two symbols: `IXACTSoundBank_CreateWmaPlayList` and `IXACTWmaPlayList_Release`. Much more tractable now that
-  libdsound has a real WMA decoder; only `eXACTWmaPlayListAdd_Soundtrack` needs the unported soundtrack API.
-- **Genuinely missing content (9).** DolphinHDTV / FieldRender / PerPixelLightingVS have no `.rdf` at all (hence the
-  bundler's "resource .rdf not found"); Lensflare / PerPixelLighting / XRay lack `.bmp`; WaveBank / WaveBankStream /
-  CustomMemoryAllocator lack `.wav`.
-- **Port issues (4).** FastCPU needs its hand-tuned SSE asm restructured (deliberately deferred — it is a benchmark, so a
-  subtle error gives wrong numbers silently). CustomSTLAllocators wants `stdext::hash_map`. VolumeSprites needs volume
-  textures in the bundler (3D swizzle + resampler). PerfTest needs `D3DPERF_*`, which exists only in `d3d8d.lib` /
-  `d3d8i.lib`, the debug and instrumented D3D variants.
+**Three sample sources — check all three before calling anything missing.** Most of what was
+recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
+`Samples\Xbox` tree, and the leak's `private/atg/samples`, which is an EARLIER and in places more
+complete vintage of the same samples. Between them they supplied `Resource.h` for DolphinHDTV /
+FieldRender / PerPixelLightingVS (the XDK itself ships those three with no `.rdf` at all -- the
+import was faithful), 14 assembled shader `.inl` files, the real per-sample `myfactory.h` for
+DMMultiPass and DMTool, every missing `.wav`, and the `.bmp` textures. Assets can also sit under a
+different name: Lensflare's `stonehengeground512.bmp` is Explosion's `stonehengeground.bmp`, verified
+512x512x24 from the BMP header.
+
+**What is actually left:**
+- **Shader assembler, 2 samples.** HighDynamicRange and QuadLerp still need their `.inl` generated;
+  every `.psh` is present. The recovery also gave a test corpus -- FocusBlur ships 5 `.psh` with
+  their 5 `.inl`, Fur 6 with 6 -- so a host port can be validated byte-for-byte rather than trusted.
+- **XACT WMA playlist, 3 samples.** XActWMAPlayList, TechCertGame and TechCertdemo all stop at
+  `IXACTSoundBank_CreateWmaPlayList` / `IXACTWmaPlayList_Release`.
+- **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
+  binary `.fx` project whose `.scr` inputs are not in the sample either.
+- **Port issues (4).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a
+  subtle error gives wrong numbers silently), CustomSTLAllocators (`stdext::hash_map`), VolumeSprites
+  (bundler volume textures), PerfTest (`D3DPERF_*` counters, only in d3d8d/d3d8i -- note the event
+  markers BeginEvent/EndEvent/SetMarker ARE retail and are now implemented).
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._

@@ -882,6 +882,17 @@ struct D3DPERF_BlockTimer
 #define PERFEVENT_BLOCKTIMER(x,y)    D3DPERF_BlockTimer _PerfEventTimer(x,y)
 #endif __cplusplus
 
+/*
+ * RXDK: PIX-style event markers. Retail d3d8.lib exports all three
+ * (_D3DPERF_BeginEvent, _D3DPERF_EndEvent@0, _D3DPERF_SetMarker) -- unlike the
+ * profiling counters, which live only in d3d8d.lib / d3d8i.lib -- so they belong
+ * on the retail surface. Titles annotate their frame with them (Fur brackets
+ * FrameMove); see se/uplift5849.cpp for what they do here.
+ */
+INT  WINAPI D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...);
+INT  WINAPI D3DPERF_EndEvent(void);
+void WINAPI D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...);
+
 #ifdef __cplusplus
 }
 #endif

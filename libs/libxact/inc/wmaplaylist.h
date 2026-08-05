@@ -27,21 +27,39 @@ class CWmaPlayList;
 // form a doubly-linked list rather than an array because Remove is part of the
 // API and must not invalidate the handles a title is still holding.
 //
+// A song is either a file the title shipped or one the user ripped through the
+// dash. They differ only in how the decoder is opened -- by path, or by a song
+// id that XOpenSoundtrackSong turns into a handle -- and WmaCreateDecoderEx
+// accepts either, so everything downstream is common.
 class CWmaSong
 {
 public:
     CWmaSong(LPCSTR pszFileName);
+    CWmaSong(DWORD dwSongId, DWORD dwSongLength, LPCWSTR pszName);
     ~CWmaSong(void);
 
-    LPCSTR      GetFileName(void) const { return m_pszFileName; }
-    BOOL        IsValid(void) const     { return m_pszFileName != NULL; }
+    BOOL        IsSoundtrackSong(void) const { return m_fSoundtrack; }
+    LPCSTR      GetFileName(void) const      { return m_pszFileName; }
+    DWORD       GetSongId(void) const        { return m_dwSongId; }
+    DWORD       GetSongLength(void) const     { return m_dwSongLength; }
+    LPCWSTR     GetName(void) const          { return m_fSoundtrack ? m_szName : NULL; }
+
+    BOOL        IsValid(void) const
+    {
+        return m_fSoundtrack || m_pszFileName != NULL;
+    }
 
 private:
     friend class CWmaPlayList;
 
     CWmaSong *  m_pNext;
     CWmaSong *  m_pPrev;
-    LPSTR       m_pszFileName;
+
+    BOOL        m_fSoundtrack;
+    LPSTR       m_pszFileName;      // file songs
+    DWORD       m_dwSongId;         // soundtrack songs
+    DWORD       m_dwSongLength;
+    WCHAR       m_szName[MAX_SONG_NAME];
 };
 
 //
@@ -87,6 +105,9 @@ public:
 private:
     HRESULT     AddFile(LPCSTR pszFileName, PXACTWMASONG *ppSong);
     HRESULT     AddDirectory(LPCSTR pszDirectory, PXACTWMASONG *ppSong);
+    HRESULT     AddSoundtrack(DWORD dwSoundtrackId, PXACTWMASONG *ppSong);
+    HRESULT     AddSoundtrackSong(DWORD dwSoundtrackId, DWORD dwSongIndex, PXACTWMASONG *ppSong);
+    HRESULT     LinkSong(CWmaSong *pSong, PXACTWMASONG *ppSong);
     VOID        Unlink(CWmaSong *pSong);
     CWmaSong *  PickRandom(void) const;
     HRESULT     EnsureDecoder(void);

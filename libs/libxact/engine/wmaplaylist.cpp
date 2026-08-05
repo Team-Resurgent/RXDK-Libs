@@ -7,10 +7,11 @@
  *  May-2020 leak has no WmaPlayList source at all. The songs themselves are
  *  decoded by the WMA file XMO in libdsound (WmaCreateDecoderEx).
  *
- *  WHAT WORKS: the playlist object itself -- building the song set (single file
- *  or a directory sweep), walking it in order or shuffled with or without
- *  looping, removing entries, and reading the current song's title and duration
- *  out of its WMA header.
+ *  WHAT WORKS: the playlist object itself -- building the song set (a single
+ *  file, a directory sweep, or the songs the user ripped through the dash, via
+ *  the soundtrack enumeration already in libxapi), walking it in order or
+ *  shuffled with or without looping, removing entries, and reading the current
+ *  song's title and duration.
  *
  *  WHAT DOES NOT: a playlist is bound to a sound cue, and playing THAT CUE is
  *  supposed to stream the current song. That path is not wired -- the cue plays
@@ -35,8 +36,13 @@ using namespace XACT;
 CWmaSong::CWmaSong(LPCSTR pszFileName)
     : m_pNext(NULL),
       m_pPrev(NULL),
-      m_pszFileName(NULL)
+      m_fSoundtrack(FALSE),
+      m_pszFileName(NULL),
+      m_dwSongId(0),
+      m_dwSongLength(0)
 {
+    m_szName[0] = L'\0';
+
     if (pszFileName != NULL) {
         DWORD cb = lstrlenA(pszFileName) + 1;
         m_pszFileName = (LPSTR)XactMemAlloc(cb, FALSE);
@@ -44,6 +50,30 @@ CWmaSong::CWmaSong(LPCSTR pszFileName)
             memcpy(m_pszFileName, pszFileName, cb);
         }
     }
+}
+
+//
+// A song the user ripped through the dash. Its name and duration came out of
+// the soundtrack database during enumeration, so unlike a file song they are
+// known without opening a decoder -- GetCurrentSongInfo can answer for these
+// without the file-open cost.
+//
+CWmaSong::CWmaSong(DWORD dwSongId, DWORD dwSongLength, LPCWSTR pszName)
+    : m_pNext(NULL),
+      m_pPrev(NULL),
+      m_fSoundtrack(TRUE),
+      m_pszFileName(NULL),
+      m_dwSongId(dwSongId),
+      m_dwSongLength(dwSongLength)
+{
+    DWORD i = 0;
+    if (pszName != NULL) {
+        while (pszName[i] != L'\0' && i + 1 < MAX_SONG_NAME) {
+            m_szName[i] = pszName[i];
+            i++;
+        }
+    }
+    m_szName[i] = L'\0';
 }
 
 CWmaSong::~CWmaSong(void)
@@ -137,8 +167,16 @@ HRESULT CWmaPlayList::AddFile(LPCSTR pszFileName, PXACTWMASONG *ppSong)
         return E_OUTOFMEMORY;
     }
 
-    // Append. Order is the order the title added them, which is what the
-    // non-random playback mode walks.
+    return LinkSong(pSong, ppSong);
+}
+
+
+//
+// Append. Order is the order the title added them, which is what the
+// non-random playback mode walks.
+//
+HRESULT CWmaPlayList::LinkSong(CWmaSong *pSong, PXACTWMASONG *ppSong)
+{
     pSong->m_pPrev = m_pLast;
     if (m_pLast != NULL) {
         m_pLast->m_pNext = pSong;
@@ -229,6 +267,90 @@ HRESULT CWmaPlayList::AddDirectory(LPCSTR pszDirectory, PXACTWMASONG *ppSong)
 
 
 #undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::AddSoundtrackSong"
+
+//
+// One song out of a soundtrack the user ripped through the dash.
+//
+// The database gives us the song's id, duration and name here, so nothing has
+// to be opened until the song is actually selected.
+//
+HRESULT CWmaPlayList::AddSoundtrackSong(DWORD dwSoundtrackId, DWORD dwSongIndex, PXACTWMASONG *ppSong)
+{
+    DWORD   dwSongId     = 0;
+    DWORD   dwSongLength = 0;
+    WCHAR   szName[MAX_SONG_NAME];
+
+    szName[0] = L'\0';
+
+    if (!XGetSoundtrackSongInfo(dwSoundtrackId, dwSongIndex, &dwSongId, &dwSongLength,
+                                szName, sizeof(szName))) {
+        DPF_ERROR("No song %d in soundtrack %d", dwSongIndex, dwSoundtrackId);
+        return E_INVALIDARG;
+    }
+
+    CWmaSong *pSong = new CWmaSong(dwSongId, dwSongLength, szName);
+    if (pSong == NULL) {
+        return E_OUTOFMEMORY;
+    }
+
+    return LinkSong(pSong, ppSong);
+}
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::AddSoundtrack"
+
+//
+// Every song in one ripped soundtrack.
+//
+// XGetSoundtrackSongInfo is indexed rather than counted, so walk until it says
+// there is no song at that index. That also means a soundtrack the user deleted
+// between enumeration and here simply adds nothing rather than failing.
+//
+HRESULT CWmaPlayList::AddSoundtrack(DWORD dwSoundtrackId, PXACTWMASONG *ppSong)
+{
+    PXACTWMASONG    pFirstAdded = NULL;
+    DWORD           dwIndex     = 0;
+
+    for (;;) {
+        PXACTWMASONG pAdded = NULL;
+
+        HRESULT hr = AddSoundtrackSong(dwSoundtrackId, dwIndex, &pAdded);
+        if (hr == E_INVALIDARG) {
+            break;      // past the last song
+        }
+        if (FAILED(hr)) {
+            return hr;  // out of memory -- a real failure
+        }
+
+        if (pFirstAdded == NULL) {
+            pFirstAdded = pAdded;
+        }
+        dwIndex++;
+
+        // The database caps a soundtrack at this many songs; stop rather than
+        // spin if it ever hands back success forever.
+        if (dwIndex >= MAX_SONGS_IN_SNDTRK) {
+            break;
+        }
+    }
+
+    if (dwIndex == 0) {
+        DPF_ERROR("Soundtrack %d has no songs", dwSoundtrackId);
+        return S_FALSE;
+    }
+
+    // Like a directory add, hand back the first of the batch.
+    if (ppSong != NULL) {
+        *ppSong = pFirstAdded;
+    }
+
+    return S_OK;
+}
+
+
+#undef DPF_FNAME
 #define DPF_FNAME "CWmaPlayList::Add"
 
 HRESULT STDMETHODCALLTYPE CWmaPlayList::Add(PCXACT_WMA_PLAYLIST_ADD pDesc, PXACTWMASONG *ppSong)
@@ -250,15 +372,10 @@ HRESULT STDMETHODCALLTYPE CWmaPlayList::Add(PCXACT_WMA_PLAYLIST_ADD pDesc, PXACT
         return AddDirectory(pDesc->pszFileName, ppSong);
 
     case eXACTWmaPlayListAdd_Soundtrack:
+        return AddSoundtrack(pDesc->dwSoundtrackId, ppSong);
+
     case eXACTWmaPlayListAdd_SoundtrackSong:
-        // User soundtracks (CDs ripped to the hard disk) are enumerated through
-        // xsndtrk.lib, which RXDK does not have -- the leak predates it and the
-        // retail library is binary-only. Fail cleanly and specifically rather
-        // than pretending to add nothing: a title that offers both its own
-        // music and user soundtracks (as XActWMAPlayList does) can then fall
-        // back to its own, instead of silently presenting an empty playlist.
-        DPF_ERROR("User soundtracks need xsndtrk, which RXDK does not provide");
-        return E_NOTIMPL;
+        return AddSoundtrackSong(pDesc->dwSoundtrackId, pDesc->dwSongIndex, ppSong);
 
     default:
         DPF_ERROR("Unknown add type (%d)", pDesc->dwType);
@@ -469,11 +586,25 @@ HRESULT CWmaPlayList::EnsureDecoder(void)
 
     XWmaFileMediaObject *pDecoder = NULL;
     WAVEFORMATEX         wfx;
+    LPCSTR               pszFileName = NULL;
+    HANDLE               hFile       = NULL;
 
     memset(&wfx, 0, sizeof(wfx));
 
-    HRESULT hr = WmaCreateDecoderEx(m_pCurrent->GetFileName(),
-                                    NULL,       // open by name
+    if (m_pCurrent->IsSoundtrackSong()) {
+        // A ripped song has no path a title could name -- the soundtrack
+        // database hands out a handle instead. WmaCreateDecoderEx takes either.
+        hFile = XOpenSoundtrackSong(m_pCurrent->GetSongId(), FALSE);
+        if (hFile == NULL || hFile == INVALID_HANDLE_VALUE) {
+            DPF_ERROR("Could not open soundtrack song %d", m_pCurrent->GetSongId());
+            return E_FAIL;
+        }
+    } else {
+        pszFileName = m_pCurrent->GetFileName();
+    }
+
+    HRESULT hr = WmaCreateDecoderEx(pszFileName,
+                                    hFile,
                                     FALSE,      // synchronous
                                     0,          // default lookahead
                                     0,          // default packet count
@@ -481,7 +612,11 @@ HRESULT CWmaPlayList::EnsureDecoder(void)
                                     &wfx,
                                     &pDecoder);
     if (FAILED(hr)) {
-        DPF_ERROR("Could not open %s (0x%08x)", m_pCurrent->GetFileName(), hr);
+        // The decoder took no ownership of a handle it could not use.
+        if (hFile != NULL) {
+            CloseHandle(hFile);
+        }
+        DPF_ERROR("Could not open song (0x%08x)", hr);
         return hr;
     }
 
@@ -525,6 +660,31 @@ HRESULT STDMETHODCALLTYPE CWmaPlayList::GetCurrentSongInfo(PDWORD pdwSongLength,
 {
     if (ppSong != NULL) {
         *ppSong = NULL;
+    }
+
+    // A ripped song's name and duration came from the soundtrack database when
+    // it was added, so answer from there and skip opening the file entirely --
+    // this is the fast path the XDK documents for repeat calls, available here
+    // even on the first one.
+    if (m_pCurrent != NULL && m_pCurrent->IsSoundtrackSong()) {
+        if (pdwSongLength != NULL) {
+            *pdwSongLength = m_pCurrent->GetSongLength();
+        }
+        if (pszNameBuffer != NULL && dwBufferSize >= sizeof(WCHAR)) {
+            DWORD   cchBuffer = dwBufferSize / sizeof(WCHAR);
+            LPCWSTR pszName   = m_pCurrent->GetName();
+            DWORD   i         = 0;
+
+            while (pszName[i] != L'\0' && i + 1 < cchBuffer) {
+                pszNameBuffer[i] = pszName[i];
+                i++;
+            }
+            pszNameBuffer[i] = L'\0';
+        }
+        if (ppSong != NULL) {
+            *ppSong = (PXACTWMASONG)m_pCurrent;
+        }
+        return S_OK;
     }
 
     HRESULT hr = EnsureDecoder();

@@ -74,8 +74,13 @@ STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBa
     return ((CEngine *)pEngine)->UnRegisterWaveBank(pWaveBank);
 }
 
-// RXDK 5849 uplift: 5849 added a wCategory selector (per-category master volume). The leak has a
-// single master volume, so the category is ignored.
+// RXDK 5849 uplift: 5849 added a wCategory selector (per-category master volume).
+//
+// NOT IMPLEMENTED -- the signature is 5849's, the behaviour is the leak's. The leak's sound-bank
+// format has no category field on a sound entry at all (it has wGroupNumber, which selects
+// variations, not a mix category), so there is nothing to filter on: the category is dropped and
+// this sets the single global master volume. Honouring it needs the category authored into the
+// bank format, emitted by xactbld, and then read here -- see the note on GlobalPause below.
 STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD /*wCategory*/, LONG lVolume)
 {
     using namespace XACT;
@@ -88,10 +93,15 @@ STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pc
     return ((CEngine *)pEngine)->SetListenerParameters(pcDs3dListener, pds3dl, dwApply);
 }
 
-// RXDK 5849 uplift: 5849 added a wCategory selector here too, the same way it did to
-// SetMasterVolume. The leak pauses everything at once, so the category is ignored -- a title
-// pausing one category gets everything paused, which is louder-wrong than quieter-wrong, but
-// pausing is what it asked for and unpausing restores the same set.
+// RXDK 5849 uplift: 5849 added a wCategory selector here too.
+//
+// NOT IMPLEMENTED, for the same reason as SetMasterVolume above: no category survives into the
+// leak's bank format, so there is nothing to select on. A title asking to pause one category gets
+// EVERYTHING paused, and unpausing restores everything -- audible and wrong, not a silent
+// approximation. Closing this properly is a three-part job and is tracked as its own task:
+//   1. add a category field to XACT_SOUNDBANK_SOUND_ENTRY (bank format change),
+//   2. teach xactbld to author it out of the .xap project,
+//   3. filter the pause/volume walk here on it.
 STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD /*wCategory*/, BOOL bPause)
 {
     using namespace XACT;

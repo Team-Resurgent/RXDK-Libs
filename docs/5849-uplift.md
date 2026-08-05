@@ -183,8 +183,10 @@ step invokes the assembler.
   should stream the current song -- that path is still the ordinary wave-bank one, so a title can
   drive and display its playlist but will not hear it. Wiring it means teaching `CSoundCue` to
   render from an XMO and pumping it from `CEngine::DoWork`; `CWmaPlayList::OpenCurrentDecoder` is the
-  hook it will use. User soundtracks (`eXACTWmaPlayListAdd_Soundtrack`) need xsndtrk, which RXDK does
-  not have, and return `E_NOTIMPL` so a title can fall back to its own music.
+  hook it will use. All four add types work, including
+  the user's own ripped soundtracks -- `XFindFirstSoundtrack`/`XGetSoundtrackSongInfo`/
+  `XOpenSoundtrackSong` were already ported into libxapi (`k32/xsndtrk.c`), so the playlist opens a
+  ripped song by handle instead of by path; `WmaCreateDecoderEx` takes either.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
 - **Port issues (3).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a

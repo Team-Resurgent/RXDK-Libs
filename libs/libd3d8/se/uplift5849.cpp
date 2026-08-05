@@ -872,6 +872,13 @@ void WINAPI D3DPushBuffer_CopyRects(
 // unchanged, and no annotation is silently claimed to have been recorded.
 //------------------------------------------------------------------------------
 
+// extern "C": these are C entry points that titles reach through d3d8perf.h's
+// extern "C" block. Without it here the definitions come out C++-mangled
+// (__Z18D3DPERF_BeginEventmPKcz) and the title's reference goes unresolved --
+// retail exports them undecorated for the varargs pair, _D3DPERF_EndEvent@0 for
+// the other.
+extern "C" {
+
 static LONG g_D3DPerfEventDepth = 0;
 
 INT WINAPI D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...)
@@ -895,3 +902,5 @@ void WINAPI D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...)
     UNREFERENCED_PARAMETER(Color);
     UNREFERENCED_PARAMETER(szName);
 }
+
+} // extern "C"

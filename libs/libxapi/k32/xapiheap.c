@@ -308,35 +308,14 @@ Return Value:
         (uFlags & LMEM_ZEROINIT) ? HEAP_ZERO_MEMORY : 0, (DWORD)uBytes);
 }
 
-LPVOID
-__attribute__((__stdcall__))
-XMemAlloc(
-    SIZE_T dwSize,
-    DWORD dwAllocAttributes
-    )
-{
-    if (XALLOC_IS_PHYSICAL(dwAllocAttributes)) {
-        return XPhysicalAlloc(dwSize, MAXULONG_PTR, 0, PAGE_READWRITE);
-    }
-    return LocalAlloc(LMEM_FIXED, dwSize);
-}
-
-VOID
-__attribute__((__stdcall__))
-XMemFree(
-    PVOID pAddress,
-    DWORD dwAllocAttributes
-    )
-{
-    if (pAddress == NULL) {
-        return;
-    }
-    if (XALLOC_IS_PHYSICAL(dwAllocAttributes)) {
-        XPhysicalFree(pAddress);
-    } else {
-        LocalFree(pAddress);
-    }
-}
+//
+// XMemAlloc/XMemFree used to live here, but a title is allowed to replace them
+// (that is the documented way to route xAPI's own allocations through a custom
+// allocator), and it can only do so if the archive member carrying the defaults
+// is one the linker never has another reason to pull in. This file is full of
+// such reasons -- HeapCreate, LocalAlloc, GlobalAlloc -- so the defaults now sit
+// alone in xmemdflt.c. See the note at the top of that file.
+//
 
 HLOCAL
 __attribute__((__stdcall__))

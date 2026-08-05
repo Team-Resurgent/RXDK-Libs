@@ -1385,6 +1385,7 @@ STDAPI Ac97CreateMediaObject(DWORD dwChannel, LPFNXMEDIAOBJECTCALLBACK pfnCallba
 
 STDAPI XFileCreateMediaObject(LPCSTR pszFileName, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, XFileMediaObject **ppMediaObject);
 STDAPI XFileCreateMediaObjectEx(HANDLE hFile, XFileMediaObject **ppMediaObject);
+STDAPI XFileCreateMediaObjectAsync(HANDLE hFile, DWORD dwMaxPackets, XFileMediaObject **ppMediaObject);
 STDAPI XWaveFileCreateMediaObject(LPCSTR pszFileName, LPCWAVEFORMATEX *ppwfxFormat, XFileMediaObject **ppMediaObject);
 STDAPI XWaveFileCreateMediaObjectEx(LPCSTR pszFileName, HANDLE hFile, XWaveFileMediaObject **ppMediaObject);
 

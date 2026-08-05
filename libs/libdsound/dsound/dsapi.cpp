@@ -2476,7 +2476,7 @@ XFileCreateMediaObjectEx
     HRESULT                 hr;
 
     DPF_ENTER();
-    
+
     hr = HRFROMP(pMediaObject = NEW(CFileMediaObject));
 
     if(SUCCEEDED(hr))
@@ -2490,6 +2490,59 @@ XFileCreateMediaObjectEx
     }
 
     RELEASE(pMediaObject);
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
+ *  XFileCreateMediaObjectAsync
+ *
+ *  Description:
+ *      Creates and initializes a File XMO whose reads do not block the caller.
+ *
+ *      RXDK 5849 uplift.  CFileMediaObject reads synchronously, so this hands
+ *      back the same object Ex does: each packet is accepted and completed
+ *      inside Process, and DoWork has nothing left to do.  To a caller that is
+ *      the "the read already finished" case, which is what the asynchronous
+ *      contract asks it to cope with anyway -- packets still go PENDING then
+ *      SUCCESS through pdwStatus, just without ever being observed pending.
+ *
+ *      What is genuinely absent is the overlap: reads cost the caller its own
+ *      thread time rather than proceeding alongside it, so dwMaxPackets has
+ *      nothing to bound and is ignored.  A title that streams to hide latency
+ *      still plays correctly; it just does not gain the latency hiding.
+ *
+ *  Arguments:
+ *      HANDLE [in]: file handle.
+ *      DWORD [in]: maximum outstanding read packets (see above).
+ *      XMediaObject ** [out]: media object.  The caller is responsible for
+ *                             for freeing this object with Release.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "XFileCreateMediaObjectAsync"
+
+HRESULT
+XFileCreateMediaObjectAsync
+(
+    HANDLE                  hFile,
+    DWORD                   dwMaxPackets,
+    XFileMediaObject **     ppMediaObject
+)
+{
+    DPF_ENTER();
+
+    UNREFERENCED_PARAMETER(dwMaxPackets);
+
+    HRESULT hr = XFileCreateMediaObjectEx(hFile, ppMediaObject);
 
     DPF_LEAVE_HRESULT(hr);
 

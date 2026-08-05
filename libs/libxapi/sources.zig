@@ -49,6 +49,10 @@ pub const k32_sources = [_][]const u8{
     "libs/libxapi/k32/virtual.c",
     "libs/libxapi/k32/widechar.c",
     "libs/libxapi/k32/xapiheap.c",
+    // Alone in its own object so a title can replace XMemAlloc/XMemFree/XMemSize;
+    // the implementations they forward to stay linked either way.
+    "libs/libxapi/k32/xmem.c",
+    "libs/libxapi/k32/xmemdflt.c",
     "libs/libxapi/k32/xclndrv.c",
     "libs/libxapi/k32/xemodule.c",
     "libs/libxapi/k32/xpp.c",

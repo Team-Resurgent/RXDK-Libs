@@ -150,7 +150,7 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **158 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
+_Sample sweep: **170 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
 **Three sample sources — check all three before calling anything missing.** Most of what was
 recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
@@ -162,10 +162,19 @@ DMMultiPass and DMTool, every missing `.wav`, and the `.bmp` textures. Assets ca
 different name: Lensflare's `stonehengeground512.bmp` is Explosion's `stonehengeground.bmp`, verified
 512x512x24 from the BMP header.
 
+**Pixel shaders were tool output, not art.** The 5849 XDK ships `xbox\bin\xsasm.exe` (Xbox Shader
+Assembler, Build 1.00.5849.1), and its default `.xpu` output turns out to be the tag `"PSB0"`
+followed by a verbatim `D3DPIXELSHADERDEF` -- 60 DWORDs, so 244 bytes total. That was not assumed:
+`tools/shaders/dump_psd.c` materialises a shipped `.inl`'s `PS_*` macro soup on the host so it can be
+compared as numbers, and all 11 samples that shipped *both* halves (FocusBlur 6, Fur 5) come out
+identical word for word. `tools/shaders/psh_to_inl.py` then generated the 7 missing files --
+HighDynamicRange's `hotblur` / `extracthot` / `accumulate` and QuadLerp's `pshader0..3` -- and was
+round-tripped against FocusBlur to pin field *order* as well as size. No `.inl` is missing anywhere in
+the tree now. Caveat: `xsasm.exe` is a Win32 PE, so authoring new shaders off Windows still wants a
+managed port (see `tools/shaders/README.md`); regenerating a checked-in `.inl` does not, and no build
+step invokes the assembler.
+
 **What is actually left:**
-- **Shader assembler, 2 samples.** HighDynamicRange and QuadLerp still need their `.inl` generated;
-  every `.psh` is present. The recovery also gave a test corpus -- FocusBlur ships 5 `.psh` with
-  their 5 `.inl`, Fur 6 with 6 -- so a host port can be validated byte-for-byte rather than trusted.
 - **XACT WMA playlist, 3 samples.** XActWMAPlayList, TechCertGame and TechCertdemo all stop at
   `IXACTSoundBank_CreateWmaPlayList` / `IXACTWmaPlayList_Release`.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a

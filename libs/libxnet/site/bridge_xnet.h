@@ -6,23 +6,29 @@
  * stack's precompiled header). This is the Xbox net stack from
  * private/ntos/net -- a KERNEL-runtime component (pokes the MCPX NIC, runs TCP
  * timers via kernel DPC at DISPATCH_LEVEL, shares the NIC with xbdm via a NATIVE
- * CXbdmServer/CXbdmClient). Built as the standard title lib (XNET_BUILD_LIBX):
- * features ARP/DHCP/DNS/FRAG/ICMP/INSECURE/ROUTE/XBDM_CLIENT/XBOX. See
- * [[libxnet-newstack-upgrade]] memory.
+ * CXbdmServer/CXbdmClient). See [[libxnet-newstack-upgrade]] memory.
  */
 
-/* Build identity: xnet ONLINE lib (xneto), Xbox target, retail (DBG=0). RXDK 5849 uplift: switched
-   from XNET_BUILD_LIBX (plain xnet.lib) to XNET_BUILD_LIBO so xnp.h coherently enables the online
-   feature set (XNET_FEATURE_ONLINE + _QOS + _SG) -- the CXoBase/CXn secure-gateway logon layer that
-   libxonline's CXo derives from. Needed for Xbox Live incl. community revivals (Insignia). LIBO is a
-   superset of LIBX's features (adds ONLINE/QOS/SG), so non-Live titles are unaffected. */
+/* Build identity: Xbox target, retail (DBG=0), in one of TWO variants -- the same split the retail
+   XDK ships, because the feature sets are not nested the way they look:
+
+     XNET_BUILD_LIBX -> libxnet.lib   ARP/DHCP/DNS/FRAG/ICMP/INSECURE/ROUTE/XBDM_CLIENT/XBOX
+     XNET_BUILD_LIBO -> libxneto.lib  the above plus ONLINE/QOS/SG
+
+   LIBO looks like a superset, and this header used to say so and build only LIBO. It is not one in
+   the sense that matters to a linker: XNET_FEATURE_SG compiles the secure-gateway Kerberos key
+   exchange into ip.cpp, and that code calls CXoBase::XoKerb{GetInfo,BuildApReq,CrackApRep,
+   GetAuthData} -- four symbols that live in libxonline. So a LIBO libxnet cannot be linked without
+   libxonline even by a title that only wants a UDP socket. Titles pick: sockets-only links
+   libxnet.lib, Xbox Live (incl. community revivals such as Insignia) links libxneto.lib +
+   libxonline.lib, which is also what libxonline's own CXo layer is built against. */
 #ifndef NT
 #define NT 1
 #endif
 #ifndef _XBOX
 #define _XBOX 1
 #endif
-#ifndef XNET_BUILD_LIBO
+#if !defined(XNET_BUILD_LIBX) && !defined(XNET_BUILD_LIBO)
 #define XNET_BUILD_LIBO 1
 #endif
 #ifndef DBG

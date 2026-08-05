@@ -646,7 +646,12 @@ function Invoke-DistBuild {
         # D3DPERF counters compiled in. A profiling title links it INSTEAD of
         # libd3d8; retail deliberately has no counters.
         'libd3d8i.lib',
-        'libdsound.lib', 'libxnet.lib', 'libxmv.lib',
+        'libdsound.lib', 'libxmv.lib',
+        # The XNet stack in the two variants the retail XDK ships. libxnet is
+        # the plain sockets build and links standalone; libxneto adds
+        # ONLINE/QoS/SG and must be paired with libxonline, which supplies the
+        # secure-gateway Kerberos entry points its ip.cpp then calls.
+        'libxnet.lib', 'libxneto.lib',
         # Middleware (opt-in via <RxdkLibraries>, but shipped: the XDK sample
         # suite links them). See scripts\compile.ps1 -Target libs.
         'libxact.lib', 'libxonline.lib', 'libxvoice.lib', 'libdmusic.lib'

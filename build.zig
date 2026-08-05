@@ -236,15 +236,34 @@ pub fn build(b: *std.Build) void {
     // native CXbdmServer/CXbdmClient dev-kit NIC sharing, DHCP/DNS/ARP/ICMP/TCP/UDP).
     // Compiled with the MSVC C++ ABI (see libs/libxnet/build.zig). Not in the default
     // install.
-    const xnet_objs = libxnet_pkg.addAllObjects(b, xbox_target, opt_flag);
+    //
+    // Two variants, as the retail XDK ships: this one is XNET_BUILD_LIBX, the plain
+    // sockets stack, which links standalone. libxneto below is XNET_BUILD_LIBO, which
+    // adds ONLINE/QOS/SG and needs libxonline for the secure-gateway Kerberos calls
+    // its ip.cpp then contains. See libs/libxnet/site/bridge_xnet.h.
+    const xnet_objs = libxnet_pkg.addAllObjectsVariant(b, xbox_target, opt_flag, false);
     var xnet_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
     xnet_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
     xnet_deps.append(b.allocator, xnet_objs.step) catch @panic("OOM");
     const libxnet = coff_lib.pack(b, "libxnet", xnet_objs.outputs, xnet_deps.items);
     const install_libxnet = b.addInstallFile(libxnet.path, "lib/libxnet.lib");
     install_libxnet.step.dependOn(libxnet.step);
-    const xnet_step = b.step("libxnet", "Build libxnet.lib (Xbox XNet stack, XNetStartup)");
+    const xnet_step = b.step("libxnet", "Build libxnet.lib (Xbox XNet stack, sockets only)");
     xnet_step.dependOn(&install_libxnet.step);
+
+    // libxneto: the same stack with the online feature set (XNET_FEATURE_ONLINE +
+    // _QOS + _SG) -- the CXoBase/CXn secure-gateway logon layer libxonline's CXo
+    // derives from. Pair it with libxonline.lib; on its own it leaves the four
+    // CXoBase::XoKerb* calls in ip.cpp unresolved.
+    const xneto_objs = libxnet_pkg.addAllObjectsVariant(b, xbox_target, opt_flag, true);
+    var xneto_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    xneto_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    xneto_deps.append(b.allocator, xneto_objs.step) catch @panic("OOM");
+    const libxneto = coff_lib.pack(b, "libxneto", xneto_objs.outputs, xneto_deps.items);
+    const install_libxneto = b.addInstallFile(libxneto.path, "lib/libxneto.lib");
+    install_libxneto.step.dependOn(libxneto.step);
+    const xneto_step = b.step("libxneto", "Build libxneto.lib (XNet stack with Xbox Live/QoS/SG)");
+    xneto_step.dependOn(&install_libxneto.step);
 
     // MSVC 64-bit divide/mod/mul helpers (__alldiv/__aulldiv/__allrem/__aullrem/
     // __allmul) that libxnet's MSVC-C++-ABI object code calls into (see
@@ -263,6 +282,7 @@ pub fn build(b: *std.Build) void {
         .is_cpp = false,
     });
     xnet_step.dependOn(msvc_lldiv_batch.step);
+    xneto_step.dependOn(msvc_lldiv_batch.step);
 
     // libxmv: the Xbox XMV (FMV) video decoder ported from the leak
     // (private/windows/xmv/decoder). Title-side software codec -> YUY2 D3D surface;

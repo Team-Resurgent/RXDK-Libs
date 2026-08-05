@@ -150,7 +150,7 @@ Additional cross-cutting issue surfaced by the voice-sample sweep:
    Related MSVC-ism: `friend` declarations don't inject the name at namespace scope
    (sample callbacks needed real forward declarations).
 
-_Sample sweep: **177 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
+_Sample sweep: **178 of 181 XDKSamples projects build to .xbe** (`Platform=Xbox`). The denominator is 181, not 182: CreatePushBufferOnPC is a PC-side host tool with no Xbox configuration and should never have been imported as a title._
 
 **Three sample sources — check all three before calling anything missing.** Most of what was
 recorded as unrecoverable art was not. Besides our import there is the 5849 XDK's own
@@ -189,9 +189,16 @@ step invokes the assembler.
   ripped song by handle instead of by path; `WmaCreateDecoderEx` takes either.
 - **DSP Builder image, 2 samples.** FXMultiPass and GlobalFX need `DSPImage.h`, compiled from a
   binary `.fx` project whose `.scr` inputs are not in the sample either.
-- **Port issues (2).** FastCPU (hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a
-  subtle error gives wrong numbers silently) and VolumeSprites (Bundler rejects VolumeTexture
-  resources -- needs a 3D swizzle + resampler).
+- **Port issue (1).** FastCPU: hand-tuned SSE asm restructure, deferred -- it is a benchmark, so a
+  subtle error gives wrong numbers silently.
+
+**VolumeSprites builds**: the Bundler now handles VolumeTexture resources. `Swizzle.SwizzleBox3D` is
+a port of the `Swizzler` class in the public `xgraphics.h` (the one `XGSwizzleBox` drives), NOT an
+extension of `GetMasks2` -- the latter splits U/V by a lower/upper mask, while `Swizzler` interleaves
+one bit per axis at a time, which is what makes a non-cubic volume like 16x16x4 come out right. Mips
+halve all three axes and average eight texels across two slices. NOTE: no golden `.xpr` exists from
+the retail bundler for a volume, so this is verified by construction and by the sample building, not
+byte-compared like the rest of the port. **Needs a tools release before it reaches users.**
 
 **PerfTest builds, but read what it reports carefully.** `D3DPERF_GetPushBufferInfo` is REAL -- size,
 segment size/count, base/limit and bytes-written all come from the pusher. Every event counter and

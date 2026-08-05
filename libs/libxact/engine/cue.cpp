@@ -1250,3 +1250,43 @@ PNOTIFICATION_CONTEXT CSoundCue::GetNotificationContext(DWORD dwType)
     return &m_aNotificationContexts[dwType];
 
 }
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundCue::Pause"
+
+//
+// RXDK 5849 uplift: pause/resume every voice this cue is rendering on.
+//
+// Each track owns a CSoundSource, and a source knows how to pause the voice it
+// holds (a stream directly, a buffer by remembering its play cursor). A cue can
+// span several tracks, so all of them move together.
+//
+HRESULT CSoundCue::Pause(BOOL fPause)
+{
+    HRESULT hr = S_OK;
+
+    DPF_ENTER();
+
+    if (m_paTracks && m_pSoundEntry)
+    {
+        for (WORD i = 0; i < m_pSoundEntry->wTrackCount; i++)
+        {
+            CSoundSource *pSource = m_paTracks[i].pSoundSource;
+            if (pSource)
+            {
+                // Keep going on failure: a cue is not left half-paused because
+                // one of its tracks had no voice attached yet.
+                HRESULT hrTrack = pSource->Pause(fPause);
+                if (FAILED(hrTrack))
+                {
+                    hr = hrTrack;
+                }
+            }
+        }
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}

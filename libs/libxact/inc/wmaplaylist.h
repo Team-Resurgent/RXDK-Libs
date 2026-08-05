@@ -113,6 +113,11 @@ public:
     VOID        DoWork(void);
     BOOL        IsPlaying(void) const { return m_fPlaying; }
 
+    // Pause/resume the playlist's stream. A playlist has no category of its
+    // own -- it is bound to a cue, so it answers with that cue's category.
+    VOID        Pause(BOOL fPause);
+    WORD        GetCategory(void) const;
+
     LIST_ENTRY  m_ListEntry;        // engine's list of live playlists
 
 private:

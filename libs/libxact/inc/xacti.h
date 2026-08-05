@@ -203,7 +203,7 @@ public:
     // RXDK 5849 uplift: 5849 renamed LoadDspImage to DownloadEffectsImage and returns the
     // downloaded image description (the leak stored it privately).
     HRESULT STDMETHODCALLTYPE DownloadEffectsImage(PVOID pvData, DWORD dwSize, LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc);
-    HRESULT STDMETHODCALLTYPE GlobalPause(BOOL bPause);
+    HRESULT STDMETHODCALLTYPE GlobalPause(WORD wCategory, BOOL bPause);
 
     // WMA playlist registry. CWmaPlayList registers on Initialize and
     // unregisters in its destructor; CSoundBank::Play uses FindPlayList to see
@@ -410,6 +410,11 @@ public:
     //
 
     NOTIFICATION_CONTEXT * GetNotificationContext(DWORD dwType);    
+
+    // The mix category of the sound a cue index resolves to, or
+    // XACT_SOUNDBANK_CATEGORY_UNUSED.
+    WORD GetCueCategory(DWORD dwCueIndex);
+
     VOID ProcessRuntimeEvent(XACT_TRACK_EVENT *pEventDesc);
 
 
@@ -525,6 +530,16 @@ public:
     HRESULT STDMETHODCALLTYPE Play(DWORD dwFlags);
     HRESULT STDMETHODCALLTYPE Stop(DWORD dwFlags);
 
+    // RXDK 5849 uplift: pause/resume every voice this cue is rendering on.
+    HRESULT Pause(BOOL fPause);
+
+    // The sound's mix category, or XACT_SOUNDBANK_CATEGORY_UNUSED.
+    WORD    GetCategory() const
+    {
+        return m_pSoundEntry ? m_pSoundEntry->wCategory
+                             : (WORD)XACT_SOUNDBANK_CATEGORY_UNUSED;
+    }
+
     VOID DoWork();
     NOTIFICATION_CONTEXT * GetNotificationContext(DWORD dwType);    
 
@@ -639,6 +654,53 @@ public:
 
     }
 
+    //
+    // RXDK 5849 uplift: pause/resume this voice in place.
+    //
+    // A stream has a real Pause. A BUFFER does not -- dsound.h gives it only
+    // Play/Stop -- so pausing one means stopping it and remembering the play
+    // cursor, then restoring that cursor on resume. Plain Stop/Play would
+    // restart the sound from the beginning, which is the difference between a
+    // pause and a retrigger.
+    //
+    HRESULT Pause(BOOL fPause)
+    {
+        if (m_HwVoice.pStream) {
+            return m_HwVoice.pStream->Pause(fPause ? DSSTREAMPAUSE_PAUSE
+                                                   : DSSTREAMPAUSE_RESUME);
+        }
+
+        if (!m_HwVoice.pBuffer) {
+            return S_FALSE;
+        }
+
+        if (fPause) {
+            if (m_fPaused) {
+                return S_FALSE;
+            }
+
+            DWORD dwPlay = 0, dwWrite = 0;
+            if (SUCCEEDED(m_HwVoice.pBuffer->GetCurrentPosition(&dwPlay, &dwWrite))) {
+                m_dwPausedPosition = dwPlay;
+            } else {
+                m_dwPausedPosition = 0;
+            }
+
+            m_fPaused = TRUE;
+            return m_HwVoice.pBuffer->Stop();
+        }
+
+        if (!m_fPaused) {
+            return S_FALSE;
+        }
+
+        m_fPaused = FALSE;
+        m_HwVoice.pBuffer->SetCurrentPosition(m_dwPausedPosition);
+        return m_HwVoice.pBuffer->Play(0, 0, 0);
+    }
+
+    BOOL IsPaused() const { return m_fPaused; }
+
     BOOL IsPlaying()
     {
 
@@ -698,6 +760,11 @@ protected:
         DWORD   dwFlags;
 
     } m_HwVoice;
+
+    // Buffer-voice pause state (see Pause above): a stream tracks its own, but a
+    // stopped buffer has forgotten where it was.
+    BOOL    m_fPaused;
+    DWORD   m_dwPausedPosition;
 
 };
 

@@ -30,6 +30,9 @@ CSoundSource::CSoundSource
     ASSERT(g_pEngine);
     g_pEngine->AddRef();
 
+    m_fPaused          = FALSE;
+    m_dwPausedPosition = 0;
+
     InitializeListHead(&m_ListEntry);
 
     DPF_LEAVE_VOID();

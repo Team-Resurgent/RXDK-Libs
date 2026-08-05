@@ -607,3 +607,27 @@ void CSoundBank::RemoveFromList(CSoundCue *pCue)
     RemoveEntryList(&pCue->m_ListEntry);
 }
 
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundBank::GetCueCategory"
+
+//
+// RXDK 5849 uplift: the mix category of whatever sound a cue index resolves to.
+//
+WORD CSoundBank::GetCueCategory(DWORD dwCueIndex)
+{
+    if (!m_pFileHeader || dwCueIndex >= m_pFileHeader->dwCueEntryCount) {
+        return (WORD)XACT_SOUNDBANK_CATEGORY_UNUSED;
+    }
+
+    PXACT_SOUNDBANK_CUE_ENTRY   pCueTable   = GetCueTable();
+    PXACT_SOUNDBANK_SOUND_ENTRY pSoundTable = GetSoundTable();
+
+    DWORD dwSoundIndex = pCueTable[dwCueIndex].dwSoundIndex;
+    if (dwSoundIndex >= m_pFileHeader->dwSoundEntryCount) {
+        return (WORD)XACT_SOUNDBANK_CATEGORY_UNUSED;
+    }
+
+    return pSoundTable[dwSoundIndex].wCategory;
+}

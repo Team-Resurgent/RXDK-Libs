@@ -1112,3 +1112,28 @@ VOID CWmaPlayList::DoWork(void)
         StopPlayback();
     }
 }
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaPlayList::Pause"
+
+VOID CWmaPlayList::Pause(BOOL fPause)
+{
+    if (m_pStream != NULL && m_fPlaying) {
+        m_pStream->Pause(fPause ? DSSTREAMPAUSE_PAUSE : DSSTREAMPAUSE_RESUME);
+    }
+}
+
+
+//
+// A playlist has no category of its own -- it is bound to a cue, so it answers
+// with that cue's, which is what makes a categorised GlobalPause reach it.
+//
+WORD CWmaPlayList::GetCategory(void) const
+{
+    if (m_pSoundBank == NULL) {
+        return (WORD)XACT_SOUNDBANK_CATEGORY_UNUSED;
+    }
+
+    return m_pSoundBank->GetCueCategory(m_dwSoundCueIndex);
+}

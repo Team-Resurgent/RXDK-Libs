@@ -1395,12 +1395,63 @@ HRESULT CEngine::SetListenerParameters(LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL
 #undef DPF_FNAME
 #define DPF_FNAME "CEngine::GlobalPause"
 
-HRESULT CEngine::GlobalPause(BOOL bPause)
+//
+// RXDK 5849 uplift: this was an empty stub -- it returned S_OK having paused
+// nothing, so a title pausing for a menu kept hearing its audio.
+//
+// wCategory selects which sounds move. XACT_SOUNDBANK_CATEGORY_UNUSED means all
+// of them, which is also what a title gets if it passes the category of a bank
+// built before categories existed.
+//
+HRESULT CEngine::GlobalPause(WORD wCategory, BOOL bPause)
 {
-    HRESULT hr = S_OK;
+    HRESULT     hr = S_OK;
+    PLIST_ENTRY pEntry;
+    CSoundCue  *pCue;
 
     DPF_ENTER();
     ENTER_EXTERNAL_METHOD();
+
+    pEntry = m_lstActiveCues.Flink;
+    while (pEntry != &m_lstActiveCues)
+    {
+        pCue = CONTAINING_RECORD(pEntry, CSoundCue, m_SeqListEntry);
+        pEntry = pEntry->Flink;
+
+        if (wCategory != XACT_SOUNDBANK_CATEGORY_UNUSED &&
+            pCue->GetCategory() != wCategory)
+        {
+            continue;
+        }
+
+        // Report the last failure but pause everything that can be paused --
+        // stopping halfway would leave the mix in a state no later call fixes.
+        HRESULT hrCue = pCue->Pause(bPause);
+        if (FAILED(hrCue))
+        {
+            hr = hrCue;
+        }
+    }
+
+    //
+    // WMA playlists render outside the cue path, so pause them alongside. They
+    // carry no category of their own: a playlist is bound to a cue, so it takes
+    // that cue's category.
+    //
+    pEntry = m_lstPlayLists.Flink;
+    while (pEntry != &m_lstPlayLists)
+    {
+        CWmaPlayList *pPlayList = CONTAINING_RECORD(pEntry, CWmaPlayList, m_ListEntry);
+        pEntry = pEntry->Flink;
+
+        if (wCategory != XACT_SOUNDBANK_CATEGORY_UNUSED &&
+            pPlayList->GetCategory() != wCategory)
+        {
+            continue;
+        }
+
+        pPlayList->Pause(bPause);
+    }
 
     DPF_LEAVE_HRESULT(hr);
 

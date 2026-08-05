@@ -174,18 +174,20 @@ the tree now. Caveat: `xsasm.exe` is a Win32 PE, so authoring new shaders off Wi
 managed port (see `tools/shaders/README.md`); regenerating a checked-in `.inl` does not, and no build
 step invokes the assembler.
 
-**Known-unimplemented in libxact, stated plainly** (the matrix row above says libxact is reconciled
-to 5849, which is true of the ABI but overstates the runtime):
-- **`GlobalPause` is an empty stub.** Not "pauses everything and ignores the category" -- it returns
-  S_OK having done nothing, so a title pausing for a menu keeps hearing its audio. There is no pause
-  implementation anywhere in libxact; `IXACTSoundBank_PauseSoundCue` is likewise declared and absent.
-- **`wCategory` does not select** on `GlobalPause` or `SetMasterVolume`. SetMasterVolume at least
-  applies a single global master volume; it just cannot tell categories apart. Everything upstream
-  already exists -- the `.xap` declares categories in order and every Sound carries
-  `Category = SFX;`, and xactbld already emits the `XACT_CATEGORY_*` enumerators. What is missing is
-  a category field in `XACT_SOUNDBANK_SOUND_ENTRY` (a bank-format change, so bump the version -- the
-  engine validates it strictly, so stale banks error cleanly rather than misread), xactbld writing
-  it, and the runtime filtering on it.
+**libxact runtime notes** (the matrix row says libxact is reconciled to 5849, which is true of the
+ABI; this is the runtime detail behind it):
+- **Pause is implemented.** `GlobalPause` used to be an empty stub -- it returned S_OK having paused
+  nothing. It now walks the active cues and the WMA playlists and pauses each voice in place.
+  `IXACTSoundBank_PauseSoundCue` landed with it. The wrinkle worth knowing: a DirectSound *stream*
+  has `Pause`, a *buffer* does not, so a buffer voice is paused by stopping it and remembering the
+  play cursor -- plain Stop/Play would retrigger the sound from the start.
+- **`wCategory` selects on `GlobalPause`.** `XACT_SOUNDBANK_SOUND_ENTRY` carries `wCategory`, so the
+  sound entry is 30 bytes and the bank version is **2**. Stale `.xsb` files error cleanly (the engine
+  validates the version strictly) -- rebuild them. xactbld writes the index in the same order it
+  emits the `XACT_CATEGORY_*` enumerators, which is required, since a title passes one of those
+  straight to `GlobalPause`.
+- **`SetMasterVolume` still ignores its selector.** It applies a single global master volume; a real
+  per-category volume needs a volume per category in the mix, not just a filter.
 - **RPC parameter modulation** (`SetParameterControl`) is a no-op; variables are stored but do not
   drive sound parameters.
 

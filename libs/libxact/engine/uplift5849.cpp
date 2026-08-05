@@ -232,3 +232,17 @@ STDAPI IXACTWmaPlayList_GetProperties(PXACTWMAPLAYLIST pPlayList,
 {
     return ((CWmaPlayList *)pPlayList)->GetProperties(pProperties);
 }
+
+// ---- IXACTSoundBank_PauseSoundCue (RXDK 5849 uplift) -----------------------------------------
+//
+// Declared by the 5849 public header and previously unimplemented, like GlobalPause. Pauses one cue
+// rather than a whole category; the underlying work is the same, so both landed together.
+
+STDAPI IXACTSoundBank_PauseSoundCue(PXACTSOUNDBANK pBank, PXACTSOUNDCUE pSoundCue, BOOL fPause)
+{
+    if (pBank == NULL || pSoundCue == NULL) {
+        return E_INVALIDARG;
+    }
+
+    return ((CSoundCue *)pSoundCue)->Pause(fPause);
+}

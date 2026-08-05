@@ -457,7 +457,16 @@ struct IXACTSoundBank
 #define XACT_SOUNDBANK_WAVEBANK_FRIENDLYNAME_LENGTH 16
 
 #define XACT_SOUNDBANK_HEADER_SIGNATURE        'KBDS'
-#define XACT_SOUNDBANK_HEADER_VERSION          1
+
+// A sound with no category. The public xact.h spells the cue-properties form as
+// XACT_CATEGORY_INDEX_UNUSED = 0xFF; the bank field is a WORD, so widen it here
+// rather than truncating and colliding with a real category 255.
+#define XACT_SOUNDBANK_CATEGORY_UNUSED         0xFFFF
+// RXDK: bumped 1 -> 2 when wCategory was added to XACT_SOUNDBANK_SOUND_ENTRY.
+// The entry stride changed, so a v1 bank cannot be read with the v2 struct --
+// but CSoundBank::IsValidHeader rejects a mismatched version outright, so a
+// stale .xsb produces a clean error instead of misread audio. Rebuild banks.
+#define XACT_SOUNDBANK_HEADER_VERSION          2
 
 typedef struct _XACT_SOUNDBANK_FILE_HEADER{
 
@@ -512,6 +521,17 @@ typedef struct _XACT_SOUNDBANK_SOUND_ENTRY{
     WORD					wTrackCount;
     WORD					wWaveBankCount;
 	WORD					wSliderCount;
+
+    //
+    // RXDK 5849 uplift: the sound's mix category, as an index into the
+    // categories the .xap declares, or XACT_SOUNDBANK_CATEGORY_UNUSED.
+    //
+    // 5849 exposes categories through the wCategory selector on GlobalPause
+    // and SetMasterVolume, and reports one in XACT_SOUNDCUE_PROPERTIES. The
+    // leak's format had nowhere to put it -- wGroupNumber above is variation
+    // selection, not a mix category -- so there was nothing to select on.
+    //
+    WORD					wCategory;
 
 } XACT_SOUNDBANK_SOUND_ENTRY, *PXACT_SOUNDBANK_SOUND_ENTRY, *LPXACT_SOUNDBANK_SOUND_ENTRY; 
 
@@ -863,6 +883,7 @@ typedef struct _XACT_WMA_PLAYLIST_PROPERTIES {
 } XACT_WMA_PLAYLIST_PROPERTIES, *PXACT_WMA_PLAYLIST_PROPERTIES;
 
 STDAPI IXACTSoundBank_CreateWmaPlayList(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, DWORD dwPlaybackFlags, PXACTWMAPLAYLIST *ppWmaPlayList);
+STDAPI IXACTSoundBank_PauseSoundCue(PXACTSOUNDBANK pBank, PXACTSOUNDCUE pSoundCue, BOOL fPause);
 
 STDAPI_(ULONG) IXACTWmaPlayList_AddRef(PXACTWMAPLAYLIST pPlayList);
 STDAPI_(ULONG) IXACTWmaPlayList_Release(PXACTWMAPLAYLIST pPlayList);

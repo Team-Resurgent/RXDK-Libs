@@ -94,27 +94,17 @@ STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pc
     return ((CEngine *)pEngine)->SetListenerParameters(pcDs3dListener, pds3dl, dwApply);
 }
 
-// RXDK 5849 uplift: 5849 added a wCategory selector here too.
+// RXDK 5849 uplift: 5849 added a wCategory selector here too, and this used to be an empty stub --
+// it returned S_OK having paused nothing. Both are real now: CEngine::GlobalPause walks the active
+// cues (and the WMA playlists, which render outside the cue path), filters on the category carried
+// in the sound's bank entry, and pauses each voice in place.
 //
-// NOT IMPLEMENTED -- and note this is weaker than it looks. CEngine::GlobalPause is an EMPTY STUB in
-// the leak: it does not pause one category, and it does not pause everything either. It returns S_OK
-// having done nothing, so a title that pauses for a menu keeps hearing its audio.
-//
-// (An earlier revision of this comment claimed it pauses everything and merely ignores the category.
-// That was wrong. There is no pause implementation anywhere in libxact -- GlobalPause is the only
-// pause entry point and it is empty.)
-//
-// Closing it properly is two jobs, not one:
-//   a. implement pause at all -- a cue has Play/Stop but no Pause, so this means reaching the
-//      DirectSound voices its tracks are rendering on and stopping/resuming them in place;
-//   b. then make wCategory select, which needs a category in XACT_SOUNDBANK_SOUND_ENTRY (a bank
-//      format change), xactbld authoring it out of the .xap (where `Category = SFX;` already sits
-//      on every Sound, and the categories are already declared in order), and the walk here
-//      filtering on it.
-STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD /*wCategory*/, BOOL bPause)
+// XACT_SOUNDBANK_CATEGORY_UNUSED means every sound, which is also what a title gets if it names a
+// category no sound in the bank belongs to.
+STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD wCategory, BOOL bPause)
 {
     using namespace XACT;
-    return ((CEngine *)pEngine)->GlobalPause(bPause);
+    return ((CEngine *)pEngine)->GlobalPause(wCategory, bPause);
 }
 
 STDAPI IXACTEngine_RegisterNotification(PXACTENGINE pEngine, PXACT_NOTIFICATION_DESCRIPTION pNotificationDesc)

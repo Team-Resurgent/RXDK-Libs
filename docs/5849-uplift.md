@@ -242,3 +242,29 @@ counters it never reads. The variant is opt-in (not in the default install, sinc
 compile) but is shipped in `dist`.
 
 _Last updated: 2026-08-04. Tooling: `cvdump`, `dumpbin /DISASM` (RXDK-Tools). See also the samples/middleware memory note._
+
+## Library ownership: is each symbol in the lib 5849 puts it in?
+
+A symbol can be implemented correctly and still sit in the wrong archive. Nothing
+in a sample build catches it -- the link line names every lib, so it resolves
+either way -- and it only bites a title that links a subset. That is precisely
+what the libxnet LIBX/LIBO split turned out to be.
+
+`tools/lib_ownership_audit.py` compares the defined-symbol set of every one of our
+libs against the retail 5849 libs and reports the differences. Current state:
+**5035 symbols in common, 216 placed differently.** Ignoring symbols that appear
+in nearly every 5849 lib (compiler/CRT helpers, not owned code), the real buckets
+are:
+
+| Count | We put it in | 5849 puts it in | Reading |
+|---|---|---|---|
+| 55 | `libxapi` | `xboxkrnl` | `Ke*`/`Ex*`/`Io*`/`Hal*` — kernel entry points we define ourselves rather than import. Needs checking against `libkernel`: if both define them, a title linking both is resolving a duplicate. |
+| 53 | `libxact` | `xacteng` | 5849 splits XACT into a thin `xact.lib` over an engine `xacteng.lib`; we ship one merged lib. All the `IXACTEngine_*` entry points. |
+| 49 | `libxonline` | `uix` | 5849 keeps `uix.lib` separate; we folded it in. `LiveEngine_*` and the `ITitle*`/`ILive*` plugin interfaces. |
+| 16 | `libxnet` | `xonline` | `CXoBase::Xn*` and `CXnIp::Ip*` — **the opposite of what `xn.h`'s own comment implies.** The header labels the `Xn*` half "XNet Support for XOnline", but 5849 compiles the whole class into `xonline.lib`. Directly relevant to the LIBX/LIBO split. |
+| 7 | `libxapi` | `libc` | `__snprintf`, `__stricmp`, `__scprintf`, `__vsnprintf` and friends — CRT functions, in the CRT in 5849. |
+
+None of these are wrong *code*; they are packaging differences, and each is a
+separate decision about whether to match 5849's archive layout or keep ours.
+Recorded here rather than fixed silently, because splitting a shipped lib changes
+what a title must name on its link line.

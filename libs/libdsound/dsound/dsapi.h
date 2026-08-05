@@ -538,6 +538,8 @@ namespace DirectSound
         HRESULT STDMETHODCALLTYPE Play(DWORD dwReserved1, DWORD dwReserved2, DWORD dwFlags);
         HRESULT STDMETHODCALLTYPE PlayEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
         HRESULT STDMETHODCALLTYPE Stop(void);
+        HRESULT STDMETHODCALLTYPE Pause(DWORD dwPause);
+        HRESULT STDMETHODCALLTYPE PauseEx(REFERENCE_TIME rtTimestamp, DWORD dwPause);
         HRESULT STDMETHODCALLTYPE StopEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
         HRESULT STDMETHODCALLTYPE SetPlayRegion(DWORD dwPlayStart, DWORD dwPlayLength);
         HRESULT STDMETHODCALLTYPE SetLoopRegion(DWORD dwLoopStart, DWORD dwLoopLength);

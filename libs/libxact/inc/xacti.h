@@ -672,15 +672,18 @@ public:
     //
     // RXDK 5849 uplift: pause/resume this voice in place.
     //
-    // A stream has a real Pause. A BUFFER does not -- dsound.h gives it only
-    // Play/Stop -- so pausing one means stopping it and remembering the play
-    // cursor, then restoring that cursor on resume. Plain Stop/Play would
-    // restart the sound from the beginning, which is the difference between a
-    // pause and a retrigger.
+    // Both voice kinds have a real Pause in 5849, so this is symmetric. It was
+    // not always: the leak-era dsound.h gave a BUFFER only Play/Stop, and this
+    // function used to pause one by stopping it and remembering the play cursor,
+    // restoring that cursor on resume. That approximation is gone now that
+    // libdsound implements IDirectSoundBuffer_Pause -- it could only restore to
+    // a buffer-position granularity, where the hardware pause holds the voice
+    // exactly where it stood.
     //
     HRESULT Pause(BOOL fPause)
     {
         if (m_HwVoice.pStream) {
+            m_fPaused = fPause;
             return m_HwVoice.pStream->Pause(fPause ? DSSTREAMPAUSE_PAUSE
                                                    : DSSTREAMPAUSE_RESUME);
         }
@@ -689,29 +692,12 @@ public:
             return S_FALSE;
         }
 
-        if (fPause) {
-            if (m_fPaused) {
-                return S_FALSE;
-            }
-
-            DWORD dwPlay = 0, dwWrite = 0;
-            if (SUCCEEDED(m_HwVoice.pBuffer->GetCurrentPosition(&dwPlay, &dwWrite))) {
-                m_dwPausedPosition = dwPlay;
-            } else {
-                m_dwPausedPosition = 0;
-            }
-
-            m_fPaused = TRUE;
-            return m_HwVoice.pBuffer->Stop();
-        }
-
-        if (!m_fPaused) {
+        if (!fPause == !m_fPaused) {
             return S_FALSE;
         }
 
-        m_fPaused = FALSE;
-        m_HwVoice.pBuffer->SetCurrentPosition(m_dwPausedPosition);
-        return m_HwVoice.pBuffer->Play(0, 0, 0);
+        m_fPaused = fPause;
+        return m_HwVoice.pBuffer->Pause(fPause ? DSBPAUSE_PAUSE : DSBPAUSE_RESUME);
     }
 
     BOOL IsPaused() const { return m_fPaused; }
@@ -812,7 +798,6 @@ protected:
     // Buffer-voice pause state (see Pause above): a stream tracks its own, but a
     // stopped buffer has forgotten where it was.
     BOOL    m_fPaused;
-    DWORD   m_dwPausedPosition;
 
     // Last volume the content asked for, before any category attenuation.
     LONG    m_lBaseVolume;

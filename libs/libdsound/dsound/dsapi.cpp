@@ -817,6 +817,16 @@ STDAPI IDirectSoundBuffer_Stop(LPDIRECTSOUNDBUFFER pBuffer)
     return ((CDirectSoundBuffer *)pBuffer)->Stop();
 }
 
+STDAPI IDirectSoundBuffer_Pause(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwPause)
+{
+    return ((CDirectSoundBuffer *)pBuffer)->Pause(dwPause);
+}
+
+STDAPI IDirectSoundBuffer_PauseEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimestamp, DWORD dwPause)
+{
+    return ((CDirectSoundBuffer *)pBuffer)->PauseEx(rtTimestamp, dwPause);
+}
+
 STDAPI IDirectSoundBuffer_StopEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimeStamp, DWORD dwFlags)
 {
 
@@ -8208,6 +8218,110 @@ CDirectSoundBuffer::StopEx
 #endif // VALIDATE_PARAMETERS
 
     hr = m_pBuffer->Stop(rtTimeStamp, dwFlags);
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
+ *  Pause
+ *
+ *  Description:
+ *      Pauses or resumes buffer playback.
+ *
+ *  Arguments:
+ *      DWORD [in]: pause state.
+ *
+ *  Returns:  
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+ 
+#undef DPF_FNAME
+#define DPF_FNAME "CDirectSoundBuffer::Pause"
+
+HRESULT
+CDirectSoundBuffer::Pause
+(
+    DWORD                   dwPause
+)
+{
+    HRESULT                 hr;
+    
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+    
+#ifdef VALIDATE_PARAMETERS
+
+    if((dwPause < DSBPAUSE_FIRST) || (dwPause > DSBPAUSE_LAST))
+    {
+        DPF_ERROR("Invalid buffer pause state");
+    }
+
+    if(m_pSettings->m_dwFlags & DSBCAPS_SUBMIXMASK)
+    {
+        DPF_ERROR("Can't call Pause on a MIXIN/FXIN buffer");
+    }
+    
+#endif // VALIDATE_PARAMETERS
+
+    hr = m_pBuffer->Pause(dwPause);
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
+ *  PauseEx
+ *
+ *  Description:
+ *      Pauses or resumes buffer playback at a given time.
+ *
+ *  Arguments:
+ *      REFERENCE_TIME [in]: timestamp.
+ *      DWORD [in]: pause state.
+ *
+ *  Returns:  
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+ 
+#undef DPF_FNAME
+#define DPF_FNAME "CDirectSoundBuffer::PauseEx"
+
+HRESULT
+CDirectSoundBuffer::PauseEx
+(
+    REFERENCE_TIME          rtTimestamp,
+    DWORD                   dwPause
+)
+{
+    HRESULT                 hr;
+    
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+    
+#ifdef VALIDATE_PARAMETERS
+
+    if((dwPause < DSBPAUSE_FIRST) || (dwPause > DSBPAUSE_LAST))
+    {
+        DPF_ERROR("Invalid buffer pause state");
+    }
+
+    if(m_pSettings->m_dwFlags & DSBCAPS_SUBMIXMASK)
+    {
+        DPF_ERROR("Can't call Pause on a MIXIN/FXIN buffer");
+    }
+    
+#endif // VALIDATE_PARAMETERS
+
+    hr = m_pBuffer->Pause(rtTimestamp, dwPause);
 
     DPF_LEAVE_HRESULT(hr);
 

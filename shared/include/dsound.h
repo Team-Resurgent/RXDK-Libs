@@ -582,7 +582,18 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 //
 
 #define DSBSTATUS_PLAYING           0x00000001      // The buffer is playing
+#define DSBSTATUS_PAUSED            0x00000002      // The buffer is paused
 #define DSBSTATUS_LOOPING           0x00000004      // The buffer is playing in a loop
+
+// Buffer pause states. 5849 gives a BUFFER its own Pause -- the leak-era header
+// had these only for streams, which is why code written against it stops the
+// buffer and restores the play cursor instead.
+#define DSBPAUSE_RESUME             0x00000000      // Resume a paused buffer
+#define DSBPAUSE_PAUSE              0x00000001      // Pause the buffer
+#define DSBPAUSE_SYNCHPLAYBACK      0x00000002      // Pause pending a SynchPlayback
+
+#define DSBPAUSE_FIRST              DSBPAUSE_RESUME
+#define DSBPAUSE_LAST               DSBPAUSE_SYNCHPLAYBACK
                                                                             
 //
 // IDirectSoundBuffer::Lock flags
@@ -1710,6 +1721,8 @@ STDAPI IDirectSoundBuffer_SetI3DL2Source(LPDIRECTSOUNDBUFFER pBuffer, LPCDSI3DL2
 STDAPI IDirectSoundBuffer_Play(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwReserved1, DWORD dwReserved2, DWORD dwFlags);
 STDAPI IDirectSoundBuffer_PlayEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
 STDAPI IDirectSoundBuffer_Stop(LPDIRECTSOUNDBUFFER pBuffer);
+STDAPI IDirectSoundBuffer_Pause(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwPause);
+STDAPI IDirectSoundBuffer_PauseEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimestamp, DWORD dwPause);
 STDAPI IDirectSoundBuffer_StopEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
 STDAPI IDirectSoundBuffer_SetPlayRegion(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwPlayStart, DWORD dwPlayLength);
 STDAPI IDirectSoundBuffer_SetLoopRegion(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwLoopStart, DWORD dwLoopLength);
@@ -1881,6 +1894,16 @@ struct IDirectSoundBuffer
         return IDirectSoundBuffer_Stop(this);
     }
 
+    __inline HRESULT STDMETHODCALLTYPE Pause(DWORD dwPause)
+    {
+        return IDirectSoundBuffer_Pause(this, dwPause);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE PauseEx(REFERENCE_TIME rtTimestamp, DWORD dwPause)
+    {
+        return IDirectSoundBuffer_PauseEx(this, rtTimestamp, dwPause);
+    }
+
     __inline HRESULT STDMETHODCALLTYPE StopEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags)
     {
         return IDirectSoundBuffer_StopEx(this, rtTimeStamp, dwFlags);
@@ -1945,6 +1968,8 @@ struct IDirectSoundBuffer
 #define IDirectSoundBuffer8_SetFormat               IDirectSoundBuffer_SetFormat
 #define IDirectSoundBuffer8_Play                    IDirectSoundBuffer_Play              
 #define IDirectSoundBuffer8_Stop                    IDirectSoundBuffer_Stop              
+#define IDirectSoundBuffer8_Pause                   IDirectSoundBuffer_Pause
+#define IDirectSoundBuffer8_PauseEx                 IDirectSoundBuffer_PauseEx
 #define IDirectSoundBuffer8_GetStatus               IDirectSoundBuffer_GetStatus         
 #define IDirectSoundBuffer8_GetCurrentPosition      IDirectSoundBuffer_GetCurrentPosition
 #define IDirectSoundBuffer8_SetCurrentPosition      IDirectSoundBuffer_SetCurrentPosition

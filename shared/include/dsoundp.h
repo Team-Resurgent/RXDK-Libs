@@ -645,9 +645,20 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 //
 
 #define DSBSTATUS_PLAYING           0x00000001      // The buffer is playing
+#define DSBSTATUS_PAUSED            0x00000002      // The buffer is paused
 #define DSBSTATUS_LOOPING           0x00000004      // The buffer is playing in a loop
+
+// Buffer pause states, 5849. Must stay in step with dsound.h -- the library
+// compiles against THIS header, so a constant added only to the public one
+// is invisible to the implementation that has to honour it.
+#define DSBPAUSE_RESUME             0x00000000      // Resume a paused buffer
+#define DSBPAUSE_PAUSE              0x00000001      // Pause the buffer
+#define DSBPAUSE_SYNCHPLAYBACK      0x00000002      // Pause pending a SynchPlayback
+
+#define DSBPAUSE_FIRST              DSBPAUSE_RESUME
+#define DSBPAUSE_LAST               DSBPAUSE_SYNCHPLAYBACK
 //@@BEGIN_MSINTERNAL
-#define DSBSTATUS_VALID             (DSBSTATUS_PLAYING | DSBSTATUS_LOOPING)
+#define DSBSTATUS_VALID             (DSBSTATUS_PLAYING | DSBSTATUS_PAUSED | DSBSTATUS_LOOPING)
 //@@END_MSINTERNAL
                                                                             
 //
@@ -1926,6 +1937,8 @@ STDAPI IDirectSoundBuffer_SetI3DL2Source(LPDIRECTSOUNDBUFFER pBuffer, LPCDSI3DL2
 STDAPI IDirectSoundBuffer_Play(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwReserved1, DWORD dwReserved2, DWORD dwFlags);
 STDAPI IDirectSoundBuffer_PlayEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
 STDAPI IDirectSoundBuffer_Stop(LPDIRECTSOUNDBUFFER pBuffer);
+STDAPI IDirectSoundBuffer_Pause(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwPause);
+STDAPI IDirectSoundBuffer_PauseEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimestamp, DWORD dwPause);
 STDAPI IDirectSoundBuffer_StopEx(LPDIRECTSOUNDBUFFER pBuffer, REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
 STDAPI IDirectSoundBuffer_SetPlayRegion(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwPlayStart, DWORD dwPlayLength);
 STDAPI IDirectSoundBuffer_SetLoopRegion(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwLoopStart, DWORD dwLoopLength);

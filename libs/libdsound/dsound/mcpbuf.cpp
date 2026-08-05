@@ -1372,6 +1372,114 @@ CMcpxBuffer::Stop
 
 /****************************************************************************
  *
+ *  CMcpxBuffer::Pause
+ *
+ *  Description:
+ *      Pauses or resumes the buffer's voice.
+ *
+ *      5849 gives a buffer its own Pause. The leak-era header exposed pause only
+ *      on streams, so callers written against it stop the buffer and restore the
+ *      play cursor by hand -- which is a retrigger with extra steps, and loses
+ *      any sub-sample position. The primitive was always there: PauseVoice lives
+ *      on CMcpxVoiceClient, which buffers and streams both derive from.
+ *
+ *  Arguments:
+ *      DWORD [in]: pause state.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CMcpxBuffer::Pause"
+
+HRESULT
+CMcpxBuffer::Pause
+(
+    DWORD                   dwPause
+)
+{
+    DPF_ENTER();
+    AutoIrql();
+
+    if(DSBPAUSE_PAUSE == dwPause)
+    {
+        PauseVoice(m_dwStatus | MCPX_VOICESTATUS_PAUSED);
+    }
+    else if(DSBPAUSE_RESUME == dwPause)
+    {
+        PauseVoice(m_dwStatus & ~MCPX_VOICESTATUS_PAUSED);
+    }
+    else if(DSBPAUSE_SYNCHPLAYBACK == dwPause)
+    {
+        //
+        // Pause pending a SynchPlayback: the voice stays paused until
+        // IDirectSound_SynchPlayback resumes every pending voice together.
+        //
+        PauseVoice(m_dwStatus | MCPX_VOICESTATUS_PAUSED | MCPX_VOICESTATUS_SYNCHPENDING);
+    }
+    else
+    {
+        ASSERTMSG("Invalid pause state");
+    }
+
+    DPF_LEAVE_HRESULT(DS_OK);
+
+    return DS_OK;
+}
+
+
+/****************************************************************************
+ *
+ *  CMcpxBuffer::Pause
+ *
+ *  Description:
+ *      Pauses or resumes the buffer at a given time, deferring the command if a
+ *      timestamp is supplied. Same shape as the timestamped Play and Stop.
+ *
+ *  Arguments:
+ *      REFERENCE_TIME [in]: timestamp, or 0 to act immediately.
+ *      DWORD [in]: pause state.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CMcpxBuffer::Pause"
+
+HRESULT
+CMcpxBuffer::Pause
+(
+    REFERENCE_TIME          rtTimeStamp,
+    DWORD                   dwPause
+)
+{
+    BOOL                    fDeferred   = FALSE;
+    HRESULT                 hr          = DS_OK;
+
+    DPF_ENTER();
+
+    if(rtTimeStamp)
+    {
+        fDeferred = ScheduleDeferredCommand(MCPX_DEFERREDCMD_BUFFER_PAUSE, rtTimeStamp, dwPause);
+    }
+
+    if(!fDeferred)
+    {
+        hr = Pause(dwPause);
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
  *  GetStatus
  *
  *  Description:
@@ -2067,6 +2175,10 @@ CMcpxBuffer::ServiceDeferredCommand
 
         case MCPX_DEFERREDCMD_BUFFER_STOP:
             Stop(dwContext);
+            break;
+
+        case MCPX_DEFERREDCMD_BUFFER_PAUSE:
+            Pause(dwContext);
             break;
 
         case MCPX_DEFERREDCMD_BUFFER_POSITIONDELTA:

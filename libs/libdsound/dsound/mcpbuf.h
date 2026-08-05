@@ -25,6 +25,7 @@ BEGIN_DEFINE_ENUM()
     MCPX_DEFERREDCMD_BUFFER_POSITIONDELTA,
     MCPX_DEFERREDCMD_BUFFER_PLAY,
     MCPX_DEFERREDCMD_BUFFER_STOP,
+    MCPX_DEFERREDCMD_BUFFER_PAUSE,
     MCPX_DEFERREDCMD_BUFFER_COUNT
 END_DEFINE_ENUM_();
 
@@ -64,6 +65,8 @@ namespace DirectSound
         HRESULT Play(REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
         HRESULT Stop(DWORD dwFlags = 0);
         HRESULT Stop(REFERENCE_TIME rtTimeStamp, DWORD dwFlags = 0);
+        HRESULT Pause(DWORD dwPause);
+        HRESULT Pause(REFERENCE_TIME rtTimeStamp, DWORD dwPause);
         HRESULT GetStatus(LPDWORD pdwStatus);
 
         // Buffer data

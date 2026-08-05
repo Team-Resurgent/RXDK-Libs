@@ -174,6 +174,21 @@ the tree now. Caveat: `xsasm.exe` is a Win32 PE, so authoring new shaders off Wi
 managed port (see `tools/shaders/README.md`); regenerating a checked-in `.inl` does not, and no build
 step invokes the assembler.
 
+**Known-unimplemented in libxact, stated plainly** (the matrix row above says libxact is reconciled
+to 5849, which is true of the ABI but overstates the runtime):
+- **`GlobalPause` is an empty stub.** Not "pauses everything and ignores the category" -- it returns
+  S_OK having done nothing, so a title pausing for a menu keeps hearing its audio. There is no pause
+  implementation anywhere in libxact; `IXACTSoundBank_PauseSoundCue` is likewise declared and absent.
+- **`wCategory` does not select** on `GlobalPause` or `SetMasterVolume`. SetMasterVolume at least
+  applies a single global master volume; it just cannot tell categories apart. Everything upstream
+  already exists -- the `.xap` declares categories in order and every Sound carries
+  `Category = SFX;`, and xactbld already emits the `XACT_CATEGORY_*` enumerators. What is missing is
+  a category field in `XACT_SOUNDBANK_SOUND_ENTRY` (a bank-format change, so bump the version -- the
+  engine validates it strictly, so stale banks error cleanly rather than misread), xactbld writing
+  it, and the runtime filtering on it.
+- **RPC parameter modulation** (`SetParameterControl`) is a no-op; variables are stored but do not
+  drive sound parameters.
+
 **What is actually left:**
 - **XACT WMA playlist -- DONE, including playback.** `IXACTWmaPlayList` is implemented from scratch
   in `libs/libxact/engine/wmaplaylist.cpp` (the leak has no WmaPlayList source anywhere). All four add

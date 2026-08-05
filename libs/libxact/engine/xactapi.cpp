@@ -79,8 +79,9 @@ STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBa
 // NOT IMPLEMENTED -- the signature is 5849's, the behaviour is the leak's. The leak's sound-bank
 // format has no category field on a sound entry at all (it has wGroupNumber, which selects
 // variations, not a mix category), so there is nothing to filter on: the category is dropped and
-// this sets the single global master volume. Honouring it needs the category authored into the
-// bank format, emitted by xactbld, and then read here -- see the note on GlobalPause below.
+// this sets the single global master volume, which IS applied. Honouring the selector needs the
+// category authored into the bank format and emitted by xactbld -- see the note on GlobalPause
+// below, which is in worse shape than this one.
 STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD /*wCategory*/, LONG lVolume)
 {
     using namespace XACT;
@@ -95,13 +96,21 @@ STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pc
 
 // RXDK 5849 uplift: 5849 added a wCategory selector here too.
 //
-// NOT IMPLEMENTED, for the same reason as SetMasterVolume above: no category survives into the
-// leak's bank format, so there is nothing to select on. A title asking to pause one category gets
-// EVERYTHING paused, and unpausing restores everything -- audible and wrong, not a silent
-// approximation. Closing this properly is a three-part job and is tracked as its own task:
-//   1. add a category field to XACT_SOUNDBANK_SOUND_ENTRY (bank format change),
-//   2. teach xactbld to author it out of the .xap project,
-//   3. filter the pause/volume walk here on it.
+// NOT IMPLEMENTED -- and note this is weaker than it looks. CEngine::GlobalPause is an EMPTY STUB in
+// the leak: it does not pause one category, and it does not pause everything either. It returns S_OK
+// having done nothing, so a title that pauses for a menu keeps hearing its audio.
+//
+// (An earlier revision of this comment claimed it pauses everything and merely ignores the category.
+// That was wrong. There is no pause implementation anywhere in libxact -- GlobalPause is the only
+// pause entry point and it is empty.)
+//
+// Closing it properly is two jobs, not one:
+//   a. implement pause at all -- a cue has Play/Stop but no Pause, so this means reaching the
+//      DirectSound voices its tracks are rendering on and stopping/resuming them in place;
+//   b. then make wCategory select, which needs a category in XACT_SOUNDBANK_SOUND_ENTRY (a bank
+//      format change), xactbld authoring it out of the .xap (where `Category = SFX;` already sits
+//      on every Sound, and the categories are already declared in order), and the walk here
+//      filtering on it.
 STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD /*wCategory*/, BOOL bPause)
 {
     using namespace XACT;

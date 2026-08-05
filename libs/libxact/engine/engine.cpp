@@ -144,6 +144,13 @@ CEngine::CEngine
 
     InitializeListHead(&m_lstActiveCues);
     InitializeListHead(&m_lstPlayLists);
+
+    // DSBVOLUME_MAX is 0 -- no attenuation -- so an untouched engine plays
+    // content at exactly the volume it was authored with.
+    m_lMasterVolume = DSBVOLUME_MAX;
+    for (int iCat = 0; iCat < MAX_SOUND_CATEGORIES; iCat++) {
+        m_alCategoryVolume[iCat] = DSBVOLUME_MAX;
+    }
     KeInitializeTimer(&m_TimerObject);
     KeInitializeDpc(&m_DpcObject, DPCTimerCallBack, this);
 
@@ -1342,9 +1349,21 @@ HRESULT CEngine::UnRegisterWaveBank(PXACTWAVEBANK pWaveBankInstance)
 #undef DPF_FNAME
 #define DPF_FNAME "CEngine::SetMasterVolume"
 
-HRESULT CEngine::SetMasterVolume(LONG lVolume)
+//
+// RXDK 5849 uplift: this was an empty stub -- it validated lVolume and applied
+// nothing, so a title's volume slider did not move the mix at all.
+//
+// 5849 takes a category alongside the volume. XACT_SOUNDBANK_CATEGORY_UNUSED
+// addresses the global master; anything else addresses that category, and the
+// two compose (a sound is attenuated by its category AND by the master).
+//
+// Xbox volumes are hundredths of a decibel, so composing attenuations is an add.
+//
+HRESULT CEngine::SetMasterVolume(WORD wCategory, LONG lVolume)
 {
-    HRESULT hr = S_OK;
+    HRESULT     hr = S_OK;
+    PLIST_ENTRY pEntry;
+    CSoundCue  *pCue;
 
     DPF_ENTER();
     ENTER_EXTERNAL_METHOD();
@@ -1356,10 +1375,72 @@ HRESULT CEngine::SetMasterVolume(LONG lVolume)
     }
 #endif // VALIDATE_PARAMETERS
 
+    if (lVolume < DSBVOLUME_MIN) lVolume = DSBVOLUME_MIN;
+    if (lVolume > DSBVOLUME_MAX) lVolume = DSBVOLUME_MAX;
+
+    if (wCategory == XACT_SOUNDBANK_CATEGORY_UNUSED)
+    {
+        m_lMasterVolume = lVolume;
+    }
+    else if (wCategory < MAX_SOUND_CATEGORIES)
+    {
+        m_alCategoryVolume[wCategory] = lVolume;
+    }
+    else
+    {
+        DPF_ERROR("Category %d is beyond the supported maximum (%d)",
+                  wCategory, MAX_SOUND_CATEGORIES);
+        hr = E_INVALIDARG;
+        DPF_LEAVE_HRESULT(hr);
+        return hr;
+    }
+
+    //
+    // A volume is persistent state, not a momentary action like pause: it has to
+    // reach sounds ALREADY playing as well as ones started later. Sounds started
+    // later pick it up when the sequencer sets their volume; these are the ones
+    // already going, so re-apply their remembered base against the new total.
+    //
+    pEntry = m_lstActiveCues.Flink;
+    while (pEntry != &m_lstActiveCues)
+    {
+        pCue = CONTAINING_RECORD(pEntry, CSoundCue, m_SeqListEntry);
+        pEntry = pEntry->Flink;
+
+        if (wCategory != XACT_SOUNDBANK_CATEGORY_UNUSED &&
+            pCue->GetCategory() != wCategory)
+        {
+            continue;
+        }
+
+        pCue->ReapplyVolume();
+    }
+
     DPF_LEAVE_HRESULT(hr);
 
     return hr;
 
+}
+
+
+//
+// Total attenuation applying to a category: its own volume plus the global
+// master. Both default to DSBVOLUME_MAX (0, i.e. no attenuation), so an engine
+// nobody has touched leaves content volumes exactly as authored.
+//
+LONG CEngine::GetCategoryAttenuation(WORD wCategory)
+{
+    LONG lTotal = m_lMasterVolume;
+
+    if (wCategory != XACT_SOUNDBANK_CATEGORY_UNUSED && wCategory < MAX_SOUND_CATEGORIES)
+    {
+        lTotal += m_alCategoryVolume[wCategory];
+    }
+
+    if (lTotal < DSBVOLUME_MIN) lTotal = DSBVOLUME_MIN;
+    if (lTotal > DSBVOLUME_MAX) lTotal = DSBVOLUME_MAX;
+
+    return lTotal;
 }
 
 #undef DPF_FNAME

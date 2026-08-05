@@ -191,7 +191,10 @@ public:
     HRESULT STDMETHODCALLTYPE RegisterWaveBank(PVOID pvData, DWORD dwSize, PXACTWAVEBANK *ppWaveBank);
     HRESULT STDMETHODCALLTYPE RegisterStreamedWaveBank(PVOID pvStreamingBuffer, DWORD dwSize, HANDLE hFileHandle, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank);
     HRESULT STDMETHODCALLTYPE UnRegisterWaveBank(PXACTWAVEBANK pWaveBank);
-    HRESULT STDMETHODCALLTYPE SetMasterVolume(LONG lVolume);
+    HRESULT STDMETHODCALLTYPE SetMasterVolume(WORD wCategory, LONG lVolume);
+
+    // Total attenuation for a category: the global master plus that category's own.
+    LONG GetCategoryAttenuation(WORD wCategory);
     HRESULT STDMETHODCALLTYPE SetListenerParameters(LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
     // RXDK 5849 uplift: 5849's per-component listener setters, backed by a persistent listener that
     // delegates to the (real) SetListenerParameters; and a runtime-variable table.
@@ -323,6 +326,14 @@ protected:
     // Live WMA playlists. Weak references: the title owns each one's lifetime
     // through Release, and CWmaPlayList's destructor unregisters itself.
     LIST_ENTRY  m_lstPlayLists;
+
+    // Master volume, and one per category. XACT_SOUNDBANK_CATEGORY_UNUSED
+    // addresses the global one. Categories are authored per bank, so cap rather
+    // than size dynamically -- a project with more than this many categories is
+    // well outside anything the XDK tooling produces.
+    enum { MAX_SOUND_CATEGORIES = 64 };
+    LONG        m_lMasterVolume;
+    LONG        m_alCategoryVolume[MAX_SOUND_CATEGORIES];
     LIST_ENTRY  m_lstPendingNotifications;
 
     DWORD       m_dwTotalVoiceCount;
@@ -533,6 +544,10 @@ public:
     // RXDK 5849 uplift: pause/resume every voice this cue is rendering on.
     HRESULT Pause(BOOL fPause);
 
+    // Re-apply each voice's remembered base volume against this cue's category
+    // attenuation, after that category's volume changed.
+    VOID    ReapplyVolume();
+
     // The sound's mix category, or XACT_SOUNDBANK_CATEGORY_UNUSED.
     WORD    GetCategory() const
     {
@@ -701,6 +716,39 @@ public:
 
     BOOL IsPaused() const { return m_fPaused; }
 
+    //
+    // RXDK 5849 uplift: set this voice's volume as a BASE (what the content
+    // asked for) plus a category attenuation, and remember the base so a later
+    // SetMasterVolume can re-apply against the new attenuation.
+    //
+    // Xbox volumes are hundredths of a decibel, i.e. logarithmic, so combining
+    // two attenuations is an ADD, not a multiply.
+    //
+    HRESULT SetVoiceVolume(LONG lBase, LONG lAttenuation)
+    {
+        LONG lFinal;
+
+        m_lBaseVolume = lBase;
+
+        lFinal = lBase + lAttenuation;
+        if (lFinal < DSBVOLUME_MIN) lFinal = DSBVOLUME_MIN;
+        if (lFinal > DSBVOLUME_MAX) lFinal = DSBVOLUME_MAX;
+
+        if (m_HwVoice.pBuffer) {
+            return m_HwVoice.pBuffer->SetVolume(lFinal);
+        }
+        if (m_HwVoice.pStream) {
+            return m_HwVoice.pStream->SetVolume(lFinal);
+        }
+        return S_FALSE;
+    }
+
+    // Re-apply the remembered base against a new attenuation.
+    HRESULT ReapplyVolume(LONG lAttenuation)
+    {
+        return SetVoiceVolume(m_lBaseVolume, lAttenuation);
+    }
+
     BOOL IsPlaying()
     {
 
@@ -765,6 +813,9 @@ protected:
     // stopped buffer has forgotten where it was.
     BOOL    m_fPaused;
     DWORD   m_dwPausedPosition;
+
+    // Last volume the content asked for, before any category attenuation.
+    LONG    m_lBaseVolume;
 
 };
 

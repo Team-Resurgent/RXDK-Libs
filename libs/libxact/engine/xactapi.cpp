@@ -74,18 +74,15 @@ STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBa
     return ((CEngine *)pEngine)->UnRegisterWaveBank(pWaveBank);
 }
 
-// RXDK 5849 uplift: 5849 added a wCategory selector (per-category master volume).
-//
-// NOT IMPLEMENTED -- the signature is 5849's, the behaviour is the leak's. The leak's sound-bank
-// format has no category field on a sound entry at all (it has wGroupNumber, which selects
-// variations, not a mix category), so there is nothing to filter on: the category is dropped and
-// this sets the single global master volume, which IS applied. Honouring the selector needs the
-// category authored into the bank format and emitted by xactbld -- see the note on GlobalPause
-// below, which is in worse shape than this one.
-STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD /*wCategory*/, LONG lVolume)
+// RXDK 5849 uplift: 5849 added a wCategory selector (per-category master volume), and this used to
+// be an empty stub -- it validated lVolume and applied nothing, so a title's volume slider did not
+// move the mix. Both are real now: the volume is stored per category (or globally, for
+// XACT_SOUNDBANK_CATEGORY_UNUSED), composed with the content's own volume when the sequencer sets
+// it, and re-applied to cues already playing in that category.
+STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD wCategory, LONG lVolume)
 {
     using namespace XACT;
-    return ((CEngine *)pEngine)->SetMasterVolume(lVolume);
+    return ((CEngine *)pEngine)->SetMasterVolume(wCategory, lVolume);
 }
 
 STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply)

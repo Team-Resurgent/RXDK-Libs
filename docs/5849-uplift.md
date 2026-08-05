@@ -186,8 +186,14 @@ ABI; this is the runtime detail behind it):
   validates the version strictly) -- rebuild them. xactbld writes the index in the same order it
   emits the `XACT_CATEGORY_*` enumerators, which is required, since a title passes one of those
   straight to `GlobalPause`.
-- **`SetMasterVolume` still ignores its selector.** It applies a single global master volume; a real
-  per-category volume needs a volume per category in the mix, not just a filter.
+- **`SetMasterVolume` applies, per category.** It was ALSO an empty stub (it validated its argument
+  and did nothing, so a title's volume slider moved nothing). Now the volume is stored per category
+  -- `XACT_SOUNDBANK_CATEGORY_UNUSED` addressing the global master -- and the two compose. Volumes are
+  hundredths of a dB, so composing is an add. Unlike pause, a volume is persistent state, so it is
+  applied in two places: the sequencer composes it whenever content sets a volume (so later sounds
+  pick it up), and `SetMasterVolume` re-applies to cues already playing. That re-application is why
+  `CSoundSource` remembers the BASE volume -- neither a buffer nor a stream has `GetVolume`, so
+  without it repeated changes would compound and the mix would drift down.
 - **RPC parameter modulation** (`SetParameterControl`) is a no-op; variables are stored but do not
   drive sound parameters.
 

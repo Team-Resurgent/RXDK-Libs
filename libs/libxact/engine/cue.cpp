@@ -1290,3 +1290,32 @@ HRESULT CSoundCue::Pause(BOOL fPause)
 
     return hr;
 }
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundCue::ReapplyVolume"
+
+//
+// RXDK 5849 uplift: the cue's category volume changed, so every voice it is
+// rendering on has to be re-attenuated. Each source remembers the base volume
+// the content last asked for, so this is base + new attenuation -- the content's
+// own volume is never lost by repeated category changes.
+//
+VOID CSoundCue::ReapplyVolume()
+{
+    if (!m_paTracks || !m_pSoundEntry || !g_pEngine)
+    {
+        return;
+    }
+
+    LONG lAttenuation = g_pEngine->GetCategoryAttenuation(GetCategory());
+
+    for (WORD i = 0; i < m_pSoundEntry->wTrackCount; i++)
+    {
+        CSoundSource *pSource = m_paTracks[i].pSoundSource;
+        if (pSource)
+        {
+            pSource->ReapplyVolume(lAttenuation);
+        }
+    }
+}

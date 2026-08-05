@@ -903,11 +903,14 @@ HRESULT CEngine::DispatchEvent(PTRACK_EVENT_CONTEXT pEventContext)
 
     case eXACTEvent_SetVolume:
 
-        if (pDSBuffer) {
-            hr = pDSBuffer->SetVolume((LONG)pEvent->EventData.SetVolume.sVolume);
-        } else {
-            hr = pDSStream->SetVolume((LONG)pEvent->EventData.SetVolume.sVolume);
-        }
+        // RXDK 5849 uplift: the content's volume is the BASE; the sound's mix
+        // category (and the global master) attenuate on top of it. Going through
+        // the source rather than the raw voice is what lets a later
+        // SetMasterVolume re-apply against this base instead of compounding.
+        hr = pSoundSource->SetVoiceVolume(
+                 (LONG)pEvent->EventData.SetVolume.sVolume,
+                 g_pEngine->GetCategoryAttenuation(
+                     pEventContext->m_pTrack->pSoundCue->GetCategory()));
         break;
 
     case eXACTEvent_SetHeadroom:
@@ -1067,11 +1070,12 @@ HRESULT CEngine::CreateEventVariation(PTRACK_EVENT_CONTEXT pEventContext)
         
 
         fTemp = fRandom*fRange + pVarDesc->Volume.sVolLo;
-        if (pDSBuffer) {
-            hr = pDSBuffer->SetVolume((LONG)fTemp);
-        } else {
-            hr = pDSStream->SetVolume((LONG)fTemp);
-        }
+        // Same as eXACTEvent_SetVolume above: the randomised value is the base,
+        // the category attenuates on top.
+        hr = pEventContext->m_pTrack->pSoundSource->SetVoiceVolume(
+                 (LONG)fTemp,
+                 g_pEngine->GetCategoryAttenuation(
+                     pEventContext->m_pTrack->pSoundCue->GetCategory()));
 
         break; 
         

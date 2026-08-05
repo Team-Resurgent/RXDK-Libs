@@ -32,6 +32,7 @@ CSoundSource::CSoundSource
 
     m_fPaused          = FALSE;
     m_dwPausedPosition = 0;
+    m_lBaseVolume      = DSBVOLUME_MAX;   // 0: no attenuation until content sets one
 
     InitializeListHead(&m_ListEntry);
 

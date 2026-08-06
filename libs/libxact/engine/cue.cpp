@@ -667,20 +667,27 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
             //
             
             if (pTrack->pSoundSource == NULL) {
-                
+
                 hr = g_pEngine->CreateSoundSourceInternal(
                     XACT_FLAG_SOUNDSOURCE_2D,
                     pWaveBank,
                     &pTrack->pSoundSource);
-                
+
                 if (FAILED(hr)) {
-                    
+
                     DPF_ERROR("Could not allocate voice for Play event");
                     return hr;
                 }
-                
+
             }
-            
+
+            //
+            // RXDK 5849 uplift: the voice reports the highest priority of the
+            // sounds played through it (IXACTSoundSource_GetProperties).
+            //
+
+            pTrack->pSoundSource->NoteCuePriority(m_pSoundEntry->wPriority);
+
             pDSBuffer = pTrack->pSoundSource->GetDSoundBuffer();
             pDSStream = pTrack->pSoundSource->GetDSoundStream();
             

@@ -30,8 +30,9 @@ CSoundSource::CSoundSource
     ASSERT(g_pEngine);
     g_pEngine->AddRef();
 
-    m_fPaused          = FALSE;
-    m_lBaseVolume      = DSBVOLUME_MAX;   // 0: no attenuation until content sets one
+    m_fPaused              = FALSE;
+    m_lBaseVolume          = DSBVOLUME_MAX;   // 0: no attenuation until content sets one
+    m_wHighestCuePriority  = 0;
 
     InitializeListHead(&m_ListEntry);
 
@@ -161,7 +162,9 @@ HRESULT CSoundSource::Stop()
         }
 
     }
-    
+
+    m_wHighestCuePriority = 0;
+
     return hr;
 }
 

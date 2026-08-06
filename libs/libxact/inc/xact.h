@@ -126,6 +126,14 @@ typedef struct _XACT_RUNTIME_PARAMETERS {
     DWORD dwHeapSize;
 } XACT_RUNTIME_PARAMETERS, *PXACT_RUNTIME_PARAMETERS, *LPXACT_RUNTIME_PARAMETERS;
 
+// 5849: runtime sound source properties (IXACTSoundSource_GetProperties).
+// Mirrored from the public xact.h for the same shadowing reason as
+// XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE below.
+typedef struct _XACT_SOUNDSOURCE_PROPERTIES {
+    DWORD           dwHighestCuePriority;
+    DSVOICEPROPS    HwVoiceProperties;
+} XACT_SOUNDSOURCE_PROPERTIES, *PXACT_SOUNDSOURCE_PROPERTIES;
+
 //
 // constants
 //

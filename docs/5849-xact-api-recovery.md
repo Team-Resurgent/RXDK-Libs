@@ -127,9 +127,43 @@ question is which of our members hold the cached 3D distance/cone/doppler and
 I3DL2 direct/room volumes — or whether the port caches them at all, in which case
 they have to come from somewhere else.
 
+**Update:** implemented. `IDirectSoundBuffer_GetVoiceProperties` and
+`IDirectSoundStream_GetVoiceProperties` are recovered and implemented in
+libdsound (see `5849-uplift.md` and `CMcpxVoiceClient::GetVoiceProperties` in
+`libs/libdsound/dsound/mcpvoice.cpp`), and `IXACTSoundSource_GetProperties`
+forwards to them from `CSoundSource::GetProperties`.
+
+The `CSoundSource` cache question above resolved itself once the dsound side
+was read: retail XACT's five-value overwrite re-applies *cached copies* of the
+same computed 3D values that our libdsound `GetVoiceProperties` reads live from
+`m_pHrtfSource->m_3dVoiceData` / `m_pI3dl2Source->m_I3dl2Data`. The overwrite
+exists in retail because retail-dsound and retail-XACT kept separate copies; in
+this port there is one copy, so there is nothing to overwrite. The
+`dwHighestCuePriority` word (retail `this+0x12`) is tracked honestly from the
+soundbank's per-sound `wPriority` when a cue's Play event binds a voice
+(`NoteCuePriority`), reset when the voice stops; the retail engine code that
+maintains its copy was not read, so this is equivalence, not disassembly.
+
+### The dsound side, for the record
+
+Retail's `CMcpxVoiceClient::GetVoiceProperties` reads the **CUR** (ramped)
+hardware volumes of the first hardware voice — `NV_PAVS_VOICE_CUR_VOLA/B/C` at
+`+0x28/+0x2C/+0x30` of the 128-byte voice struct, not the TAR targets — plus the
+pitch word from `TAR_PITCH_LINK` (`+0x7C`, upper 16 bits, sign-extended). Each
+12-bit attenuation is scaled `*100 >> 6` (the inverse of `ConvertVolumeValues`'
+`<<6 /100`) and negated into DirectSound hundredths-of-dB; unused pairs pad with
+`{0xFFFFFFFF, DSBVOLUME_MIN}`. Unallocated voice → `DSERR_INVALIDCALL`.
+
+⚠️ Retail assembles volume 7's middle nibble from `VOLUME6_B7_4` (`VOLB & 0xF`)
+instead of `VOLUME7_B7_4` (`(VOLB >> 16) & 0xF`) — contradicting its own
+register layout and its own setter. That is a retail bug, not a hidden layout;
+our implementation extracts the field the setter actually writes.
+
 ## Implemented so far
 
-`SetPitch`, `GetStatus`, `SetFilter` — see the libxact commits.
+`SetPitch`, `GetStatus`, `SetFilter`, `GetProperties` (with
+`IDirectSound{Buffer,Stream}_GetVoiceProperties` recovered into libdsound to
+support it) — see the libxact and libdsound commits.
 
 ## Still to read
 

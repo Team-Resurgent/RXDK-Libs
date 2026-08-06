@@ -802,6 +802,46 @@ public:
         return S_OK;
     }
 
+    //
+    // Retail writes the priority word, calls the dsound voice's
+    // GetVoiceProperties, and then -- for a 3D source -- overwrites the five
+    // 3D/I3DL2 volume fields with copies XACT caches on the source (see
+    // docs/5849-xact-api-recovery.md for the non-sequential offsets that make
+    // that overwrite easy to misread). Our libdsound GetVoiceProperties fills
+    // those five fields from the live HRTF/I3DL2 calculation data -- the very
+    // values retail's cache mirrors -- so the overwrite has nothing to change
+    // here and is deliberately absent.
+    //
+    HRESULT GetProperties(PXACT_SOUNDSOURCE_PROPERTIES pProperties)
+    {
+        if (!pProperties) {
+            return E_INVALIDARG;
+        }
+
+        pProperties->dwHighestCuePriority = m_wHighestCuePriority;
+
+        if (m_HwVoice.pBuffer) {
+            return m_HwVoice.pBuffer->GetVoiceProperties(&pProperties->HwVoiceProperties);
+        }
+
+        if (m_HwVoice.pStream) {
+            return m_HwVoice.pStream->GetVoiceProperties(&pProperties->HwVoiceProperties);
+        }
+
+        return S_FALSE;
+    }
+
+    // Called by the cue when its sound starts playing through this voice.
+    // Retail tracks the same WORD on its sound source; the engine side that
+    // maintains it there is not recovered, so the port records the honest
+    // equivalent: the highest priority seen since the voice last stopped.
+    VOID NoteCuePriority(WORD wPriority)
+    {
+        if (wPriority > m_wHighestCuePriority) {
+            m_wHighestCuePriority = wPriority;
+        }
+    }
+
     BOOL IsPlaying()
     {
 
@@ -855,7 +895,7 @@ protected:
     }
     
     struct {
-        
+
         LPDIRECTSOUNDBUFFER     pBuffer;
         LPDIRECTSOUNDSTREAM     pStream;
         DWORD   dwFlags;
@@ -868,6 +908,10 @@ protected:
 
     // Last volume the content asked for, before any category attenuation.
     LONG    m_lBaseVolume;
+
+    // Highest wPriority among the sound entries that have played through this
+    // voice since it last stopped (see GetProperties above).
+    WORD    m_wHighestCuePriority;
 
 };
 

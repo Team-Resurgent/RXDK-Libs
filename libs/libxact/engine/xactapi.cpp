@@ -250,6 +250,12 @@ STDAPI IXACTSoundSource_GetStatus(PXACTSOUNDSOURCE pSoundSource, PDWORD pdwStatu
     return ((CSoundSource *)pSoundSource)->GetStatus(pdwStatus);
 }
 
+STDAPI IXACTSoundSource_GetProperties(PXACTSOUNDSOURCE pSoundSource, PXACT_SOUNDSOURCE_PROPERTIES pProperties)
+{
+    using namespace XACT;
+    return ((CSoundSource *)pSoundSource)->GetProperties(pProperties);
+}
+
 STDAPI IXACTSoundSource_SetMixBins(PXACTSOUNDSOURCE pSoundSource, LPCDSMIXBINS pMixBins)
 {
     using namespace XACT;

@@ -322,6 +322,13 @@ typedef struct tagPOINTS
 #define DC_ORIENTATION      17
 #define DC_COPIES           18
 
+// 5849: the OpenFile-era file handle. HFILE_ERROR cannot be added without HFILE
+// itself, which our windef.h never carried -- 5849 has both (int on non-Mac,
+// which is the only case that applies here).
+typedef int HFILE;
+
+#define HFILE_ERROR ((HFILE)-1)
+
 #ifdef __cplusplus
 }
 #endif

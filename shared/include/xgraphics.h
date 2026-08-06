@@ -668,6 +668,15 @@ typedef HRESULT (*SASM_ResolverCallback)(LPVOID pResolverUserData,
 #define SASM_DISABLE_GLOBAL_OPTIMIZATIONS           (1 << 14)
 #define SASM_VERIFY_OPTIMIZATIONS                   (1 << 15)
 
+// 5849: the assembler ships TWO vertex optimisers, selectable per call, and a
+// matrix packing order. Nothing in RXDK reads these yet -- the managed xsasm port
+// implements neither optimiser -- but a title's build can pass them, and a flag
+// silently ignored is worse than one that is at least declared.
+#define SASM_USE_V1_OPTIMIZER                       (1 << 16)
+#define SASM_USE_V2_OPTIMIZER                       (1 << 17)
+#define SASM_PACKMATRIX_ROWMAJOR                    (1 << 18)
+#define SASM_PACKMATRIX_COLUMNMAJOR                 (1 << 19)
+
 //-------------------------------------------------------------------------
 // SASMT values:
 // --------------
@@ -705,7 +714,11 @@ typedef HRESULT (*SASM_ResolverCallback)(LPVOID pResolverUserData,
 #define SASMT_SHADERTYPEMASK            0xff
 
 #define SASMT_SHADERTYPE(X) ((X) & SASMT_SHADERTYPEMASK)
+// 5849: a shader FRAGMENT -- a partial shader for XGSpliceVertexShaders.
+#define SASMT_FRAGMENT                  0x200
+
 #define SASMT_ISSCREENSPACE(X) (((X) & SASMT_SCREENSPACE) != 0)
+#define SASMT_ISFRAGMENT(X) (((X) & SASMT_FRAGMENT) != 0)
 
 //-------------------------------------------------------------------------
 // XGAssembleShader:

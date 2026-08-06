@@ -1598,6 +1598,7 @@ typedef struct {
         // One or more of the following flags OR'd together:
 
         #define XNET_STARTUP_BYPASS_SECURITY            0x01
+        #define XNET_STARTUP_ALLOW_AUTOIP                0x04
             // This devkit-only flag tells the XNet stack to allow insecure
             // communication to untrusted hosts (such as a PC).  This flag
             // is silently ignored by the secure versions of the library.
@@ -1724,11 +1725,13 @@ typedef struct {
 #define XNET_XNKID_MASK             0xF0        // Mask of flag bits in first byte of XNKID
 #define XNET_XNKID_SYSTEM_LINK      0x00        // Peer to peer system link session
 #define XNET_XNKID_ONLINE_PEER      0x80        // Peer to peer online session
+#define XNET_XNKID_ONLINE_TITLESERVER   0xE0    // Client to title server online session
 #define XNET_XNKID_ONLINE_SERVER    0xC0        // Client to server online session
 
 #define XNetXnKidIsSystemLink(pxnkid)           (((pxnkid)->ab[0] & 0xC0) == XNET_XNKID_SYSTEM_LINK)
 #define XNetXnKidIsOnlinePeer(pxnkid)           (((pxnkid)->ab[0] & 0xC0) == XNET_XNKID_ONLINE_PEER)
 #define XNetXnKidIsOnlineServer(pxnkid)         (((pxnkid)->ab[0] & 0xC0) == XNET_XNKID_ONLINE_SERVER)
+#define XNetXnKidIsOnlineTitleServer(pxnkid)    (((pxnkid)->ab[0] & 0xE0) == XNET_XNKID_ONLINE_TITLESERVER)
 
 typedef struct {
     BYTE        ab[16];                         // xbox to xbox key exchange key
@@ -1825,11 +1828,13 @@ DWORD WSAAPI XNetGetDebugXnAddr(XNADDR * pxna);
 #define XNET_GET_XNADDR_PENDING         0x00    // Address acquisition is not yet complete
 #define XNET_GET_XNADDR_NONE            0x01    // XNet is uninitialized or no debugger found
 #define XNET_GET_XNADDR_ETHERNET        0x02    // Host has ethernet address (no IP address)
+#define XNET_GET_XNADDR_PPPOE           0x0010  // Host has PPPoE assigned IP address
 #define XNET_GET_XNADDR_STATIC          0x04    // Host has static IP address
 #define XNET_GET_XNADDR_DHCP            0x08    // Host has dynamic IP address via DHCP
 #define XNET_GET_XNADDR_AUTO            0x10    // Host has auto IP address in 169.254/16
 #define XNET_GET_XNADDR_GATEWAY         0x20    // Host has one or more gateways configured
 #define XNET_GET_XNADDR_DNS             0x40    // Host has one or more DNS servers configured
+#define XNET_GET_XNADDR_TROUBLESHOOT    0x8000  // Network configuration requires troubleshooting
 #define XNET_GET_XNADDR_ONLINE          0x80    // Host is currently connected to online service
 
 DWORD WSAAPI XNetGetEthernetLinkStatus();

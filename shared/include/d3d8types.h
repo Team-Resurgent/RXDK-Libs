@@ -2715,6 +2715,7 @@ typedef struct _D3DPixelShaderDefFile
 
 /* Encoding support */
 
+#define D3DPUSH_NO_OPERATION                0x00000100 // Parameter must be zero
 #define D3DPUSH_ENCODE(Method, Count)   (((Count) << 18) + (Method))
 #define D3DPUSH_NOINCREMENT_FLAG        0x40000000
 #define D3DPUSH_MAX_COUNT               2047

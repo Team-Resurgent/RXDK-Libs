@@ -342,3 +342,45 @@ Both are fixed in `tools/lib_ownership_audit.py`. The lesson is the same one the
 rest of this document keeps recording: check the premise against the shipped
 artifact before acting on it. Two of these three rows would have been work done
 to fix nothing.
+
+## Missing public APIs, not just missing constants
+
+`tools/api_gap_audit.py` asks the harder question: not "does this symbol have a
+value" but "does this function exist at all". A title calling a missing API fails
+to *link* — louder than a missing constant, but easier to miss in development,
+because nothing in our sample suite calls any of them.
+
+A name counts only if it is BOTH declared in a 5849 public header with an
+exported-function shape AND defined in a shipped 5849 library. That intersection
+is what makes the number meaningful: the headers alone carry macros and inline
+helpers that were never exported, and the libraries alone carry a great deal of
+internal code that was never public — 5849's `xvoice.lib` contains the
+binary-only codec, which is not a gap in our port so much as something we were
+never going to have.
+
+**64 public APIs absent from our libs:**
+
+| Header | Missing | What they are |
+|---|---|---|
+| `xonline.h` | 43 | The 5849-new LSP services — arbitration, competition/single-elimination, content install, friends `*Ex`, game invite, and the `*TaskGetResults` family. A protocol boundary (wire formats absent from the leak), but see below. |
+| `xact.h` | 10 | `EnableHeadphones`, `GetRealtimeData`, `SetI3dl2Listener`, `GetSoundCueProperties`, `SelectVariation`, and the `IXACTSoundSource_` property/status/filter/mode/pitch setters. The most implementable of the 64 — the engine already holds the state they report or set. |
+| `Xbox.h` | 9 | Soundtrack *write* support (`XAddSoundtrack`, `XAddSongToSoundtrack` — we have the read side) and the secondary utility drive (`XMountSecondaryUtilityDrive`, `XSwapUtilityDrives`, `XFormatSecondaryUtilityDrive`), plus heap-alloc attributes and `XGetAutoLogonFlag`. |
+| `D3D8Perf.h` | 1 | `D3DPERF_QueryRepeatFrame` (libd3d8i). |
+| `XGraphics.h` | 1 | `XGCompileShader` — the HLSL compiler. See below. |
+
+**On the XOnline 43:** this doc already records them as a protocol boundary
+rather than open work, and that stands — they cannot be implemented faithfully
+without wire formats the leak does not contain. But *absent* is worse than
+*failing*: a title calling one today fails to link, where 5849 would link and
+return a service error. Clean service-unavailable stubs would let such a title
+build and degrade, which is what the rest of our LSP surface already does.
+
+**On `XGCompileShader`:** it is 5849's HLSL front end, and its own header settles
+a question worth recording — targets are `vs.1.1`/`xvs.1.1`/`xvss.1.1`, and
+"Pixel shader compilation (ps.1.1 and xps.1.1) is not currently supported".
+Microsoft did not support HLSL for pixel shaders either, for the same reason the
+managed port found: `D3DPIXELSHADERDEF` configures register combiners rather than
+holding a program, so there is no general lowering to target. The leak carries no
+HLSL compiler source, so this would be a from-scratch front end, and it sits *on
+top* of the assembler — it compiles HLSL to `vs.1.1` and then assembles it, so it
+is blocked on the xsasm vertex back end.

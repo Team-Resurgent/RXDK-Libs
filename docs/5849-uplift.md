@@ -262,7 +262,7 @@ are:
 | 49 | `libxonline` | `uix` | 5849 keeps `uix.lib` separate; we folded it in. `LiveEngine_*` and the `ITitle*`/`ILive*` plugin interfaces. |
 | 16 | `libxnet` | `xonline` | `CXoBase::Xn*` and `CXnIp::Ip*` — **the opposite of what `xn.h`'s own comment implies.** The header labels the `Xn*` half "XNet Support for XOnline", but 5849 compiles the whole class into `xonline.lib`. Directly relevant to the LIBX/LIBO split. |
 | 1 | `libxnet` **and** `libxonline` | `xonline` | `XOnlineBuildNumber` — a **genuine duplicate**, now fixed (see below). |
-| 7 | `libxapi` | `libc` | `__snprintf`, `__stricmp`, `__scprintf`, `__vsnprintf` and friends — CRT functions, in the CRT in 5849. |
+| ~~7~~ 0 | `libxapi` | `libc` | `_snprintf`, `_stricmp`, `_scprintf`, `_vsnprintf` and friends — **moved to libc**, see below. |
 
 None of these are wrong *code*; they are packaging differences, and each is a
 separate decision about whether to match 5849's archive layout or keep ours.
@@ -298,3 +298,21 @@ libraries — `xnets` with `xonlines`, `xnetn` with `xonlinen`. So 5849's axis i
 build flavour spanning both libs, not the sockets-versus-online split the leak's
 `xnp.h` describes. Our split solves a real linking problem (see the libxnet row
 above) but is not the shape 5849 shipped.
+
+### The CRT functions moved to libc
+
+`_stricmp`, `_wcsicmp`, `_snprintf`, `_snwprintf`, `_scprintf`, `_vscprintf` and
+`_vsnprintf` were defined in `libxapi/port/compat.c`. 5849 ships them in
+`libc.lib`/`libcmt.lib`, and they are CRT by nature — picolibc simply does not
+provide MSVC's underscore spellings. They now live in `libs/libc/xbox/msvc_crt.c`.
+
+Split out rather than moved wholesale: `port/compat.c` is otherwise `NtCurrentTeb`
+and xapi startup, which belong exactly where they are.
+
+Worth preserving with them is the reason `_vsnprintf` is not a one-line forward to
+`vsnprintf`. MSVC's count argument does not mean C99's: it writes at most `count`
+characters, terminates only if the result fits in fewer, and returns -1 on
+truncation. Xbox-era code is written to that rule, so the measure-then-fill idiom
+loses its last character if the size is treated as C99's — which surfaced once as
+a title rendering wrong glyphs, because its lookup keys were built that way and
+"65" became "6".

@@ -25,8 +25,32 @@ import os
 import re
 import struct
 
+
+# Retail base names we ship a counterpart for. A variant is one of these plus a
+# d/i/ltcg suffix -- checking that way, rather than by bare suffix, is what keeps
+# dsound.lib (which ends in 'd') from being mistaken for a debug build.
+RETAIL_BASES = (
+    'd3d8', 'd3dx8', 'dsound', 'dmusic', 'xapilib', 'xgraphics', 'xmv', 'xbdm',
+    'xboxkrnl', 'xonline', 'xacteng', 'xvoice', 'xnet', 'uix', 'libc', 'libcmt',
+    'libcp', 'libcpmt', 'xsndtrk', 'xperf', 'xnetn', 'xnets', 'xonlinen', 'xonlines',
+)
+
+
+def is_variant(base):
+    if base in RETAIL_BASES:
+        return False
+    for r in RETAIL_BASES:
+        if base.startswith(r) and base[len(r):] in ('d', 'i', 'ltcg', 'sd', 'nd'):
+            return True
+    return False
+
+
 XDK_LIB = r"D:\Git\RXDK\POC\XDKSetup5849.17\XDK\xbox\lib"
 XDK_INC = r"D:\Git\RXDK\POC\XDKSetup5849.17\XDK\xbox\include"
+# NOTE: this reads dist/, which is only refreshed by build-iso.ps1 -Dist.
+# A freshly implemented API stays on the "missing" list until you rebuild it --
+# IDirectSoundBuffer_Pause reported missing for exactly that reason, hours after
+# being written. Rebuild dist before believing a result.
 OUR_LIB = r"D:\Git\RXDK-Libs\dist\lib\debug"
 OUR_INC = r"D:\Git\RXDK-Libs\shared\include"
 
@@ -82,8 +106,12 @@ def main():
     xdk = set()
     for p in glob.glob(os.path.join(XDK_LIB, '*.lib')):
         b = os.path.basename(p).lower()[:-4]
-        if b.endswith('ltcg') or b.endswith('d') or b.endswith('i'):
-            continue     # debug / instrumented / LTCG variants are not authoritative
+        # Debug/instrumented/LTCG variants are not authoritative. Match the whole
+        # suffix against the RETAIL base name -- a bare endswith('d') silently
+        # excluded dsound.lib, which simply ends in a 'd', and with it every
+        # DirectSound API this audit exists to find.
+        if is_variant(b):
+            continue
         xdk |= {base(s) for s in archive_symbols(p)}
 
     ours = set()

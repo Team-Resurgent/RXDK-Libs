@@ -154,7 +154,7 @@ switch ($Target) {
         # XHV voice and DirectMusic. Titles opt in by naming them in
         # <RxdkLibraries>, but they must still ship in the SDK -- the imported
         # XDK sample suite links them.
-        Invoke-ZigBuild -Step @('libxact', 'libxonline', 'libxvoice', 'libdmusic') -Opt $Optimize
+        Invoke-ZigBuild -Step @('libxact', 'libxonline', 'libuix', 'libxvoice', 'libdmusic') -Opt $Optimize
     }
     'samples' {
         Build-AllSamples -Opt $Optimize -Xbe:$Xbe -Iso:$Iso

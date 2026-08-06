@@ -136,3 +136,27 @@ pub fn addAllObjects(
         .outputs = all_outputs.toOwnedSlice(allocator) catch @panic("OOM"),
     };
 }
+
+// The UIX drop-in UI, compiled in exactly the same environment as the rest of
+// libxonline but packed into its own archive -- 5849 ships it as uix.lib, not
+// inside xonline.lib. It calls into libxonline, so a title links both.
+pub fn addUixObjects(
+    b: *std.Build,
+    xbox_target: @TypeOf(@import("../../build/xbox_target.zig")),
+    opt_flag: []const u8,
+) ObjectBatch {
+    _ = xbox_target; // pins its own MSVC target_triple, as above
+
+    const batch = compile_c.addBatch(b, .{
+        .name = "uix",
+        .target = target_triple,
+        .out_subdir = "uix",
+        .sources = &xonline_sources.uix_sources,
+        .flags = cppFlags(b),
+        .include_dirs = includeDirs(),
+        .opt_flag = opt_flag,
+        .is_cpp = true,
+    });
+
+    return .{ .step = batch.step, .outputs = batch.outputs };
+}

@@ -335,6 +335,20 @@ pub fn build(b: *std.Build) void {
     const xonline_step = b.step("libxonline", "Build libxonline.lib (Xbox Live client)");
     xonline_step.dependOn(&install_libxonline.step);
 
+    // libuix: the UIX drop-in UI. 5849 ships this as its own uix.lib rather than
+    // folding it into xonline.lib, and the audit in docs/5849-uplift.md showed our
+    // libxonline carrying all 50 of its symbols. It calls into libxonline, so a
+    // title links both -- libuix first.
+    const uix_objs = libxonline_pkg.addUixObjects(b, xbox_target, opt_flag);
+    var uix_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
+    uix_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
+    uix_deps.append(b.allocator, uix_objs.step) catch @panic("OOM");
+    const libuix = coff_lib.pack(b, "libuix", uix_objs.outputs, uix_deps.items);
+    const install_libuix = b.addInstallFile(libuix.path, "lib/libuix.lib");
+    install_libuix.step.dependOn(libuix.step);
+    const uix_step = b.step("libuix", "Build libuix.lib (the UIX drop-in Live UI)");
+    uix_step.dependOn(&install_libuix.step);
+
     // libxvoice: the XDK-5849 voice library (xvoice.lib) -- the XHV high-level
     // voice-chat engine (xhv.h) + the low-level voice XMO/codec API (xvoice.h) +
     // the XDEVICE_TYPE_VOICE_* device tables. NOT a leak port (the leak has no

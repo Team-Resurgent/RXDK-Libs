@@ -80,7 +80,7 @@ for p in glob.glob(os.path.join(OURS, '*.lib')):
 alias = {
  'libd3d8':'d3d8','libd3dx8':'d3dx8','libdsound':'dsound','libxapi':'xapilib',
  'libxgraphics':'xgraphics','libxmv':'xmv','libxbdm':'xbdm','libkernel':'xboxkrnl',
- 'libxonline':'xonline','libxact':'xact','libxvoice':'xvoice','libdmusic':'dmusic',
+ 'libxonline':'xonline','libxact':'xacteng',   # 5849 ships NO xact.lib -- xacteng IS the XACT library'libxvoice':'xvoice','libdmusic':'dmusic',
  'libxnet':'xnet','libxneto':'xneto',
 }
 

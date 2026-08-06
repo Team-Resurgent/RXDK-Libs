@@ -33,7 +33,6 @@ const X = "libs/libxonline";
 pub const cpp_sources = [_][]const u8{
     X ++ "/src/stats.cpp",
     X ++ "/src/uplift5849.cpp",
-    X ++ "/src/uix5849.cpp",
     X ++ "/src/xonline.cpp",
     X ++ "/src/kerberos.cpp",
     X ++ "/src/krb5.cpp",
@@ -78,6 +77,12 @@ pub const cpp_sources = [_][]const u8{
     X ++ "/src/patchutl.cpp",
     X ++ "/src/dvdload.cpp",
     X ++ "/src/olddash.cpp",
+};
+
+// The UIX drop-in UI. 5849 ships this as its own uix.lib rather than inside
+// xonline.lib, so it is packed separately -- see the root build.zig's libuix.
+pub const uix_sources = [_][]const u8{
+    X ++ "/src/uix5849.cpp",
 };
 
 pub const slices = [_]Slice{

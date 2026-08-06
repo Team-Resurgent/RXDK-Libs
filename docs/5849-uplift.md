@@ -258,8 +258,8 @@ are:
 
 | Count | We put it in | 5849 puts it in | Reading |
 |---|---|---|---|
-| 53 | `libxact` | `xacteng` | 5849 splits XACT into a thin `xact.lib` over an engine `xacteng.lib`; we ship one merged lib. All the `IXACTEngine_*` entry points. |
-| 49 | `libxonline` | `uix` | 5849 keeps `uix.lib` separate; we folded it in. `LiveEngine_*` and the `ITitle*`/`ILive*` plugin interfaces. |
+| ~~53~~ 0 | `libxact` | `xacteng` | **Not a real difference.** 5849 ships NO `xact.lib` — `xacteng.lib` IS the XACT library, and 58 of our libxact symbols are in it. The audit's alias table mapped `libxact` to a library that does not exist. Only the archive NAME differs. |
+| ~~49~~ 0 | `libxonline` | `uix` | Real, and **now split**: 5849 ships `uix.lib` separately and we had folded it in. See below. |
 | 16 | `libxnet` | `xonline` | `CXoBase::Xn*` and `CXnIp::Ip*` — **the opposite of what `xn.h`'s own comment implies.** The header labels the `Xn*` half "XNet Support for XOnline", but 5849 compiles the whole class into `xonline.lib`. Directly relevant to the LIBX/LIBO split. |
 | 1 | `libxnet` **and** `libxonline` | `xonline` | `XOnlineBuildNumber` — a **genuine duplicate**, now fixed (see below). |
 | ~~7~~ 0 | `libxapi` | `libc` | `_snprintf`, `_stricmp`, `_scprintf`, `_vsnprintf` and friends — **moved to libc**, see below. |
@@ -316,3 +316,29 @@ truncation. Xbox-era code is written to that rule, so the measure-then-fill idio
 loses its last character if the size is treated as C99's — which surfaced once as
 a title rendering wrong glyphs, because its lookup keys were built that way and
 "65" became "6".
+
+### uix.lib split out of libxonline
+
+Of our libxonline's symbols, 813 are in 5849's `xonline.lib` — the right place —
+and 50 are in `uix.lib`, which 5849 ships as a separate archive. All 50 came from
+one translation unit, `src/uix5849.cpp`, so the split was a clean cut: same
+compile environment, its own archive.
+
+`libuix.lib` is 216 KB against libxonline's 4.6 MB. It calls into libxonline, so a
+title links both, libuix first. The importer maps `uix.lib` to `libuix;libxonline`
+accordingly, and the seven samples that used UIX (the five `UIX*` ones plus
+SimpleVoice and SingleElimination) now name it.
+
+### Two of the three original rows were the audit's fault, not the build's
+
+Worth stating plainly, because the audit is meant to be trusted:
+
+- The 55 `libxapi`/`xboxkrnl` "duplicates" came from stripping the `@n` stdcall
+  suffix, which conflated `_KeGetCurrentIrql` with `_KeGetCurrentIrql@0`.
+- The 53 `libxact`/`xacteng` "misplacements" came from an alias table that
+  expected a library named `xact.lib`, which 5849 does not ship.
+
+Both are fixed in `tools/lib_ownership_audit.py`. The lesson is the same one the
+rest of this document keeps recording: check the premise against the shipped
+artifact before acting on it. Two of these three rows would have been work done
+to fix nothing.

@@ -654,7 +654,10 @@ function Invoke-DistBuild {
         'libxnet.lib', 'libxneto.lib',
         # Middleware (opt-in via <RxdkLibraries>, but shipped: the XDK sample
         # suite links them). See scripts\compile.ps1 -Target libs.
-        'libxact.lib', 'libxonline.lib', 'libxvoice.lib', 'libdmusic.lib'
+        'libxact.lib', 'libxonline.lib', 'libxvoice.lib', 'libdmusic.lib',
+        # The UIX drop-in Live UI. 5849 ships it as its own uix.lib rather than
+        # inside xonline.lib; it calls into libxonline, so a title links both.
+        'libuix.lib'
     )
 
     # Two variants, side by side: Debug (full symbols, -O0, for the normal

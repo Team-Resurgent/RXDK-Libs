@@ -90,22 +90,42 @@ to DirectSound.
 Structurally identical to `SetPitch`: same lock, same buffer-then-stream
 dispatch, forwarding the descriptor pointer unchanged.
 
-### `CSoundSource::GetProperties(XACT_SOUNDSOURCE_PROPERTIES*)` — partially read
+### `CSoundSource::GetProperties(XACT_SOUNDSOURCE_PROPERTIES*)` — fully read
 
 ```
 lock;
-pProps->[0] = (DWORD)(WORD)this+0x12;          // a 16-bit field, zero-extended
-hr = IDirectSoundBuffer_GetVoiceProperties(this+0x1C /* pBuffer */, &pProps[4]);
-if (SUCCEEDED(hr) && (this+0x14 & 2)) { ...reads this+0xEC... }
+pProps->dwHighestCuePriority = (DWORD)(WORD)this+0x12;
+hr = IDirectSoundBuffer_GetVoiceProperties(this+0x1C /* pBuffer */,
+                                           &pProps->HwVoiceProperties);
+if (SUCCEEDED(hr) && (this+0x14 & 2))   // 3D
+{
+    pProps->HwVoiceProperties.l3DDistanceVolume  = this+0x0EC;
+    pProps->HwVoiceProperties.l3DConeVolume      = this+0x0F0;
+    pProps->HwVoiceProperties.l3DDopplerPitch    = this+0x10C;
+    pProps->HwVoiceProperties.lI3DL2DirectVolume = this+0x104;
+    pProps->HwVoiceProperties.lI3DL2RoomVolume   = this+0x108;
+}
+return hr;
 ```
 
-Two things to settle before implementing it. It calls `GetVoiceProperties` on the
-**buffer unconditionally** — there is no stream branch, unlike its neighbours — so
-what a stream-backed source is meant to return is still open. And the tail behind
-the `& 2` flag test (3D, most likely) has not been read to the end.
+The five trailing writes looked at first like fields past the end of the struct,
+which would have meant our header was missing members. It is not: `DSVOICEPROPS`
+is 92 bytes, so `HwVoiceProperties` spans 0x04–0x5F and those writes land on its
+**last five fields**. Our header matches 5849's exactly — two members.
 
-Not implemented for that reason: the recovered part is the easy half, and
-guessing the rest would defeat the point of reading the binary at all.
+So for a 3D voice the function *overwrites* the five 3D/I3DL2 volumes that
+`GetVoiceProperties` just filled, using values XACT caches on the source itself.
+
+⚠️ The source offsets are **not** in field order: `l3DDopplerPitch` takes
+`this+0x10C` while the two I3DL2 volumes take `0x104` and `0x108`. Reading them
+as sequential would put the doppler pitch and the direct volume in each other's
+slots — a plausible-looking result that no build would catch.
+
+Still blocked on our side, not retail's: those five values live at fixed offsets
+in retail's `CSoundSource`, and our class is a port with a different layout. The
+question is which of our members hold the cached 3D distance/cone/doppler and
+I3DL2 direct/room volumes — or whether the port caches them at all, in which case
+they have to come from somewhere else.
 
 ## Implemented so far
 
@@ -114,5 +134,5 @@ guessing the rest would defeat the point of reading the binary at all.
 ## Still to read
 
 `SelectVariation`, `GetSoundCueProperties`, `GetRealtimeData`,
-`SetI3dl2Listener`, plus the tail of `GetProperties` and the `CEngine` side of
-`EnableHeadphones` (whose entry point needs the −8 `this` adjustment above).
+`SetI3dl2Listener`, and the `CEngine` side of `EnableHeadphones` (whose entry
+point needs the −8 `this` adjustment above).

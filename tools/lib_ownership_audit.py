@@ -47,13 +47,16 @@ def archive_symbols(path):
     return out
 
 def norm(sym):
-    """Strip decoration so an MSVC name and ours compare: leading _, @n suffix."""
-    s = sym
-    if s.startswith('_') and not s.startswith('__'):
-        s = s[1:]
-    if '@' in s and s.split('@')[-1].isdigit():
-        s = s.rsplit('@',1)[0]
-    return s
+    """Strip the leading underscore only.
+
+    Do NOT strip the @n stdcall suffix. `_KeGetCurrentIrql` and
+    `_KeGetCurrentIrql@0` are DIFFERENT symbols with different calling
+    conventions, and conflating them invents duplicates that do not exist --
+    this audit's first run reported all 55 Ke*/Ex*/Io*/Hal* names as defined
+    twice, when in fact libkernel supplies the stdcall xboxkrnl imports and
+    libxapi supplies undecorated cdecl entry points. Nothing was duplicated.
+    """
+    return sym[1:] if sym.startswith('_') and not sym.startswith('__') else sym
 
 XDK = r"D:\Git\RXDK\POC\XDKSetup5849.17\XDK\xbox\lib"
 OURS = r"D:\Git\RXDK-Libs\dist\lib\debug"

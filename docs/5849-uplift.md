@@ -252,19 +252,49 @@ what the libxnet LIBX/LIBO split turned out to be.
 
 `tools/lib_ownership_audit.py` compares the defined-symbol set of every one of our
 libs against the retail 5849 libs and reports the differences. Current state:
-**5035 symbols in common, 216 placed differently.** Ignoring symbols that appear
+**4403 symbols in common, 161 placed differently.** Ignoring symbols that appear
 in nearly every 5849 lib (compiler/CRT helpers, not owned code), the real buckets
 are:
 
 | Count | We put it in | 5849 puts it in | Reading |
 |---|---|---|---|
-| 55 | `libxapi` | `xboxkrnl` | `Ke*`/`Ex*`/`Io*`/`Hal*` — kernel entry points we define ourselves rather than import. Needs checking against `libkernel`: if both define them, a title linking both is resolving a duplicate. |
 | 53 | `libxact` | `xacteng` | 5849 splits XACT into a thin `xact.lib` over an engine `xacteng.lib`; we ship one merged lib. All the `IXACTEngine_*` entry points. |
 | 49 | `libxonline` | `uix` | 5849 keeps `uix.lib` separate; we folded it in. `LiveEngine_*` and the `ITitle*`/`ILive*` plugin interfaces. |
 | 16 | `libxnet` | `xonline` | `CXoBase::Xn*` and `CXnIp::Ip*` — **the opposite of what `xn.h`'s own comment implies.** The header labels the `Xn*` half "XNet Support for XOnline", but 5849 compiles the whole class into `xonline.lib`. Directly relevant to the LIBX/LIBO split. |
+| 1 | `libxnet` **and** `libxonline` | `xonline` | `XOnlineBuildNumber` — a **genuine duplicate**, now fixed (see below). |
 | 7 | `libxapi` | `libc` | `__snprintf`, `__stricmp`, `__scprintf`, `__vsnprintf` and friends — CRT functions, in the CRT in 5849. |
 
 None of these are wrong *code*; they are packaging differences, and each is a
 separate decision about whether to match 5849's archive layout or keep ours.
 Recorded here rather than fixed silently, because splitting a shipped lib changes
 what a title must name on its link line.
+
+### A false positive worth recording
+
+The audit's first run also reported 55 `Ke*`/`Ex*`/`Io*`/`Hal*` symbols as defined
+by both `libxapi` and `libkernel`. They are not. `libkernel` supplies the
+**stdcall** xboxkrnl imports (`_KeGetCurrentIrql@0`) and `libxapi` supplies
+**undecorated** entry points (`_KeGetCurrentIrql`) — different symbols with
+different calling conventions. The audit had been stripping the `@n` suffix to
+match MSVC names against ours, which invented 55 duplicates that never existed.
+It no longer strips it, which is why the totals moved from 216 to 161.
+
+### The one real duplicate, fixed
+
+`XOnlineBuildNumber` was emitted by both libraries: `libxonline` via `VERXON`, and
+libxnet's LIBO build via `VERXNET`, which the leak names `XOnlineBuildNumber`
+outright. A title linking both got two definitions of one symbol, resolved to
+whichever archive member the linker pulled first.
+
+Retail 5849 does not do this, and the shipped libs say so plainly: every
+`xnet*.lib` stamps `XNetBuildNumber*`, only `xonline*.lib` stamps
+`XOnlineBuildNumber*`. The online xnet build now stamps `XNetBuildNumberO`,
+leaving `XOnlineBuildNumber` to libxonline alone.
+
+Reading those libs also settled what the `xnet` variants actually are, which
+matters for the LIBX/LIBO split: 5849 ships `xnet`/`xnetn`/`xnets` (plus `d`
+debug forms) and **no `xneto.lib` at all**, and the suffixes pair across
+libraries — `xnets` with `xonlines`, `xnetn` with `xonlinen`. So 5849's axis is a
+build flavour spanning both libs, not the sockets-versus-online split the leak's
+`xnp.h` describes. Our split solves a real linking problem (see the libxnet row
+above) but is not the shape 5849 shipped.

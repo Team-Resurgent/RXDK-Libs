@@ -36,10 +36,17 @@ extern "C" {
     #define VERXNET()   VERGEN(XNetBuildNumberM,    'X','N','E','T','M',0,0,0)
 #elif defined(XNET_BUILD_LIBM)
     #define VERXNET()   VERGEN(XNetBuildNumberMD,   'X','N','E','T','M','D',0,0)
+// RXDK: the leak stamps the LIBO build with XOnlineBuildNumber, which COLLIDES
+// with the identically-named stamp libxonline emits -- a title linking both gets
+// two definitions of one symbol, resolved to whichever archive member the linker
+// happens to pull. Retail 5849 does not do this: every xnet*.lib there stamps
+// XNetBuildNumber* and only xonline*.lib stamps XOnlineBuildNumber*, verified by
+// reading the shipped libs. So the online xnet build gets its own xnet-flavoured
+// name, leaving XOnlineBuildNumber to libxonline alone.
 #elif defined(XNET_BUILD_LIBO) && DBG==0
-    #define VERXNET()   VERGEN(XOnlineBuildNumber,  'X','O','N','L','I','N','E',0)
+    #define VERXNET()   VERGEN(XNetBuildNumberO,    'X','N','E','T','O',0,0,0)
 #elif defined(XNET_BUILD_LIBO)
-    #define VERXNET()   VERGEN(XOnlineBuildNumberD, 'X','O','N','L','I','N','E','D')
+    #define VERXNET()   VERGEN(XNetBuildNumberOD,   'X','N','E','T','O','D',0,0)
 #elif defined(XNET_BUILD_LIBOS) && DBG==0
     #define VERXNET()   VERGEN(XOnlineBuildNumberS, 'X','O','N','L','I','N','E','S')
 #elif defined(XNET_BUILD_LIBOS)

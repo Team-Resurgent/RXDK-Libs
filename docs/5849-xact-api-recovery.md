@@ -85,7 +85,34 @@ attached voice, leaving `CommitDeferredSettings` to push it. That matches how th
 other `dwApply`-taking setters behave and is why `SetMode` cannot simply forward
 to DirectSound.
 
+### `CSoundSource::SetFilter(const DSFILTERDESC*)`
+
+Structurally identical to `SetPitch`: same lock, same buffer-then-stream
+dispatch, forwarding the descriptor pointer unchanged.
+
+### `CSoundSource::GetProperties(XACT_SOUNDSOURCE_PROPERTIES*)` — partially read
+
+```
+lock;
+pProps->[0] = (DWORD)(WORD)this+0x12;          // a 16-bit field, zero-extended
+hr = IDirectSoundBuffer_GetVoiceProperties(this+0x1C /* pBuffer */, &pProps[4]);
+if (SUCCEEDED(hr) && (this+0x14 & 2)) { ...reads this+0xEC... }
+```
+
+Two things to settle before implementing it. It calls `GetVoiceProperties` on the
+**buffer unconditionally** — there is no stream branch, unlike its neighbours — so
+what a stream-backed source is meant to return is still open. And the tail behind
+the `& 2` flag test (3D, most likely) has not been read to the end.
+
+Not implemented for that reason: the recovered part is the easy half, and
+guessing the rest would defeat the point of reading the binary at all.
+
+## Implemented so far
+
+`SetPitch`, `GetStatus`, `SetFilter` — see the libxact commits.
+
 ## Still to read
 
-`SetFilter`, `GetProperties`, `SelectVariation`, `GetSoundCueProperties`,
-`GetRealtimeData`, `SetI3dl2Listener` — same members, same method.
+`SelectVariation`, `GetSoundCueProperties`, `GetRealtimeData`,
+`SetI3dl2Listener`, plus the tail of `GetProperties` and the `CEngine` side of
+`EnableHeadphones` (whose entry point needs the −8 `this` adjustment above).

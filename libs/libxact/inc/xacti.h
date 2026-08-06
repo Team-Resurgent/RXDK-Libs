@@ -772,6 +772,21 @@ public:
     // offset across would be a guess dressed up as recovery. IsPlaying() asks
     // DirectSound the same question directly.
     //
+    // Structurally identical to SetPitch in the retail disassembly: same lock,
+    // same buffer-then-stream dispatch, forwarding the descriptor pointer.
+    HRESULT SetFilter(LPCDSFILTERDESC pFilterDesc)
+    {
+        if (m_HwVoice.pBuffer) {
+            return m_HwVoice.pBuffer->SetFilter(pFilterDesc);
+        }
+
+        if (m_HwVoice.pStream) {
+            return m_HwVoice.pStream->SetFilter(pFilterDesc);
+        }
+
+        return S_FALSE;
+    }
+
     HRESULT GetStatus(PDWORD pdwStatus)
     {
         if (!pdwStatus) {

@@ -230,6 +230,20 @@ STDAPI IXACTSoundSource_SetVelocity(PXACTSOUNDSOURCE pSoundSource,FLOAT x, FLOAT
     return ((CSoundSource *)pSoundSource)->SetVelocity(x, y, z, dwApply);
 }
 
+// RXDK 5849 uplift: recovered from xacteng.lib, where both are thin forwarders
+// onto CSoundSource -- see docs/5849-xact-api-recovery.md.
+STDAPI IXACTSoundSource_SetPitch(PXACTSOUNDSOURCE pSoundSource, LONG lPitch)
+{
+    using namespace XACT;
+    return ((CSoundSource *)pSoundSource)->SetPitch(lPitch);
+}
+
+STDAPI IXACTSoundSource_GetStatus(PXACTSOUNDSOURCE pSoundSource, PDWORD pdwStatus)
+{
+    using namespace XACT;
+    return ((CSoundSource *)pSoundSource)->GetStatus(pdwStatus);
+}
+
 STDAPI IXACTSoundSource_SetMixBins(PXACTSOUNDSOURCE pSoundSource, LPCDSMIXBINS pMixBins)
 {
     using namespace XACT;

@@ -134,6 +134,11 @@ typedef struct _XACT_RUNTIME_PARAMETERS {
 #define XACT_FLAG_SOUNDSOURCE_3D            0x00000002
 #define XACT_MASK_SOUNDSOURCE_FLAGS         (XACT_FLAG_SOUNDSOURCE_3D | XACT_FLAG_SOUNDSOURCE_2D)
 
+// 5849: IXACTSoundSource_GetStatus's only defined bit. The leak-era inc/ headers
+// shadow shared/include, so a constant added only to the public xact.h is
+// invisible to the engine that has to set it.
+#define XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE 0x00000001
+
 #define XACT_FLAG_SOUNDCUE_AUTORELEASE			0x00000001
 #define XACT_FLAG_SOUNDCUE_SYNCHRONOUS          0x10000000
 

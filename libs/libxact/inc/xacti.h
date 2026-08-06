@@ -735,6 +735,58 @@ public:
         return SetVoiceVolume(m_lBaseVolume, lAttenuation);
     }
 
+    //
+    // RXDK 5849 uplift: recovered from xacteng.lib rather than invented -- the
+    // leak has neither of these. See docs/5849-xact-api-recovery.md.
+    //
+    // Retail CSoundSource::SetPitch takes the object lock and then dispatches on
+    // which voice kind is present, testing the BUFFER first and falling back to
+    // the stream. That order is the transferable part; the raw field offsets in
+    // the disassembly are not, since our class layout is a port and does not
+    // match retail's.
+    //
+    // NOTE: retail takes a per-object critical section here. Our CSoundSource has
+    // none -- the port serialises at the API boundary instead -- so this matches
+    // its siblings (Pause, SetVoiceVolume) and takes no lock rather than
+    // inventing one.
+    HRESULT SetPitch(LONG lPitch)
+    {
+        if (m_HwVoice.pBuffer) {
+            return m_HwVoice.pBuffer->SetPitch(lPitch);
+        }
+
+        if (m_HwVoice.pStream) {
+            return m_HwVoice.pStream->SetPitch(lPitch);
+        }
+
+        return S_FALSE;
+    }
+
+    //
+    // Retail zeroes the out parameter first, then sets bit 0 -- which xact.h
+    // names XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE, so the bit means ACTIVE rather
+    // than the "playing" it looks like in the disassembly. It reaches that
+    // through an internal state word OR, failing that, IsPlaying(). Only the
+    // second half is portable: the state word is read at a fixed offset into
+    // retail's object, and ours is a port laid out differently, so carrying the
+    // offset across would be a guess dressed up as recovery. IsPlaying() asks
+    // DirectSound the same question directly.
+    //
+    HRESULT GetStatus(PDWORD pdwStatus)
+    {
+        if (!pdwStatus) {
+            return E_INVALIDARG;
+        }
+
+        *pdwStatus = 0;
+
+        if (IsPlaying()) {
+            *pdwStatus |= XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE;
+        }
+
+        return S_OK;
+    }
+
     BOOL IsPlaying()
     {
 

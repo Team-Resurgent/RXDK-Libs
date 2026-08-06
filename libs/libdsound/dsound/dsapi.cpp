@@ -2245,6 +2245,209 @@ XAudioDownloadEffectsImage
     return hr;
 }
 
+
+/****************************************************************************
+ *
+ *  XAudioSetEffectData
+ *
+ *  Description:
+ *      Converts a high-level effect description into raw DSP state and
+ *      applies it to the running effects image.
+ *
+ *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib (absent from
+ *      the leaked source).
+ *
+ *  Arguments:
+ *      DWORD [in]: effect index within the downloaded image.
+ *      LPCDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION [in]: high-level parameters.
+ *      LPDSFX_RAW_EFFECT_DESCRIPTION [out]: optionally receives the raw data.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "XAudioSetEffectData"
+
+//
+// 1.23 fixed-point conversion, saturating exactly as retail does: values at
+// or above +1.0 clip to 0x7FFFFF, at or below -1.0 to 0x800000, and negative
+// values in range are formed as 0xFFFFFF minus the truncated magnitude.
+//
+
+static DWORD DoubleTo24BitDWORD(double d)
+{
+    if(!(d < 1.0))
+    {
+        return 0x7FFFFF;
+    }
+
+    if(d <= -1.0)
+    {
+        return 0x800000;
+    }
+
+    if(d >= 0.0)
+    {
+        return ((DWORD)(LONG)(d * 8388608.0)) & 0xFFFFFF;
+    }
+
+    return 0xFFFFFF - (DWORD)(LONG)(d * -8388608.0);
+}
+
+//
+// Peaking-EQ biquad at the APU's 48kHz rate: A = 10^(dB/40),
+// w0 = 2*pi*f/48000, alpha = sin(w0)*sinh(1/(2Q)). The five outputs are the
+// halved, a0-normalized coefficients the DSP wants -- B0/B1/B2 as-is and the
+// two feedback terms negated.
+//
+
+static void ConvertToRawIIR2(FLOAT flFrequency, FLOAT flQ, FLOAT flGain, DWORD *pdwRaw)
+{
+    static const double cTwoPi = 6.2831853071795862;
+
+    double flA = pow(10.0, flGain * 0.025);
+    double flW0 = flFrequency * (1.0 / 48000.0) * cTwoPi;
+    double flAlpha = sin(flW0) * sinh(1.0 / (flQ + flQ));
+    double flNeg2Cos = cos(flW0) * -2.0;
+    double flAlphaOverA = flAlpha / flA;
+    double flNorm = 0.5 / (1.0 + flAlphaOverA);
+    double flAlphaA = flAlpha * flA;
+
+    pdwRaw[0] = DoubleTo24BitDWORD((1.0 + flAlphaA) * flNorm);
+    pdwRaw[1] = DoubleTo24BitDWORD(flNorm * flNeg2Cos);
+    pdwRaw[2] = DoubleTo24BitDWORD((1.0 - flAlphaA) * flNorm);
+    pdwRaw[3] = DoubleTo24BitDWORD(-(flNorm * flNeg2Cos));
+    pdwRaw[4] = DoubleTo24BitDWORD(-((1.0 - flAlphaOverA) * flNorm));
+}
+
+STDAPI
+XAudioSetEffectData
+(
+    DWORD                                   dwEffectIndex,
+    LPCDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION   pDesc,
+    LPDSFX_RAW_EFFECT_DESCRIPTION           pRawDesc
+)
+{
+    // Everything from dwReflectionsInputDelay on: the tuning the calculation
+    // produces, as opposed to the DSP memory layout (State + DelayLines) that
+    // is read from the running image.
+    static const DWORD      cdwI3DL2StateSize   = FIELD_OFFSET(DSFX_I3DL2REVERB_PARAMS, dwReflectionsInputDelay);
+    static const DWORD      cdwI3DL2ParamSize   = sizeof(DSFX_I3DL2REVERB_PARAMS) - FIELD_OFFSET(DSFX_I3DL2REVERB_PARAMS, dwReflectionsInputDelay);
+
+    CDirectSound *          pDirectSound        = CDirectSound::m_pDirectSound;
+    HRESULT                 hr                  = DS_OK;
+    DWORD                   adwRaw[11];
+
+    DPF_ENTER();
+
+#ifdef VALIDATE_PARAMETERS
+
+    if(!pDesc)
+    {
+        DPF_ERROR("Failed to supply an effect description");
+    }
+
+#endif // VALIDATE_PARAMETERS
+
+    if(!pDirectSound)
+    {
+        DPF_LEAVE_HRESULT(DSERR_INVALIDCALL);
+        return DSERR_INVALIDCALL;
+    }
+
+    switch(pDesc->effectType)
+    {
+        case DSFX_EFFECT_TYPE_IIR2:
+
+            ConvertToRawIIR2(pDesc->IIR2.flFrequency, pDesc->IIR2.flQ, pDesc->IIR2.flGain, adwRaw);
+
+            hr = pDirectSound->SetEffectData(dwEffectIndex, sizeof(DSFX_IIR2_STATE), adwRaw, 5 * sizeof(DWORD), DSFX_IMMEDIATE);
+
+            if(pRawDesc)
+            {
+                pRawDesc->effectType = pDesc->effectType;
+                CopyMemory(&pRawDesc->IIR2, adwRaw, 5 * sizeof(DWORD));
+            }
+
+            break;
+
+        case DSFX_EFFECT_TYPE_DISTORTION:
+
+            adwRaw[0] = DoubleTo24BitDWORD(pDesc->Distortion.flGain);
+            ConvertToRawIIR2(pDesc->Distortion.flPreFilterFrequency, pDesc->Distortion.flPreFilterQ, pDesc->Distortion.flPreFilterGain, &adwRaw[1]);
+            ConvertToRawIIR2(pDesc->Distortion.flPostFilterFrequency, pDesc->Distortion.flPostFilterQ, pDesc->Distortion.flPostFilterGain, &adwRaw[6]);
+
+            hr = pDirectSound->SetEffectData(dwEffectIndex, sizeof(DSFX_IIR2_STATE), adwRaw, 11 * sizeof(DWORD), DSFX_IMMEDIATE);
+
+            if(pRawDesc)
+            {
+                // Retail copies all eleven dwords -- the gain first, then the
+                // ten coefficients -- even though the public Distortion view
+                // names only ten fields (see the header note); the copy stays
+                // inside the union.
+                pRawDesc->effectType = pDesc->effectType;
+                CopyMemory(&pRawDesc->Distortion, adwRaw, 11 * sizeof(DWORD));
+            }
+
+            break;
+
+        case DSFX_EFFECT_TYPE_I3DL2REVERB:
+        {
+            //
+            // The calculation needs the running image's delay-line layout, so
+            // fetch State + DelayLines into the parameter block first, run the
+            // listener calculation over it, then push back the two pieces that
+            // changed: the flags word and the computed tuning.
+            //
+
+            CI3dl2Listener              Listener(pDesc->I3DL2Reverb);
+            LPDSFX_I3DL2REVERB_PARAMS   pParams = Listener.GetI3dl2Data();
+
+            hr = pDirectSound->GetEffectData(dwEffectIndex, 0, pParams, cdwI3DL2StateSize);
+
+            if(FAILED(hr))
+            {
+                break;
+            }
+
+            Listener.CalculateI3dl2();
+
+            pParams->State.dwFlags |= 4;
+
+            hr = pDirectSound->SetEffectData(dwEffectIndex, FIELD_OFFSET(DSFX_I3DL2REVERB_PARAMS, State.dwFlags), &pParams->State.dwFlags, sizeof(DWORD), DSFX_DEFERRED);
+
+            if(SUCCEEDED(hr))
+            {
+                hr = pDirectSound->SetEffectData(dwEffectIndex, cdwI3DL2StateSize, pParams->dwReflectionsInputDelay, cdwI3DL2ParamSize, DSFX_DEFERRED);
+            }
+
+            if(SUCCEEDED(hr))
+            {
+                hr = pDirectSound->CommitEffectData();
+            }
+
+            if(pRawDesc)
+            {
+                pRawDesc->effectType = pDesc->effectType;
+                CopyMemory(&pRawDesc->I3DL2Reverb, pParams->dwReflectionsInputDelay, cdwI3DL2ParamSize);
+            }
+
+            break;
+        }
+
+        default:
+
+            hr = DSERR_INVALIDCALL;
+            break;
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
 #endif // MCPX_BOOT_LIB
 
 

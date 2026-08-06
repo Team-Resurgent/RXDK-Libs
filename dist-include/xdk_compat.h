@@ -302,12 +302,14 @@ inline int swprintf(wchar_t *_Dst, const wchar_t *_Fmt, ...)
 #endif
 
 // D3D performance-instrumentation hook (XDK D3D8Perf.h, pulled implicitly by the
-// XDK's d3d8.h). RXDK has no PIX-style perf capture, so QueryRepeatFrame always
-// reports "don't repeat this frame" (FALSE). The XDK sample framework
-// (Common/XBApp.cpp) calls it once per frame.
-#if defined(__cplusplus) && !defined(_D3D8PERF_H_) && !defined(_RXDK_D3DPERF_SHIM)
+// XDK's d3d8.h). The XDK sample framework (Common/XBApp.cpp) calls it once per
+// frame. This used to be an inline FALSE shim; the real export now lives in
+// libd3d8/libd3d8i (whose retail plain-lib body is an unconditional FALSE), so
+// this is just the declaration for translation units that never include
+// d3d8perf.h -- and it must carry the same extern "C" linkage as that header's.
+#if defined(__cplusplus) && !defined(_RXDK_D3DPERF_SHIM)
 #define _RXDK_D3DPERF_SHIM
-inline BOOL WINAPI D3DPERF_QueryRepeatFrame(void) { return FALSE; }
+extern "C" BOOL WINAPI D3DPERF_QueryRepeatFrame(void);
 #endif
 
 // MAXULONG_PTR (basetsd.h) — largest ULONG_PTR value, used as a sentinel by a few

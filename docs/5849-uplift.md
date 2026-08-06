@@ -359,17 +359,18 @@ internal code that was never public — 5849's `xvoice.lib` contains the
 binary-only codec, which is not a gap in our port so much as something we were
 never going to have.
 
-**55 public APIs absent from our libs** (was 64: the ten `xact.h` gaps are all recovered and
+**53 public APIs absent from our libs** (was 64: the ten `xact.h` gaps are all recovered and
 implemented — see `5849-xact-api-recovery.md` — along with
 `IDirectSound{Buffer,Stream}_GetVoiceProperties`, which `IXACTSoundSource_GetProperties`
-depends on and which the audit's dsound.lib-ends-in-'d' bug had been hiding):
+depends on and which the audit's dsound.lib-ends-in-'d' bug had been hiding; then
+`XAudioSetEffectData` and `D3DPERF_QueryRepeatFrame`, closing the DSound.h and D3D8Perf.h rows):
 
 | Header | Missing | What they are |
 |---|---|---|
 | `xonline.h` | 43 | The 5849-new LSP services — arbitration, competition/single-elimination, content install, friends `*Ex`, game invite, and the `*TaskGetResults` family. A protocol boundary (wire formats absent from the leak), but see below. |
 | `Xbox.h` | 9 | Soundtrack *write* support (`XAddSoundtrack`, `XAddSongToSoundtrack` — we have the read side) and the secondary utility drive (`XMountSecondaryUtilityDrive`, `XSwapUtilityDrives`, `XFormatSecondaryUtilityDrive`), plus heap-alloc attributes and `XGetAutoLogonFlag`. |
-| `DSound.h` | 1 | `XAudioSetEffectData`. |
-| `D3D8Perf.h` | 1 | `D3DPERF_QueryRepeatFrame` (libd3d8i). |
+| ~~`DSound.h`~~ | ~~1~~ 0 | `XAudioSetEffectData` — **recovered and implemented**: converts high-level IIR2/distortion/I3DL2-reverb parameters to raw DSP state. The biquad math is RBJ peaking-EQ at 48kHz (`A=10^(dB/40)`, `α=sin(ω)·sinh(1/2Q)`) in 1.23 saturating fixed point; the I3DL2 path fetches the running image's `State+DelayLines` (0x118 bytes), runs the leak's own `CI3dl2Listener::CalculateI3dl2` over it, and pushes back the flags word and the 0x108-byte tuning, deferred + commit. ⚠️ 5849's public `DSFX_RAW_EFFECT_DESCRIPTION.Distortion` view is **mislabeled by one dword** (the function writes gain first, then ten coefficients — eleven dwords into a ten-field struct); adopted verbatim with the quirk documented. |
+| ~~`D3D8Perf.h`~~ | ~~1~~ 0 | `D3DPERF_QueryRepeatFrame` — **implemented in both flavors**. Retail's plain d3d8.lib body is an unconditional FALSE (`xor eax,eax; ret`); only d3d8i.lib consults the capture tooling's repeat-frame request, for which this stack has no writer, so FALSE is faithful for both. Kept in shadersnapshot.cpp, retail's own TU for it. |
 | `XGraphics.h` | 1 | `XGCompileShader` — the HLSL compiler. See below. |
 
 **On the XOnline 43:** this doc already records them as a protocol boundary

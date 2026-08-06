@@ -1960,5 +1960,19 @@ DWORD WINAPI D3DDevice_GetDebugMarker()
     return g_pDevice->m_dwDebugMarker;
 }
 
+//------------------------------------------------------------------------------
+// QueryRepeatFrame
+//
+// RXDK 5849 uplift: retail keeps this in shadersnapshot.obj, in both flavors.
+// The plain d3d8.lib body is an unconditional FALSE; only d3d8i.lib reads the
+// capture tooling's repeat-frame request, and this stack has no capture
+// protocol to raise one, so FALSE is the faithful answer for both builds.
+
+extern "C"
+BOOL WINAPI D3DPERF_QueryRepeatFrame()
+{
+    return FALSE;
+}
+
 
 } // end namespace

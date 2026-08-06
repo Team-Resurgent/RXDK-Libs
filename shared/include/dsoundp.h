@@ -419,6 +419,113 @@ typedef struct _DSEFFECTIMAGELOC
 
 typedef const DSEFFECTIMAGELOC *LPCDSEFFECTIMAGELOC;
 
+// RXDK 5849 uplift: high-level effect parameter support (XAudioSetEffectData).
+// Adopted verbatim from the 5849 public dsound.h.
+
+typedef enum _DSFX_EFFECT_TYPE
+{
+    DSFX_EFFECT_TYPE_AMPMOD_MONO,
+    DSFX_EFFECT_TYPE_AMPMOD_STEREO,
+    DSFX_EFFECT_TYPE_CHORUS_MONO,
+    DSFX_EFFECT_TYPE_CHORUS_STEREO,
+    DSFX_EFFECT_TYPE_DISTORTION,
+    DSFX_EFFECT_TYPE_ECHO_MONO,
+    DSFX_EFFECT_TYPE_ECHO_STEREO,
+    DSFX_EFFECT_TYPE_FLANGE_MONO,
+    DSFX_EFFECT_TYPE_FLANGE_STEREO,
+    DSFX_EFFECT_TYPE_IIR,
+    DSFX_EFFECT_TYPE_IIR2,
+    DSFX_EFFECT_TYPE_OSCILLATOR,
+    DSFX_EFFECT_TYPE_I3DL2REVERB,
+    DSFX_EFFECT_TYPE_MINIREVERB,
+    DSFX_EFFECT_TYPE_RMS,
+    DSFX_EFFECT_TYPE_SPLITTER,
+    DSFX_EFFECT_TYPE_MIXER_2x1,
+    DSFX_EFFECT_TYPE_SAMPLE_RATE_CONVERTER
+} DSFX_EFFECT_TYPE;
+
+typedef struct _DSFX_HIGH_LEVEL_EFFECT_DESCRIPTION
+{
+    DSFX_EFFECT_TYPE   effectType;
+    union
+    {
+        struct
+        {
+            FLOAT   flFrequency;    // [0.0, 20000.0] (Hertz)
+            FLOAT   flGain;         // [-30.0, 30.0] (DB)
+            FLOAT   flQ;            // (0.0, 30.0] Cannot be 0.0
+        } IIR2;
+
+        struct
+        {
+            FLOAT   flGain;                 // [-30.0, 30.0] (DB)
+            FLOAT   flPreFilterFrequency;   // [0.0, 20000.0] (Hertz)
+            FLOAT   flPreFilterGain;        // [-30.0, 30.0] (DB)
+            FLOAT   flPreFilterQ;           // (0.0, 30.0] Cannot be 0.0
+            FLOAT   flPostFilterFrequency;  // [0.0, 20000.0] (Hertz)
+            FLOAT   flPostFilterGain;       // [-30.0, 30.0] (DB)
+            FLOAT   flPostFilterQ;          // (0.0, 30.0] Cannot be 0.0
+        } Distortion;
+
+        DSI3DL2LISTENER I3DL2Reverb;
+    };
+} DSFX_HIGH_LEVEL_EFFECT_DESCRIPTION, *LPDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION, *PDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION;
+
+typedef const DSFX_HIGH_LEVEL_EFFECT_DESCRIPTION* LPCDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION;
+
+typedef struct _DSFX_RAW_EFFECT_DESCRIPTION
+{
+    DSFX_EFFECT_TYPE   effectType;
+    union
+    {
+        struct
+        {
+            DWORD dwB0;
+            DWORD dwB1;
+            DWORD dwB2;
+            DWORD dwA1;
+            DWORD dwA2;
+        } IIR2;
+
+        // NOTE (5849 header quirk, kept verbatim): XAudioSetEffectData writes
+        // ELEVEN dwords for a distortion effect -- the 24-bit gain first, then
+        // the ten filter coefficients -- so everything here is really shifted
+        // one dword: dwPreFilterB0 receives the gain, dwPreFilterB1 receives
+        // B0, and the last coefficient lands past dwPostFilterA2 (still inside
+        // the union, whose I3DL2Reverb view is larger).
+        struct
+        {
+            DWORD dwPreFilterB0;
+            DWORD dwPreFilterB1;
+            DWORD dwPreFilterB2;
+            DWORD dwPreFilterA1;
+            DWORD dwPreFilterA2;
+            DWORD dwPostFilterB0;
+            DWORD dwPostFilterB1;
+            DWORD dwPostFilterB2;
+            DWORD dwPostFilterA1;
+            DWORD dwPostFilterA2;
+        } Distortion;
+
+        struct
+        {
+            DWORD                dwReflectionsInputDelay[5];
+            DWORD                dwShortReverbInputDelay;
+            DWORD                dwLongReverbInputDelay[8];
+            DWORD                dwReflectionsFeedbackDelay[4];
+            DWORD                dwLongReverbFeedbackDelay;
+            DWORD                dwShortReverbInputGain[8];
+            DWORD                dwLongReverbInputGain;
+            DWORD                dwLongReverbCrossfeedGain;
+            DWORD                dwReflectionsOutputGain[4];
+            DWORD                dwShortReverbOutputGain;
+            DWORD                dwLongReverbOutputGain;
+            DWORD                dwChannelCount;
+            DSFX_I3DL2REVERB_IIR IIR[10];
+        } I3DL2Reverb;
+    };
+} DSFX_RAW_EFFECT_DESCRIPTION, *LPDSFX_RAW_EFFECT_DESCRIPTION, *PDSFX_RAW_EFFECT_DESCRIPTION;
+
 #include <pshpack1.h>
 
 // Parameter block for the 5849 WMA XMO decoder factories (XWmaDecoderCreateMediaObject).
@@ -1418,6 +1525,8 @@ STDAPI XWaveFileCreateMediaObject(LPCSTR pszFileName, LPCWAVEFORMATEX *ppwfxForm
 STDAPI XWaveFileCreateMediaObjectEx(LPCSTR pszFileName, HANDLE hFile, XWaveFileMediaObject **ppMediaObject);
 
 STDAPI XAudioDownloadEffectsImage(LPCSTR pszImageName, LPCDSEFFECTIMAGELOC pImageLoc, DWORD dwFlags, LPDSEFFECTIMAGEDESC *ppImageDesc);
+
+STDAPI XAudioSetEffectData(DWORD dwEffectIndex, LPCDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION pDesc, LPDSFX_RAW_EFFECT_DESCRIPTION pRawDesc);
 
 //
 // IUnknown

@@ -889,6 +889,15 @@ struct D3DPERF_BlockTimer
  * on the retail surface. Titles annotate their frame with them (Fur brackets
  * FrameMove); see se/uplift5849.cpp for what they do here.
  */
+/*
+ * RXDK 5849 uplift: retail d3d8.lib exports this too, and its retail body is
+ * an unconditional FALSE (`xor eax,eax; ret`) -- only the instrumented
+ * d3d8i.lib consults the capture tooling's repeat-frame request. With no
+ * capture protocol in this stack there is never a writer for that request,
+ * so FALSE is the answer in both flavors here as well.
+ */
+BOOL WINAPI D3DPERF_QueryRepeatFrame(void);
+
 INT  WINAPI D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...);
 INT  WINAPI D3DPERF_EndEvent(void);
 void WINAPI D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...);

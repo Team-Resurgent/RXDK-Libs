@@ -96,6 +96,12 @@ namespace DirectSound
         void Initialize(void);
         void CalculateI3dl2(void);
 
+        // RXDK 5849 uplift: XAudioSetEffectData runs the listener calculation
+        // against a live effect image fetched from the DSP, so it needs the
+        // parameter block the calculation reads (delay-line layout in) and
+        // writes (tuning out).
+        LPDSFX_I3DL2REVERB_PARAMS GetI3dl2Data(void) { return &m_I3dl2Data; }
+
     private:
         void SetSize(float fSize);
         void SetInputFilter(long lGainHF, float fHFReference);

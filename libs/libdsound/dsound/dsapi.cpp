@@ -879,6 +879,11 @@ STDAPI IDirectSoundBuffer_SetNotificationPositions(LPDIRECTSOUNDBUFFER pBuffer, 
     return ((CDirectSoundBuffer *)pBuffer)->SetNotificationPositions(dwNotifyCount, paNotifies);
 }
 
+STDAPI IDirectSoundBuffer_GetVoiceProperties(LPDIRECTSOUNDBUFFER pBuffer, LPDSVOICEPROPS pVoiceProps)
+{
+    return ((CDirectSoundBuffer *)pBuffer)->GetVoiceProperties(pVoiceProps);
+}
+
 #ifndef MCPX_BOOT_LIB
 
 STDAPI IDirectSoundStream_QueryInterface(LPDIRECTSOUNDSTREAM pStream, REFIID iid, LPVOID *ppvInterface)
@@ -1288,6 +1293,11 @@ STDAPI IDirectSoundStream_FlushEx(LPDIRECTSOUNDSTREAM pStream, REFERENCE_TIME rt
 #endif // DSAPI_DISABLE_NOTEOFF
 
     return ((CDirectSoundStream *)pStream)->FlushEx(rtTimeStamp, dwFlags);
+}
+
+STDAPI IDirectSoundStream_GetVoiceProperties(LPDIRECTSOUNDSTREAM pStream, LPDSVOICEPROPS pVoiceProps)
+{
+    return ((CDirectSoundStream *)pStream)->GetVoiceProperties(pVoiceProps);
 }
 
 #endif // MCPX_BOOT_LIB
@@ -6181,6 +6191,57 @@ CDirectSoundVoice::SetMixBinVolumes
 }
 
 
+/****************************************************************************
+ *
+ *  GetVoiceProperties
+ *
+ *  Description:
+ *      Gets a snapshot of the voice's current hardware properties.
+ *
+ *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib.
+ *
+ *  Arguments:
+ *      LPDSVOICEPROPS [out]: voice properties.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CDirectSoundVoice::GetVoiceProperties"
+
+HRESULT
+CDirectSoundVoice::GetVoiceProperties
+(
+    LPDSVOICEPROPS          pVoiceProps
+)
+{
+    HRESULT                 hr;
+
+    DPF_ENTER();
+
+#ifdef VALIDATE_PARAMETERS
+
+    if(!pVoiceProps)
+    {
+        DPF_ERROR("Failed to specify a properties buffer");
+    }
+
+#endif // VALIDATE_PARAMETERS
+
+    //
+    // Hand off to the implementation object
+    //
+
+    hr = m_pVoice->GetVoiceProperties(pVoiceProps);
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
 #ifndef MCPX_BOOT_LIB
 
 /***************************************************************************
@@ -8919,6 +8980,45 @@ CDirectSoundBuffer::SetNotificationPositions
 }
 
 
+/****************************************************************************
+ *
+ *  GetVoiceProperties
+ *
+ *  Description:
+ *      Gets a snapshot of the buffer's current hardware voice properties.
+ *
+ *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib.
+ *
+ *  Arguments:
+ *      LPDSVOICEPROPS [out]: voice properties.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CDirectSoundBuffer::GetVoiceProperties"
+
+HRESULT
+CDirectSoundBuffer::GetVoiceProperties
+(
+    LPDSVOICEPROPS          pVoiceProps
+)
+{
+    HRESULT                 hr;
+
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+
+    hr = CDirectSoundVoice::GetVoiceProperties(pVoiceProps);
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
 #ifndef MCPX_BOOT_LIB
 
 /****************************************************************************
@@ -9699,6 +9799,45 @@ CDirectSoundStream::FlushEx
     {
         hr = m_pStream->Flush();
     }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
+ *  GetVoiceProperties
+ *
+ *  Description:
+ *      Gets a snapshot of the stream's current hardware voice properties.
+ *
+ *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib.
+ *
+ *  Arguments:
+ *      LPDSVOICEPROPS [out]: voice properties.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CDirectSoundStream::GetVoiceProperties"
+
+HRESULT
+CDirectSoundStream::GetVoiceProperties
+(
+    LPDSVOICEPROPS          pVoiceProps
+)
+{
+    HRESULT                 hr;
+
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+
+    hr = CDirectSoundVoice::GetVoiceProperties(pVoiceProps);
 
     DPF_LEAVE_HRESULT(hr);
 

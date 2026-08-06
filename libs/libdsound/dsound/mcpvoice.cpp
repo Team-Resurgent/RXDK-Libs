@@ -3010,7 +3010,7 @@ CMcpxVoiceClient::SetFilter
     if(m_dwStatus & MCPX_VOICESTATUS_ALLOCATED)
     {
         MCPX_CHECK_VOICE_FIFO(6 * m_bVoiceCount);
-        
+
         for(i = 0; i < m_bVoiceCount; i++)
         {
             MCPX_VOICE_WRITE(SetCurrentVoice, m_ahVoices[i]);
@@ -3025,6 +3025,154 @@ CMcpxVoiceClient::SetFilter
     DPF_LEAVE_HRESULT(DS_OK);
 
     return DS_OK;
+}
+
+
+/****************************************************************************
+ *
+ *  GetVoiceProperties
+ *
+ *  Description:
+ *      Gets a snapshot of the voice's current hardware properties.
+ *
+ *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib (the
+ *      function does not exist in the leaked source).  Reads the CURrent
+ *      (ramped) hardware volumes of the first hardware voice, not the
+ *      cached TARget values.
+ *
+ *  Arguments:
+ *      LPDSVOICEPROPS [out]: voice properties.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CMcpxVoiceClient::GetVoiceProperties"
+
+HRESULT
+CMcpxVoiceClient::GetVoiceProperties
+(
+    LPDSVOICEPROPS          pVoiceProps
+)
+{
+    HRESULT                 hr                                      = DS_OK;
+    DWORD                   adwVolumes[MCPX_HW_MAX_VOICE_MIXBINS];
+    DWORD                   dwVolA;
+    DWORD                   dwVolB;
+    DWORD                   dwVolC;
+    DWORD                   dwPitchLink;
+    DWORD                   i;
+
+    DPF_ENTER();
+
+    if(!(m_dwStatus & MCPX_VOICESTATUS_ALLOCATED))
+    {
+        hr = DSERR_INVALIDCALL;
+    }
+    else
+    {
+        //
+        // Read the current volume and pitch registers of the first
+        // hardware voice
+        //
+
+        MCPX_VOICE_STRUCT_READ(m_ahVoices[0], NV_PAVS_VOICE_CUR_VOLA, &dwVolA);
+        MCPX_VOICE_STRUCT_READ(m_ahVoices[0], NV_PAVS_VOICE_CUR_VOLB, &dwVolB);
+        MCPX_VOICE_STRUCT_READ(m_ahVoices[0], NV_PAVS_VOICE_CUR_VOLC, &dwVolC);
+        MCPX_VOICE_STRUCT_READ(m_ahVoices[0], NV_PAVS_VOICE_TAR_PITCH_LINK, &dwPitchLink);
+
+        //
+        // Unpack the 12-bit mixbin attenuations (the inverse of
+        // ConvertVolumeValues' packing).  The retail library assembles
+        // volume 7's middle nibble from VOLUME6_B7_4 rather than
+        // VOLUME7_B7_4; that contradicts its own register layout and is
+        // not replicated here.
+        //
+
+        adwVolumes[0] = MCPX_GET_REG_VALUE(dwVolA, NV_PAVS_VOICE_CUR_VOLA_VOLUME0);
+        adwVolumes[1] = MCPX_GET_REG_VALUE(dwVolA, NV_PAVS_VOICE_CUR_VOLA_VOLUME1);
+        adwVolumes[2] = MCPX_GET_REG_VALUE(dwVolB, NV_PAVS_VOICE_CUR_VOLB_VOLUME2);
+        adwVolumes[3] = MCPX_GET_REG_VALUE(dwVolB, NV_PAVS_VOICE_CUR_VOLB_VOLUME3);
+        adwVolumes[4] = MCPX_GET_REG_VALUE(dwVolC, NV_PAVS_VOICE_CUR_VOLC_VOLUME4);
+        adwVolumes[5] = MCPX_GET_REG_VALUE(dwVolC, NV_PAVS_VOICE_CUR_VOLC_VOLUME5);
+
+        adwVolumes[6] = MCPX_GET_REG_VALUE(dwVolA, NV_PAVS_VOICE_CUR_VOLA_VOLUME6_B3_0)
+                      | (MCPX_GET_REG_VALUE(dwVolB, NV_PAVS_VOICE_CUR_VOLB_VOLUME6_B7_4) << 4)
+                      | (MCPX_GET_REG_VALUE(dwVolC, NV_PAVS_VOICE_CUR_VOLC_VOLUME6_B11_8) << 8);
+
+        adwVolumes[7] = MCPX_GET_REG_VALUE(dwVolA, NV_PAVS_VOICE_CUR_VOLA_VOLUME7_B3_0)
+                      | (MCPX_GET_REG_VALUE(dwVolB, NV_PAVS_VOICE_CUR_VOLB_VOLUME7_B7_4) << 4)
+                      | (MCPX_GET_REG_VALUE(dwVolC, NV_PAVS_VOICE_CUR_VOLC_VOLUME7_B11_8) << 8);
+
+        //
+        // Convert from register format to hundredths of decibels of
+        // attenuation
+        //
+
+        for(i = 0; i < NUMELMS(adwVolumes); i++)
+        {
+            adwVolumes[i] = (adwVolumes[i] * 100) >> 6;
+        }
+
+        //
+        // Fill in the mixbin volume pairs, padding unused entries
+        //
+
+        pVoiceProps->dwMixBinCount = m_pSettings->m_dwMixBinCount;
+
+        for(i = 0; (i < m_pSettings->m_dwMixBinCount) && (i < NUMELMS(pVoiceProps->MixBinVolumePairs)); i++)
+        {
+            pVoiceProps->MixBinVolumePairs[i].dwMixBin = m_pSettings->m_abMixBins[i];
+            pVoiceProps->MixBinVolumePairs[i].lVolume = -(LONG)adwVolumes[i];
+        }
+
+        for(; i < NUMELMS(pVoiceProps->MixBinVolumePairs); i++)
+        {
+            pVoiceProps->MixBinVolumePairs[i].dwMixBin = 0xFFFFFFFF;
+            pVoiceProps->MixBinVolumePairs[i].lVolume = DSBVOLUME_MIN;
+        }
+
+        //
+        // Pitch is the upper word of the pitch/link register
+        //
+
+        pVoiceProps->lPitch = (LONG)(SHORT)MCPX_GET_REG_VALUE(dwPitchLink, NV_PAVS_VOICE_TAR_PITCH_LINK_PITCH);
+
+        //
+        // 3D and I3DL2 levels come from the calculated 3D data
+        //
+
+#ifndef MCPX_BOOT_LIB
+
+        if((m_pSettings->m_dwFlags & DSBCAPS_CTRL3D) && (DS3DMODE_DISABLE != m_pSettings->m_p3dParams->HrtfParams.dwMode))
+        {
+            ASSERT(m_pHrtfSource);
+            ASSERT(m_pI3dl2Source);
+
+            pVoiceProps->l3DDistanceVolume = m_pHrtfSource->m_3dVoiceData.lDistanceVolume;
+            pVoiceProps->l3DConeVolume = m_pHrtfSource->m_3dVoiceData.lConeVolume;
+            pVoiceProps->l3DDopplerPitch = m_pHrtfSource->m_3dVoiceData.lDopplerPitch;
+            pVoiceProps->lI3DL2DirectVolume = m_pI3dl2Source->m_I3dl2Data.lDirect;
+            pVoiceProps->lI3DL2RoomVolume = m_pI3dl2Source->m_I3dl2Data.lSource;
+        }
+        else
+
+#endif // MCPX_BOOT_LIB
+
+        {
+            pVoiceProps->l3DDistanceVolume = 0;
+            pVoiceProps->l3DConeVolume = 0;
+            pVoiceProps->l3DDopplerPitch = 0;
+            pVoiceProps->lI3DL2DirectVolume = 0;
+            pVoiceProps->lI3DL2RoomVolume = 0;
+        }
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
 }
 
 

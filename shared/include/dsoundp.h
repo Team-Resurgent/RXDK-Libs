@@ -211,6 +211,23 @@ typedef struct _DSMIXBINVOLUMEPAIR
 
 typedef const DSMIXBINVOLUMEPAIR *LPCDSMIXBINVOLUMEPAIR;
 
+// RXDK 5849 uplift: hardware-voice property snapshot (added in XDK-5849; absent from the
+// Jan-2002 leak). Layout recovered from the 5849 dsound.lib CodeView types (sizeof 92).
+// Referenced by XACT_SOUNDSOURCE_PROPERTIES in the 5849 public xact.h.
+typedef struct _DSVOICEPROPS
+{
+    DWORD               dwMixBinCount;              // +0
+    DSMIXBINVOLUMEPAIR  MixBinVolumePairs[8];       // +4  (8 pairs * 8 bytes)
+    LONG                lPitch;                     // +68
+    LONG                l3DDistanceVolume;          // +72
+    LONG                l3DConeVolume;              // +76
+    LONG                l3DDopplerPitch;            // +80
+    LONG                lI3DL2DirectVolume;         // +84
+    LONG                lI3DL2RoomVolume;           // +88
+} DSVOICEPROPS, *LPDSVOICEPROPS;
+
+typedef const DSVOICEPROPS *LPCDSVOICEPROPS;
+
 typedef struct _DSMIXBINS
 {
     DWORD                   dwMixBinCount;          // Count of mixbins to assign the voice to or mixbins to set volume on
@@ -1950,6 +1967,7 @@ STDAPI IDirectSoundBuffer_Lock(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwOffset, DWOR
 STDAPI IDirectSoundBuffer_Unlock(LPDIRECTSOUNDBUFFER pBuffer, LPVOID pvLock1, DWORD dwLockSize1, LPVOID pvLock2, DWORD dwLockSize2);
 STDAPI IDirectSoundBuffer_Restore(LPDIRECTSOUNDBUFFER pBuffer);
 STDAPI IDirectSoundBuffer_SetNotificationPositions(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwNotifyCount, LPCDSBPOSITIONNOTIFY paNotifies);
+STDAPI IDirectSoundBuffer_GetVoiceProperties(LPDIRECTSOUNDBUFFER pBuffer, LPDSVOICEPROPS pVoiceProps);
 
 #if defined(__cplusplus) && !defined(CINTERFACE)                
 
@@ -2164,6 +2182,11 @@ struct IDirectSoundBuffer
     {
         return IDirectSoundBuffer_SetNotificationPositions(this, dwNotifyCount, paNotifies);
     }
+
+    __inline HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps)
+    {
+        return IDirectSoundBuffer_GetVoiceProperties(this, pVoiceProps);
+    }
 };
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)                
@@ -2242,6 +2265,7 @@ STDAPI IDirectSoundStream_SetI3DL2Source(LPDIRECTSOUNDSTREAM pStream, LPCDSI3DL2
 STDAPI IDirectSoundStream_Pause(LPDIRECTSOUNDSTREAM pStream, DWORD dwPause);
 STDAPI IDirectSoundStream_PauseEx(LPDIRECTSOUNDSTREAM pStream, REFERENCE_TIME rtTimestamp, DWORD dwPause);
 STDAPI IDirectSoundStream_FlushEx(LPDIRECTSOUNDSTREAM pStream, REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
+STDAPI IDirectSoundStream_GetVoiceProperties(LPDIRECTSOUNDSTREAM pStream, LPDSVOICEPROPS pVoiceProps);
 
 #define IDirectSoundStream_AddRef           IUnknown_AddRef
 #define IDirectSoundStream_Release          IUnknown_Release
@@ -2413,6 +2437,11 @@ DECLARE_INTERFACE_(IDirectSoundStream, XMediaObject)
     __inline HRESULT STDMETHODCALLTYPE FlushEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags)
     {
         return IDirectSoundStream_FlushEx(this, rtTimeStamp, dwFlags);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps)
+    {
+        return IDirectSoundStream_GetVoiceProperties(this, pVoiceProps);
     }
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)

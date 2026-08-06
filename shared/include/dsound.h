@@ -1734,8 +1734,9 @@ STDAPI IDirectSoundBuffer_Lock(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwOffset, DWOR
 STDAPI IDirectSoundBuffer_Unlock(LPDIRECTSOUNDBUFFER pBuffer, LPVOID pvLock1, DWORD dwLockSize1, LPVOID pvLock2, DWORD dwLockSize2);
 STDAPI IDirectSoundBuffer_Restore(LPDIRECTSOUNDBUFFER pBuffer);
 STDAPI IDirectSoundBuffer_SetNotificationPositions(LPDIRECTSOUNDBUFFER pBuffer, DWORD dwNotifyCount, LPCDSBPOSITIONNOTIFY paNotifies);
+STDAPI IDirectSoundBuffer_GetVoiceProperties(LPDIRECTSOUNDBUFFER pBuffer, LPDSVOICEPROPS pVoiceProps);
 
-#if defined(__cplusplus) && !defined(CINTERFACE)                
+#if defined(__cplusplus) && !defined(CINTERFACE)
 
 struct IDirectSoundBuffer
 {
@@ -1958,6 +1959,11 @@ struct IDirectSoundBuffer
     {
         return IDirectSoundBuffer_SetNotificationPositions(this, dwNotifyCount, paNotifies);
     }
+
+    __inline HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps)
+    {
+        return IDirectSoundBuffer_GetVoiceProperties(this, pVoiceProps);
+    }
 };
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)                
@@ -2038,6 +2044,7 @@ STDAPI IDirectSoundStream_SetI3DL2Source(LPDIRECTSOUNDSTREAM pStream, LPCDSI3DL2
 STDAPI IDirectSoundStream_Pause(LPDIRECTSOUNDSTREAM pStream, DWORD dwPause);
 STDAPI IDirectSoundStream_PauseEx(LPDIRECTSOUNDSTREAM pStream, REFERENCE_TIME rtTimestamp, DWORD dwPause);
 STDAPI IDirectSoundStream_FlushEx(LPDIRECTSOUNDSTREAM pStream, REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
+STDAPI IDirectSoundStream_GetVoiceProperties(LPDIRECTSOUNDSTREAM pStream, LPDSVOICEPROPS pVoiceProps);
 
 #define IDirectSoundStream_AddRef           IUnknown_AddRef
 #define IDirectSoundStream_Release          IUnknown_Release
@@ -2209,6 +2216,11 @@ DECLARE_INTERFACE_(IDirectSoundStream, XMediaObject)
     __inline HRESULT STDMETHODCALLTYPE FlushEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags)
     {
         return IDirectSoundStream_FlushEx(this, rtTimeStamp, dwFlags);
+    }
+
+    __inline HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps)
+    {
+        return IDirectSoundStream_GetVoiceProperties(this, pVoiceProps);
     }
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)

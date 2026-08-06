@@ -184,6 +184,7 @@ namespace DirectSound
         HRESULT SetLFO(LPCDSLFODESC pLfo);
         HRESULT SetEG(LPCDSENVELOPEDESC pEnv);
         HRESULT SetFilter(LPCDSFILTERDESC pFilterDesc);
+        HRESULT GetVoiceProperties(LPDSVOICEPROPS pVoiceProps);
         HRESULT ConnectVoice(void);
         HRESULT DisconnectVoice(void);
 

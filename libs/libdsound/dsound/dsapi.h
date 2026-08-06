@@ -433,6 +433,7 @@ namespace DirectSound
         HRESULT STDMETHODCALLTYPE SetOutputBuffer(LPDIRECTSOUNDBUFFER pOutputBuffer);
         HRESULT STDMETHODCALLTYPE SetMixBins(LPCDSMIXBINS pMixBins);
         HRESULT STDMETHODCALLTYPE SetMixBinVolumes(LPCDSMIXBINS pMixBins);
+        HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps);
 
         // IDirectSound3dBuffer methods
         HRESULT STDMETHODCALLTYPE SetAllParameters(LPCDS3DBUFFER pds3db, DWORD dwFlags);
@@ -558,6 +559,7 @@ namespace DirectSound
         HRESULT STDMETHODCALLTYPE SetOutputBuffer(LPDIRECTSOUNDBUFFER pOutputBuffer);
         HRESULT STDMETHODCALLTYPE SetMixBins(LPCDSMIXBINS pMixBins);
         HRESULT STDMETHODCALLTYPE SetMixBinVolumes(LPCDSMIXBINS pMixBins);
+        HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps);
 
         // IDirectSound3dBuffer methods
         HRESULT STDMETHODCALLTYPE SetAllParameters(LPCDS3DBUFFER pds3db, DWORD dwFlags);
@@ -577,7 +579,7 @@ namespace DirectSound
 
         // IDirectSoundNotify methods
         HRESULT STDMETHODCALLTYPE SetNotificationPositions(DWORD dwNotifyCount, LPCDSBPOSITIONNOTIFY paNotifies);
-    };    
+    };
 
     __inline ULONG CDirectSoundBuffer::AddRef(void)
     {
@@ -824,6 +826,7 @@ namespace DirectSound
         HRESULT STDMETHODCALLTYPE Pause(DWORD dwPause);
         HRESULT STDMETHODCALLTYPE PauseEx(REFERENCE_TIME rtTimeStamp, DWORD dwPause);
         HRESULT STDMETHODCALLTYPE FlushEx(REFERENCE_TIME rtTimeStamp, DWORD dwFlags);
+        HRESULT STDMETHODCALLTYPE GetVoiceProperties(LPDSVOICEPROPS pVoiceProps);
 
         // IDirectSound3dBuffer methods
         HRESULT STDMETHODCALLTYPE SetAllParameters(LPCDS3DBUFFER pds3db, DWORD dwFlags);

@@ -1,9 +1,12 @@
 // xAPI input monitor -- exercises the XID input device types on kit hardware.
 //
-// Polls for connection/disconnection of controllers, IR remotes, mice, and
-// keyboards (XGetDeviceChanges), opens each as it appears (XInputOpen), and
-// debug-prints every button / movement event. Runs forever; watch the output
-// with xbWatson or the deploy log and press buttons / move the mouse.
+// Polls for connection/disconnection of controllers, lightguns, IR remotes,
+// mice, and keyboards (XGetDeviceChanges), opens each as it appears
+// (XInputOpen), and debug-prints every button / movement event. A lightgun
+// enumerates as a gamepad; the subtype probe tells them apart, applies the
+// default calibration, and the poll reports shots with aim coordinates plus
+// on-screen/doubler status. Runs forever; watch the output with xbWatson or
+// the deploy log and press buttons / move the mouse.
 //
 // Keyboard keystrokes come through the XInputDebug keyboard queue API
 // (XInputDebugInitKeyboardQueue + XInputDebugGetKeystroke) -- XInputGetState
@@ -52,6 +55,11 @@ static HANDLE g_mouse[INPUT_MAX_PORTS];
 static HANDLE g_ir[INPUT_MAX_PORTS];
 static HANDLE g_kbd[INPUT_MAX_PORTS];
 
+// Gamepad-class subtype per port (a lightgun enumerates as a gamepad with
+// XINPUT_DEVSUBTYPE_GC_LIGHTGUN), probed once per connection.
+static BYTE g_padSubtype[INPUT_MAX_PORTS];
+static BOOL g_padProbed[INPUT_MAX_PORTS];
+
 static WORD g_padPrevDigital[INPUT_MAX_PORTS];
 static BYTE g_padPrevAnalog[INPUT_MAX_PORTS][8];
 static BYTE g_mousePrevButtons[INPUT_MAX_PORTS];
@@ -88,6 +96,53 @@ static void process_changes(PXPP_DEVICE_TYPE type, const char *name,
     }
 }
 
+// One-time per-connection probe of each open gamepad's subtype. A lightgun is
+// a gamepad to the enumerator; the subtype is how a title tells them apart.
+// For a gun, apply the header's default (uncalibrated) offsets -- a real title
+// runs the two-point calibration screen and stores the result -- and log the
+// USB identity the calibration would be keyed on.
+static void probe_gamepads(void)
+{
+    for (int port = 0; port < INPUT_MAX_PORTS; ++port) {
+        if (!g_pad[port]) {
+            g_padProbed[port] = FALSE;
+            g_padSubtype[port] = 0;
+            continue;
+        }
+        if (g_padProbed[port]) {
+            continue;
+        }
+        g_padProbed[port] = TRUE;
+
+        XINPUT_CAPABILITIES caps;
+        if (XInputGetCapabilities(g_pad[port], &caps) != ERROR_SUCCESS) {
+            continue;
+        }
+        g_padSubtype[port] = caps.SubType;
+        DbgPrint("input: pad%d subtype=0x%02x%s\n", port, (unsigned)caps.SubType,
+                 (caps.SubType == XINPUT_DEVSUBTYPE_GC_LIGHTGUN) ? " (LIGHTGUN)" : "");
+
+        if (caps.SubType == XINPUT_DEVSUBTYPE_GC_LIGHTGUN) {
+            XINPUT_DEVICE_DESCRIPTION desc;
+            XINPUT_LIGHTGUN_CALIBRATION_OFFSETS cal;
+
+            if (XInputGetDeviceDescription(g_pad[port], &desc) == ERROR_SUCCESS) {
+                DbgPrint("input: gun%d vid=%04x pid=%04x ver=%04x\n", port,
+                         (unsigned)desc.wVendorID, (unsigned)desc.wProductID,
+                         (unsigned)desc.wVersion);
+            }
+
+            cal.wCenterX = (WORD)(SHORT)XINPUT_LIGHTGUN_CALIBRATION_CENTER_X;
+            cal.wCenterY = (WORD)(SHORT)XINPUT_LIGHTGUN_CALIBRATION_CENTER_Y;
+            cal.wUpperLeftX = (WORD)(SHORT)XINPUT_LIGHTGUN_CALIBRATION_UPPERLEFT_X;
+            cal.wUpperLeftY = (WORD)(SHORT)XINPUT_LIGHTGUN_CALIBRATION_UPPERLEFT_Y;
+            DbgPrint("input: gun%d default calibration %s\n", port,
+                     (XInputSetLightgunCalibration(g_pad[port], &cal) == ERROR_SUCCESS)
+                         ? "applied" : "FAILED");
+        }
+    }
+}
+
 static void poll_gamepads(void)
 {
     for (int port = 0; port < INPUT_MAX_PORTS; ++port) {
@@ -114,8 +169,37 @@ static void poll_gamepads(void)
             if (nowDown != prevDown) {
                 DbgPrint("input: pad%d %s %s (val=%u)\n", port, kGamepadAnalog[i],
                          nowDown ? "down" : "up", (unsigned)now);
+
+                // Lightgun: the trigger is the A button, and the aim rides the
+                // left-thumb axes in screen-normalized units. ONSCREEN says
+                // whether the gun saw the display when it sampled (the XDK's
+                // Lightgun sample waits a few frames after the flash before
+                // trusting the position; a monitor sample just reports).
+                if (g_padSubtype[port] == XINPUT_DEVSUBTYPE_GC_LIGHTGUN &&
+                    i == XINPUT_GAMEPAD_A && nowDown) {
+                    if (digital & XINPUT_LIGHTGUN_ONSCREEN) {
+                        DbgPrint("input: gun%d shot at x=%d y=%d\n", port,
+                                 (int)state.Gamepad.sThumbLX, (int)state.Gamepad.sThumbLY);
+                    } else {
+                        DbgPrint("input: gun%d shot off-screen\n", port);
+                    }
+                }
             }
             g_padPrevAnalog[port][i] = now;
+        }
+
+        // Lightgun status-bit transitions (on-screen tracking + video-mode
+        // doubler detection) arrive in the same wButtons word.
+        if (g_padSubtype[port] == XINPUT_DEVSUBTYPE_GC_LIGHTGUN) {
+            if (changed & XINPUT_LIGHTGUN_ONSCREEN) {
+                DbgPrint("input: gun%d %s\n", port,
+                         (digital & XINPUT_LIGHTGUN_ONSCREEN) ? "on-screen" : "off-screen");
+            }
+            if (changed & (XINPUT_LIGHTGUN_FRAME_DOUBLER | XINPUT_LIGHTGUN_LINE_DOUBLER)) {
+                DbgPrint("input: gun%d doublers: frame=%d line=%d\n", port,
+                         (digital & XINPUT_LIGHTGUN_FRAME_DOUBLER) ? 1 : 0,
+                         (digital & XINPUT_LIGHTGUN_LINE_DOUBLER) ? 1 : 0);
+            }
         }
     }
 }
@@ -220,6 +304,7 @@ int main(void)
         process_changes(XDEVICE_TYPE_DEBUG_MOUSE, "mouse", g_mouse, NULL);
         process_changes(XDEVICE_TYPE_DEBUG_KEYBOARD, "keyboard", g_kbd, &kbdPolling);
 
+        probe_gamepads();
         poll_gamepads();
         poll_mice();
         poll_ir();

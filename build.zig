@@ -557,7 +557,7 @@ pub fn build(b: *std.Build) void {
         .entry = "XapiTitleStartup",
         .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
-    const xapi_input_step = b.step("xapi-input", "Build xAPI input device monitor (controller/mouse/IR/keyboard)");
+    const xapi_input_step = b.step("xapi-input", "Build xAPI input device monitor (controller/lightgun/mouse/IR/keyboard)");
     xapi_input_step.dependOn(xapi_input.install);
 
     // D3D8 rotating-triangle sample. C title: reuses the xapi boot/trace helpers,

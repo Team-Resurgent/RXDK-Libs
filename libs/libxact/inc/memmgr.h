@@ -22,5 +22,9 @@ EXTERN_C void XactTrackMemFree(LPVOID pvBuffer);
 EXTERN_C LPVOID XactMemAlloc(ULONG cbBuffer, BOOL fZeroInit);
 EXTERN_C void XactMemFree(LPVOID pvBuffer);
 
+// RXDK 5849 uplift: live pool usage, reported by IXACTEngine_GetRealtimeData
+// (retail keeps the same running total in g_dwXACTEngineMemoryUsage).
+EXTERN_C volatile LONG g_lXactMemoryUsage;
+
 
 #endif // __MEMMGR_H__

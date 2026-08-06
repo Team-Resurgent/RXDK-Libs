@@ -631,3 +631,188 @@ WORD CSoundBank::GetCueCategory(DWORD dwCueIndex)
 
     return pSoundTable[dwSoundIndex].wCategory;
 }
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundBank::SelectVariation"
+
+//
+// RXDK 5849 uplift: recovered from xacteng.lib (docs/5849-xact-api-recovery.md).
+//
+// Retail selects among a cue's sound variations and a sound's wave variations,
+// either explicitly by index or weighted by value. This bank format (the
+// leak's, which our xactbld emits) has no variation tables: a cue names
+// exactly one sound and each track's play event names exactly one wave. Retail
+// handles exactly that case too -- a cue without a variation table accepts
+// index 0 or any value select (there is nothing to change) and rejects a
+// nonzero index -- so this is retail's own no-table path, not a stub.
+//
+HRESULT CSoundBank::SelectVariation(DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELECT_VARIATION pVariation)
+{
+    HRESULT hr = S_OK;
+    DWORD   dwFlags = 0;
+
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+
+#ifdef VALIDATE_PARAMETERS
+
+    if (!IsValidCue(dwSoundCueIndex))
+    {
+        DPF_ERROR("Cue index is not valid for this soundbank");
+    }
+
+#endif // VALIDATE_PARAMETERS
+
+    if (pVariation) {
+        dwFlags = pVariation->dwFlags;
+    }
+
+    if ((dwFlags & XACT_FLAG_SELECT_VARIATION_SOUND_INDEX) && (pVariation->Sound.dwIndex != 0)) {
+        hr = E_INVALIDARG;
+    }
+
+    if ((dwFlags & XACT_FLAG_SELECT_VARIATION_WAVE_INDEX) && (pVariation->Wave.dwIndex != 0)) {
+        hr = E_INVALIDARG;
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+    return hr;
+}
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundBank::GetSoundCueProperties"
+
+//
+// RXDK 5849 uplift: recovered from xacteng.lib (docs/5849-xact-api-recovery.md).
+//
+// Retail reads most of these straight off its 20-byte sound entry; this bank
+// format spreads the same information differently, so each field comes from
+// where the leak format actually keeps it: the sound entry (flags, priority,
+// layer, category, track count), the 3D parameters block, and the tracks'
+// event tables (wave index, loop count, authored volume). What the format
+// does not store stays zero: per-sound pitch and parametric EQ (5849-format
+// sound-entry fields with no leak equivalent) and dwLength (retail computes
+// it from wave data this engine does not index at the bank level).
+//
+HRESULT CSoundBank::GetSoundCueProperties(DWORD dwSoundCueIndex, PXACT_SOUNDCUE_PROPERTIES pSoundCueProperties)
+{
+    HRESULT hr = S_OK;
+    BOOL    fWaveIndexConsistent = TRUE;
+
+    DPF_ENTER();
+    ENTER_EXTERNAL_METHOD();
+
+#ifdef VALIDATE_PARAMETERS
+
+    if (!IsValidCue(dwSoundCueIndex))
+    {
+        DPF_ERROR("Cue index is not valid for this soundbank");
+    }
+
+    if (!pSoundCueProperties)
+    {
+        DPF_ERROR("Failed to specify a properties buffer");
+    }
+
+#endif // VALIDATE_PARAMETERS
+
+    PXACT_SOUNDBANK_CUE_ENTRY   pCueTable   = GetCueTable();
+    PXACT_SOUNDBANK_SOUND_ENTRY pSoundTable = GetSoundTable();
+
+    DWORD dwSoundIndex = pCueTable[dwSoundCueIndex].dwSoundIndex;
+    PXACT_SOUNDBANK_SOUND_ENTRY pSoundEntry = &pSoundTable[dwSoundIndex];
+
+    ZeroMemory(pSoundCueProperties, sizeof(*pSoundCueProperties));
+
+    if (pSoundEntry->dwFlags & XACT_FLAG_SOUND_3D) {
+        pSoundCueProperties->dwFlags |= XACT_FLAG_SOUNDCUE_PROPERTIES_3D;
+    }
+
+    pSoundCueProperties->dwPriority = pSoundEntry->wPriority;
+    pSoundCueProperties->dwLayer = pSoundEntry->wLayer;
+    pSoundCueProperties->dwCategory = (pSoundEntry->wCategory == XACT_SOUNDBANK_CATEGORY_UNUSED)
+                                    ? 255 : pSoundEntry->wCategory;
+    pSoundCueProperties->dwTrackCount = pSoundEntry->wTrackCount;
+    pSoundCueProperties->dwSoundIndex = dwSoundIndex;
+    pSoundCueProperties->dwWaveIndex = XACT_WAVE_INDEX_UNUSED;
+
+    //
+    // Walk each track's event table: the wave index (kept only while every
+    // play event agrees, which is also retail's rule), the highest loop
+    // count, and the authored volume.
+    //
+
+    for (DWORD i = 0; i < pSoundEntry->wTrackCount; i++) {
+
+        PXACT_SOUNDBANK_TRACK_ENTRY pTrackEntry = (PXACT_SOUNDBANK_TRACK_ENTRY)
+            (GetBaseDataOffset() + pSoundEntry->dwTrackTableOffset + sizeof(XACT_SOUNDBANK_TRACK_ENTRY) * i);
+
+        PUCHAR pbEvent = GetBaseDataOffset() + pTrackEntry->dwEventDataOffset;
+
+        for (WORD wEvent = 0; wEvent < pTrackEntry->wEventEntryCount; wEvent++) {
+
+            PXACT_TRACK_EVENT pEvent = (PXACT_TRACK_EVENT)pbEvent;
+
+            switch (pEvent->Header.wType) {
+
+                case eXACTEvent_Play:
+                case eXACTEvent_PlayWithPitchAndVolumeVariation:
+                {
+                    WORD wWaveIndex = pEvent->EventData.Play.PlayDesc.WaveSource.wWaveIndex;
+
+                    if (fWaveIndexConsistent) {
+                        if (pSoundCueProperties->dwWaveIndex == XACT_WAVE_INDEX_UNUSED) {
+                            pSoundCueProperties->dwWaveIndex = wWaveIndex;
+                        } else if (pSoundCueProperties->dwWaveIndex != wWaveIndex) {
+                            pSoundCueProperties->dwWaveIndex = XACT_WAVE_INDEX_UNUSED;
+                            fWaveIndexConsistent = FALSE;
+                        }
+                    }
+                    break;
+                }
+
+                case eXACTEvent_SetVolume:
+                    pSoundCueProperties->lVolume = pEvent->EventData.SetVolume.sVolume;
+                    break;
+
+                case eXACTEvent_LoopStart:
+                    if (pEvent->EventData.LoopStart.wLoopCount > pSoundCueProperties->dwLoopCount) {
+                        pSoundCueProperties->dwLoopCount = pEvent->EventData.LoopStart.wLoopCount;
+                    }
+                    break;
+            }
+
+            pbEvent += sizeof(XACT_TRACK_EVENT_HEADER) + pEvent->Header.wSize;
+        }
+    }
+
+    //
+    // 3D properties come from the sound's 3D parameters block
+    //
+
+    if (pSoundEntry->dw3DParametersOffset != (DWORD)-1) {
+
+        PXACT_SOUNDBANK_SOUND_3D_PARAMETERS pParams = (PXACT_SOUNDBANK_SOUND_3D_PARAMETERS)
+            (GetBaseDataOffset() + pSoundEntry->dw3DParametersOffset);
+
+        pSoundCueProperties->dwInsideConeAngle = pParams->dwInsideConeAngle;
+        pSoundCueProperties->dwOutsideConeAngle = pParams->dwOutsideConeAngle;
+        pSoundCueProperties->lConeOutsideVolume = pParams->lConeOutsideVolume;
+        pSoundCueProperties->dwMode = pParams->dwMode;
+        pSoundCueProperties->flMinDistance = pParams->flMinDistance;
+        pSoundCueProperties->flMaxDistance = pParams->flMaxDistance;
+        pSoundCueProperties->flDistanceFactor = pParams->flDistanceFactor;
+        pSoundCueProperties->flRolloffFactor = pParams->flRolloffFactor;
+        pSoundCueProperties->flDopplerFactor = pParams->flDopplerFactor;
+
+        // The format's one extra 3D volume pair is the send onto the 3D
+        // destination's remaining mixbin; report it only when that is the
+        // I3DL2 (reverb) bin, which is what the properties field means.
+        if (pParams->aVolumePair.dwMixBin == DSMIXBIN_I3DL2) {
+            pSoundCueProperties->lI3DL2Volume = pParams->aVolumePair.lVolume;
+        }
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+    return hr;
+}

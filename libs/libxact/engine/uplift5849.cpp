@@ -49,6 +49,79 @@ HRESULT STDMETHODCALLTYPE CEngine::SetListenerOrientation(FLOAT xFront, FLOAT yF
     return SetListenerParameters(&m_ds3dListener, NULL, dwApply);
 }
 
+//
+// RXDK 5849 uplift: the three remaining CEngine APIs, recovered from
+// xacteng.lib (docs/5849-xact-api-recovery.md).
+//
+// EnableHeadphones and SetI3dl2Listener are forwarders in retail too --
+// EnableHeadphones onto IDirectSound_EnableHeadphones, SetI3dl2Listener onto
+// IDirectSound_SetI3DL2Listener (retail routes the latter through a static
+// CSoundSource helper that also caches the parameters for its own 3D math;
+// this port's 3D math lives in libdsound, so the forward is the whole job --
+// and SetListenerParameters is already that forward).
+//
+
+HRESULT STDMETHODCALLTYPE CEngine::EnableHeadphones(BOOL fEnabled)
+{
+    ENTER_EXTERNAL_METHOD();
+    return m_pDirectSound->EnableHeadphones(fEnabled);
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::SetI3dl2Listener(LPCDSI3DL2LISTENER pds3dl, DWORD dwApply)
+{
+    return SetListenerParameters(NULL, pds3dl, dwApply);
+}
+
+//
+// Retail: IDirectSound_GetCaps into DSoundCaps, IDirectSound_GetOutputLevels
+// into OutputLevels (without resetting the peaks), bail on the first failure,
+// then the engine's availability counters and the running allocation total.
+//
+
+static BYTE CountListEntries(const LIST_ENTRY *pList)
+{
+    DWORD dwCount = 0;
+
+    for (const LIST_ENTRY *pEntry = pList->Flink; pEntry != pList; pEntry = pEntry->Flink) {
+        if (++dwCount == 255) {
+            break;
+        }
+    }
+
+    return (BYTE)dwCount;
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::GetRealtimeData(PXACT_REALTIME_AUDIO_DATA pData)
+{
+    HRESULT hr;
+
+    ENTER_EXTERNAL_METHOD();
+
+    if (!pData) {
+        return E_INVALIDARG;
+    }
+
+    hr = m_pDirectSound->GetCaps(&pData->DSoundCaps);
+
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    hr = m_pDirectSound->GetOutputLevels(&pData->OutputLevels, FALSE);
+
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    pData->dwXactMemoryUsage = (DWORD)g_lXactMemoryUsage;
+    pData->bXactAvailable2DBuffers = CountListEntries(&m_lstAvailable2DBuffers);
+    pData->bXactAvailable2DStreams = CountListEntries(&m_lstAvailableStreams);
+    pData->bXactAvailable3DBuffers = CountListEntries(&m_lstAvailable3DBuffers);
+    pData->bReserved = 0;
+
+    return hr;
+}
+
 HRESULT STDMETHODCALLTYPE CEngine::SetVariable(DWORD dwVariable, WORD wValue)
 {
     if (dwVariable >= (sizeof(m_aVariables) / sizeof(m_aVariables[0])))
@@ -106,6 +179,31 @@ STDAPI IXACTEngine_SetListenerOrientation(PXACTENGINE pEngine, FLOAT xFront, FLO
                                           FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply)
 {
     return ((CEngine *)pEngine)->SetListenerOrientation(xFront, yFront, zFront, xTop, yTop, zTop, dwApply);
+}
+
+STDAPI IXACTEngine_EnableHeadphones(PXACTENGINE pEngine, BOOL fEnabled)
+{
+    return ((CEngine *)pEngine)->EnableHeadphones(fEnabled);
+}
+
+STDAPI IXACTEngine_SetI3dl2Listener(PXACTENGINE pEngine, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply)
+{
+    return ((CEngine *)pEngine)->SetI3dl2Listener(pds3dl, dwApply);
+}
+
+STDAPI IXACTEngine_GetRealtimeData(PXACTENGINE pEngine, XACT_REALTIME_AUDIO_DATA *pData)
+{
+    return ((CEngine *)pEngine)->GetRealtimeData(pData);
+}
+
+STDAPI IXACTSoundBank_SelectVariation(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELECT_VARIATION pVariation)
+{
+    return ((CSoundBank *)pBank)->SelectVariation(dwSoundCueIndex, pVariation);
+}
+
+STDAPI IXACTSoundBank_GetSoundCueProperties(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, PXACT_SOUNDCUE_PROPERTIES pSoundCueProperties)
+{
+    return ((CSoundBank *)pBank)->GetSoundCueProperties(dwSoundCueIndex, pSoundCueProperties);
 }
 
 // ---- 5849 DSP image download (renamed LoadDspImage + returns the image desc) -----------------

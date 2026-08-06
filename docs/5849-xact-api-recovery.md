@@ -159,14 +159,78 @@ instead of `VOLUME7_B7_4` (`(VOLB >> 16) & 0xF`) — contradicting its own
 register layout and its own setter. That is a retail bug, not a hidden layout;
 our implementation extracts the field the setter actually writes.
 
-## Implemented so far
+### `CEngine::EnableHeadphones(BOOL)`
+
+XACT lock, then `IDirectSound_EnableHeadphones(engine->pDirectSound /*+0x10*/,
+fEnabled)`. The −8 `this` adjustment lives only in the entry-point thunk (the
+public `PXACTENGINE` points 8 bytes into retail's `CEngine`); every
+`IXACTEngine_` entry does it, null-preserving. Our objects are their own
+interface pointers, so the port's entry points cast directly.
+
+### `CEngine::SetI3dl2Listener(const DSI3DL2LISTENER*, DWORD dwApply)`
+
+Forwards to a **static** `CSoundSource::SetI3DL2Listener`, which copies the 12
+dwords into a static `DS3DCALCI3DL2LISTENER` cache (dirty word |= 0xFFF), calls
+`IDirectSound_SetI3DL2Listener(pDSound, pds3dl, dwApply)`, and — if immediate —
+XACT's own static `CommitDeferredSettings`. The cache and commit feed retail
+XACT's private 3D pipeline; our 3D pipeline is libdsound's, so the forward is
+the entire recoverable behaviour (and the port's `SetListenerParameters` was
+already exactly that forward).
+
+### `CEngine::GetRealtimeData(XACT_REALTIME_AUDIO_DATA*)`
+
+`IDirectSound_GetCaps` into `.DSoundCaps` (+0x40), bail on failure;
+`IDirectSound_GetOutputLevels(pDSound, pData /* OutputLevels at +0 */, FALSE)`,
+bail on failure; then `dwXactMemoryUsage = g_dwXACTEngineMemoryUsage` and the
+three availability BYTEs from the engine — **another non-sequential trap**:
+`b2DBuffers ← engine+0x80`, `b2DStreams ← engine+0x88`, `b3DBuffers ←
+engine+0x84`. The port counts its `m_lstAvailable{2DBuffers,Streams,3DBuffers}`
+lists and keeps a live `g_lXactMemoryUsage` in the allocator
+(`ExQueryPoolBlockSize` makes free-side accounting possible).
+
+### `CSoundBank::SelectVariation(DWORD, const XACT_SOUNDBANK_SELECT_VARIATION*)`
+
+Retail walks its 5849-format variation tables: cue flag bit 3 → `E_INVALIDARG`;
+`SOUND_VALUE` → weighted `SelectCueVariation(cue, flValue)` + an
+"explicitly selected" bit; `SOUND_INDEX` → bounds-check against the table's
+count (low 13 bits of its header dword), then write the current-index bits
+(17:29, tagged 0x2000) and the cue's resolved sound word; NULL variation →
+value-select with 1.0; then the same per-wave over the chosen sound's tracks;
+sound still unresolved at the end → `E_FAIL`. **A cue with no variation table
+accepts index 0 or any value select and rejects a nonzero index** — and since
+the leak bank format (which our xactbld emits) has no variation tables at all
+(one sound per cue, one wave per play event), that no-table path IS the port's
+whole implementation, not a stub.
+
+### `CSoundBank::GetSoundCueProperties(DWORD, XACT_SOUNDCUE_PROPERTIES*)`
+
+Retail reads most fields off its 20-byte 5849-format sound entry: priority /
+layer / category / track-count bytes; `lVolume = -((w4 & 0x1FF) << 4)`,
+`lLFEVolume = -(((w4 >> 9) & 0x7F) * 50)`, `lI3DL2Volume = -(b0xF << 8)`
+(volume, LFE and I3DL2 sends bit-packed into the entry); pitch and parametric
+EQ words; the 3D block via a 40-byte-entry table; wave index from the sound's
+wave-variation table or, flag-dependent, a per-track walk that keeps the wave
+index only while every track agrees (else `XACT_WAVE_INDEX_UNUSED`), takes the
+max loop count, and computes `dwLength` via `GetTrackLength` /
+`GetDirectPlayLength`. The leak format keeps the same information elsewhere,
+so the port fills each field from where it actually lives: sound entry,
+3D-parameters block (incl. the extra volume pair as `lI3DL2Volume` when it
+names the I3DL2 mixbin), and a raw walk of each track's event table
+(Play/PlayWithPitchAndVolumeVariation → wave index with retail's consistency
+rule, LoopStart → max loop count, SetVolume → authored volume). Not carried by
+the leak format and left zero: per-sound pitch, parametric EQ, `dwLength`.
+
+### `CSoundSource::SetMode` — implemented via libdsound
+
+The recovered deferred-settings pattern above exists because retail XACT does
+its own 3D math and pushes it on commit. In this port libdsound owns that
+pipeline and its `SetMode` already honors `dwApply`, so the buffer-then-stream
+forward is the equivalent implementation.
+
+## Implemented — all ten
 
 `SetPitch`, `GetStatus`, `SetFilter`, `GetProperties` (with
 `IDirectSound{Buffer,Stream}_GetVoiceProperties` recovered into libdsound to
-support it) — see the libxact and libdsound commits.
-
-## Still to read
-
-`SelectVariation`, `GetSoundCueProperties`, `GetRealtimeData`,
-`SetI3dl2Listener`, and the `CEngine` side of `EnableHeadphones` (whose entry
-point needs the −8 `this` adjustment above).
+support it), `SetMode`, `EnableHeadphones`, `SetI3dl2Listener`,
+`GetRealtimeData`, `SelectVariation`, `GetSoundCueProperties` — see the libxact
+and libdsound commits.

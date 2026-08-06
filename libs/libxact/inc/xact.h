@@ -134,6 +134,87 @@ typedef struct _XACT_SOUNDSOURCE_PROPERTIES {
     DSVOICEPROPS    HwVoiceProperties;
 } XACT_SOUNDSOURCE_PROPERTIES, *PXACT_SOUNDSOURCE_PROPERTIES;
 
+// 5849: IXACTSoundBank_SelectVariation data (mirrored from the public xact.h).
+
+#define XACT_FLAG_SELECT_VARIATION_SOUND_INDEX  0x00000001
+#define XACT_FLAG_SELECT_VARIATION_SOUND_VALUE  0x00000002
+#define XACT_FLAG_SELECT_VARIATION_SOUND_FLAGS  (XACT_FLAG_SELECT_VARIATION_SOUND_INDEX | XACT_FLAG_SELECT_VARIATION_SOUND_VALUE)
+#define XACT_FLAG_SELECT_VARIATION_WAVE_INDEX   0x00000004
+#define XACT_FLAG_SELECT_VARIATION_WAVE_VALUE   0x00000008
+#define XACT_FLAG_SELECT_VARIATION_WAVE_FLAGS   (XACT_FLAG_SELECT_VARIATION_WAVE_INDEX | XACT_FLAG_SELECT_VARIATION_WAVE_VALUE)
+#define XACT_FLAG_SELECT_VARIATION_FLAGS        (XACT_FLAG_SELECT_VARIATION_SOUND_FLAGS | XACT_FLAG_SELECT_VARIATION_WAVE_FLAGS)
+
+typedef struct _XACT_SOUNDBANK_SELECT_VARIATION
+{
+    DWORD   dwFlags;
+
+    union
+    {
+        DWORD   dwIndex;
+        FLOAT   flValue;
+    } Sound;
+
+    union
+    {
+        DWORD   dwIndex;
+        FLOAT   flValue;
+    } Wave;
+} XACT_SOUNDBANK_SELECT_VARIATION, *PXACT_SOUNDBANK_SELECT_VARIATION;
+
+typedef const XACT_SOUNDBANK_SELECT_VARIATION *PCXACT_SOUNDBANK_SELECT_VARIATION;
+
+// 5849: IXACTSoundBank_GetSoundCueProperties (mirrored from the public xact.h).
+
+#define XACT_WAVE_INDEX_UNUSED  0xFFFF
+
+#define XACT_FLAG_SOUNDCUE_PROPERTIES_3D    0x00000001
+#define XACT_FLAG_SOUNDCUE_PROPERTIES_FLAGS (XACT_FLAG_SOUNDCUE_PROPERTIES_3D)
+
+typedef struct _XACT_SOUNDCUE_PROPERTIES
+{
+    DWORD   dwFlags;            // Flags
+    DWORD   dwPriority;         // Priority
+    LONG    lVolume;            // Sound volume (dB * 100)
+    LONG    lPitch;             // Pitch (semitone * 4096 / 12)
+    DWORD   dwLayer;            // Layer
+    DWORD   dwCategory;         // Category (0-based, or 255 if sound has no category)
+    LONG    lParametricEQGain;  // Parametric EQ gain [-8192, 32767]
+    DWORD   dwParametricEQQ;    // Parametric EQ Q [0, 4]
+    DWORD   dwParametricEQFc;   // Parametric EQ frequency
+    DWORD   dwLoopCount;        // Loop count (highest loop count of all tracks)
+    DWORD   dwTrackCount;       // Number of tracks
+    DWORD   dwSoundIndex;       // Sound index
+    DWORD   dwWaveIndex;        // Wave index
+    DWORD   dwLength;           // Length in ms
+
+    // 3D properties
+
+    LONG    lI3DL2Volume;       // I3DL2 volume send (dB * 100)
+    LONG    lLFEVolume;         // LFE volume send (dB * 100)
+    DWORD   dwInsideConeAngle;  // Buffer inside cone angle
+    DWORD   dwOutsideConeAngle; // Buffer outside cone angle
+    LONG    lConeOutsideVolume; // Volume outside the cone
+    DWORD   dwMode;             // 3D processing mode
+    FLOAT   flMinDistance;      // Minimum distance value
+    FLOAT   flMaxDistance;      // Maximum distance value
+    FLOAT   flDistanceFactor;   // Distance factor
+    FLOAT   flRolloffFactor;    // Rolloff factor
+    FLOAT   flDopplerFactor;    // Doppler factor
+} XACT_SOUNDCUE_PROPERTIES, *PXACT_SOUNDCUE_PROPERTIES;
+
+// 5849: IXACTEngine_GetRealtimeData (mirrored from the public xact.h).
+
+typedef struct _XACT_REALTIME_AUDIO_DATA
+{
+    DSOUTPUTLEVELS  OutputLevels;
+    DSCAPS          DSoundCaps;
+    DWORD           dwXactMemoryUsage;
+    BYTE            bXactAvailable2DBuffers;
+    BYTE            bXactAvailable2DStreams;
+    BYTE            bXactAvailable3DBuffers;
+    BYTE            bReserved;
+} XACT_REALTIME_AUDIO_DATA, *PXACT_REALTIME_AUDIO_DATA;
+
 //
 // constants
 //

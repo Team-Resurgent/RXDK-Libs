@@ -203,6 +203,11 @@ public:
     HRESULT STDMETHODCALLTYPE SetListenerOrientation(FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetVariable(DWORD dwVariable, WORD wValue);
     HRESULT STDMETHODCALLTYPE GetVariable(DWORD dwVariable, PWORD pwValue);
+
+    // RXDK 5849 uplift: recovered from xacteng.lib -- see docs/5849-xact-api-recovery.md.
+    HRESULT STDMETHODCALLTYPE EnableHeadphones(BOOL fEnabled);
+    HRESULT STDMETHODCALLTYPE SetI3dl2Listener(LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
+    HRESULT STDMETHODCALLTYPE GetRealtimeData(PXACT_REALTIME_AUDIO_DATA pData);
     // RXDK 5849 uplift: 5849 renamed LoadDspImage to DownloadEffectsImage and returns the
     // downloaded image description (the leak stored it privately).
     HRESULT STDMETHODCALLTYPE DownloadEffectsImage(PVOID pvData, DWORD dwSize, LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc);
@@ -415,6 +420,10 @@ public:
     HRESULT STDMETHODCALLTYPE GetSoundCueIndexFromFriendlyName(LPCSTR lpFriendlyName, PDWORD pdwCueIndex);
     HRESULT STDMETHODCALLTYPE Play( DWORD dwCueIndex, PXACTSOUNDSOURCE pSoundSource, DWORD dwFlags, PXACTSOUNDCUE *ppCue);
     HRESULT STDMETHODCALLTYPE Stop( DWORD dwCueIndex, DWORD dwFlags, PXACTSOUNDCUE pCue);
+
+    // RXDK 5849 uplift: recovered from xacteng.lib -- see docs/5849-xact-api-recovery.md.
+    HRESULT STDMETHODCALLTYPE SelectVariation(DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELECT_VARIATION pVariation);
+    HRESULT STDMETHODCALLTYPE GetSoundCueProperties(DWORD dwSoundCueIndex, PXACT_SOUNDCUE_PROPERTIES pSoundCueProperties);
 
     //
     // non exported
@@ -840,6 +849,27 @@ public:
         if (wPriority > m_wHighestCuePriority) {
             m_wHighestCuePriority = wPriority;
         }
+    }
+
+    //
+    // Retail's SetMode goes through XACT's own deferred-settings engine (mark a
+    // dirty bit, store the mode, let CommitDeferredSettings push it -- see
+    // docs/5849-xact-api-recovery.md). That engine exists because retail XACT
+    // does its own 3D math; in this port the 3D pipeline lives in libdsound,
+    // whose SetMode already honors dwApply's immediate/deferred split, so the
+    // buffer-then-stream forward IS the deferred-settings path here.
+    //
+    HRESULT SetMode(DWORD dwMode, DWORD dwApply)
+    {
+        if (m_HwVoice.pBuffer) {
+            return m_HwVoice.pBuffer->SetMode(dwMode, dwApply);
+        }
+
+        if (m_HwVoice.pStream) {
+            return m_HwVoice.pStream->SetMode(dwMode, dwApply);
+        }
+
+        return S_FALSE;
     }
 
     BOOL IsPlaying()

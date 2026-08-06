@@ -244,6 +244,12 @@ STDAPI IXACTSoundSource_SetFilter(PXACTSOUNDSOURCE pSoundSource, LPCDSFILTERDESC
     return ((CSoundSource *)pSoundSource)->SetFilter(pFilterDesc);
 }
 
+STDAPI IXACTSoundSource_SetMode(PXACTSOUNDSOURCE pSoundSource, DWORD dwMode, DWORD dwApply)
+{
+    using namespace XACT;
+    return ((CSoundSource *)pSoundSource)->SetMode(dwMode, dwApply);
+}
+
 STDAPI IXACTSoundSource_GetStatus(PXACTSOUNDSOURCE pSoundSource, PDWORD pdwStatus)
 {
     using namespace XACT;

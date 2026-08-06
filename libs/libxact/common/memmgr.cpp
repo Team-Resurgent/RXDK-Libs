@@ -53,7 +53,12 @@ LIST_ENTRY g_lstMemoryTracking;
 #undef DPF_FNAME
 #define DPF_FNAME "XactMemAlloc"
 
-LPVOID 
+// RXDK 5849 uplift: what GetRealtimeData reports. The pool block size is what
+// the allocation actually consumes, and it is recoverable at free time where
+// the requested size is not.
+EXTERN_C volatile LONG g_lXactMemoryUsage = 0;
+
+LPVOID
 XactMemAlloc
 (
     ULONG                   cbBuffer,
@@ -66,6 +71,11 @@ XactMemAlloc
     ASSERT(cbBuffer);
 
     pvBuffer = ExAllocatePoolWithTag(cbBuffer,'tcax');
+
+    if (pvBuffer) {
+        InterlockedExchangeAdd((volatile LONG *)&g_lXactMemoryUsage, (LONG)ExQueryPoolBlockSize(pvBuffer));
+    }
+
     memset(pvBuffer,0,cbBuffer);
 
     return pvBuffer;
@@ -89,14 +99,15 @@ XactMemAlloc
 #undef DPF_FNAME
 #define DPF_FNAME "XactMemFree"
 
-void 
+void
 XactMemFree
 (
     LPVOID                  pvBuffer
 )
 {
     using namespace XACT;
-    ASSERT(pvBuffer);	
+    ASSERT(pvBuffer);
+    InterlockedExchangeAdd((volatile LONG *)&g_lXactMemoryUsage, -(LONG)ExQueryPoolBlockSize(pvBuffer));
 	ExFreePool(pvBuffer);
 }
 

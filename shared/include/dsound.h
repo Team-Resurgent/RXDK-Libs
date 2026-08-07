@@ -723,7 +723,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBVOLUME_MIN               -10000          // Maximum valid attenuation value
 #define DSBVOLUME_MAX               0               // Minimum valid attenuation value
-#define DSBVOLUME_HW_MIN            -10000          // Minimum hardware-mix attenuation (full)
+#define DSBVOLUME_HW_MIN            -6400           // Minimum volume supported by Xbox hardware (5849; distinct from the software DSBVOLUME_MIN of -10000)
 #define DSBVOLUME_HW_MAX            0               // Maximum hardware-mix attenuation (none)
 
 //
@@ -1194,23 +1194,23 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 //
 
 #define DSEG_DELAY_MIN              0
-#define DSEG_DELAY_MAX              8191
+#define DSEG_DELAY_MAX              4095
 #define DSEG_DELAY_DEFAULT          0
 
 #define DSEG_ATTACK_MIN             0
-#define DSEG_ATTACK_MAX             8191
+#define DSEG_ATTACK_MAX             4095
 #define DSEG_ATTACK_DEFAULT         0
 
 #define DSEG_HOLD_MIN               0
-#define DSEG_HOLD_MAX               8191
+#define DSEG_HOLD_MAX               4095
 #define DSEG_HOLD_DEFAULT           0
 
 #define DSEG_DECAY_MIN              0
-#define DSEG_DECAY_MAX              8191
+#define DSEG_DECAY_MAX              4095
 #define DSEG_DECAY_DEFAULT          0
 
 #define DSEG_RELEASE_MIN            0
-#define DSEG_RELEASE_MAX            8191
+#define DSEG_RELEASE_MAX            4095
 #define DSEG_RELEASE_DEFAULT        0
 
 #define DSEG_SUSTAIN_MIN            0

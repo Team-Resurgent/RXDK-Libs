@@ -380,6 +380,41 @@ Fixed by anchoring guard detection to the *first* directive in the file. Every
 measurement tool in this suite has been wrong on its first run; the first number
 always deserves the same suspicion as the code.
 
+### Defined, but with the WRONG value
+
+A second pass (`reduce_int`) compares the *values* of constants defined on both
+sides — a constant we define wrongly is worse than one we omit, because it
+compiles and misbehaves. It only compares what reduces to an integer without
+expanding any identifier or macro call, so it reports real numeric disagreements
+and stays silent where it cannot be certain. It found **12**, every one our port
+faithfully copying a *leak* value that 5849 later changed. **Ten adopted to 5849,
+two kept as intentional divergences:**
+
+- `DSBVOLUME_HW_MIN` −10000 → **−6400**: we had conflated the hardware floor with
+  the software `DSBVOLUME_MIN` (−10000); 5849 documents −6400. Not library-used;
+  the fix also corrects the `DSSTREAMVOLUME_HW_MIN` that aliases it.
+- `DSEG_{ATTACK,DECAY,DELAY,HOLD,RELEASE}_MAX` 8191 → **4095** (public + private
+  headers): libdsound validates envelope descriptors against these by name, but
+  that validation is debug-only (`DPF_ERROR` is a release no-op) and 4095 ⊂ 8191,
+  so adopting the 5849 clamp is purely safe.
+- `XNET_QOS_LISTEN_{ENABLE,DISABLE,SET_DATA,SET_BITSPERSEC}` 0/1/2/4 → **1/2/4/8**:
+  a real bug fixed. libxnet tests these as bit flags (`dwFlags & …`), so the
+  leak's `ENABLE = 0x00` was a dead test that never fired, and the leak numbering
+  put a 5849 title's `SET_BITSPERSEC` (0x08) outside the validation mask, getting
+  it rejected. libxnet uses the names, so the renumber propagates cleanly.
+- `WAVEBANKHEADER_VERSION` (2 vs 1) and `WAVEBANKHEADER_BANKNAME_LENGTH` (16 vs
+  64) — **kept.** Our on-disk wave-bank format is the leak *trunk's* version 2;
+  xactbld emits it, `wavebank.cpp` rejects any other version, and the header's
+  name-field length is part of that struct. It is a closed tool↔engine contract,
+  not a title-facing ABI (titles never parse `.xwb` at runtime), so matching 5849
+  would reformat our banks for no caller's benefit. Recorded in the tool's
+  `KNOWN_VALUE_DIVERGENCE`, so the pass stays at zero without hiding the fact.
+
+The rule the pass encodes: when our value is faithful to the leak and 5849
+changed it, 5849 wins — that *is* the uplift — but only after confirming the
+library reads the constant by name (so a header edit plus a rebuild stays
+consistent) and nothing in the build regresses.
+
 ## Missing public APIs, not just missing constants
 
 `tools/api_gap_audit.py` asks the harder question: not "does this symbol have a

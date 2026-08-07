@@ -29,6 +29,7 @@ separately, below the real total, not folded into it.
     python tools/const_sweep.py
 """
 
+import ast
 import glob
 import os
 import re
@@ -59,6 +60,20 @@ PLATFORM_HEADERS = {
     'winerror.h', 'windows.h', 'wincon.h', 'winver.h', 'winsvc.h', 'imagehlp.h',
 }
 
+# Value differences that are INTENTIONALLY ours, verified individually -- our
+# value is deliberate, not a bug, so the value pass must not flag them. Keyed by
+# (header, macro).
+KNOWN_VALUE_DIVERGENCE = {
+    # Our on-disk wave-bank format is the leak TRUNK's version 2 (the Mar-02
+    # snapshot and 5849 shipped version 1); xactbld emits it and libxact's
+    # wavebank.cpp rejects any other version, and the header's szBankName field
+    # length is part of that struct layout. It is a closed tool<->engine contract,
+    # not a title-facing ABI (titles never parse .xwb at runtime), so matching
+    # 5849 here would mean reformatting our banks for no caller's benefit.
+    ('wavbndlr.h', 'WAVEBANKHEADER_VERSION'),
+    ('wavbndlr.h', 'WAVEBANKHEADER_BANKNAME_LENGTH'),
+}
+
 # Names the sweep would flag that are NOT real gaps -- verified individually, so
 # they do not reappear as noise every run. Keep the reason with each.
 KNOWN_NON_GAPS = {
@@ -73,17 +88,17 @@ KNOWN_NON_GAPS = {
 
 
 def macros(path):
-    """Object-like macro names defined in a header (guards and function-like
-    macros excluded)."""
+    """Object-like macros of a header as {name: replacement-text} (guards and
+    function-like macros excluded)."""
     try:
         text = open(path, encoding='utf-8', errors='replace').read()
     except OSError:
-        return set()
+        return {}
     # Strip block and line comments so a commented-out #define does not count.
     text = re.sub(r'/\*.*?\*/', ' ', text, flags=re.S)
     text = re.sub(r'//[^\n]*', '', text)
 
-    out = set()
+    out = {}
     guard = _guard_name(text)
     for m in re.finditer(r'(?m)^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)(.?)', text):
         name, nextch = m.group(1), m.group(2)
@@ -96,7 +111,7 @@ def macros(path):
         rest = _rest_of_define(text, m.end() - 1)
         if not rest.strip():
             continue
-        out.add(name)
+        out[name] = rest.strip()
     return out
 
 
@@ -141,14 +156,86 @@ def _rest_of_define(text, pos):
 def our_macros_union():
     names = set()
     for p in glob.glob(os.path.join(OUR_INC, '**', '*.h'), recursive=True):
-        names |= macros(p)
+        names |= set(macros(p))
     return names
+
+
+# --- value reduction, for the "defined but WRONG" pass ---------------------------
+#
+# A constant we define with the wrong value is worse than one we omit: it compiles
+# and misbehaves. But comparing replacement TEXT is hopeless (`0x0004` vs `4`,
+# `((USHORT)2)` vs `2`, whitespace), and comparing evaluated values needs a
+# preprocessor. The precise-but-partial answer: reduce only what reduces to an
+# integer WITHOUT expanding any identifier or macro call, and compare those. A
+# value that still contains a name (`DSBCAPS_MUTE3DATMAXDISTANCE`, `XBDM_HRESERR(23)`)
+# is skipped, not guessed -- so this reports real numeric disagreements and stays
+# silent where it cannot be sure. Recall is sacrificed for zero false positives.
+
+_CAST = re.compile(
+    r'\(\s*(?:unsigned\s+|signed\s+|const\s+)*'
+    r'(?:int|long|short|char|USHORT|UINT|DWORD|ULONG|LONG|WORD|BYTE|INT|SHORT|'
+    r'UCHAR|ULONGLONG|LONGLONG|size_t|SIZE_T|DWORD_PTR)\s*\)', re.I)
+
+
+def reduce_int(text):
+    """The integer a replacement text denotes, or None if it is not a pure
+    numeric/bitwise expression (any identifier, float, comma, or / % → None)."""
+    t = text.strip().replace('\\', ' ')
+    if not t or ',' in t:
+        return None                      # initializer list, not a scalar
+    if re.search(r'\.\d|\d\.|\bf\b|\d[fF]\b', t):
+        return None                      # float
+    prev = None
+    while prev != t:                     # peel nested casts
+        prev, t = t, _CAST.sub('', t)
+    t = re.sub(r'\b(0[xX][0-9a-fA-F]+|\d+)[uUlL]+\b', r'\1', t)  # drop U/L suffix
+    if '/' in t or '%' in t:
+        return None                      # avoid C-vs-Python division semantics
+    if not re.fullmatch(r'[0-9a-fA-FxX+\-*<>|&^~() \t]*', t):
+        return None                      # a leftover identifier -- cannot be sure
+    try:
+        return _safe_eval(ast.parse(t.strip(), mode='eval').body)
+    except (SyntaxError, ValueError, TypeError):
+        return None
+
+
+def _safe_eval(node):
+    import ast as _ast
+    if isinstance(node, _ast.Constant) and isinstance(node.value, int):
+        return node.value
+    if isinstance(node, _ast.Num) and isinstance(node.n, int):  # <3.8
+        return node.n
+    if isinstance(node, _ast.UnaryOp) and isinstance(node.op, (_ast.USub, _ast.UAdd, _ast.Invert)):
+        v = _safe_eval(node.operand)
+        return {_ast.USub: -v, _ast.UAdd: v, _ast.Invert: ~v}[type(node.op)]
+    if isinstance(node, _ast.BinOp):
+        a, b = _safe_eval(node.left), _safe_eval(node.right)
+        ops = {_ast.Add: a + b, _ast.Sub: a - b, _ast.Mult: a * b,
+               _ast.LShift: a << b if 0 <= b < 64 else None,
+               _ast.RShift: a >> b if 0 <= b < 64 else None,
+               _ast.BitOr: a | b, _ast.BitAnd: a & b, _ast.BitXor: a ^ b}
+        if type(node.op) in ops:
+            return ops[type(node.op)]
+    raise ValueError('unsupported')
+
+
+def our_value_map():
+    """{name: reduced-int} across our headers, for names that reduce cleanly."""
+    vals = {}
+    for p in glob.glob(os.path.join(OUR_INC, '**', '*.h'), recursive=True):
+        for n, raw in macros(p).items():
+            r = reduce_int(raw)
+            if r is not None:
+                vals.setdefault(n, r)
+    return vals
 
 
 def main():
     ours = our_macros_union()
+    our_vals = our_value_map()
 
     real_rows, crt_rows, platform_rows = [], [], []
+    mismatches = []   # (header, name, ours, theirs) -- defined-but-wrong
     for hp in sorted(glob.glob(os.path.join(XDK_INC, '**', '*.h'), recursive=True)):
         rel = os.path.relpath(hp, XDK_INC).replace('\\', '/')
         name = os.path.basename(hp)
@@ -156,19 +243,33 @@ def main():
         our_h = _find_ours(name)
         if not our_h:
             continue
+        low = name.lower()
+        ours_by_choice = (low in CRT_HEADERS or rel.lower() in CRT_HEADERS
+                          or low in PLATFORM_HEADERS)
+
         defined = macros(hp)
         missing = sorted(n for n in defined
                          if n not in ours and n not in KNOWN_NON_GAPS)
-        if not missing:
-            continue
-        row = (name, len(defined), missing)
-        low = name.lower()
-        if low in CRT_HEADERS or rel.lower() in CRT_HEADERS:
-            crt_rows.append(row)
-        elif low in PLATFORM_HEADERS:
-            platform_rows.append(row)
-        else:
-            real_rows.append(row)
+        if missing:
+            row = (name, len(defined), missing)
+            if low in CRT_HEADERS or rel.lower() in CRT_HEADERS:
+                crt_rows.append(row)
+            elif low in PLATFORM_HEADERS:
+                platform_rows.append(row)
+            else:
+                real_rows.append(row)
+
+        # Value-mismatch pass: only the Xbox-SDK headers, only names that reduce
+        # to an integer on BOTH sides (see reduce_int).
+        if not ours_by_choice:
+            for n, raw in defined.items():
+                if n in KNOWN_NON_GAPS or n not in our_vals:
+                    continue
+                if (name, n) in KNOWN_VALUE_DIVERGENCE:
+                    continue
+                theirs = reduce_int(raw)
+                if theirs is not None and theirs != our_vals[n]:
+                    mismatches.append((name, n, our_vals[n], theirs))
 
     real_rows.sort(key=lambda r: -len(r[2]))
     crt_rows.sort(key=lambda r: -len(r[2]))
@@ -180,6 +281,10 @@ def main():
         print(f"{name:20s} {len(missing):3d} missing of {total}")
         for n in missing:
             print(f"    {n}")
+
+    print(f"\nconstants we define with a DIFFERENT value than 5849: {len(mismatches)}")
+    for header, n, mine, theirs in sorted(mismatches):
+        print(f"    {header}: {n} = {mine} (ours) vs {theirs} (5849)")
 
     crt_total = sum(len(r[2]) for r in crt_rows)
     plat_total = sum(len(r[2]) for r in platform_rows)

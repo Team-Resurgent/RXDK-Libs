@@ -1291,23 +1291,23 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 //
 
 #define DSEG_DELAY_MIN              0
-#define DSEG_DELAY_MAX              8191
+#define DSEG_DELAY_MAX              4095
 #define DSEG_DELAY_DEFAULT          0
 
 #define DSEG_ATTACK_MIN             0
-#define DSEG_ATTACK_MAX             8191
+#define DSEG_ATTACK_MAX             4095
 #define DSEG_ATTACK_DEFAULT         0
 
 #define DSEG_HOLD_MIN               0
-#define DSEG_HOLD_MAX               8191
+#define DSEG_HOLD_MAX               4095
 #define DSEG_HOLD_DEFAULT           0
 
 #define DSEG_DECAY_MIN              0
-#define DSEG_DECAY_MAX              8191
+#define DSEG_DECAY_MAX              4095
 #define DSEG_DECAY_DEFAULT          0
 
 #define DSEG_RELEASE_MIN            0
-#define DSEG_RELEASE_MAX            8191
+#define DSEG_RELEASE_MAX            4095
 #define DSEG_RELEASE_DEFAULT        0
 
 #define DSEG_SUSTAIN_MIN            0

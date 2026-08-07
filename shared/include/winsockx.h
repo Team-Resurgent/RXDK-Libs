@@ -1797,10 +1797,15 @@ INT   WSAAPI XNetQosXnAddr(UINT cxnqos, const XNADDR * apxna[], const XNKID * ap
 INT   WSAAPI XNetQosServer(UINT cxnqos, const IN_ADDR aina[], const DWORD adwServiceId[], DWORD dwFlags, WSAEVENT hEvent, XNQOS ** ppxnqos);
 INT   WSAAPI XNetQosRelease(XNQOS * pxnqos);
 
-#define XNET_QOS_LISTEN_ENABLE          0x00    // Starts listening to queries on the given XNKID
-#define XNET_QOS_LISTEN_DISABLE         0x01    // Stops listening to queries on the given XNKID
-#define XNET_QOS_LISTEN_SET_DATA        0x02    // Sets the block of data to send to queriers
-#define XNET_QOS_LISTEN_SET_BITSPERSEC  0x04    // Sets max bandwidth that query reponses may consume
+// 5849 renumbered these to proper bit flags. The leak's ENABLE=0x00 is unusable
+// with the `dwFlags & XNET_QOS_LISTEN_ENABLE` bit test libxnet's ipqos.cpp does
+// (always false), and the leak numbering made a 5849 title's SET_BITSPERSEC (0x08)
+// fall outside the validation mask and get rejected. libxnet uses these by name,
+// so adopting the 5849 values fixes both without touching the logic.
+#define XNET_QOS_LISTEN_ENABLE          0x01    // Responds to queries on the given XNKID
+#define XNET_QOS_LISTEN_DISABLE         0x02    // Rejects queries on the given XNKID
+#define XNET_QOS_LISTEN_SET_DATA        0x04    // Sets the block of data to send back to queriers
+#define XNET_QOS_LISTEN_SET_BITSPERSEC  0x08    // Sets max bandwidth that query reponses may consume
 #define XNET_QOS_XNADDR_RESERVED        0x00    // No flags currently defined
 #define XNET_QOS_SERVER_RESERVED        0x00    // No flags currently defined
 

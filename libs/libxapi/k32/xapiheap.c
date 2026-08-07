@@ -579,3 +579,38 @@ Return Value:
         (uFlags & GMEM_MOVEABLE) ? 0 : HEAP_REALLOC_IN_PLACE_ONLY,
         (PVOID)hMem, (DWORD)uBytes);
 }
+
+VOID
+__attribute__((__stdcall__))
+XSetAttributesOnHeapAlloc(
+    PVOID pBaseAddress,
+    DWORD dwAllocAttributes
+    )
+/*++
+
+Routine Description:
+
+    Stamps a title-defined attribute dword on a heap allocation.
+
+    RXDK 5849 uplift: recovered from the retail xapilib. The Xbox HEAP_ENTRY
+    carries an 8-byte reserved slot (Reserved1) directly before the user
+    pointer -- these two functions are that slot's accessors.
+
+Arguments:
+
+    pBaseAddress - heap allocation (as returned by HeapAlloc and friends).
+    dwAllocAttributes - value to store.
+
+--*/
+{
+    ((PDWORD)pBaseAddress)[-2] = dwAllocAttributes;
+}
+
+DWORD
+__attribute__((__stdcall__))
+XGetAttributesOnHeapAlloc(
+    PVOID pBaseAddress
+    )
+{
+    return ((PDWORD)pBaseAddress)[-2];
+}

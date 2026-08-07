@@ -216,4 +216,36 @@ XGetGameRegion(
                          NULL)) ? dwValue : 0;
 }
 
+
+//
+// RXDK 5849 uplift: recovered from the retail xapilib. Reports whether the
+// dashboard's auto-logon setting permits a title to sign the user in without
+// prompting. Bit 0x4 of the misc-flags EEPROM setting is the "not allowed"
+// bit; a failed read is treated as not allowed.
+//
+#define XC_MISC_FLAG_AUTO_LOGON_NOT_ALLOWED  0x0004
+
+DWORD
+__attribute__((__stdcall__))
+XGetAutoLogonFlag(
+    VOID
+    )
+{
+    ULONG ulType;
+    DWORD dwValue;
+
+    if (NT_SUCCESS(ExQueryNonVolatileSetting(
+                       XC_MISC_FLAGS,
+                       &ulType,
+                       &dwValue,
+                       sizeof(dwValue),
+                       NULL))
+        && !(dwValue & XC_MISC_FLAG_AUTO_LOGON_NOT_ALLOWED)) {
+
+        return XC_AUTO_LOGON_ALLOWED;
+    }
+
+    return XC_AUTO_LOGON_NOT_ALLOWED;
+}
+
 #endif // ! XAPILIBP

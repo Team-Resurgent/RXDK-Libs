@@ -1900,3 +1900,96 @@ Return Value:
             }
         }
 }
+
+DWORD
+__attribute__((__stdcall__))
+XGetFilePhysicalSortKey(
+    HANDLE hFile
+    )
+/*++
+
+Routine Description:
+
+    Returns a key that orders files by where they physically live on the
+    volume, so a title can read a batch of files in seek-friendly order.
+
+    RXDK 5849 uplift: recovered from the retail xapilib. The key is taken
+    straight from the file system's own on-disk locator: the FAT-family
+    starting cluster, or the XDVDFS starting sector. A directory has no
+    meaningful position, so FATX reports 0 for one; anything else is an
+    unsupported device.
+
+Arguments:
+
+    hFile - open file handle.
+
+Return Value:
+
+    Sort key, or (DWORD)-1 on failure (call GetLastError).
+
+--*/
+{
+    PFILE_OBJECT FileObject;
+    NTSTATUS Status;
+    DWORD dwSortKey = (DWORD)-1;
+    ULONG ReturnedLength;
+    struct {
+        FILE_FS_ATTRIBUTE_INFORMATION Info;
+        OCHAR NameBuffer[28];
+    } FsAttributes;
+
+    Status = ObReferenceObjectByHandle(hFile, IoFileObjectType, (PVOID *)&FileObject);
+
+    if (!NT_SUCCESS(Status)) {
+        XapiSetLastNTError(Status);
+        return dwSortKey;
+    }
+
+    Status = IoQueryVolumeInformation(FileObject,
+                                      FileFsAttributeInformation,
+                                      sizeof(FsAttributes),
+                                      &FsAttributes,
+                                      &ReturnedLength);
+
+    if (!NT_SUCCESS(Status)) {
+        ObfDereferenceObject(FileObject);
+        XapiSetLastNTError(Status);
+        return dwSortKey;
+    }
+
+    //
+    // Both file system names are four characters, so the whole name compares
+    // as one dword -- which is exactly how retail tells them apart. The file
+    // system's per-file context (FILE_OBJECT::FsContext) is private to that
+    // driver and has no public type here, so its two relevant fields are read
+    // at the fixed offsets the retail disassembly uses: for FATX a flags byte
+    // at +0 (bit 0 = directory) and the starting cluster at +0x1C; for XDVDFS
+    // the starting sector at +0.
+    //
+
+    if (FsAttributes.Info.FileSystemNameLength == 4) {
+
+        PUCHAR pbFsContext = (PUCHAR)FileObject->FsContext;
+
+        if (*(PULONG)FsAttributes.Info.FileSystemName == 'XTAF') {
+
+            dwSortKey = (*pbFsContext & 1) ? 0 : *(PULONG)(pbFsContext + 0x1C);
+
+        } else if (*(PULONG)FsAttributes.Info.FileSystemName == 'XFDG') {
+
+            dwSortKey = *(PULONG)pbFsContext;
+
+        } else {
+
+            XapiSetLastNTError(STATUS_INVALID_DEVICE_REQUEST);
+        }
+
+    } else {
+
+        XapiSetLastNTError(STATUS_INVALID_DEVICE_REQUEST);
+    }
+
+    ObfDereferenceObject(FileObject);
+
+    return dwSortKey;
+}

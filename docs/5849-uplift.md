@@ -368,18 +368,25 @@ then four of the nine `Xbox.h` gaps — see `5849-xbox-h-recovery.md`):
 
 | Header | Missing | What they are |
 |---|---|---|
-| `xonline.h` | 43 | The 5849-new LSP services — arbitration, competition/single-elimination, content install, friends `*Ex`, game invite, and the `*TaskGetResults` family. A protocol boundary (wire formats absent from the leak), but see below. |
+| ~~`xonline.h`~~ | ~~43~~ 0 | All 43 now defined. **40 stubbed to complete the existing service-unavailable pattern** in `src/uplift5849.cpp` — a title calling one now links and gets a clean failure instead of an unresolved symbol; the wire protocols remain absent from the leak (see below). **3 done for real / retail-exact**, not stubbed: `XOnlineTitleIdIsSamePublisher` (pure computation — compares the publisher word, high 16 bits, of the session's own XBE-certificate title ID against the argument), and `XOnlineThrottleGet`/`XOnlineThrottleSet` (the shipped 5849 lib's *own* bodies are `E_NOTIMPL` stubs — the client throttle governor was never built — so `E_NOTIMPL` is the faithful match). |
 | `Xbox.h` | ~~9~~ 5 | **4 recovered and implemented** from retail xapilib: `XGetAutoLogonFlag` (misc-flags EEPROM bit 0x4 → the `XC_AUTO_LOGON_ALLOWED`/`NOT_ALLOWED` codes), `XSet`/`XGetAttributesOnHeapAlloc` (the `HEAP_ENTRY` reserved dword just before the user pointer), `XGetFilePhysicalSortKey` (FATX starting cluster / XDVDFS starting sector, keyed off the volume's FS-name dword). **Left (5), both heavyweight write-side subsystems the read/abstracted port never carried, and with no sample or known-title user — scoped follow-ups, not stubs:** soundtrack *write* (`XAddSoundtrack`, `XAddSongToSoundtrack` — needs the full ST.DB block manager + MUSIC-dir WMA copy; we have only the enumeration side) and the secondary utility drive (`XMountSecondaryUtilityDrive`, `XSwapUtilityDrives`, `XFormatSecondaryUtilityDrive` — built on retail's raw refurb-sector cache-partition database and `g_iZDriveDBIndex`/`g_iNDriveDBIndex`, which our `XapiSelectCachePartition` deliberately replaced). See `5849-xbox-h-recovery.md`. |
 | ~~`DSound.h`~~ | ~~1~~ 0 | `XAudioSetEffectData` — **recovered and implemented**: converts high-level IIR2/distortion/I3DL2-reverb parameters to raw DSP state. The biquad math is RBJ peaking-EQ at 48kHz (`A=10^(dB/40)`, `α=sin(ω)·sinh(1/2Q)`) in 1.23 saturating fixed point; the I3DL2 path fetches the running image's `State+DelayLines` (0x118 bytes), runs the leak's own `CI3dl2Listener::CalculateI3dl2` over it, and pushes back the flags word and the 0x108-byte tuning, deferred + commit. ⚠️ 5849's public `DSFX_RAW_EFFECT_DESCRIPTION.Distortion` view is **mislabeled by one dword** (the function writes gain first, then ten coefficients — eleven dwords into a ten-field struct); adopted verbatim with the quirk documented. |
 | ~~`D3D8Perf.h`~~ | ~~1~~ 0 | `D3DPERF_QueryRepeatFrame` — **implemented in both flavors**. Retail's plain d3d8.lib body is an unconditional FALSE (`xor eax,eax; ret`); only d3d8i.lib consults the capture tooling's repeat-frame request, for which this stack has no writer, so FALSE is faithful for both. Kept in shadersnapshot.cpp, retail's own TU for it. |
 | `XGraphics.h` | 1 | `XGCompileShader` — the HLSL compiler. See below. |
 
-**On the XOnline 43:** this doc already records them as a protocol boundary
-rather than open work, and that stands — they cannot be implemented faithfully
-without wire formats the leak does not contain. But *absent* is worse than
-*failing*: a title calling one today fails to link, where 5849 would link and
-return a service error. Clean service-unavailable stubs would let such a title
-build and degrade, which is what the rest of our LSP surface already does.
+**On the XOnline 43 — now closed at the link level.** *Absent* is worse than
+*failing*: a title calling one used to fail to link, where 5849 would link and
+return a service error. The 40 wire-protocol entries now carry clean
+service-unavailable stubs (the same behavior the rest of our LSP surface already
+had), so such a title builds and degrades gracefully. This is NOT the same as
+implementing the services: the wire formats are still absent from the leak, and
+a community revival still needs the client to speak the real protocol (recover
+the internal workers — `XOnlineArbitrationReport` → `ArbitrationReportInternal`
+plus two zero args — and the task/HTTP layer beneath them, not these exported
+wrappers). What changed is only that the API surface is complete and linkable.
+Three of the 43 were never wire calls and are done for real: the disassembly
+showed `XOnlineTitleIdIsSamePublisher` is a publisher-word compare, and the
+shipped lib's own `XOnlineThrottleGet`/`Set` bodies are `E_NOTIMPL`.
 
 **On `XGCompileShader`:** it is 5849's HLSL front end, and its own header settles
 a question worth recording — targets are `vs.1.1`/`xvs.1.1`/`xvss.1.1`, and

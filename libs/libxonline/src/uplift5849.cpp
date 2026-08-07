@@ -443,4 +443,122 @@ XBOXAPI HRESULT WINAPI XOnlineMutelistAdd(DWORD, XUID)
 XBOXAPI HRESULT WINAPI XOnlineMutelistRemove(DWORD, XUID)
     RXDK_XO_TASK_STUB((void)0)
 
+// =================================================================================================
+// 5849 API-surface completion: the omitted siblings of the families already stubbed above. Each is
+// a thin C wrapper over a CXo:: method in retail xonline.lib -- the same wire-protocol services the
+// leak does not carry -- so they take the same "service unavailable" behavior as their siblings. A
+// title calling one now links and gets a clean failure instead of an unresolved symbol. Three are
+// NOT wire calls and are done for real, matching the retail disassembly exactly; they are marked.
+// =================================================================================================
+
+// --- REAL: publisher compare. Retail reads the session's own title ID and compares the publisher
+// (high 16 bits) against the argument. Same XBE-certificate source as XOnlineTitleIdIsSameTitle
+// above (cert pointer at 0x10118, TitleID at cert+8). ---
+XBOXAPI BOOL WINAPI XOnlineTitleIdIsSamePublisher(DWORD dwTitleID)
+{
+    DWORD dwCertificate = *(const DWORD *)0x10118;
+    DWORD dwOwnTitleId  = *(const DWORD *)(dwCertificate + 8);
+    return (dwTitleID & 0xFFFF0000) == (dwOwnTitleId & 0xFFFF0000);
+}
+
+// --- retail-exact: both Throttle entry points are E_NOTIMPL stubs in the shipped 5849 lib itself
+// (mov eax,80004001h; ret) -- the client-side throttle governor was never built. ---
+XBOXAPI HRESULT WINAPI XOnlineThrottleGet(DWORD, LPCSTR, DWORD *, DWORD *) { return E_NOTIMPL; }
+XBOXAPI HRESULT WINAPI XOnlineThrottleSet(DWORD, LPCSTR, DWORD, DWORD) { return E_NOTIMPL; }
+
+// --- Arbitration / competition ---
+XBOXAPI HRESULT WINAPI XOnlineArbitrationExtendRound(const XONLINE_ARB_ID *, WORD, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineCompetitionCreate(DWORD, DWORD, ULONGLONG, DWORD, const XONLINE_ATTRIBUTE *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI DWORD WINAPI XOnlineCompetitionGetResultsBufferSize(DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *) { return 0; }
+XBOXAPI HRESULT WINAPI XOnlineCompetitionTopologySingleElimination(DWORD, ULONGLONG, DWORD, DWORD, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineCompetitionTopologySingleEliminationGetResults(XONLINETASK_HANDLE, PXONLINE_COMP_TOPOLOGY_SE_RESULTS *ppTopologyResults)
+    RXDK_XO_TASK_STUB(if (ppTopologyResults) *ppTopologyResults = NULL)
+
+// --- Content install / title update ---
+XBOXAPI HRESULT WINAPI XOnlineContentInstallGetSize(XONLINETASK_HANDLE, DWORD *pdwTotalInstalledSizeInBlocks, DWORD *pdwAdditionalBlocksRequired)
+    RXDK_XO_TASK_STUB(if (pdwTotalInstalledSizeInBlocks) *pdwTotalInstalledSizeInBlocks = 0; if (pdwAdditionalBlocksRequired) *pdwAdditionalBlocksRequired = 0)
+XBOXAPI HRESULT WINAPI XOnlineContentSetSecurityKey(const BYTE *) { return E_FAIL; }
+XBOXAPI HRESULT WINAPI XOnlineTitleUpdateEx(const LD_UPDATE *) { return E_FAIL; }
+
+// --- Friends (windowed retrieval + Ex requests). GetLatestByFocus/ByRange are synchronous getters
+// over the friends service; the leak's snapshot has no windowing service, so report an empty
+// window rather than inventing one. ---
+XBOXAPI HRESULT WINAPI XOnlineFriendsGetLatestByFocus(DWORD, XUID, DWORD, DWORD *pdwFriendBuffer, PXONLINE_FRIEND, DWORD *pdwFriendsBefore, DWORD *pdwFriendsAfter)
+    RXDK_XO_TASK_STUB(if (pdwFriendBuffer) *pdwFriendBuffer = 0; if (pdwFriendsBefore) *pdwFriendsBefore = 0; if (pdwFriendsAfter) *pdwFriendsAfter = 0)
+XBOXAPI HRESULT WINAPI XOnlineFriendsGetLatestByRange(DWORD, DWORD, DWORD *pdwFriendBuffer, PXONLINE_FRIEND, DWORD *pdwFriendsBefore, DWORD *pdwFriendsAfter)
+    RXDK_XO_TASK_STUB(if (pdwFriendBuffer) *pdwFriendBuffer = 0; if (pdwFriendsBefore) *pdwFriendsBefore = 0; if (pdwFriendsAfter) *pdwFriendsAfter = 0)
+XBOXAPI HRESULT WINAPI XOnlineFriendsRequestByNameEx(DWORD, LPCSTR, XONLINE_MSG_HANDLE, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineFriendsRequestEx(DWORD, XUID, XONLINE_MSG_HANDLE, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+
+// --- Game invite / join ---
+XBOXAPI HRESULT WINAPI XOnlineGameInviteAnswer(DWORD, const XONLINE_GAMEINVITE_ANSWER_INFO *, XONLINE_PEER_ANSWER_TYPE, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineGameInviteGetLatestAccepted(XONLINE_LATEST_ACCEPTED_GAMEINVITE *pLatestAcceptedGameInvite)
+    RXDK_XO_TASK_STUB(if (pLatestAcceptedGameInvite) memset(pLatestAcceptedGameInvite, 0, sizeof(*pLatestAcceptedGameInvite)))
+XBOXAPI HRESULT WINAPI XOnlineGameInviteRevoke(DWORD, DWORD, const XUID *, XNKID, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineGameInviteSend(DWORD, DWORD, const XUID *, XNKID, DWORD, XONLINE_MSG_HANDLE, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineGameJoin(DWORD, const XONLINE_GAME_JOIN_INFO *) { return E_FAIL; }
+
+// --- Messaging ---
+XBOXAPI HRESULT WINAPI XOnlineMessageDetailsGetResultsSummary(XONLINETASK_HANDLE, XONLINE_MSG_SUMMARY *pMsgSummary, DWORD *pdwNumProperties, ULONGLONG *pqwAttachmentsSize)
+    RXDK_XO_TASK_STUB(if (pMsgSummary) memset(pMsgSummary, 0, sizeof(*pMsgSummary)); if (pdwNumProperties) *pdwNumProperties = 0; if (pqwAttachmentsSize) *pqwAttachmentsSize = 0)
+XBOXAPI HRESULT WINAPI XOnlineMessageDownloadAttachmentToDirectory(XONLINETASK_HANDLE, WORD, LPCSTR, HANDLE, PXONLINETASK_HANDLE phDownloadTask)
+    RXDK_XO_TASK_STUB(if (phDownloadTask) *phDownloadTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineMessageEnableReceivingFamilyTitleIDs(DWORD, const DWORD *) { return E_FAIL; }
+XBOXAPI HRESULT WINAPI XOnlineMessageRevoke(DWORD, DWORD, const XONLINE_MSG_SEND_RESULT *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineMessageSendGetResults(XONLINETASK_HANDLE, XONLINE_MSG_SEND_RESULT *)
+    RXDK_XO_TASK_STUB((void)0)
+XBOXAPI HRESULT WINAPI XOnlineMessageSetSendingFamilyTitleID(DWORD) { return E_FAIL; }
+XBOXAPI BOOL WINAPI XOnlineMessageSetSummaryRefresh(BOOL) { return FALSE; } // no summary service; refresh state stays off
+XBOXAPI HRESULT WINAPI XOnlineMessageSummary(DWORD, DWORD, XONLINE_MSG_SUMMARY *pMsgSummary)
+    RXDK_XO_TASK_STUB(if (pMsgSummary) memset(pMsgSummary, 0, sizeof(*pMsgSummary)))
+
+// --- Presence ---
+XBOXAPI HRESULT WINAPI XOnlinePresenceClear(XONLINETASK_HANDLE)
+    RXDK_XO_TASK_STUB((void)0)
+
+// --- Query (entity dataset) ---
+XBOXAPI HRESULT WINAPI XOnlineQueryFindFromIds(DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, DWORD, const XENTITY_ID *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineQueryFindFromIdsGetResults(XONLINETASK_HANDLE, DWORD *pdwReturnedResults, PVOID)
+    RXDK_XO_TASK_STUB(if (pdwReturnedResults) *pdwReturnedResults = 0)
+XBOXAPI HRESULT WINAPI XOnlineQueryRemoveId(DWORD, ULONGLONG, DWORD, XENTITY_ID, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineQueryUpdate(DWORD, ULONGLONG, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineQueryUpdateId(DWORD, ULONGLONG, DWORD, DWORD, XENTITY_ID, DWORD, const XONLINE_ATTRIBUTE *, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+
+// --- Storage ---
+XBOXAPI HRESULT WINAPI XOnlineStorageDeleteFile(DWORD, DWORD, LPCWSTR, HANDLE, XONLINETASK_HANDLE *phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineStorageSetFamilyTitleID(DWORD) { return E_FAIL; }
+
+// --- String lookup / verify ---
+XBOXAPI HRESULT WINAPI XOnlineStringLookupEx(DWORD, WORD, DWORD *, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineStringLookupGetResults(XONLINETASK_HANDLE, BYTE *, DWORD *pdwBufferSize, WCHAR **ppwszStrings, WORD *pwNumStrings)
+    RXDK_XO_TASK_STUB(if (pdwBufferSize) *pdwBufferSize = 0; if (ppwszStrings) *ppwszStrings = NULL; if (pwNumStrings) *pwNumStrings = 0)
+XBOXAPI HRESULT WINAPI XOnlineStringVerify(WORD, LPCWSTR *, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineStringVerifyGetResults(XONLINETASK_HANDLE, WORD, HRESULT *)
+    RXDK_XO_TASK_STUB((void)0)
+
+// --- Teams ---
+XBOXAPI HRESULT WINAPI XOnlineTeamMemberRecruitByName(DWORD, XUID, LPCSTR, const XONLINE_TEAM_MEMBER_PROPERTIES *, XONLINE_MSG_HANDLE, HANDLE, PXONLINETASK_HANDLE phTask)
+    RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
+XBOXAPI HRESULT WINAPI XOnlineTeamSetFamilyTitleID(DWORD) { return E_FAIL; }
+
+// --- Logon-user change results (companion to XOnlineChangeLogonUsers above) ---
+XBOXAPI HRESULT WINAPI XOnlineChangeLogonUsersTaskGetResults(XONLINETASK_HANDLE, HRESULT *phr)
+    RXDK_XO_TASK_STUB(if (phr) *phr = E_FAIL)
+
 }

@@ -53,8 +53,9 @@ build with the correct export decorations; the secondary-drive DB scheme is
 reconciled with our existing primary allocator (which already maintained the
 same on-disk database); and the ST.DB format logic is round-trip-verified on the
 host (`scratchpad/stdb_roundtrip.c`) — write-side page math + struct writes
-decode correctly through the read side's page math. The one field NOT verified
-against retail is a song's play length (see the soundtrack caveat below).
+decode correctly through the read side's page math. The soundtrack writer's song
+length and title come from the same WMA decoder call retail makes, so no field is
+approximated (see the soundtrack section below).
 
 ### Soundtrack write: `XAddSoundtrack`, `XAddSongToSoundtrack` — DONE (`k32/xsndtrkw.c`)
 
@@ -67,13 +68,25 @@ descriptor). `XAddSongToSoundtrack` locates the soundtrack, allocates a song Id
 (`(soundtrackId<<16)|seq`, matching the read side's `%04x\%08x.WMA`), copies the
 WMA into `MUSIC\%04x\`, and inserts the song into a list block (page
 `block+1+MAX_SOUNDTRACKS`), allocating a new block on each 6-song boundary.
-⚠️ **Song length caveat:** retail reads the play length from its WMA decoder,
-which is unreachable here — the public `XMediaObject` interface carries no
-duration and pulling the libdsound decoder into libxapi would invert the
-layering. So the length is parsed self-contained from the source WMA's ASF
-"Play Duration" header (100ns → ms). That single metadata value is the only part
-not faithful-by-construction; everything else matches the format the read side
-and dashboard use.
+
+**Song length + title — via the WMA decoder, exactly like retail.** The
+disassembly settled the earlier "unreachable duration" caveat: retail's
+`soundtrack.obj` drives the WMA file decoder object, taking the play length from
+its vtable slot `+0x28` (`GetFileHeader`, `WMAXMOFileHeader.dwDuration`) and, when
+the caller passes no name, the Title tag from `+0x2C`
+(`GetFileContentDescription`), defaulting an empty tag to `"Unknown"`. The port's
+`WmaCreateDecoderEx` (libdsound) hands back an `XWmaFileMediaObject` whose vtable
+is bit-identical (`Release` `+0x4`, `GetFileHeader` `+0x28`,
+`GetFileContentDescription` `+0x2C`), so `xsndtrkw.c` calls exactly those slots.
+The decoder *borrows* the already-open source handle
+(`CWmaMediaObject::InitializeFile` leaves `m_fCloseFile` FALSE for a handle it did
+not open), so the caller keeps ownership — matching retail, which passes the same
+handle to the decoder and to the copy. This is the one place the write side
+reaches outside libxapi, to `_WmaCreateDecoderEx@32` in libdsound — retail's own
+cross-library model, since `xsndtrk.lib` shipped separately from `xapilib.lib`. A
+title using only the read side never pulls the object and never needs libdsound.
+Because it is the same decoder call retail makes, the length and title are now
+faithful-by-construction, not approximated.
 
 ### Soundtrack write — original recovery notes
 

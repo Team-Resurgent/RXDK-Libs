@@ -42,15 +42,40 @@ public type in our tree, so the two fields are read at the fixed offsets the
 disassembly uses (FATX flags +0, cluster +0x1C; XDVDFS sector +0). In
 `k32/filehops.c`.
 
-## Scoped follow-ups (5) — heavyweight write-side subsystems, no sample/title user
+## Implemented (5 more) — the write-side subsystems
 
-These are not stubs and not blocked on retail secrets; they are each a
-self-contained subsystem the read-only / abstracted port never carried, and
-implementing one faithfully is real design work against our own internals, not
-a mechanical transcription. Recorded here so the next session starts from the
-right place.
+Originally scoped as follow-ups; implemented 2026-08-07 for full parity. Each is
+a self-contained subsystem the read-only / abstracted port never carried, so
+these are faithful ports against our own internals, not mechanical
+transcriptions. **⚠️ Both mutate on-disk structures and neither has a sample or
+kit test, so the runtime path is HW-only.** What *is* verified in-repo: they
+build with the correct export decorations; the secondary-drive DB scheme is
+reconciled with our existing primary allocator (which already maintained the
+same on-disk database); and the ST.DB format logic is round-trip-verified on the
+host (`scratchpad/stdb_roundtrip.c`) — write-side page math + struct writes
+decode correctly through the read side's page math. The one field NOT verified
+against retail is a song's play length (see the soundtrack caveat below).
 
-### Soundtrack write: `XAddSoundtrack`, `XAddSongToSoundtrack`
+### Soundtrack write: `XAddSoundtrack`, `XAddSongToSoundtrack` — DONE (`k32/xsndtrkw.c`)
+
+Implemented in a **separate translation unit** so a title using only the read
+side never pulls it. `XAddSoundtrack` allocates a descriptor (page `StCount+1`),
+fills `STDB_STDESC` (sig `0x021371`, Id from `NextStId`, name), records the Id in
+`StBlocks[]`, creates the per-soundtrack `MUSIC\%04x` directory, and writes the
+descriptor page *before* the header (so the header never points at an unwritten
+descriptor). `XAddSongToSoundtrack` locates the soundtrack, allocates a song Id
+(`(soundtrackId<<16)|seq`, matching the read side's `%04x\%08x.WMA`), copies the
+WMA into `MUSIC\%04x\`, and inserts the song into a list block (page
+`block+1+MAX_SOUNDTRACKS`), allocating a new block on each 6-song boundary.
+⚠️ **Song length caveat:** retail reads the play length from its WMA decoder,
+which is unreachable here — the public `XMediaObject` interface carries no
+duration and pulling the libdsound decoder into libxapi would invert the
+layering. So the length is parsed self-contained from the source WMA's ASF
+"Play Duration" header (100ns → ms). That single metadata value is the only part
+not faithful-by-construction; everything else matches the format the read side
+and dashboard use.
+
+### Soundtrack write — original recovery notes
 
 Our `k32/xsndtrk.c` is the **enumeration (read) side only** — it parses
 `TDATA\FFFE0000\MUSIC\ST.DB` through its own helpers (`XapiReadFromStDb`,
@@ -64,7 +89,24 @@ It manages on-disk block allocation of the DB and copies the WMA into the MUSIC
 directory. A faithful port means recovering that block manager, on top of the
 STDB structures we already have in `xboxp.h`.
 
-### Secondary utility drive: `XMountSecondaryUtilityDrive`, `XSwapUtilityDrives`, `XFormatSecondaryUtilityDrive`
+### Secondary utility drive: `XMountSecondaryUtilityDrive`, `XSwapUtilityDrives`, `XFormatSecondaryUtilityDrive` — DONE (`k32/pathmisc.c`)
+
+The reconciliation turned out small: our `XapiSelectCachePartition` **already
+maintains** the exact on-disk cache-partition database retail uses (sector
+`XBOX_CACHE_DB_SECTOR_INDEX`, sig `0x97315286`, 12-byte `X_CACHE_DB_ENTRY`
+records) — it reads, validates, MRU-slides, and writes it back. The only missing
+piece was recording which DB slot the Z: entry landed in, so the secondary APIs
+can find Z:'s partition: a one-line `g_iZDriveDBIndex = iNewDBIndex;` that changes
+no existing behavior. `XMountSecondaryUtilityDrive` then reads the DB, finds a
+free partition that is not Z:'s, records it in the least-recently-used slot,
+formats it, and links `\??\N:`. `XSwapUtilityDrives` swaps only the two records'
+`nCacheIndex` fields and re-points the Z:/N: symlinks. `XFormatSecondaryUtilityDrive`
+resolves `\??\N:` and reformats in place (identical shape to
+`XFormatUtilityDrive`). ⚠️ The spec's premise that the DB lives at partition0
+sector 0 was wrong — it is byte offset `0x800` (sector 4), and the end signature
+is at `0x1F8`; our existing code already had both right.
+
+### Secondary utility drive — original recovery notes
 
 Retail mounts a second cache partition as `N:` by reading the raw refurb-info
 sector (partition0 sector 0, signature `0x97315286`, MBR magic `0xAA55`,

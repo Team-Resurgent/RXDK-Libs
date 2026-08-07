@@ -60,6 +60,7 @@ pub const k32_sources = [_][]const u8{
     "libs/libxapi/k32/xvalue.c",
     "libs/libxapi/k32/xcalcsig.c",
     "libs/libxapi/k32/xsndtrk.c",
+    "libs/libxapi/k32/xsndtrkw.c",
     "libs/libxapi/port/intrlock.c",
     "libs/libxapi/port/fiber_switch.S",
     "libs/libxapi/port/muldiv.c",

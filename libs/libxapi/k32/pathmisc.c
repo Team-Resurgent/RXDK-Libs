@@ -21,7 +21,18 @@ Abstract:
 #include "fat.h"
 
 static const OBJECT_STRING ZDrive      = CONSTANT_OBJECT_STRING( OTEXT("\\??\\Z:") );
+static const OBJECT_STRING NDrive      = CONSTANT_OBJECT_STRING( OTEXT("\\??\\N:") );
 static const OCHAR CacheDriveFormat[]  = OTEXT("\\Device\\Harddisk0\\Partition%d\\");
+
+//
+// Cache-DB slot indices for the primary (Z:) and secondary (N:) utility drives.
+// XapiSelectCachePartition records the slot it wrote the Z: entry into; the
+// secondary-drive APIs need it to locate Z:'s partition in the on-disk database.
+// The -1 sentinel means "not mounted"; a BSS zero would falsely read as slot 0,
+// so these are statically initialised.
+//
+static ULONG g_iZDriveDBIndex = (ULONG)-1;
+static ULONG g_iNDriveDBIndex = (ULONG)-1;
 static COBJECT_STRING WDrive           = CONSTANT_OBJECT_STRING( OTEXT("\\??\\W:") );
 static COBJECT_STRING XDrive           = CONSTANT_OBJECT_STRING( OTEXT("\\??\\X:") );
 
@@ -616,6 +627,14 @@ XapiSelectCachePartition(
             pCacheDB[iNewDBIndex].fUsed = (!fAlwaysFormat);
 
             //
+            // Record which DB slot the Z: (primary) entry now lives in, so
+            // XMountSecondaryUtilityDrive/XSwapUtilityDrives can find Z:'s
+            // partition. This is the slot we just wrote above.
+            //
+
+            g_iZDriveDBIndex = iNewDBIndex;
+
+            //
             // Ignore status result
             //
 
@@ -762,6 +781,360 @@ XFormatUtilityDrive(
 
     InitializeObjectAttributes(&ObjectAttributes,
                                (POBJECT_STRING) &ZDrive,
+                               OBJ_CASE_INSENSITIVE,
+                               NULL,
+                               NULL);
+
+    status = NtOpenSymbolicLinkObject(&Handle, &ObjectAttributes);
+
+    if (!NT_SUCCESS(status))
+    {
+        XapiSetLastNTError(status);
+        return FALSE;
+    }
+
+    ObjectTarget.Buffer = Target;
+    ObjectTarget.MaximumLength = sizeof(Target);
+
+    status = NtQuerySymbolicLinkObject(Handle, &ObjectTarget, &TargetLength);
+
+    NtClose(Handle);
+
+    if (!NT_SUCCESS(status))
+    {
+        XapiSetLastNTError(status);
+        return FALSE;
+    }
+
+    return XapiFormatFATVolumeEx(&ObjectTarget, XeUtilityDriveClusterSize());
+}
+
+
+//
+// XMountSecondaryUtilityDrive -- mount a SECOND cache partition as N:, in
+// addition to the primary Z: mounted by XMountUtilityDrive. Recovered from the
+// retail pathmisc.obj disassembly.
+//
+// It reads the on-disk cache-partition database (sector XBOX_CACHE_DB_SECTOR_INDEX
+// of \Device\Harddisk0\partition0), finds a free cache partition that is not Z:'s,
+// records it in the least-recently-used DB slot, formats it, and symlinks \??\N:.
+// The primary path (XapiSelectCachePartition) must have run first -- it sets
+// g_iZDriveDBIndex, without which there is no Z: to pair a secondary against.
+//
+// ndriveindex, like retail's iPrevDBIndex, uses the RAW HAL partition count minus
+// one (before the MAX_ENTRY_COUNT cap); the HAL guarantees a small count, so this
+// never exceeds the table in practice.
+//
+BOOL
+__attribute__((__stdcall__))
+XMountSecondaryUtilityDrive(
+    VOID
+    )
+{
+    OBJECT_ATTRIBUTES oa;
+    NTSTATUS          Status;
+    IO_STATUS_BLOCK   statusBlock;
+    HANDLE            hVolume;
+    DWORD             dwTitleId = XeImageHeader()->Certificate->TitleID;
+    ULONG             nCachePartition = 0;    // chosen partition number (0 = none)
+    CHAR              sz[MAX_PATH];
+    OBJECT_STRING     VolString, DriveString;
+
+    //
+    // The primary utility drive must be mounted first -- we mirror its DB slot.
+    //
+
+    if (g_iZDriveDBIndex == (ULONG)-1)
+    {
+        XapiSetLastNTError(STATUS_UNSUCCESSFUL);
+        return FALSE;
+    }
+
+    InitializeObjectAttributes(&oa,
+                               (POBJECT_STRING) &XapiHardDisk,
+                               OBJ_CASE_INSENSITIVE,
+                               NULL,
+                               NULL);
+
+    Status = NtOpenFile(&hVolume,
+                        SYNCHRONIZE | GENERIC_READ | GENERIC_WRITE,
+                        &oa,
+                        &statusBlock,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        FILE_SYNCHRONOUS_IO_ALERT);
+
+    if (NT_SUCCESS(Status))
+    {
+        UCHAR rgbSectorBuffer[XBOX_HD_SECTOR_SIZE];
+        LARGE_INTEGER byteOffset;
+
+        byteOffset.QuadPart = XBOX_CACHE_DB_SECTOR_INDEX * XBOX_HD_SECTOR_SIZE;
+
+        Status = NtReadFile(hVolume, 0, NULL, NULL, &statusBlock,
+                            rgbSectorBuffer, sizeof(rgbSectorBuffer), &byteOffset);
+
+        if (NT_SUCCESS(Status))
+        {
+            PXBOX_CACHE_DB_SECTOR pCacheDBSec = (PXBOX_CACHE_DB_SECTOR) rgbSectorBuffer;
+            PX_CACHE_DB_ENTRY     pCacheDB    = (PX_CACHE_DB_ENTRY) pCacheDBSec->Data;
+            ULONG iLastDBIndex = (HalDiskCachePartitionCount - 1);
+            ULONG CachePartitionCount = HalDiskCachePartitionCount;
+
+            if (CachePartitionCount > XBOX_CACHE_DB_MAX_ENTRY_COUNT)
+            {
+                CachePartitionCount = XBOX_CACHE_DB_MAX_ENTRY_COUNT;
+            }
+
+            //
+            // Unlike XapiSelectCachePartition, the secondary path does not
+            // reinitialise a bad database -- it refuses to proceed.
+            //
+
+            if ((XBOX_CACHE_DB_SECTOR_BEGIN_SIGNATURE != pCacheDBSec->SectorBeginSignature) ||
+                (XBOX_CACHE_DB_SECTOR_END_SIGNATURE != pCacheDBSec->SectorEndSignature) ||
+                (XBOX_CACHE_DB_CUR_VERSION != pCacheDBSec->Version))
+            {
+                Status = 0xC00000E4;    // internal DB-invalid NTSTATUS
+            }
+            else
+            {
+                ULONG zCacheIndex = pCacheDB[g_iZDriveDBIndex].nCacheIndex;
+                ULONG nIndex;
+                ULONG i, j;
+
+                //
+                // Find a free cache partition that is not Z:'s. The scan does not
+                // break: nCachePartition ends as (highest free index) + base, or
+                // 0 if none is free.
+                //
+
+                for (j = 0; j < CachePartitionCount; j++)
+                {
+                    if (j == zCacheIndex)
+                        continue;
+
+                    for (i = 0; i < CachePartitionCount; i++)
+                    {
+                        if (pCacheDB[i].fUsed && (pCacheDB[i].nCacheIndex == j))
+                            break;
+                    }
+
+                    if (i == CachePartitionCount)
+                        nCachePartition = j + XDISK_FIRST_CACHE_PARTITION;
+                }
+
+                //
+                // N: takes the least-recently-used slot, avoiding Z:'s.
+                //
+
+                nIndex = iLastDBIndex;
+                if (nIndex == g_iZDriveDBIndex)
+                    nIndex--;
+                g_iNDriveDBIndex = nIndex;
+
+                if (nCachePartition != 0)
+                {
+                    pCacheDB[nIndex].nCacheIndex = nCachePartition - XDISK_FIRST_CACHE_PARTITION;
+                }
+                else
+                {
+                    //
+                    // Nothing free -- reuse the partition already in this slot.
+                    //
+                    nCachePartition = pCacheDB[nIndex].nCacheIndex + XDISK_FIRST_CACHE_PARTITION;
+                }
+
+                pCacheDB[nIndex].dwTitleId = dwTitleId;
+                pCacheDB[nIndex].fUsed = FALSE;     // reclaimable, like fAlwaysFormat
+
+                NtWriteFile(hVolume, 0, NULL, NULL, &statusBlock,
+                            rgbSectorBuffer, sizeof(rgbSectorBuffer), &byteOffset);
+                Status = STATUS_SUCCESS;
+            }
+        }
+
+        NtClose(hVolume);
+    }
+
+    //
+    // A read/validation failure, or no partition chosen, is a hard failure.
+    //
+
+    if ((nCachePartition == 0) || ((Status & 0xC0000000) == 0xC0000000))
+    {
+        g_iNDriveDBIndex = (ULONG)-1;
+        if ((Status & 0xC0000000) == 0xC0000000)
+            XapiSetLastNTError(Status);
+        return FALSE;
+    }
+
+    //
+    // Format the chosen partition and link it as N:.
+    //
+
+    _snprintf(sz, sizeof(sz), CacheDriveFormat, nCachePartition);
+
+    RtlInitAnsiString(&VolString, sz);      // keeps the trailing backslash
+    RtlInitAnsiString(&DriveString, sz);
+    DriveString.Length -= sizeof(OCHAR);    // strip the trailing backslash
+
+    if (!XapiFormatFATVolumeEx(&DriveString, XeUtilityDriveClusterSize()))
+    {
+        //
+        // The format-failure path does NOT set the last error (matches retail).
+        //
+        g_iNDriveDBIndex = (ULONG)-1;
+        return FALSE;
+    }
+
+    Status = XapiValidateDiskPartitionEx(&VolString, XeUtilityDriveClusterSize());
+    if (NT_SUCCESS(Status))
+    {
+        Status = IoCreateSymbolicLink((POBJECT_STRING) &NDrive, &DriveString);
+    }
+
+    if ((Status & 0xC0000000) == 0xC0000000)
+    {
+        g_iNDriveDBIndex = (ULONG)-1;
+        XapiSetLastNTError(Status);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+//
+// XSwapUtilityDrives -- exchange which physical partition Z: and N: point at.
+// Recovered from the retail pathmisc.obj disassembly. It swaps ONLY the two DB
+// records' nCacheIndex fields (ownership metadata stays put), persists the sector,
+// then re-points the \??\Z: and \??\N: symlinks. The DB slot globals are unchanged.
+//
+BOOL
+__attribute__((__stdcall__))
+XSwapUtilityDrives(
+    VOID
+    )
+{
+    OBJECT_ATTRIBUTES oa;
+    NTSTATUS          Status = STATUS_SUCCESS;
+    IO_STATUS_BLOCK   statusBlock;
+    HANDLE            hVolume;
+    ULONG             newNPartition = 0, newZPartition = 0;
+    CHAR              sz[MAX_PATH];
+    OBJECT_STRING     DriveString;
+
+    if ((g_iZDriveDBIndex == (ULONG)-1) || (g_iNDriveDBIndex == (ULONG)-1))
+    {
+        XapiSetLastNTError(STATUS_UNSUCCESSFUL);
+        return FALSE;
+    }
+
+    InitializeObjectAttributes(&oa,
+                               (POBJECT_STRING) &XapiHardDisk,
+                               OBJ_CASE_INSENSITIVE,
+                               NULL,
+                               NULL);
+
+    Status = NtOpenFile(&hVolume,
+                        SYNCHRONIZE | GENERIC_READ | GENERIC_WRITE,
+                        &oa,
+                        &statusBlock,
+                        FILE_SHARE_READ | FILE_SHARE_WRITE,
+                        FILE_SYNCHRONOUS_IO_ALERT);
+
+    if (NT_SUCCESS(Status))
+    {
+        UCHAR rgbSectorBuffer[XBOX_HD_SECTOR_SIZE];
+        LARGE_INTEGER byteOffset;
+
+        byteOffset.QuadPart = XBOX_CACHE_DB_SECTOR_INDEX * XBOX_HD_SECTOR_SIZE;
+
+        Status = NtReadFile(hVolume, 0, NULL, NULL, &statusBlock,
+                            rgbSectorBuffer, sizeof(rgbSectorBuffer), &byteOffset);
+
+        if (NT_SUCCESS(Status))
+        {
+            PXBOX_CACHE_DB_SECTOR pCacheDBSec = (PXBOX_CACHE_DB_SECTOR) rgbSectorBuffer;
+            PX_CACHE_DB_ENTRY     pCacheDB    = (PX_CACHE_DB_ENTRY) pCacheDBSec->Data;
+
+            if ((XBOX_CACHE_DB_SECTOR_BEGIN_SIGNATURE != pCacheDBSec->SectorBeginSignature) ||
+                (XBOX_CACHE_DB_SECTOR_END_SIGNATURE != pCacheDBSec->SectorEndSignature) ||
+                (XBOX_CACHE_DB_CUR_VERSION != pCacheDBSec->Version))
+            {
+                Status = 0xC00000E4;
+            }
+            else
+            {
+                //
+                // Swap only the partition assignments of the two records.
+                //
+                ULONG tmp = pCacheDB[g_iNDriveDBIndex].nCacheIndex;
+                pCacheDB[g_iNDriveDBIndex].nCacheIndex = pCacheDB[g_iZDriveDBIndex].nCacheIndex;
+                pCacheDB[g_iZDriveDBIndex].nCacheIndex = tmp;
+
+                newNPartition = pCacheDB[g_iNDriveDBIndex].nCacheIndex + XDISK_FIRST_CACHE_PARTITION;
+                newZPartition = pCacheDB[g_iZDriveDBIndex].nCacheIndex + XDISK_FIRST_CACHE_PARTITION;
+
+                Status = NtWriteFile(hVolume, 0, NULL, NULL, &statusBlock,
+                                     rgbSectorBuffer, sizeof(rgbSectorBuffer), &byteOffset);
+            }
+        }
+
+        NtClose(hVolume);
+    }
+
+    if (NT_SUCCESS(Status))
+        Status = IoDeleteSymbolicLink((POBJECT_STRING) &NDrive);
+    if (NT_SUCCESS(Status))
+        Status = IoDeleteSymbolicLink((POBJECT_STRING) &ZDrive);
+
+    if (NT_SUCCESS(Status))
+    {
+        _snprintf(sz, sizeof(sz), CacheDriveFormat, newNPartition);
+        RtlInitAnsiString(&DriveString, sz);
+        DriveString.Length -= sizeof(OCHAR);
+        Status = IoCreateSymbolicLink((POBJECT_STRING) &NDrive, &DriveString);
+    }
+    if (NT_SUCCESS(Status))
+    {
+        _snprintf(sz, sizeof(sz), CacheDriveFormat, newZPartition);
+        RtlInitAnsiString(&DriveString, sz);
+        DriveString.Length -= sizeof(OCHAR);
+        Status = IoCreateSymbolicLink((POBJECT_STRING) &ZDrive, &DriveString);
+    }
+
+    if ((Status & 0xC0000000) == 0xC0000000)
+    {
+        XapiSetLastNTError(Status);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+//
+// XFormatSecondaryUtilityDrive -- reformat the N: partition in place. Recovered
+// from the retail pathmisc.obj disassembly; identical in shape to
+// XFormatUtilityDrive, only the symbolic link resolved differs. It touches
+// neither the database nor g_iNDriveDBIndex.
+//
+BOOL
+__attribute__((__stdcall__))
+XFormatSecondaryUtilityDrive(
+    VOID
+    )
+{
+    NTSTATUS          status;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    CHAR              Target[MAX_PATH];
+    ULONG             TargetLength;
+    OBJECT_STRING     ObjectTarget;
+    HANDLE            Handle;
+
+    InitializeObjectAttributes(&ObjectAttributes,
+                               (POBJECT_STRING) &NDrive,
                                OBJ_CASE_INSENSITIVE,
                                NULL,
                                NULL);

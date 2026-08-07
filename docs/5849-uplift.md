@@ -344,6 +344,42 @@ rest of this document keeps recording: check the premise against the shipped
 artifact before acting on it. Two of these three rows would have been work done
 to fix nothing.
 
+## Missing public constants — `tools/const_sweep.py`
+
+The quietest of the three "up to 5849" measures: not "does this function exist"
+(the api audit) or "is it in the right lib" (the ownership audit), but "does this
+named value exist". A 5849 `#define` we don't carry fails a title's *compile*, so
+unlike a missing API it is caught the moment a title's source names it — but it
+is still real ABI, and it flushes out headers we adopted only partially.
+
+**Real total: 0.** Every Xbox-SDK-header constant 5849 defines, we now define.
+The last gaps closed were **DSound.h (8** — the 5849 stream additions:
+`DSSTREAMCAPS_MUTE3DATMAXDISTANCE`/`_NOCOALESCE`, `DSSTREAMPAUSE_SYNCHPLAYBACK`/
+`_PAUSENOACTIVATE`, `DSSTREAMFLUSHEX_ENVELOPE2`, `DSSTREAMSTATUS_ENVELOPECOMPLETE`,
+`DSSTREAMVOLUME_HW_MIN`, `DSI3DL2_ENVIRONMENT_PRESET_DEFAULT2`**)** and **XbDm.h
+(39** — the debug-monitor allocation-type table `DM_ALLOCTYPE_*`, the upper
+`DM_TRACK_*` bits, stack-trace/bugcheck notify types, and the D3D/VX/profile
+`XBDM_*` result codes; adding `DM_STACKTRACE`/`DM_BUGCHECK` also bumped
+`DM_NOTIFYMAX` 18→20 to match**)**. Values taken verbatim from the 5849 headers,
+placed beside their siblings; libxbdm rebuilds and all 181 samples still compile.
+
+⚠️ **What the sweep does NOT count, by design** (both are ours-by-choice, not
+gaps): the picolibc CRT headers (`tchar.h`, `crtdbg.h`, …, ~274 constants — our
+libc is the deliberate replacement) and the inherited Win32 Platform-SDK headers
+(`WinNT.h` alone is ~900: ACL/token access masks, PE image directory entries,
+`EMARCH_ENC_*` Itanium encodings, `ES_*` execution-state — the Xbox kernel
+implements none of it, so our `WinNT.h` is an intentional subset). Folding those
+into the total buries the real Xbox-SDK signal — the first run reported 953 and
+was useless until they were separated out.
+
+⚠️ **The tool's own first-run bug, kept as a cautionary note in its header:** a
+whole-file scan for the include-guard `#ifndef X\n#define X` shape wrongly matched
+the overridable-default idiom `#ifndef STRICT / #define STRICT 1` (a real valued
+constant, mid-file), silently dropping `STRICT` and reporting a false gap.
+Fixed by anchoring guard detection to the *first* directive in the file. Every
+measurement tool in this suite has been wrong on its first run; the first number
+always deserves the same suspicion as the code.
+
 ## Missing public APIs, not just missing constants
 
 `tools/api_gap_audit.py` asks the harder question: not "does this symbol have a
@@ -359,12 +395,14 @@ internal code that was never public — 5849's `xvoice.lib` contains the
 binary-only codec, which is not a gap in our port so much as something we were
 never going to have.
 
-**49 public APIs absent from our libs** (was 64: the ten `xact.h` gaps are all recovered and
-implemented — see `5849-xact-api-recovery.md` — along with
-`IDirectSound{Buffer,Stream}_GetVoiceProperties`, which `IXACTSoundSource_GetProperties`
-depends on and which the audit's dsound.lib-ends-in-'d' bug had been hiding; then
-`XAudioSetEffectData` and `D3DPERF_QueryRepeatFrame`, closing the DSound.h and D3D8Perf.h rows;
-then four of the nine `Xbox.h` gaps — see `5849-xbox-h-recovery.md`):
+**6 public APIs absent from our libs** (was 64). Closed this arc: the ten `xact.h` gaps (see
+`5849-xact-api-recovery.md`) plus `IDirectSound{Buffer,Stream}_GetVoiceProperties` that
+`IXACTSoundSource_GetProperties` needed (hidden by the audit's dsound.lib-ends-in-'d' bug);
+`XAudioSetEffectData` and `D3DPERF_QueryRepeatFrame` (DSound.h + D3D8Perf.h rows); four of nine
+`Xbox.h` gaps (`5849-xbox-h-recovery.md`); and all 43 `xonline.h` gaps (40 service-unavailable
+stubs completing the existing pattern + 3 done for real — `TitleIdIsSamePublisher`, `Throttle`
+Get/Set). The remaining 6 are the two heavyweight `Xbox.h` write subsystems (5) and
+`XGCompileShader` (1, blocked on the xsasm vertex back end):
 
 | Header | Missing | What they are |
 |---|---|---|

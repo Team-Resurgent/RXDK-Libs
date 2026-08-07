@@ -765,6 +765,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSTREAMCAPS_CTRLVOLUME     DSBCAPS_CTRLVOLUME          // The stream supports volume changes
 #define DSSTREAMCAPS_LOCDEFER       DSBCAPS_LOCDEFER            // The stream does not acquire resources at creation
 #define DSSTREAMCAPS_ACCURATENOTIFY 0x40000000                  // The stream should provide more accurate packet completion notifications
+#define DSSTREAMCAPS_MUTE3DATMAXDISTANCE    DSBCAPS_MUTE3DATMAXDISTANCE // The 3D stream is muted at max distance and beyond
+#define DSSTREAMCAPS_NOCOALESCE             0x20000000                  // Do not coalesce packets when writing to hardware
                                                                     
 //
 // Stream frequency range
@@ -780,6 +782,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSSTREAMVOLUME_MIN          DSBVOLUME_MIN               // Minimum valid volume value
 #define DSSTREAMVOLUME_MAX          DSBVOLUME_MAX               // Maximum valid volume value
+#define DSSTREAMVOLUME_HW_MIN       DSBVOLUME_HW_MIN            // Minimum volume supported by Xbox hardware
 
 //
 // Stream headroom range 
@@ -803,6 +806,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSSTREAMPAUSE_RESUME        0x00000000                  // Resume a paused stream
 #define DSSTREAMPAUSE_PAUSE         0x00000001                  // Pause the stream
+#define DSSTREAMPAUSE_SYNCHPLAYBACK     0x00000002              // Synchronize playback of multiple buffers and streams
+#define DSSTREAMPAUSE_PAUSENOACTIVATE   0x00000003              // Pause the stream without activating the voice
 
 //
 // IDirectSoundStream::Stop flags
@@ -811,6 +816,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSTREAMFLUSHEX_IMMEDIATE   0x00000000      // The stream should flush immediately (same as calling Flush)
 #define DSSTREAMFLUSHEX_ASYNC       0x00000001      // The stream should begin a flush operation and complete it during DoWork
 #define DSSTREAMFLUSHEX_ENVELOPE    0x00000002      // The stream should begin a flush operation using a release envelope
+#define DSSTREAMFLUSHEX_ENVELOPE2   0x00000004      // The stream should enter its release segment and accept no more packets once completed
 
 //
 // Stream status flags
@@ -820,6 +826,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSTREAMSTATUS_PLAYING      0x00010000                      // The stream is playing
 #define DSSTREAMSTATUS_PAUSED       0x00020000                      // The stream is paused
 #define DSSTREAMSTATUS_STARVED      0x00040000                      // The stream is starved
+#define DSSTREAMSTATUS_ENVELOPECOMPLETE 0x00080000                      // The release envelope segment is complete
                                                                         
 //
 // 3D modes
@@ -960,6 +967,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 //
 
 #define DSI3DL2_ENVIRONMENT_PRESET_DEFAULT           -1000,   -100, 0.0f, 1.49f, 0.83f,  -2602, 0.007f,    200, 0.011f, 100.0f, 100.0f, 5000.0f
+#define DSI3DL2_ENVIRONMENT_PRESET_DEFAULT2          -10000,      0, 0.0f, 1.00f, 0.50f, -10000, 0.020f, -10000, 0.040f, 100.0f, 100.0f, 5000.0f
 #define DSI3DL2_ENVIRONMENT_PRESET_GENERIC           -1000,   -100, 0.0f, 1.49f, 0.83f,  -2602, 0.007f,    200, 0.011f, 100.0f, 100.0f, 5000.0f
 #define DSI3DL2_ENVIRONMENT_PRESET_PADDEDCELL        -1000,  -6000, 0.0f, 0.17f, 0.10f,  -1204, 0.001f,    207, 0.002f, 100.0f, 100.0f, 5000.0f
 #define DSI3DL2_ENVIRONMENT_PRESET_ROOM              -1000,   -454, 0.0f, 0.40f, 0.83f,  -1646, 0.002f,     53, 0.003f, 100.0f, 100.0f, 5000.0f

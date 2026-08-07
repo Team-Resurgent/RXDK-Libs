@@ -45,7 +45,9 @@ extern "C" {
 #define DM_SECTIONLOAD 16
 #define DM_SECTIONUNLOAD 17
 #define DM_FIBER 18
-#define DM_NOTIFYMAX 18
+#define DM_STACKTRACE 19
+#define DM_BUGCHECK 20
+#define DM_NOTIFYMAX 20
 
 #define DM_NOTIFICATIONMASK 0xffffff
 #define DM_STOPTHREAD 0x80000000
@@ -102,6 +104,8 @@ typedef struct _DMN_SECTIONLOAD {
 } DMN_SECTIONLOAD, *PDMN_SECTIONLOAD;
 
 #define DMN_SECFLAG_LOADED  0x0001
+#define DMN_SECFLAG_WRITEABLE     0x0002
+#define DMN_SECFLAG_UNINITIALIZED 0x0004
 
 // thread create notification structure
 typedef struct _DMN_CREATETHREAD {
@@ -187,6 +191,9 @@ DMAPI BOOL __stdcall DmIsDebuggerPresent(void);
 #define DMSTOP_CREATETHREAD 1
 #define DMSTOP_FCE 2
 #define DMSTOP_DEBUGSTR 4
+#define DMSTOP_STACKTRACE 8
+#define DM_STACKTRACE_SERVICE 12
+#define DM_MAX_STACK_DEPTH  32
 DMHRAPI DmStopOn(DWORD dwStopFlags, BOOL fStop);
 
 // reboot
@@ -329,6 +336,28 @@ typedef struct _DM_UTILITY_DRIVE_INFO
 #define DM_TRACK_SYSTEM_MEMORY          0x0008
 #define DM_TRACK_DEBUG_MEMORY           0x0010
 #define DM_TRACK_KERNEL_POOL            0x0020
+#define DM_TRACK_HANDLE                 0x0040
+#define DM_TRACK_CUSTOM                 0x0080
+#define DM_TRACK_TYPEMASK               0x00FF
+#define DM_TRACK_ASSERT_ON_FAILURES     0x0100
+#define DM_TRACK_MASK                   0x01FF
+
+// allocation-type identifiers (DmQueryAllocationTypeName / DmInsertAllocationEntry)
+#define DM_ALLOCTYPE_HEAP               ((USHORT)0)
+#define DM_ALLOCTYPE_VIRTUAL_MEMORY     ((USHORT)1)
+#define DM_ALLOCTYPE_CONTIGUOUS_MEMORY  ((USHORT)2)
+#define DM_ALLOCTYPE_SYSTEM_MEMORY      ((USHORT)3)
+#define DM_ALLOCTYPE_DEBUG_MEMORY       ((USHORT)4)
+#define DM_ALLOCTYPE_KERNEL_POOL        ((USHORT)5)
+#define DM_ALLOCTYPE_DIRECTORY_OBJECT   ((USHORT)6)
+#define DM_ALLOCTYPE_EVENT              ((USHORT)7)
+#define DM_ALLOCTYPE_FILE               ((USHORT)8)
+#define DM_ALLOCTYPE_IO_COMPLETION      ((USHORT)9)
+#define DM_ALLOCTYPE_MUTANT             ((USHORT)10)
+#define DM_ALLOCTYPE_SEMAPHORE          ((USHORT)11)
+#define DM_ALLOCTYPE_TIMER              ((USHORT)12)
+#define DM_ALLOCTYPE_THREAD             ((USHORT)13)
+#define DM_ALLOCTYPE_INTERNAL_MAX       ((USHORT)14)
 
 DMHRAPI DmStartProfiling(LPCSTR szLogFileName, DWORD dwDataBufferSize);
 DMHRAPI DmStopProfiling(VOID);
@@ -338,6 +367,10 @@ DMHRAPI DmQueryAllocationTypeName(USHORT AllocationType, LPSTR pszName, SIZE_T n
 DMHRAPI DmRegisterAllocationType(LPCSTR pszName, USHORT *AllocationnType);
 DMHRAPI DmInsertAllocationEntry(PVOID AllocPtr, SIZE_T AllocSize, USHORT AllocType);
 DMHRAPI DmRemoveAllocationEntry(PVOID AllocPtr, SIZE_T AllocSize, USHORT AllocType);
+// DmSetTitleEx flags + title-persist control
+#define DM_XBEONDISKONLY  0x00000001
+#define DMTITLE_PERSIST    0x0001
+#define DMTITLE_UNPERSIST  0x0002
 DMHRAPI DmSetTitleEx(LPCSTR szDir, LPCSTR szTitle, LPCSTR szCmdLine, DWORD dwFlags);
 DMHRAPI DmCaptureStackBackTrace(ULONG FramesToCapture, PVOID *BackTrace);
 DMHRAPI DmCrashDump(VOID);
@@ -470,6 +503,13 @@ DMHRAPI DmUnregisterPerformanceCounter(LPCSTR szName);
 #define XBDM_NOTLOCKED XBDM_HRESERR(20)
 #define XBDM_KEYXCHG XBDM_HRESERR(21)
 #define XBDM_MUSTBEDEDICATED XBDM_HRESERR(22)
+#define XBDM_INVALIDARG XBDM_HRESERR(23)
+#define XBDM_PROFILENOTSTARTED XBDM_HRESERR(24)
+#define XBDM_PROFILEALREADYSTARTED XBDM_HRESERR(25)
+#define XBDM_D3D_DEBUG_COMMAND_NOT_IMPLEMENTED XBDM_HRESERR(0x50)
+#define XBDM_D3D_INVALID_SURFACE XBDM_HRESERR(0x51)
+#define XBDM_VX_TASK_PENDING XBDM_HRESERR(0x60)
+#define XBDM_VX_TOO_MANY_SESSIONS XBDM_HRESERR(0x61)
 #define XBDM_CANNOTCONNECT XBDM_HRESERR(0x100)
 #define XBDM_CONNECTIONLOST XBDM_HRESERR(0x101)
 #define XBDM_FILEERROR XBDM_HRESERR(0x103)
@@ -485,6 +525,8 @@ DMHRAPI DmUnregisterPerformanceCounter(LPCSTR szName);
 #define XBDM_BINRESPONSE XBDM_HRESSUCC(3)
 #define XBDM_READYFORBIN XBDM_HRESSUCC(4)
 #define XBDM_DEDICATED XBDM_HRESSUCC(5)
+#define XBDM_PROFILERESTARTED XBDM_HRESSUCC(6)
+#define XBDM_FASTCAPENABLED XBDM_HRESSUCC(7)
 
 // Call Attributes Profiler Support Function
 #define DM_PROFILE_START    1

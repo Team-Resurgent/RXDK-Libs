@@ -344,6 +344,37 @@ rest of this document keeps recording: check the premise against the shipped
 artifact before acting on it. Two of these three rows would have been work done
 to fix nothing.
 
+## Struct layout — the fourth ABI dimension, spot-verified
+
+Functions, constant names, constant values, and enum values are covered by the
+three audits. The remaining ABI dimension is **struct layout**: a title passing a
+struct whose fields sit at the wrong offsets corrupts memory silently — the most
+dangerous class, and the one no name/value audit can see. Struct layouts were the
+primary target of the per-lib `cvdump` reconciliation during the main uplift, so
+this is the most-scrutinized dimension already; rather than a full automated tool
+(each header needs its own compile environment, which is genuinely fiddly), the
+highest-ABI-risk and recently-touched structs were verified directly, with two
+exact oracles and therefore zero false positives:
+
+- **5849 ground truth** from `cvdump` of the shipped libs — e.g.
+  `struct _DSVOICEPROPS { // sizeof = 92 (0x5C) ... }`, every field offset listed.
+- **Our size** from the compiler: a `_Static_assert(sizeof(T) == N, ...)` probe
+  compiled on the Xbox target inside a sample that already sets up the right
+  header environment (XINPUT via `xapi-input`, the audio structs via
+  `dsound-music`, since `dsound.h` needs the full DirectX header set — `GUID`,
+  `D3DXVECTOR3`, `EXTERN_C` — that a bare probe cannot conjure).
+
+All ten checked matched 5849 exactly: `XINPUT_STATE` 22, `XINPUT_CAPABILITIES`
+25, `XINPUT_GAMEPAD` 18, `XINPUT_LIGHTGUN_CALIBRATION_OFFSETS` 8,
+`XINPUT_DEVICE_DESCRIPTION` 6; `DSVOICEPROPS` 92, `DSFX_RAW_EFFECT_DESCRIPTION`
+268, `DSFX_HIGH_LEVEL_EFFECT_DESCRIPTION` 52, `XACT_SOUNDCUE_PROPERTIES` 100,
+`XACT_REALTIME_AUDIO_DATA` 88. The DSFX ones are worth noting: the raw
+descriptor's 268 = `effectType` (4) + a 264-byte union dominated by the
+I3DL2-reverb arm, which confirms the header's one-dword-shifted `Distortion` view
+(documented in the DSound.h row above) is harmless — the union is sized by the
+reverb arm, not the mislabeled distortion arm. The probes are temporary by
+design (added, compiled, reverted); the reusable part is the method.
+
 ## Missing public constants — `tools/const_sweep.py`
 
 The quietest of the three "up to 5849" measures: not "does this function exist"

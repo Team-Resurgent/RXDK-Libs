@@ -74,6 +74,16 @@ KNOWN_VALUE_DIVERGENCE = {
     ('wavbndlr.h', 'WAVEBANKHEADER_BANKNAME_LENGTH'),
 }
 
+# Headers whose ENUM members are an internal implementation detail, not a
+# title-facing ABI, so their values legitimately differ from 5849 and should not
+# be value-compared (their #defines still are). d3d8perf.h's D3DAPI_INDEX is the
+# profiler's per-API counter-slot table: libd3d8 indexes its own
+# g_PerfCounters.m_APICounters[] array by these, sized to D3DAPI_MAX -- fully
+# internal and self-consistent. 5849 simply has ~15 more entries because its D3D
+# gained methods; matching it would renumber 180+ slots (and instrument those
+# call sites) for a debug-only profiler no host tool in this project consumes.
+INTERNAL_ENUM_HEADERS = {'d3d8perf.h'}
+
 # Names the sweep would flag that are NOT real gaps -- verified individually, so
 # they do not reappear as noise every run. Keep the reason with each.
 KNOWN_NON_GAPS = {
@@ -219,20 +229,89 @@ def _safe_eval(node):
     raise ValueError('unsupported')
 
 
-def our_value_map():
-    """{name: reduced-int} across our headers, for names that reduce cleanly."""
+def _reduce_with_syms(text, syms):
+    """reduce_int, but first substitute any known symbol (prior enum members) by
+    its integer value. Lets `B = A + 1` resolve; an unknown name still → None."""
+    t = re.sub(r'[A-Za-z_]\w*',
+               lambda m: str(syms[m.group()]) if m.group() in syms else m.group(),
+               text)
+    return reduce_int(t)
+
+
+_ENUM = re.compile(r'\benum\b[^{;]*\{([^{}]*)\}', re.S)
+
+
+def enum_values(path):
+    """{member: value} for enum members that resolve to an integer.
+
+    Enum members are C's other named-constant mechanism, and 5849 inserting one
+    mid-list shifts every following value -- the same silent-miscompile risk as a
+    wrong #define. Values are tracked sequentially (implicit member = prev + 1),
+    with `= expr` reduced after substituting earlier members; once a member fails
+    to resolve, the running counter is dropped so nothing downstream is guessed.
+    """
+    try:
+        text = open(path, encoding='utf-8', errors='replace').read()
+    except OSError:
+        return {}
+    text = re.sub(r'/\*.*?\*/', ' ', text, flags=re.S)
+    text = re.sub(r'//[^\n]*', '', text)
+
+    out = {}
+    for body in (m.group(1) for m in _ENUM.finditer(text)):
+        cur = -1                              # first implicit member is 0
+        for member in _split_top(body):
+            member = member.strip()
+            if not member:
+                continue
+            mm = re.match(r'([A-Za-z_]\w*)\s*(?:=(.*))?$', member, re.S)
+            if not mm:
+                cur = None
+                continue
+            name, expr = mm.group(1), mm.group(2)
+            if expr is not None:
+                v = _reduce_with_syms(expr, out)
+                cur = v                       # None if unresolved -> stop counting
+            else:
+                cur = cur + 1 if cur is not None else None
+            if cur is not None:
+                out[name] = cur
+    return out
+
+
+def _split_top(body):
+    """Split an enum body on commas that are not inside parentheses."""
+    parts, depth, cur = [], 0, []
+    for ch in body:
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+        if ch == ',' and depth == 0:
+            parts.append(''.join(cur)); cur = []
+        else:
+            cur.append(ch)
+    parts.append(''.join(cur))
+    return parts
+
+
+
+
+def _header_values(path, include_enums=True):
+    """{name: reduced-int} for one header -- #defines and (optionally) enum
+    members together."""
     vals = {}
-    for p in glob.glob(os.path.join(OUR_INC, '**', '*.h'), recursive=True):
-        for n, raw in macros(p).items():
-            r = reduce_int(raw)
-            if r is not None:
-                vals.setdefault(n, r)
+    for n, raw in macros(path).items():
+        r = reduce_int(raw)
+        if r is not None:
+            vals[n] = r
+    if include_enums:
+        vals.update(enum_values(path))
     return vals
 
 
 def main():
     ours = our_macros_union()
-    our_vals = our_value_map()
 
     real_rows, crt_rows, platform_rows = [], [], []
     mismatches = []   # (header, name, ours, theirs) -- defined-but-wrong
@@ -260,16 +339,19 @@ def main():
                 real_rows.append(row)
 
         # Value-mismatch pass: only the Xbox-SDK headers, only names that reduce
-        # to an integer on BOTH sides (see reduce_int).
+        # to an integer on BOTH sides. Covers #define constants and enum members.
+        # Compared against OUR SAME-NAMED header, not a global union -- enum member
+        # names are not globally unique (dsstdfx.h and dmusicfx.h both name an
+        # I3DL2Reverb node at different graph positions), so a global map reports
+        # phantom mismatches from a same-named member in an unrelated header.
         if not ours_by_choice:
-            for n, raw in defined.items():
-                if n in KNOWN_NON_GAPS or n not in our_vals:
+            use_enums = low not in INTERNAL_ENUM_HEADERS
+            ours_here = _header_values(our_h, use_enums)
+            for n, theirs in _header_values(hp, use_enums).items():
+                if n in KNOWN_NON_GAPS or (name, n) in KNOWN_VALUE_DIVERGENCE:
                     continue
-                if (name, n) in KNOWN_VALUE_DIVERGENCE:
-                    continue
-                theirs = reduce_int(raw)
-                if theirs is not None and theirs != our_vals[n]:
-                    mismatches.append((name, n, our_vals[n], theirs))
+                if n in ours_here and theirs != ours_here[n]:
+                    mismatches.append((name, n, ours_here[n], theirs))
 
     real_rows.sort(key=lambda r: -len(r[2]))
     crt_rows.sort(key=lambda r: -len(r[2]))

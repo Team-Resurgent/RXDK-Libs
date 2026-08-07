@@ -415,6 +415,25 @@ changed it, 5849 wins — that *is* the uplift — but only after confirming the
 library reads the constant by name (so a header edit plus a rebuild stays
 consistent) and nothing in the build regresses.
 
+The pass also covers **enum members** (5849 inserting one mid-list shifts every
+following value — the same silent-miscompile risk). Two lessons came out of
+extending it there, both now baked into the tool:
+
+- **Compare per-header, not against a global union.** Enum member names are not
+  globally unique — `dsstdfx.h` and `dmusicfx.h` each name an `I3DL2Reverb` graph
+  node at a different position — so a global name→value map reported phantom
+  mismatches from an unrelated header's same-named member. The pass now compares
+  each 5849 header only against our same-named header. (This was the tool's
+  first-run bug for the enum pass; the #define pass had been lucky that #define
+  names *are* globally unique.)
+- **d3d8perf.h's `D3DAPI_INDEX` is excluded as internal.** Its ~180 `API_*`
+  members index libd3d8's own `g_PerfCounters.m_APICounters[]` array — a
+  self-consistent, debug-only profiler table, not a title ABI. 5849 has ~15 more
+  entries only because its D3D gained methods; matching it would renumber 180
+  slots for a profiler no host tool here consumes. Recorded in
+  `INTERNAL_ENUM_HEADERS`, so a genuine enum shift in any other header still
+  surfaces.
+
 ## Missing public APIs, not just missing constants
 
 `tools/api_gap_audit.py` asks the harder question: not "does this symbol have a

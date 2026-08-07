@@ -11,12 +11,9 @@
 
 extern "C" {
 
-// 5849 device (memory-unit / hard-disk) enumeration status query. RXDK enumerates devices
-// synchronously, so enumeration is never "busy" -- report idle (0 == XDEVICE_ENUMERATION_IDLE).
-XBOXAPI DWORD WINAPI XGetDeviceEnumerationStatus(void)
-{
-    return 0;
-}
+// (XGetDeviceEnumerationStatus moved to libxapi k32/xpp.c, next to the rest of
+// the XGetDevice* family -- 5849 ships it in xapilib, and a non-Live title that
+// links libxapi but not the Live client must still resolve it.)
 
 // (XCalculateSignatureGetSize moved to libxapi k32/xcalcsig.c, next to the rest
 // of the XCalculateSignature* family -- it is an XAPI export, and titles that

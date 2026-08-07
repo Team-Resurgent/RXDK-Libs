@@ -286,3 +286,20 @@ XGetDeviceChanges(
     }
 }
 
+
+//
+// 5849 device (memory-unit / hard-disk) enumeration status query. RXDK
+// enumerates devices synchronously through XGetDevices/XGetDeviceChanges above,
+// so enumeration is never "busy" -- report idle. 5849 ships this in xapilib with
+// the rest of the XGetDevice* family, NOT in the Live client; a non-Live title
+// that links libxapi but not libxonline must still resolve it.
+//
+DWORD
+__attribute__((__stdcall__))
+XGetDeviceEnumerationStatus(
+    VOID
+    )
+{
+    return XDEVICE_ENUMERATION_IDLE;
+}
+

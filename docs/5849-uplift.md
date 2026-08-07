@@ -252,9 +252,27 @@ what the libxnet LIBX/LIBO split turned out to be.
 
 `tools/lib_ownership_audit.py` compares the defined-symbol set of every one of our
 libs against the retail 5849 libs and reports the differences. Current state:
-**4403 symbols in common, 161 placed differently.** Ignoring symbols that appear
-in nearly every 5849 lib (compiler/CRT helpers, not owned code), the real buckets
-are:
+**4651 symbols in common, 348 placed differently — and every one of the 348 is now
+a documented intentional divergence** (the LIBX/LIBO `libxneto` split, 345; the
+keyboard in `libxapi`, 3). Getting there took two clean-ups worth recording:
+
+- **One real misplacement, found by scrutinizing the small odd rows.** The audit
+  had a `3 · libxonline → xapilib` row that I had waved off with the rest. Two of
+  the three were string-literal COMDATs (below), but the third was real:
+  `XGetDeviceEnumerationStatus`, an XAPI export declared in `Xbox.h` that 5849
+  ships in `xapilib` — we had it in `libxonline`, so a non-Live title linking
+  `libxapi` but not the Live client would have failed to link it. Moved to
+  `libxapi/k32/xpp.c` beside the rest of the `XGetDevice*` family (same fix, and
+  the same reasoning, as the earlier `XCalculateSignatureGetSize` move).
+- **Compiler-COMDAT noise now filtered.** A string literal (`??_C@…`, e.g. `"%d"`
+  or `"Z"`), a vftable (`??_7`), or an RTTI descriptor (`??_R…`) is folded into
+  whatever lib uses it; it has no "owner", so its landing in a different lib than
+  5849 is noise, not a placement decision. Filtering these removed 27 phantom
+  rows (the `19 · libxonline → libc` row was *entirely* such COMDATs — verified,
+  not assumed). What remains is only genuine, deliberate packaging.
+
+Ignoring symbols that appear in nearly every 5849 lib (compiler/CRT helpers, not
+owned code), the historical buckets and how each resolved:
 
 | Count | We put it in | 5849 puts it in | Reading |
 |---|---|---|---|

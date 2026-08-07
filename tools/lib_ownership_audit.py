@@ -108,9 +108,18 @@ alias = {
  'libxnet':'xnet','libxneto':'xneto',
 }
 
+# Compiler-emitted COMDAT data has no "owner": a string literal (`??_C@...`),
+# vftable (`??_7`), or RTTI descriptor (`??_R0`..`??_R4`) is folded into whatever
+# lib happens to use it, so its appearing in a different lib than 5849's is noise,
+# not a placement decision. (This is what was left in the small libxonline rows
+# once the one real misplacement, XGetDeviceEnumerationStatus, was moved to
+# libxapi: strings like "%d" and "Z".)
+def is_comdat_noise(sym):
+    return sym.startswith('??_C@') or sym.startswith('??_7') or sym.startswith('??_R')
+
 mism = []
 for sym, ourlibs in ours.items():
-    if sym not in xdk: continue
+    if sym not in xdk or is_comdat_noise(sym): continue
     for ol in ourlibs:
         want = alias.get(ol)
         if want is None: continue

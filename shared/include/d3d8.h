@@ -603,7 +603,7 @@ struct Direct3D
     static HRESULT WINAPI SetPushBufferSize(DWORD PushBufferSize, DWORD KickOffSize); // Xbox extension
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /*
  * D3DDevice, IDirect3DDevice8 interface
@@ -798,7 +798,7 @@ struct D3DDevice
     static void    WINAPI SetRenderTargetFast(D3DSurface *pRenderTarget, D3DSurface *pNewZStencil, DWORD Flags);
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /*
  * D3DResource, IDirect3DResource8 interface
@@ -890,7 +890,7 @@ struct D3DResource
     //
     void    WINAPI Register(void *pBase);
 
-#endif __cplusplus
+#endif // __cplusplus
 
     // All resources need these fields.  Inherit them in C++.
 
@@ -955,7 +955,7 @@ struct D3DPixelContainer : public D3DResource
     DWORD Size;     // Size of a non power-of-2 texture, must be zero otherwise
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /*
  * D3DBaseTexture interface
@@ -1112,7 +1112,7 @@ struct D3DVertexBuffer
     HRESULT WINAPI Unlock();
     HRESULT WINAPI GetDesc(D3DVERTEXBUFFER_DESC *pDesc);
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifndef __cplusplus
 
@@ -1148,7 +1148,7 @@ struct D3DIndexBuffer
     HRESULT WINAPI Unlock();
     HRESULT WINAPI GetDesc(D3DINDEXBUFFER_DESC *pDesc);
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifndef __cplusplus
 
@@ -1189,7 +1189,7 @@ struct D3DPalette
     HRESULT WINAPI Unlock();
     D3DPALETTESIZE WINAPI GetSize();
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifndef __cplusplus
 
@@ -1226,7 +1226,7 @@ struct D3DSurface
     HRESULT WINAPI LockRect(D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags);
     HRESULT WINAPI UnlockRect();
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifndef __cplusplus
 
@@ -1320,7 +1320,7 @@ struct D3DPushBuffer
     HRESULT WINAPI Jump(DWORD Offset, UINT DestinationOffset);
     HRESULT WINAPI GetSize(DWORD* pSize);
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifndef __cplusplus
 
@@ -1366,7 +1366,7 @@ struct D3DFixup
     HRESULT WINAPI GetSize(DWORD* pSize);
     HRESULT WINAPI GetSpace(DWORD* pSpace);
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifndef __cplusplus
 
@@ -1505,7 +1505,7 @@ D3DMINLINE HRESULT WINAPI Direct3D::GetDeviceCaps(UINT Adapter, D3DDEVTYPE Devic
 D3DMINLINE HRESULT WINAPI Direct3D::CreateDevice(UINT Adapter, D3DDEVTYPE DeviceType, void *pUnused, DWORD BehaviorFlags, D3DPRESENT_PARAMETERS *pPresentationParameters, D3DDevice **ppReturnedDeviceInterface) { return Direct3D_CreateDevice(Adapter, DeviceType, pUnused, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface); }
 D3DMINLINE HRESULT WINAPI Direct3D::SetPushBufferSize(DWORD PushBufferSize, DWORD KickOffSize) { Direct3D_SetPushBufferSize(PushBufferSize, KickOffSize); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /****************************************************************************
  *
@@ -2387,7 +2387,7 @@ D3DMINLINE DWORD   WINAPI D3DDevice::SetDebugMarker(DWORD Marker) { return 0; }
 D3DMINLINE DWORD   WINAPI D3DDevice::GetDebugMarker() { return 0; }
 #endif
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DResource */
 
@@ -2432,7 +2432,7 @@ D3DMINLINE void    WINAPI D3DResource::BlockUntilNotBusy() { D3DResource_BlockUn
 D3DMINLINE void    WINAPI D3DResource::MoveResourceMemory(D3DMEMORY where) { D3DResource_MoveResourceMemory(this, where); }
 D3DMINLINE void    WINAPI D3DResource::Register(void *pBase) { D3DResource_Register(this, pBase); }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DBaseTexture */
 
@@ -2469,7 +2469,7 @@ D3DINLINE DWORD WINAPI IDirect3DBaseTexture8_GetLevelCount(D3DBaseTexture *pThis
 
 D3DMINLINE DWORD WINAPI D3DBaseTexture::GetLevelCount() { return D3DBaseTexture_GetLevelCount(this); }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DTexture */
 
@@ -2517,7 +2517,7 @@ D3DMINLINE HRESULT WINAPI D3DTexture::GetSurfaceLevel(UINT Level, D3DSurface **p
 D3DMINLINE HRESULT WINAPI D3DTexture::LockRect(UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DTexture_LockRect(this, Level, pLockedRect, pRect, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DTexture::UnlockRect(UINT Level) { D3DTexture_UnlockRect(this, Level); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DVolumeTexture */
 
@@ -2566,7 +2566,7 @@ D3DMINLINE HRESULT WINAPI D3DVolumeTexture::GetVolumeLevel(UINT Level, D3DVolume
 D3DMINLINE HRESULT WINAPI D3DVolumeTexture::LockBox(UINT Level, D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags) { D3DVolumeTexture_LockBox(this, Level, pLockedVolume, pBox, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVolumeTexture::UnlockBox(UINT Level) { D3DVolumeTexture_UnlockBox(this, Level); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DCubeTexture */
 
@@ -2612,7 +2612,7 @@ D3DMINLINE HRESULT WINAPI D3DCubeTexture::GetCubeMapSurface(D3DCUBEMAP_FACES Fac
 D3DMINLINE HRESULT WINAPI D3DCubeTexture::LockRect(D3DCUBEMAP_FACES FaceType, UINT Level, D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DCubeTexture_LockRect(this, FaceType, Level, pLockedRect, pRect, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DCubeTexture::UnlockRect(D3DCUBEMAP_FACES FaceType, UINT Level) { D3DCubeTexture_UnlockRect(this, FaceType, Level); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DVertexBuffer */
 
@@ -2653,7 +2653,7 @@ D3DMINLINE HRESULT WINAPI D3DVertexBuffer::Lock(UINT OffsetToLock, UINT UnusedSi
 D3DMINLINE HRESULT WINAPI D3DVertexBuffer::Unlock() { D3DVertexBuffer_Unlock(this); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVertexBuffer::GetDesc(D3DVERTEXBUFFER_DESC *pDesc) { D3DVertexBuffer_GetDesc(this, pDesc); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DIndexBuffer */
 
@@ -2696,7 +2696,7 @@ D3DMINLINE HRESULT WINAPI D3DIndexBuffer::Lock(UINT OffsetToLock, UINT UnusedSiz
 D3DMINLINE HRESULT WINAPI D3DIndexBuffer::Unlock() { D3DIndexBuffer_Unlock(this); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DIndexBuffer::GetDesc(D3DINDEXBUFFER_DESC *pDesc) { D3DIndexBuffer_GetDesc(this, pDesc); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DPalette */
 
@@ -2738,7 +2738,7 @@ D3DMINLINE HRESULT WINAPI D3DPalette::Lock(D3DCOLOR **ppColor, DWORD Flags) { *p
 D3DMINLINE HRESULT WINAPI D3DPalette::Unlock() { D3DPalette_Unlock(this); return S_OK; }
 D3DMINLINE D3DPALETTESIZE WINAPI D3DPalette::GetSize() { return D3DPalette_GetSize(this); }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DPushBuffer */
 
@@ -2821,7 +2821,7 @@ D3DMINLINE HRESULT WINAPI D3DPushBuffer::CopyRects(DWORD Offset, D3DSurface *pSo
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::Jump(DWORD Offset, UINT DestinationOffset) { D3DPushBuffer_Jump(this, Offset, DestinationOffset); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DPushBuffer::GetSize(DWORD* pSize) { *pSize = Size; return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DFixup */
 
@@ -2863,7 +2863,7 @@ D3DMINLINE HRESULT WINAPI D3DFixup::Reset() { D3DFixup_Reset(this); return S_OK;
 D3DMINLINE HRESULT WINAPI D3DFixup::GetSize(DWORD* pSize) { D3DFixup_GetSize(this, pSize); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DFixup::GetSpace(DWORD* pSpace) { D3DFixup_GetSpace(this, pSpace); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DSurface */
 
@@ -2907,7 +2907,7 @@ D3DMINLINE HRESULT WINAPI D3DSurface::GetDesc(D3DSURFACE_DESC *pDesc) { D3DSurfa
 D3DMINLINE HRESULT WINAPI D3DSurface::LockRect(D3DLOCKED_RECT *pLockedRect, CONST RECT *pRect, DWORD Flags) { D3DSurface_LockRect(this, pLockedRect, pRect, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DSurface::UnlockRect() { D3DSurface_UnlockRect(this); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /* D3DVolume */
 
@@ -2951,7 +2951,7 @@ D3DMINLINE HRESULT WINAPI D3DVolume::GetDesc(D3DVOLUME_DESC *pDesc) { D3DVolume_
 D3DMINLINE HRESULT WINAPI D3DVolume::LockBox(D3DLOCKED_BOX *pLockedVolume, CONST D3DBOX *pBox, DWORD Flags) { D3DVolume_LockBox(this, pLockedVolume, pBox, Flags); return S_OK; }
 D3DMINLINE HRESULT WINAPI D3DVolume::UnlockBox() { D3DVolume_UnlockBox(this); return S_OK; }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #if !D3DCOMPILE_NOTINLINE
 
@@ -2986,7 +2986,7 @@ D3DMINLINE HRESULT WINAPI D3DVolume::UnlockBox() { D3DVolume_UnlockBox(this); re
     D3DINLINE HRESULT WINAPI D3DCubeTexture_GetCubeMapSurface(D3DCubeTexture *pTexture, D3DCUBEMAP_FACES FaceType, UINT Level, D3DSurface **ppCubeMapSurface){return IDirect3DCubeTexture8_GetCubeMapSurface(pTexture,FaceType,Level,ppCubeMapSurface);}
     D3DINLINE void WINAPI D3DDevice_GetPersistedSurface(IDirect3DSurface8 **ppSurface){IDirect3DDevice8_GetPersistedSurface(D3D__pDevice,ppSurface);}
 
-#endif !D3DCOMPILE_NOTINLINE
+#endif // !D3DCOMPILE_NOTINLINE
 
 #ifdef __cplusplus
 };

@@ -13,7 +13,7 @@
 #ifndef __XONLINE__
 #include "xonline.h"
 #endif
-#endif _XBOX
+#endif // _XBOX
 
 #pragma pack( push, 8 )
 
@@ -972,7 +972,7 @@ struct PluginSupport
                                    OUT DWORD                  *pWordLength);
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 
 ULONG   WINAPI PluginSupport_AddRef(         IN  PluginSupport          *pThis);
@@ -1033,7 +1033,7 @@ struct LiveFriendsList
     HRESULT WINAPI Request(          IN  XUID                   UserXUID);
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 
 ULONG   WINAPI LiveFriendsList_AddRef(           IN  LiveFriendsList      *pThis);
@@ -1130,7 +1130,7 @@ struct LiveEngine
     HRESULT WINAPI UseVoiceMail(          IN UIX_VOICE_MAIL_ENTRY_POINT VoiceMailEntryPoint);
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 ULONG   WINAPI LiveEngine_AddRef(                IN  LiveEngine               *pThis);
 
@@ -1276,7 +1276,7 @@ UIXINLINE HRESULT WINAPI IPluginSupport::GetScreenImage(DWORD ScreenResID, DWORD
 UIXINLINE HRESULT WINAPI IPluginSupport::GetWordLength( LPCWSTR pString, DWORD *pWordLength)
                          { return PluginSupport_GetWordLength( this,  pString, pWordLength); }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 //
 // Compatibility wrappers - ILiveFriendsList
@@ -1326,7 +1326,7 @@ UIXINLINE HRESULT WINAPI ILiveFriendsList::Remove(const XONLINE_FRIEND *pFriend)
 UIXINLINE HRESULT WINAPI ILiveFriendsList::Request(XUID UserXUID)
                          { return LiveFriendsList_Request(this, UserXUID); }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 //
 // Compatibility wrappers - ILiveEngine
@@ -1426,13 +1426,13 @@ UIXINLINE HRESULT WINAPI ILiveEngine::UseVoiceMail(UIX_VOICE_MAIL_ENTRY_POINT Vo
                          {return LiveEngine_UseVoiceMail(this, VoiceMailEntryPoint); }
 
 
-#endif __cplusplus
+#endif // __cplusplus
 
 //
 // Compatibility wrappers - End
 //
 
-#endif _XBOX
+#endif // _XBOX
 
 
 #ifdef __cplusplus

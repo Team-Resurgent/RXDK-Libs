@@ -71,7 +71,7 @@ struct XFONT
     HRESULT  __stdcall TextOut(IDirect3DSurface8 *pSurface, LPCWSTR wstr, unsigned cch, long x, long y);
 };
 
-#endif !defined(__cplusplus)
+#endif // !defined(__cplusplus)
 
 //****************************************************************************
 // The APIs
@@ -81,7 +81,7 @@ struct XFONT
 
 extern "C" {
 
-#endif !defined(__cplusplus)
+#endif // !defined(__cplusplus)
 
 //============================================================================
 // Loads a bitmap font of the format defined in xfontformat.h from a file.
@@ -477,7 +477,7 @@ HRESULT __stdcall XFONT_TextOut
 
 };
 
-#endif defined(__cplusplus)
+#endif // defined(__cplusplus)
 
 
 #if defined(__cplusplus)
@@ -511,6 +511,6 @@ __forceinline HRESULT  __stdcall XFONT::GetTextExtent(LPCWSTR wstr, unsigned cch
 __forceinline HRESULT  __stdcall XFONT::TextOutToMemory(LPCVOID pBits, unsigned Pitch, unsigned Width, unsigned Height, D3DFORMAT Format, LPCWSTR wstr, unsigned cch, long x, long y) { return XFONT_TextOutToMemory(this, pBits, Pitch, Width, Height, Format, wstr, cch, x, y); }
 __forceinline HRESULT  __stdcall XFONT::TextOut(IDirect3DSurface8 *pSurface, LPCWSTR wstr, unsigned cch, long x, long y) { return XFONT_TextOut(this, pSurface, wstr, cch, x, y); }
 
-#endif defined(__cplusplus)
+#endif // defined(__cplusplus)
 
 

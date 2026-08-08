@@ -356,7 +356,7 @@ struct XHVEngine
     HRESULT WINAPI VoiceMailStop(                  IN  DWORD                              dwLocalPort);                                                   
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 ULONG   WINAPI XHVEngine_AddRef(                          IN  XHVEngine                          *pThis);
 
@@ -564,7 +564,7 @@ XHVINLINE HRESULT WINAPI IXHVEngine::VoiceMailPlay( DWORD dwLocalPort, DWORD dwI
 XHVINLINE HRESULT WINAPI IXHVEngine::VoiceMailStop( DWORD dwLocalPort)
                          { return XHVEngine_VoiceMailStop( this, dwLocalPort);}
 
-#endif __cplusplus
+#endif // __cplusplus
 
 //-----------------------------------------------------------------------------
 //

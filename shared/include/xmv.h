@@ -210,7 +210,7 @@ struct XMVDecoder
     DWORD     GetTimeFromStart();
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /*
  * Load a movie in a file into the decoder.  This will allocate space to hold
@@ -485,7 +485,7 @@ inline HRESULT   XMVDecoder::GetNextFrame(IDirect3DSurface8 *pSurface, XMVRESULT
 
 inline DWORD     XMVDecoder::GetTimeFromStart() { return XMVDecoder_GetTimeFromStart(this); }
 
-#endif __cplusplus
+#endif // __cplusplus
 
 #ifdef __cplusplus
 }

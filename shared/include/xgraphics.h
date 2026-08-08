@@ -357,7 +357,7 @@ public:
     __forceinline SWIZNUM Get3D()          { return m_u | m_v | m_w; }
 };
 
-#endif __cplusplus
+#endif // __cplusplus
 
 /*
  * Swizzle methods.  These are implemented based on the above class

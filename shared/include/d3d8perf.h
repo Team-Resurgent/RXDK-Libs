@@ -880,7 +880,7 @@ struct D3DPERF_BlockTimer
 };
 
 #define PERFEVENT_BLOCKTIMER(x,y)    D3DPERF_BlockTimer _PerfEventTimer(x,y)
-#endif __cplusplus
+#endif // __cplusplus
 
 /*
  * RXDK: PIX-style event markers. Retail d3d8.lib exports all three
@@ -906,4 +906,4 @@ void WINAPI D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...);
 }
 #endif
 
-#endif _D3D8PERF_H_
+#endif // _D3D8PERF_H_

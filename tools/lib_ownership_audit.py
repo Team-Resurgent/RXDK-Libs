@@ -117,6 +117,22 @@ alias = {
 def is_comdat_noise(sym):
     return sym.startswith('??_C@') or sym.startswith('??_7') or sym.startswith('??_R')
 
+# Deliberate structural divergences from 5849's lib granularity -- documented,
+# and strictly more permissive (a title linking our lib gets a superset), so no
+# retail link is lost. These rows are expected; they are NOT misplacements to fix.
+#   * libxneto aggregates what 5849 spreads across xnet/xonline and their n/s
+#     variants -- the LIBX/LIBO split our port made (see 5849-uplift.md).
+#   * keyboard/mouse: 5849 ships xkbd.lib; we fold it into libxapi as first-class
+#     input (see rxdk-keyboard-mouse-first-class).
+#   * soundtrack write: 5849 ships xsndtrk.lib; we keep the write side in libxapi
+#     beside the read side, which already lives there (see 5849-xbox-h-recovery.md).
+_NET_ONLINE = {'xnet', 'xnetn', 'xnets', 'xonline', 'xonlinen', 'xonlines'}
+def is_intentional(ol, xl_set):
+    if ol == 'libxneto' and xl_set <= _NET_ONLINE: return True
+    if ol == 'libxapi' and xl_set <= {'xkbd', 'xkbdd'}: return True
+    if ol == 'libxapi' and xl_set <= {'xsndtrk'}: return True
+    return False
+
 mism = []
 for sym, ourlibs in ours.items():
     if sym not in xdk or is_comdat_noise(sym): continue
@@ -126,10 +142,14 @@ for sym, ourlibs in ours.items():
         if want not in xdk[sym]:
             mism.append((sym, ol, ','.join(sorted(xdk[sym]))))
 
+unexpected = [m for m in mism if not is_intentional(m[1], set(m[2].split(',')))]
+
 print(f"our libs: {len(set(l for v in ours.values() for l in v))}   5849 libs: {len(set(l for v in xdk.values() for l in v))}")
 print(f"symbols we define that 5849 also defines: {sum(1 for s in ours if s in xdk)}")
-print(f"OWNERSHIP MISMATCHES: {len(mism)}\n")
+print(f"ownership mismatches: {len(mism)} total, {len(mism) - len(unexpected)} intentional (documented), "
+      f"{len(unexpected)} UNEXPECTED\n")
 from collections import Counter
 c = Counter((ol, xl) for _, ol, xl in mism)
 for (ol, xl), n in c.most_common(25):
-    print(f"  {n:5d}  ours={ol:14s} 5849 has it in: {xl}")
+    tag = '  (intentional)' if is_intentional(ol, set(xl.split(','))) else '  *** UNEXPECTED ***'
+    print(f"  {n:5d}  ours={ol:14s} 5849 has it in: {xl}{tag}")

@@ -88,6 +88,25 @@ title using only the read side never pulls the object and never needs libdsound.
 Because it is the same decoder call retail makes, the length and title are now
 faithful-by-construction, not approximated.
 
+**Library ownership — an intentional consolidation, not a misplacement.** 5849
+splits the soundtrack subsystem across two libs: the *read* side
+(`XFindFirstSoundtrack`, `XFindNextSoundtrack`, `XGetSoundtrackSongInfo`,
+`XOpenSoundtrackSong`, `XapiGetNextSoundtrack`) ships in `xapilib.lib`, and the
+*write* side (`XAddSoundtrack`, `XAddSongToSoundtrack` plus the `Xapip*` block
+manager) ships in a separate `xsndtrk.lib`. Our port has always carried the read
+side in `libxapi` (`k32/xsndtrk.c`) — which already matches `xapilib.lib` — and
+this session put the write side beside it (`k32/xsndtrkw.c`), so the ownership
+audit flags exactly two rows: `XAddSoundtrack`/`XAddSongToSoundtrack` living in
+our `libxapi` where 5849 has them in `xsndtrk`. This is deliberate, and the same
+call the port already makes for keyboard/mouse (5849 `xkbd.lib` folded into
+`libxapi` as first-class input): we do not ship a separate `xsndtrk.lib`. Folding
+write in with read is strictly *more* permissive than 5849 — a title that links
+`libxapi` gets both, where 5849 would additionally require `xsndtrk.lib`, so
+nothing that linked under retail fails to link here. The `Xapip*` block-manager
+helpers are `static` in `xsndtrkw.c`, so they raise no rows. Contrast the earlier
+`XGetDeviceEnumerationStatus` move, which was a *real* misplacement (a non-Live
+title would have failed to link it): this is the opposite case — no link is lost.
+
 ### Soundtrack write — original recovery notes
 
 Our `k32/xsndtrk.c` is the **enumeration (read) side only** — it parses

@@ -18,12 +18,16 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "tools" / "conformance_headers.txt"
 ZIG = "zig"
 
+# Mirror the include path the build actually compiles against (build.zig uses
+# shared/picolibc/include + shared/picolibc/machine/x86 in every lib recipe).
+# The old vendor/picolibc/libc path was a stale upstream checkout that the build
+# never ships from and that is missing headers we do ship, e.g. stdbit.h.
 INCLUDE_DIRS = [
     ROOT / "include",
     ROOT / "build" / "generated",
     ROOT / "src" / "runtime" / "c23",
-    ROOT / "vendor" / "picolibc" / "libc" / "include",
-    ROOT / "vendor" / "picolibc" / "libc" / "machine" / "x86",
+    ROOT / "shared" / "picolibc" / "include",
+    ROOT / "shared" / "picolibc" / "machine" / "x86",
 ]
 
 # RXDK kit profile: headers we do not expect to ship yet (informational skip).

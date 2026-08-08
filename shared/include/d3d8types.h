@@ -2270,10 +2270,10 @@ typedef struct _D3DCOPYRECTROPSTATE             // Xbox extension
 } D3DCOPYRECTROPSTATE;
 
 /*----------------------------------------------
-/* Pixel Shader Binary Format
-/*----------------------------------------------
+ * Pixel Shader Binary Format
+ *----------------------------------------------
 
-/*---------------------------------------------------*/
+ *---------------------------------------------------*/
 /*  This structure holds all of the state necessary  */
 /*  to define an Xbox Pixel Shader.  It is the       */
 /*  structure generated when a pixel shader is       */
@@ -2704,10 +2704,10 @@ typedef struct _D3DPixelShaderDefFile
 /*----------------------- End of Pixel Shader Defines -----------------------*/
 
 /*----------------------------------------------
-/* Push-Buffer Binary Format
-/*----------------------------------------------
+ * Push-Buffer Binary Format
+ *----------------------------------------------
 
-/*---------------------------------------------------*/
+ *---------------------------------------------------*/
 /*  These defines describe the binary format of the  */
 /*  push-buffer.  They may be used in conjunction    */
 /*  with BeginPush/EndPush and RunPushBuffer.        */

@@ -499,19 +499,19 @@ internal code that was never public — 5849's `xvoice.lib` contains the
 binary-only codec, which is not a gap in our port so much as something we were
 never going to have.
 
-**6 public APIs absent from our libs** (was 64). Closed this arc: the ten `xact.h` gaps (see
+**1 public API absent from our libs** (was 64). Closed this arc: the ten `xact.h` gaps (see
 `5849-xact-api-recovery.md`) plus `IDirectSound{Buffer,Stream}_GetVoiceProperties` that
 `IXACTSoundSource_GetProperties` needed (hidden by the audit's dsound.lib-ends-in-'d' bug);
-`XAudioSetEffectData` and `D3DPERF_QueryRepeatFrame` (DSound.h + D3D8Perf.h rows); four of nine
+`XAudioSetEffectData` and `D3DPERF_QueryRepeatFrame` (DSound.h + D3D8Perf.h rows); all nine
 `Xbox.h` gaps (`5849-xbox-h-recovery.md`); and all 43 `xonline.h` gaps (40 service-unavailable
 stubs completing the existing pattern + 3 done for real — `TitleIdIsSamePublisher`, `Throttle`
-Get/Set). The remaining 6 are the two heavyweight `Xbox.h` write subsystems (5) and
-`XGCompileShader` (1, blocked on the xsasm vertex back end):
+Get/Set). The one remaining is `XGCompileShader` — 5849's from-scratch HLSL front end, whose
+assembler back end (the xsasm vertex optimizer) is now complete, so it is a build-out, not a block:
 
 | Header | Missing | What they are |
 |---|---|---|
 | ~~`xonline.h`~~ | ~~43~~ 0 | All 43 now defined. **40 stubbed to complete the existing service-unavailable pattern** in `src/uplift5849.cpp` — a title calling one now links and gets a clean failure instead of an unresolved symbol; the wire protocols remain absent from the leak (see below). **3 done for real / retail-exact**, not stubbed: `XOnlineTitleIdIsSamePublisher` (pure computation — compares the publisher word, high 16 bits, of the session's own XBE-certificate title ID against the argument), and `XOnlineThrottleGet`/`XOnlineThrottleSet` (the shipped 5849 lib's *own* bodies are `E_NOTIMPL` stubs — the client throttle governor was never built — so `E_NOTIMPL` is the faithful match). |
-| `Xbox.h` | ~~9~~ 5 | **4 recovered and implemented** from retail xapilib: `XGetAutoLogonFlag` (misc-flags EEPROM bit 0x4 → the `XC_AUTO_LOGON_ALLOWED`/`NOT_ALLOWED` codes), `XSet`/`XGetAttributesOnHeapAlloc` (the `HEAP_ENTRY` reserved dword just before the user pointer), `XGetFilePhysicalSortKey` (FATX starting cluster / XDVDFS starting sector, keyed off the volume's FS-name dword). **Left (5), both heavyweight write-side subsystems the read/abstracted port never carried, and with no sample or known-title user — scoped follow-ups, not stubs:** soundtrack *write* (`XAddSoundtrack`, `XAddSongToSoundtrack` — needs the full ST.DB block manager + MUSIC-dir WMA copy; we have only the enumeration side) and the secondary utility drive (`XMountSecondaryUtilityDrive`, `XSwapUtilityDrives`, `XFormatSecondaryUtilityDrive` — built on retail's raw refurb-sector cache-partition database and `g_iZDriveDBIndex`/`g_iNDriveDBIndex`, which our `XapiSelectCachePartition` deliberately replaced). See `5849-xbox-h-recovery.md`. |
+| ~~`Xbox.h`~~ | ~~9~~ 0 | **All nine recovered and implemented** from retail xapilib. The abstracted-read four: `XGetAutoLogonFlag` (misc-flags EEPROM bit 0x4 → the `XC_AUTO_LOGON_ALLOWED`/`NOT_ALLOWED` codes), `XSet`/`XGetAttributesOnHeapAlloc` (the `HEAP_ENTRY` reserved dword just before the user pointer), `XGetFilePhysicalSortKey` (FATX starting cluster / XDVDFS starting sector, keyed off the volume's FS-name dword). **The five heavyweight write-side APIs, both subsystems the read/abstracted port never carried — now done, not stubbed:** soundtrack *write* (`XAddSoundtrack@8`, `XAddSongToSoundtrack@24` in `k32/xsndtrkw.c` — the full ST.DB block manager + MUSIC-dir WMA copy via the real `WmaCreateDecoderEx` decoder; host-verified ST.DB round-trip) and the secondary utility drive (`XMountSecondaryUtilityDrive@0`, `XSwapUtilityDrives@0`, `XFormatSecondaryUtilityDrive@0` in `k32/pathmisc.c`, over the refurb-sector cache-partition database). Both are HW-only at runtime. See `5849-xbox-h-recovery.md`. |
 | ~~`DSound.h`~~ | ~~1~~ 0 | `XAudioSetEffectData` — **recovered and implemented**: converts high-level IIR2/distortion/I3DL2-reverb parameters to raw DSP state. The biquad math is RBJ peaking-EQ at 48kHz (`A=10^(dB/40)`, `α=sin(ω)·sinh(1/2Q)`) in 1.23 saturating fixed point; the I3DL2 path fetches the running image's `State+DelayLines` (0x118 bytes), runs the leak's own `CI3dl2Listener::CalculateI3dl2` over it, and pushes back the flags word and the 0x108-byte tuning, deferred + commit. ⚠️ 5849's public `DSFX_RAW_EFFECT_DESCRIPTION.Distortion` view is **mislabeled by one dword** (the function writes gain first, then ten coefficients — eleven dwords into a ten-field struct); adopted verbatim with the quirk documented. |
 | ~~`D3D8Perf.h`~~ | ~~1~~ 0 | `D3DPERF_QueryRepeatFrame` — **implemented in both flavors**. Retail's plain d3d8.lib body is an unconditional FALSE (`xor eax,eax; ret`); only d3d8i.lib consults the capture tooling's repeat-frame request, for which this stack has no writer, so FALSE is faithful for both. Kept in shadersnapshot.cpp, retail's own TU for it. |
 | `XGraphics.h` | 1 | `XGCompileShader` — the HLSL compiler. See below. |
@@ -537,5 +537,10 @@ Microsoft did not support HLSL for pixel shaders either, for the same reason the
 managed port found: `D3DPIXELSHADERDEF` configures register combiners rather than
 holding a program, so there is no general lowering to target. The leak carries no
 HLSL compiler source, so this would be a from-scratch front end, and it sits *on
-top* of the assembler — it compiles HLSL to `vs.1.1` and then assembles it, so it
-is blocked on the xsasm vertex back end.
+top* of the assembler — it compiles HLSL to `vs.1.1` and then assembles it. The
+assembler it stands on is now finished: the managed xsasm vertex back end
+assembles all 77 corpus shaders, 63 byte-exact to retail `xsasm /O1` and 14
+functionally equivalent (rename-allocator scratch-register cascades). So
+`XGCompileShader` is no longer *blocked* — it is the one remaining build-out, a
+from-scratch HLSL-to-`vs.1.1` front end, and low-value in practice because Xbox
+titles compiled HLSL offline rather than at runtime.

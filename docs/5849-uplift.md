@@ -499,14 +499,14 @@ internal code that was never public — 5849's `xvoice.lib` contains the
 binary-only codec, which is not a gap in our port so much as something we were
 never going to have.
 
-**1 public API absent from our libs** (was 64). Closed this arc: the ten `xact.h` gaps (see
+**0 public APIs absent from our libs** (was 64). Closed this arc: the ten `xact.h` gaps (see
 `5849-xact-api-recovery.md`) plus `IDirectSound{Buffer,Stream}_GetVoiceProperties` that
 `IXACTSoundSource_GetProperties` needed (hidden by the audit's dsound.lib-ends-in-'d' bug);
 `XAudioSetEffectData` and `D3DPERF_QueryRepeatFrame` (DSound.h + D3D8Perf.h rows); all nine
-`Xbox.h` gaps (`5849-xbox-h-recovery.md`); and all 43 `xonline.h` gaps (40 service-unavailable
+`Xbox.h` gaps (`5849-xbox-h-recovery.md`); all 43 `xonline.h` gaps (40 service-unavailable
 stubs completing the existing pattern + 3 done for real — `TitleIdIsSamePublisher`, `Throttle`
-Get/Set). The one remaining is `XGCompileShader` — 5849's from-scratch HLSL front end, whose
-assembler back end (the xsasm vertex optimizer) is now complete, so it is a build-out, not a block:
+Get/Set); and finally `XGCompileShader`, the HLSL front end (see below). **The public 5849 API
+surface is now complete.**
 
 | Header | Missing | What they are |
 |---|---|---|
@@ -514,7 +514,7 @@ assembler back end (the xsasm vertex optimizer) is now complete, so it is a buil
 | ~~`Xbox.h`~~ | ~~9~~ 0 | **All nine recovered and implemented** from retail xapilib. The abstracted-read four: `XGetAutoLogonFlag` (misc-flags EEPROM bit 0x4 → the `XC_AUTO_LOGON_ALLOWED`/`NOT_ALLOWED` codes), `XSet`/`XGetAttributesOnHeapAlloc` (the `HEAP_ENTRY` reserved dword just before the user pointer), `XGetFilePhysicalSortKey` (FATX starting cluster / XDVDFS starting sector, keyed off the volume's FS-name dword). **The five heavyweight write-side APIs, both subsystems the read/abstracted port never carried — now done, not stubbed:** soundtrack *write* (`XAddSoundtrack@8`, `XAddSongToSoundtrack@24` in `k32/xsndtrkw.c` — the full ST.DB block manager + MUSIC-dir WMA copy via the real `WmaCreateDecoderEx` decoder; host-verified ST.DB round-trip) and the secondary utility drive (`XMountSecondaryUtilityDrive@0`, `XSwapUtilityDrives@0`, `XFormatSecondaryUtilityDrive@0` in `k32/pathmisc.c`, over the refurb-sector cache-partition database). Both are HW-only at runtime. See `5849-xbox-h-recovery.md`. |
 | ~~`DSound.h`~~ | ~~1~~ 0 | `XAudioSetEffectData` — **recovered and implemented**: converts high-level IIR2/distortion/I3DL2-reverb parameters to raw DSP state. The biquad math is RBJ peaking-EQ at 48kHz (`A=10^(dB/40)`, `α=sin(ω)·sinh(1/2Q)`) in 1.23 saturating fixed point; the I3DL2 path fetches the running image's `State+DelayLines` (0x118 bytes), runs the leak's own `CI3dl2Listener::CalculateI3dl2` over it, and pushes back the flags word and the 0x108-byte tuning, deferred + commit. ⚠️ 5849's public `DSFX_RAW_EFFECT_DESCRIPTION.Distortion` view is **mislabeled by one dword** (the function writes gain first, then ten coefficients — eleven dwords into a ten-field struct); adopted verbatim with the quirk documented. |
 | ~~`D3D8Perf.h`~~ | ~~1~~ 0 | `D3DPERF_QueryRepeatFrame` — **implemented in both flavors**. Retail's plain d3d8.lib body is an unconditional FALSE (`xor eax,eax; ret`); only d3d8i.lib consults the capture tooling's repeat-frame request, for which this stack has no writer, so FALSE is faithful for both. Kept in shadersnapshot.cpp, retail's own TU for it. |
-| `XGraphics.h` | 1 | `XGCompileShader` — the HLSL compiler. See below. |
+| ~~`XGraphics.h`~~ | ~~1~~ 0 | `XGCompileShader` — **implemented** as a from-scratch HLSL vs_1_1 front end (`shadeasm/hlslcompile.cpp`) feeding the existing assembler. See below. |
 
 **On the XOnline 43 — now closed at the link level.** *Absent* is worse than
 *failing*: a title calling one used to fail to link, where 5849 would link and
@@ -536,11 +536,28 @@ a question worth recording — targets are `vs.1.1`/`xvs.1.1`/`xvss.1.1`, and
 Microsoft did not support HLSL for pixel shaders either, for the same reason the
 managed port found: `D3DPIXELSHADERDEF` configures register combiners rather than
 holding a program, so there is no general lowering to target. The leak carries no
-HLSL compiler source, so this would be a from-scratch front end, and it sits *on
-top* of the assembler — it compiles HLSL to `vs.1.1` and then assembles it. The
-assembler it stands on is now finished: the managed xsasm vertex back end
-assembles all 77 corpus shaders, 63 byte-exact to retail `xsasm /O1` and 14
-functionally equivalent (rename-allocator scratch-register cascades). So
-`XGCompileShader` is no longer *blocked* — it is the one remaining build-out, a
-from-scratch HLSL-to-`vs.1.1` front end, and low-value in practice because Xbox
-titles compiled HLSL offline rather than at runtime.
+HLSL compiler source, so this is a from-scratch front end sitting *on top* of the
+assembler — it compiles HLSL to `vs.1.1` and then assembles it.
+
+**Implemented** in `shadeasm/hlslcompile.cpp` (front end) + `XGCompileShader` in
+`api.cpp` (wiring). It is a real reimplementation, not a recovery: the retail
+compiler is a D3DX9/fxc fork (visible in the shipped `xgraphics.lib` — `CPreProcess`,
+`DXINTRINSIC`, `XGetRegisterFromSemantic`, `D3DXCompile`), far too large to recover
+by disassembly the way `soundtrack.obj` was. So the front end is a hand-written
+lexer / recursive-descent parser / tree-walking code generator that lowers the
+vs_1_1 HLSL subset real shaders use (structs+semantics, uniforms→constant registers,
+`mul`/`dot`/`normalize`/`cross`/`saturate`/`lerp`/`reflect`/… intrinsics, swizzles,
+`floatN` constructors) to vs.1.1 assembly text, which the existing byte-exact
+assembler+optimiser turn into microcode. `pAsmListing` gets the generated assembly;
+`pMachineListing`/`pCompiledShader`/`pConstants` come from the assembler stage.
+
+This is the **one API where faithfulness tops out at "functional reimplementation"**
+rather than "retail-exact recovery": the assembler stage is exact, but the generated
+assembly is not byte-identical to retail's fxc output (a different, unrecoverable
+front end produced it). Out of scope, and diagnosed rather than mis-compiled: user
+helper functions, flow control (vs_1_1 has none), and pixel-shader HLSL (which retail
+never supported either — a pixel shader is a register-combiner config, not a program).
+Validated end-to-end (HLSL → asm → microcode) across transform+lighting,
+individual-semantic-parameter, `xvs.1.1`, `saturate`/`lerp`/`def`-constant, and
+`cross`/`reflect` shaders. Exports `_XGCompileShader@56`. In practice runtime HLSL
+was rarely used (titles compiled offline with fxc), but the API surface is now whole.

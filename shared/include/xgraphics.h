@@ -781,6 +781,34 @@ XGAssembleShader(
 #define AssembleShader XGAssembleShader
 
 
+// XGCompileShader:
+// ------------------------
+// Compiles HLSL vertex-shader source into assembly and/or microcode. Targets
+// vs.1.1, xvs.1.1 and xvss.1.1 (pixel-shader HLSL is not supported). pEntryName
+// selects the entry function ("main"). pAsmListing receives the generated DX8
+// assembly, pMachineListing the disassembled microcode. See XGAssembleShader
+// for the shared parameters.
+HRESULT WINAPI
+XGCompileShader(
+    LPCSTR pSourceFileName,
+    LPCVOID pSrcData,
+    UINT SrcDataLen,
+    DWORD Flags,
+    LPCSTR pEntryName,
+    LPCSTR pTargetName,
+    LPXGBUFFER* pConstants,
+    LPXGBUFFER* pCompiledShader,
+    LPXGBUFFER* pErrorLog,
+    LPXGBUFFER* pAsmListing,
+    LPXGBUFFER* pMachineListing,
+    SASM_ResolverCallback pResolver,
+    LPVOID pResolverUserData,
+    LPDWORD pShaderType
+    );
+
+#define CompileShader XGCompileShader
+
+
 //XGSpliceVertexShaders:
 //	Splice together shaders in the ppShaderArray, return it in *pNewShader.
 //	If pcbNewShaderBufferSize is provided and is too small, it will be changed to the minimum allowable buffer size, and will return S_FALSE. 

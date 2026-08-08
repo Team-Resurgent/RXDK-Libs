@@ -53,6 +53,7 @@ pub const shadeasm_sources = [_][]const u8{
     "libs/libxgraphics/shadeasm/pshdrval.cpp",
     "libs/libxgraphics/shadeasm/vshdrval.cpp",
     "libs/libxgraphics/shadeasm/pixelshader.cpp",
+    "libs/libxgraphics/shadeasm/hlslcompile.cpp",
 };
 
 pub const slices = [_]Slice{

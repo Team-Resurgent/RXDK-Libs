@@ -8,6 +8,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 #include "pchshadeasm.h"
+#include "hlslcompile.h"
 
 namespace XGRAPHICS
 {
@@ -7545,6 +7546,102 @@ XGAssembleShader(
     return a.AssembleShader(pSourceFileName, pSrcData, SrcDataLen, Flags,
         ppConstants, ppCompiledShader, ppErrorLog, ppListing, pResolver,
         pResolverUserData, pShaderType);
+}
+
+// XGCompileShader -- the HLSL front end for vertex shaders. The retail compiler
+// (a D3DX9/fxc fork) is not in the source leak, so this drives the from-scratch
+// vs_1_1 front end in hlslcompile.cpp: preprocess -> HLSL-to-vs.1.1 text ->
+// the existing assembler + optimiser. pAsmListing gets the generated assembly;
+// pMachineListing/pCompiledShader/pConstants come from the assembler stage.
+extern "C"
+HRESULT WINAPI
+XGCompileShader(
+  LPCSTR pSourceFileName,
+  LPCVOID pSrcData,
+  UINT SrcDataLen,
+  DWORD Flags,
+  LPCSTR pEntryName,
+  LPCSTR pTargetName,
+  LPXGBUFFER* pConstants,
+  LPXGBUFFER* pCompiledShader,
+  LPXGBUFFER* pErrorLog,
+  LPXGBUFFER* pAsmListing,
+  LPXGBUFFER* pMachineListing,
+  SASM_ResolverCallback pResolver,
+  LPVOID pResolverUserData,
+  LPDWORD pShaderType
+  )
+{
+    HRESULT hr = S_OK;
+
+    if (pConstants)      *pConstants = NULL;
+    if (pCompiledShader) *pCompiledShader = NULL;
+    if (pErrorLog)       *pErrorLog = NULL;
+    if (pAsmListing)     *pAsmListing = NULL;
+    if (pMachineListing) *pMachineListing = NULL;
+    if (pShaderType)     *pShaderType = SASMT_INVALIDSHADER;
+
+    if (!pSrcData || !pTargetName)
+        return E_INVALIDARG;
+
+    MyErrorLog errorLog;
+    hr = errorLog.Initialize(pSourceFileName ? pSourceFileName : "shader");
+
+    // Pixel-shader HLSL was never supported (a pixel shader is a register-combiner
+    // configuration, not a program). Reject ps.* / xps.* up front.
+    if (SUCCEEDED(hr)) {
+        const char* t = pTargetName;
+        if (t[0] == 'p' || (t[0] == 'x' && t[1] == 'p')) {
+            errorLog.Log(true, 5100, pSourceFileName, 1,
+                "pixel-shader HLSL compilation is not supported (only vs.1.1/xvs.1.1/xvss.1.1)");
+            hr = E_NOTIMPL;
+        }
+    }
+
+    // 1) Preprocess the HLSL (handles #include via the resolver, and #define).
+    LPXGBUFFER pInput = NULL;
+    LPXGBUFFER pPre = NULL;
+    if (SUCCEEDED(hr)) {
+        hr = XGBufferCreate(SrcDataLen, &pInput);
+        if (SUCCEEDED(hr))
+            memcpy(pInput->GetBufferPointer(), pSrcData, SrcDataLen);
+    }
+    if (SUCCEEDED(hr))
+        hr = XGPreprocess(pSourceFileName, pResolver, pResolverUserData, pInput, &pPre, &errorLog);
+
+    // 2) Lower HLSL to vs.1.1 assembly text.
+    Buffer asmText;
+    if (SUCCEEDED(hr)) {
+        hr = CompileHlslVertexShader(
+            (const char*)pPre->GetBufferPointer(), pPre->GetBufferSize(),
+            pEntryName, pTargetName, pSourceFileName, &asmText, &errorLog);
+    }
+
+    // 3) The generated assembly is the "asm listing".
+    if (SUCCEEDED(hr) && pAsmListing)
+        XGBufferCreateFromBuffer(&asmText, pAsmListing);
+
+    // 4) Assemble the generated text -> microcode (+ machine listing, constants).
+    //    The preprocessor already ran, so skip it here; the text has no #include.
+    if (SUCCEEDED(hr)) {
+        DWORD asmFlags = SASM_SKIPPREPROCESSOR
+            | (Flags & (SASM_DEBUG | SASM_DONOTOPTIMIZE | SASM_SKIPVALIDATION
+                        | SASM_OUTPUTTOKENS | SASM_DISABLE_GLOBAL_OPTIMIZATIONS));
+        Assembler a;
+        hr = a.AssembleShader(pSourceFileName, asmText.GetText(), asmText.GetUsed(),
+            asmFlags, pConstants, pCompiledShader, pErrorLog, pMachineListing,
+            NULL, NULL, pShaderType);
+        // AssembleShader owns *pErrorLog on this path.
+    }
+
+    // On a front-end (HLSL/preprocess) failure the assembler never ran, so flush
+    // our own diagnostics to the caller.
+    if (FAILED(hr) && pErrorLog && !*pErrorLog)
+        XGBufferCreateFromBuffer(errorLog.m_buffer, pErrorLog);
+
+    RELEASE(pInput);
+    RELEASE(pPre);
+    return hr;
 }
 
 extern "C"

@@ -881,7 +881,7 @@ extern "C" {
 
 static LONG g_D3DPerfEventDepth = 0;
 
-INT WINAPI D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...)
+INT __cdecl D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...)
 {
     UNREFERENCED_PARAMETER(Color);
     UNREFERENCED_PARAMETER(szName);
@@ -897,7 +897,7 @@ INT WINAPI D3DPERF_EndEvent(void)
     return (INT)g_D3DPerfEventDepth;
 }
 
-void WINAPI D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...)
+void __cdecl D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...)
 {
     UNREFERENCED_PARAMETER(Color);
     UNREFERENCED_PARAMETER(szName);

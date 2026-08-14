@@ -16,6 +16,8 @@
 
 #include "Debug.h"
 
+#ifndef DMUSIC_NO_OVERRIDE_NEW_DELETE
+
 LPVOID __cdecl operator new(size_t cbBuffer)
 {
     LPVOID p;
@@ -28,4 +30,6 @@ void __cdecl operator delete(LPVOID p)
 {
     free(p);
 }
+
+#endif // DMUSIC_NO_OVERRIDE_NEW_DELETE
 

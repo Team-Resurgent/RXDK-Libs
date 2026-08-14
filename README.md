@@ -100,7 +100,9 @@ zig build xapi-smoke      # 27-test xAPI smoke PE
 | `zig-out/lib/libxnet.lib` | Xbox net stack (XNet / winsock) |
 | `zig-out/include/` | picolibc + `xbox/` + `xboxkrnl/` + `c++/v1/` + public subsystem headers (`xt.h`/`xapi.h`/`xbox.h`/`xkbd.h`/`d3d8.h`/`dsound.h`/`xnet.h`/…) |
 
-Library layering is strictly one-way — `libxapi → libc → libkernel` and `libcpp → libc`, with the subsystem libs (`libd3d8`, `libdsound`, `libxnet`, …) layering above `libxapi` — so a C-only title can link `libc.lib` + `libkernel.lib` without dragging in xAPI or libc++.
+Library layering is one-way — `libxapi → libc → libkernel` and `libcpp → libc`, with the subsystem libs (`libd3d8`, `libdsound`, `libxnet`, …) layering above `libxapi` — so a C-only title can link `libc.lib` + `libkernel.lib` without dragging in xAPI or libc++.
+
+The malloc family is the one exception: `libs/libc/xbox/heapalloc.c` allocates from the Xbox process heap (`RtlAllocateHeap` on `XapiProcessHeap`), so it reaches up into libxapi, where RXDK implements the RTL heap. Going through that heap is what gives every allocation the 16-byte alignment the XDK's SSE math code assumes, and it keeps `malloc`, `HeapAlloc`, `LocalAlloc` and `operator new` on one heap the way the retail XDK's CRT did. A title that calls `malloc` therefore also needs `libxapi_core.lib`.
 
 Samples link via direct object response files (`zig-out/link/*.rsp`) because COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`. External consumers can link the staged `.lib`s or mirror the object-rsp pattern.
 

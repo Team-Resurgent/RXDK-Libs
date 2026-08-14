@@ -214,6 +214,14 @@ namespace DirectSound
 // New and delete overrides
 //
 
+#if defined(DSOUND_NO_OVERRIDE_NEW_DELETE) && defined(TRACK_MEMORY_USAGE)
+// The tracking build's NEW/NEW_A macros call the placement forms below, which
+// live inside this block, and DELETE/DELETE_A call the plain global delete --
+// so turning the overrides off while tracking is on would allocate from the
+// DirectSound pool and free through libcpp. Pick one.
+#error TRACK_MEMORY_USAGE requires the DirectSound operator new/delete overrides
+#endif
+
 #ifndef DSOUND_NO_OVERRIDE_NEW_DELETE
 
 inline void *__cdecl operator new(size_t cbBuffer) 

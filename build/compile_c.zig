@@ -80,10 +80,10 @@ pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
         if (ext.len != 0 and std.ascii.eqlIgnoreCase(ext, ".s")) {
             compile.addArg("cc");
             // Xbox CPU is a Pentium III (Coppermine): MMX + SSE1, no SSE2. Pin the
-        // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
-        // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
-        compile.addArg("-march=pentium3");
-        compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
+            // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
+            // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
+            compile.addArg("-march=pentium3");
+            compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
             compile.addArg(obj_rel);
             compile.addArg(opts.opt_flag);
             // .S sources may #include <picolibc.h> etc., so honor include dirs.
@@ -94,10 +94,10 @@ pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
         } else {
             compile.addArg(if (opts.is_cpp) "c++" else "cc");
             // Xbox CPU is a Pentium III (Coppermine): MMX + SSE1, no SSE2. Pin the
-        // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
-        // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
-        compile.addArg("-march=pentium3");
-        compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
+            // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
+            // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
+            compile.addArg("-march=pentium3");
+            compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
             compile.addArg(obj_rel);
             compile.addArgs(opts.flags);
             compile.addArg(opts.opt_flag);

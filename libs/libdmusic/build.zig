@@ -75,6 +75,17 @@ const common_flags = [_][]const u8{
     "-DDPF_LIBRARY=\"DMUSIC\"",
     "-DPOOL_TAG='SUMD'",
     "-DASSUME_VALID_PARAMETERS",
+    // Same reason as libdsound's DSOUND_NO_OVERRIDE_NEW_DELETE: shared/xalloc.h
+    // and dmloader/opnew.cpp define the *global* operator new/delete, so a title
+    // that links libdmusic (which a link reaches before libcpp.lib) got its whole
+    // C++ allocator from DirectMusic. Worse than libdsound's case, the two
+    // disagree -- xalloc.h routes at DirectMusicAllocI while opnew.cpp, whose
+    // strong definitions win for the scalar forms, routes at malloc -- so `new`
+    // and `new[]` came from different heaps. DirectMusicAllocI only promises
+    // DWORD alignment (see the ASSERTMSG in dmime/debug.cpp), which is not enough
+    // for the SSE loads in the XDK's math code. Let libcpp supply the operators;
+    // DirectMusic's own pool stays reachable through DirectMusicAlloc/Free.
+    "-DDMUSIC_NO_OVERRIDE_NEW_DELETE",
     "-include",
     "picolibc.h",
     "-include",
@@ -115,6 +126,10 @@ fn driverEnvFlags(b: *std.Build) []const []const u8 {
         "-nostdinc",        "-fms-extensions",   "-fms-compatibility",  "-fasm-blocks",
         "-fno-operator-names", "-fno-sanitize=undefined", "-fno-builtin", "-Wno-everything",
         "-D_XAPI_",         "-DDPF_LIBRARY=\"DSOUND\"", "-DXMIX",      "-DPOOL_TAG='SUMD'",
+        // This TU sees both libdsound's memmgr.h and dmusic's xalloc.h, so it
+        // needs both libraries' opt-outs or it alone would put the global
+        // operators back into libdmusic.lib.
+        "-DDSOUND_NO_OVERRIDE_NEW_DELETE", "-DDMUSIC_NO_OVERRIDE_NEW_DELETE",
         "-Xclang",          "-fdefault-calling-conv=stdcall",
         "-include",         "libs/libdsound/site/cdecl_libc.h",
         "-include",         "picolibc.h",

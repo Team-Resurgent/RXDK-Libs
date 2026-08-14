@@ -122,6 +122,12 @@ fn addLinkExe(
     const link = b.addSystemCommand(&.{
         b.graph.zig_exe, "cc", "-target", xbox_target.target_triple,
     });
+    // -rtlib=compiler-rt below makes zig build/select compiler-rt for the *link*
+    // target; with no CPU pinned that resolves to zig's x86 baseline (pentium4),
+    // whose codegen uses SSE2 for double and 64-bit integer math. The Xbox is a
+    // Coppermine Pentium III (CPUID reports SSE, not SSE2), so those encodings
+    // are invalid opcodes on the console.
+    link.addArg("-march=pentium3");
     link.addArgs(&.{ "-o" });
     link.addArg(out_exe);
     // crtbegin marker first so __eh_frame_start precedes every .eh_frame

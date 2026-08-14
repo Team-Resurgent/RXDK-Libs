@@ -44,6 +44,28 @@ const picolibc_exclude = [_][]const u8{
     "interrupt.c",
     "clock.c", // replaced by libs/libc/xbox/timeio.c (KeQueryPerformanceCounter)
     "lock.c",  // replaced by libs/libc/xbox/locks.c (RTL critical sections)
+    // The whole malloc cluster is replaced by libs/libc/xbox/heapalloc.c, which
+    // allocates from the Xbox process heap. picolibc's sbrk chunk allocator only
+    // aligns to _Alignof(max_align_t) (8 here); the console's NT heap aligns to
+    // 16, which is what the XDK's SSE math code assumes. These files are one
+    // implementation sharing local-malloc.h chunk internals, so they come out as
+    // a set. mallinfo/malloc_stats go with them and are not reimplemented -- the
+    // RTL heap has no cheap equivalent, and nothing in the SDK calls them.
+    "malloc.c",
+    "free.c",
+    "realloc.c",
+    "calloc.c",
+    "memalign.c",
+    "posix-memalign.c",
+    "aligned_alloc.c",
+    "valloc.c",
+    "pvalloc.c",
+    "reallocarray.c",
+    "reallocf.c",
+    "malloc-usable-size.c",
+    "malloc-stats.c",
+    "malloc-error.c",
+    "mallinfo.c",
     "remove.c", // picolibc's is unlink-only; dirio.c provides a POSIX remove (rmdir for dirs)
     "tmpnam.c", // picolibc's ignore P_tmpdir; tmpio.c targets the Z: scratch drive
     "tmpfile.c",
@@ -250,6 +272,7 @@ pub fn addXboxObjects(
 ) compile_c.CompileBatch {
     const sources = [_][]const u8{
         "libs/libc/xbox/hal.c",
+        "libs/libc/xbox/heapalloc.c",
         "libs/libc/xbox/fileio.c",
         "libs/libc/xbox/dirio.c",
         "libs/libc/xbox/tmpio.c",

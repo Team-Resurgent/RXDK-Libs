@@ -54,6 +54,18 @@ const common_flags = [_][]const u8{
     "-Wno-everything",
     "-D_XAPI_",
     "-DDPF_LIBRARY=\"DSOUND\"",
+    // common/memmgr.h otherwise defines the *global* operator new/new[]/delete/
+    // delete[] and routes them at DirectSound's pool (ExAllocatePoolWithTag).
+    // They are namespace-scope inlines, so they have external linkage and land in
+    // libdsound.lib -- and since a title link reaches libdsound.lib before
+    // libcpp.lib, the whole title's `new` bound to them. Every RXDK title got its
+    // C++ allocations out of the kernel's non-paged pool, at that allocator's
+    // alignment rather than the heap's 16, which is what made XGMatrixMultiply's
+    // `movaps` fault on an XBMESH_FRAME reached through `new BYTE[]`. DirectSound
+    // has no need to own the title's allocator; its NEW/DELETE macros work the
+    // same through the ordinary operators, and MEMALLOC/POOLALLOC still go to the
+    // pool where the hardware cares.
+    "-DDSOUND_NO_OVERRIDE_NEW_DELETE",
     "-Xclang",
     "-fdefault-calling-conv=stdcall",
     "-include",

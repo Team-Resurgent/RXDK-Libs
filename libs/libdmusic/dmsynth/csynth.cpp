@@ -1036,36 +1036,21 @@ STDMETHODIMP CClock::GetTime(LPREFERENCE_TIME pTime)
 
 	EnterCriticalSection( &m_pParent->m_CriticalSection );
 
-    DWORD dwPosition = DirectSoundGetSampleTime();
+    //
+    // Derive the DirectMusic master clock from the system time
+    // (KeQuerySystemTime) instead of the APU sample counter
+    // (DirectSoundGetSampleTime / NV_PAPU_XGSCNT).  KeQuerySystemTime is the
+    // same monotonic 100ns REFERENCE_TIME base the sequencer already uses to
+    // fire queued events (see CDirectSoundSequencer::GetTime/SetTime), so the
+    // master clock and the event-dispatch clock share one time base and cannot
+    // drift apart.  Both sources run at the same real-time rate, so this is
+    // rate-equivalent to the sample counter while keeping the two clocks in
+    // lock-step.
+    //
+    LARGE_INTEGER liNow;
+    KeQuerySystemTime(&liNow);
+    *pTime = liNow.QuadPart;
 
-    // Check to see if we looped around, which happens every 24 hours
-
-    LONGLONG delta;
-    if(dwPosition < m_dwLastPosition){
-        // This is either a loop, or a dsound bug
-
-        if(dwPosition < 100000 && m_dwLastPosition > (1 << 30) ){
-            Trace(-1, "CClock::GetTime sample time wrapped (as it should every 24 hours. Was: %u is: %u\n",
-                m_dwLastPosition, dwPosition);
-            delta = ((((LONGLONG) 1) << 32) + dwPosition) - m_dwLastPosition;
-        }
-        else {
-            Trace(2, "CClock::GetTime stream position decreased unexpectedly. Was: %u is: %u\n",
-                m_dwLastPosition, dwPosition);
-            delta = 0; // Ignore.
-            m_dwLastPosition = dwPosition; // Catch up. (Sometimes DSound resets the stream on us.)
-        }
-    }
-    else {
-        delta = dwPosition - m_dwLastPosition;
-    }
-
-    m_dwLastPosition = dwPosition;
-    m_llSampleTime += delta;
-    LONGLONG llTemp = m_llSampleTime * 10000;
-	llTemp /= 48000;
-	llTemp *= 1000;
-    *pTime = llTemp;
 	LeaveCriticalSection( &m_pParent->m_CriticalSection );
     return S_OK;
 }

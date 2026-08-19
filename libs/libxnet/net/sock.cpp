@@ -28,14 +28,26 @@ SOCKET CXnSock::socket(IN int af, IN int type, IN int protocol)
 
     CSocket * pSocket;
 
+    // IPPROTO_VDP (254) is the Xbox secure Voice/Data Protocol -- a datagram
+    // protocol Live titles create sockets for. We don't implement its crypto/
+    // voice layer, but the socket must be creatable or the title asserts and
+    // exits at init (e.g. Marketplace: CXBSocket::Open(Type_VDP) then Bind()).
+    // Accept it and treat it as a plain UDP datagram socket.
+    #ifndef IPPROTO_VDP
+    #define IPPROTO_VDP 254
+    #endif
+
     if (af != 0 && af != AF_INET)
         err = WSAEAFNOSUPPORT;
     else if (type != 0 && type != SOCK_STREAM && type != SOCK_DGRAM)
         err = WSAESOCKTNOSUPPORT;
-    else if (protocol != 0 && protocol != IPPROTO_TCP && protocol != IPPROTO_UDP)
+    else if (protocol != 0 && protocol != IPPROTO_TCP && protocol != IPPROTO_UDP
+             && protocol != IPPROTO_VDP)
         err = WSAEPROTONOSUPPORT;
     else
     {
+        if (protocol == IPPROTO_VDP)
+            protocol = IPPROTO_UDP;
         if (type == 0)
             type = (protocol == IPPROTO_UDP) ? SOCK_DGRAM : SOCK_STREAM;
         if (protocol == 0)

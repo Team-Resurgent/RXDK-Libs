@@ -724,9 +724,19 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBCAPS_MUTE3DATMAXDISTANCE 0x00020000      // The 3D buffer is muted at max distance and beyond
 #define DSBCAPS_LOCDEFER            0x00040000      // The buffer does not acquire resources at creation
 #define DSBCAPS_FXIN                0x00080000      // The buffer is to be used as the destination of a post-effects submix operation
-//@@BEGIN_MSINTERNAL                                
+#define DSBCAPS_FXIN2               0x00100000      // Like FXIN but does not require SetOutputBuffer; does require Play/Stop
+//@@BEGIN_MSINTERNAL
 #define DSBCAPS_APPALLOCBUFFER      0x80000000      // The application allocated the buffer memory
 
+// RXDK 5849 uplift fix: DSBCAPS_FXIN2 (0x100000) was added in 5849 as a second
+// effects-input submix variant, but the 4400 base this port started from omitted it
+// from VALID and SUBMIXMASK. Verified against the retail 5849 dsound.lib, whose
+// CDirectSoundBufferSettings::Initialize tests SUBMIXMASK as 0x182000 (MIXIN|FXIN|
+// FXIN2). Without FXIN2 in SUBMIXMASK an FXIN2 buffer is misclassified as a normal
+// buffer: it is handed pdsbd->lpwfxFormat (NULL for submix buffers) instead of the
+// internal mixdest format, so CreateInternalFormat builds a garbage voice format and
+// the APU never brings the voice up -- the Marketplace sample hung creating its first
+// FXIN2 voice.
 #define DSBCAPS_VALID \
     (DSBCAPS_CTRL3D | \
      DSBCAPS_MUTE3DATMAXDISTANCE | \
@@ -735,10 +745,11 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
      DSBCAPS_CTRLPOSITIONNOTIFY | \
      DSBCAPS_MIXIN | \
      DSBCAPS_LOCDEFER | \
-     DSBCAPS_FXIN)
+     DSBCAPS_FXIN | \
+     DSBCAPS_FXIN2)
 
-#define DSBCAPS_SUBMIXMASK          (DSBCAPS_MIXIN | DSBCAPS_FXIN)
-//@@END_MSINTERNAL                                                      
+#define DSBCAPS_SUBMIXMASK          (DSBCAPS_MIXIN | DSBCAPS_FXIN | DSBCAPS_FXIN2)
+//@@END_MSINTERNAL
                                                                         
 //
 // IDirectSoundBuffer::Play(Ex) flags

@@ -7635,7 +7635,7 @@ CDirectSoundBufferSettings::Initialize
 
     if(SUCCEEDED(hr))
     {
-        if(pdsbd->dwFlags & DSBCAPS_FXIN)
+        if(pdsbd->dwFlags & (DSBCAPS_FXIN | DSBCAPS_FXIN2))   // retail tests 0x180000
         {
             m_dwInputMixBin = pdsbd->dwInputMixBin;
         }

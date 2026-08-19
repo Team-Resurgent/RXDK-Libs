@@ -319,7 +319,7 @@ CMcpxBuffer::AllocateBufferResources
 
     if(SUCCEEDED(hr) && !(m_pSettings->m_dwFlags & DSBCAPS_MIXIN))
     {
-        if(m_pSettings->m_dwFlags & DSBCAPS_FXIN)
+        if(m_pSettings->m_dwFlags & (DSBCAPS_FXIN | DSBCAPS_FXIN2))   // retail tests 0x180000
         {
             MapEffectsBuffer();
         }
@@ -512,7 +512,8 @@ CMcpxBuffer::MapEffectsBuffer
     
     DPF_ENTER();
 
-    ASSERT((m_pSettings->m_dwFlags & DSBCAPS_SUBMIXMASK) == DSBCAPS_FXIN);
+    ASSERT(((m_pSettings->m_dwFlags & DSBCAPS_SUBMIXMASK) == DSBCAPS_FXIN) ||
+           ((m_pSettings->m_dwFlags & DSBCAPS_SUBMIXMASK) == DSBCAPS_FXIN2));
     ASSERT(!m_pSgeHeapEntry);
 
     if(!(m_dwStatus & MCPX_VOICESTATUS_BUFFERMAPPED))
@@ -629,7 +630,7 @@ CMcpxBuffer::MapBuffer
     
     ASSERT(m_pSettings->m_pvBufferData);
     
-    if(m_pSettings->m_dwFlags & DSBCAPS_FXIN)
+    if(m_pSettings->m_dwFlags & (DSBCAPS_FXIN | DSBCAPS_FXIN2))   // retail tests 0x18 (FXIN|FXIN2)
     {
         ASSERT(!m_pSgeHeapEntry);
         ASSERT(!dwOffset);

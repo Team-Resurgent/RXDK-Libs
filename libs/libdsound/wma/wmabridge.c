@@ -112,10 +112,12 @@ void XactWmaFreeBank(void *pBank)
 // ---- RXWM bank transcode-on-load --------------------------------------------------------------
 //
 // xactbld emits a wave bank that contains WMA as a private "RXWM" container (magic 'RXWM') instead
-// of the normal .xwb, because the leak's wave-bank mini-format has only a 1-bit PCM/ADPCM tag with
-// no room for WMA + its extradata. On load, the engine calls XactMaybeTranscodeWmaBank, which
-// decodes every WMA entry to PCM and rebuilds a standard .xwb (WBND) in memory that the normal
-// CWaveBank parser then consumes. A plain (non-RXWM) buffer is passed through untouched.
+// of the normal .xwb. The wave-bank mini-format does have a WMA tag, but nothing downstream can
+// play WMA straight out of a bank - the hardware decodes PCM and ADPCM only, so the data has to
+// be decoded on the way in, and the container carries the codec setup bytes a bank has no field
+// for. On load, the engine calls XactMaybeTranscodeWmaBank, which decodes every WMA entry to PCM
+// and rebuilds a standard .xwb (WBND) in memory that the normal CWaveBank parser then consumes.
+// A plain (non-RXWM) buffer is passed through untouched.
 //
 // RXWM layout (all little-endian):
 //   char  magic[4]      = "RXWM"
@@ -136,9 +138,16 @@ void XactWmaFreeBank(void *pBank)
 //     u8  data[dataSize]        (PCM if formatTag==1, else WMA packets)
 
 #define XWB_SIGNATURE 0x444E4257u  /* 'WBND' on disk */
-#define XWB_VERSION   2u
-#define XWB_ALIGN     2048u
+#define XWB_VERSION   3u           /* WAVEBANK_HEADER_VERSION (xactwb.h) */
+#define XWB_ALIGN     4u           /* WAVEBANK_ALIGNMENT_MIN: this bank is already in memory */
 #define XWB_NAMELEN   16
+
+/* Version 3 on-disk sizes: a 40-byte header holding the four-segment lookup table, a 40-byte
+   WAVEBANKDATA segment, and 24 bytes per entry. */
+#define XWB_HDRSIZE   40u
+#define XWB_DATASIZE  40u
+#define XWB_ENTSIZE   24u
+#define XWB_ENTNAMELEN 64u
 
 static unsigned int rd_u32(const unsigned char *p) { return p[0] | (p[1] << 8) | (p[2] << 16) | ((unsigned)p[3] << 24); }
 static unsigned int rd_u16(const unsigned char *p) { return p[0] | (p[1] << 8); }
@@ -225,12 +234,14 @@ int XactMaybeTranscodeWmaBank(const unsigned char *pvData, unsigned int dwSize, 
         }
     }
 
-    // Pass 2: lay out a standard .xwb (WBND). Header 36 + entryCount*20 + aligned data segment.
-    hdrSize = 20 + XWB_NAMELEN;         // 5*u32 + name[16] = 36
-    entTblSize = entryCount * 20;
+    // Pass 2: lay out a standard .xwb (WBND), version 3: header + WAVEBANKDATA + entry
+    // meta-data + the wave data segment. No entry names are emitted, so that segment is empty.
+    hdrSize = XWB_HDRSIZE + XWB_DATASIZE;
+    entTblSize = entryCount * XWB_ENTSIZE;
     dataSeg = 0;
     for (i = 0; i < entryCount; i++)
         dataSeg = align_up(dataSeg, XWB_ALIGN) + pcmLen[i];
+    dataSeg = align_up(dataSeg, XWB_ALIGN);
     total = hdrSize + entTblSize + dataSeg;
 
     out = (unsigned char *)malloc(total);
@@ -238,12 +249,26 @@ int XactMaybeTranscodeWmaBank(const unsigned char *pvData, unsigned int dwSize, 
         goto fail;
     memset(out, 0, total);
 
+    /* WAVEBANKHEADER: signature, version, then the segment lookup table. */
     wr_u32(out + 0, XWB_SIGNATURE);
     wr_u32(out + 4, XWB_VERSION);
-    wr_u32(out + 8, 0);                 // dwFlags
-    wr_u32(out + 12, entryCount);
-    wr_u32(out + 16, XWB_ALIGN);
-    memcpy(out + 20, bankName, XWB_NAMELEN);
+    wr_u32(out + 8,  XWB_HDRSIZE);              // BANKDATA offset
+    wr_u32(out + 12, XWB_DATASIZE);             // BANKDATA length
+    wr_u32(out + 16, hdrSize);                  // ENTRYMETADATA offset
+    wr_u32(out + 20, entTblSize);               // ENTRYMETADATA length
+    wr_u32(out + 24, 0);                        // ENTRYNAMES offset (none)
+    wr_u32(out + 28, 0);                        // ENTRYNAMES length
+    wr_u32(out + 32, hdrSize + entTblSize);     // ENTRYWAVEDATA offset
+    wr_u32(out + 36, dataSeg);                  // ENTRYWAVEDATA length
+
+    /* WAVEBANKDATA. The bank is decoded PCM held in memory, so it is a buffer bank. */
+    wr_u32(out + XWB_HDRSIZE + 0, 0);           // dwFlags
+    wr_u32(out + XWB_HDRSIZE + 4, entryCount);
+    memcpy(out + XWB_HDRSIZE + 8, bankName, XWB_NAMELEN);
+    wr_u32(out + XWB_HDRSIZE + 24, XWB_ENTSIZE);
+    wr_u32(out + XWB_HDRSIZE + 28, XWB_ENTNAMELEN);
+    wr_u32(out + XWB_HDRSIZE + 32, XWB_ALIGN);
+    wr_u32(out + XWB_HDRSIZE + 36, 0);          // CompactFormat
 
     epos = hdrSize;                     // entry table cursor
     dpos = 0;                           // offset within the data segment
@@ -252,14 +277,15 @@ int XactMaybeTranscodeWmaBank(const unsigned char *pvData, unsigned int dwSize, 
         unsigned int fmt, playStart;
         dpos = align_up(dpos, XWB_ALIGN);
         playStart = dpos;
-        // mini-format: tag(1b)=PCM(0) | channels<<1 | rate<<4 | bits(16-bit)=1<<31
-        fmt = ((chans[i] & 0x7u) << 1) | ((rates[i] & 0x7FFFFFFu) << 4) | (1u << 31);
-        wr_u32(out + epos + 0, fmt);
-        wr_u32(out + epos + 4, playStart);
-        wr_u32(out + epos + 8, pcmLen[i]);
-        wr_u32(out + epos + 12, 0);     // loopStart
-        wr_u32(out + epos + 16, 0);     // loopLen
-        epos += 20;
+        // mini-format: tag(2b)=PCM(0) | channels<<2 | rate<<5 | bits(16-bit)=1<<31
+        fmt = ((chans[i] & 0x7u) << 2) | ((rates[i] & 0x3FFFFFFu) << 5) | (1u << 31);
+        wr_u32(out + epos + 0, 0);      // dwFlags
+        wr_u32(out + epos + 4, fmt);
+        wr_u32(out + epos + 8, playStart);
+        wr_u32(out + epos + 12, pcmLen[i]);
+        wr_u32(out + epos + 16, 0);     // loop offset
+        wr_u32(out + epos + 20, 0);     // loop length
+        epos += XWB_ENTSIZE;
 
         if (pcmLen[i])
             memcpy(out + hdrSize + entTblSize + dpos, pcm[i], pcmLen[i]);

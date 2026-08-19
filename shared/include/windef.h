@@ -100,7 +100,11 @@ typedef char *PSZ;
 #else
 #define cdecl
 #ifndef CDECL
-#define CDECL
+// Must not expand to nothing: the libraries built with -fdefault-calling-conv=stdcall
+// would then compile any non-variadic CDECL declaration as stdcall and leak the
+// callee's cleanup on every call. Keyword form, not __attribute__((__cdecl__)), so it
+// also binds in function-pointer typedefs -- same reason as WINAPI below.
+#define CDECL __cdecl
 #endif
 #endif
 

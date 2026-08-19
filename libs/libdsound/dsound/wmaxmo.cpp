@@ -10,7 +10,6 @@
 #include "dsoundi.h"
 #include "wmaxmo.h"
 
-
 //
 //  Enough of the ASF header to find its length, then to parse it.  Real .wma headers are a few
 //  kilobytes; the cap keeps a corrupt length field from asking for an absurd allocation.
@@ -18,6 +17,23 @@
 
 #define WMAXMO_HEADER_PREFIX_BYTES  30
 #define WMAXMO_MAX_HEADER_BYTES     (256 * 1024)
+
+//
+//  Staging window for a handle whose reads have to be sector-aligned, and the sector size to
+//  assume when the volume will not say.  The DVD's is the coarser of the two media, and a
+//  request aligned for the DVD is also aligned for the hard disk.
+//
+#define WMAXMO_STAGING_BYTES        (64 * 1024)
+#define WMAXMO_DEFAULT_SECTOR_BYTES 2048
+
+//
+//  Most a title's data callback is ever asked for in one call.  The XDK's codec pulled the ASF
+//  stream through the callback in small zero-copy pieces, so titles were written to serve one
+//  modest request at a time: a callback backed by a double buffer only has to patch a read that
+//  straddles the seam, and the shipped samples size that patch buffer at exactly 128 bytes and
+//  assert on anything larger.  Reads here are satisfied a chunk at a time to stay inside that.
+//
+#define WMAXMO_CALLBACK_CHUNK_BYTES 128
 
 
 /****************************************************************************
@@ -73,6 +89,11 @@ CWmaMediaObject::CWmaMediaObject
 
     m_pbPacket = NULL;
 
+    m_dwSectorSize = 0;
+    m_hOverlappedEvent = NULL;
+    m_pbStaging = NULL;
+    m_cbStaging = 0;
+
     DPF_LEAVE_VOID();
 }
 
@@ -111,6 +132,18 @@ CWmaMediaObject::~CWmaMediaObject
     MEMFREE(m_pbCompressed);
     MEMFREE(m_pbPcm);
     MEMFREE(m_pbPacket);
+
+    if(m_pbStaging)
+    {
+        VirtualFree(m_pbStaging, 0, MEM_RELEASE);
+        m_pbStaging = NULL;
+    }
+
+    if(m_hOverlappedEvent)
+    {
+        CloseHandle(m_hOverlappedEvent);
+        m_hOverlappedEvent = NULL;
+    }
 
     if(m_fCloseFile && INVALID_HANDLE_VALUE != m_hFile)
     {
@@ -213,9 +246,340 @@ CWmaMediaObject::InitializeFile
         hr = E_INVALIDARG;
     }
 
+    if(SUCCEEDED(hr))
+    {
+        BindHandle();
+    }
+
     DPF_LEAVE_HRESULT(hr);
 
     return hr;
+}
+
+
+/****************************************************************************
+ *
+ *  BindHandle
+ *
+ *  Description:
+ *      Notes what the handle we have just taken on will accept, so ReadAt can
+ *      pick a read path that suits it.
+ *
+ *      RXDK 5849 uplift.  A title reaches this object with a handle of its own
+ *      choosing, and the one an XACT streamed wave bank arrives on is opened
+ *      FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING.  Neither flag tolerates
+ *      the plain seek-and-read below: an asynchronous handle has no file
+ *      position to seek, and refuses a read that does not name its own offset;
+ *      an unbuffered one refuses a read that is not a whole number of sectors
+ *      beginning on a sector boundary, which the ASF header prefix and the
+ *      data packets never are.
+ *
+ *  Arguments:
+ *      (void)
+ *
+ *  Returns:
+ *      (void)
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaMediaObject::BindHandle"
+
+void
+CWmaMediaObject::BindHandle
+(
+    void
+)
+{
+    IO_STATUS_BLOCK          iosb;
+    FILE_MODE_INFORMATION    fmi;
+    FILE_FS_SIZE_INFORMATION fsSize;
+    BOOL                     fAsync;
+    BOOL                     fUnbuffered;
+
+    DPF_ENTER();
+
+    m_dwSectorSize = 0;
+
+    if(INVALID_HANDLE_VALUE != m_hFile &&
+       NT_SUCCESS(NtQueryInformationFile(m_hFile, &iosb, &fmi, sizeof(fmi), FileModeInformation)))
+    {
+        fAsync = !(fmi.Mode & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT));
+        fUnbuffered = !!(fmi.Mode & FILE_NO_INTERMEDIATE_BUFFERING);
+
+        if(fUnbuffered)
+        {
+            if(NT_SUCCESS(NtQueryVolumeInformationFile(m_hFile, &iosb, &fsSize, sizeof(fsSize), FileFsSizeInformation)) &&
+               fsSize.BytesPerSector)
+            {
+                m_dwSectorSize = fsSize.BytesPerSector;
+            }
+            else
+            {
+                m_dwSectorSize = WMAXMO_DEFAULT_SECTOR_BYTES;
+            }
+        }
+        else if(fAsync)
+        {
+            //
+            // Reads must name their offset, but need no rounding.
+            //
+
+            m_dwSectorSize = 1;
+        }
+    }
+
+    DPF_LEAVE_VOID();
+}
+
+
+/****************************************************************************
+ *
+ *  ReadFileRaw
+ *
+ *  Description:
+ *      Reads at an explicit file offset, waiting for the transfer to finish.
+ *      Works whether or not the handle is asynchronous, which is what lets one
+ *      path serve both.
+ *
+ *  Arguments:
+ *      DWORD [in]: absolute file offset.
+ *      LPVOID [out]: destination.
+ *      DWORD [in]: byte count.
+ *      LPDWORD [out]: bytes read.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaMediaObject::ReadFileRaw"
+
+HRESULT
+CWmaMediaObject::ReadFileRaw
+(
+    DWORD                   dwFileOffset,
+    LPVOID                  pvBuffer,
+    DWORD                   cbBuffer,
+    LPDWORD                 pcbRead
+)
+{
+    HRESULT                 hr      = S_OK;
+    OVERLAPPED              ov      = {0};
+    DWORD                   cbRead  = 0;
+
+    DPF_ENTER();
+
+    if(!m_hOverlappedEvent)
+    {
+        m_hOverlappedEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+        if(!m_hOverlappedEvent)
+        {
+            DPF_ERROR("Error %lu occurred creating the read event", GetLastError());
+            hr = E_OUTOFMEMORY;
+        }
+    }
+
+    if(SUCCEEDED(hr))
+    {
+        ov.Offset = dwFileOffset;
+        ov.hEvent = m_hOverlappedEvent;
+
+        ResetEvent(m_hOverlappedEvent);
+
+        if(!ReadFile(m_hFile, pvBuffer, cbBuffer, &cbRead, &ov))
+        {
+            switch(GetLastError())
+            {
+                case ERROR_IO_PENDING:
+                    if(!GetOverlappedResult(m_hFile, &ov, &cbRead, TRUE) &&
+                       ERROR_HANDLE_EOF != GetLastError())
+                    {
+                        DPF_ERROR("Error %lu occurred completing the read", GetLastError());
+                        hr = E_FAIL;
+                    }
+                    break;
+
+                //
+                // Reading at the end of the file is how the ASF parser discovers where the
+                // stream ends, so it is a short read rather than a failure.
+                //
+
+                case ERROR_HANDLE_EOF:
+                    cbRead = 0;
+                    break;
+
+                default:
+                    DPF_ERROR("Error %lu occurred reading the WMA stream", GetLastError());
+                    hr = E_FAIL;
+                    break;
+            }
+        }
+    }
+
+    *pcbRead = SUCCEEDED(hr) ? cbRead : 0;
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+
+/****************************************************************************
+ *
+ *  ReadFileStaged
+ *
+ *  Description:
+ *      Reads an arbitrary window of an unbuffered handle by reading the whole
+ *      sectors that cover it into an aligned buffer and copying the window
+ *      out.  Loops when the window is larger than that buffer.
+ *
+ *  Arguments:
+ *      DWORD [in]: absolute file offset.
+ *      LPBYTE [out]: destination.
+ *      DWORD [in]: byte count.
+ *
+ *  Returns:
+ *      DWORD: bytes read (short at end of file).
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaMediaObject::ReadFileStaged"
+
+DWORD
+CWmaMediaObject::ReadFileStaged
+(
+    DWORD                   dwFileOffset,
+    LPBYTE                  pbData,
+    DWORD                   cbData
+)
+{
+    DWORD                   cbTotal = 0;
+    DWORD                   dwAligned;
+    DWORD                   dwSkip;
+
+    DPF_ENTER();
+
+    if(!m_pbStaging)
+    {
+        //
+        // A virtual allocation is page-aligned, hence aligned for either medium's sectors.
+        //
+
+        m_pbStaging = (LPBYTE)VirtualAlloc(NULL, WMAXMO_STAGING_BYTES, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+
+        if(!m_pbStaging)
+        {
+            DPF_ERROR("Unable to allocate the staging buffer");
+            DPF_LEAVE(0);
+            return 0;
+        }
+
+        m_cbStaging = WMAXMO_STAGING_BYTES;
+    }
+
+    dwAligned = dwFileOffset - (dwFileOffset % m_dwSectorSize);
+    dwSkip = dwFileOffset - dwAligned;
+
+    while(cbTotal < cbData)
+    {
+        DWORD               cbWanted = dwSkip + (cbData - cbTotal);
+        DWORD               cbChunk  = (cbWanted + m_dwSectorSize - 1) / m_dwSectorSize * m_dwSectorSize;
+        DWORD               cbRead   = 0;
+        DWORD               cbCopy;
+
+        if(cbChunk > m_cbStaging)
+        {
+            cbChunk = m_cbStaging;
+        }
+
+        if(FAILED(ReadFileRaw(dwAligned, m_pbStaging, cbChunk, &cbRead)) || cbRead <= dwSkip)
+        {
+            break;
+        }
+
+        cbCopy = cbRead - dwSkip;
+
+        if(cbCopy > cbData - cbTotal)
+        {
+            cbCopy = cbData - cbTotal;
+        }
+
+        CopyMemory(pbData + cbTotal, m_pbStaging + dwSkip, cbCopy);
+        cbTotal += cbCopy;
+
+        if(cbRead < cbChunk)
+        {
+            //
+            // Short of what whole sectors would have given us: end of file.
+            //
+
+            break;
+        }
+
+        dwAligned += cbChunk;
+        dwSkip = 0;
+    }
+
+    DPF_LEAVE(cbTotal);
+
+    return cbTotal;
+}
+
+
+/****************************************************************************
+ *
+ *  ReadFileAt
+ *
+ *  Description:
+ *      Reads from the file handle by whichever path it will accept.
+ *
+ *  Arguments:
+ *      DWORD [in]: absolute file offset.
+ *      LPBYTE [out]: destination.
+ *      DWORD [in]: byte count.
+ *
+ *  Returns:
+ *      DWORD: bytes read (short at end of file).
+ *
+ ****************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWmaMediaObject::ReadFileAt"
+
+DWORD
+CWmaMediaObject::ReadFileAt
+(
+    DWORD                   dwFileOffset,
+    LPBYTE                  pbData,
+    DWORD                   cbData
+)
+{
+    DWORD                   cbRead = 0;
+
+    if(m_dwSectorSize > 1)
+    {
+        cbRead = ReadFileStaged(dwFileOffset, pbData, cbData);
+    }
+    else if(m_dwSectorSize)
+    {
+        if(FAILED(ReadFileRaw(dwFileOffset, pbData, cbData, &cbRead)))
+        {
+            cbRead = 0;
+        }
+    }
+    else if(INVALID_SET_FILE_POINTER != SetFilePointer(m_hFile, (LONG)dwFileOffset, NULL, FILE_BEGIN))
+    {
+        if(!ReadFile(m_hFile, pbData, cbData, &cbRead, NULL))
+        {
+            cbRead = 0;
+        }
+    }
+
+    return cbRead;
 }
 
 
@@ -302,26 +666,36 @@ CWmaMediaObject::ReadAt
 
     if(m_pfnCallback)
     {
-        LPVOID              pvData = NULL;
-        DWORD               cbAvailable;
-
-        cbAvailable = m_pfnCallback(m_pvCallbackContext, dwOffset, cbData, &pvData);
-
-        if(pvData && cbAvailable)
+        while(cbRead < cbData)
         {
-            cbRead = (cbAvailable < cbData) ? cbAvailable : cbData;
-            CopyMemory(pbData, pvData, cbRead);
+            LPVOID          pvData = NULL;
+            DWORD           cbChunk = cbData - cbRead;
+            DWORD           cbAvailable;
+
+            if(cbChunk > WMAXMO_CALLBACK_CHUNK_BYTES)
+            {
+                cbChunk = WMAXMO_CALLBACK_CHUNK_BYTES;
+            }
+
+            cbAvailable = m_pfnCallback(m_pvCallbackContext, dwOffset + cbRead, cbChunk, &pvData);
+
+            if(!pvData || !cbAvailable)
+            {
+                break;
+            }
+
+            if(cbAvailable > cbChunk)
+            {
+                cbAvailable = cbChunk;
+            }
+
+            CopyMemory(pbData + cbRead, pvData, cbAvailable);
+            cbRead += cbAvailable;
         }
     }
     else if(INVALID_HANDLE_VALUE != m_hFile)
     {
-        if(INVALID_SET_FILE_POINTER != SetFilePointer(m_hFile, (LONG)(m_dwFileBase + dwOffset), NULL, FILE_BEGIN))
-        {
-            if(!ReadFile(m_hFile, pbData, cbData, &cbRead, NULL))
-            {
-                cbRead = 0;
-            }
-        }
+        cbRead = ReadFileAt(m_dwFileBase + dwOffset, pbData, cbData);
     }
 
     return cbRead;

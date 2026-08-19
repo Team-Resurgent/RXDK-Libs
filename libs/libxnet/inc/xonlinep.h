@@ -230,8 +230,18 @@ typedef XONLINETASK_HANDLE* PXONLINETASK_HANDLE;
 //
 // Define the two global state values
 //
+// RXDK: 5849 renumbered the task-pump status codes into facility 0x15 and grew
+// the set (RESULTS_AVAIL, RUNNING_IDLE); the leak still spells success S_FALSE.
+// Titles and the 5849 shim TUs compile against the public xonline.h, so leaving
+// the old value here gave the task engine one meaning of "done" and everyone
+// calling it another -- a completed task read as still running, which is what
+// hung every Live sample before it ever presented. Keep this in step with
+// shared/include/xonline.h.
+//
 #define XONLINETASK_S_RUNNING                   (S_OK)
-#define XONLINETASK_S_SUCCESS                   (S_FALSE)
+#define XONLINETASK_S_SUCCESS                   _HRESULT_TYPEDEF_(0x001500F0L)
+#define XONLINETASK_S_RESULTS_AVAIL             _HRESULT_TYPEDEF_(0x001500F1L)
+#define XONLINETASK_S_RUNNING_IDLE              _HRESULT_TYPEDEF_(0x001500F2L)
 
 XBOXAPI
 HRESULT 
@@ -335,15 +345,20 @@ DECLARE_HANDLE(XPININPUTHANDLE);
 #define XONLINE_USER_OPTION_MU_SLOT_MASK    0x10000000
 #define XONLINE_USER_OPTION_MU_SLOT_SHIFT           28
 
+//
+// 5849 layout (112 bytes). The Jan-2002 leak carried a 'kingdom' array and a
+// trailing 'index' here; 5849 dropped both, and titles size their account
+// arrays with the public xonline.h -- so keeping the leak shape made the
+// library write XONLINE_MAX_STORED_ONLINE_USERS * 16 bytes past the end of
+// every caller's array. 'name' and 'pin' are 5849's szGamertag and passcode.
+//
 typedef struct {
     XUID xuid;
     CHAR name[XONLINE_NAME_SIZE];
-    CHAR kingdom[XONLINE_KINGDOM_SIZE];
     DWORD dwUserOptions;
     BYTE pin[XONLINE_PIN_LENGTH];
     BYTE reserved[XONLINE_USER_RESERVED_SIZE];
     HRESULT hr;
-    DWORD index;
 } XONLINE_USER, *PXONLINE_USER;
 
 typedef struct {
@@ -1664,11 +1679,14 @@ _XOnlineGetCreateAccountResults(
 #define XONLINE_MAX_HD_ONLINE_USERS             8
 #define XONLINE_MAX_ONLINE_USERS_PER_SECTOR     4
 
+//
+// Detailed overlay of XONLINE_USER above: same 5849 layout, with the public
+// reserved[] area spelled out. Must stay byte-identical to XONLINE_USER.
+//
 typedef struct {
 
     XUID xuid;
     CHAR name[XONLINE_NAME_SIZE];
-    CHAR kingdom[XONLINE_KINGDOM_SIZE];
     DWORD dwUserOptions;
     BYTE pin[XONLINE_PIN_LENGTH];
 
@@ -1683,9 +1701,10 @@ typedef struct {
     BYTE signature[XONLINE_USER_SIGNATURE_LENGTH];
     
     HRESULT hr;
-    DWORD index;
 
 } XONLINEP_USER, *PXONLINEP_USER;
+
+C_ASSERT(sizeof(XONLINEP_USER) == sizeof(XONLINE_USER));
 
 //@@END_CLIENTONLY
 //

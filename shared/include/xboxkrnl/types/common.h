@@ -14,7 +14,9 @@
 #endif
 #define STDCALL            __attribute__((__stdcall__))
 #define NTAPI              STDCALL
-#define CDECL              __attribute__((__cdecl__))
+// Keyword form, matching windef.h's fallback so the two definitions are identical
+// (this one is unguarded, so include order would otherwise decide which wins).
+#define CDECL              __cdecl
 #define FASTCALL           __attribute__((fastcall))
 #define DECLSPEC_NORETURN  __attribute__((noreturn))
 #define RESTRICTED_POINTER __restrict__

@@ -146,6 +146,7 @@ WaveFormat::CreateInternalFormat
     ASSERT(pDest);
     ASSERT(pSource);
 
+
     switch(pSource->wFormatTag)
     {
         case WAVE_FORMAT_PCM:
@@ -168,6 +169,7 @@ WaveFormat::CreateInternalFormat
             ASSERTMSG("Unexpected format tag");
             break;
     }
+
 
     DPF_LEAVE(dwChannelMask);
 

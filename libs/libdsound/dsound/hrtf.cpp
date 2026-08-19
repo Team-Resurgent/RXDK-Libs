@@ -239,6 +239,24 @@ CHrtfSource::CHrtfSource
 {
     DPF_ENTER();
 
+    //
+    // RXDK: the algorithm selection (m_pfnCalculate / m_pfnGetFilterPair) is
+    // only ever made by DirectSoundUse{Full,Light}HRTF / DirectSoundUsePan3D,
+    // and both call sites guard it with nothing but an ASSERT -- which compiles
+    // out here, so an unset algorithm called straight through a NULL pointer and
+    // hung the title. XACT pre-allocates dwMax3DHwVoices voices inside
+    // XACTEngineCreate, so any title that leaves the choice to XACT (e.g. the
+    // XActWMAPlayList sample) reaches this with no algorithm set. Default to the
+    // full HRTF table, matching what every sample that does choose asks for.
+    // Selection is still first-writer-wins, so an explicit choice made before
+    // the first 3D voice is created is preserved.
+    //
+    if(!IsValidAlgorithm())
+    {
+        DPF_WARNING("No 3D algorithm selected; defaulting to full HRTF");
+        SetAlgorithm_FullHrtf();
+    }
+
     m_3dData = m_Default3dData;
     m_3dVoiceData = m_Default3dVoiceData;
 

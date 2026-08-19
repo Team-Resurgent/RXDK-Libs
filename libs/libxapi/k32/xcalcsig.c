@@ -160,7 +160,7 @@ BOOL XapiConvertSignatureToNonRoamable(
             )
 {
     // Compute the Keyed SHA Hmac
-    XShaHmacInitialize((LPBYTE)(*XboxHDKey), XBOX_KEY_LENGTH, 
+    XShaHmacInitialize((LPBYTE)XboxHDKey, XBOX_KEY_LENGTH, 
                 pCalcSig->shactx);
     
     XShaHmacUpdate(pCalcSig->shactx, 
@@ -168,7 +168,7 @@ BOOL XapiConvertSignatureToNonRoamable(
                 XCALCSIG_SIGNATURE_SIZE);
                 
     XShaHmacComputeFinal(pCalcSig->shactx, 
-                (LPBYTE)(*XboxHDKey), XBOX_KEY_LENGTH,
+                (LPBYTE)XboxHDKey, XBOX_KEY_LENGTH,
                 psignatureNonRoamable->Signature);
 
     return(TRUE);

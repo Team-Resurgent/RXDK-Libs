@@ -90,9 +90,13 @@ typedef struct _KPCR {
 
 static __inline PKPRCB KeGetCurrentPrcb(void)
 {
-    PKPCR pcr;
-    __asm__ volatile ("movl %%fs:0, %0" : "=r"(pcr));
-    return &pcr->PrcbData;
+    PKPRCB prcb;
+    // fs:[0] is NT_TIB.ExceptionList, not the PCR, so the Prcb field has to be
+    // addressed by its own offset the way ntos i386.h does it.
+    __asm__ volatile ("movl %%fs:%c1, %0"
+                      : "=r"(prcb)
+                      : "i"(__builtin_offsetof(KPCR, Prcb)));
+    return prcb;
 }
 
 /*

@@ -33,6 +33,7 @@ CSoundSource::CSoundSource
     m_fPaused              = FALSE;
     m_lBaseVolume          = DSBVOLUME_MAX;   // 0: no attenuation until content sets one
     m_wHighestCuePriority  = 0;
+    m_pStreamedWave        = NULL;
 
     InitializeListHead(&m_ListEntry);
 
@@ -51,6 +52,8 @@ CSoundSource::~CSoundSource
 
     ASSERT(g_pEngine);
     g_pEngine->Release();
+
+    DetachStreamedWave();
 
     if (m_HwVoice.pStream) {
 
@@ -156,6 +159,14 @@ HRESULT CSoundSource::Stop()
         hr = m_HwVoice.pBuffer->Stop();
     } else {
 
+        //
+        // RXDK 5849 uplift: the voice is being given up, so whatever was feeding it is finished
+        // with. This releases the decoder before the flush, so nothing is decoded into buffers the
+        // flush is about to reclaim.
+        //
+
+        DetachStreamedWave();
+
         hr = m_HwVoice.pStream->Flush();
         if (SUCCEEDED(hr)) {
             hr = m_HwVoice.pStream->Pause(DSSTREAMPAUSE_PAUSE);
@@ -187,13 +198,98 @@ HRESULT CSoundSource::Play()
     } else {
 
         //
-        // TODO Implement Streaming Play
+        // RXDK 5849 uplift: a stream voice has no Play -- what makes it sound is data, and it
+        // stops of its own accord when it runs out. So starting one means filling it before
+        // letting it run, since a voice released into a mix with nothing queued is starved from
+        // its first sample.
         //
+
+        ServiceStreamedWave();
+
+        hr = m_HwVoice.pStream->Pause(DSSTREAMPAUSE_RESUME);
+
+        if (SUCCEEDED(hr)) {
+            m_fPaused = FALSE;
+        }
 
     }
 
     return hr;
     
+}
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundSource::AttachStreamedWave"
+
+//
+// RXDK 5849 uplift.  Binds one wave of a streamed bank to this voice, and sets the voice to the
+// format that wave will actually arrive in -- which for a WMA wave is the decoder's PCM output,
+// not the compressed form the bank's meta-data describes.
+//
+HRESULT CSoundSource::AttachStreamedWave(CWaveBank *pWaveBank, LPCWAVEBANKENTRY pEntry)
+{
+    HRESULT        hr;
+    CStreamedWave *pStreamedWave = NULL;
+    WAVEFORMATEX   wfx;
+
+    ENTER_EXTERNAL_METHOD();
+    DPF_ENTER();
+
+    ASSERT(pWaveBank);
+    ASSERT(pEntry);
+
+    if (!m_HwVoice.pStream) {
+        DPF_ERROR("A wave can only be streamed through a stream voice");
+        DPF_LEAVE_HRESULT(E_FAIL);
+        return E_FAIL;
+    }
+
+    DetachStreamedWave();
+
+    hr = HRFROMP(pStreamedWave = NEW(CStreamedWave));
+
+    if (SUCCEEDED(hr)) {
+        hr = pStreamedWave->Initialize(pWaveBank, pEntry, &wfx);
+    }
+
+    if (SUCCEEDED(hr)) {
+        hr = m_HwVoice.pStream->SetFormat(&wfx);
+    }
+
+    if (SUCCEEDED(hr)) {
+        m_pStreamedWave = pStreamedWave;
+    } else {
+        DELETE(pStreamedWave);
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+    return hr;
+}
+
+
+#undef DPF_FNAME
+#define DPF_FNAME "CSoundSource::DetachStreamedWave"
+
+VOID CSoundSource::DetachStreamedWave()
+{
+    DPF_ENTER();
+
+    if (m_pStreamedWave) {
+
+        //
+        // Take the packets back before freeing them: the hardware is reading out of them until it
+        // is told otherwise.
+        //
+
+        m_pStreamedWave->Reset(m_HwVoice.pStream);
+
+        DELETE(m_pStreamedWave);
+        m_pStreamedWave = NULL;
+
+    }
+
+    DPF_LEAVE_VOID();
 }
 
 #undef DPF_FNAME

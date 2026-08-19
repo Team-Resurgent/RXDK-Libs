@@ -108,7 +108,7 @@ CXo::_XOnlineAccountTempCreate(PXONLINE_USER pUser, HANDLE hWorkEvent, XONLINETA
 
     HRESULT hr = XONLINETASK_S_RUNNING;
   
-    if (strlen(pUser->name) > XONLINE_MAX_NAME_LENGTH || strlen(pUser->kingdom) > XONLINE_MAX_KINGDOM_LENGTH)
+    if (strlen(pUser->name) > XONLINE_MAX_NAME_LENGTH)
     {
         hr = XONLINE_E_ACCOUNTS_INVALID_USER;
         goto Cleanup;
@@ -1050,7 +1050,6 @@ CXo::_XOnlineCreateAccount(USER_ACCOUNT_INFO* pAccountInfo, HANDLE hWorkEvent, X
     // copy known data to user struct
     //
     WToUtf8(NULL, (LPBYTE)pTaskExt->User.name, pAccountInfo->wszNickname);
-    WToUtf8(NULL, (LPBYTE)pTaskExt->User.kingdom, pAccountInfo->wszKingdom);
     strcpy(pTaskExt->User.realm, "passport.net");
     memcpy(pTaskExt->User.pin, pAccountInfo->rgbPin, XONLINE_PIN_LENGTH);
     

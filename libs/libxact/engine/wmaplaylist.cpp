@@ -1057,14 +1057,37 @@ HRESULT CWmaPlayList::StartPlayback(void)
 
     m_fPlaying = TRUE;
 
+    NotifySongStarted();
+
     return S_OK;
+}
+
+
+//
+// A title tracks song changes through the cue's start notification, which for an
+// ordinary cue is raised by the cue instance. A playlist has no cue instance, so
+// raise it here for every song this playlist begins.
+//
+VOID CWmaPlayList::NotifySongStarted(void)
+{
+    if (m_pSoundBank != NULL) {
+        m_pSoundBank->RaiseCueIndexNotification(m_dwSoundCueIndex,
+                                                eXACTNotification_Start);
+    }
 }
 
 
 VOID CWmaPlayList::StopPlayback(void)
 {
+    BOOL fWasPlaying = m_fPlaying;
+
     m_fPlaying = FALSE;
     CloseStream();
+
+    if (fWasPlaying && m_pSoundBank != NULL) {
+        m_pSoundBank->RaiseCueIndexNotification(m_dwSoundCueIndex,
+                                                eXACTNotification_Stop);
+    }
 }
 
 
@@ -1110,7 +1133,10 @@ VOID CWmaPlayList::DoWork(void)
 
     if (FAILED(m_pStream->Pause(DSSTREAMPAUSE_RESUME))) {
         StopPlayback();
+        return;
     }
+
+    NotifySongStarted();
 }
 
 

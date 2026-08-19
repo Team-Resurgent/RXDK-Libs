@@ -76,6 +76,13 @@ namespace DirectSound
         // Scratch for one ASF data packet.
         LPBYTE                  m_pbPacket;
 
+        // Staging for a handle that cannot simply be read at an arbitrary offset -- see
+        // BindHandle.  m_dwSectorSize is zero when the handle needs no staging.
+        DWORD                   m_dwSectorSize;
+        HANDLE                  m_hOverlappedEvent;
+        LPBYTE                  m_pbStaging;
+        DWORD                   m_cbStaging;
+
     public:
         CWmaMediaObject(void);
         virtual ~CWmaMediaObject(void);
@@ -113,6 +120,11 @@ namespace DirectSound
         // Read cbData bytes at dwOffset (relative to the ASF stream) into pbData.  Returns the
         // count actually read, which is short at end of file.
         DWORD ReadAt(DWORD dwOffset, LPBYTE pbData, DWORD cbData);
+
+        void  BindHandle(void);
+        DWORD ReadFileAt(DWORD dwFileOffset, LPBYTE pbData, DWORD cbData);
+        DWORD ReadFileStaged(DWORD dwFileOffset, LPBYTE pbData, DWORD cbData);
+        HRESULT ReadFileRaw(DWORD dwFileOffset, LPVOID pvBuffer, DWORD cbBuffer, LPDWORD pcbRead);
 
         HRESULT EnsureHeader(void);
         HRESULT DecodeMorePcm(void);        // advance one ASF packet's worth

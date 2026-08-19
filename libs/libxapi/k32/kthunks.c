@@ -1,6 +1,8 @@
 #include "bridge_k32.h"
 #include "basedll.h"
 #include <stdio.h>
+#include <wchar.h>
+#include "ms_printf.h"
 
 
 VOID
@@ -50,6 +52,12 @@ wsprintfA(LPSTR lpOut, LPCSTR lpFmt, ...)
 // because the calling convention is not the same as vwsprintf()
 //
 
+//
+// wvsprintf takes no buffer size: Win32 documents 1024 characters as the most
+// it will ever produce, so that is the bound handed to the C99 formatter.
+//
+#define WVSPRINTF_MAX_OUTPUT 1024
+
 int
 __attribute__((__stdcall__))
 wvsprintfW(
@@ -57,7 +65,16 @@ wvsprintfW(
     IN LPCWSTR lpFmt,
     IN va_list arglist)
 {
-    return vswprintf(lpOut, lpFmt, arglist);
+    wchar_t stack[RXDK_MS_FORMAT_STACK];
+    wchar_t *heap;
+    const wchar_t *use;
+    int ret;
+
+    use = __rxdk_ms_wformat(lpFmt, stack, RXDK_MS_FORMAT_STACK, &heap);
+    ret = vswprintf(lpOut, WVSPRINTF_MAX_OUTPUT, use, arglist);
+    __rxdk_ms_format_free(heap);
+
+    return ret;
 }
 
 int
@@ -67,7 +84,16 @@ wvsprintfA(
     IN LPCSTR lpFmt,
     IN va_list arglist)
 {
-    return vsprintf(lpOut, lpFmt, arglist);
+    char stack[RXDK_MS_FORMAT_STACK];
+    char *heap;
+    const char *use;
+    int ret;
+
+    use = __rxdk_ms_format(lpFmt, stack, RXDK_MS_FORMAT_STACK, &heap);
+    ret = vsnprintf(lpOut, WVSPRINTF_MAX_OUTPUT, use, arglist);
+    __rxdk_ms_format_free(heap);
+
+    return ret;
 }
 
 ULONG

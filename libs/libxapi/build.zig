@@ -32,6 +32,10 @@ pub fn includeDirs() []const []const u8 {
         XAPI ++ "/internal/shims",
         "shared/picolibc/include",
         "shared/picolibc/machine/x86",
+        // ms_printf.h: the MSVC->C99 format translator, shared with the wide
+        // Win32 formatters in k32 (wsprintfW and friends promise MSVC's
+        // spelling of %s/%S/%I64, which picolibc does not implement).
+        "libs/libc/xbox",
     };
 }
 
@@ -174,25 +178,4 @@ pub fn stageHeaders(b: *std.Build) *std.Build.Step {
         step.dependOn(&install.step);
     }
     return step;
-}
-
-pub fn isCoreObjectPath(path: []const u8) bool {
-    const prefixes = [_][]const u8{
-        "libs/libxapi/k32/",
-        "libs\\libxapi\\k32\\",
-        "libs/libxapi/dll/",
-        "libs\\libxapi\\dll\\",
-        "libs/libxapi/rtl/",
-        "libs\\libxapi\\rtl\\",
-        "libs/libxapi/uuid/",
-        "libs\\libxapi\\uuid\\",
-        "libs/libxapi/port/",
-        "libs\\libxapi\\port\\",
-    };
-    for (prefixes) |prefix| {
-        if (std.mem.indexOf(u8, path, prefix) != null) {
-            return true;
-        }
-    }
-    return false;
 }

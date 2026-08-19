@@ -56,7 +56,7 @@ Internal smokes link picolibc + xbox + (optional) libcxx **objects** via `@zig-o
 
 External titles just link the shipped `.lib` files — the two title-link objects are baked into the archives so no loose objects are needed:
 - `xboxkrnl_xbld.obj` (`.XBLD` / `_XboxKrnlBuildNumber`) is packed into **libc.lib**; `libs/libc/xbox/startup.c` holds a genuine reference to `XboxKrnlBuildNumber` so the always-linked startup pulls the member (a `#pragma comment(linker,"/include:")` directive does **not** work for archive pull on the x86-windows-gnu toolchain).
-- `xapi_start.obj` (`XapiTitleStartup`, title-compiled) is packed into **libxapi.lib** (and `libxapi_core.lib`); any title that links libxapi resolves the entry from the archive via `-e XapiTitleStartup`.
+- `xapi_start.obj` (`XapiTitleStartup`, title-compiled) is packed into **libxapi.lib**; any title that links libxapi resolves the entry from the archive via `-e XapiTitleStartup`.
 
 ## Intentional divergences from RXDK-LibsOld
 

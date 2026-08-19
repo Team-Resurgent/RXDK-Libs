@@ -23,8 +23,10 @@ extern "C" {
 #endif
 
 __attribute__((cdecl)) void *memcpy(void *, const void *, __SIZE_TYPE__);
+__attribute__((cdecl)) void *memmove(void *, const void *, __SIZE_TYPE__);
 __attribute__((cdecl)) void *memset(void *, int, __SIZE_TYPE__);
 __attribute__((cdecl)) int   memcmp(const void *, const void *, __SIZE_TYPE__);
+__attribute__((cdecl)) void *memchr(const void *, int, __SIZE_TYPE__);
 __attribute__((cdecl)) int    abs(int);
 __attribute__((cdecl)) double acos(double);
 __attribute__((cdecl)) double cos(double);

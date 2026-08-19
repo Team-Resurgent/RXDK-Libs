@@ -155,5 +155,7 @@ BOOL g_fDirectSoundI3DL2Overdelay = FALSE;
 
 INITIALIZED_CRITICAL_SECTION(g_DirectSoundCriticalSection);
 
+// xemu after a hang. Memory write works at any IRQL and needs no flush, unlike
+
 #endif // MCPX_BOOT_LIB
 

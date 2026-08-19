@@ -107,6 +107,14 @@ HRESULT CDevice::InitializePushBuffer()
                           + (m_PushSegmentSize / sizeof(DWORD))
                           - PUSHER_THRESHOLD_SIZE_PLUS_OVERHEAD;
 
+    m_PusherWrapCount = 0;
+
+    // Start out believing the GPU is at the beginning, which is the most
+    // conservative position we can claim:
+
+    m_LastGet = m_pPushBase;
+    m_LastGetWrap = 0;
+
     // GPU time never equals CPU time, and neither are ever zero:
 
     m_CpuTime = (2 << PUSHER_TIME_SHIFT) | PUSHER_TIME_VALID_FLAG;
@@ -201,6 +209,19 @@ DWORD SetFence(
     ASSERT(time & PUSHER_TIME_VALID_FLAG);
 
     // Fill in the fence:
+    //
+    // The progress stamp goes first so that PGRAPH records where it is
+    // before the back-end releases the semaphore for this time.  We pack the
+    // fence's own address together with the low bits of the time and of the
+    // wrap count; GpuGetOrNewer only reads the time and wrap bits back, but
+    // the address makes the register value meaningful when dumped by hand.
+
+    pEncoding->m_ProgressCommand
+        = EncodeMethod(SUBCH_PATTERN, NV044_SET_MONOCHROME_COLOR0);
+
+    pEncoding->m_ProgressArgument
+        = ((((DWORD) pPush << 3) | (time & 0x1f)) << 2)
+        | (pDevice->m_PusherWrapCount & 3);
 
     pEncoding->m_SemaphoreCommand
         = EncodeMethod(SUBCH_3D, NV097_BACK_END_WRITE_SEMAPHORE_RELEASE);
@@ -221,8 +242,8 @@ DWORD SetFence(
             = PUSHER_METHOD(SUBCH_3D, NV097_SET_COLOR_CLEAR_VALUE, 1);
     pEncoding->m_SetColorClearArgument2 = 0;
 
-    PushedRaw(pPush + 6);
-    pDevice->EndPush(pPush + 6);
+    PushedRaw(pPush + 8);
+    pDevice->EndPush(pPush + 8);
 
     DWORD runTotal = pDevice->m_PusherPutRunTotal;
     DWORD fence = (time >> PUSHER_TIME_SHIFT) & (PUSHER_FENCE_COUNT - 1);
@@ -274,12 +295,16 @@ DWORD SetFence(
 
 DWORD FASTCALL ComputeGap(
     CDevice* pDevice,
-    Fence* pFence)
+    Fence* pFence,
+    PPUSH pGet)
 {
     // Compute the push-buffer difference, accounting for wrapping of
     // the push-buffer:
+    //
+    // The caller supplies 'pGet' rather than having us read it, so that it
+    // controls how much it trusts the value - see GpuGetOrNewer.
 
-    DWORD get = (DWORD) pDevice->GpuGet();
+    DWORD get = (DWORD) pGet;
     if ((DWORD*) get <= pDevice->m_Pusher.m_pPut)
         get += pDevice->m_PusherLastSize;
 
@@ -294,14 +319,7 @@ DWORD FASTCALL ComputeGap(
     if (distance < 0)
         return 0;
 
-    // Add in the length of all RunPushBuffer calls between the GPU and the
-    // fence that haven't yet been executed by the GPU:
-
-    INT run = pFence->RunTotal - pDevice->m_Miniport.m_PusherGetRunTotal;
-    if (run < 0)
-        run = 0;
-
-    return run + distance;
+    return distance;
 }
 
 //------------------------------------------------------------------------------
@@ -438,6 +456,61 @@ static Fence* FindFence(
 }
 
 //------------------------------------------------------------------------------
+// GpuGetOrNewer
+//
+// Returns where the GPU is reading in the main push-buffer, or a position
+// that is guaranteed to be no older than that.  Never returns a pointer
+// outside the main push-buffer.
+//
+// If 'SyncWithPgraph' is set, we first wait until PGRAPH has caught up to the
+// time the back-end semaphore is reporting.  The semaphore is released by the
+// back-end, which runs ahead of PGRAPH, so 'GpuTime' alone can claim a fence
+// has completed while PGRAPH is still working through the commands in front of
+// it.  Callers about to decide whether they beat the GPU to a piece of
+// already-submitted push-buffer have to use the synchronized form; getting
+// that decision wrong means handing out push-buffer space the GPU has yet to
+// read.
+
+PPUSH GpuGetOrNewer(
+    CDevice* pDevice,
+    BOOL SyncWithPgraph)
+{
+    if (SyncWithPgraph)
+    {
+        // Each fence stamps its time into NV_PGRAPH_PATT_COLOR0 via the
+        // pattern class, in the same command order as everything else, so
+        // spin until the register agrees with the semaphore's time:
+
+        while (((*pDevice->m_pGpuTime << 2)
+                    ^ REG_RD32(pDevice->m_NvBase, NV_PGRAPH_PATT_COLOR0))
+               & 0x7c)
+            ;
+    }
+
+    PPUSH pGet = pDevice->HwGet();
+
+    if ((pGet >= pDevice->m_pPushBase) && (pGet < pDevice->m_pPushLimit))
+        return pGet;
+
+    // The GPU is off executing a push-buffer called via RunPushBuffer, so its
+    // 'get' tells us nothing about the main push-buffer.  Rather than dig the
+    // return address out of the hardware, report the position of the oldest
+    // fence the GPU can still be working on, which is never newer than where
+    // it really is:
+
+    DWORD time = *pDevice->m_pGpuTime + (1 << PUSHER_TIME_SHIFT);
+
+    if (time == pDevice->m_CpuTime)
+        return pDevice->m_Pusher.m_pPut;
+
+    Fence* pFence = FindFence(time);
+    if (pFence != NULL)
+        return (PPUSH) pFence->pEncoding;
+
+    return pDevice->m_Pusher.m_pPut + 1;
+}
+
+//------------------------------------------------------------------------------
 // BlockOnTime
 //
 // Wait until the GPU gets to the specified time.  
@@ -506,9 +579,9 @@ VOID BlockOnTime(
     // any modifications we make that are less than 1KB ahead of where
     // the hardware is currently 'getting':
 
-    DWORD gap = ComputeGap(pDevice, targetFence);
+    DWORD gap = ComputeGap(pDevice, targetFence, GpuGetOrNewer(pDevice, FALSE));
 
-    if (gap >= PUSHER_BLOCK_THRESHOLD)
+    if (gap >= PUSHER_BLOCK_THRESHOLD_INITIAL)
     {
         // Ensure that the fence is not stale.  Yes, these are reads from 
         // write-combined memory.  (Hi Mike.)
@@ -568,7 +641,12 @@ VOID BlockOnTime(
     
         FlushWCCache();
 
-        DWORD newGap = ComputeGap(pDevice, targetFence);
+        // Now that the commands are in the push-buffer, find out whether we
+        // actually beat the GPU to them.  This is the decision that must not
+        // be made on a stale 'get', so synchronize with PGRAPH first:
+
+        DWORD newGap
+            = ComputeGap(pDevice, targetFence, GpuGetOrNewer(pDevice, TRUE));
         ASSERT(newGap <= gap);
         if (newGap < PUSHER_BLOCK_THRESHOLD)
         {
@@ -630,7 +708,8 @@ Spin:
                 // Make sure that our gap logic works properly, and that the
                 // gap never increases:
 
-                DWORD newerGap = ComputeGap(pDevice, targetFence);
+                DWORD newerGap = ComputeGap(pDevice, targetFence,
+                                            GpuGetOrNewer(pDevice, FALSE));
                 // ASSERT(newerGap <= gap);
                 gap = newerGap;
             }
@@ -728,6 +807,11 @@ PPUSH MakeRequestedSpace(
             // we need.  We have to wrap to the beginning of the push-buffer.
 
             COUNT_PERF(PERF_PUSHBUFFER_JUMPTOBEGINNING);
+
+            // Count the lap so that fence progress stamps written from here
+            // on can be told apart from those of the previous pass:
+
+            pDevice->m_PusherWrapCount++;
 
             // Remember how far we got:
 

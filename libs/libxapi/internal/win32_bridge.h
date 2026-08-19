@@ -87,7 +87,10 @@ typedef LONG_PTR *PLONG_PTR;
 #endif
 
 #ifndef ANSI_NULL
-#define ANSI_NULL                        0
+// Must keep winnt's type, not a bare 0: callers take sizeof(ANSI_NULL) to mean
+// "one terminating byte" (MultiByteToWideChar computes its returned length that
+// way), and an int-typed 0 makes that 4.
+#define ANSI_NULL                        ((CHAR)0)
 #endif
 
 #ifndef MM_HIGHEST_USER_ADDRESS

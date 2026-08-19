@@ -752,6 +752,19 @@ public:
 
     DWORD m_PusherPutRunTotal;
 
+    // Number of times the push-buffer has wrapped back to the beginning.
+    // The low bits are stamped into each fence's progress word so that a
+    // position read back from PGRAPH can be attributed to the right lap:
+
+    DWORD m_PusherWrapCount;
+
+    // The most recent GPU position we have believed, and the lap it was on.
+    // GpuGet reports these whenever a fresh reading would move the GPU
+    // backwards:
+
+    PPUSH m_LastGet;
+    DWORD m_LastGetWrap;
+
     // The completed size of the push-buffer when we last had to wrap back
     // to the beginning:
 
@@ -1355,27 +1368,51 @@ public:
     {
         PPUSH pGet = HwGet();
     
-        // If the GPU is not currently pulling from the primary push-buffer,
-        // then it must currently be executing a push-buffer called via
-        // RunPushBuffer.  In that case, get the return address:
-    
-        if ((pGet < m_pPushBase) || (pGet >= m_pPushLimit))
+        if ((pGet >= m_pPushBase) && (pGet < m_pPushLimit))
         {
-            // PUSHER_CALL is used every time a push-buffer resource is
-            // called from the main push-buffer, so we can simply read
-            // the following register to determine our location in the
-            // main push-buffer.  (Note that nested push-buffers do not
-            // use PUSHER_CALL, so we are guaranteed this address will
-            // always be in the main push-buffer):
+            // The hardware's 'get' is a position in the main push-buffer, so
+            // take it at face value.  Record which lap it belongs to: if our
+            // write cursor hasn't passed it yet, it is from the lap before
+            // the one we are currently filling.
 
-            pGet = (PPUSH) GetWriteCombinedAddress(
-                REG_RD32(m_NvBase, NV_PFIFO_CACHE1_DMA_SUBROUTINE) 
-                    & ~NV_PFIFO_CACHE1_DMA_SUBROUTINE_STATE_ACTIVE);
+            m_LastGetWrap 
+                = m_PusherWrapCount - ((m_Pusher.m_pPut < pGet) ? 1 : 0);
+            m_LastGet = pGet;
 
-            ASSERT((pGet >= m_pPushBase) && (pGet <= m_pPushLimit));
+            return pGet;
         }
-    
-        return pGet;
+
+        // The GPU is off executing a push-buffer called via RunPushBuffer, so
+        // its 'get' says nothing about the main push-buffer.  Recover the
+        // position from the progress stamp that every fence writes into
+        // NV_PGRAPH_PATT_COLOR0 - PGRAPH updates that register in command
+        // order, so it names the last fence the GPU actually reached.
+
+        DWORD stamp = REG_RD32(m_NvBase, NV_PGRAPH_PATT_COLOR0);
+
+        PPUSH pStamped = (PPUSH) 
+            (((stamp >> 5) & 0x07fffffc) | 0x80000000);
+
+        // How many laps behind our write cursor the stamp was written, and
+        // how many laps ago we last had a position:
+
+        DWORD stampLaps = (m_PusherWrapCount - stamp) & 3;
+        DWORD knownLaps = m_PusherWrapCount - m_LastGetWrap;
+
+        // Never report the GPU as having moved backwards.  Handing out push-
+        // buffer space on the strength of a position the GPU has already left
+        // behind is safe; doing it on a position it has not reached is not.
+
+        if ((knownLaps < stampLaps) ||
+            ((knownLaps == stampLaps) && (m_LastGet > pStamped)))
+        {
+            return m_LastGet;
+        }
+
+        m_LastGetWrap = m_PusherWrapCount - stampLaps;
+        m_LastGet = pStamped;
+
+        return pStamped;
     }
 
     // Returns the current GPU time: 

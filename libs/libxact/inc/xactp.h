@@ -627,6 +627,13 @@ typedef struct _XACT_SOUNDBANK_SOUND_ENTRY{
     //
     WORD					wCategory;
 
+    //
+    // The entry is read straight out of the bank as an array, so its stride is part of the format.
+    // Four DWORDs and an odd number of WORDs would leave the compiler to pad the difference and the
+    // builder to guess it, so the padding is spelled out here and written by xactbld.
+    //
+    WORD					wReserved;
+
 } XACT_SOUNDBANK_SOUND_ENTRY, *PXACT_SOUNDBANK_SOUND_ENTRY, *LPXACT_SOUNDBANK_SOUND_ENTRY; 
 
 //

@@ -4,11 +4,15 @@
 #define __ATOMIC_UNGETC 1
 #define __FAST_STRCMP 1
 #define __PICOLIBC_ERRNO_FUNCTION __rxdk_errno
-#define __PREFER_SIZE_OVER_SPEED 1
 #define __TINY_STDIO 1
 #define __HAVE_COMPLEX 1
 #define __IO_C99_FORMATS 1
 #define __IO_LONG_LONG 1
+/* %ls/%lc in the narrow printf family, which is what MSVC's %S/%C are rewritten
+   to (libs/libc/xbox/ms_printf.c). Deliberately not __MB_CAPABLE: without it
+   picolibc narrows a wchar_t by truncation rather than through a locale's
+   multibyte encoding, which is the behaviour Xbox paths and gamertags want. */
+#define __IO_WCHAR 1
 /* Default printf/scanf I/O variant = double ('d'): float formatting/parsing for
    printf, scanf, and iostream num_put/num_get. Backed by the Ryu engines
    (dtoa_ryu.c etc., compiled in libs/libc/build.zig). Was 0 (no float ->

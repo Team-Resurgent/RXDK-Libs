@@ -72,7 +72,14 @@ namespace D3D
 // be 1024 to avoid writing a notifier into a spot in the push
 // buffer after it has already been cached on the GPU.
 
-#define PUSHER_BLOCK_THRESHOLD (32*1024)
+#define PUSHER_BLOCK_THRESHOLD 0x2000
+
+// The gap required before we'll consider modifying already-submitted push-
+// buffer data at all.  This is deliberately larger than the threshold used
+// to re-check the gap afterwards, so that a gap which shrinks while we're
+// writing still leaves us above PUSHER_BLOCK_THRESHOLD:
+
+#define PUSHER_BLOCK_THRESHOLD_INITIAL 0x2400
 
 // Dwords of data always available in the push buffer:
  
@@ -135,6 +142,19 @@ namespace D3D
 
 struct FenceEncoding
 {
+    // Pattern-class SET_MONOCHROME_COLOR0, which lands in the
+    // NV_PGRAPH_PATT_COLOR0 register.  PGRAPH updates that register in
+    // command order, so reading it back tells us how far PGRAPH itself has
+    // drained - the back-end semaphore that gives us 'GpuTime' can run
+    // ahead of it:
+
+    DWORD m_ProgressCommand;
+
+    // Packed progress stamp: the fence's push-buffer position, the low bits
+    // of the fence time, and the low bits of the push-buffer wrap count:
+
+    DWORD m_ProgressArgument;
+
     // Semaphore command: NV097_BACK_END_WRITE_SEMAPHORE_RELEASE or
     // NV097_TEXTURE_READ_SEMAPHORE_RELEASE:
 
@@ -247,6 +267,8 @@ class CDevice;
 void KickOffAndWaitForIdle();
 VOID BlockOnTime(DWORD Time, BOOL MakeSpace);
 DWORD SetFence(DWORD Flags);
+PPUSH GpuGetOrNewer(CDevice* pDevice, BOOL SyncWithPgraph);
+DWORD FASTCALL ComputeGap(CDevice* pDevice, Fence* pFence, PPUSH pGet);
 
 // Resource prototypes:
 

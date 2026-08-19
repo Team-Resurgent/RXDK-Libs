@@ -501,7 +501,7 @@ CXo::NotificationSendAlive(
             {
                 m_Users[i].qwUserID = pUsers[i].xuid.qwUserID;
                 RtlZeroMemory(m_Users[i].szUserName, XONLINE_USERNAME_SIZE);
-                sprintf(m_Users[i].szUserName, "%s%c%s", pUsers[i].name, KINGDOM_SEPERATOR_CHAR, pUsers[i].kingdom);
+                sprintf(m_Users[i].szUserName, "%s", pUsers[i].name);
 
                 hr = CreateMsg(PMSG_ALIVE, sizeof(P_ALIVE_MSG) + strlen(m_Users[i].szUserName) + 1 + m_Users[i].cbUserData, pExtendedHandle, serverPresence, &pbMsgBuffer, &cbMsgBuffer, (PBYTE *) &pMsg, &dwSeqNum);
 

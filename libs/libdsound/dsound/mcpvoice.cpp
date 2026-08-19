@@ -14,6 +14,7 @@
 #include "dsoundi.h"
 
 
+
 /****************************************************************************
  *
  *  CMcpxVoiceClient
@@ -151,8 +152,9 @@ CMcpxVoiceClient::Initialize
 )
 {
     HRESULT                 hr  = DS_OK;
-    
+
     DPF_ENTER();
+
 
     ASSERT(!m_RegCache.CfgFMT);
     ASSERT(!m_RegCache.CfgMISC);
@@ -434,7 +436,7 @@ CMcpxVoiceClient::AllocateVoiceResources
     if(!(m_dwStatus & MCPX_VOICESTATUS_ALLOCATED))
     {
         ASSERT(!(m_dwStatus & ~MCPX_VOICESTATUS_DEACTIVATEMASK));
-        
+
         //
         // Allocate voices
         //

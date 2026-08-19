@@ -102,7 +102,10 @@ typedef struct _DMINIT {
     ULONG Flags;
     PVOID *ClockIntRoutine;
     PVOID *ProfIntRoutine;
-    ULONG (*TellRoutine)(ULONG code, PVOID data);
+    // xbdm exports this as _TellDebugger@8, and libxapi is not built
+    // -fdefault-calling-conv=stdcall the way the /Gz libraries are, so the
+    // convention has to be spelled out or the callee pops the arguments twice.
+    ULONG (__attribute__((__stdcall__)) *TellRoutine)(ULONG code, PVOID data);
     PVOID *CtxSwapNotifyRoutine;
     PVOID XProfpDataPtr;
     PDMGD D3DDriverData;

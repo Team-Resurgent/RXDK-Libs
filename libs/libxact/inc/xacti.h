@@ -152,6 +152,7 @@ class CSequencer;
 class CEngine;
 class CPriorityQueue;
 class CWmaPlayList;
+class CStreamedWave;
 
 //
 // forward declarations
@@ -234,6 +235,12 @@ public:
     HRESULT GetWaveBank(LPCSTR lpFriendlyName, CWaveBank **ppWaveBank);
     VOID    DoWork();
     HRESULT CreateSoundSourceInternal(DWORD dwFlags, CWaveBank *pWaveBank, CSoundSource **ppSoundSource);
+
+    //
+    // RXDK 5849 uplift: hands out one of the stream voices reserved by
+    // XACT_RUNTIME_PARAMETERS::dwMaxConcurrentStreams, for a wave that has to be fed as it plays.
+    //
+    HRESULT AllocateStreamSoundSource(CSoundSource **ppSoundSource);
     VOID IsDuplicateWaveBank(CWaveBank *pWaveBank);
 
     BOOL   IsValidSoundSourceFlags(DWORD dwFlags)
@@ -431,6 +438,11 @@ public:
 
     NOTIFICATION_CONTEXT * GetNotificationContext(DWORD dwType);    
 
+    // Post a notification registered against a cue index rather than a live cue
+    // instance. A playlist-bound cue has no CSoundCue to carry the registration
+    // forward, so its start/stop is raised on the bank's own context.
+    VOID RaiseCueIndexNotification(DWORD dwCueIndex, DWORD dwType);
+
     // The mix category of the sound a cue index resolves to, or
     // XACT_SOUNDBANK_CATEGORY_UNUSED.
     WORD GetCueCategory(DWORD dwCueIndex);
@@ -620,6 +632,67 @@ private:
     DWORD                       m_dwFlags;
     CSoundSource                *m_pControlSoundSource;
 
+};
+
+//
+// streamed wave object
+//
+// RXDK 5849 uplift.  One wave of a streamed wave bank, playing through a hardware stream voice.
+//
+// A wave in WMA form cannot be handed to a voice at all -- the APU plays PCM and ADPCM and knows
+// nothing of WMA -- so it is decoded as it plays: the WMA decoder XMO is pointed at the bank's file
+// handle and the wave's offset within it, and the PCM it yields is passed to the voice a packet at
+// a time.  Two packets are in flight at once, which is what the voices the engine pre-allocates are
+// built for (XACT_ENGINE_PACKETS_PER_STREAM), and the hardware writes each packet's status word
+// when it has consumed it, so refilling costs a read of that word rather than a wait.
+//
+class CStreamedWave
+{
+public:
+    CStreamedWave();
+    ~CStreamedWave();
+
+    //
+    // Points the decoder at one wave of a bank, and reports the PCM format the voice has to be
+    // set to in order to play what the decoder will yield.
+    //
+    HRESULT Initialize(CWaveBank *pWaveBank, LPCWAVEBANKENTRY pEntry, LPWAVEFORMATEX pwfxDecoded);
+
+    //
+    // Hands the voice everything it will currently take.  Called from the cue's DoWork, and once
+    // before the voice starts so that it does not begin starved.
+    //
+    VOID    Service(LPDIRECTSOUNDSTREAM pStream);
+
+    //
+    // TRUE once the wave has been decoded to its end and the voice has played all of it.  The cue
+    // asks this rather than asking the voice, because a stream that has merely run dry looks
+    // stopped.
+    //
+    BOOL    IsFinished(LPDIRECTSOUNDSTREAM pStream);
+
+    //
+    // Drops everything the voice still holds for us, so the voice can be handed to another cue.
+    //
+    VOID    Reset(LPDIRECTSOUNDSTREAM pStream);
+
+protected:
+    XWmaFileMediaObject *   m_pDecoder;
+
+    //
+    // Packet ring.  A slot whose status is PENDING is one the hardware still owns.
+    //
+    enum { PACKET_COUNT = XACT_ENGINE_PACKETS_PER_STREAM };
+    LPVOID                  m_apvPacket[PACKET_COUNT];
+    DWORD                   m_adwStatus[PACKET_COUNT];
+    DWORD                   m_dwPacketSize;
+
+    //
+    // Set once the decoder has no more PCM to give.  The voice still has packets to play at that
+    // point, so this is not the same question as IsFinished.
+    //
+    BOOL                    m_fDecodedToEnd;
+    BOOL                    m_fToldVoice;
 };
 
 //
@@ -884,10 +957,37 @@ public:
 
         } else {
 
+            //
+            // RXDK 5849 uplift: a voice being fed from a streamed bank is playing until the wave
+            // has been read to its end AND the voice has played everything we gave it. Asking
+            // DirectSound alone would call it stopped the moment the ring momentarily ran dry.
+            //
+
+            if (m_pStreamedWave) {
+                return !m_pStreamedWave->IsFinished(m_HwVoice.pStream);
+            }
+
             m_HwVoice.pStream->GetStatus(&dwStatus);
             return (dwStatus & (DSSTREAMSTATUS_PLAYING | DSSTREAMSTATUS_PAUSED ));
         }
 
+    }
+
+    //
+    // RXDK 5849 uplift: streamed-bank playback (see CStreamedWave). The source owns the feeder
+    // for as long as the wave plays; attaching a second one replaces the first.
+    //
+    HRESULT AttachStreamedWave(CWaveBank *pWaveBank, LPCWAVEBANKENTRY pEntry);
+    VOID    DetachStreamedWave();
+
+    //
+    // Keeps the voice fed. Does nothing unless a streamed wave is attached.
+    //
+    VOID    ServiceStreamedWave()
+    {
+        if (m_pStreamedWave && m_HwVoice.pStream) {
+            m_pStreamedWave->Service(m_HwVoice.pStream);
+        }
     }
 
     VOID SetWaveBankOwner(CWaveBank *pWaveBank)
@@ -943,6 +1043,9 @@ protected:
     // voice since it last stopped (see GetProperties above).
     WORD    m_wHighestCuePriority;
 
+    // The wave being streamed through this voice, or NULL for a voice playing resident data.
+    CStreamedWave *m_pStreamedWave;
+
 };
 
 
@@ -986,6 +1089,30 @@ public:
 
     }
 
+    //
+    // Maps whatever a voice needs to see in order to play one wave, and reports where that
+    // wave begins within the mapping. See the definition for why the two cases exist.
+    //
+    HRESULT MapWaveForPlayback(LPDIRECTSOUNDBUFFER pBuffer, LPCWAVEBANKENTRY pEntry, LPDWORD pdwPlayOffset);
+
+    //
+    // Remembers the file a streamed bank was registered from, so a wave that cannot be played
+    // out of memory can be read as it plays. The handle belongs to the title, which keeps it
+    // open for as long as the bank is registered; we only read through it.
+    //
+    VOID SetStreamingSource(HANDLE hFile, DWORD dwBankFileOffset);
+
+    BOOL   IsStreaming() const  { return m_fStreaming; }
+    HANDLE GetFileHandle() const { return m_hFile; }
+
+    //
+    // Where a wave's data begins in the file the bank was registered from.
+    //
+    DWORD GetWaveFileOffset(LPCWAVEBANKENTRY pEntry) const
+    {
+        return m_dwWaveDataFileBase + pEntry->PlayRegion.dwOffset;
+    }
+
 protected:
     friend class CEngine;
 
@@ -993,6 +1120,22 @@ protected:
     LIST_ENTRY          m_lstAvailableSources;
     LIST_ENTRY          m_lstCues;
     LIST_ENTRY          m_ListEntry;
+
+    //
+    // Set when the bank is too large for the APU to hold in its page table all at once, so
+    // each wave has to be mapped as it is played instead of the bank being mapped once.
+    //
+    BOOL                m_fPerWaveMapping;
+
+    //
+    // Streamed-bank source (see SetStreamingSource). m_dwWaveDataSegOffset is the wave-data
+    // segment's offset within the bank, which is what turns a bank-relative wave offset into a
+    // file offset.
+    //
+    BOOL                m_fStreaming;
+    HANDLE              m_hFile;
+    DWORD               m_dwWaveDataSegOffset;
+    DWORD               m_dwWaveDataFileBase;
 
 };
 
@@ -1008,6 +1151,7 @@ __inline ULONG CWaveBank::Release(void)
     _ENTER_EXTERNAL_METHOD("CWaveBank::Release");
     return CRefCount::Release();
 }
+
 
 //
 // track context

@@ -176,6 +176,7 @@ END_DEFINE_STRUCT(AIFFMARKERHDR);
 //
 
 #define FILESTREAM_FLAGS_ATTACHED   0x00000001      // Do we own the file handle?
+#define FILESTREAM_FLAGS_ASYNC      0x00000002      // Handle is open for asynchronous I/O
 
 #pragma pack(pop)
 
@@ -192,6 +193,8 @@ namespace WaveLoader
     protected:
         HANDLE                  m_hFile;            // File handle
         DWORD                   m_dwFlags;          // Flags
+        DWORD                   m_dwPosition;       // Stream position we keep ourselves when async
+        HANDLE                  m_hOverlappedEvent; // Completion event for async transfers
 
     public:
         CStdFileStream(void);
@@ -207,6 +210,11 @@ namespace WaveLoader
         HRESULT Read(LPVOID pvBuffer, DWORD dwBufferSize, LPDWORD pdwRead = NULL);
         HRESULT Write(LPCVOID pvBuffer, DWORD dwBufferSize, LPDWORD pdwWritten = NULL);
         HRESULT Seek(LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute = NULL);
+
+    protected:
+        // Asynchronous handle support
+        void BindHandle(void);
+        HRESULT Transfer(LPVOID pvBuffer, DWORD dwBufferSize, LPDWORD pdwTransferred, BOOL bWrite);
 
         // Properties
         HRESULT GetLength(LPDWORD pdwLength);

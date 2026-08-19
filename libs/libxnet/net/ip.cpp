@@ -76,9 +76,9 @@ NTSTATUS CXnIp::IpInit(XNetInitParams * pxnip)
     memcpy(&abCert[1], XeImageHeader()->Certificate->LANKey, XBEIMAGE_CERTIFICATE_KEY_LENGTH);
 
     abCert[0] = 0;
-    XcHMAC((BYTE *)*XboxLANKey, XBOX_KEY_LENGTH, abCert, sizeof(abCert), NULL, 0, &abHash[0]);
+    XcHMAC((BYTE *)XboxLANKey, XBOX_KEY_LENGTH, abCert, sizeof(abCert), NULL, 0, &abHash[0]);
     abCert[0] = 1;
-    XcHMAC((BYTE *)*XboxLANKey, XBOX_KEY_LENGTH, abCert, sizeof(abCert), NULL, 0, &abHash[XC_SERVICE_DIGEST_SIZE]);
+    XcHMAC((BYTE *)XboxLANKey, XBOX_KEY_LENGTH, abCert, sizeof(abCert), NULL, 0, &abHash[XC_SERVICE_DIGEST_SIZE]);
 
     Assert(sizeof(abHash) == sizeof(_abKeyShaLan) + sizeof(_abKeyDesLan));
     memcpy(_abKeyShaLan, &abHash[0], sizeof(_abKeyShaLan));

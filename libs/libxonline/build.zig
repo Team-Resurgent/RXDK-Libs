@@ -68,8 +68,6 @@ const common_flags = [_][]const u8{
     // -fdefault-calling-conv=stdcall: the online client was built /Gz, like the net
     // stack below it; this makes its vendor kernel/net calls compile __stdcall so
     // they bind straight to libkernel.lib / libxnet.lib (no cdecl->stdcall facades).
-    // cdecl_libc.h is force-included FIRST to pin libc to __cdecl before picolibc's
-    // headers are seen (see that file).
     "-Xclang",
     "-fdefault-calling-conv=stdcall",
     "-include",

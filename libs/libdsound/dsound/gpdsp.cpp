@@ -38,6 +38,30 @@ static ULONG DefaultExec[] =
 #endif // MCPX_BOOT_LIB
 
 
+//
+// Copy to or from the DSP's XRAM aperture. One of the two pointers is a
+// register window rather than memory, and those decode dword accesses only,
+// so this cannot go through memcpy (which copies bytewise in this CRT).
+// Callers guarantee dword-aligned pointers and a dword-multiple size.
+//
+
+static void
+CopyXram
+(
+    volatile DWORD *        pdwDst,
+    volatile const DWORD *  pdwSrc,
+    DWORD                   dwBytes
+)
+{
+    DWORD i;
+
+    for(i = 0; i < dwBytes / sizeof(DWORD); i++)
+    {
+        pdwDst[i] = pdwSrc[i];
+    }
+}
+
+
 VOID
 CMcpxDspImage::Initialize()
 {
@@ -546,8 +570,12 @@ CMcpxGPDspManager::SetEffectData
         // if they want to commit now, poke directly the XRAM offset
         //
 
+        // XRAM is a register aperture that decodes dword accesses only, and
+        // memcpy copies a byte at a time here; the size and offset are already
+        // asserted dword aligned above.
+
         pvXramBuffer = (LPVOID) ((DWORD)pFxDesc->lpvStateSegment + dwOffset);
-        memcpy(pvXramBuffer,pvData,dwDataSize);
+        CopyXram((volatile DWORD *)pvXramBuffer, (volatile const DWORD *)pvData, dwDataSize);
     }
 
     return DS_OK;
@@ -599,7 +627,7 @@ CMcpxGPDspManager::GetEffectData
     //
 
     pvXramBuffer = (LPVOID) ((DWORD)pFxDesc->lpvStateSegment + dwOffset);
-    memcpy(pvData,pvXramBuffer,dwDataSize);
+    CopyXram((volatile DWORD *)pvData, (volatile const DWORD *)pvXramBuffer, dwDataSize);
 
     return DS_OK;
 

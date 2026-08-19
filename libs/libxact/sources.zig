@@ -39,6 +39,9 @@ pub const xact_cpp_sources = [_][]const u8{
     "libs/libxact/engine/soundbank.cpp",
     "libs/libxact/engine/soundsource.cpp",
     "libs/libxact/engine/wavebank.cpp",
+    // RXDK 5849 uplift: playback of a wave that is streamed rather than resident (the leak's
+    // engine had no such path -- see CStreamedWave).
+    "libs/libxact/engine/streamwave.cpp",
     "libs/libxact/engine/cue.cpp",
     "libs/libxact/engine/sequencer.cpp",
     // Machinery implementation (memory manager) so libxact defines XactMemAlloc/

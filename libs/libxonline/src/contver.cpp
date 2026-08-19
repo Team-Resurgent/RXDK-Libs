@@ -235,12 +235,12 @@ HRESULT DigestVerifySynchronous(
 	pdfh = (PDGSTFILE_HEADER)(pbBuffer);
 
 	// Run the digest
-	XShaHmacInitialize(pbAlternateKey?pbAlternateKey:(BYTE *)(*XboxHDKey),
+	XShaHmacInitialize(pbAlternateKey?pbAlternateKey:(BYTE *)XboxHDKey,
 				XBOX_KEY_LENGTH, shactx);
 	XShaHmacUpdate(shactx, 
 				pbBuffer + XC_DIGEST_LEN, cbSize - XC_DIGEST_LEN);
 	XShaHmacComputeFinal(shactx, 
-				pbAlternateKey?pbAlternateKey:(BYTE *)(*XboxHDKey), 
+				pbAlternateKey?pbAlternateKey:(BYTE *)XboxHDKey, 
 				XBOX_KEY_LENGTH, rgbDigest);
 	if (memcmp(rgbDigest, pdfh->rgbSignature, XC_DIGEST_LEN) != 0)
     {

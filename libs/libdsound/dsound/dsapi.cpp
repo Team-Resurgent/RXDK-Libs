@@ -13,6 +13,7 @@
 
 #include "dsoundi.h"
 
+
 //
 // Hacks to enable or disable certain API features
 //
@@ -4631,7 +4632,7 @@ CDirectSound::GetOutputLevels
     BOOL bReset
 )
 {
-    PDSOUTPUTLEVELS pDspLevels;
+    volatile DSOUTPUTLEVELS * pDspLevels;
     DPF_ENTER();    
 
 #ifdef VALIDATE_PARAMETERS
@@ -4648,15 +4649,26 @@ CDirectSound::GetOutputLevels
     // the output levels get cached, twice every 5.33ms
     //
 
-    pDspLevels = (PDSOUTPUTLEVELS) ((PUCHAR) XPCICFG_APU_MEMORY_REGISTER_BASE_0 + 
+    pDspLevels = (volatile DSOUTPUTLEVELS *) ((PUCHAR) XPCICFG_APU_MEMORY_REGISTER_BASE_0 + 
         NV_PAPU_EPPMEM(0) +
         EP_OFFSET_OUTPUT_LEVELS_ANALOG_PEAK*sizeof(DWORD));
 
     //
-    // copy levels to caller supplied buffer
+    // copy levels to caller supplied buffer. This is the EP's P-RAM aperture,
+    // not memory: it decodes dword accesses only, so the copy has to be a dword
+    // loop rather than memcpy, which copies a byte at a time here.
     //
 
-    memcpy(pLevels, pDspLevels, sizeof(DSOUTPUTLEVELS));
+    {
+        volatile const DWORD *  pSrc = (volatile const DWORD *) pDspLevels;
+        DWORD *                 pDst = (DWORD *) pLevels;
+        DWORD                   i;
+
+        for(i = 0; i < sizeof(DSOUTPUTLEVELS) / sizeof(DWORD); i++)
+        {
+            pDst[i] = pSrc[i];
+        }
+    }
 
     //
     // if the caller wants to reset the historical max values
@@ -7620,7 +7632,7 @@ CDirectSoundBufferSettings::Initialize
 )
 {
     HRESULT                 hr;
-    
+
     DPF_ENTER();
 
     //
@@ -8152,7 +8164,7 @@ CDirectSoundBuffer::Initialize
     //
     // Create the implementation object
     //
-    
+
     if(SUCCEEDED(hr))
     {
         hr = HRFROMP(m_pBuffer = NEW(CMcpxBuffer(m_pDirectSound->m_pDevice, m_pSettings)));

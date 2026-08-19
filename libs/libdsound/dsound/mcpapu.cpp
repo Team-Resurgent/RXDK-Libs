@@ -70,6 +70,19 @@ CMcpxAPU::CMcpxAPU
     
     m_dwSynchPlaybackCount = 0;     // RXDK 5849 uplift (SynchPlayback)
 
+    //
+    // RXDK: the voice map was never initialized. Nothing noticed for a long
+    // time because every other user indexes it by a handle it already owns,
+    // but two callers do read slots they have not written:
+    // AllocateVoices picks a free hardware voice with !m_apVoiceMap[n], so
+    // garbage there hides free voices, and SynchPlayback walks the whole map
+    // looking for armed voices and faults on the first garbage pointer it
+    // dereferences (which is what MultipleListeners hit -- four voices found
+    // at slots 0-3, then a crash on the uninitialized tail).
+    //
+
+    ZeroMemory(m_apVoiceMap, sizeof(m_apVoiceMap));
+
     for(i = 0; i < NUMELMS(m_alstActiveVoices); i++)
     {
         InitializeListHead(&m_alstActiveVoices[i]);

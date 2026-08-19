@@ -636,8 +636,8 @@ function Invoke-DistBuild {
     }
     New-Item -ItemType Directory -Force -Path $distInc | Out-Null
 
-    # Ship every library by name (zig-out\lib can also hold stale/intermediate
-    # artifacts -- libxapi_core.lib etc. -- so copy an explicit list).
+    # Ship every library by name (zig-out\lib can also hold stale artifacts from
+    # earlier builds, so copy an explicit list rather than a wildcard).
     $shipLibs = @(
         'libkernel.lib', 'libxbdm.lib',
         'libc.lib', 'libcpp.lib', 'libxapi.lib',

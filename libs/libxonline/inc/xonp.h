@@ -721,6 +721,25 @@ INLINE VOID SignOnlineUserStruct( XC_ONLINE_USER_ACCOUNT_STRUCT* pOnlineUser )
     RtlCopyMemory( pOnlineUser->signature, digest, sizeof(pOnlineUser->signature) );
 }
 
+//
+// The on-disk account keeps the 'kingdom' array that 5849 dropped from
+// XONLINE_USER, so user <-> account conversion has to be field-wise; a block
+// copy would run off the end of the (smaller) user struct.
+//
+INLINE VOID CopyUserToOnlineAccount( XC_ONLINE_USER_ACCOUNT_STRUCT* pOnlineUser, const XONLINEP_USER* pUser )
+{
+    RtlZeroMemory( pOnlineUser, sizeof(*pOnlineUser) );
+    pOnlineUser->xuid = pUser->xuid;
+    RtlCopyMemory( pOnlineUser->name, pUser->name, sizeof(pOnlineUser->name) );
+    pOnlineUser->dwUserOptions = pUser->dwUserOptions;
+    RtlCopyMemory( pOnlineUser->pin, pUser->pin, sizeof(pOnlineUser->pin) );
+    RtlCopyMemory( pOnlineUser->domain, pUser->domain, sizeof(pOnlineUser->domain) );
+    RtlCopyMemory( pOnlineUser->realm, pUser->realm, sizeof(pOnlineUser->realm) );
+    RtlCopyMemory( pOnlineUser->key, pUser->key, sizeof(pOnlineUser->key) );
+    pOnlineUser->dwSignatureTime = pUser->dwSignatureTime;
+    RtlCopyMemory( pOnlineUser->signature, pUser->signature, sizeof(pOnlineUser->signature) );
+}
+
 INLINE BOOL VerifyOnlineUserSignature( XC_ONLINE_USER_ACCOUNT_STRUCT* pOnlineUser )
 {
     BYTE digest[XC_SERVICE_DIGEST_SIZE];
@@ -4406,7 +4425,7 @@ protected:
     DWORD           XGetLanguage();
     INLINE BYTE *   GetHdKey()          { return(m_abHdKey); }
     #else
-    INLINE BYTE *   GetHdKey()          { return((BYTE *)(*XboxHDKey)); }
+    INLINE BYTE *   GetHdKey()          { return((BYTE *)XboxHDKey); }
     #endif
 
     // Global Data -----------------------------------------------------------------------

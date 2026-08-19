@@ -25,7 +25,7 @@
  * (RtlAllocateHeap, XapiProcessHeap) rather than the kernel, because RXDK
  * implements the RTL heap there. A program that links libc without libxapi and
  * calls malloc will fail to link, which is the intended signal: it needs
- * libxapi_core.lib. XapiInitProcess creates the process heap before the CRT
+ * libxapi.lib. XapiInitProcess creates the process heap before the CRT
  * runs, but malloc still creates one on demand so the `start`-entry and DXT
  * paths (which never call XapiInitProcess) work.
  */

@@ -221,12 +221,28 @@ int _vscprintf(const char *format, va_list ap);
 
 // MSVC wide CRT helpers the samples call. _snwprintf/_vsnwprintf map to C99 vswprintf (same arg
 // shape); _itow/_i64tow are small base-radix conversions (picolibc has no _itow/_i64tow).
+//
+// Every wide entry point below has to respell the format before picolibc sees it: MSVC and C99
+// disagree about which conversion means "wide" (MSVC's %S is whatever the function is not) and
+// MSVC spells the 64-bit size %I64. picolibc echoes a conversion it does not know verbatim, so
+// swprintf(buf, L"\"%S\"", name) used to put the literal text "%S" on screen. The translator
+// lives in libc (ms_printf.c) and keeps C linkage.
 #ifdef __cplusplus
 #include <wchar.h>  // vswprintf
+#include <stdarg.h>
+#ifndef RXDK_MS_FORMAT_STACK
+#define RXDK_MS_FORMAT_STACK 256
+extern "C" const wchar_t *__rxdk_ms_wformat(const wchar_t *fmt, wchar_t *buf, size_t cap, wchar_t **heap);
+extern "C" void __rxdk_ms_format_free(void *heap);
+#endif
 #ifndef _vsnwprintf
 static inline int _vsnwprintf(wchar_t *buffer, size_t count, const wchar_t *format, va_list ap)
 {
-    return vswprintf(buffer, count, format, ap);
+    wchar_t _stack[RXDK_MS_FORMAT_STACK], *_heap;
+    const wchar_t *_use = __rxdk_ms_wformat(format, _stack, RXDK_MS_FORMAT_STACK, &_heap);
+    int _r = vswprintf(buffer, count, _use, ap);
+    __rxdk_ms_format_free(_heap);
+    return _r;
 }
 #endif
 #ifndef _i64tow
@@ -244,10 +260,13 @@ static inline wchar_t *_i64tow(long long value, wchar_t *str, int radix)
 #ifndef _snwprintf
 static inline int _snwprintf(wchar_t *buffer, size_t count, const wchar_t *format, ...)
 {
+    wchar_t _stack[RXDK_MS_FORMAT_STACK], *_heap;
+    const wchar_t *_use = __rxdk_ms_wformat(format, _stack, RXDK_MS_FORMAT_STACK, &_heap);
     va_list ap; int r;
     va_start(ap, format);
-    r = vswprintf(buffer, count, format, ap);
+    r = vswprintf(buffer, count, _use, ap);
     va_end(ap);
+    __rxdk_ms_format_free(_heap);
     return r;
 }
 #endif
@@ -293,10 +312,13 @@ static inline wchar_t *_itow(int value, wchar_t *str, int radix)
 #include <stdarg.h>
 inline int swprintf(wchar_t *_Dst, const wchar_t *_Fmt, ...)
 {
+    wchar_t _stack[RXDK_MS_FORMAT_STACK], *_heap;
+    const wchar_t *_use = __rxdk_ms_wformat(_Fmt, _stack, RXDK_MS_FORMAT_STACK, &_heap);
     va_list _Args;
     va_start(_Args, _Fmt);
-    int _Ret = vswprintf(_Dst, (size_t)-1, _Fmt, _Args);
+    int _Ret = vswprintf(_Dst, (size_t)-1, _use, _Args);
     va_end(_Args);
+    __rxdk_ms_format_free(_heap);
     return _Ret;
 }
 #endif

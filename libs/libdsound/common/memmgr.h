@@ -260,7 +260,65 @@ inline void __cdecl operator delete[](void *pvBuffer)
 
 #endif // DSOUND_NO_OVERRIDE_NEW_DELETE
 
-#ifdef TRACK_MEMORY_USAGE
+#ifdef DSOUND_NO_OVERRIDE_NEW_DELETE
+
+//
+// DirectSound's constructors only assign the members that need a non-zero
+// default and leave the rest -- register caches, status words, object
+// pointers -- to arrive already cleared, which is what the pool allocator
+// behind the overrides above did (CMcpxVoiceClient::Initialize asserts on
+// it: ASSERT(!m_RegCache.CfgFMT)). With the overrides off the title owns
+// `new`, so keep that contract with a tagged allocation form of our own
+// rather than by taking the global operator back.
+//
+
+enum DSOUND_ZEROED_TAG { DsZeroed };
+
+inline void *__cdecl operator new(size_t cbBuffer, DSOUND_ZEROED_TAG)
+{
+    void *pvBuffer = ::operator new(cbBuffer);
+
+    if(pvBuffer)
+    {
+        memset(pvBuffer, 0, cbBuffer);
+    }
+
+    return pvBuffer;
+}
+
+inline void *__cdecl operator new[](size_t cbBuffer, DSOUND_ZEROED_TAG)
+{
+    void *pvBuffer = ::operator new[](cbBuffer);
+
+    if(pvBuffer)
+    {
+        memset(pvBuffer, 0, cbBuffer);
+    }
+
+    return pvBuffer;
+}
+
+//
+// Only reached if a constructor throws, which this build cannot do.
+//
+
+inline void __cdecl operator delete(void *pvBuffer, DSOUND_ZEROED_TAG)
+{
+    ::operator delete(pvBuffer);
+}
+
+inline void __cdecl operator delete[](void *pvBuffer, DSOUND_ZEROED_TAG)
+{
+    ::operator delete[](pvBuffer);
+}
+
+#define NEW(type) \
+    new(DsZeroed) type
+
+#define NEW_A(type, count) \
+    new(DsZeroed) type [count]
+
+#elif defined(TRACK_MEMORY_USAGE)
 
 #define NEW(type) \
     new(__FILE__, __LINE__, #type) type
@@ -276,7 +334,7 @@ inline void __cdecl operator delete[](void *pvBuffer)
 #define NEW_A(type, count) \
     new type [count]
 
-#endif // TRACK_MEMORY_USAGE
+#endif // DSOUND_NO_OVERRIDE_NEW_DELETE
 
 #undef DELETE
 #define DELETE(p) \

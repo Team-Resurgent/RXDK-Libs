@@ -24,7 +24,12 @@ typedef enum
     SUBCH_RECTCOPYSURFACES   = 3,   // D3D_RECTANGLE_COPY_SURFACES (0x062)
     SUBCH_RECTCOPYOPTIONS    = 4,   // D3D_RECTANGLE_COPY_COLOR_KEY, BETA1, ...
 
-    SUBCH_UNUSED0            = 5,
+    // Bound to the pattern class so that fences can stamp their progress
+    // into NV_PGRAPH_PATT_COLOR0, which the CPU reads back to tell how far
+    // PGRAPH (as opposed to the back-end semaphore) has actually drained:
+
+    SUBCH_PATTERN            = 5,   // D3D_RECTANGLE_COPY_PATTERN (0x044)
+
     SUBCH_UNUSED1            = 6,
     SUBCH_UNUSED2            = 7,
 

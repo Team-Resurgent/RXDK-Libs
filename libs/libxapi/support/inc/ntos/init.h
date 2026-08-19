@@ -140,12 +140,22 @@ typedef UCHAR XBOX_KEY_DATA[XBOX_KEY_LENGTH];
 extern XBOX_KEY_DATA XboxCERTKey;
 extern ULONG XboxGameRegion;
 
+//
+// RXDK: the client half of the XDK reached these through a pointer because
+// MSVC's `CONSTANT` .def exports hand the importer a pointer variable to
+// dereference. lld resolves xboxkrnl.def's CONSTANT entries to the exported
+// data itself, so a pointer declaration reads the first four bytes of the key
+// as an address -- XCalculateSignatureEnd's non-roamable step then hashed from
+// whatever that pointed at, which faulted and hung the caller. Name the keys
+// as the objects they are here; every use site casts the array to a byte
+// pointer, so this is also how the kernel-side branch below has always read.
+//
 #if !defined(_NTSYSTEM_)
-extern const XBOX_KEY_DATA* XboxEEPROMKey;
-extern const XBOX_KEY_DATA* XboxHDKey;
-extern const XBOX_KEY_DATA* XboxLANKey;
-extern const XBOX_KEY_DATA* XboxSignatureKey;
-extern const XBOX_KEY_DATA* XboxAlternateSignatureKeys[];
+extern const XBOX_KEY_DATA XboxEEPROMKey;
+extern const XBOX_KEY_DATA XboxHDKey;
+extern const XBOX_KEY_DATA XboxLANKey;
+extern const XBOX_KEY_DATA XboxSignatureKey;
+extern const XBOX_KEY_DATA XboxAlternateSignatureKeys[];
 #else
 extern XBOX_KEY_DATA XboxEEPROMKey;
 extern XBOX_KEY_DATA XboxHDKey;

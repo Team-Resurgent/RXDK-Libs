@@ -138,8 +138,19 @@ XBOXAPI BOOL WINAPI XOnlineTitleIdIsSameTitle(DWORD dwTitleId)
     DWORD dwOwnTitleId  = *(const DWORD *)(dwCertificate + 8);
     return dwTitleId == dwOwnTitleId;
 }
+// Answerable locally: this asks whether an invite was accepted in the dashboard
+// before the title launched, which lives in the console's game-invite cache and
+// needs no Live service. Nothing can have accepted one for us, so report the
+// "no invite pending" case (S_FALSE) rather than an error -- titles branch on
+// S_OK vs S_FALSE here and treat a failure HRESULT as fatal to startup.
 XBOXAPI HRESULT WINAPI XOnlineFriendsGetAcceptedGameInvite(PXONLINE_ACCEPTED_GAMEINVITE pInvite)
-    RXDK_XO_TASK_STUB(if (pInvite) memset(pInvite, 0, sizeof(*pInvite)))
+{
+    if (pInvite == NULL)
+        return E_INVALIDARG;
+
+    memset(pInvite, 0, sizeof(*pInvite));
+    return S_FALSE;
+}
 XBOXAPI HRESULT WINAPI XOnlineFriendsJoinGame(DWORD, const XONLINE_FRIEND *) { return E_FAIL; }
 
 // --- Logon-state save/restore --- (REAL)

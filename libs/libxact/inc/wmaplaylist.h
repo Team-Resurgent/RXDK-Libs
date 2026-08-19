@@ -111,6 +111,7 @@ public:
     HRESULT     StartPlayback(void);
     VOID        StopPlayback(void);
     VOID        DoWork(void);
+    VOID        NotifySongStarted(void);
     BOOL        IsPlaying(void) const { return m_fPlaying; }
 
     // Pause/resume the playlist's stream. A playlist has no category of its

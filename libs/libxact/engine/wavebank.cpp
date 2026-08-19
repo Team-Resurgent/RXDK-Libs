@@ -31,6 +31,13 @@ CWaveBank::CWaveBank
     InitializeListHead(&m_lstCues);
     InitializeListHead(&m_lstAvailableSources);
 
+    m_fPerWaveMapping = FALSE;
+
+    m_fStreaming = FALSE;
+    m_hFile = INVALID_HANDLE_VALUE;
+    m_dwWaveDataSegOffset = 0;
+    m_dwWaveDataFileBase = 0;
+
     DPF_LEAVE_VOID();
 }
 
@@ -83,7 +90,6 @@ CWaveBank::~CWaveBank
 HRESULT CWaveBank::Initialize(PVOID pvData, DWORD dwSize)
 {
     HRESULT hr = S_OK;
-    DWORD dwOffset = 0;
     CSoundSource *pSource;
 
     ENTER_EXTERNAL_METHOD();
@@ -99,16 +105,15 @@ HRESULT CWaveBank::Initialize(PVOID pvData, DWORD dwSize)
 
     if (SUCCEEDED(hr)) {
 
-        m_WaveBankData.pHeader = (LPWAVEBANKHEADER)((PUCHAR)pvData+dwOffset);
+        m_WaveBankData.pHeader = (LPWAVEBANKHEADER)pvData;
         
 #ifdef VALIDATE_PARAMETERS
         //
         // Validate the header
         //
         
-        if (m_WaveBankData.pHeader->dwSignature  != WAVEBANKHEADER_SIGNATURE ||
-            m_WaveBankData.pHeader->dwVersion    != WAVEBANKHEADER_VERSION ||
-            m_WaveBankData.pHeader->dwEntryCount == 0)
+        if (m_WaveBankData.pHeader->dwSignature  != WAVEBANK_HEADER_SIGNATURE ||
+            m_WaveBankData.pHeader->dwVersion    != WAVEBANK_HEADER_VERSION)
         {
             DPF_ERROR("Invalid wavebank header (0x%x)", pvData);
             hr = E_FAIL;
@@ -118,13 +123,42 @@ HRESULT CWaveBank::Initialize(PVOID pvData, DWORD dwSize)
     }
 
     if (SUCCEEDED(hr)) {
+
+        //
+        // The segment table locates each part of the bank, so the parts are found through it
+        // rather than assumed to follow the header: the entry-name segment is only present
+        // when the bank was built with names, and the wave data starts on the bank's own
+        // alignment boundary, not immediately after the meta-data.
+        //
+
+        LPCWAVEBANKREGION pBankDataSeg = &m_WaveBankData.pHeader->Segments[WAVEBANK_SEGIDX_BANKDATA];
+        LPCWAVEBANKREGION pMetaSeg     = &m_WaveBankData.pHeader->Segments[WAVEBANK_SEGIDX_ENTRYMETADATA];
+        LPCWAVEBANKREGION pDataSeg     = &m_WaveBankData.pHeader->Segments[WAVEBANK_SEGIDX_ENTRYWAVEDATA];
+
+        m_WaveBankData.pBankData  = (LPWAVEBANKDATA) ((PUCHAR)pvData + pBankDataSeg->dwOffset);
+        m_WaveBankData.paMetaData = (LPWAVEBANKENTRY)((PUCHAR)pvData + pMetaSeg->dwOffset);
+        m_WaveBankData.pvData     = (PVOID)          ((PUCHAR)pvData + pDataSeg->dwOffset);
+        m_WaveBankData.dwDataSize = pDataSeg->dwLength;
+
+        //
+        // Kept for a streamed bank, whose waves are read from the file rather than from here: a
+        // wave's offset is relative to this segment, so this is what turns one into a file offset.
+        //
+
+        m_dwWaveDataSegOffset = pDataSeg->dwOffset;
+
+#ifdef VALIDATE_PARAMETERS
+        if (m_WaveBankData.pBankData->dwEntryCount == 0 ||
+            pDataSeg->dwOffset + pDataSeg->dwLength > dwSize)
+        {
+            DPF_ERROR("Invalid wavebank segments (0x%x)", pvData);
+            hr = E_FAIL;
+        }
+#endif
         
-        dwOffset += sizeof(WAVEBANKHEADER);
-        m_WaveBankData.paMetaData = (LPWAVEBANKENTRY) ((PUCHAR)pvData + dwOffset);
-        
-        dwOffset += m_WaveBankData.pHeader->dwEntryCount*sizeof(WAVEBANKENTRY);
-        m_WaveBankData.pvData = (PVOID) ((PUCHAR)pvData+dwOffset);
-        m_WaveBankData.dwDataSize = dwSize - dwOffset;
+    }
+
+    if (SUCCEEDED(hr)) {
         
         //
         // map one 2d voice to span the entire data buffer.
@@ -133,6 +167,24 @@ HRESULT CWaveBank::Initialize(PVOID pvData, DWORD dwSize)
         //
 
         hr = SetBufferData(pSource->GetDSoundBuffer());
+
+        //
+        // RXDK 5849 uplift: that mapping is a latency optimization, not a requirement, and it
+        // only fits banks the APU can hold in its page table in one piece -- the hardware maps
+        // buffers through a table of MCPX_HW_MAX_BUFFER_PRDS pages, so a bank beyond roughly
+        // eight megabytes cannot be mapped whole no matter how much memory is free. Rather than
+        // refuse such a bank outright, fall back to mapping each wave as it is played: the
+        // page-table cost then follows the waves actually sounding instead of the bank's size.
+        //
+
+        if (FAILED(hr)) {
+
+            DPF_WARNING("Wavebank of %lu bytes will not fit the APU page table in one piece; mapping each wave as it plays", m_WaveBankData.dwDataSize);
+
+            m_fPerWaveMapping = TRUE;
+            hr = S_OK;
+
+        }
 
     }
 
@@ -151,6 +203,66 @@ HRESULT CWaveBank::Initialize(PVOID pvData, DWORD dwSize)
 
     DPF_LEAVE_HRESULT(hr);
     return hr;
+}
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWaveBank::MapWaveForPlayback"
+
+HRESULT CWaveBank::MapWaveForPlayback(LPDIRECTSOUNDBUFFER pBuffer, LPCWAVEBANKENTRY pEntry, LPDWORD pdwPlayOffset)
+{
+    HRESULT hr;
+
+    DPF_ENTER();
+
+    ASSERT(pBuffer);
+    ASSERT(pEntry);
+    ASSERT(pdwPlayOffset);
+
+    if (!m_fPerWaveMapping) {
+
+        //
+        // The whole bank is mapped, and every voice shares that one mapping, so the wave is
+        // reached at its own offset within it.
+        //
+
+        *pdwPlayOffset = pEntry->PlayRegion.dwOffset;
+
+        hr = SetBufferData(pBuffer);
+
+    } else {
+
+        //
+        // Only this wave is mapped, so it sits at the front of what the voice can see. Two
+        // voices playing the same wave still share a page-table run, since the heap keys those
+        // on the address and length it is given.
+        //
+
+        *pdwPlayOffset = 0;
+
+        hr = pBuffer->SetBufferData((PUCHAR)m_WaveBankData.pvData + pEntry->PlayRegion.dwOffset,
+                                    pEntry->PlayRegion.dwLength);
+
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
+}
+
+#undef DPF_FNAME
+#define DPF_FNAME "CWaveBank::SetStreamingSource"
+
+VOID CWaveBank::SetStreamingSource(HANDLE hFile, DWORD dwBankFileOffset)
+{
+    DPF_ENTER();
+
+    ASSERT(hFile);
+
+    m_fStreaming = TRUE;
+    m_hFile = hFile;
+    m_dwWaveDataFileBase = dwBankFileOffset + m_dwWaveDataSegOffset;
+
+    DPF_LEAVE_VOID();
 }
 
 #undef DPF_FNAME

@@ -16,6 +16,14 @@
 extern "C" {
 #endif
 
+// The WMA slice is built without -fdefault-calling-conv=stdcall, so everything here
+// is __cdecl -- but DirectSound's own translation units are built with it, and would
+// otherwise infer __stdcall from these declarations and pop arguments the callee
+// left in place. lld's MinGW stdcall fixup quietly binds _Name@N to _Name, so that
+// mismatch links without a diagnostic and only surfaces at runtime as a stack
+// pointer that drifts down by the argument bytes of every call.
+#define ASF_CDECL __attribute__((__cdecl__))
+
 #define ASF_MAX_STRING_CHARS 128
 
 typedef struct AsfFileInfo
@@ -49,17 +57,17 @@ typedef struct AsfFileInfo
 
 // Parse the ASF header. pHeader/cbHeader must span at least the whole Header Object; pass what
 // AsfPeekHeaderSize reports. Returns 0 on success.
-int AsfParseHeader(const unsigned char *pHeader, unsigned int cbHeader, AsfFileInfo *pInfo);
+int ASF_CDECL AsfParseHeader(const unsigned char *pHeader, unsigned int cbHeader, AsfFileInfo *pInfo);
 
 // Read the total size of the Header Object from its first 30 bytes, so a caller knows how much to
 // buffer before calling AsfParseHeader. Returns 0 and sets *pcbHeader on success.
-int AsfPeekHeaderSize(const unsigned char *pPrefix, unsigned int cbPrefix, unsigned int *pcbHeader);
+int ASF_CDECL AsfPeekHeaderSize(const unsigned char *pPrefix, unsigned int cbPrefix, unsigned int *pcbHeader);
 
 // Pull the compressed audio payloads out of one ASF data packet. pPacket/cbPacket is exactly one
 // packetSize-sized packet. Payload bytes are appended to pOut (capacity cbOut); *pcbOut receives
 // the total written. Returns 0 on success -- including when the packet holds no audio payload,
 // which is normal for padding packets.
-int AsfParsePacket(const AsfFileInfo *pInfo,
+int ASF_CDECL AsfParsePacket(const AsfFileInfo *pInfo,
                    const unsigned char *pPacket, unsigned int cbPacket,
                    unsigned char *pOut, unsigned int cbOut, unsigned int *pcbOut);
 

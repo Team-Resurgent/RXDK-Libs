@@ -12,6 +12,14 @@
 extern "C" {
 #endif
 
+// The WMA slice is built without -fdefault-calling-conv=stdcall, so everything here
+// is __cdecl -- but DirectSound's own translation units are built with it, and would
+// otherwise infer __stdcall from these declarations and pop arguments the callee
+// left in place. lld's MinGW stdcall fixup quietly binds _Name@N to _Name, so that
+// mismatch links without a diagnostic and only surfaces at runtime as a stack
+// pointer that drifts down by the argument bytes of every call.
+#define WMASTREAM_CDECL __attribute__((__cdecl__))
+
 typedef struct WmaStreamDecoder WmaStreamDecoder;
 
 // Open a decoder over the WAVEFORMATEX-shaped parameters of a WMA stream.
@@ -19,16 +27,16 @@ typedef struct WmaStreamDecoder WmaStreamDecoder;
 //   extradata/extradataSize: the WAVEFORMATEX cbSize bytes (WMA codec setup)
 // Returns 0 on success, non-zero on failure. blockAlign is the compressed packet size; every
 // buffer handed to WmaStreamDecode must be exactly that long.
-int WmaStreamOpen(unsigned short formatTag,
+int WMASTREAM_CDECL WmaStreamOpen(unsigned short formatTag,
                   int channels, int sampleRate, int bitRate, int blockAlign,
                   const unsigned char *extradata, int extradataSize,
                   WmaStreamDecoder **ppDecoder);
 
-void WmaStreamClose(WmaStreamDecoder *pDecoder);
+void WMASTREAM_CDECL WmaStreamClose(WmaStreamDecoder *pDecoder);
 
 // Upper bound, in bytes, on the PCM one WmaStreamDecode call can emit. Callers size their output
 // buffer with this; the XMO reports it as XMEDIAINFO::dwOutputSize.
-int WmaStreamMaxOutputBytes(const WmaStreamDecoder *pDecoder);
+int WMASTREAM_CDECL WmaStreamMaxOutputBytes(const WmaStreamDecoder *pDecoder);
 
 // Decode exactly one compressed packet to interleaved signed-16-bit PCM.
 //   packet/packetSize: one blockAlign-sized compressed packet
@@ -36,13 +44,13 @@ int WmaStreamMaxOutputBytes(const WmaStreamDecoder *pDecoder);
 //   *pcbPcm receives the bytes written (may be 0 -- the first packet of a
 //   bit-reservoir stream produces no output)
 // Returns 0 on success, non-zero on failure.
-int WmaStreamDecode(WmaStreamDecoder *pDecoder,
+int WMASTREAM_CDECL WmaStreamDecode(WmaStreamDecoder *pDecoder,
                     const unsigned char *packet, int packetSize,
                     short *pcmOut, int pcmOutBytes, int *pcbPcm);
 
 // Drop decoder history. Required after a seek: WMA's bit reservoir carries state across packets,
 // so decoding a packet from elsewhere in the stream without this produces garbage.
-void WmaStreamReset(WmaStreamDecoder *pDecoder);
+void WMASTREAM_CDECL WmaStreamReset(WmaStreamDecoder *pDecoder);
 
 #ifdef __cplusplus
 }

@@ -663,15 +663,46 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
                 pEvent->EventData.Play.PlayDesc.WaveSource.wWaveIndex);
             
             //
+            // RXDK 5849 uplift: a WMA wave is in no form the hardware can play, so it cannot be
+            // handed to a buffer voice the way a PCM or ADPCM wave is. It is decoded as it plays
+            // instead, which takes a stream voice and the file the bank was registered from --
+            // hence only a streamed bank can hold one.
+            //
+
+            BOOL fStreamedWave = pWaveBank->IsStreaming() &&
+                                 pWaveBankEntry->Format.wFormatTag == WAVEBANKMINIFORMAT_TAG_WMA;
+
+            //
+            // A voice this track already holds is the wrong one if it is not of the kind this wave
+            // needs, which happens when one track's events play waves of both kinds.
+            //
+
+            if (pTrack->pSoundSource &&
+                fStreamedWave != (pTrack->pSoundSource->GetDSoundStream() != NULL)) {
+
+                pTrack->pSoundSource->Release();
+                pTrack->pSoundSource = NULL;
+
+            }
+
+            //
             // if this track has no source voice allocated it for it, get one now
             //
             
             if (pTrack->pSoundSource == NULL) {
 
-                hr = g_pEngine->CreateSoundSourceInternal(
-                    XACT_FLAG_SOUNDSOURCE_2D,
-                    pWaveBank,
-                    &pTrack->pSoundSource);
+                if (fStreamedWave) {
+
+                    hr = g_pEngine->AllocateStreamSoundSource(&pTrack->pSoundSource);
+
+                } else {
+
+                    hr = g_pEngine->CreateSoundSourceInternal(
+                        XACT_FLAG_SOUNDSOURCE_2D,
+                        pWaveBank,
+                        &pTrack->pSoundSource);
+
+                }
 
                 if (FAILED(hr)) {
 
@@ -694,8 +725,16 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
             //
             // set the proper format for the hw buffer/stream
             //
+            // A wave that is decoded as it plays is the exception: what the voice has to be set to
+            // is the decoder's output, not the compressed form described here, so the voice's
+            // format is settled below when the wave is bound to it.
+            //
             
-            if (pWaveBankEntry->Format.wFormatTag == WAVEBANKMINIFORMAT_TAG_PCM) {
+            if (fStreamedWave) {
+
+                pTrack->wSamplesPerSec = pWaveBankEntry->Format.nSamplesPerSec;
+
+            } else if (pWaveBankEntry->Format.wFormatTag == WAVEBANKMINIFORMAT_TAG_PCM) {
                 
                 XAudioCreatePcmFormat(pWaveBankEntry->Format.nChannels,
                     pWaveBankEntry->Format.nSamplesPerSec,
@@ -715,25 +754,47 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
             // sample time stamps in each event can be properly converted
             //
             
-            pTrack->wSamplesPerSec = (WORD)waveFormat.WaveFormatEx.nSamplesPerSec;
+            if (!fStreamedWave) {
+
+                pTrack->wSamplesPerSec = (WORD)waveFormat.WaveFormatEx.nSamplesPerSec;
+
+            }
             
-            //
-            // BUGBUG at this point we should morph a buffer into a stream, 
-            // if the wavebank is streamed
-            //
-            
-            if (pDSBuffer) {                    
+            if (fStreamedWave) {
+
+                //
+                // RXDK 5849 uplift: this is where the leak's engine left a note saying a buffer
+                // ought to become a stream when the bank is streamed. Binding the wave to the
+                // stream voice is what that amounts to: the decoder reads the wave in place out of
+                // the bank's file and reports the format the voice must play, and from here the
+                // cue's DoWork keeps the voice supplied.
+                //
+
+                hr = pTrack->pSoundSource->AttachStreamedWave(pWaveBank, pWaveBankEntry);
+
+                if (FAILED(hr)) {
+
+                    DPF_ERROR("Could not start streaming a wave for Play event");
+                    return hr;
+
+                }
+
+            } else if (pDSBuffer) {                    
                 
+                DWORD dwPlayOffset = 0;
+
                 hr = pDSBuffer->SetFormat(&waveFormat.WaveFormatEx);
                 
                 //
-                // the buffer size to span entire wavebank. a voice has already been associated with this wavebank
-                // making this call very fast
+                // usually the buffer spans the entire wavebank, which a voice has already been
+                // associated with, making this call very fast. A bank too large for the APU
+                // page table gets just this wave mapped instead, which moves where the wave
+                // begins, hence the offset coming back out.
                 //
                 
                 if (SUCCEEDED(hr)){
                     
-                    hr = pWaveBank->SetBufferData(pDSBuffer);
+                    hr = pWaveBank->MapWaveForPlayback(pDSBuffer, pWaveBankEntry, &dwPlayOffset);
                     
                 }
                 
@@ -744,7 +805,7 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
                     //
                     
                     hr = pDSBuffer->SetPlayRegion(
-                        pWaveBankEntry->PlayRegion.dwStart,
+                        dwPlayOffset,
                         pWaveBankEntry->PlayRegion.dwLength);
                     
                 }
@@ -756,7 +817,7 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
                     //
                     
                     hr = pDSBuffer->SetLoopRegion(
-                        pWaveBankEntry->LoopRegion.dwStart,
+                        pWaveBankEntry->LoopRegion.dwOffset,
                         pWaveBankEntry->LoopRegion.dwLength);
                     
                 }
@@ -773,12 +834,11 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
                     
                 }
                 
-            } else { // if DSBUffer
+            } else {
                 
                 //
-                // Stream
-                // Get some packets with disk data and submit them to the sound source
-                // for streaming
+                // A stream voice holding a wave that is not streamed: nothing put it there, so
+                // there is nothing to set up.
                 //
                 
             }
@@ -960,6 +1020,18 @@ VOID CSoundCue::DoWork()
             dwStoppedTracks++;
             continue;
             
+        }
+
+        //
+        // RXDK 5849 uplift: a voice playing a wave out of a streamed bank runs on what we give it,
+        // so hand it more before asking whether it is still playing -- a voice left unfed would
+        // report itself stopped and take the track with it.
+        //
+
+        if (pTrack->pSoundSource) {
+
+            pTrack->pSoundSource->ServiceStreamedWave();
+
         }
 
         //

@@ -107,8 +107,175 @@ CStdFileStream::CStdFileStream
 
     m_hFile = NULL;
     m_dwFlags = 0;
+    m_dwPosition = 0;
+    m_hOverlappedEvent = NULL;
 
     DPF_LEAVE_VOID();
+}
+
+
+/***************************************************************************
+ *
+ *  BindHandle
+ *
+ *  Description:
+ *      Notes whether the handle we have just taken on was opened for
+ *      asynchronous I/O.
+ *
+ *      RXDK 5849 uplift.  Such a handle has no file position of its own: the
+ *      kernel refuses a read that does not name its own offset, and a seek has
+ *      nothing to move.  The two overloads below therefore carry the position
+ *      in m_dwPosition and hand it to every transfer.  Titles reach this path
+ *      through XFileCreateMediaObjectAsync, whose handles are opened
+ *      FILE_FLAG_OVERLAPPED (usually alongside FILE_FLAG_NO_BUFFERING).
+ *
+ *  Arguments:
+ *      (void)
+ *
+ *  Returns:
+ *      (void)
+ *
+ ***************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CStdFileStream::BindHandle"
+
+void
+CStdFileStream::BindHandle
+(
+    void
+)
+{
+    IO_STATUS_BLOCK         iosb;
+    FILE_MODE_INFORMATION   fmi;
+
+    DPF_ENTER();
+
+    m_dwPosition = 0;
+    m_dwFlags &= ~FILESTREAM_FLAGS_ASYNC;
+
+    if(NT_SUCCESS(NtQueryInformationFile(m_hFile, &iosb, &fmi, sizeof(fmi), FileModeInformation)) &&
+       !(fmi.Mode & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)))
+    {
+        m_dwFlags |= FILESTREAM_FLAGS_ASYNC;
+    }
+
+    DPF_LEAVE_VOID();
+}
+
+
+/***************************************************************************
+ *
+ *  Transfer
+ *
+ *  Description:
+ *      Reads or writes at the position we are keeping for an asynchronous
+ *      handle, waiting for the transfer to finish before returning.
+ *
+ *      RXDK 5849 uplift.  See BindHandle.  The wait is what makes an
+ *      asynchronous handle usable by callers written against a blocking
+ *      stream; the file XMO is one of those.
+ *
+ *  Arguments:
+ *      LPVOID [in]: transfer buffer.
+ *      DWORD [in]: size of above buffer, in bytes.
+ *      LPDWORD [out]: amount transferred, in bytes.  Optional.
+ *      BOOL [in]: TRUE to write, FALSE to read.
+ *
+ *  Returns:
+ *      HRESULT: COM result code.
+ *
+ ***************************************************************************/
+
+#undef DPF_FNAME
+#define DPF_FNAME "CStdFileStream::Transfer"
+
+HRESULT
+CStdFileStream::Transfer
+(
+    LPVOID                  pvBuffer,
+    DWORD                   dwBufferSize,
+    LPDWORD                 pdwTransferred,
+    BOOL                    bWrite
+)
+{
+    HRESULT                 hr          = S_OK;
+    OVERLAPPED              ov          = {0};
+    DWORD                   dwMoved     = 0;
+    BOOL                    bResult;
+
+    DPF_ENTER();
+
+    ASSERT(IS_VALID_HANDLE_VALUE(m_hFile));
+
+    if(!m_hOverlappedEvent)
+    {
+        m_hOverlappedEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+        if(!m_hOverlappedEvent)
+        {
+            DPF_ERROR("Error %lu occurred creating the transfer event", GetLastError());
+            hr = E_OUTOFMEMORY;
+        }
+    }
+
+    if(SUCCEEDED(hr))
+    {
+        ov.Offset = m_dwPosition;
+        ov.hEvent = m_hOverlappedEvent;
+
+        ResetEvent(m_hOverlappedEvent);
+
+        bResult = bWrite ?
+            WriteFile(m_hFile, pvBuffer, dwBufferSize, &dwMoved, &ov) :
+            ReadFile(m_hFile, pvBuffer, dwBufferSize, &dwMoved, &ov);
+
+        if(!bResult)
+        {
+            switch(GetLastError())
+            {
+                case ERROR_IO_PENDING:
+                    if(!GetOverlappedResult(m_hFile, &ov, &dwMoved, TRUE) &&
+                       ERROR_HANDLE_EOF != GetLastError())
+                    {
+                        DPF_ERROR("Error %lu occurred completing the transfer", GetLastError());
+                        hr = E_FAIL;
+                    }
+                    break;
+
+                // Reading at or past the end of the file is how the caller
+                // discovers where the file ends, so report it as a short
+                // transfer rather than a failure.
+                case ERROR_HANDLE_EOF:
+                    dwMoved = 0;
+                    break;
+
+                default:
+                    DPF_ERROR("Error %lu occurred starting the transfer", GetLastError());
+                    hr = E_FAIL;
+                    break;
+            }
+        }
+    }
+
+    if(SUCCEEDED(hr))
+    {
+        m_dwPosition += dwMoved;
+
+        if(pdwTransferred)
+        {
+            *pdwTransferred = dwMoved;
+        }
+        else if(dwMoved != dwBufferSize)
+        {
+            DPF_ERROR("Only %lu of %lu bytes were transferred", dwMoved, dwBufferSize);
+            hr = E_FAIL;
+        }
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
 }
 
 
@@ -193,6 +360,10 @@ CStdFileStream::Open
         DPF_ERROR("Error %lu occurred trying to open %s", GetLastError(), pszFileName);
         hr = E_FAIL;
     }
+    else
+    {
+        BindHandle();
+    }
 
     DPF_LEAVE_HRESULT(hr);
 
@@ -230,6 +401,8 @@ CStdFileStream::Attach
     
     m_hFile = hFile;
     m_dwFlags |= FILESTREAM_FLAGS_ATTACHED;
+
+    BindHandle();
 
     DPF_LEAVE_VOID();
 }
@@ -271,6 +444,11 @@ CStdFileStream::Close
         CLOSE_HANDLE(m_hFile);
     }
 
+    CLOSE_HANDLE(m_hOverlappedEvent);
+
+    m_dwFlags &= ~FILESTREAM_FLAGS_ASYNC;
+    m_dwPosition = 0;
+
     DPF_LEAVE_VOID();
 }
 
@@ -309,7 +487,16 @@ CStdFileStream::Read
     DPF_ENTER();
     
     ASSERT(IS_VALID_HANDLE_VALUE(m_hFile));
-    
+
+    if(m_dwFlags & FILESTREAM_FLAGS_ASYNC)
+    {
+        hr = Transfer(pvBuffer, dwBufferSize, pdwRead, FALSE);
+
+        DPF_LEAVE_HRESULT(hr);
+
+        return hr;
+    }
+
     if(!ReadFile(m_hFile, pvBuffer, dwBufferSize, &dwRead, NULL))
     {
         DPF_ERROR("Error %lu occurred reading from the file", GetLastError());
@@ -369,7 +556,16 @@ CStdFileStream::Write
     DPF_ENTER();
     
     ASSERT(IS_VALID_HANDLE_VALUE(m_hFile));
-    
+
+    if(m_dwFlags & FILESTREAM_FLAGS_ASYNC)
+    {
+        hr = Transfer((LPVOID)pvBuffer, dwBufferSize, pdwWritten, TRUE);
+
+        DPF_LEAVE_HRESULT(hr);
+
+        return hr;
+    }
+
     if(!WriteFile(m_hFile, pvBuffer, dwBufferSize, &dwWritten, NULL))
     {
         DPF_ERROR("Error %lu occurred writing to the file", GetLastError());
@@ -429,8 +625,37 @@ CStdFileStream::Seek
     DPF_ENTER();
 
     ASSERT(IS_VALID_HANDLE_VALUE(m_hFile));
-    
-    if((dwAbsolute = SetFilePointer(m_hFile, lOffset, NULL, dwOrigin)) == INVALID_SET_FILE_POINTER)
+
+    if(m_dwFlags & FILESTREAM_FLAGS_ASYNC)
+    {
+        DWORD               dwBase  = 0;
+
+        switch(dwOrigin)
+        {
+            case FILE_BEGIN:
+                break;
+
+            case FILE_CURRENT:
+                dwBase = m_dwPosition;
+                break;
+
+            case FILE_END:
+                hr = GetLength(&dwBase);
+                break;
+
+            default:
+                DPF_ERROR("Unrecognized seek origin %lu", dwOrigin);
+                hr = E_INVALIDARG;
+                break;
+        }
+
+        if(SUCCEEDED(hr))
+        {
+            m_dwPosition = dwBase + lOffset;
+            dwAbsolute = m_dwPosition;
+        }
+    }
+    else if((dwAbsolute = SetFilePointer(m_hFile, lOffset, NULL, dwOrigin)) == INVALID_SET_FILE_POINTER)
     {
         DPF_ERROR("Error %lu occurred seeking the file", GetLastError());
         hr = E_FAIL;

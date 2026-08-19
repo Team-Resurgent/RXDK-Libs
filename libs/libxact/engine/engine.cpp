@@ -305,7 +305,7 @@ HRESULT CEngine::Initialize(PXACT_RUNTIME_PARAMETERS pParams)
         CopyMemory(&m_RuntimeParams, pParams, sizeof(XACT_RUNTIME_PARAMETERS));
         ZeroMemory( &dsbd, sizeof( DSBUFFERDESC ) );
         ZeroMemory( &dssd, sizeof( DSSTREAMDESC ) );
-        
+
         hr = DirectSoundCreate(NULL,&m_pDirectSound, NULL);
     }
 
@@ -400,7 +400,7 @@ HRESULT CEngine::Initialize(PXACT_RUNTIME_PARAMETERS pParams)
     
                 dsbd.lpwfxFormat = NULL;
                 dsbd.dwFlags = DSBCAPS_MIXIN | DSBCAPS_CTRL3D;
-        
+
                 hr = m_pDirectSound->CreateSoundBuffer( &dsbd, &pSoundSource->m_HwVoice.pBuffer, NULL );
     
                 //
@@ -649,7 +649,7 @@ HRESULT CEngine::GetWaveBank(LPCSTR lpFriendlyName, CWaveBank **ppWaveBank)
 
         pWaveBank = CONTAINING_RECORD(pEntry, CWaveBank, m_ListEntry);
 
-        if (!strncmp(pWaveBank->m_WaveBankData.pHeader->szBankName,
+        if (!strncmp(pWaveBank->m_WaveBankData.pBankData->szBankName,
             lpFriendlyName,
             XACT_SOUNDBANK_WAVEBANK_FRIENDLYNAME_LENGTH)) {
 
@@ -916,12 +916,12 @@ VOID CEngine::IsDuplicateWaveBank(CWaveBank *pWaveBank)
     while (pEntry != &m_lstWaveBanks) {
         
         pExistingWaveBank = CONTAINING_RECORD(pEntry,CWaveBank,m_ListEntry);
-        if (!strncmp(pExistingWaveBank->m_WaveBankData.pHeader->szBankName,
-            pWaveBank->m_WaveBankData.pHeader->szBankName,
-            WAVEBANKHEADER_BANKNAME_LENGTH)) {
+        if (!strncmp(pExistingWaveBank->m_WaveBankData.pBankData->szBankName,
+            pWaveBank->m_WaveBankData.pBankData->szBankName,
+            WAVEBANK_BANKNAME_LENGTH)) {
             
             DPF_ERROR("Same wavebank (%s) has already been registered",
-                pWaveBank->m_WaveBankData.pHeader->szBankName);
+                pWaveBank->m_WaveBankData.pBankData->szBankName);
             
             break;
             
@@ -1026,6 +1026,48 @@ HRESULT CEngine::CreateSoundSource(DWORD dwFlags,PXACTSOUNDSOURCE *ppSoundSource
 
     return hr;
 
+}
+
+#undef DPF_FNAME
+#define DPF_FNAME "CEngine::AllocateStreamSoundSource"
+
+HRESULT CEngine::AllocateStreamSoundSource(CSoundSource **ppSoundSource)
+{
+    HRESULT hr = S_OK;
+    PLIST_ENTRY pEntry;
+    CSoundSource *pSoundSource;
+
+    ASSERT_IN_PASSIVE;
+    ENTER_EXTERNAL_METHOD();
+
+    DPF_ENTER();
+    ASSERT(ppSoundSource);
+
+    //
+    // Unlike a buffer voice, a stream voice is never owned by a wave bank. A bank owns the voices
+    // that hold a mapping of its wave data, and a wave that is streamed is not in memory to map --
+    // it arrives a packet at a time -- so the voice goes back to this pool when the cue is done
+    // with it rather than to any bank's free list.
+    //
+
+    if (IsListEmpty(&m_lstAvailableStreams)) {
+
+        DPF_ERROR("No stream voice is available; raise dwMaxConcurrentStreams");
+        hr = E_FAIL;
+
+    } else {
+
+        pEntry = RemoveHeadList(&m_lstAvailableStreams);
+        pSoundSource = CONTAINING_RECORD(pEntry, CSoundSource, m_ListEntry);
+
+        pSoundSource->AddRef();
+        *ppSoundSource = pSoundSource;
+
+    }
+
+    DPF_LEAVE_HRESULT(hr);
+
+    return hr;
 }
 
 #undef DPF_FNAME
@@ -1253,6 +1295,28 @@ HRESULT CEngine::RegisterWaveBank(PVOID pvData, DWORD dwSize, PXACTWAVEBANK *ppW
 #undef DPF_FNAME
 #define DPF_FNAME "CEngine::RegisterStreamedWaveBank"
 
+//
+// The sector size of the medium the given file is on: 512 for the hard disk, 2048 for the DVD.
+// A title hands us its bank handle opened FILE_FLAG_NO_BUFFERING, and an unbuffered read has to
+// obey the sector size of the medium the file is actually on, which is not something the bank's
+// own alignment tells us -- a bank authored on a development kit (hard disk) still has to load
+// when the title ships on a disc. Falls back to the DVD size, the coarser of the two, since a
+// request aligned for the DVD is also aligned for the hard disk.
+//
+static DWORD XactGetSectorSize(HANDLE hFile)
+{
+    IO_STATUS_BLOCK          iosb;
+    FILE_FS_SIZE_INFORMATION fsSize;
+
+    if (NT_SUCCESS(NtQueryVolumeInformationFile(hFile, &iosb, &fsSize, sizeof(fsSize), FileFsSizeInformation)) &&
+        fsSize.BytesPerSector != 0)
+    {
+        return fsSize.BytesPerSector;
+    }
+
+    return WAVEBANK_ALIGNMENT_DVD;
+}
+
 HRESULT CEngine::RegisterStreamedWaveBank(PVOID /*pvStreamingBuffer*/, DWORD /*dwSize*/, HANDLE hFileHandle, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank)
 {
     // RXDK 5849 uplift: the leak left true streaming unimplemented (this method was an empty stub
@@ -1280,23 +1344,98 @@ HRESULT CEngine::RegisterStreamedWaveBank(PVOID /*pvStreamingBuffer*/, DWORD /*d
     }
     DWORD dwBankSize = dwFileSize - dwOffset;
 
-    PVOID pvData = XactMemAlloc(dwBankSize, FALSE);
-    if (!pvData)
+    //
+    // Titles open the bank for asynchronous, unbuffered I/O (FILE_FLAG_OVERLAPPED |
+    // FILE_FLAG_NO_BUFFERING), which constrains how we may read it: each read must start on a
+    // sector boundary, span whole sectors, land in a sector-aligned buffer, and carry its offset
+    // in an OVERLAPPED, because an asynchronous handle keeps no file pointer to seek.
+    //
+    // So the bank buffer is a virtual allocation rounded out to whole sectors: page-aligned, hence
+    // aligned for either medium, and able to hold a bank of the several megabytes these are -- far
+    // more than the pool this engine's other allocations come from is meant to serve.
+    //
+    DWORD dwSector    = XactGetSectorSize(hFileHandle);
+    DWORD dwFileStart = dwOffset - (dwOffset % dwSector);
+    DWORD dwSkip      = dwOffset - dwFileStart;
+    DWORD dwNeeded    = dwSkip + dwBankSize;
+    DWORD dwAllocSize = (dwNeeded + dwSector - 1) / dwSector * dwSector;
+
+    PVOID  pvData  = VirtualAlloc(NULL, dwAllocSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    HANDLE hEvent  = CreateEvent(NULL, TRUE, FALSE, NULL);
+
+    if (!pvData || !hEvent)
     {
-        DPF_LEAVE_HRESULT(E_OUTOFMEMORY);
-        return E_OUTOFMEMORY;
+        DPF_ERROR("Could not allocate %d bytes for the streamed bank", dwAllocSize);
+        hr = E_OUTOFMEMORY;
     }
 
-    SetFilePointer(hFileHandle, (LONG)dwOffset, NULL, FILE_BEGIN);
-    DWORD dwRead = 0;
-    if (!ReadFile(hFileHandle, pvData, dwBankSize, &dwRead, NULL) || dwRead != dwBankSize)
+    //
+    // Read whole sectors straight into the buffer. The tail read may run past the end of the file
+    // and come back short, which is fine as long as the bank itself arrived.
+    //
+    DWORD dwDone = 0;
+    while (SUCCEEDED(hr) && dwDone < dwNeeded)
     {
-        XactMemFree(pvData);
-        DPF_LEAVE_HRESULT(E_FAIL);
-        return E_FAIL;
+        OVERLAPPED ov;
+        DWORD      dwRead = 0;
+        DWORD      dwWant = dwAllocSize - dwDone;
+
+        if (dwWant > 64 * 1024)
+            dwWant = 64 * 1024;         // a whole number of sectors on either medium
+
+        ZeroMemory(&ov, sizeof(ov));
+        ov.hEvent = hEvent;
+        ov.Offset = dwFileStart + dwDone;
+        ResetEvent(hEvent);
+
+        if (!ReadFile(hFileHandle, (PUCHAR)pvData + dwDone, dwWant, &dwRead, &ov) &&
+            (GetLastError() != ERROR_IO_PENDING ||
+             !GetOverlappedResult(hFileHandle, &ov, &dwRead, TRUE)))
+        {
+            DPF_ERROR("Unbuffered read of streamed bank failed at offset 0x%x (sector size %d)", ov.Offset, dwSector);
+            hr = E_FAIL;
+        }
+        else if (dwRead == 0)
+        {
+            DPF_ERROR("Streamed bank is truncated: wanted %d bytes, got %d", dwNeeded, dwDone);
+            hr = E_FAIL;
+        }
+        else
+        {
+            dwDone += dwRead;
+        }
     }
 
-    hr = RegisterWaveBank(pvData, dwBankSize, ppWaveBank);
+    if (hEvent)
+        CloseHandle(hEvent);
+
+    if (SUCCEEDED(hr))
+    {
+        //
+        // A bank that does not start the file was read from the sector boundary before it, so
+        // shuffle it down to the front of the buffer.
+        //
+        if (dwSkip)
+            memmove(pvData, (PUCHAR)pvData + dwSkip, dwBankSize);
+
+        hr = RegisterWaveBank(pvData, dwBankSize, ppWaveBank);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        //
+        // Remember where the bank came from. A wave the hardware cannot play out of memory -- a WMA
+        // one -- is read from the file as it plays instead, which needs the handle and the bank's
+        // position in it. The handle stays the title's: it opened it, keeps it open while the bank
+        // is registered, and closes it afterwards.
+        //
+        ((CWaveBank *)*ppWaveBank)->SetStreamingSource(hFileHandle, dwOffset);
+    }
+
+    if (FAILED(hr) && pvData)
+    {
+        VirtualFree(pvData, 0, MEM_RELEASE);
+    }
 
     DPF_LEAVE_HRESULT(hr);
 
@@ -1571,42 +1710,41 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
     
 #ifdef VALIDATE_PARAMETERS
 
-    if(!pNotificationDesc)
-    {
-        DPF_ERROR("No pNotificationDesc supplied");
-    }
-
-    ASSERT(!(pNotificationDesc->wFlags & XACT_MASK_NOTIFICATION_FLAGS));
-
     if(!pNotification)
     {
         DPF_ERROR("No pNotification supplied");
     }
 
-    if (pNotificationDesc->u.pSoundBank && pNotificationDesc->pSoundCue) {
+    if (pNotificationDesc) {
 
-        DPF_ERROR("You cant specify a notification desc that has both pSoundBank and pSoundCue");
+        ASSERT(!(pNotificationDesc->wFlags & XACT_MASK_NOTIFICATION_FLAGS));
 
-    }
+        if (pNotificationDesc->u.pSoundBank && pNotificationDesc->pSoundCue) {
 
-    if (pNotificationDesc->dwSoundCueIndex != XACT_SOUNDCUE_INDEX_UNUSED) {
+            DPF_ERROR("You cant specify a notification desc that has both pSoundBank and pSoundCue");
 
-        DPF_WARNING("dwSoundCueIndex is ignored when calling this API. Set to -1");
+        }
 
-    }
+        if (pNotificationDesc->dwSoundCueIndex != XACT_SOUNDCUE_INDEX_UNUSED) {
+
+            DPF_WARNING("dwSoundCueIndex is ignored when calling this API. Set to -1");
+
+        }
         
-    if ((pNotificationDesc->wType != XACT_NOTIFICATION_TYPE_UNUSED) && 
-        (pNotificationDesc->wType >= eXACTNotification_Max)) {
+        if ((pNotificationDesc->wType != XACT_NOTIFICATION_TYPE_UNUSED) && 
+            (pNotificationDesc->wType >= eXACTNotification_Max)) {
 
-        DPF_ERROR("Invalid notification type specified (%d)",
-            pNotificationDesc->wType);
+            DPF_ERROR("Invalid notification type specified (%d)",
+                pNotificationDesc->wType);
 
-    }
+        }
 
-    if ((pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) && 
-        (pNotificationDesc->u.pSoundBank || pNotificationDesc->pSoundCue)) {
+        if ((pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) && 
+            (pNotificationDesc->u.pSoundBank || pNotificationDesc->pSoundCue)) {
 
-        DPF_ERROR("dwType must be valid if pSoundBank or pSoundCue is supplied");
+            DPF_ERROR("dwType must be valid if pSoundBank or pSoundCue is supplied");
+
+        }
 
     }
 
@@ -1616,8 +1754,12 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
     // get a notification from our linked list or soundbank,soundcue
     // based on the criteria specified
     //
+    // RXDK 5849 uplift: no description at all asks for whatever is pending, which is how a title
+    // drains notifications when it registered only one kind and does not need to say which it
+    // wants. The leak's code read through the pointer before testing it.
+    //
 
-    if (pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) {
+    if (!pNotificationDesc || pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) {
 
         PLIST_ENTRY pEntry;
 
@@ -1641,7 +1783,7 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
         pContext = pSoundCue->GetNotificationContext(pNotificationDesc->wType);
     }
 
-    if (IsListEmpty(&pContext->ListEntry)) {
+    if (pContext && IsListEmpty(&pContext->ListEntry)) {
 
         //
         // this context does not contain a signalled event.

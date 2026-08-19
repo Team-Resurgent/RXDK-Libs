@@ -39,11 +39,28 @@
 #include <xonline.h>
 #include <uix.h>
 
-#include <stdlib.h> // malloc/free
-#include <string.h> // memset/memcpy
+// malloc/free/memset/memcpy come from the force-included site/cdecl_libc.h, which
+// declares them __cdecl. Do NOT include <stdlib.h>/<string.h> here: this library
+// is built -fdefault-calling-conv=stdcall, picolibc's prototypes carry no explicit
+// convention, and clang silently prefers such a later declaration's convention over
+// the explicit one -- which made every malloc/free call here stdcall against a cdecl
+// libc, leaving ESP low so these functions returned into the stack.
 
 // placement new (no <new> in the freestanding libxonline environment)
 inline void *operator new(size_t, void *pv) { return pv; }
+
+// The engine and plugin objects come from the process heap rather than the CRT.
+// This library is built /Gz (-fdefault-calling-conv=stdcall) while libc is cdecl,
+// and a CRT prototype carries no explicit convention, so a malloc/free call here
+// compiles stdcall: the call site expects the callee to pop its argument, leaving
+// ESP low so the caller's epilogue returns through the wrong slot -- these very
+// functions returned into the stack, which wedged every UIX sample in its
+// Initialize. GetProcessHeap/HeapAlloc/HeapFree are declared __stdcall outright,
+// so there is nothing to get wrong, and the process heap is where a vendor
+// library allocates anyway. RXDK-VS20XX/scripts/Test-CallingConventions.ps1
+// checks a linked title for any surviving stdcall call into cdecl libc.
+static void *UixAlloc(DWORD cb) { return HeapAlloc(GetProcessHeap(), 0, cb); }
+static void UixFree(void *pv) { HeapFree(GetProcessHeap(), 0, pv); }
 
 // ------------------------------------------------------------- feature ids ---
 static const BYTE s_uixTokens[5] = { 0, 1, 2, 3, 4 };
@@ -69,7 +86,7 @@ public:
     {
         LONG c = --m_cRef;
         if (c <= 0) {
-            free(this);
+            UixFree(this);
             return 0;
         }
         return (ULONG)c;
@@ -120,7 +137,7 @@ public:
     {
         LONG c = --m_cRef;
         if (c <= 0) {
-            free(this);
+            UixFree(this);
             return 0;
         }
         return (ULONG)c;
@@ -663,7 +680,7 @@ XBOXAPI HRESULT WINAPI UIXCreateLiveEngine(LPCSTR pSkinFileName, DWORD LanguageI
     (void)LanguageID;
     if (!ppEngine)
         return E_POINTER;
-    RXDK_UIX_ENGINE *e = (RXDK_UIX_ENGINE *)malloc(sizeof(RXDK_UIX_ENGINE));
+    RXDK_UIX_ENGINE *e = (RXDK_UIX_ENGINE *)UixAlloc(sizeof(RXDK_UIX_ENGINE));
     if (!e) {
         *ppEngine = NULL;
         return E_OUTOFMEMORY;
@@ -691,7 +708,7 @@ XBOXAPI HRESULT WINAPI UIXCreateUIPlugin(ITitleFontRenderer *pFont, ITitleUIPlug
 {
     if (!ppUIPlugin)
         return E_POINTER;
-    CDefaultUIPlugin *p = (CDefaultUIPlugin *)malloc(sizeof(CDefaultUIPlugin));
+    CDefaultUIPlugin *p = (CDefaultUIPlugin *)UixAlloc(sizeof(CDefaultUIPlugin));
     if (!p) {
         *ppUIPlugin = NULL;
         return E_OUTOFMEMORY;
@@ -711,7 +728,7 @@ XBOXAPI HRESULT WINAPI UIXCreateAudioPlugin(VOID *pXactEngine, VOID *pXactSoundB
     (void)pXactSoundBank;
     if (!ppAudioPlugin)
         return E_POINTER;
-    CDefaultAudioPlugin *p = (CDefaultAudioPlugin *)malloc(sizeof(CDefaultAudioPlugin));
+    CDefaultAudioPlugin *p = (CDefaultAudioPlugin *)UixAlloc(sizeof(CDefaultAudioPlugin));
     if (!p) {
         *ppAudioPlugin = NULL;
         return E_OUTOFMEMORY;
@@ -739,7 +756,7 @@ ULONG WINAPI LiveEngine_Release(LiveEngine *pThis)
                 XOnlineFriendsEnumerateFinish(e->hFriendsEnumTask[i]);
         if (e->hFriendsStartupTask)
             XOnlineTaskClose(e->hFriendsStartupTask);
-        free(e);
+        UixFree(e);
         return 0;
     }
     return (ULONG)cRef;

@@ -63,10 +63,24 @@ VOID CXo::CopyAndAdjustUser(
     IN OUT PXONLINEP_USER pUser
     )
 {
-    RtlCopyMemory( pUser, pUserAccount, sizeof(XC_ONLINE_USER_ACCOUNT_STRUCT) );
+    //
+    // Field-wise, not a block copy: the on-disk account still carries the
+    // 'kingdom' array that 5849 dropped from XONLINE_USER, so the two layouts
+    // no longer line up (and the account struct is the larger of the two).
+    //
+    RtlZeroMemory( pUser, sizeof(XONLINEP_USER) );
+    pUser->xuid = pUserAccount->xuid;
+    RtlCopyMemory( pUser->name, pUserAccount->name, sizeof(pUser->name) );
+    pUser->dwUserOptions = pUserAccount->dwUserOptions;
+    RtlCopyMemory( pUser->pin, pUserAccount->pin, sizeof(pUser->pin) );
+    RtlCopyMemory( pUser->domain, pUserAccount->domain, sizeof(pUser->domain) );
+    RtlCopyMemory( pUser->realm, pUserAccount->realm, sizeof(pUser->realm) );
+    RtlCopyMemory( pUser->key, pUserAccount->key, sizeof(pUser->key) );
+    pUser->dwSignatureTime = pUserAccount->dwSignatureTime;
+    RtlCopyMemory( pUser->signature, pUserAccount->signature, sizeof(pUser->signature) );
+
     pUser->xuid.dwUserFlags = 0;
     pUser->hr = 0;
-    pUser->index = 0;
     if (dwMUOptions & XONLINE_USER_OPTION_CAME_FROM_MU)
     {
         DecryptKeyWithMUKey( pUser->key, sizeof(pUser->key) );
@@ -180,7 +194,6 @@ HRESULT CXo::XOnlineGetUsers(
     DWORD i,j;
 
     Assert( sizeof(XONLINE_USER) == sizeof(XONLINEP_USER) );
-    Assert( sizeof(XONLINE_USER) == sizeof(XC_ONLINE_USER_ACCOUNT_STRUCT) + sizeof(HRESULT) + sizeof(DWORD) );
 
     RtlZeroMemory( pUsers, sizeof(XONLINE_USER) * XONLINE_MAX_STORED_ONLINE_USERS );
     *pcUsers = 0;
@@ -367,7 +380,7 @@ BOOL CXo::SetMachineAccount(
 
     pMachineAccount = (XC_ONLINE_MACHINE_ACCOUNT_STRUCT*)abConfigData;
     
-    RtlCopyMemory( pMachineAccount, pUser, sizeof(*pMachineAccount) );
+    CopyUserToOnlineAccount( pMachineAccount, pUser );
 
     //
     // Encrypt Key and save to Config Sector on HD
@@ -440,7 +453,7 @@ HRESULT CXo::_XOnlineAddUserToHD(
     {
         userAccounts = (PXC_ONLINE_USER_ACCOUNT_STRUCT)abConfigData[dwEmptySector];
 
-        RtlCopyMemory( &userAccounts[dwEmptySlot], pUser, sizeof(XC_ONLINE_USER_ACCOUNT_STRUCT) );
+        CopyUserToOnlineAccount( &userAccounts[dwEmptySlot], (const XONLINEP_USER*)pUser );
 
         EncryptKeyWithHardDriveKeyEx( GetHdKey(), userAccounts[dwEmptySlot].key, sizeof(userAccounts[dwEmptySlot].key) );
         SignOnlineUserStruct(&userAccounts[dwEmptySlot]);
@@ -545,7 +558,7 @@ HRESULT CXo::_XOnlineSetUserInMU(
         goto Cleanup;
     }
 
-    RtlCopyMemory( &userAccount, pUser, sizeof(XC_ONLINE_USER_ACCOUNT_STRUCT) );
+    CopyUserToOnlineAccount( &userAccount, (const XONLINEP_USER*)pUser );
 
     pOrigMUUser = (XC_ONLINE_USER_ACCOUNT_STRUCT*)MUMetaData.OnlineData;
     

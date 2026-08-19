@@ -523,6 +523,22 @@ PNOTIFICATION_CONTEXT CSoundBank::GetNotificationContext(DWORD dwType)
  
 
 #undef DPF_FNAME
+#define DPF_FNAME "CSoundBank::RaiseCueIndexNotification"
+
+VOID CSoundBank::RaiseCueIndexNotification(DWORD dwCueIndex, DWORD dwType)
+{
+    PNOTIFICATION_CONTEXT pContext = GetNotificationContext(dwType);
+
+    if (pContext->bRegistered &&
+        g_pEngine->GetCueNotificationContext(pContext, dwCueIndex)) {
+
+        g_pEngine->AddNotificationToPendingList(pContext);
+
+    }
+
+}
+
+#undef DPF_FNAME
 #define DPF_FNAME "CSoundBank::ProcessRuntimeEvent"
 
 VOID CSoundBank::ProcessRuntimeEvent(XACT_TRACK_EVENT *pEventDesc)

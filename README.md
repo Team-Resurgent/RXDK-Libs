@@ -41,7 +41,7 @@ shared/libcxx/             LLVM libc++ headers (headers-only distribution)
 libs/libc/                 First-party libc runtime — xbox/ (HAL, crt0, kernel glue) + c23/ gap-fill (→ libc.lib)
 libs/libcpp/               libc++ build orchestration over vendored libcxx (→ libcpp.lib)
 libs/libkernel/            Xbox kernel import lib, generated from xboxkrnl.def (→ libkernel.lib)
-libs/libxapi/              Clean-room xAPI port (→ libxapi.lib / libxapi_core.lib)
+libs/libxapi/              Clean-room xAPI port (→ libxapi.lib)
 libs/libd3d8/              Xbox D3D8 (NV2A) graphics driver (→ libd3d8.lib)
 libs/libd3dx8/             D3DX8 helper / utility library (→ libd3dx8.lib)
 libs/libdsound/            DirectSound (MCPX APU) audio (→ libdsound.lib)
@@ -91,7 +91,6 @@ zig build xapi-smoke      # 27-test xAPI smoke PE
 | `zig-out/lib/libcpp.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
 | `zig-out/lib/libkernel.lib` | Xbox kernel import library (from `libs/libkernel/xboxkrnl.def`) |
 | `zig-out/lib/libxapi.lib` | Clean-room xAPI (k32 + dll + rtl + uuid + USB) |
-| `zig-out/lib/libxapi_core.lib` | xAPI without the USB stack (k32 + dll + rtl + uuid) |
 | `zig-out/lib/libd3d8.lib` | Xbox D3D8 (NV2A) graphics driver |
 | `zig-out/lib/libd3dx8.lib` | D3DX8 helper / utility library |
 | `zig-out/lib/libdsound.lib` | DirectSound (MCPX APU) audio |
@@ -102,7 +101,7 @@ zig build xapi-smoke      # 27-test xAPI smoke PE
 
 Library layering is one-way — `libxapi → libc → libkernel` and `libcpp → libc`, with the subsystem libs (`libd3d8`, `libdsound`, `libxnet`, …) layering above `libxapi` — so a C-only title can link `libc.lib` + `libkernel.lib` without dragging in xAPI or libc++.
 
-The malloc family is the one exception: `libs/libc/xbox/heapalloc.c` allocates from the Xbox process heap (`RtlAllocateHeap` on `XapiProcessHeap`), so it reaches up into libxapi, where RXDK implements the RTL heap. Going through that heap is what gives every allocation the 16-byte alignment the XDK's SSE math code assumes, and it keeps `malloc`, `HeapAlloc`, `LocalAlloc` and `operator new` on one heap the way the retail XDK's CRT did. A title that calls `malloc` therefore also needs `libxapi_core.lib`.
+The malloc family is the one exception: `libs/libc/xbox/heapalloc.c` allocates from the Xbox process heap (`RtlAllocateHeap` on `XapiProcessHeap`), so it reaches up into libxapi, where RXDK implements the RTL heap. Going through that heap is what gives every allocation the 16-byte alignment the XDK's SSE math code assumes, and it keeps `malloc`, `HeapAlloc`, `LocalAlloc` and `operator new` on one heap the way the retail XDK's CRT did. A program that calls `malloc` therefore also needs `libxapi.lib`, even if it uses nothing else from xAPI.
 
 Samples link via direct object response files (`zig-out/link/*.rsp`) because COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`. External consumers can link the staged `.lib`s or mirror the object-rsp pattern.
 

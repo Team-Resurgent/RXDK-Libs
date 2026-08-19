@@ -1952,9 +1952,7 @@ CD3DXEffectCompiler::MakeFourCC(char *psz, DWORD *pdwFourCC)
 HRESULT 
 CD3DXEffectCompiler::AssembleShader(CNode *pDeclNode, CNode *pFuncNode, CNode **ppNode)
 {
-    return E_NOTIMPL;
-
-    HRESULT hr;
+    HRESULT hr = S_OK;
 
     LPD3DXBUFFER pDecl   = NULL;
     LPD3DXBUFFER pd3dxErrors = NULL;
@@ -1962,7 +1960,7 @@ CD3DXEffectCompiler::AssembleShader(CNode *pDeclNode, CNode *pFuncNode, CNode **
     LPXGBUFFER pFunc   = NULL;
     LPXGBUFFER pErrors = NULL;
 
-    CNode *pNode;
+    CNode *pNode = NULL;
 
     DWORD cdwDecl, cdwConst, cdwFunc;
     DWORD *pdwDecl, *pdwConst, *pdwFunc;
@@ -1980,7 +1978,7 @@ CD3DXEffectCompiler::AssembleShader(CNode *pDeclNode, CNode *pFuncNode, CNode **
         if(pd3dxErrors)
         {
             AppendError((char *) pd3dxErrors->GetBufferPointer());
-            RELEASE(pErrors);
+            RELEASE(pd3dxErrors);
         }
 
         if(FAILED(hr))
@@ -1997,7 +1995,7 @@ CD3DXEffectCompiler::AssembleShader(CNode *pDeclNode, CNode *pFuncNode, CNode **
         char *szFunc = (char *) pFuncNode->m_pdwData;
         UINT cchFunc = strlen(szFunc);
 
-        XGAssembleShader(
+        hr = XGAssembleShader(
                 m_szFileAsm,
                 szFunc,
                 cchFunc,

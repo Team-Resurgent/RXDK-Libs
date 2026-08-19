@@ -171,7 +171,7 @@ __forceinline void MorphKeyByHardDriveKeyEx( BYTE * pbHDKey, BYTE* key, DWORD dw
 #ifdef _XBOX
 __forceinline void MorphKeyByHardDriveKey( BYTE* key, DWORD dwKeyLen )
 {
-    MorphKeyByHardDriveKeyEx((LPBYTE)(*XboxHDKey), key, dwKeyLen);
+    MorphKeyByHardDriveKeyEx((LPBYTE)XboxHDKey, key, dwKeyLen);
 }
 #endif
 
@@ -224,12 +224,12 @@ __forceinline void DecryptKeyWithHardDriveKeyEx( BYTE * pbHDKey, BYTE* key, DWOR
 #ifdef _XBOX
 __forceinline void EncryptKeyWithHardDriveKey( BYTE* key, DWORD dwKeyLen )
 {
-    EncryptKeyWithHardDriveKeyEx((LPBYTE)(*XboxHDKey), key, dwKeyLen);
+    EncryptKeyWithHardDriveKeyEx((LPBYTE)XboxHDKey, key, dwKeyLen);
 }
 
 __forceinline void DecryptKeyWithHardDriveKey( BYTE* key, DWORD dwKeyLen )
 {
-    DecryptKeyWithHardDriveKeyEx((LPBYTE)(*XboxHDKey), key, dwKeyLen);
+    DecryptKeyWithHardDriveKeyEx((LPBYTE)XboxHDKey, key, dwKeyLen);
 }
 #endif
 

@@ -1019,7 +1019,6 @@ HRESULT CXo::GetMachineAccountContinue(XONLINETASK_HANDLE hTask)
 
             m_qwMachineId = pGetMachineAccountTask->machineUser.xuid.qwUserID = pGetMachineAccountTask->pSingleTGTContext->pAccountCreationPreAuth->qwUserID;
             RtlCopyMemory( pGetMachineAccountTask->machineUser.name, pGetMachineAccountTask->pSingleTGTContext->pAccountCreationPreAuth->name, sizeof(pGetMachineAccountTask->machineUser.name) );
-            RtlCopyMemory( pGetMachineAccountTask->machineUser.kingdom, pGetMachineAccountTask->pSingleTGTContext->pAccountCreationPreAuth->kingdom, sizeof(pGetMachineAccountTask->machineUser.kingdom) );
             RtlCopyMemory( pGetMachineAccountTask->machineUser.domain, pGetMachineAccountTask->pSingleTGTContext->pAccountCreationPreAuth->domain, sizeof(pGetMachineAccountTask->machineUser.domain) );
             RtlCopyMemory( pGetMachineAccountTask->machineUser.realm, pGetMachineAccountTask->pSingleTGTContext->pAccountCreationPreAuth->realm, sizeof(pGetMachineAccountTask->machineUser.realm) );
             RtlCopyMemory( pGetMachineAccountTask->machineUser.key, pGetMachineAccountTask->pSingleTGTContext->pAccountCreationPreAuth->key, sizeof(pGetMachineAccountTask->machineUser.key) );
@@ -1034,7 +1033,7 @@ HRESULT CXo::GetMachineAccountContinue(XONLINETASK_HANDLE hTask)
             //
             // We succeeded!
             //
-            TraceSz4( AuthVerbose, "GetMachineAccountContinue recieved %d bytes new id:%I64X user:%s kingdom:%s", dwMessageLength, pGetMachineAccountTask->machineUser.xuid.qwUserID, pGetMachineAccountTask->machineUser.name, pGetMachineAccountTask->machineUser.kingdom );
+            TraceSz3( AuthVerbose, "GetMachineAccountContinue recieved %d bytes new id:%I64X user:%s", dwMessageLength, pGetMachineAccountTask->machineUser.xuid.qwUserID, pGetMachineAccountTask->machineUser.name );
             pGetMachineAccountTask->dwState = LOGON_TASK_COMPLETE;
             pGetMachineAccountTask->hr = XONLINETASK_S_SUCCESS;
             break;
@@ -3100,11 +3099,6 @@ HRESULT CXo::XOnlineLogon(
     else
     {
         RtlZeroMemory( m_rgLogonUsers, sizeof( m_rgLogonUsers ) );
-    }
-
-    for (i=0; i<XONLINE_MAX_LOGON_USERS; ++i)
-    {
-        m_rgLogonUsers[i].index = i;
     }
 
     //

@@ -66,6 +66,12 @@ const picolibc_exclude = [_][]const u8{
     "malloc-stats.c",
     "malloc-error.c",
     "mallinfo.c",
+    // Replaced by libs/libc/xbox/ms_printf.c, which translates MSVC's %S/%C (and
+    // MSVC's reading of %s/%c in the wide functions) before formatting. These
+    // two are the variadic entry points titles reach; the v* forms they call
+    // are picolibc's, so the engine itself stays untouched.
+    "sprintf.c",
+    "swprintf.c",
     "remove.c", // picolibc's is unlink-only; dirio.c provides a POSIX remove (rmdir for dirs)
     "tmpnam.c", // picolibc's ignore P_tmpdir; tmpio.c targets the Z: scratch drive
     "tmpfile.c",
@@ -76,6 +82,16 @@ const picolibc_exclude = [_][]const u8{
     "tcb-32.S",
     "tcb-64.S",
     "tcb.S",
+    // Superseded by libc/machine/x86 asm (see collectSources): the generic C
+    // versions copy a byte at a time, the i386 asm aligns and then rep movsl,
+    // which is what the retail Xbox CRT did.
+    "memchr.c",
+    "memcmp.c",
+    "memcpy.c",
+    "memmove.c",
+    "memset.c",
+    "strchr.c",
+    "strlen.c",
 };
 
 const picolibc_subdirs = [_][]const u8{
@@ -129,6 +145,11 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     try list.append(allocator, "libs/libc/xbox/posix_stdio_streams.c");
     // x86 setjmp/longjmp (machine asm; needs <picolibc.h> + relative i386mach.h)
     try list.append(allocator, "vendor/picolibc/libc/machine/x86/setjmp.S");
+    // x86 string/memory routines, in place of the generic C ones excluded above
+    for ([_][]const u8{ "memchr", "memcmp", "memcpy", "memmove", "memset", "strchr", "strlen" }) |name| {
+        const rel = try std.fmt.allocPrint(allocator, "vendor/picolibc/libc/machine/x86/{s}.S", .{name});
+        try list.append(allocator, rel);
+    }
     // POSIX regex (Henry Spencer engine; internal headers are same-dir quote includes)
     try list.append(allocator, "vendor/picolibc/libc/posix/regcomp.c");
     try list.append(allocator, "vendor/picolibc/libc/posix/regexec.c");
@@ -288,6 +309,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/tls_stub.c",
         "libs/libc/xbox/libm_shim.c",
         "libs/libc/xbox/msvc_crt.c",
+        "libs/libc/xbox/ms_printf.c",
         "libs/libc/c23/stdbit.c",
         "libs/libc/xbox/crt0.S",
     };

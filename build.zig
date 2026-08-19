@@ -132,22 +132,6 @@ pub fn build(b: *std.Build) void {
     const install_libxapi = b.addInstallFile(libxapi.path, "lib/libxapi.lib");
     install_libxapi.step.dependOn(libxapi.step);
 
-    var xapi_core_objects = std.ArrayListUnmanaged(std.Build.LazyPath).empty;
-    for (xapi_objs.outputs) |obj| {
-        const path = obj.getPath(b);
-        if (libxapi_pkg.isCoreObjectPath(path)) {
-            xapi_core_objects.append(b.allocator, obj) catch @panic("OOM");
-        }
-    }
-    xapi_core_objects.append(b.allocator, xapi_start_batch.outputs[0]) catch @panic("OOM");
-    var xapi_core_deps = std.ArrayListUnmanaged(*std.Build.Step).empty;
-    xapi_core_deps.append(b.allocator, &mkdir_lib.step) catch @panic("OOM");
-    xapi_core_deps.append(b.allocator, xapi_objs.step) catch @panic("OOM");
-    xapi_core_deps.append(b.allocator, xapi_start_batch.step) catch @panic("OOM");
-    const libxapi_core = coff_lib.pack(b, "libxapi_core", xapi_core_objects.items, xapi_core_deps.items);
-    const install_libxapi_core = b.addInstallFile(libxapi_core.path, "lib/libxapi_core.lib");
-    install_libxapi_core.step.dependOn(libxapi_core.step);
-
     const stage_xapi_headers = libxapi_pkg.stageHeaders(b);
     stage_xapi_headers.dependOn(&install_libxapi.step);
 
@@ -159,6 +143,10 @@ pub fn build(b: *std.Build) void {
     const libd3d8 = coff_lib.pack(b, "libd3d8", d3d8_objs.outputs, d3d8_deps.items);
     const install_libd3d8 = b.addInstallFile(libd3d8.path, "lib/libd3d8.lib");
     install_libd3d8.step.dependOn(libd3d8.step);
+    // In the default install: every graphical title links it, so leaving it out
+    // means a plain `zig build` stages whatever libd3d8.lib was already there,
+    // silently deploying an archive built from different sources or flags.
+    b.getInstallStep().dependOn(&install_libd3d8.step);
     const d3d8_step = b.step("libd3d8", "Build libd3d8.lib (Xbox D3D8 / NV2A driver)");
     d3d8_step.dependOn(&install_libd3d8.step);
 
@@ -395,8 +383,6 @@ pub fn build(b: *std.Build) void {
     libcpp_step.dependOn(libcpp.step);
     const libxapi_step = b.step("libxapi", "Build libxapi.lib (full xAPI)");
     libxapi_step.dependOn(libxapi.step);
-    const libxapi_core_step = b.step("libxapi-core", "Build libxapi_core.lib (k32+dll+rtl+uuid, no USB)");
-    libxapi_core_step.dependOn(libxapi_core.step);
     const xapi_slices_step = b.step("xapi-slices", "Compile all libxapi source slices to objects");
     xapi_slices_step.dependOn(xapi_objs.step);
 
@@ -893,10 +879,14 @@ pub fn build(b: *std.Build) void {
         .src = "samples/libc-smoke/main.c",
         .extra_srcs = &.{"samples/libc-smoke/generated_tests.c"},
         .objects = sample_objects.items,
-        .libs = &.{krnl},
+        // libxapi: RXDK implements the RTL heap there, not in the kernel, so libc's
+        // malloc/free reach RtlAllocateHeap + XapiProcessHeap out of libxapi (see the
+        // layering note in libs/libc/xbox/heapalloc.c). The `start` entry never runs
+        // XapiInitProcess, which is fine -- malloc creates the process heap on demand.
+        .libs = &.{ libxapi_lib, krnl },
         .include_paths = &.{ b.path("shared/include"), b.path("build/generated"), b.path("shared/picolibc/include") },
         .entry = "start",
-        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, picolibc_objs.step, xbox_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libxapi.step, picolibc_objs.step, xbox_objs.step },
     });
     const libc_smoke_step = b.step("libc-smoke", "Build libc / C23 runtime smoke (kit ISO)");
     libc_smoke_step.dependOn(libc_smoke.install);
@@ -909,7 +899,8 @@ pub fn build(b: *std.Build) void {
         .extra_srcs = &.{"samples/libcpp-smoke/tests.cpp"},
         .is_cpp = true,
         .objects = cpp_sample_objects.items,
-        .libs = &.{krnl},
+        // libxapi for the RTL heap behind libc's malloc, which operator new sits on.
+        .libs = &.{ libxapi_lib, krnl },
         .include_paths = &cxx_inc,
         .extra_flags = &.{
             "-U_WIN32",
@@ -920,7 +911,7 @@ pub fn build(b: *std.Build) void {
         },
         .entry = "start",
         .eh_frame_bracket = true,
-        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libcpp.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step, libunwind_objs.step },
+        .deps = &.{ verify, &mkdir_samples.step, libkernel.step, libc.step, libcpp.step, libxapi.step, picolibc_objs.step, xbox_objs.step, libcxx_objs.step, libunwind_objs.step },
     });
     const libcpp_smoke_step = b.step("libcpp-smoke", "Build libc++ / C++23 runtime smoke (kit ISO)");
     libcpp_smoke_step.dependOn(libcpp_smoke.install);

@@ -43,7 +43,12 @@ _BEGIN_STD_C
 #ifdef NDEBUG /* required by ANSI standard */
 #define assert(__e) ((void)0)
 #else
-#if !defined(__ASSERT_VERBOSE) || defined(__ASSERT_QUIET)
+/*
+ * Verbose by default, unlike picolibc: the XDK's assert named the expression,
+ * file and line, and a title's debug output is the only place a failure on the
+ * console can be read.  Define __ASSERT_QUIET for picolibc's terse form.
+ */
+#if defined(__ASSERT_QUIET)
 #define assert(__e) ((__e) ? (void)0 : __assert_no_args())
 #else
 #ifndef __ASSERT_FUNC

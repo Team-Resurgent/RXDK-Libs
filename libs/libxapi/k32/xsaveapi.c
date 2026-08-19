@@ -1066,13 +1066,24 @@ XFindClose(
     // identifies the type of XFind handle we're dealing with
     //
 
+    //
+    // Rejected in every build, not just DBG: XFindFirstSoundtrack and
+    // XFindFirstSaveGame return INVALID_HANDLE_VALUE for an empty enumeration,
+    // and shipping XDK samples (XActWMAPlayList) close that handle
+    // unconditionally. The signature test and switch below both dereference
+    // hFindGame, so this has to fail gracefully rather than fault.
+    //
+    if ((NULL == hFindGame) || (INVALID_HANDLE_VALUE == hFindGame))
+    {
+        SetLastError(ERROR_INVALID_HANDLE);
+        return FALSE;
+    }
+
 #if DBG
-    if ((INVALID_HANDLE_VALUE == hFindGame) ||
-        (NULL == hFindGame) ||
-        ((FH_SIG_SAVEGAME != *((PDWORD) hFindGame)) &&
-         (FH_SIG_NICKNAME != *((PDWORD) hFindGame)) &&
-         (FH_SIG_CONTENT!= *((PDWORD) hFindGame)) &&
-         (FH_SIG_SOUNDTRACK != *((PDWORD) hFindGame))))
+    if ((FH_SIG_SAVEGAME != *((PDWORD) hFindGame)) &&
+        (FH_SIG_NICKNAME != *((PDWORD) hFindGame)) &&
+        (FH_SIG_CONTENT!= *((PDWORD) hFindGame)) &&
+        (FH_SIG_SOUNDTRACK != *((PDWORD) hFindGame)))
     {
         RIP("XFindClose() invalid parameter (hFindGame)");
     }

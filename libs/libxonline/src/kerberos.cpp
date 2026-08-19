@@ -2118,12 +2118,9 @@ CXo::XkerbBuildAsRequest(
     //
     // Copy all the names into the request message
     //
+    // 5849 principals are the bare gamertag; the leak's name#kingdom form went
+    // away with the kingdom field.
     strcpy(acPrincipleBuffer,User->name);
-    if (User->kingdom[0] != '\0')
-    {
-        strcat(acPrincipleBuffer,KINGDOM_SEPERATOR_STRING);
-        strcat(acPrincipleBuffer,User->kingdom);
-    }
     if (User->domain[0] != '\0')
     {
         strcat(acPrincipleBuffer,"@");
@@ -2217,9 +2214,9 @@ CXo::XkerbBuildAsRequest(
     //
     // Verbose trace info
     //
-    TraceSz7( KerbVerbose,"XkerbBuildAsRequest try %d generated %d byte request for User:%s%c%s@%s Realm:%s",
+    TraceSz5( KerbVerbose,"XkerbBuildAsRequest try %d generated %d byte request for User:%s@%s Realm:%s",
         pTGTContext->ctNumNonces,
-        RequestMessage.BufferSize, User->name, KINGDOM_SEPERATOR_CHAR, User->kingdom, User->domain, User->realm
+        RequestMessage.BufferSize, User->name, User->domain, User->realm
         );
 
 Cleanup:

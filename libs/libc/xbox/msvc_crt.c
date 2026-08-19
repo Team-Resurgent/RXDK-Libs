@@ -13,6 +13,8 @@
 #include <string.h> /* memcpy */
 #include <wchar.h>
 
+#include "ms_printf.h" /* %S/%C translation: these take MSVC format strings */
+
 #ifndef __cdecl
 #define __cdecl
 #endif
@@ -47,15 +49,20 @@ int __cdecl _wcsicmp(const wchar_t *a, const wchar_t *b)
 
 int __cdecl _snwprintf(wchar_t *buf, size_t n, const wchar_t *fmt, ...)
 {
+    wchar_t stack[RXDK_MS_FORMAT_STACK];
+    wchar_t *heap;
+    const wchar_t *use;
     va_list ap;
     int r;
 
     if (!buf || n == 0) {
         return 0;
     }
+    use = __rxdk_ms_wformat(fmt, stack, RXDK_MS_FORMAT_STACK, &heap);
     va_start(ap, fmt);
-    r = vswprintf(buf, n, fmt, ap);
+    r = vswprintf(buf, n, use, ap);
     va_end(ap);
+    __rxdk_ms_format_free(heap);
     if (r < 0) {
         buf[0] = L'\0';
         return -1;
@@ -97,7 +104,13 @@ int __cdecl _snwprintf(wchar_t *buf, size_t n, const wchar_t *fmt, ...)
 
 int __cdecl _vscprintf(const char *fmt, va_list ap)
 {
-    return vsnprintf(NULL, 0, fmt, ap);
+    char stack[RXDK_MS_FORMAT_STACK];
+    char *heap;
+    const char *use = __rxdk_ms_format(fmt, stack, sizeof(stack), &heap);
+    int r = vsnprintf(NULL, 0, use, ap);
+
+    __rxdk_ms_format_free(heap);
+    return r;
 }
 
 int __cdecl _scprintf(const char *fmt, ...)
@@ -106,7 +119,7 @@ int __cdecl _scprintf(const char *fmt, ...)
     int r;
 
     va_start(ap, fmt);
-    r = vsnprintf(NULL, 0, fmt, ap);
+    r = _vscprintf(fmt, ap);
     va_end(ap);
 
     return r;
@@ -114,25 +127,34 @@ int __cdecl _scprintf(const char *fmt, ...)
 
 int __cdecl _vsnprintf(char *buf, size_t n, const char *fmt, va_list ap)
 {
+    char stack[RXDK_MS_FORMAT_STACK];
+    char *heap;
+    const char *use = __rxdk_ms_format(fmt, stack, sizeof(stack), &heap);
     va_list measure;
     int needed;
+    int r;
 
     if (!buf || n == 0) {
-        return vsnprintf(NULL, 0, fmt, ap);
+        r = vsnprintf(NULL, 0, use, ap);
+        __rxdk_ms_format_free(heap);
+        return r;
     }
 
     va_copy(measure, ap);
-    needed = vsnprintf(NULL, 0, fmt, measure);
+    needed = vsnprintf(NULL, 0, use, measure);
     va_end(measure);
 
     if (needed < 0) {
         buf[0] = '\0';
+        __rxdk_ms_format_free(heap);
         return -1;
     }
 
     if ((size_t)needed < n) {
         /* Fits with room for the terminator: C99 behaviour is what MSVC does. */
-        return vsnprintf(buf, n, fmt, ap);
+        r = vsnprintf(buf, n, use, ap);
+        __rxdk_ms_format_free(heap);
+        return r;
     }
 
     /*
@@ -144,15 +166,16 @@ int __cdecl _vsnprintf(char *buf, size_t n, const char *fmt, va_list ap)
         char *scratch = (char *)malloc((size_t)needed + 1);
 
         if (scratch) {
-            vsnprintf(scratch, (size_t)needed + 1, fmt, ap);
+            vsnprintf(scratch, (size_t)needed + 1, use, ap);
             memcpy(buf, scratch, n);
             free(scratch);
         } else {
             /* Out of memory: a short-by-one result beats leaving buf untouched. */
-            vsnprintf(buf, n, fmt, ap);
+            vsnprintf(buf, n, use, ap);
         }
     }
 
+    __rxdk_ms_format_free(heap);
     return -1;
 }
 

@@ -626,16 +626,14 @@ VOID WINAPI D3DDevice_SetRenderState_Dxt1NoiseEnable(
     
         Push1(pPush, NV097_WAIT_FOR_IDLE, 0);
 
-        // NVX_DXT1_NOISE_ENABLE Data stored in NV097_SET_ZSTENCIL_CLEAR_VALUE
+        // NVX_DXT1_NOISE_ENABLE data (the dither-enable flag) is packed into the
+        // NVX software-method parameter (5849 ABI).
 
-        Push1(pPush + 2, NV097_SET_ZSTENCIL_CLEAR_VALUE, 
-              noiseEnable);
-    
-        Push1(pPush + 4,
+        Push1(pPush + 2,
               NV097_NO_OPERATION,
-              NVX_DXT1_NOISE_ENABLE);
-    
-        pDevice->EndPush(pPush + 6);
+              ((DWORD)noiseEnable << NVX_METHOD_BITS) | NVX_DXT1_NOISE_ENABLE);
+
+        pDevice->EndPush(pPush + 4);
     }
 
     D3D__RenderState[D3DRS_DXT1NOISEENABLE] = Value;

@@ -36,15 +36,71 @@ static __forceinline PAGE_ZERO *PageZero()
 // Xbox software class (NVX_SOFTWARE_CLASS_HANDLE)
 //
 
-#define NVX_FLIP_IMMEDIATE                                       (0x00000001)
-#define NVX_FLIP_SYNCHRONIZED                                    (0x00000002)
-#define NVX_PUSH_BUFFER_RUN                                      (0x00000003)
-#define NVX_PUSH_BUFFER_FIXUP                                    (0x00000004)
+// Xbox software methods (5849 ABI).  Emitted as NV097_NO_OPERATION with the
+// parameter packed as (data << NVX_METHOD_BITS) | method; the miniport's
+// SoftwareMethod decodes method = arg & NVX_METHOD_MASK, data = arg >> NVX_METHOD_BITS.
+// Register-carried methods (callbacks, write-register) still stash their pointer/
+// value in the NV097_SET_ZSTENCIL_CLEAR_VALUE / NV097_SET_COLOR_CLEAR_VALUE shadow
+// registers; only the FLIP / DXT / push-buffer methods pack their data into the arg.
+#define NVX_METHOD_BITS                                          (5)
+#define NVX_METHOD_MASK                                          (0x0000001F)
+
+#define NVX_FLIP                                                 (0x00000001)
 #define NVX_FENCE                                                (0x00000005)
 #define NVX_READ_CALLBACK                                        (0x00000006)
 #define NVX_WRITE_CALLBACK                                       (0x00000007)
 #define NVX_DXT1_NOISE_ENABLE                                    (0x00000008)
 #define NVX_WRITE_REGISTER_VALUE                                 (0x00000009)
+#define NVX_PUSH_BUFFER_RUN                                      (0x0000000C)
+#define NVX_PUSH_BUFFER_FIXUP                                    (0x0000000D)
+#define NVX_PUSH_BUFFER_FIXUP_POINTER                            (0x0000000E)
+
+// FLIP data (arg >> NVX_METHOD_BITS) bit layout:
+//   [4..]  = video offset (16-byte aligned, low nibble free)
+//   bit 3  = immediate (no vertical-sync) flip
+//   [0..2] = swap interval / gamma-field selects (from the swap-control renderstate)
+#define NVX_FLIP_IMMEDIATE                                       (0x00000008)
+#define NVX_FLIP_INTERVAL_MASK                                   (0x00000007)
+#define NVX_FLIP_OFFSET_MASK                                     (0xFFFFFFF0)
+
+//
+// 5849 push-buffer-fixup node.  This 20-byte linked-list node replaces the
+// 4400 PUSHBUFFERFIXUPINFO.  It lives either inline in a write-combined push
+// buffer (RUN / FIXUP_HI methods) or in the device's static fixup array
+// (m_StaticFixup, indexed by the FIXUP method).  The software-method handlers
+// (SoftwareMethod methods 12/13/14) and the emit path (D3DDevice_RunPushBuffer,
+// D3DPushBuffer_RunPushBuffer) walk and populate these nodes; the free function
+// FixupPushBuffer() applies a chain of them.
+//
+// Control bit fields:
+//   [0..27]  Count / return-target GPU address (mask 0x0FFFFFFF)
+//   bit29    HasRecords     (0x20000000) - a user fix-up record stream follows
+//   bit30    ConsumedMarker (0x40000000) - cleared on process iff Persistent
+//   bit31    Persistent     (0x80000000) - node survives and is re-armed
+//
+struct PushBufferFixup                    // 0x14 (20) bytes
+{
+    ULONG            Control;             // +0x00
+    PushBufferFixup* Next;               // +0x04  linked list; (-1) when consumed
+    ULONG*           pReturnCount;       // +0x08  patched with count+1
+    ULONG*           pRecords;           // +0x0C  {u32 ByteLen; u32 DstOff; u8 data[]}...
+                                         //        0xFFFFFFFF-terminated
+    BYTE*            Base;               // +0x10  add to record DstOff; push-buffer base
+};
+
+#define PUSHBUFFERFIXUP_HASRECORDS      0x20000000
+#define PUSHBUFFERFIXUP_CONSUMED        0x40000000
+#define PUSHBUFFERFIXUP_PERSISTENT      0x80000000
+
+// Number of slots in the device's static fixup array (m_StaticFixup); the FIXUP
+// software method indexes it modulo this count.
+#define PUSHBUFFERFIXUP_STATIC_COUNT    64
+
+// Applies a chain of push-buffer fix-up nodes (patches each return-count dword
+// and applies each node's user record stream).  Defined in pushres.cpp; called
+// from the SoftwareMethod dispatch (mpintr.cpp) and directly from the GPU-idle
+// fast path of D3DDevice_RunPushBuffer.
+VOID FixupPushBuffer(PushBufferFixup* pFixup);
 
 
 #define BLANK_GAMMA_COLOR       0
@@ -536,6 +592,7 @@ public:
     struct VBLANKFLIPS
     {
         BOOL   Pending;
+        ULONG  FlipVBlank;      // VBlank count at which this queued flip retires
         ULONG  Offset;
     };
 
@@ -586,6 +643,12 @@ public:
     BOOL             m_OrImmediate;
     ULONG            m_IsOddField;
 
+    // 5849 flip-queue scheduling: the running VBlank count of the last queued
+    // flip (m_QueuedFlipVBlank) and the VBlank at which the next flip is expected
+    // (m_ExpectedFlipVBlank, used by VBlank to detect a missed swap).
+    ULONG            m_QueuedFlipVBlank;
+    ULONG            m_ExpectedFlipVBlank;
+
     ULONG            m_TimeBetweenVBlanks;
     ULONG            m_TimeOfLastVBlank;
     ULONG            m_TimeOfLastFlip;
@@ -600,14 +663,6 @@ public:
     //
     // Data for handling push-buffer fix-ups
     //
-
-    struct PUSHBUFFERFIXUPINFO
-    {
-        DWORD*  pFixupData;
-        BYTE*   pStart;
-        DWORD   ReturnOffset;
-        DWORD*  ReturnAddress;
-    };
 
     DWORD            m_PusherGetRunTotal;
 
@@ -672,7 +727,6 @@ public:
     static VOID ShutdownNotification(PHAL_SHUTDOWN_REGISTRATION ShutdownRegistration);
 
     VOID TilingUpdateIdle(ULONG* dmapush);
-    VOID FixupPushBuffer(PUSHBUFFERFIXUPINFO *pPushBufferFixupInfo, ULONG Method);
 
 private:
 
@@ -687,7 +741,7 @@ private:
 
     VOID InitGammaRamp(ULONG RampNo);
 
-    VOID SoftwareMethod(ULONG Method, ULONG Data);
+    VOID SoftwareMethod(ULONG Arg);
 
     VOID SetupPaletteAndGamma();
 
@@ -697,6 +751,7 @@ private:
 
     ULONG ServiceGrInterrupt();
     ULONG VBlank();
+    ULONG ServiceQueuedFlips();
     VOID  VBlankFlip(ULONG Offset, ULONG FlipTime);
     ULONG ServiceFifoInterrupt();
     ULONG ServiceMediaPortInterrupt();

@@ -35,6 +35,7 @@ void WINAPI D3DDevice_Clear(
 
     COUNT_API(API_D3DDEVICE_CLEAR);
 
+
 #if DBG
 
     if (DBG_CHECK(TRUE))

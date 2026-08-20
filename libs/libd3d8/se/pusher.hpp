@@ -224,11 +224,6 @@ struct Fence
     // NOTE: This points into write-combined memory, so don't read from it!
 
     FenceEncoding* pEncoding;
-
-    // Total number of bytes of RunPushBuffer calls ever inserted, at the time
-    // that the fence was created:
-
-    DWORD RunTotal;
 };
 
 //------------------------------------------------------------------------------
@@ -265,7 +260,7 @@ static __forceinline void DbgRecordPushStart(DWORD Size) { }
 class CDevice;
 
 void KickOffAndWaitForIdle();
-VOID BlockOnTime(DWORD Time, BOOL MakeSpace);
+VOID BlockOnTime(DWORD Time, DWORD Flags);
 DWORD SetFence(DWORD Flags);
 PPUSH GpuGetOrNewer(CDevice* pDevice, BOOL SyncWithPgraph);
 DWORD FASTCALL ComputeGap(CDevice* pDevice, Fence* pFence, PPUSH pGet);

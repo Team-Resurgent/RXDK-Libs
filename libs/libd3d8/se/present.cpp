@@ -18,6 +18,28 @@ namespace D3D
 {
 
 //------------------------------------------------------------------------------
+// EncodeFlip
+//
+// Pack the flip video-offset and flags into the NVX_FLIP software-method
+// parameter (5849 ABI).  The video offset is 16-byte aligned, so the low nibble
+// of the packed data carries the immediate flag (bit 3) and the swap interval
+// (bits 0-2); the miniport's SoftwareMethod unpacks it as
+// method = arg & NVX_METHOD_MASK, data = arg >> NVX_METHOD_BITS.  Unlike the
+// 4400 code, the offset is NOT stashed in NV097_SET_ZSTENCIL_CLEAR_VALUE.
+
+static __inline DWORD EncodeFlip(CDevice* pDevice, DWORD flipAddress)
+{
+    ULONG interval  = pDevice->m_Miniport.m_VBlanksBetweenFlips & NVX_FLIP_INTERVAL_MASK;
+    BOOL  immediate = (pDevice->m_PresentationInterval == D3DPRESENT_INTERVAL_IMMEDIATE);
+
+    DWORD data = (flipAddress & NVX_FLIP_OFFSET_MASK)
+               | interval
+               | (immediate ? NVX_FLIP_IMMEDIATE : 0);
+
+    return (data << NVX_METHOD_BITS) | NVX_FLIP;
+}
+
+//------------------------------------------------------------------------------
 // g_AntiAliasedRenderStates, g_AntiAliasedTextureStates
 //
 // Default states needed for our Kelvin copy.
@@ -538,28 +560,27 @@ static VOID SwapCopy(
             // additional nice side effects of handling the gamma ramp 
             // change, and doing the INCREMENT_READ_3D at the next Vblank.
 
-            // NVX_FLIP_* Data stored in NV097_SET_ZSTENCIL_CLEAR_VALUE
+            // The flip video-offset + flags are packed into the NVX_FLIP
+            // software-method parameter (5849 ABI); no ZSTENCIL side channel.
 
             DWORD flipAddress = pDevice->m_pFrameBuffer[1]->Data;
 
-            Push1(pPush + 2, NV097_SET_ZSTENCIL_CLEAR_VALUE, flipAddress);
+            Push1(pPush + 2, NV097_NO_OPERATION, EncodeFlip(pDevice, flipAddress));
 
-            Push1(pPush + 4, NV097_NO_OPERATION, NVX_FLIP_SYNCHRONIZED);
+            Push1(pPush + 4, NV097_FLIP_INCREMENT_WRITE, 0);
 
-            Push1(pPush + 6, NV097_FLIP_INCREMENT_WRITE, 0);
-
-            // Due to a bug, the hardware requires a NOP here, otherwise a stall 
+            // Due to a bug, the hardware requires a NOP here, otherwise a stall
             // may go through before the write:
 
-            Push1(pPush + 8, NV097_NO_OPERATION, 0);
+            Push1(pPush + 6, NV097_NO_OPERATION, 0);
 
             // This command will stall the GPU until the INCREMENT_READ_3D is
             // done at the next Vblank, at which time the GPU is released to
             // immediately start the filter Blt.
 
-            Push1(pPush + 10, NV097_FLIP_STALL, 0);
+            Push1(pPush + 8, NV097_FLIP_STALL, 0);
 
-            pPush += 12;
+            pPush += 10;
         }
         else
         {
@@ -624,13 +645,12 @@ static VOID SwapCopy(
             // beneficial side-effect of handling any posted gamma ramp 
             // changes.
         
-            // NVX_FLIP_IMMEDIATE Data stored in NV097_SET_ZSTENCIL_CLEAR_VALUE
-        
-            Push1(pPush, NV097_SET_ZSTENCIL_CLEAR_VALUE, flipAddress);
-        
-            Push1(pPush + 2, NV097_NO_OPERATION, NVX_FLIP_IMMEDIATE);
-        
-            pPush += 4;
+            // The flip video-offset + flags are packed into NVX_FLIP (5849);
+            // no ZSTENCIL side channel.
+
+            Push1(pPush, NV097_NO_OPERATION, EncodeFlip(pDevice, flipAddress));
+
+            pPush += 2;
         }
         else if (pDevice->m_FrameBufferCount < 3)
         {
@@ -639,25 +659,21 @@ static VOID SwapCopy(
         else
         {
             // 3.  Synchronized flips with two back-buffers
-        
+
             // Make sure the back-end isn't still doing work after the next
             // Flip call is started:
-        
+
             Push1(pPush, NV097_WAIT_FOR_IDLE, 0);
-        
-            // Tell the DAC to scan out of the new buffer.  
+
+            // Tell the DAC to scan out of the new buffer.
             //
-            // NVX_FLIP_SYCHRONIZED has the additional nice side effects of 
-            // handling the gamma ramp change, and doing the INCREMENT_READ_3D 
-            // at the next Vblank.
-        
-            // NVX_FLIP_* Data stored in NV097_SET_ZSTENCIL_CLEAR_VALUE
-        
-            Push1(pPush + 2, NV097_SET_ZSTENCIL_CLEAR_VALUE, flipAddress);
-        
-            Push1(pPush + 4, NV097_NO_OPERATION, NVX_FLIP_SYNCHRONIZED);
-        
-            pPush += 6;
+            // NVX_FLIP has the additional nice side effects of handling the
+            // gamma ramp change, and doing the INCREMENT_READ_3D at the next
+            // Vblank.
+
+            Push1(pPush + 2, NV097_NO_OPERATION, EncodeFlip(pDevice, flipAddress));
+
+            pPush += 4;
         }
 
         pDevice->EndPush(pPush);
@@ -711,30 +727,27 @@ static VOID SwapFlip(
 
     Push1(pPush, NV097_WAIT_FOR_IDLE, 0);
 
-    // NVX_FLIP_* Data stored in NV097_SET_ZSTENCIL_CLEAR_VALUE
+    // The flip video-offset + flags are packed into NVX_FLIP (5849); no
+    // ZSTENCIL side channel.
 
-    Push1(pPush + 2, 
-          NV097_SET_ZSTENCIL_CLEAR_VALUE, 
-          pDevice->m_pFrameBuffer[1]->Data);
+    Push1(pPush + 2,
+          NV097_NO_OPERATION,
+          EncodeFlip(pDevice, pDevice->m_pFrameBuffer[1]->Data));
 
     if (pDevice->m_PresentationInterval == D3DPRESENT_INTERVAL_IMMEDIATE)
     {
-        Push1(pPush + 4, NV097_NO_OPERATION, NVX_FLIP_IMMEDIATE);
-
-        pPush += 6;
+        pPush += 4;
     }
     else
     {
-        Push1(pPush + 4, NV097_NO_OPERATION, NVX_FLIP_SYNCHRONIZED);
+        Push1(pPush + 4, NV097_FLIP_INCREMENT_WRITE, 0);
 
-        Push1(pPush + 6, NV097_FLIP_INCREMENT_WRITE, 0);
-
-        // Due to a bug, the hardware requires a NOP here, otherwise a stall 
+        // Due to a bug, the hardware requires a NOP here, otherwise a stall
         // may go through before the write:
 
-        Push1(pPush + 8, NV097_NO_OPERATION, 0);
+        Push1(pPush + 6, NV097_NO_OPERATION, 0);
 
-        pPush += 10;
+        pPush += 8;
 
         // If the current render target is not a texture, then tell the
         // hardware the location of the new backbuffer:
@@ -885,7 +898,7 @@ static VOID SwapStart(
 
     if (blockTime != 0)
     {
-        BlockOnTime(blockTime, FALSE);
+        BlockOnTime(blockTime, D3DWAIT_PRESENT);
     }
 
     // We need to do this increment after the block to reduce the amount of time
@@ -954,6 +967,7 @@ DWORD WINAPI D3DDevice_Swap(
     DWORD Flags)
 {
     CDevice* pDevice = g_pDevice;
+
 
     if (DBG_CHECK(TRUE))
     {

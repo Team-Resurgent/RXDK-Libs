@@ -2990,7 +2990,7 @@ void WINAPI D3DDevice_BlockOnFence(
     COUNT_PERFCYCLES(PERF_D3DDEVICE_BLOCKONFENCE_WAITS);
     COUNT_PERFEVENT(D3DPERFEvent_BlockOnFence, FALSE);
 
-    BlockOnTime(Time, FALSE);
+    BlockOnTime(Time, D3DWAIT_BLOCKONFENCE);
 }
 
 //------------------------------------------------------------------------------

@@ -59,79 +59,16 @@ namespace D3D
 // already in the cache.
 
 VOID FastCopyToWC(
-    PPUSH pPush,    
-    DWORD* pSource, 
-    DWORD dwCount)  
+    PPUSH pPush,
+    DWORD* pSource,
+    DWORD dwCount)
 {
-    __asm
-    {
-        mov esi,pSource
-        mov edi,pPush
-        mov edx,dwCount
-
-        mov ecx,edi
-        neg ecx
-        and ecx,0x1f
-        shr ecx,2       // (-dest & 0x1f) / 4
-
-        cmp edx,ecx     // Enough to align?
-        jg do_align
-
-        mov ecx,edx     // Not enough, use simple copy
-        jmp finish
-
-    do_align:
-        // 32 byte align dest.
-        sub edx,ecx
-
-        rep movsd
-
-        mov ecx,edx
-        jmp enter_loop
-
-        ALIGN 16
-
-    copy_loop:
-        prefetchnta [esi+64]
-        prefetchnta [esi+96]
-
-        // Move 16 dwords
-        movq mm0,[esi]
-        movq mm1,[esi+8]
-        movq mm2,[esi+16]
-        movq mm3,[esi+24]
-        movq mm4,[esi+32]
-        movq mm5,[esi+40]
-        movq mm6,[esi+48]
-        movq mm7,[esi+56]
-
-        movntq [edi],mm0
-        movntq [edi+8],mm1
-        movntq [edi+16],mm2
-        movntq [edi+24],mm3
-        movntq [edi+32],mm4
-        movntq [edi+40],mm5
-        movntq [edi+48],mm6
-        movntq [edi+56],mm7
-
-        nop
-        nop
-
-        add esi,64
-        add edi,64
-
-    enter_loop:
-        sub ecx,16
-        jge copy_loop
-
-        add ecx,16
-
-    finish:
-        // Finish any left over.
-        rep movsd
-
-        emms
-    }
+    // RXDK: the original hand-rolled MMX (movntq/prefetchnta) streaming copy
+    // clobbered registers the surrounding pusher code keeps live under clang
+    // (and its rep-movsd blocks assumed a clear direction flag). The streaming
+    // stores were a P3 write-combining perf tweak only; a plain dword copy
+    // produces byte-identical push-buffer data. Copies dwCount dwords to pPush.
+    memcpy((void *)pPush, pSource, dwCount * sizeof(DWORD));
 }
 
 //------------------------------------------------------------------------------
@@ -641,80 +578,14 @@ __forceinline void MMXMemCpyDwordBlock(
     // This routine only handles block copies.
     ASSERT( !((count - 15) % 16) );
 
-    __asm
-    {
-        mov esi,pSrc
-        mov edi,pDst
-
-        mov ecx,count
-        sub ecx,15
-        shr ecx,4
-
-        prefetchnta [esi+60]
-        prefetchnta [esi+92]
-
-        // Move 30 indices, 15 dwords
-        mov eax,[esi+0]
-        movq mm1,[esi+4]
-        movq mm2,[esi+12]
-        movq mm3,[esi+20]
-        movq mm4,[esi+28]
-        movq mm5,[esi+36]
-        movq mm6,[esi+44]
-        movq mm7,[esi+52]
-
-        // The nops here drop the BUS_COMPLETED_PARTIAL_WRITES PIII counter
-        // down a bit. Basically it allows the movs above to complete and
-        // not interrupt the writes as much. At least that's the idea.
-        nop
-        nop
-
-        mov [edi+4],eax
-        movntq [edi+8],mm1
-        movntq [edi+16],mm2
-        movntq [edi+24],mm3
-        movntq [edi+32],mm4
-        movntq [edi+40],mm5
-        movntq [edi+48],mm6
-        movntq [edi+56],mm7
-
-        add esi,60
-        add edi,64
-
-        align 16
-
-    copy_loop:
-        prefetchnta [esi+64]
-        prefetchnta [esi+96]
-
-        // Move 32 indices, 16 dwords
-        movq mm0,[esi]
-        movq mm1,[esi+8]
-        movq mm2,[esi+16]
-        movq mm3,[esi+24]
-        movq mm4,[esi+32]
-        movq mm5,[esi+40]
-        movq mm6,[esi+48]
-        movq mm7,[esi+56]
-
-        nop
-        nop
-    
-        movntq [edi],mm0
-        movntq [edi+8],mm1
-        movntq [edi+16],mm2
-        movntq [edi+24],mm3
-        movntq [edi+32],mm4
-        movntq [edi+40],mm5
-        movntq [edi+48],mm6
-        movntq [edi+56],mm7
-
-        add esi,64
-        add edi,64
-
-        dec ecx
-        jnz copy_loop
-    }
+    // RXDK: the original was a hand-rolled MMX (movntq/prefetchnta) streaming
+    // copy that wrote `count` dwords to pDst[1..count] (pDst[0] is the push
+    // header). Under clang the block clobbered registers the surrounding
+    // pusher loop keeps live (and its `dec ecx; jnz` spun ~4 billion times when
+    // the count made ecx start at 0), hanging DrawIndexedVertices on the second
+    // draw. The movntq stores were a P3 write-combining perf tweak only; a plain
+    // dword copy produces byte-identical push-buffer data.
+    memcpy((BYTE *)pDst + sizeof(DWORD), pSrc, count * sizeof(DWORD));
 }
 
 #pragma warning(pop)
@@ -787,6 +658,7 @@ void WINAPI D3DDevice_DrawIndexedVertices(
     // Calculate the number of DWORDS needed to align that bugger.
     DWORD dwAlign = (DWORD) (-((INT) pPush) & 0x1f) / 4;
 
+
     // The mmx routine can only handle blocks >= 62 vertices (31 dwords)
     if ((VertexCount >= ARRAY_ELEMENT16_BLOCK_VERTICES_MIN + 2*dwAlign))
     {
@@ -803,19 +675,9 @@ void WINAPI D3DDevice_DrawIndexedVertices(
                       PUSHER_NOINC(NV097_ARRAY_ELEMENT16), 
                       dwAlign);
 
-            //memcpy(pPush + 1, pIndexData, Align * sizeof(DWORD));
-            __asm
-            {
-                push esi
-                push edi
-                mov esi,pIndexData
-                mov edi,pPush
-                add edi,4
-                mov ecx,dwAlign
-                rep movsd
-                pop edi
-                pop esi
-            }
+            // RXDK: was an inline `rep movsd` (clang-fragile); pPush[0] is the
+            // header, indices go to pPush[1..dwAlign].
+            memcpy((BYTE *)pPush + sizeof(DWORD), pIndexData, dwAlign * sizeof(DWORD));
 
             pPush += dwAlign + 1;
             pIndexData += dwAlign * 2;
@@ -842,9 +704,10 @@ void WINAPI D3DDevice_DrawIndexedVertices(
 
         do
         {
-            PushCount(pPush, 
-                      PUSHER_NOINC(NV097_ARRAY_ELEMENT16), 
+            PushCount(pPush,
+                      PUSHER_NOINC(NV097_ARRAY_ELEMENT16),
                       arrayCount);
+
 
             // Write 15 + 16*x number of dwords. This plus the hdr above
             // keeps the destination 32-byte aligned.
@@ -863,8 +726,7 @@ void WINAPI D3DDevice_DrawIndexedVertices(
 
         } while(VertexCount >= ARRAY_ELEMENT16_BATCH * 2);
 
-        // For MMXMemCpyDwordBlock.
-       __asm emms
+        // RXDK: MMXMemCpyDwordBlock no longer uses MMX, so no emms is needed.
     }
 
     // Note that it's okay if we send an Element16 command with zero entries
@@ -872,19 +734,9 @@ void WINAPI D3DDevice_DrawIndexedVertices(
     DWORD arrayCount = VertexCount >> 1;
 
     PushCount(pPush, PUSHER_NOINC(NV097_ARRAY_ELEMENT16), arrayCount);
-    //memcpy(pPush + 1, pIndexData, arrayCount * sizeof(DWORD));
-    __asm
-    {
-        push esi
-        push edi
-        mov esi,pIndexData
-        mov edi,pPush
-        add edi,4
-        mov ecx,arrayCount
-        rep movsd
-        pop edi
-        pop esi
-    }
+    // RXDK: was an inline `rep movsd` (clang-fragile); pPush[0] is the header,
+    // indices go to pPush[1..arrayCount].
+    memcpy((BYTE *)pPush + sizeof(DWORD), pIndexData, arrayCount * sizeof(DWORD));
 
     pIndexData += 2 * arrayCount;
     pPush += arrayCount + 1;

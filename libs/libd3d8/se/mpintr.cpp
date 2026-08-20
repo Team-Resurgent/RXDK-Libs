@@ -107,19 +107,18 @@ CMiniport::Isr(
                 //
 
                 //
-                // NOTE: This logic must match that in VBlank!
+                // NOTE: This logic must match that in ServiceQueuedFlips!
                 //
-                // We add 1 to m_VBlankCount in this calculation because
-                // unlike VBlank, we don't increment m_VBlankCount here.
+                // We add 1 to m_VBlankCount in this comparison because unlike
+                // VBlank we don't increment m_VBlankCount here -- the flip queued
+                // for the upcoming VBlank retires at m_VBlankCount + 1.
                 //
-                BOOL expectFlip
-                    = (miniport->m_VBlankCount + 1 - miniport->m_VBlankCountAtLastFlip) 
-                            >= miniport->m_VBlanksBetweenFlips;
-
                 DWORD flipIndex = miniport->m_VBlankFlipCount & (MAX_QUEUED_FLIPS - 1);
 
                 BOOL doFlip
-                    = expectFlip && miniport->m_VBlankFlips[flipIndex].Pending;
+                    = miniport->m_VBlankFlips[flipIndex].Pending
+                      && (miniport->m_VBlankFlips[flipIndex].FlipVBlank
+                              == miniport->m_VBlankCount + 1);
 
                 if (doFlip)
                 {
@@ -273,6 +272,56 @@ CMiniport::VBlankFlip(
 
 
 ULONG
+CMiniport::ServiceQueuedFlips()
+{
+    BYTE* regbase = (BYTE*)m_RegisterBase;
+    ULONG count = 0;
+
+    //
+    // Retire every queued flip whose scheduled VBlank has arrived.  Because
+    // m_VBlankCount only advances one at a time (in VBlank), the head of the
+    // queue comes due exactly when m_VBlankCount reaches its FlipVBlank.
+    //
+    DWORD flipIndex = m_VBlankFlipCount & (MAX_QUEUED_FLIPS - 1);
+
+    while (m_VBlankFlips[flipIndex].Pending)
+    {
+        if (m_VBlankCount != m_VBlankFlips[flipIndex].FlipVBlank)
+            break;
+
+        m_VBlankFlips[flipIndex].Pending = FALSE;
+
+        DWORD Offset = m_VBlankFlips[flipIndex].Offset;
+
+        // Program the hardware.
+        g_VideoOffset = Offset;
+        DacProgramVideoStart(Offset);
+
+        //
+        // Process gamma ramps.  Choose between the two gamma ramps based on the
+        // LSB of the current flip count.
+        //
+        ULONG RampNo = (m_VBlankFlipCount & 1);
+        if (m_GammaUpdated[RampNo] == TRUE)
+        {
+            DacProgramGammaRamp(&(m_GammaRamp[RampNo]));
+            m_GammaUpdated[RampNo] = FALSE;
+        }
+
+        // Release the GPU flip-stall by advancing the READ_3D counter.
+        FLD_WR_DRF_DEF(regbase, _PGRAPH, _INCREMENT, _READ_3D, _TRIGGER);
+
+        m_VBlankFlipCount++;
+        count++;
+
+        flipIndex = m_VBlankFlipCount & (MAX_QUEUED_FLIPS - 1);
+    }
+
+    return count;
+}
+
+
+ULONG
 CMiniport::VBlank()
 {
     BYTE* regbase = (BYTE*)m_RegisterBase;
@@ -284,42 +333,32 @@ CMiniport::VBlank()
     {
         m_TimeBetweenVBlanks = currentTime - m_TimeOfLastVBlank;
     }
+
+    // Increment VBlank counter
+    m_VBlankCount++;
     m_TimeOfLastVBlank = currentTime;
 
     // Save the CRTC index reg
     BYTE crtcIndex = REG_RD08(regbase, NV_PRMCIO_CRX__COLOR);
 
-    // Increment VBlank counter
-    m_VBlankCount++;
-
     //
-    // If D3DPRESENT_INTERVAL_TWO was set, let the flip happen only
-    // if this is at least the second VBlank since the last flip
+    // Retire any flips that come due at this VBlank.
     //
-    // NOTE: This logic must match that in Isr!
-    //
-    BOOL expectFlip 
-        = (m_VBlankCount - m_VBlankCountAtLastFlip) >= m_VBlanksBetweenFlips;
-
-    DWORD flipIndex = m_VBlankFlipCount & (MAX_QUEUED_FLIPS - 1);
-
-    BOOL doFlip 
-        = expectFlip && m_VBlankFlips[flipIndex].Pending;
-
-    //
-    // Process a flip
-    //
-    if (doFlip)
+    ULONG vblankFlags = 0;
+    if (ServiceQueuedFlips())
     {
-        VBlankFlip(m_VBlankFlips[flipIndex].Offset, currentTime);
-
-        m_VBlankFlips[flipIndex].Pending = FALSE;
+        vblankFlags = D3DVBLANK_SWAPDONE;
+    }
+    else if (m_VBlankCount == m_ExpectedFlipVBlank)
+    {
+        // A flip was expected at this VBlank but none was queued in time.
+        m_ExpectedFlipVBlank++;
+        vblankFlags = D3DVBLANK_SWAPMISSED;
     }
 
     //
     // Record the current field if we haven't done so already.
     //
-
     if (!(m_CurrentAvInfo & AV_FLAGS_FIELD))
     {
         // The field we're about to display is the opposite of the one we have.
@@ -327,15 +366,15 @@ CMiniport::VBlank()
 
         // The value of this pin in PAL is backwards.
         if ((m_DisplayMode & AV_MODE_OUT_MASK) == AV_MODE_OUT_525SDTV)
-        { 
+        {
             m_IsOddField = !m_IsOddField;
         }
     }
 
-    // 
+    //
     // Clear interrupt bits
     //
-    do 
+    do
     {
         DAC_REG_WR_DRF_DEF(regbase, _PCRTC, _INTR_0, _VBLANK, _RESET);
         intr = REG_RD32(regbase, NV_PMC_INTR_0);
@@ -351,18 +390,14 @@ CMiniport::VBlank()
 
         data.VBlank = m_VBlankCount;
         data.Swap = m_VBlankFlipCount;
-        data.Flags = 0;
-        if (doFlip)
-            data.Flags = D3DVBLANK_SWAPDONE;
-        else if ((expectFlip) && (m_VBlanksBetweenFlips != 0))
-            data.Flags = D3DVBLANK_SWAPMISSED;
+        data.Flags = vblankFlags;
 
         m_pVerticalBlankCallback(&data);
     }
 
     // Restore crtc index
     REG_WR08(regbase, NV_PRMCIO_CRX__COLOR, crtcIndex);
-    
+
     return 0;
 }
 
@@ -498,13 +533,12 @@ CMiniport::ServiceGrInterrupt()
         }
         else if (Offset == NV097_NO_OPERATION)
         {
-            // The method is stored in the Data portion of this notification
-            // The data for the method is stored in the stencil clear value
-            
-            ULONG Method = Data;
-            ULONG MethodData = REG_RD32(regbase, NV_PGRAPH_ZSTENCILCLEARVALUE);
+            // The software method + its packed data are in the trapped data-low
+            // word.  Register-carried methods (callbacks, write-register) pull
+            // their pointer/value out of the ZSTENCIL/COLOR shadow registers
+            // themselves.
 
-            SoftwareMethod(Data, MethodData);
+            SoftwareMethod(Data);
         }
         else
         {
@@ -880,76 +914,66 @@ CMiniport::ServiceVideoInterrupt()
 // called.  We also provide a general mechanism for doing per-call fix-ups
 // for Transform data and the like.
 
+// This is the 5849 free-function form: it walks the linked list of nodes via
+// 'Next', patches each node's return-count dword with count+1, and applies each
+// node's user record stream.  It does NOT itself write the FIFO subroutine
+// register or the run bookkeeping (the 4400 member did) - the pusher owns the
+// jump, and the FIFO/run bookkeeping now lives in the SoftwareMethod dispatch.
+// WARNING: nodes may live in write-combined memory.
+
 VOID
-CMiniport::FixupPushBuffer(
-    PUSHBUFFERFIXUPINFO *pPushBufferFixupInfo, // WARNING: This is write-combined!
-    ULONG Method
+FixupPushBuffer(
+    PushBufferFixup* p
     )
 {
-    ASSERT((Method == NVX_PUSH_BUFFER_RUN) || (Method == NVX_PUSH_BUFFER_FIXUP));
-
-    DWORD Size;
-    DWORD* pFixupData = pPushBufferFixupInfo->pFixupData;
-    BYTE* pPushBuffer = pPushBufferFixupInfo->pStart;
-
-    //
-    // Apply the user-specified fix-up stream.  Note that the caller is
-    // responsible for ensuring that the fix-up data is still allocated
-    // and valid when we get to this point.
-    //
-    if (pFixupData != NULL)
+    do
     {
-        DWORD PreviousOffset = 0;
-        while ((Size = *pFixupData) != 0xffffffff)
+        ULONG Control = p->Control;
+
+        //
+        // Patch the push-buffer return/jump count dword with count+1.  The low
+        // 28 bits of Control are the GPU address of the return target; +1 makes
+        // it a PUSHER_JUMP back into the main push-buffer.
+        //
+        *p->pReturnCount = (Control & 0x0FFFFFFF) + 1;
+
+        //
+        // Apply the user-specified fix-up record stream.  Note that the caller
+        // is responsible for ensuring that the fix-up data is still allocated
+        // and valid when we get to this point.
+        //
+        if (Control & PUSHBUFFERFIXUP_HASRECORDS)
         {
-            DWORD Offset = *(pFixupData + 1);
+            BYTE*  Base = p->Base;
+            ULONG* pRecords = p->pRecords;
+            ULONG  Size;
 
-            if ((Offset & 3) || (Size & 3) || (Offset < PreviousOffset))
+            while ((Size = pRecords[0]) != 0xffffffff)
             {
-                DPCRIP("MP: Bad RunPushBuffer fix-up data (got overwritten?)");
+                ULONG Offset = pRecords[1];
+                BYTE* pSrc   = (BYTE*) (pRecords + 2);
+
+                memcpy(Base + Offset, pSrc, Size);
+
+                pRecords = (ULONG*) (pSrc + Size);
             }
-
-            PreviousOffset = Offset;
-
-            pFixupData += 2;
-            memcpy(pPushBuffer + Offset, pFixupData, Size);
-            pFixupData = (DWORD*) ((BYTE*) pFixupData + Size);
         }
-    }
 
-    //
-    // Fix-up the return address.
-    //
-    DWORD ReturnOffset = pPushBufferFixupInfo->ReturnOffset;
-    DWORD ReturnAddress 
-        = GetGPUAddressFromWC((VOID*) pPushBufferFixupInfo->ReturnAddress);
+        PushBufferFixup* pNext = p->Next;
+        p->Next = (PushBufferFixup*) 0xFFFFFFFF;      // mark consumed
 
-    *((DWORD*) (pPushBuffer + ReturnOffset)) 
-        = PUSHER_JUMP(ReturnAddress);
-
-    //
-    // Let the pusher code know how long this push-buffer is, and where
-    // in the main push-buffer it will return.  We don't do this for
-    // push-buffer resources called from within push-buffer resources,
-    // because the pusher code would get confused.
-    //
-    if (Method == NVX_PUSH_BUFFER_RUN)
-    {
         //
-        // The NV2A has a bug that prevents us from ever doing a FIFO 'return'
-        // instruction.  To allow us to do a FIFO 'call' instruction again we 
-        // have to clear the 'NV_PFIFO_CACHE1_DMA_SUBROUTINE_STATE_ACTIVE'
-        // bit.  We of course don't want to do a read-modify-write on this
-        // register (because register reads are very expensive), so we just
-        // write the return-address to the register, which nicely clears the
-        // active bit:
+        // Persistent nodes (the device static-array slots) survive so they can
+        // be re-armed; clear only the ConsumedMarker bit on them.
         //
-        ASSERT(!(ReturnAddress & NV_PFIFO_CACHE1_DMA_SUBROUTINE_STATE_ACTIVE));
+        if (Control & PUSHBUFFERFIXUP_PERSISTENT)
+        {
+            p->Control = Control & ~PUSHBUFFERFIXUP_CONSUMED;
+        }
 
-        REG_WR32(m_RegisterBase, NV_PFIFO_CACHE1_DMA_SUBROUTINE, ReturnAddress);
+        p = pNext;
 
-        m_PusherGetRunTotal += ReturnOffset;
-    }
+    } while ((p != NULL) && (p != (PushBufferFixup*) 0xFFFFFFFF));
 }
 
 //-----------------------------------------------------------------------------
@@ -957,147 +981,121 @@ CMiniport::FixupPushBuffer(
 
 VOID
 CMiniport::SoftwareMethod(
-    ULONG Method, ULONG Data
+    ULONG Arg
     )
 {
     BYTE* RegisterBase = (BYTE*)m_RegisterBase;
-    ULONG RampNo;
 
-    switch (Method) 
+    // 5849 packed software-method ABI: the low bits are the method, the rest is
+    // the method's data.  Register-carried methods ignore Data and read their
+    // pointer/value from the ZSTENCIL/COLOR shadow registers.
+    ULONG Method = Arg & NVX_METHOD_MASK;
+    ULONG Data   = Arg >> NVX_METHOD_BITS;
+
+    switch (Method)
     {
-    case NVX_FLIP_IMMEDIATE:
+    case NVX_FLIP:
         {
-            ASSERT((Data & 3) == 0);
+            // Packed flip (5849): the video offset, the immediate (no-vsync)
+            // flag and the swap interval are all folded into Data.
+            DWORD Offset    = Data & NVX_FLIP_OFFSET_MASK;
+            BOOL  Immediate = (Data & NVX_FLIP_IMMEDIATE) != 0;
+            ULONG Interval  = Data & NVX_FLIP_INTERVAL_MASK;
 
-            // Program the hardware.
-            DacProgramVideoStart(Data);
-
-            //
-            // Process gamma ramps.  We choose between the two gamma ramps based 
-            // on the LSB of the current flip count
-            //
-            RampNo = (m_VBlankFlipCount & 1);
-            if (m_GammaUpdated[RampNo] == TRUE)
-            {
-                DacProgramGammaRamp(&(m_GammaRamp[RampNo]));
-                m_GammaUpdated[RampNo] = FALSE;
-            }
-    
-            m_VBlankFlipCount++;
-            m_FlipCount++;
-    
-            if (m_pSwapCallback)
-            {
-                D3DSWAPDATA data;
-    
-                ZeroMemory(&data, sizeof(data));
-                data.Swap = m_FlipCount;
-    
-                m_pSwapCallback(&data);
-            }
-        }
-        break;
-
-    case NVX_FLIP_SYNCHRONIZED:
-        {
             DWORD flipVBlank;
-            DWORD timeOfNextFlip;
+            INT   missedVBlanks = 0;
+            INT   timeUntilFlipVBlank = 0;
 
+            // Schedule this flip one interval past the last-queued flip.
+            flipVBlank = m_QueuedFlipVBlank + Interval;
+
+            INT gap = (INT)(flipVBlank - m_VBlankCount);
+            if (gap <= 0)
+            {
+                // The target VBlank is now or already past.
+                if (Interval != 0)
+                    missedVBlanks = 1 - gap;
+
+                flipVBlank = Immediate ? m_VBlankCount : (m_VBlankCount + 1);
+                gap = (INT)(flipVBlank - m_VBlankCount);
+            }
+
+            m_ExpectedFlipVBlank = flipVBlank + Interval;
+            m_QueuedFlipVBlank   = flipVBlank;
+
+            // We can't make a time estimate until we've timed a VBlank interval.
+            if (m_TimeBetweenVBlanks != 0)
+            {
+                timeUntilFlipVBlank =
+                    (INT)(m_TimeBetweenVBlanks * gap + m_TimeOfLastVBlank - GetTime());
+                if (timeUntilFlipVBlank < 0)
+                    timeUntilFlipVBlank = 0;
+            }
+
+            // Queue the flip.
             DWORD flipIndex = m_FlipCount & (MAX_QUEUED_FLIPS - 1);
 
+            m_VBlankFlips[flipIndex].Pending    = TRUE;
+            m_VBlankFlips[flipIndex].FlipVBlank = flipVBlank;
+            m_VBlankFlips[flipIndex].Offset     = Offset;
             m_FlipCount++;
 
-            INT missedVBlanks = (m_VBlankCount + 1 - m_VBlankCountAtLastFlip) - m_VBlanksBetweenFlips;
-            if (missedVBlanks > 0)
-            {
-                // We've missed some frames, so we know this flip will be
-                // handled on the very next VBlank.
-                //
-                flipVBlank = m_VBlankCount + 1;
-                timeOfNextFlip = m_TimeOfLastVBlank + m_TimeBetweenVBlanks;
-            }
-            else
-            {
-                // Because of the flip queue, this flip may not actually happen
-                // for several VBlanks.
-                //
-                DWORD flipQueueLength = m_FlipCount - m_VBlankFlipCount;
-
-                ASSERT((flipQueueLength > 0) && (flipQueueLength <= MAX_QUEUED_FLIPS));
-
-                flipVBlank = m_VBlankCountAtLastFlip + flipQueueLength * m_VBlanksBetweenFlips;
-                timeOfNextFlip = m_TimeOfLastFlip + m_TimeBetweenVBlanks * flipQueueLength * m_VBlanksBetweenFlips;
-                missedVBlanks = 0;
-            }
-
-            // We can't make any time estimates before at least two VBlanks have
-            // happened.
-            //
-            INT timeUntilFlipVBlank = timeOfNextFlip - GetTime();
-
-            // Our time estimate can go negative if something weird happened
-            // to throw timing off to our DPC, such as breaking into the
-            // debugger.  But the VBlank hasn't been handled yet, so we know
-            // the value isn't really zero or less.
-            //
-            if (timeUntilFlipVBlank < 0)
-                timeUntilFlipVBlank = 1;
-
-            // If m_TimeBetweenVBlanks is zero, we haven't yet had a chance to
-            // time how long it takes between vertical blanks - so we obviously
-            // can't make a time estimate.
-            //
-            if (m_TimeBetweenVBlanks == 0)
-                timeUntilFlipVBlank = 0;
-
-            if ((missedVBlanks > 0) && (m_OrImmediate))
-            {
-                // We missed a frame, so process the flip immediately (can
-                // cause tearing but reduces timing glitches).
-                //
-                // Pretend the flip happened at the last VBlank, not the next.
-                //
-                VBlankFlip(Data, m_TimeOfLastVBlank);
-
-                flipVBlank--;         
-                timeUntilFlipVBlank = 0;
-            }
-            else
-            {
-                // Queue the flip to be handled at Vblank.
-                //
-                ASSERT(m_VBlankFlips[flipIndex].Pending == FALSE);
-        
-                m_VBlankFlips[flipIndex].Pending = TRUE;
-                m_VBlankFlips[flipIndex].Offset = Data;
-            }
+            // Retire any queued flips whose VBlank has already arrived.
+            ServiceQueuedFlips();
 
             // Handle the Swap call-back.
-            //
             if (m_pSwapCallback)
             {
                 D3DSWAPDATA data;
-    
-                data.Swap = m_FlipCount;
-                data.MissedVBlanks = missedVBlanks;
-                data.SwapVBlank = flipVBlank;
-                data.TimeUntilSwapVBlank = timeUntilFlipVBlank;
-                data.TimeBetweenSwapVBlanks = m_TimeBetweenVBlanks * m_VBlanksBetweenFlips;
-    
+
+                data.Swap                   = m_FlipCount;
+                data.MissedVBlanks          = missedVBlanks;
+                data.SwapVBlank             = flipVBlank;
+                data.TimeUntilSwapVBlank    = timeUntilFlipVBlank;
+                data.TimeBetweenSwapVBlanks = m_TimeBetweenVBlanks * Interval;
+
                 m_pSwapCallback(&data);
             }
         }
         break;
 
     case NVX_PUSH_BUFFER_RUN:
-    case NVX_PUSH_BUFFER_FIXUP:
+
+        //
+        // RUN (12): decrement the pending-run counter, then fall through to fix
+        // up the inline node addressed by (Data | 0x80000000).  In retail the
+        // RUN handler literally falls into the FIXUP_HI body after the dec.
+        //
+        g_pDevice->m_PendingRun--;
+
+        // fall through
+
+    case NVX_PUSH_BUFFER_FIXUP_POINTER:
         {
-            FixupPushBuffer((PUSHBUFFERFIXUPINFO*) Data, Method);
-    
+            // FIXUP_HI (14): fix up the inline node whose write-combined kernel
+            // address is restored from Data by OR-ing in the 0x80000000 top bit
+            // (the emit path stripped it with & 0x0FFFFFFF or a <<5 shift).  No
+            // counter decrement here (RUN did its own dec above).
+
+            FixupPushBuffer((PushBufferFixup*) (Data | 0x80000000));
+
             //
-            // Make sure our modifications get written to memory.  Note that 
+            // Make sure our modifications get written to memory.  Note that
             // FlushWCCache is okay to be called even from a DPC.
             //
+            FlushWCCache();
+        }
+        break;
+
+    case NVX_PUSH_BUFFER_FIXUP:
+        {
+            // FIXUP (13): decrement the pending-run counter and fix up the node
+            // resolved by index into the device's static fix-up array.
+
+            g_pDevice->m_PendingRun--;
+
+            FixupPushBuffer(&g_pDevice->m_StaticFixup[Data]);
+
             FlushWCCache();
         }
         break;
@@ -1117,10 +1115,11 @@ CMiniport::SoftwareMethod(
 
     case NVX_READ_CALLBACK:
         {
-            D3DCALLBACK pCallback = (D3DCALLBACK)Data;
-    
+            D3DCALLBACK pCallback =
+                (D3DCALLBACK) REG_RD32(RegisterBase, NV_PGRAPH_ZSTENCILCLEARVALUE);
+
             DWORD Context = REG_RD32(RegisterBase, NV_PGRAPH_COLORCLEARVALUE);
-    
+
             pCallback(Context);
         }
         break;
@@ -1145,7 +1144,7 @@ CMiniport::SoftwareMethod(
         // This method can assume that the back-end is idle.
         ASSERT(!REG_RD32(m_RegisterBase, NV_PGRAPH_STATUS));
 
-        DWORD WriteRegisterOffset = Data;
+        DWORD WriteRegisterOffset = REG_RD32(RegisterBase, NV_PGRAPH_ZSTENCILCLEARVALUE);
         DWORD Value = REG_RD32(RegisterBase, NV_PGRAPH_COLORCLEARVALUE);
 
         REG_WR32(RegisterBase, WriteRegisterOffset, Value);

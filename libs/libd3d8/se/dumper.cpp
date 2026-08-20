@@ -54,6 +54,13 @@ DWORD g_TransformConstantLoad;
 
 BOOL g_IgnorePushBufferJump;
 
+// Number of inline fix-up-node dwords that follow the ignored jump and must be
+// skipped along with it.  RUN (12) and FIXUP_HI (14) carry an inline
+// PushBufferFixup node; FIXUP (13) keeps its node in the device static array,
+// so nothing trails its jump.
+
+DWORD g_PushBufferJumpSkip;
+
 //------------------------------------------------------------------------------
 // ParseMethodWrite
 
@@ -90,10 +97,29 @@ VOID ParseMethodWrite(
 
     if (Method == PUSHER_METHOD(SUBCH_3D, NV097_NO_OPERATION, 0))
     {
-        // For now, we don't parse called push-buffers.
+        // For now, we don't parse called push-buffers.  The 5849 push-buffer
+        // software methods pack the method into the low bits of the NO_OP
+        // parameter as (data << NVX_METHOD_BITS) | method.
 
-        if ((*pPush == NVX_PUSH_BUFFER_RUN) || (*pPush == NVX_PUSH_BUFFER_FIXUP))
+        DWORD packedMethod = *pPush & NVX_METHOD_MASK;
+
+        if ((packedMethod == NVX_PUSH_BUFFER_RUN) ||
+            (packedMethod == NVX_PUSH_BUFFER_FIXUP_POINTER))
+        {
+            // RUN (12) / FIXUP_HI (14): an inline PushBufferFixup node follows
+            // the jump.
+
             g_IgnorePushBufferJump = TRUE;
+            g_PushBufferJumpSkip   = sizeof(PushBufferFixup) / sizeof(DWORD);
+        }
+        else if (packedMethod == NVX_PUSH_BUFFER_FIXUP)
+        {
+            // FIXUP (13): the node lives in the device static array, so nothing
+            // trails the jump.
+
+            g_IgnorePushBufferJump = TRUE;
+            g_PushBufferJumpSkip   = 0;
+        }
     }
     else if (Method == PUSHER_METHOD(SUBCH_3D, NV097_SET_TRANSFORM_PROGRAM_LOAD, 0))
     {
@@ -182,9 +208,9 @@ VOID PARSE_PUSH_BUFFER()
         {
             if (g_IgnorePushBufferJump)
             {
-                // Skip over pushbuffer fixup info
+                // Skip over the inline pushbuffer fixup node (if any)
 
-                pPush += sizeof(CMiniport::PUSHBUFFERFIXUPINFO) / sizeof(DWORD);
+                pPush += g_PushBufferJumpSkip;
 
                 g_IgnorePushBufferJump = FALSE;
             }

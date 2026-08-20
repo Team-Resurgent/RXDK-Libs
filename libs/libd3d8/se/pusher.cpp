@@ -121,6 +121,15 @@ HRESULT CDevice::InitializePushBuffer()
     *m_pGpuTime = (1 << PUSHER_TIME_SHIFT) | PUSHER_TIME_VALID_FLAG;
     m_LastRunPushBufferTime = (1 << PUSHER_TIME_SHIFT) | PUSHER_TIME_VALID_FLAG;
 
+    // 5849 push-buffer-resource fix-up state starts empty: no static-array slot
+    // is consumed, no run is pending, and there is no tail node to splice onto.
+
+    ZeroMemory(m_StaticFixup, sizeof(m_StaticFixup));
+    m_StaticFixupIndex = 0;
+    m_PendingRun       = 0;
+    m_RunSeq           = 0;
+    m_TailNode         = NULL;
+
     // There must be enough bits in the Time variable to not overflow if
     // the entire push-buffer were filled with Fence commands (because
     // times would be re-issued while objects with those times are still
@@ -245,12 +254,10 @@ DWORD SetFence(
     PushedRaw(pPush + 8);
     pDevice->EndPush(pPush + 8);
 
-    DWORD runTotal = pDevice->m_PusherPutRunTotal;
     DWORD fence = (time >> PUSHER_TIME_SHIFT) & (PUSHER_FENCE_COUNT - 1);
 
     pDevice->m_PusherFence[fence].Time = time;
     pDevice->m_PusherFence[fence].pEncoding = pEncoding;
-    pDevice->m_PusherFence[fence].RunTotal = runTotal;
 
     // For 'segment' fences, which are to be kept at fairly regular
     // intervals, we also remember the fence in our segment array:
@@ -264,7 +271,6 @@ DWORD SetFence(
 
         pDevice->m_PusherSegment[segment].Time = time;
         pDevice->m_PusherSegment[segment].pEncoding = pEncoding;
-        pDevice->m_PusherSegment[segment].RunTotal = runTotal;
     }
 
     // Open the next time.  We make sure we never have a CPU time of zero
@@ -523,7 +529,7 @@ PPUSH GpuGetOrNewer(
 
 VOID BlockOnTime(
     DWORD Time,
-    BOOL MakeSpace)
+    DWORD Flags)        // D3DWAIT_* reason flags (bit D3DWAIT_PUSHBUFFER gates WFI)
 {
     DWORD status;
     LARGE_INTEGER timeOut;
@@ -536,11 +542,14 @@ VOID BlockOnTime(
            (pDevice->GpuTime() & PUSHER_TIME_VALID_FLAG) &&
            (pDevice->m_CpuTime & PUSHER_TIME_VALID_FLAG));
 
+
     // No need to block if the GPU is already past the specified time
     // value:
 
     if (!pDevice->IsTimePending(Time))
+    {
         return;
+    }
 
     // If the time is current, then we need to insert a marker:
 
@@ -551,7 +560,9 @@ VOID BlockOnTime(
 
     Fence* targetFence = FindFence(Time);
     if (targetFence == NULL)
+    {
         return;
+    }
 
 #if DBG
 
@@ -591,7 +602,13 @@ VOID BlockOnTime(
         ASSERT(targetFence->Time == targetFence->pEncoding->m_Time);
 
         FenceEncoding* pEncoding = targetFence->pEncoding;
-    
+
+        // Give an installed wait callback a chance to do useful work (e.g.
+        // service audio) instead of the CPU idling while the GPU catches up.
+
+        if (pDevice->m_pWaitCallback)
+            pDevice->m_pWaitCallback(Flags);
+
         KeClearEvent(&pDevice->m_Miniport.m_BusyBlockEvent);
 
         // Here we're going to modify an already-submitted portion of
@@ -616,9 +633,9 @@ VOID BlockOnTime(
         //
         // We don't need to do this for MakeSpace...
 
-        if (!MakeSpace)
+        if (!(Flags & D3DWAIT_PUSHBUFFER))
         {
-            pEncoding->m_WaitForIdleCommand 
+            pEncoding->m_WaitForIdleCommand
                 = PUSHER_METHOD(SUBCH_3D, NV097_WAIT_FOR_IDLE, 1);
     
             // Note that we technically don't have to write this zero,
@@ -698,6 +715,12 @@ Spin:
 
         INITDEADLOCKCHECK();
 
+        // Give the wait callback a chance on the busy-wait path too, tagged so
+        // it can distinguish a spin from a blocking wait.
+
+        if (pDevice->m_pWaitCallback)
+            pDevice->m_pWaitCallback(Flags | D3DWAIT_BUSYWAIT_FLAG);
+
         // Note that since 'm_pGpuTime' is in cached memory, we don't bother
         // to invoke BusyLoop here:
 
@@ -720,7 +743,7 @@ Spin:
 
     // Assert that we did our job properly:
 
-    ASSERT(MakeSpace || !pDevice->IsTimePending(Time));
+    ASSERT((Flags & D3DWAIT_PUSHBUFFER) || !pDevice->IsTimePending(Time));
 
 #if DBG
 
@@ -953,7 +976,7 @@ PPUSH MakeRequestedSpace(
                     "Consider expanding push-buffer using SetPushBufferSize");
         }
 
-        BlockOnTime(blockTime, TRUE);
+        BlockOnTime(blockTime, D3DWAIT_PUSHBUFFER);
 
         // Make sure our logic worked, and the GPU is no longer in the range
         // where we want to write:
@@ -1171,7 +1194,7 @@ void KickOffAndWaitForIdle()
 {
     CDevice* pDevice = g_pDevice;
 
-    BlockOnTime(pDevice->m_CpuTime, FALSE);
+    BlockOnTime(pDevice->m_CpuTime, D3DWAIT_BLOCKUNTILIDLE);
 
     ASSERT(pDevice->m_Miniport.m_PusherGetRunTotal == pDevice->m_PusherPutRunTotal);
 
@@ -1233,7 +1256,7 @@ VOID BlockOnResource(
 
         if (ResourceTime != 0)
         {
-            BlockOnTime(ResourceTime, FALSE);
+            BlockOnTime(ResourceTime, D3DWAIT_OBJECTLOCK);
         }
     }
 }
@@ -1276,7 +1299,7 @@ VOID BlockOnNonSurfaceResource(
 
         if (ResourceTime != 0)
         {
-            BlockOnTime(ResourceTime, FALSE);
+            BlockOnTime(ResourceTime, D3DWAIT_OBJECTLOCK);
         }
     }
 }
@@ -1327,6 +1350,7 @@ VOID WINAPI D3DDevice_InsertCallback(
     DWORD Context)
 {
     COUNT_API(API_D3DDEVICE_INSERTCALLBACK);
+
 
     if (DBG_CHECK(TRUE))
     {

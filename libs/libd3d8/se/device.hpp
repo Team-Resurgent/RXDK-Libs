@@ -1223,6 +1223,24 @@ public:
     volatile NvNotification* m_pKelvinNotifiers;
 
     //--------------------------------------------------------------------------
+    // 5849 push-buffer-resource fix-up state
+    //
+    // The device owns a static array of fix-up nodes used by the FIXUP (13)
+    // software method (indexed by m_StaticFixupIndex, taken modulo the array
+    // size).  The pending-run counter (m_PendingRun) tracks how many RUN/FIXUP
+    // software methods are in flight awaiting the GPU interrupt; the RUN and
+    // FIXUP handlers decrement it and the emit path reads/increments it.
+    // m_RunSeq is a monotonically-incrementing run sequence snapshotted into
+    // each push-buffer's InterruptId, and m_TailNode is the last node emitted
+    // so a subsequent run can splice onto its Next.
+
+    PushBufferFixup          m_StaticFixup[PUSHBUFFERFIXUP_STATIC_COUNT];
+    ULONG                    m_StaticFixupIndex;
+    volatile LONG            m_PendingRun;
+    ULONG                    m_RunSeq;
+    PushBufferFixup* volatile m_TailNode;
+
+    //--------------------------------------------------------------------------
     // Methods
 
     // CDevice initializer:

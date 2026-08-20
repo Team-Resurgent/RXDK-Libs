@@ -161,152 +161,13 @@ VOID WINAPI D3DDevice_RunPushBuffer(
 
     pDevice->SetStateVB(0);
 
-    // Take radically different code paths depending on whether the memory
-    // is write-combined and contiguous, or not:
+    // ---- (A) CPU-copy variant -----------------------------------------------
+    //
+    // Take a radically different code path when the push-buffer data isn't
+    // write-combined and contiguous: just splat it straight into the main
+    // push-buffer with a CPU copy.
 
-    if (!(pPushBuffer->Common & D3DPUSHBUFFER_RUN_USING_CPU_COPY))
-    {
-        DWORD pushbufferSize = pPushBuffer->Size - PUSHBUFFER_RETURN_RESERVE;
-        BYTE* pStart = (BYTE*) pPushBuffer->Data;
-
-        // Record the reference to the push-buffer so that it's not deleted
-        // or modified before the GPU gets to it:
-
-        pDevice->RecordResourceReadPush(pPushBuffer);
-
-        DWORD* pFixupData = NULL;
-        DWORD firstModify = pushbufferSize;
-        if (pFixup != NULL)
-        {
-            pDevice->RecordResourceReadPush(pFixup);
-
-            pFixupData = (DWORD*) (pFixup->Data + pFixup->Run);
-
-            // First DWORD is 'size', second DWORD is 'offset':
-
-            firstModify = pFixupData[1];
-        }
-
-        if (!(pDevice->m_StateFlags & STATE_RECORDPUSHBUFFER) && 
-            !(pDevice->IsTimePending(pDevice->m_LastRunPushBufferTime)))
-        {
-            CMiniport::PUSHBUFFERFIXUPINFO fixupInfo;
-
-            // Yahoo, no push-buffer resource is currently in use by the GPU.
-            // That means we can apply the fix-ups directly and save us
-            // the cost of an interrupt:
-
-            PPUSH pPush = pDevice->StartPush();
-
-            *pPush++ = PUSHER_JUMP(GetGPUAddressFromWC(pStart));
-
-            fixupInfo.pFixupData = pFixupData;
-            fixupInfo.pStart = pStart;
-            fixupInfo.ReturnOffset = pushbufferSize;
-            fixupInfo.ReturnAddress = (DWORD*) pPush;
-
-            pDevice->m_Miniport.FixupPushBuffer(&fixupInfo, NVX_PUSH_BUFFER_RUN);
-
-            PushedRaw(pPush);
-            pDevice->EndPush(pPush);
-        }
-        else
-        {
-            DWORD method;
-            DWORD jump;
-
-            // We use PUSHER_CALL instead of PUSHER_JUMP in some cases in
-            // order to have GpuGet() work properly.  A PUSHER_CALL has the
-            // nice property that the hardware's FIFO getter will 
-            // automatically update the NV_PFIFO_CACHE1_DMA_SUBROUTINE
-            // register with the push-buffer address from which it was
-            // called.  We use that register to determine where in the main
-            // push-buffer we are if the GPU is currently running a called 
-            // push-buffer.
-            //
-            // We can't use the pusher 'return' instruction because that's
-            // broken on the NV2A.  So FixupPushBuffer will handle patching
-            // the return address instead.
-            //
-            // We don't use PUSHER_CALL for nested push-buffers, because we
-            // only ever want NV_PFIFO_CACHE1_DMA_SUBROUTINE to point to
-            // an address in the main push-buffer.  Similarly, we avoid
-            // NVX_PUSH_BUFFER_RUN in the case of a nested push-buffer so 
-            // that the pusher code doesn't get confused about 
-            // m_PusherGetRunTotal.
-
-            if (pDevice->m_StateFlags & STATE_RECORDPUSHBUFFER)
-            {
-                method = NVX_PUSH_BUFFER_FIXUP;
-                jump = PUSHER_JUMP(GetGPUAddressFromWC(pStart));
-            }
-            else
-            {
-                method = NVX_PUSH_BUFFER_RUN;                    
-                jump = PUSHER_CALL(GetGPUAddressFromWC(pStart)); 
-            }
-
-            // Darn, a push-buffer is already in use by the GPU.  That
-            // means we'll have to do more work and post an interrupt that
-            // will handle the fix-up:
-
-            if (DBG_CHECK(firstModify <= PUSHER_MINIMUM_RUN_OFFSET / 2))
-            {
-                DPF_ERR("Push-buffer size too small or fixup too close to start\n"
-                        "(regenerate push-buffer data and fixups?)");
-            }
-    
-            PPUSH pPush = pDevice->StartPush(); 
-    
-            // NVX_PUSH_BUFFER_FIXUP_POINTER Data stored in 
-            // NV097_SET_ZSTENCIL_CLEAR_VALUE
-    
-            Push1(pPush, NV097_SET_ZSTENCIL_CLEAR_VALUE, 
-    
-                  // Store PushBufferFixupInfo after the pushbuffer jump
-    
-                  (DWORD)(pPush + 5));
-    
-            Push1(pPush + 2, NV097_NO_OPERATION, method);
-    
-            *(pPush + 4) = jump;
-
-            volatile CMiniport::PUSHBUFFERFIXUPINFO* pFixupInfo
-                = (CMiniport::PUSHBUFFERFIXUPINFO*) (pPush + 5);
-
-            pPush = (PPUSH) (pFixupInfo + 1);
-
-            pFixupInfo->pFixupData = pFixupData;
-            pFixupInfo->pStart = pStart;
-            pFixupInfo->ReturnOffset = pushbufferSize;
-            pFixupInfo->ReturnAddress = (DWORD*) pPush;
-    
-            PushedRaw(pPush);
-            pDevice->EndPush(pPush);
-        }
-        
-        if (!(pDevice->m_StateFlags & STATE_RECORDPUSHBUFFER))
-        {
-            // Also remember the time so that we can tell if a RunPushBuffer
-            // command is pending with the GPU:
-
-            pDevice->m_LastRunPushBufferTime = pDevice->m_CpuTime;
-
-            // Let the pusher code know the number of bytes called so that it
-            // can be smarter about fences around RunPushBuffer calls:
-
-            pDevice->m_PusherPutRunTotal += pushbufferSize;
-
-            // For better resource time granularity with 'large' push-buffers,
-            // we insert a fence:
-    
-            if (pushbufferSize > PUSHER_RUN_FENCE_THRESHOLD)
-            {
-                SetFence(0);
-            }
-        }
-    }
-    else
+    if (pPushBuffer->Common & D3DPUSHBUFFER_RUN_USING_CPU_COPY)
     {
         DWORD size = pPushBuffer->Size - PUSHBUFFER_RETURN_RESERVE;
 
@@ -331,6 +192,234 @@ VOID WINAPI D3DDevice_RunPushBuffer(
         pDevice->EndPush(pPush + dwCount);
 
         // Note that we don't call RecordResourceReadPush for the copy case.
+
+        return;
+    }
+
+    // ---- Common set-up for the write-combined push-buffer paths -------------
+
+    DWORD pushbufferSize = pPushBuffer->Size - PUSHBUFFER_RETURN_RESERVE;
+    BYTE* pStart = (BYTE*) pPushBuffer->Data;
+
+    // The node's return-count dword lives at the trailing return-jump slot of
+    // the sub-buffer (Data + Size - 4):
+
+    DWORD* pReturnAddr = (DWORD*) (pStart + pushbufferSize);
+
+    // The fix-up node's Control carries a HasRecords bit and its pRecords the
+    // user record stream, when a Fixup object was supplied:
+
+    DWORD  ctrlBits = 0;
+    DWORD* pRecords = NULL;
+    DWORD  firstModify = pushbufferSize;
+    if (pFixup != NULL)
+    {
+        ctrlBits = PUSHBUFFERFIXUP_HASRECORDS;
+        pRecords = (DWORD*) (pFixup->Data + pFixup->Run);
+
+        // First DWORD is 'size', second DWORD is 'offset':
+
+        firstModify = pRecords[1];
+    }
+
+    BOOL recording = (pDevice->m_StateFlags & STATE_RECORDPUSHBUFFER) != 0;
+
+    // Reserve room in the main (or, while recording, the hijacked) push-buffer.
+    // StartPush applies the MakeSpace gate for us:
+
+    PPUSH pPut = pDevice->StartPush();
+
+    // ---- (C) STATE_RECORDPUSHBUFFER -> FIXUP_HI (14) inline node ------------
+    //
+    // While recording, we always emit an inline FIXUP_HI software method plus a
+    // 20-byte node into the recorded buffer; the fix-up is applied (with no
+    // pending-run bookkeeping) when the recorded buffer is later run.
+
+    if (recording)
+    {
+        PushBufferFixup* pNode = (PushBufferFixup*) (pPut + 3);
+        PPUSH            pAfter = pPut + 3 + (sizeof(PushBufferFixup) / sizeof(DWORD));
+
+        pPut[0] = PUSHER_METHOD(SUBCH_3D, NV097_NO_OPERATION, 1);
+        pPut[1] = (GetGPUAddressFromWC((VOID*) pNode) << NVX_METHOD_BITS)
+                | NVX_PUSH_BUFFER_FIXUP_POINTER;
+        pPut[2] = PUSHER_JUMP(GetGPUAddressFromWC(pStart));
+
+        pNode->Control      = GetGPUAddressFromWC((VOID*) pAfter) | ctrlBits;
+        pNode->Next         = NULL;
+        pNode->pReturnCount  = (ULONG*) pReturnAddr;
+        pNode->pRecords     = (ULONG*) pRecords;
+        pNode->Base         = pStart;
+
+        PushedRaw(pAfter);
+        pDevice->EndPush(pAfter);
+
+        // Record the references so the buffers aren't deleted or modified
+        // before the GPU gets to them:
+
+        pDevice->RecordResourceReadPush(pPushBuffer);
+        if (pFixup != NULL)
+        {
+            pDevice->RecordResourceReadPush(pFixup);
+        }
+
+        return;
+    }
+
+    // ---- GPU-idle test ------------------------------------------------------
+    //
+    // The fast (immediate FixupPushBuffer) path can be taken exactly when the
+    // GPU has already reached this push-buffer's Lock time - i.e. no previous
+    // run of THIS sub-buffer is still pending.  We inline the wrap-safe age
+    // comparison (rather than IsTimePending) because Lock may legitimately be
+    // zero for a never-run push-buffer.
+
+    DWORD gpuTime = *pDevice->m_pGpuTime;
+    DWORD lockAge = pDevice->m_CpuTime - pPushBuffer->Lock;
+    DWORD gpuAge  = pDevice->m_CpuTime - gpuTime;
+
+    PPUSH pFinalPut;
+
+    if (lockAge >= gpuAge)
+    {
+        // ---- (B) GPU idle: patch & apply the fix-up immediately ------------
+        //
+        // No push-buffer resource of ours is currently in use by the GPU, so we
+        // can apply the fix-ups directly on a stack node and save the cost of an
+        // interrupt.  Only a bare jump-into-sub-buffer is written.
+
+        pPut[0] = PUSHER_JUMP(GetGPUAddressFromWC(pStart));
+
+        PPUSH afterJump = pPut + 1;
+
+        PushBufferFixup stackNode;
+        stackNode.Control      = GetGPUAddressFromWC((VOID*) afterJump) | ctrlBits;
+        stackNode.Next         = NULL;
+        stackNode.pReturnCount  = (ULONG*) pReturnAddr;
+        stackNode.pRecords     = (ULONG*) pRecords;
+        stackNode.Base         = pStart;
+
+        FixupPushBuffer(&stackNode);
+
+        pPushBuffer->InterruptId = pDevice->m_RunSeq;
+
+        pFinalPut = afterJump;
+    }
+    else
+    {
+        // ---- (D) GPU busy: emit a NO_OP software method + jump-in ----------
+        //
+        // A push-buffer is still in use by the GPU, so we have to post an
+        // interrupt (or splice onto an already-pending one) to apply the fix-up.
+
+        if (DBG_CHECK(firstModify <= PUSHER_MINIMUM_RUN_OFFSET / 2))
+        {
+            DPF_ERR("Push-buffer size too small or fixup too close to start\n"
+                    "(regenerate push-buffer data and fixups?)");
+        }
+
+        pPut[0] = PUSHER_METHOD(SUBCH_3D, NV097_NO_OPERATION, 1);
+        pPut[1] = 0;                                     // param placeholder
+        pPut[2] = PUSHER_JUMP(GetGPUAddressFromWC(pStart));
+
+        PushBufferFixup* pInlineNode = (PushBufferFixup*) (pPut + 3);
+
+        DWORD idx = pDevice->m_StaticFixupIndex & (PUSHBUFFERFIXUP_STATIC_COUNT - 1);
+        PushBufferFixup* pSlot = &pDevice->m_StaticFixup[idx];
+
+        PushBufferFixup* pNode;
+        DWORD            control;
+        DWORD            param;
+
+        if (pSlot->Control & PUSHBUFFERFIXUP_CONSUMED)
+        {
+            // ---- (D2) RUN (12): the inline node lives at pPut+12 -----------
+
+            pNode     = pInlineNode;
+            pFinalPut = pPut + 3 + (sizeof(PushBufferFixup) / sizeof(DWORD));
+            control   = GetGPUAddressFromWC((VOID*) pFinalPut) | ctrlBits;
+            param     = ((DWORD) pInlineNode << NVX_METHOD_BITS)
+                      | NVX_PUSH_BUFFER_RUN;
+        }
+        else
+        {
+            // ---- (D1) FIXUP (13): use the device static-array slot ---------
+
+            pNode     = pSlot;
+            pFinalPut = pPut + 3;
+            control   = GetGPUAddressFromWC((VOID*) (pPut + 3))
+                      | PUSHBUFFERFIXUP_PERSISTENT
+                      | PUSHBUFFERFIXUP_CONSUMED
+                      | ctrlBits;
+            param     = (idx << NVX_METHOD_BITS) | NVX_PUSH_BUFFER_FIXUP;
+
+            pDevice->m_StaticFixupIndex = idx + 1;
+        }
+
+        pNode->Control      = control;
+        pNode->Next         = NULL;
+        pNode->pReturnCount  = (ULONG*) pReturnAddr;
+        pNode->pRecords     = (ULONG*) pRecords;
+        pNode->Base         = pStart;
+
+        // Splice this node onto an already-pending run's chain if we can (so the
+        // pending interrupt walks it too); otherwise arm a fresh software method
+        // by bumping the pending-run counter and the run sequence and writing
+        // the packed NO_OP parameter.
+
+        BOOL armCounter = TRUE;
+        if (pDevice->m_PendingRun != 0 &&
+            pPushBuffer->InterruptId != pDevice->m_RunSeq)
+        {
+            if (InterlockedCompareExchange(
+                    (PLONG) &pDevice->m_TailNode->Next,
+                    (LONG) pNode,
+                    0) == 0)
+            {
+                armCounter = FALSE;
+            }
+        }
+
+        if (armCounter)
+        {
+            InterlockedExchangeAdd((PLONG) &pDevice->m_PendingRun, 1);
+            pDevice->m_RunSeq++;
+            pPut[1] = param;                             // arm the software method
+        }
+
+        pPushBuffer->InterruptId = pDevice->m_RunSeq;
+        pDevice->m_TailNode = pNode;
+    }
+
+    PushedRaw(pFinalPut);
+    pDevice->EndPush(pFinalPut);
+
+    // ---- tail1: non-record run bookkeeping ----------------------------------
+
+    // Remember the time so we can tell if a RunPushBuffer command is pending
+    // with the GPU:
+
+    pDevice->m_LastRunPushBufferTime = pDevice->m_CpuTime;
+
+    // Let the pusher code know the number of bytes called so it can be smarter
+    // about fences around RunPushBuffer calls:
+
+    pDevice->m_PusherPutRunTotal += pushbufferSize;
+
+    // For better resource time granularity with 'large' push-buffers, insert a
+    // fence:
+
+    if (pushbufferSize > PUSHER_RUN_FENCE_THRESHOLD)
+    {
+        SetFence(0);
+    }
+
+    // ---- tail2: record the resource references ------------------------------
+
+    pDevice->RecordResourceReadPush(pPushBuffer);
+    if (pFixup != NULL)
+    {
+        pDevice->RecordResourceReadPush(pFixup);
     }
 }
 
@@ -921,52 +1010,59 @@ VOID WINAPI D3DPushBuffer_RunPushBuffer(
         }
     }
 
-    DWORD infoDwords = sizeof(CMiniport::PUSHBUFFERFIXUPINFO) / sizeof(DWORD);
-    DWORD* pFixup = StartFixup(pPushBuffer, Offset, 5 + infoDwords);
-    if (!pFixup)
+    // We emit a NO_OP FIXUP_HI (14) software method + jump-into-sub-buffer
+    // followed by an inline 20-byte fix-up node (3 header dwords + the node):
+
+    DWORD nodeDwords = sizeof(PushBufferFixup) / sizeof(DWORD);
+    DWORD* pEmit = StartFixup(pPushBuffer, Offset, 3 + nodeDwords);
+    if (!pEmit)
         return;
 
-    CMiniport::PUSHBUFFERFIXUPINFO PushBufferFixupInfo;
+    BYTE* pRunData     = (BYTE*) pDestinationPushBuffer->Data;
+    DWORD returnOffset = pDestinationPushBuffer->Size - PUSHBUFFER_RETURN_RESERVE;
 
-    PushBufferFixupInfo.pStart = (BYTE *)pDestinationPushBuffer->Data;
-    PushBufferFixupInfo.ReturnOffset =
-        pDestinationPushBuffer->Size - PUSHBUFFER_RETURN_RESERVE;
-
-    DWORD firstModify = PushBufferFixupInfo.ReturnOffset;
-    DWORD* pFix = NULL;
+    DWORD  ctrlBits = 0;
+    DWORD* pRecords = NULL;
 
     if (pDestinationFixup != 0)
     {
-        pFix = (DWORD*) (pDestinationFixup->Data + pDestinationFixup->Run);
-        firstModify = *pFix;
+        ctrlBits = PUSHBUFFERFIXUP_HASRECORDS;
+        pRecords = (DWORD*) (pDestinationFixup->Data + pDestinationFixup->Run);
     }
 
-    PushBufferFixupInfo.pFixupData = pFix;
-    PushBufferFixupInfo.ReturnAddress = 
-        (DWORD*) (pPushBuffer->Data + Offset + (5 + infoDwords)*sizeof(DWORD));
+    // GPU address of the inline node in its final resting place inside
+    // pPushBuffer (emit + 12); the return target is the dword after the node
+    // (emit + 32 = node + 20):
 
-    // NVX_PUSH_BUFFER_FIXUP_POINTER Data stored in NV097_SET_ZSTENCIL_CLEAR_VALUE
+    DWORD maskedNode = GetGPUAddressFromWC((VOID*) pPushBuffer->Data)
+                     + Offset + 3 * sizeof(DWORD);
 
-    Fixup1(pFixup, 
-           NV097_SET_ZSTENCIL_CLEAR_VALUE, 
-           pPushBuffer->Data + Offset + 5*sizeof(DWORD));
+    // FIXUP_HI (14) software method.  Fixup1 verifies the recorded NO_OP
+    // signature; the jump and node dwords are written raw.
 
-    Fixup1(pFixup + 2,
+    Fixup1(pEmit,
            NV097_NO_OPERATION,
-           NVX_PUSH_BUFFER_FIXUP);
+           (maskedNode << NVX_METHOD_BITS) | NVX_PUSH_BUFFER_FIXUP_POINTER);
 
-    pFixup += 4;
+    pEmit += 2;
 
     // Make sure the JUMP instruction was there:
 
-    if (DBG_CHECK((ReadBuffer(pFixup) & 3) != 1))
+    if (DBG_CHECK((ReadBuffer(pEmit) & 3) != 1))
     {
         DPF_ERR("Signature mismatch - Offset or push-buffer size may "
                 "different from what was recorded.");
     }
 
-    *pFixup = PUSHER_JUMP(GetGPUAddressFromWC(PushBufferFixupInfo.pStart));
-    *(CMiniport::PUSHBUFFERFIXUPINFO *)(pFixup + 1) = PushBufferFixupInfo;
+    *pEmit = PUSHER_JUMP(GetGPUAddressFromWC(pRunData));
+
+    PushBufferFixup* pNode = (PushBufferFixup*) (pEmit + 1);
+
+    pNode->Control      = (maskedNode + sizeof(PushBufferFixup)) | ctrlBits;
+    pNode->Next         = NULL;
+    pNode->pReturnCount  = (ULONG*) (pRunData + returnOffset);
+    pNode->pRecords     = (ULONG*) pRecords;
+    pNode->Base         = pRunData;
 
     EndFixup(TRUE);
 }
@@ -1638,7 +1734,7 @@ VOID WINAPI D3DPushBuffer_Verify(
         if ((push & 3) == 1) // Jump case
         {
             DWORD i;
-            DWORD jumpAndInfo = 1 + sizeof(CMiniport::PUSHBUFFERFIXUPINFO) 
+            DWORD jumpAndInfo = 1 + sizeof(PushBufferFixup)
                                   / sizeof(DWORD);
 
             if (StampResources)

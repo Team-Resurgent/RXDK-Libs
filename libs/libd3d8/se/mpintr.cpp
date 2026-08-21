@@ -49,6 +49,22 @@ extern "C" void __cdecl _enable(void);
 
 DWORD g_VideoOffset;
 
+// RXDK: libd3d8 is built -fdefault-calling-conv=stdcall (Xbox D3D8 = /Gz).  Clang
+// honors the callbacks' explicit __cdecl on their DEFINITION, and on direct libc
+// calls (see site/cdecl_libc.h), but NOT on the INDIRECT call through the __cdecl
+// D3DCALLBACK/D3DVBLANKCALLBACK fn-ptr in the interrupt dispatch below: it emits a
+// stdcall re-reserve (`sub esp,N`) after the call, but the __cdecl callee never
+// pops -> a stack leak that SoftwareMethod's esp-relative epilogue turns into a
+// bad return -> execute-from-stack crash.  An explicit __attribute__((cdecl)) cast
+// at the call site does NOT fix it -- Clang ignores the convention on the indirect
+// call under -fdefault-calling-conv=stdcall.  The reliable fix is to make the
+// indirect call happen in a TU whose DEFAULT is cdecl: cdecl_shim.cpp is compiled
+// -fdefault-calling-conv=cdecl and exports this __stdcall trampoline.  All D3D
+// callbacks take a single 4-byte arg (DWORD or a pointer), so one shim covers all.
+typedef void (__attribute__((cdecl)) * RxdkCdeclCbPtr)(void*);
+extern "C" __attribute__((stdcall))
+void RxdkInvokeCdeclCallback(RxdkCdeclCbPtr pfn, void* arg);
+
 BOOLEAN
 CMiniport::Isr(
     IN PKINTERRUPT InterruptObject,
@@ -162,7 +178,7 @@ CMiniport::Dpc(
 
     // SRC: mcService()
 
-    do 
+    do
     {
         pending = 0;
         ULONG intr = REG_RD32(regbase, NV_PMC_INTR_0);
@@ -392,7 +408,7 @@ CMiniport::VBlank()
         data.Swap = m_VBlankFlipCount;
         data.Flags = vblankFlags;
 
-        m_pVerticalBlankCallback(&data);
+        RxdkInvokeCdeclCallback((RxdkCdeclCbPtr) m_pVerticalBlankCallback, &data);
     }
 
     // Restore crtc index
@@ -1054,7 +1070,7 @@ CMiniport::SoftwareMethod(
                 data.TimeUntilSwapVBlank    = timeUntilFlipVBlank;
                 data.TimeBetweenSwapVBlanks = m_TimeBetweenVBlanks * Interval;
 
-                m_pSwapCallback(&data);
+                RxdkInvokeCdeclCallback((RxdkCdeclCbPtr) m_pSwapCallback, &data);
             }
         }
         break;
@@ -1120,7 +1136,7 @@ CMiniport::SoftwareMethod(
 
             DWORD Context = REG_RD32(RegisterBase, NV_PGRAPH_COLORCLEARVALUE);
 
-            pCallback(Context);
+            RxdkInvokeCdeclCallback((RxdkCdeclCbPtr) pCallback, (void*) Context);
         }
         break;
 

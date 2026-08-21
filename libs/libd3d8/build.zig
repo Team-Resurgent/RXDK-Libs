@@ -120,13 +120,23 @@ pub fn addAllObjectsVariant(
     for (d3d8_sources.slices) |slice| {
         for (slice.sources) |src| {
             const use_opt = if (std.mem.indexOf(u8, src, "mpintr") != null) mpintr_opt else opt_flag;
+            // cdecl_shim.cpp must build with the cdecl default (not the libd3d8-wide
+            // -fdefault-calling-conv=stdcall) so its indirect callback call gets
+            // correct caller-cleanup. Appending overrides the earlier flag (last wins).
+            const use_flags: []const []const u8 = if (std.mem.indexOf(u8, src, "cdecl_shim") != null) blk: {
+                var list = std.ArrayListUnmanaged([]const u8).empty;
+                list.appendSlice(allocator, cppFlagsFor(b, profile)) catch @panic("OOM");
+                list.append(allocator, "-Xclang") catch @panic("OOM");
+                list.append(allocator, "-fdefault-calling-conv=cdecl") catch @panic("OOM");
+                break :blk list.toOwnedSlice(allocator) catch @panic("OOM");
+            } else cppFlagsFor(b, profile);
             const one = allocator.dupe([]const u8, &.{src}) catch @panic("OOM");
             const batch = compile_c.addBatch(b, .{
                 .name = if (profile) b.fmt("d3d8i-{s}", .{std.fs.path.stem(src)}) else b.fmt("d3d8-{s}", .{std.fs.path.stem(src)}),
                 .target = xbox_target.target_triple,
                 .out_subdir = if (profile) b.fmt("d3d8i/{s}", .{slice.name}) else b.fmt("d3d8/{s}", .{slice.name}),
                 .sources = one,
-                .flags = cppFlagsFor(b, profile),
+                .flags = use_flags,
                 .include_dirs = includeDirs(),
                 .opt_flag = use_opt,
                 .is_cpp = slice.is_cpp,

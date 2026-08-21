@@ -13,6 +13,7 @@ pub const Slice = struct {
 pub const se_sources = [_][]const u8{
     "libs/libd3d8/se/block.cpp",
     "libs/libd3d8/se/buffer.cpp",
+    "libs/libd3d8/se/cdecl_shim.cpp",
     "libs/libd3d8/se/clear.cpp",
     "libs/libd3d8/se/combiner.cpp",
     "libs/libd3d8/se/d3dbase.cpp",

@@ -1372,27 +1372,34 @@ D3DXMATRIX* WINAPI D3DXMatrixInverse
 
     fRcp = 1.0f / fDet;
 
-    if(!_finite(fRcp))
+    // A non-invertible matrix must fail WITHOUT writing pOut - callers rely on their
+    // output matrix being left untouched on failure (e.g. the PushBuffer sample inverts
+    // an uninitialized matrix and depends on its modelView surviving). The plain
+    // !_finite(fRcp) test misses one degenerate case: a determinant of +/-INF (which an
+    // finite, so the code would proceed. Reject that too.
+    if(!_finite(fRcp) || !_finite(fDet))
         return NULL;
 
+    // multiply all 3x3 cofactors by reciprocal & transpose, into a LOCAL matrix first.
+    // A near-singular (tiny-determinant) input yields a huge fRcp whose product with a
+    // normal cofactor overflows to +/-INF while fRcp itself stays finite -- so the fRcp
+    // test above cannot catch it. Callers rely on their output matrix being left
+    // untouched on failure (the PushBuffer sample inverts an uninitialized matrix and
+    // depends on its modelView surviving), so validate every element is finite and only
+    // then commit; otherwise the matrix is effectively non-invertible -> return NULL.
+    D3DXMATRIX m;
+    m._11 = fZ00 * fRcp;  m._12 = fZ10 * fRcp;  m._13 = fZ20 * fRcp;  m._14 = fZ30 * fRcp;
+    m._21 = fZ01 * fRcp;  m._22 = fZ11 * fRcp;  m._23 = fZ21 * fRcp;  m._24 = fZ31 * fRcp;
+    m._31 = fZ02 * fRcp;  m._32 = fZ12 * fRcp;  m._33 = fZ22 * fRcp;  m._34 = fZ32 * fRcp;
+    m._41 = fZ03 * fRcp;  m._42 = fZ13 * fRcp;  m._43 = fZ23 * fRcp;  m._44 = fZ33 * fRcp;
 
-    // multiply all 3x3 cofactors by reciprocal & transpose
-    pOut->_11 = fZ00 * fRcp;
-    pOut->_12 = fZ10 * fRcp;
-    pOut->_13 = fZ20 * fRcp;
-    pOut->_14 = fZ30 * fRcp;
-    pOut->_21 = fZ01 * fRcp;
-    pOut->_22 = fZ11 * fRcp;
-    pOut->_23 = fZ21 * fRcp;
-    pOut->_24 = fZ31 * fRcp;
-    pOut->_31 = fZ02 * fRcp;
-    pOut->_32 = fZ12 * fRcp;
-    pOut->_33 = fZ22 * fRcp;
-    pOut->_34 = fZ32 * fRcp;
-    pOut->_41 = fZ03 * fRcp;
-    pOut->_42 = fZ13 * fRcp;
-    pOut->_43 = fZ23 * fRcp;
-    pOut->_44 = fZ33 * fRcp;
+    for(int i = 0; i < 16; i++)
+    {
+        if(!_finite(((const float*)&m)[i]))
+            return NULL;
+    }
+
+    *pOut = m;
 
     return pOut;
 }

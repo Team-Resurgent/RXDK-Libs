@@ -235,7 +235,12 @@ XBOXAPI HRESULT WINAPI XOnlineSilentLogon(const DWORD *pdwServiceIDs, DWORD dwSe
     if (FAILED(hr))
         return hr;
     if (cStored == 0)
-        return XONLINE_E_USER_NOT_PRESENT;
+        // The silent-logon API reports "no accounts" with its own SILENT_LOGON code,
+        // not the generic USER_NOT_PRESENT: titles switch on the silent-logon family
+        // (see the SilentAuth sample) and treat anything else as "can't happen" -> assert.
+        // With no configured account (the offline/first-boot case) this lets the title take
+        // its graceful "No User Accounts Found" path and boot to the dash instead of asserting.
+        return XONLINE_E_SILENT_LOGON_NO_ACCOUNTS;
 
     XONLINE_USER logonUsers[XONLINE_MAX_LOGON_USERS];
     memset(logonUsers, 0, sizeof(logonUsers));

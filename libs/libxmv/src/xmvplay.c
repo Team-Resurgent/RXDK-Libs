@@ -794,6 +794,7 @@ HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect
     XMVVIDEO_DESC      desc;
     HRESULT            hr = S_OK;
     int                looping;
+    RECT               srcRect, dstRect;
 
     if (!pDecoder)
         return E_INVALIDARG;
@@ -810,12 +811,32 @@ HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect
     if (FAILED(hr))
         return hr;
 
+    // D3DDevice_UpdateOverlay requires a non-NULL source AND destination rect. The
+    // source is the whole decoded YUY2 surface; the destination is the caller's rect
+    // when given, else the full screen (pRect NULL means "play full-screen").
+    srcRect.left = 0; srcRect.top = 0;
+    srcRect.right = (LONG)desc.Width; srcRect.bottom = (LONG)desc.Height;
+    if (pRect) {
+        dstRect = *pRect;
+    } else {
+        D3DDISPLAYMODE mode;
+        D3DDevice_GetDisplayMode(&mode);
+        dstRect.left = 0; dstRect.top = 0;
+        dstRect.right  = (LONG)(mode.Width  ? mode.Width  : 640);
+        dstRect.bottom = (LONG)(mode.Height ? mode.Height : 480);
+    }
+
     // The header's prose calls this XMVPLAY_LOOP, but no such constant is defined
     // anywhere in it; XMVFLAG_FULL_LOOP is the loop bit the library actually has.
     // Also honour the flag the decoder was created with.
     looping = ((Flags & XMVFLAG_FULL_LOOP) != 0) || pDecoder->loop;
     pDecoder->stop_after_loop = 0;
     pDecoder->stop_now        = 0;
+
+    // Play() owns the overlay for the length of the movie: it must be enabled
+    // before UpdateOverlay will composite anything (the title using this blocking
+    // interface does not touch the overlay itself, unlike the GetNextFrame path).
+    D3DDevice_EnableOverlay(TRUE);
 
     while (!pDecoder->stop_now) {
         XMVRESULT result = XMV_NOFRAME;
@@ -826,7 +847,7 @@ HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect
             break;
 
         if (result == XMV_NEWFRAME) {
-            D3DDevice_UpdateOverlay(pSurface, NULL, pRect, FALSE, 0);
+            D3DDevice_UpdateOverlay(pSurface, &srcRect, &dstRect, FALSE, 0);
             continue;
         }
 

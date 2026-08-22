@@ -83,6 +83,7 @@ pub const cpp_sources = [_][]const u8{
 // xonline.lib, so it is packed separately -- see the root build.zig's libuix.
 pub const uix_sources = [_][]const u8{
     X ++ "/src/uix5849.cpp",
+    X ++ "/src/uix_skin.cpp",
 };
 
 pub const slices = [_]Slice{

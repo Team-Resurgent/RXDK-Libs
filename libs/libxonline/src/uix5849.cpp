@@ -38,6 +38,7 @@
 #include <d3d8.h>
 #include <xonline.h>
 #include <uix.h>
+#include "uix_skin.h"
 
 // malloc/free/memset/memcpy come from the force-included site/cdecl_libc.h, which
 // declares them __cdecl. Do NOT include <stdlib.h>/<string.h> here: this library
@@ -211,8 +212,23 @@ enum RXDK_UIX_STATE
     UIXST_LOGON_CONNECTING,
     UIXST_FRIENDS,
     UIXST_PLAYERS,
+    UIXST_CUSTOM,        // a title-supplied extension feature (IUIXFeature) is active
     UIXST_EXIT_PENDING,
 };
+
+// A registered screen (from IUIXEngineInternal::CreateScreen). Objects are created
+// lazily on first ShowScreen and rendered/​fed-input via the IUIXScreen vtable.
+struct RXDK_UIX_SCREEN
+{
+    IUIXScreen *pScreen;      // title's screen implementation
+    DWORD       dwScreenResID;
+    DWORD       dwInstance;   // unique id passed to the plugin's per-screen object calls
+    BOOL        fCreated;     // IUIXScreen::CreateScreen() has been invoked
+    BOOL        fInputEnabled;
+    BOOL        fAllowStartBack;
+};
+
+#define RXDK_UIX_MAX_SCREENS 8
 
 // a controller's claim on a picker row
 struct UIX_CLAIM
@@ -220,6 +236,52 @@ struct UIX_CLAIM
     LONG  iAccount;  // index into accounts[], -1 = no claim
     BOOL  fGuest;    // claim is "guest of accounts[iAccount]"
     DWORD dwGuestNo; // 1..3 when fGuest
+};
+
+struct RXDK_UIX_ENGINE;
+
+// The IUIXEngineInternal handed to a title extension feature via UIX_FEATURE_CONTEXT.
+// It is a real COM-style vtable (unlike ILiveEngine, which is an opaque handle), so
+// it is a class embedded in the engine with a back-pointer, mirroring CPlayersList.
+// Bodies are defined out-of-line once RXDK_UIX_ENGINE and the skin helpers exist.
+class CUIXEngineInternal : public IUIXEngineInternal
+{
+public:
+    RXDK_UIX_ENGINE *pEngine;
+
+    STDMETHOD(CreateScreen)(OUT UIX_SCREEN *pScreenObject, IN DWORD ScreenResID,
+                            IN IUIXScreen *pScreenInterface);
+    STDMETHOD(DestroyScreen)(IN UIX_SCREEN ScreenObject);
+    STDMETHOD(ShowScreen)(IN UIX_SCREEN ScreenObject, IN BOOL ReplaceCurrent);
+    STDMETHOD(HideTopScreen)();
+    STDMETHOD(EnableScreenInput)(IN UIX_SCREEN ScreenObject, IN BOOL Enable);
+    STDMETHOD(AllowStartAndBack)(IN UIX_SCREEN ScreenObject, IN BOOL Allow);
+    STDMETHOD(CreateObject)(OUT DWORD *pObjectID, IN UIX_SCREEN ScreenObject,
+                            IN UIX_OBJECT_TYPE ObjectType, IN DWORD ObjectResID);
+    STDMETHOD(SetText)(IN UIX_SCREEN ScreenObject, IN DWORD ObjectID, IN LPCWSTR pText);
+    STDMETHOD(SetTextWithResID)(IN UIX_SCREEN ScreenObject, IN DWORD ObjectID,
+                                IN DWORD StringResID);
+    STDMETHOD(AddListItem)(IN UIX_SCREEN ScreenObject, IN DWORD ObjectID, IN LPCWSTR pText,
+                           IN DWORD IconCount, IN const UIX_SKIN_ICON_INFO *pIconInfo);
+    STDMETHOD(AddGreyListItem)(IN UIX_SCREEN ScreenObject, IN DWORD ObjectID, IN LPCWSTR pText,
+                               IN DWORD IconCount, IN const UIX_SKIN_ICON_INFO *pIconInfo);
+    STDMETHOD(ClearList)(IN UIX_SCREEN ScreenObject, IN DWORD ObjectID,
+                         IN BOOL ResetSelectionIndex);
+    STDMETHOD(SeparateTextAndIcons)(IN OUT LPCWSTR *ppText, OUT DWORD *pIconCount,
+                                    OUT UIX_SKIN_ICON_INFO **ppIcons);
+    STDMETHOD(SendMessageToAllFeatures)(IN UIX_FEATUREMSG_TYPE Msg, IN const VOID *pParam);
+    STDMETHOD(PlaySound)(IN DWORD SoundResID);
+    STDMETHOD(LaunchDash)(IN DWORD Reason, IN DWORD Parameter1, IN DWORD Parameter2);
+    STDMETHOD(ShowPopup)(IN LPCWSTR pTitleString, IN DWORD MessageStringResID,
+                         IN DWORD ActionButtonStringResID, IN DWORD BackButtonStringResID,
+                         IN LPCWSTR pParamString);
+    STDMETHOD_(BOOL, CanRecordVoiceMailForPort)(IN DWORD Port);
+    STDMETHOD_(BOOL, CanPlayVoiceMailForPort)(IN DWORD Port);
+    STDMETHOD(ShowVoiceMailScreen)(IN DWORD Port, IN XUID xuidUser, IN LPCWSTR pTitle,
+                                   IN LPCWSTR pSubject, IN BOOL Recording, IN DWORD MessageDuration,
+                                   IN DWORD VoiceMessageBufferSize, IN BYTE *pVoiceMessageBuffer);
+    STDMETHOD(SetVoiceMailPlayScreenData)(IN DWORD Port, IN DWORD MessageDuration,
+                                          IN DWORD VoiceMessageBufferSize, IN BYTE *pVoiceMessageBuffer);
 };
 
 struct RXDK_UIX_ENGINE
@@ -302,6 +364,22 @@ struct RXDK_UIX_ENGINE
     UIX_EXIT_INFO        exitInfo;
     UIX_LOGON_EXIT_DATA  logonExitData;
     UIX_SELECTION_INFO   selInfo;
+
+    // ---- title extension features (IUIXFeature) + skin ----
+    UIX_SKIN            *pSkin;             // parsed .uix (NULL if none/failed)
+    IPluginSupport      *pPluginSupport;    // skin-backed, handed to feature + plugin
+    BOOL                 fPluginSupportSet; // pUIPlugin->SetPluginSupport() done
+    CUIXEngineInternal   engineInternal;    // vtable handed to the active feature
+    IUIXFeature         *pCustomFeature;    // active extension feature (UIXST_CUSTOM)
+    UIX_FEATURE          customFeatureID;   // its token (== pCustomFeature) for exit info
+    UIX_FEATURE_CONTEXT  customCtx;         // context passed to the feature
+    BOOL                 fCustomEndRequested; // feature called EndFeature() this frame
+    RXDK_UIX_SCREEN      screens[RXDK_UIX_MAX_SCREENS]; // registry
+    DWORD                cScreens;
+    UIX_SCREEN           screenStack[RXDK_UIX_MAX_SCREENS]; // shown, top = last
+    DWORD                cScreenStack;
+    DWORD                dwNextScreenInstance;
+    DWORD                dwCustomPrevPressed[XONLINE_MAX_LOGON_USERS]; // rich edge-detect
 };
 
 static RXDK_UIX_ENGINE *Eng(LiveEngine *pThis)
@@ -671,13 +749,37 @@ static void BuildPlayersView(RXDK_UIX_ENGINE *e)
 
 extern "C" {
 
+// Read an entire file into a heap buffer (used for the .uix skin). Returns NULL on
+// any failure; *pcb gets the byte count on success.
+static BYTE *UixReadFile(LPCSTR pPath, DWORD *pcb)
+{
+    *pcb = 0;
+    HANDLE h = CreateFileA(pPath, GENERIC_READ, FILE_SHARE_READ, NULL,
+                           OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE)
+        return NULL;
+    DWORD cb = GetFileSize(h, NULL);
+    BYTE *p = NULL;
+    if (cb != 0 && cb != INVALID_FILE_SIZE) {
+        p = (BYTE *)UixAlloc(cb);
+        DWORD got = 0;
+        if (!p || !ReadFile(h, p, cb, &got, NULL) || got != cb) {
+            if (p) UixFree(p);
+            p = NULL;
+        }
+    }
+    CloseHandle(h);
+    if (p) *pcb = cb;
+    return p;
+}
+
 XBOXAPI HRESULT WINAPI UIXCreateLiveEngine(LPCSTR pSkinFileName, DWORD LanguageID,
                                            ILiveEngine **ppEngine)
 {
-    // Skin files are accepted and unused by design (font-renderer rendering
-    // contract -- see the file header). Language is ignored: English strings.
-    (void)pSkinFileName;
-    (void)LanguageID;
+    // The built-in features render as plain text (font-renderer contract -- see the
+    // file header) and ignore the skin. But TITLE extension features (IUIXFeature,
+    // e.g. the on-screen keyboard) pull geometry/labels/textures from the .uix skin
+    // through IPluginSupport, so load it when present.
     if (!ppEngine)
         return E_POINTER;
     RXDK_UIX_ENGINE *e = (RXDK_UIX_ENGINE *)UixAlloc(sizeof(RXDK_UIX_ENGINE));
@@ -690,6 +792,23 @@ XBOXAPI HRESULT WINAPI UIXCreateLiveEngine(LPCSTR pSkinFileName, DWORD LanguageI
     e->playersList.m_cCurrent    = 0;
     e->playersList.m_cDeparted   = 0;
     e->playersList.m_FilterFlags = 0;
+    new (&e->engineInternal) CUIXEngineInternal;
+    e->engineInternal.pEngine = e;
+    e->dwNextScreenInstance = 1;
+
+    // Load the skin (best-effort: a missing/unparseable skin leaves built-in
+    // features working; only extension features that need skin resources fail).
+    if (pSkinFileName && pSkinFileName[0]) {
+        DWORD cb = 0;
+        BYTE *pBytes = UixReadFile(pSkinFileName, &cb);
+        if (pBytes) {
+            e->pSkin = UixSkinLoad(pBytes, cb, LanguageID);
+            UixFree(pBytes);
+            if (e->pSkin)
+                e->pPluginSupport = UixCreatePluginSupport(e->pSkin);
+        }
+    }
+
     e->lRefCount = 1;
     e->state     = UIXST_IDLE;
     for (DWORD p = 0; p < XONLINE_MAX_LOGON_USERS; p++) {
@@ -756,6 +875,10 @@ ULONG WINAPI LiveEngine_Release(LiveEngine *pThis)
                 XOnlineFriendsEnumerateFinish(e->hFriendsEnumTask[i]);
         if (e->hFriendsStartupTask)
             XOnlineTaskClose(e->hFriendsStartupTask);
+        if (e->pPluginSupport)
+            UixDestroyPluginSupport(e->pPluginSupport);
+        if (e->pSkin)
+            UixSkinFree(e->pSkin);
         UixFree(e);
         return 0;
     }
@@ -764,7 +887,14 @@ ULONG WINAPI LiveEngine_Release(LiveEngine *pThis)
 
 HRESULT WINAPI LiveEngine_SetUIPlugin(LiveEngine *pThis, ITitleUIPlugin *pUIPlugin)
 {
-    Eng(pThis)->pUIPlugin = pUIPlugin;
+    RXDK_UIX_ENGINE *e = Eng(pThis);
+    e->pUIPlugin = pUIPlugin;
+    // Hand the title's plugin the skin-backed IPluginSupport it needs to resolve
+    // layouts/images/strings (extension-feature rendering path).
+    if (pUIPlugin && e->pPluginSupport && !e->fPluginSupportSet) {
+        pUIPlugin->SetPluginSupport(e->pPluginSupport);
+        e->fPluginSupportSet = TRUE;
+    }
     return S_OK;
 }
 
@@ -774,13 +904,46 @@ HRESULT WINAPI LiveEngine_SetAudioPlugin(LiveEngine *pThis, ITitleAudioPlugin *p
     return S_OK;
 }
 
-HRESULT WINAPI LiveEngine_EnableFeature(LiveEngine *pThis, UIX_FEATURE FeatureID)
+// A UIX_FEATURE is a built-in when it points inside s_uixTokens; anything else is a
+// title-supplied extension feature, and the token IS an IUIXFeature*.
+static BOOL IsBuiltinFeature(UIX_FEATURE FeatureID)
 {
     const BYTE *p = (const BYTE *)FeatureID;
-    if (p < s_uixTokens || p >= s_uixTokens + 4)
-        return E_INVALIDARG;
-    Eng(pThis)->dwEnabledFeatures |= (1u << (p - s_uixTokens));
-    return S_OK;
+    return (p >= s_uixTokens && p < s_uixTokens + 5);
+}
+
+// Populate the context handed to an extension feature (all five members must stay
+// live for the feature's whole lifetime; customCtx is an engine member, so it does).
+static void BuildCustomContext(RXDK_UIX_ENGINE *e)
+{
+    ITitleFontRenderer *pFont = NULL;
+    if (e->pUIPlugin)
+        e->pUIPlugin->GetFont(&pFont);
+    e->customCtx.pEngine         = (ILiveEngine *)e;
+    e->customCtx.pEngineInternal = &e->engineInternal;
+    e->customCtx.pPluginSupport  = e->pPluginSupport;
+    e->customCtx.pUIPlugin       = e->pUIPlugin;
+    e->customCtx.pFont           = pFont;
+}
+
+HRESULT WINAPI LiveEngine_EnableFeature(LiveEngine *pThis, UIX_FEATURE FeatureID)
+{
+    RXDK_UIX_ENGINE *e = Eng(pThis);
+    const BYTE *p = (const BYTE *)FeatureID;
+    if (p >= s_uixTokens && p < s_uixTokens + 4) {
+        e->dwEnabledFeatures |= (1u << (p - s_uixTokens));
+        return S_OK;
+    }
+    if (IsBuiltinFeature(FeatureID))
+        return E_INVALIDARG;  // s_uixTokens[4] is the voice-mail entry point, not a feature
+
+    // Extension feature: give it its context and let it register.
+    IUIXFeature *pFeature = (IUIXFeature *)FeatureID;
+    BuildCustomContext(e);
+    HRESULT hr = pFeature->SetContext(&e->customCtx);
+    if (SUCCEEDED(hr))
+        hr = pFeature->CreateFeature();
+    return hr;
 }
 
 HRESULT WINAPI LiveEngine_StartFeature(LiveEngine *pThis, UIX_FEATURE FeatureID,
@@ -983,6 +1146,32 @@ HRESULT WINAPI LiveEngine_StartFeature(LiveEngine *pThis, UIX_FEATURE FeatureID,
         return S_OK;
     }
 
+    // ----- title extension feature (IUIXFeature) -----
+    if (!IsBuiltinFeature(FeatureID)) {
+        IUIXFeature *pFeature = (IUIXFeature *)FeatureID;
+        BuildCustomContext(e);   // refresh (plugin may have been set after EnableFeature)
+        e->cScreens         = 0;
+        e->cScreenStack     = 0;
+        e->fCustomEndRequested = FALSE;
+
+        HRESULT hr = pFeature->ActivateFeature(pFeatureParams);
+        if (FAILED(hr))
+            return hr;
+
+        // ActivateFeature constructed the feature's screens (each registered via
+        // CreateScreen). Show the current one; its objects are created on show.
+        UIX_SCREEN cur = NULL;
+        if (SUCCEEDED(pFeature->GetCurrentScreen(&cur)) && cur) {
+            e->engineInternal.EnableScreenInput(cur, TRUE);
+            e->engineInternal.ShowScreen(cur, TRUE);
+        }
+        e->pCustomFeature  = pFeature;
+        e->customFeatureID = FeatureID;
+        memset(e->dwCustomPrevPressed, 0, sizeof(e->dwCustomPrevPressed));
+        e->state = UIXST_CUSTOM;
+        return S_OK;
+    }
+
     // _uix_uitest_feature exists only in checked builds of retail uix
     return E_FAIL;
 }
@@ -1019,6 +1208,300 @@ static DWORD PortEdges(RXDK_UIX_ENGINE *e, DWORD port)
     DWORD edges   = pressed & ~e->dwPrevPressed[port];
     e->dwPrevPressed[port] = pressed;
     return edges;
+}
+
+// ============================================================================
+//  Extension-feature host: IUIXEngineInternal + a screen stack, driving a
+//  title-supplied IUIXFeature (e.g. the UIXKeyboard sample's on-screen keyboard)
+//  through its IUIXScreen(s). Rendering/object work is delegated to the title's
+//  ITitleUIPlugin; skin resources come from the .uix via IPluginSupport.
+// ============================================================================
+
+static RXDK_UIX_SCREEN *ScreenRec(RXDK_UIX_ENGINE *e, UIX_SCREEN h)
+{
+    for (DWORD i = 0; i < e->cScreens; i++)
+        if ((UIX_SCREEN)&e->screens[i] == h && e->screens[i].pScreen)
+            return &e->screens[i];
+    return NULL;
+}
+
+static RXDK_UIX_SCREEN *TopScreen(RXDK_UIX_ENGINE *e)
+{
+    if (e->cScreenStack == 0)
+        return NULL;
+    return ScreenRec(e, e->screenStack[e->cScreenStack - 1]);
+}
+
+static void EnsureScreenCreated(RXDK_UIX_ENGINE *e, RXDK_UIX_SCREEN *s)
+{
+    (void)e;
+    if (s && !s->fCreated && s->pScreen) {
+        s->fCreated = TRUE;
+        s->pScreen->CreateScreen();   // screen-side: creates its objects via the engine
+    }
+}
+
+HRESULT CUIXEngineInternal::CreateScreen(UIX_SCREEN *pScreenObject, DWORD ScreenResID,
+                                         IUIXScreen *pScreenInterface)
+{
+    if (!pScreenObject)
+        return E_POINTER;
+    *pScreenObject = NULL;
+    if (pEngine->cScreens >= RXDK_UIX_MAX_SCREENS)
+        return E_OUTOFMEMORY;
+    RXDK_UIX_SCREEN *s = &pEngine->screens[pEngine->cScreens++];
+    s->pScreen         = pScreenInterface;
+    s->dwScreenResID   = ScreenResID;
+    s->dwInstance      = pEngine->dwNextScreenInstance++;
+    s->fCreated        = FALSE;
+    s->fInputEnabled   = FALSE;
+    s->fAllowStartBack = FALSE;
+    *pScreenObject = (UIX_SCREEN)s;
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::DestroyScreen(UIX_SCREEN ScreenObject)
+{
+    RXDK_UIX_SCREEN *s = ScreenRec(pEngine, ScreenObject);
+    if (!s)
+        return E_INVALIDARG;
+    if (pEngine->pUIPlugin)
+        pEngine->pUIPlugin->DestroyScreenObjects(s->dwInstance);
+    for (DWORD i = 0; i < pEngine->cScreenStack; ) {
+        if (pEngine->screenStack[i] == ScreenObject) {
+            for (DWORD j = i + 1; j < pEngine->cScreenStack; j++)
+                pEngine->screenStack[j - 1] = pEngine->screenStack[j];
+            pEngine->cScreenStack--;
+        } else i++;
+    }
+    s->pScreen = NULL;   // free the record
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::ShowScreen(UIX_SCREEN ScreenObject, BOOL ReplaceCurrent)
+{
+    RXDK_UIX_SCREEN *s = ScreenRec(pEngine, ScreenObject);
+    if (!s)
+        return E_INVALIDARG;
+    if (ReplaceCurrent && pEngine->cScreenStack > 0)
+        pEngine->cScreenStack--;
+    for (DWORD i = 0; i < pEngine->cScreenStack; i++)
+        if (pEngine->screenStack[i] == ScreenObject)
+            return S_OK;   // already shown
+    if (pEngine->cScreenStack >= RXDK_UIX_MAX_SCREENS)
+        return E_OUTOFMEMORY;
+    EnsureScreenCreated(pEngine, s);
+    s->pScreen->ReceiveMessage(UIX_SCREENMSG_SHOW, NULL);
+    pEngine->screenStack[pEngine->cScreenStack++] = ScreenObject;
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::HideTopScreen()
+{
+    if (pEngine->cScreenStack == 0)
+        return S_OK;
+    RXDK_UIX_SCREEN *s = TopScreen(pEngine);
+    if (s && s->pScreen)
+        s->pScreen->ReceiveMessage(UIX_SCREENMSG_HIDE, NULL);
+    pEngine->cScreenStack--;
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::EnableScreenInput(UIX_SCREEN ScreenObject, BOOL Enable)
+{
+    RXDK_UIX_SCREEN *s = ScreenRec(pEngine, ScreenObject);
+    if (!s) return E_INVALIDARG;
+    s->fInputEnabled = Enable;
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::AllowStartAndBack(UIX_SCREEN ScreenObject, BOOL Allow)
+{
+    RXDK_UIX_SCREEN *s = ScreenRec(pEngine, ScreenObject);
+    if (!s) return E_INVALIDARG;
+    s->fAllowStartBack = Allow;
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::CreateObject(DWORD *pObjectID, UIX_SCREEN ScreenObject,
+                                         UIX_OBJECT_TYPE ObjectType, DWORD ObjectResID)
+{
+    if (!pObjectID) return E_POINTER;
+    *pObjectID = 0;
+    RXDK_UIX_SCREEN *s = ScreenRec(pEngine, ScreenObject);
+    if (!s || !pEngine->pUIPlugin) return E_FAIL;
+    // Engine's CreateObject carries no ScreenResID; the plugin needs it plus our
+    // per-screen instance id, both remembered at CreateScreen time.
+    return pEngine->pUIPlugin->CreateObject(ObjectType, s->dwInstance, s->dwScreenResID,
+                                            ObjectResID, pObjectID);
+}
+
+HRESULT CUIXEngineInternal::SetText(UIX_SCREEN, DWORD ObjectID, LPCWSTR pText)
+{
+    if (!pEngine->pUIPlugin) return E_FAIL;
+    return pEngine->pUIPlugin->SetText(ObjectID, 0, pText ? pText : L"", 0, NULL);
+}
+
+HRESULT CUIXEngineInternal::SetTextWithResID(UIX_SCREEN, DWORD ObjectID, DWORD StringResID)
+{
+    if (!pEngine->pUIPlugin) return E_FAIL;
+    const WCHAR *pText = pEngine->pSkin ? UixSkinGetString(pEngine->pSkin, StringResID) : NULL;
+    return pEngine->pUIPlugin->SetText(ObjectID, 0, pText ? pText : L"", 0, NULL);
+}
+
+HRESULT CUIXEngineInternal::AddListItem(UIX_SCREEN, DWORD ObjectID, LPCWSTR pText,
+                                        DWORD IconCount, const UIX_SKIN_ICON_INFO *pIconInfo)
+{
+    if (!pEngine->pUIPlugin) return E_FAIL;
+    DWORD idx = 0;
+    pEngine->pUIPlugin->InsertItem(ObjectID, 0xFFFFFFFF, &idx);   // append
+    return pEngine->pUIPlugin->SetText(ObjectID, idx, pText ? pText : L"", IconCount, pIconInfo);
+}
+
+HRESULT CUIXEngineInternal::AddGreyListItem(UIX_SCREEN, DWORD ObjectID, LPCWSTR pText,
+                                            DWORD IconCount, const UIX_SKIN_ICON_INFO *pIconInfo)
+{
+    if (!pEngine->pUIPlugin) return E_FAIL;
+    DWORD idx = 0;
+    pEngine->pUIPlugin->InsertItem(ObjectID, 0xFFFFFFFF, &idx);
+    pEngine->pUIPlugin->SetText(ObjectID, idx, pText ? pText : L"", IconCount, pIconInfo);
+    pEngine->pUIPlugin->SetObjectState(ObjectID, idx, UIX_OBJSTATE_LIST_ITEM_GREYED, TRUE);
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::ClearList(UIX_SCREEN, DWORD ObjectID, BOOL ResetSelectionIndex)
+{
+    if (!pEngine->pUIPlugin) return E_FAIL;
+    return pEngine->pUIPlugin->Clear(ObjectID, ResetSelectionIndex);
+}
+
+HRESULT CUIXEngineInternal::SeparateTextAndIcons(LPCWSTR *ppText, DWORD *pIconCount,
+                                                 UIX_SKIN_ICON_INFO **ppIcons)
+{
+    // The skin loader already strips the icon block from strings, so text passed
+    // through here has no embedded {IMG_*} icons to separate.
+    (void)ppText;
+    if (pIconCount) *pIconCount = 0;
+    if (ppIcons)    *ppIcons    = NULL;
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::SendMessageToAllFeatures(UIX_FEATUREMSG_TYPE Msg, const VOID *pParam)
+{
+    if (pEngine->pCustomFeature)
+        pEngine->pCustomFeature->ReceiveMessage(Msg, pParam, NULL, NULL);
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::PlaySound(DWORD SoundResID)
+{
+    if (!pEngine->pAudioPlugin || !pEngine->pSkin)
+        return S_OK;
+    LPCSTR name = UixSkinGetAudioName(pEngine->pSkin, SoundResID);
+    if (name)
+        pEngine->pAudioPlugin->PlaySound(name);
+    return S_OK;
+}
+
+HRESULT CUIXEngineInternal::LaunchDash(DWORD, DWORD, DWORD)
+{
+    return S_OK;   // extension features we host don't launch the dash
+}
+
+HRESULT CUIXEngineInternal::ShowPopup(LPCWSTR, DWORD, DWORD, DWORD, LPCWSTR)
+{
+    return S_OK;   // popup screens not needed by the keyboard/help extension
+}
+
+BOOL CUIXEngineInternal::CanRecordVoiceMailForPort(DWORD) { return FALSE; }
+BOOL CUIXEngineInternal::CanPlayVoiceMailForPort(DWORD)   { return FALSE; }
+
+HRESULT CUIXEngineInternal::ShowVoiceMailScreen(DWORD, XUID, LPCWSTR, LPCWSTR, BOOL,
+                                                DWORD, DWORD, BYTE *)
+{
+    return E_NOTIMPL;
+}
+
+HRESULT CUIXEngineInternal::SetVoiceMailPlayScreenData(DWORD, DWORD, DWORD, BYTE *)
+{
+    return E_NOTIMPL;
+}
+
+// ---- extension-feature input (edge-triggered, per port) ----
+enum {
+    RK_A = 0, RK_B, RK_X, RK_Y, RK_START, RK_BACK, RK_BLACK, RK_WHITE,
+    RK_LT, RK_RT, RK_DUP, RK_DDOWN, RK_DLEFT, RK_DRIGHT,
+    RK_SUP, RK_SDOWN, RK_SLEFT, RK_SRIGHT, RK_COUNT
+};
+static const UIX_INPUT_TYPE g_richToUix[RK_COUNT] = {
+    UIX_INPUT_A, UIX_INPUT_B, UIX_INPUT_X, UIX_INPUT_Y,
+    UIX_INPUT_START, UIX_INPUT_BACK, UIX_INPUT_BLACK, UIX_INPUT_WHITE,
+    UIX_INPUT_LEFT_TRIGGER, UIX_INPUT_RIGHT_TRIGGER,
+    UIX_INPUT_DPAD_UP, UIX_INPUT_DPAD_DOWN, UIX_INPUT_DPAD_LEFT, UIX_INPUT_DPAD_RIGHT,
+    UIX_INPUT_UP, UIX_INPUT_DOWN, UIX_INPUT_LEFT, UIX_INPUT_RIGHT
+};
+static DWORD DecodeRich(const XINPUT_STATE *pState)
+{
+    DWORD k = 0;
+    const XINPUT_GAMEPAD *g = &pState->Gamepad;
+    #define RB(idx, bit) do { if (g->bAnalogButtons[idx] > UIX_ANALOG_PRESS_THRESHOLD) k |= (1u << (bit)); } while (0)
+    RB(XINPUT_GAMEPAD_A, RK_A); RB(XINPUT_GAMEPAD_B, RK_B);
+    RB(XINPUT_GAMEPAD_X, RK_X); RB(XINPUT_GAMEPAD_Y, RK_Y);
+    RB(XINPUT_GAMEPAD_BLACK, RK_BLACK); RB(XINPUT_GAMEPAD_WHITE, RK_WHITE);
+    RB(XINPUT_GAMEPAD_LEFT_TRIGGER, RK_LT); RB(XINPUT_GAMEPAD_RIGHT_TRIGGER, RK_RT);
+    #undef RB
+    if (g->wButtons & XINPUT_GAMEPAD_START) k |= (1u << RK_START);
+    if (g->wButtons & XINPUT_GAMEPAD_BACK)  k |= (1u << RK_BACK);
+    if (g->wButtons & XINPUT_GAMEPAD_DPAD_UP)    k |= (1u << RK_DUP);
+    if (g->wButtons & XINPUT_GAMEPAD_DPAD_DOWN)  k |= (1u << RK_DDOWN);
+    if (g->wButtons & XINPUT_GAMEPAD_DPAD_LEFT)  k |= (1u << RK_DLEFT);
+    if (g->wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) k |= (1u << RK_DRIGHT);
+    if (g->sThumbLY >  UIX_THUMB_DEADZONE) k |= (1u << RK_SUP);
+    if (g->sThumbLY < -UIX_THUMB_DEADZONE) k |= (1u << RK_SDOWN);
+    if (g->sThumbLX < -UIX_THUMB_DEADZONE) k |= (1u << RK_SLEFT);
+    if (g->sThumbLX >  UIX_THUMB_DEADZONE) k |= (1u << RK_SRIGHT);
+    return k;
+}
+static void PumpCustomInput(RXDK_UIX_ENGINE *e)
+{
+    for (DWORD port = 0; port < XONLINE_MAX_LOGON_USERS; port++) {
+        DWORD pressed = e->fInputValid[port] ? DecodeRich(&e->input[port]) : 0;
+        DWORD edges   = pressed & ~e->dwCustomPrevPressed[port];
+        e->dwCustomPrevPressed[port] = pressed;
+        if (!edges)
+            continue;
+        for (DWORD b = 0; b < RK_COUNT; b++) {
+            if (!(edges & (1u << b)))
+                continue;
+            RXDK_UIX_SCREEN *top = TopScreen(e);   // re-fetch: Input() may push/pop screens
+            if (!top || !top->pScreen || !top->fInputEnabled)
+                break;
+            top->pScreen->Input(port, g_richToUix[b]);
+            if (e->fCustomEndRequested)
+                return;   // feature asked to end; stop feeding input
+        }
+    }
+}
+
+// Tear down the active extension feature after it called EndFeature().
+static void EndCustomFeature(RXDK_UIX_ENGINE *e)
+{
+    IUIXFeature *f = e->pCustomFeature;
+    memset(&e->exitInfo, 0, sizeof(e->exitInfo));
+    if (f)
+        f->ReceiveMessage(UIX_FEATUREMSG_GET_EXIT_INFO, NULL, &e->exitInfo, NULL);
+    e->exitInfo.FeatureID = e->customFeatureID;
+    e->fExitPending = TRUE;
+    if (f)
+        f->HibernateFeature();   // deletes its screens -> DestroyScreen frees plugin objects
+    for (DWORD i = 0; i < e->cScreens; i++)   // defensive: anything left registered
+        if (e->screens[i].pScreen && e->pUIPlugin)
+            e->pUIPlugin->DestroyScreenObjects(e->screens[i].dwInstance);
+    e->cScreens            = 0;
+    e->cScreenStack        = 0;
+    e->pCustomFeature      = NULL;
+    e->fCustomEndRequested = FALSE;
+    e->state               = UIXST_EXIT_PENDING;
 }
 
 HRESULT WINAPI LiveEngine_DoWork(LiveEngine *pThis, DWORD *pDoWorkFlags)
@@ -1349,6 +1832,18 @@ HRESULT WINAPI LiveEngine_DoWork(LiveEngine *pThis, DWORD *pDoWorkFlags)
         break;
     }
 
+    case UIXST_CUSTOM:
+        flags |= UIX_DOWORK_NEED_TO_RENDER | UIX_DOWORK_PROCESSING_INPUT;
+        if (e->pCustomFeature)
+            e->pCustomFeature->PumpTasks();
+        PumpCustomInput(e);
+        if (e->fCustomEndRequested) {
+            EndCustomFeature(e);   // -> state UIXST_EXIT_PENDING
+            flags = (flags & ~(UIX_DOWORK_NEED_TO_RENDER | UIX_DOWORK_PROCESSING_INPUT))
+                  | UIX_DOWORK_FEATURE_EXIT;
+        }
+        break;
+
     case UIXST_EXIT_PENDING:
         flags |= UIX_DOWORK_FEATURE_EXIT;
         break;
@@ -1627,9 +2122,20 @@ HRESULT WINAPI LiveEngine_Render(LiveEngine *pThis, IDirect3DSurface8 *pSurface)
         break;
     }
 
+    case UIXST_CUSTOM:
+        // Extension feature: render its shown screens bottom-to-top. Each screen
+        // draws its own objects through the title's plugin (render target set above).
+        for (DWORD i = 0; i < e->cScreenStack; i++) {
+            RXDK_UIX_SCREEN *s = ScreenRec(e, e->screenStack[i]);
+            if (s && s->pScreen)
+                s->pScreen->Output();
+        }
+        break;
+
     default:
         break;
     }
+    e->pUIPlugin->SetRenderTarget(NULL);   // end the render pass (plugin restores state)
     return S_OK;
 }
 
@@ -1664,6 +2170,12 @@ HRESULT WINAPI LiveEngine_EndFeature(LiveEngine *pThis)
     case UIXST_PLAYERS:
         e->state = UIXST_IDLE;
         e->fExitPending = FALSE;
+        break;
+    case UIXST_CUSTOM:
+        // Called from within the feature's screen Input() (mid-DoWork). Defer the
+        // teardown to the DoWork UIXST_CUSTOM case so the screen stack isn't torn
+        // down underneath the running Input handler.
+        e->fCustomEndRequested = TRUE;
         break;
     default:
         break;
@@ -1920,75 +2432,8 @@ HRESULT WINAPI LiveFriendsList_Request(LiveFriendsList *pThis, XUID UserXUID)
 }
 
 // ---------------------------------------------------------------- plugin ---
-// PluginSupport: the skin-resource access interface. No skin ever loads (the
-// font-renderer rendering contract), so every getter reports "no resource";
-// custom plugins fall back to their own assets, which is exactly what the
-// UIXPlugin/UIXKeyboard samples do.
-
-ULONG WINAPI PluginSupport_AddRef(PluginSupport *pThis)
-{
-    (void)pThis;
-    return 1;
-}
-
-ULONG WINAPI PluginSupport_Release(PluginSupport *pThis)
-{
-    (void)pThis;
-    return 0;
-}
-
-HRESULT WINAPI PluginSupport_GetString(PluginSupport *pThis, DWORD StringResID, LPCWSTR *ppString)
-{
-    (void)pThis;
-    (void)StringResID;
-    if (ppString)
-        *ppString = NULL;
-    return E_FAIL;
-}
-
-HRESULT WINAPI PluginSupport_GetLayout(PluginSupport *pThis, DWORD ScreenResID, DWORD ObjectResID,
-                                       UIX_SKIN_LAYOUT_INFO **ppLayout)
-{
-    (void)pThis;
-    (void)ScreenResID;
-    (void)ObjectResID;
-    if (ppLayout)
-        *ppLayout = NULL;
-    return E_FAIL;
-}
-
-HRESULT WINAPI PluginSupport_GetImage(PluginSupport *pThis, DWORD ImageResID, IDirect3DTexture8 **ppTexture)
-{
-    (void)pThis;
-    (void)ImageResID;
-    if (ppTexture)
-        *ppTexture = NULL;
-    return E_FAIL;
-}
-
-HRESULT WINAPI PluginSupport_GetScreenImage(PluginSupport *pThis, DWORD ScreenResID, DWORD ImageResID,
-                                            IDirect3DTexture8 **ppTexture)
-{
-    (void)pThis;
-    (void)ScreenResID;
-    (void)ImageResID;
-    if (ppTexture)
-        *ppTexture = NULL;
-    return E_FAIL;
-}
-
-HRESULT WINAPI PluginSupport_GetWordLength(PluginSupport *pThis, LPCWSTR pString, DWORD *pWordLength)
-{
-    // real: length of the first whitespace-delimited word (the engine's own
-    // wrapping helper; usable by custom plugins)
-    (void)pThis;
-    if (!pString || !pWordLength)
-        return E_POINTER;
-    DWORD n = 0;
-    while (pString[n] && pString[n] != L' ' && pString[n] != L'\n' && pString[n] != L'\t')
-        n++;
-    *pWordLength = n;
-    return S_OK;
-}
+// PluginSupport (the skin-resource access interface) is now implemented in
+// uix_skin.cpp, backed by the loaded .uix skin. Extension features (UIXKeyboard)
+// resolve real strings/layouts/images/audio through it.
 
 } // extern "C"

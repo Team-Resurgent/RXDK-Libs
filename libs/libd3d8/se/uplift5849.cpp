@@ -485,9 +485,17 @@ VOID WINAPI D3DDevice_SetRenderState_SampleAlpha(
 
     PPUSH pPush = pDevice->StartPush();
 
+    // NV097_SET_ANTI_ALIASING_CONTROL is a single bundled register holding the
+    // MSAA enable, the alpha-to-coverage / alpha-to-one bits, AND the
+    // multisample SAMPLE_MASK (bits 31:16).  We must re-emit the sample mask
+    // here or we would zero it, masking out every coverage sample (a blank
+    // screen).  This mirrors CommonSetAntiAliasingControl().
     Push1(pPush, NV097_SET_ANTI_ALIASING_CONTROL,
-          (D3D__RenderState[D3DRS_MULTISAMPLEANTIALIAS] ? 1 : 0) |
-          (Value & (D3DSAMPLEALPHA_TOCOVERAGE | D3DSAMPLEALPHA_TOONE)));
+          DRF_NUM(097, _SET_ANTI_ALIASING_CONTROL, _ENABLE,
+                  D3D__RenderState[D3DRS_MULTISAMPLEANTIALIAS])
+        | DRF_NUM(097, _SET_ANTI_ALIASING_CONTROL, _SAMPLE_MASK,
+                  D3D__RenderState[D3DRS_MULTISAMPLEMASK])
+        | (Value & (D3DSAMPLEALPHA_TOCOVERAGE | D3DSAMPLEALPHA_TOONE)));
 
     pDevice->EndPush(pPush + 2);
 

@@ -111,7 +111,14 @@ HRESULT CreateStandAloneSurface(
     }
 
     // Allocate the data.
-    pData = AllocateContiguousMemory(MemorySize, D3DSURFACE_ALIGNMENT);
+    //
+    // RXDK: align stand-alone (image) surfaces to D3DTILE_ALIGNMENT (16K) rather than the
+    // retail D3DSURFACE_ALIGNMENT (64).  Titles legitimately tile such a surface when using
+    // it as an offscreen render target (e.g. the ZSprite/ShadowBuffer samples call SetTile
+    // on it), and the NV2A hard-locks if a tiled region's base isn't 16K-aligned.  Retail
+    // gets a 16K-aligned address here only by allocator luck; the surface header/geometry is
+    // unchanged, so this is transparent to callers and just guarantees tile-ability.
+    pData = AllocateContiguousMemory(MemorySize, D3DTILE_ALIGNMENT);
     if (!pData)
     {
         MemFree(pSurface);

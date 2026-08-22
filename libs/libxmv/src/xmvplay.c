@@ -98,6 +98,16 @@ struct XMVDecoder {
     volatile int stop_after_loop;   // TerminateLoop: finish this pass, then stop
     volatile int stop_now;          // TerminatePlayback / TerminateImmediately
     DWORD        sync_stream;       // audio track the clock follows
+
+    // Deferred packet-mode load. XMVDecoder_CreateDecoderForPackets is called by
+    // the title BEFORE it has finished setting up its packet buffers and queued
+    // the first read, so we cannot drain then. Stash the callbacks and pull the
+    // whole file on first access (EnsurePacketsLoaded).
+    int                         pkt_deferred;   // 1 until the drain has run
+    DWORD                       pkt_flags;
+    DWORD                       pkt_context;
+    PFNXMVGETNEXTPACKET         pkt_get;
+    PFNXMVRELEASEPREVIOUSPACKET pkt_release;
 };
 
 // ---------------------------------------------------------------------------
@@ -147,21 +157,14 @@ static HRESULT LoadWholeFile(const char *szFileName, BYTE **ppData, DWORD *pSize
 // ---------------------------------------------------------------------------
 
 // Build a decoder over an .xmv image the caller has already placed in memory.
-// Takes ownership of `image` -- freed by CloseDecoder, or here on failure.
-static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
-                                    XMVDecoder **ppDecoder)
+// Open the demuxer + video kernels over `image` into an already-allocated dec.
+// Takes ownership of `image` -- freed here on failure (dec is left untouched
+// otherwise, for the caller to free). dec->loop must already be set.
+static HRESULT SetupImageIntoDecoder(XMVDecoder *dec, BYTE *image, DWORD image_size)
 {
-    XMVDecoder *dec;
-    DWORD       max_packet;
-    int         rc;
+    DWORD max_packet;
+    int   rc;
 
-    dec = (XMVDecoder *)malloc(sizeof(*dec));
-    if (!dec) {
-        free(image);
-        return E_OUTOFMEMORY;
-    }
-    memset(dec, 0, sizeof(*dec));
-    dec->loop = (Flags & XMVFLAG_FULL_LOOP) != 0;
     dec->file = image;
     dec->file_size = image_size;
 
@@ -173,8 +176,8 @@ static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
     dec->scratch_size = max_packet;
     dec->scratch = (BYTE *)malloc(dec->scratch_size);
     if (!dec->scratch) {
-        free(dec->file);
-        free(dec);
+        dec->file = NULL;
+        free(image);
         return E_OUTOFMEMORY;
     }
 
@@ -182,8 +185,9 @@ static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
                       dec->scratch, dec->scratch_size);
     if (rc != 0) {
         free(dec->scratch);
-        free(dec->file);
-        free(dec);
+        dec->scratch = NULL;
+        dec->file = NULL;
+        free(image);
         return E_FAIL;
     }
 
@@ -203,8 +207,103 @@ static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
     if (dec->core && Wmv2X8Init(&dec->x8, dec->core) == 0)
         dec->x8_ok = 1;
 
+    return S_OK;
+}
+
+// Takes ownership of `image` -- freed by CloseDecoder, or here on failure.
+static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
+                                    XMVDecoder **ppDecoder)
+{
+    XMVDecoder *dec;
+    HRESULT     hr;
+
+    dec = (XMVDecoder *)malloc(sizeof(*dec));
+    if (!dec) {
+        free(image);
+        return E_OUTOFMEMORY;
+    }
+    memset(dec, 0, sizeof(*dec));
+    dec->loop = (Flags & XMVFLAG_FULL_LOOP) != 0;
+
+    hr = SetupImageIntoDecoder(dec, image, image_size);
+    if (FAILED(hr)) {
+        free(dec);
+        return hr;
+    }
+
     *ppDecoder = dec;
     return S_OK;
+}
+
+// Drain the whole .xmv in through the title's packet callbacks (see the retail
+// protocol in XMVDecoder_CreateDecoderForPackets) and open the demuxer over it.
+// Runs on first access, once the title has finished OpenFileForPackets (buffers
+// allocated, first read queued). Returns S_OK on success; on any failure the
+// decoder is left un-loaded (demux width/height stay zero) and the caller degrades.
+static HRESULT EnsurePacketsLoaded(XMVDecoder *dec)
+{
+    BYTE     *image;
+    DWORD     cap, len;
+    LONGLONG  offset;
+
+    if (!dec->pkt_deferred)
+        return dec->file ? S_OK : E_FAIL;
+    dec->pkt_deferred = 0;   // only ever attempt the drain once
+
+    cap = 256 * 1024;
+    image = (BYTE *)malloc(cap);
+    if (!image)
+        return E_OUTOFMEMORY;
+    len = 0;
+    offset = 0;
+
+    // Each packet begins with [NextPacketSize, ThisPacketSize, MaxPacketSize]; the
+    // packets are contiguous in the file, so concatenating them reproduces the raw
+    // .xmv the demuxer expects. GetNextPacket returns NULL while its async read is
+    // still in flight, so poll rather than treating NULL as end-of-stream.
+    for (;;) {
+        void   *pkt = NULL;
+        DWORD   thisSize = 0, nextSize, spins = 0;
+        HRESULT hr;
+        int     eof = 0;
+
+        for (;;) {
+            hr = dec->pkt_get(dec->pkt_context, &pkt, &thisSize);
+            if (FAILED(hr)) { free(image); return hr; }
+            if (pkt && thisSize) break;      // packet ready
+            if (pkt && !thisSize) { eof = 1; break; }   // zero-byte read == EOF
+            if (++spins > 20000) { free(image); return E_FAIL; }  // ~20s stall guard
+            Sleep(1);                        // !pkt: async read still pending
+        }
+        if (eof)
+            break;
+
+        nextSize = (thisSize >= sizeof(DWORD)) ? ((const DWORD *)pkt)[0] : 0;
+
+        if (len + thisSize > cap) {
+            BYTE *grown;
+            DWORD want = cap;
+            while (want < len + thisSize) {
+                if (want > 0x40000000u) { free(image); return E_OUTOFMEMORY; }
+                want *= 2;
+            }
+            grown = (BYTE *)realloc(image, want);
+            if (!grown) { free(image); return E_OUTOFMEMORY; }
+            image = grown;
+            cap = want;
+        }
+        memcpy(image + len, pkt, thisSize);
+        len += thisSize;
+        offset += thisSize;
+
+        // Queue the next packet's read (no-op when nextSize == 0), then stop.
+        if (dec->pkt_release)
+            dec->pkt_release(dec->pkt_context, offset, nextSize);
+        if (nextSize == 0)
+            break;
+    }
+
+    return SetupImageIntoDecoder(dec, image, len);
 }
 
 HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName,
@@ -246,6 +345,7 @@ void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder *pDecoder,
 {
     if (!pDecoder || !pVideoDescriptor)
         return;
+    EnsurePacketsLoaded(pDecoder);
     // Report the macroblock-aligned CODED size (e.g. 810x540 -> 816x544): the
     // decoder renders whole macroblocks, so surfaces created from these
     // dimensions are always large enough. Titles wanting the exact display
@@ -259,8 +359,10 @@ void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder *pDecoder,
 void __stdcall XMVDecoder_GetAudioDescriptor(XMVDecoder *pDecoder, DWORD AudioStream,
                                              XMVAUDIO_DESC *pAudioDescriptor)
 {
-    if (!pDecoder || !pAudioDescriptor ||
-        AudioStream >= pDecoder->demux.audio_track_count)
+    if (!pDecoder || !pAudioDescriptor)
+        return;
+    EnsurePacketsLoaded(pDecoder);
+    if (AudioStream >= pDecoder->demux.audio_track_count)
         return;
     const XmvAudioDesc *a = &pDecoder->demux.audio[AudioStream];
     pAudioDescriptor->WaveFormat       = a->compression;      // WAVE_FORMAT tag (PCM / XBOX ADPCM)
@@ -286,6 +388,7 @@ HRESULT __stdcall XMVDecoder_EnableAudioStream(XMVDecoder *dec, DWORD AudioStrea
     if (ppStream) *ppStream = NULL;
     if (!dec)
         return E_INVALIDARG;
+    EnsurePacketsLoaded(dec);
     if (AudioStream >= dec->demux.audio_track_count)
         return E_INVALIDARG;
     if (dec->pStream)
@@ -489,6 +592,13 @@ HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface
         return E_INVALIDARG;
     }
 
+    // Packet-mode decoders defer their file load to first frame; if the drain
+    // failed there is nothing to decode.
+    if (FAILED(EnsurePacketsLoaded(pDecoder))) {
+        if (pResult) *pResult = XMV_FAIL;
+        return E_FAIL;
+    }
+
     // Decode one frame ahead: if nothing is staged, pull and decode the next.
     if (!pDecoder->held) {
         int rc = DecodeNextHeld(pDecoder);
@@ -539,89 +649,40 @@ HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface
 int   g_XMVInhibitDebugOutput = 0;
 DWORD XMVBuildNumber = 5849;
 
-// Pull a whole .xmv in through the title's packet callbacks.
+// Create a decoder that pulls its .xmv in through the title's packet callbacks.
 //
-// The demuxer works over a complete in-memory image (that is how
-// CreateDecoderForFile is built too), so this drains the callbacks up front
-// rather than streaming. A title using this to page a movie off a slow device
-// therefore pays the read cost at create time instead of during playback: the
-// movie plays identically, it just does not start until the last packet has
-// arrived.
+// The title calls this from inside its OpenFileForPackets BEFORE it has allocated
+// the packet buffers and queued the first read, so we cannot drain here -- doing so
+// gets a NULL packet and truncates the movie to the 4K header. Instead, stash the
+// callbacks and pull the whole file on first access (EnsurePacketsLoaded), by which
+// point OpenFileForPackets has finished its setup. The demuxer then works over the
+// complete in-memory image exactly as the file path does; the movie plays
+// identically, it just does not start until the last packet has arrived.
 HRESULT __stdcall XMVDecoder_CreateDecoderForPackets(DWORD Flags, void *pFirst4096,
                                                      DWORD Context,
                                                      PFNXMVGETNEXTPACKET pfnGetNextPacket,
                                                      PFNXMVRELEASEPREVIOUSPACKET pfnReleasePreviousPacket,
                                                      XMVDecoder **ppDecoder)
 {
-    BYTE     *image = NULL;
-    DWORD     cap, len;
-    LONGLONG  offset;
-    HRESULT   hr = S_OK;
+    XMVDecoder *dec;
 
     if (!pFirst4096 || !pfnGetNextPacket || !ppDecoder)
         return E_INVALIDARG;
     *ppDecoder = NULL;
 
-    // The first 4096 bytes come from the caller; everything after is fetched.
-    cap = 64 * 1024;
-    image = (BYTE *)malloc(cap);
-    if (!image)
+    dec = (XMVDecoder *)malloc(sizeof(*dec));
+    if (!dec)
         return E_OUTOFMEMORY;
-    memcpy(image, pFirst4096, 4096);
-    len = 4096;
-    offset = 4096;
+    memset(dec, 0, sizeof(*dec));
+    dec->loop        = (Flags & XMVFLAG_FULL_LOOP) != 0;
+    dec->pkt_deferred = 1;
+    dec->pkt_flags   = Flags;
+    dec->pkt_context = Context;
+    dec->pkt_get     = pfnGetNextPacket;
+    dec->pkt_release = pfnReleasePreviousPacket;
 
-    for (;;) {
-        void  *pkt = NULL;
-        DWORD  next = 0;
-
-        hr = pfnGetNextPacket(Context, &pkt, &next);
-        if (FAILED(hr))
-            break;
-
-        // No packet, or a zero step, means the stream is done.
-        if (!pkt || next == 0)
-            break;
-
-        if (len + next > cap) {
-            BYTE *grown;
-            DWORD want = cap;
-
-            while (want < len + next) {
-                // Guard the doubling: a corrupt size must not wrap round to a
-                // small capacity and turn the copy below into a heap overflow.
-                if (want > 0x40000000u) {
-                    hr = E_OUTOFMEMORY;
-                    break;
-                }
-                want *= 2;
-            }
-            if (FAILED(hr))
-                break;
-
-            grown = (BYTE *)realloc(image, want);
-            if (!grown) {
-                hr = E_OUTOFMEMORY;
-                break;
-            }
-            image = grown;
-            cap = want;
-        }
-
-        memcpy(image + len, pkt, next);
-        len += next;
-        offset += next;
-
-        if (pfnReleasePreviousPacket)
-            pfnReleasePreviousPacket(Context, offset, next);
-    }
-
-    if (FAILED(hr)) {
-        free(image);
-        return hr;
-    }
-
-    return OpenDecoderOverImage(Flags, image, len, ppDecoder);
+    *ppDecoder = dec;
+    return S_OK;
 }
 
 void __stdcall XMVDecoder_DisableAudioStream(XMVDecoder *pDecoder, DWORD AudioStream)
@@ -660,7 +721,10 @@ DWORD __stdcall XMVDecoder_GetSynchronizationStream(XMVDecoder *pDecoder)
 
 void __stdcall XMVDecoder_SetSynchronizationStream(XMVDecoder *pDecoder, DWORD AudioStream)
 {
-    if (!pDecoder || AudioStream >= pDecoder->demux.audio_track_count)
+    if (!pDecoder)
+        return;
+    EnsurePacketsLoaded(pDecoder);
+    if (AudioStream >= pDecoder->demux.audio_track_count)
         return;
     pDecoder->sync_stream = AudioStream;
 }

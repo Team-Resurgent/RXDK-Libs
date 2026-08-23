@@ -5,7 +5,7 @@ Build PEs in this repo with **`zig build`** only. Deploying to a devkit uses **e
 The fastest path is the root menu:
 
 ```powershell
-.\build-iso.ps1            # pick a sample, build PE → XBE → ISO
+.\build.ps1            # pick a sample, build PE → XBE → ISO
 ```
 
 The rest of this doc is the manual pipeline behind that menu.

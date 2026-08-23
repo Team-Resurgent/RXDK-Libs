@@ -34,12 +34,12 @@ extern "C"
 #pragma comment(linker, "/include:_D3DX8BuildNumberD")
 __declspec(selectany) unsigned short D3DX8BuildNumberD[8] =
         { 'D' | ('3' << 8), 'D' | ('X' << 8), '8' | ('D' << 8), 0,
-          VER_PRODUCTVERSION | 0x8000 };
+          VER_PRODUCTVERSION };
 #else
 #pragma comment(linker, "/include:_D3DX8BuildNumber")
 __declspec(selectany) unsigned short D3DX8BuildNumber[8] =
         { 'D' | ('3' << 8), 'D' | ('X' << 8), '8', 0,
-          VER_PRODUCTVERSION | 0x4000 };
+          VER_PRODUCTVERSION };
 #endif
 
 #pragma data_seg()

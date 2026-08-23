@@ -6,15 +6,13 @@ $RepoRoot = Split-Path $PSScriptRoot -Parent
 Set-Location $RepoRoot
 
 # core.longpaths must be passed on the command line -- a repo-level setting does NOT
-# propagate to the child git processes that check out submodules. Without it the
-# xbox_leak_may_2020 submodule, whose tree holds very deep installer paths, fails to
-# check out under a deep worktree path (e.g. .claude/worktrees/<name>/vendor/...) with
-# "Filename too long" on Windows.
+# propagate to the child git processes that check out submodules, and llvm-project's
+# tree holds deep paths that can otherwise fail with "Filename too long" on Windows.
 $lp = @('-c', 'core.longpaths=true')
 
-Write-Host 'Initializing picolibc + xbox_leak_may_2020 (full checkout)...'
-git @lp submodule update --init vendor/picolibc vendor/xbox_leak_may_2020
-if ($LASTEXITCODE -ne 0) { throw "submodule update (picolibc/xbox_leak_may_2020) failed ($LASTEXITCODE)" }
+Write-Host 'Initializing picolibc (full checkout)...'
+git @lp submodule update --init vendor/picolibc
+if ($LASTEXITCODE -ne 0) { throw "submodule update (picolibc) failed ($LASTEXITCODE)" }
 
 # llvm-project is only used to compile the C++ runtime (libcpp) from three source trees:
 # libcxx, libcxxabi and libunwind. The rest of the monorepo (clang, llvm, mlir, ...) is

@@ -80,7 +80,7 @@ extern "C" {
 #define VERGEN(var,a1,a2,a3,a4,a5,a6,a7,a8) comment(linker, "/include:_" # var)
 #pragma VERXNET()
 #undef  VERGEN
-#define VERGEN(var,a1,a2,a3,a4,a5,a6,a7,a8) var[8] = { (a1) | ((a2) << 8), (a3) | ((a4) << 8), (a5) | ((a6) << 8), (a7) | ((a8) << 8), VER_PRODUCTVERSION | VERDBG | VERSEC }
+#define VERGEN(var,a1,a2,a3,a4,a5,a6,a7,a8) var[8] = { (a1) | ((a2) << 8), (a3) | ((a4) << 8), (a5) | ((a6) << 8), (a7) | ((a8) << 8), VER_PRODUCTVERSION }
 __declspec(selectany) unsigned short VERXNET();
 #undef  VERGEN
 #undef  VERDBG

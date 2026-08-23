@@ -32,7 +32,6 @@ function Require-Submodules {
     $required = @(
         (Join-Path $RepoRoot 'vendor\picolibc\libc\include\stdio.h')
         (Join-Path $RepoRoot 'vendor\llvm-project\libcxx\include\iostream')
-        (Join-Path $RepoRoot 'vendor\xbox_leak_may_2020\xbox_leak_may_2020\xbox trunk\xbox\private\ntos\init\console\obj\i386\xboxkrnl.def')
     )
     foreach ($path in $required) {
         if (-not (Test-Path -LiteralPath $path)) {

@@ -35,12 +35,12 @@ extern "C"
 #pragma comment(linker, "/include:_XGraphicsBuildNumberD")
 __declspec(selectany) unsigned short XGraphicsBuildNumberD[8] =
         { 'X' | ('G' << 8), 'R' | ('A' << 8), 'P' | ('H' << 8), 'C' | ('D' << 8),
-          VER_PRODUCTVERSION | 0x8000 };
+          VER_PRODUCTVERSION };
 #else
 #pragma comment(linker, "/include:_XGraphicsBuildNumber")
 __declspec(selectany) unsigned short XGraphicsBuildNumber[8] =
         { 'X' | ('G' << 8), 'R' | ('A' << 8), 'P' | ('H' << 8), 'C',
-          VER_PRODUCTVERSION | 0x4000 };
+          VER_PRODUCTVERSION };
 #endif
 
 #pragma data_seg()

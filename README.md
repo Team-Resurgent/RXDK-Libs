@@ -7,7 +7,7 @@ No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the run
 ## Prerequisites
 
 - [Zig](https://ziglang.org/) **0.16+** (tested with 0.16.0)
-- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`), `vendor/xbox_leak_may_2020` (XDK SDK headers for the uuid slice + kernel export ordinals)
+- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`)
 
 ```powershell
 .\scripts\init-submodules.ps1
@@ -16,7 +16,7 @@ No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the run
 Or manually:
 
 ```powershell
-git submodule update --init vendor/picolibc vendor/xbox_leak_may_2020 vendor/llvm-project
+git submodule update --init vendor/picolibc vendor/llvm-project
 git -C vendor/llvm-project sparse-checkout init --cone
 git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
 ```
@@ -50,20 +50,19 @@ libs/libxmv/               XMV video decoder (→ libxmv.lib)
 libs/libxnet/              Xbox net stack — XNet / winsock (→ libxnet.lib)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
-vendor/xbox_leak_may_2020/ XDK SDK headers (uuid) + kernel export reference (submodule)
 vendor/xbox_private/       Xbox subsystem sources (local-only, synced from RXDK-LibsOld)
 prebuilt/                  Committed kernel object shims (DbgPrint / descriptor / .XBLD) used at link time
 zig-out/lib/               Staged .lib outputs + object response files
 zig-out/include/           Staged C / C++ / xAPI / subsystem headers (after `zig build`)
 samples/                   Conformance smokes + D3D8 / DirectSound / XMV / XNet / input demos
-build-iso.ps1              Interactive menu: pick a sample and build its ISO
+build.ps1              Interactive menu: pick a sample and build its ISO
 ```
 
 ## Build
 
 ```powershell
 cd D:\Git\RXDK-Libs
-.\build-iso.ps1                                # interactive menu → sample ISO
+.\build.ps1                                # interactive menu → sample ISO
 .\scripts\compile.ps1                          # libs + all samples (default)
 .\scripts\compile.ps1 -Target libs            # libraries + headers only
 .\scripts\compile.ps1 -Target xapi-smoke      # single sample
@@ -126,7 +125,7 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 | `xmv-play` | `zig-out/samples/xmv-play/xmv-play.exe` | XMV video playback |
 | `xnet-net` | `zig-out/samples/xnet-net/xnet-net.exe` | XNet networking |
 
-Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build-iso.ps1`](build-iso.ps1).
+Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build.ps1`](build.ps1).
 
 ## Design notes
 

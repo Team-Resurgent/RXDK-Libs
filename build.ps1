@@ -54,19 +54,19 @@
     Xbox hostname or IP for deploy mode. Persisted in .rxdk-deploy.json.
 
 .EXAMPLE
-    .\build-iso.ps1
+    .\build.ps1
         Show the looping menu.
 
 .EXAMPLE
-    .\build-iso.ps1 -Sample xapi-smoke -Optimize Debug
+    .\build.ps1 -Sample xapi-smoke -Optimize Debug
         Build the xapi-smoke ISO once, non-interactively.
 
 .EXAMPLE
-    .\build-iso.ps1 -Sample libcpp-smoke -Mode deploy -XboxIp 192.168.0.42
+    .\build.ps1 -Sample libcpp-smoke -Mode deploy -XboxIp 192.168.0.42
         Build the libcpp-smoke XBE, copy it to the kit, and launch it.
 
 .EXAMPLE
-    .\build-iso.ps1 -Dist
+    .\build.ps1 -Dist
         Build all libraries (Debug + ReleaseSmall) and stage them (+ headers)
         into dist\lib\debug, dist\lib\release, and dist\include.
 #>

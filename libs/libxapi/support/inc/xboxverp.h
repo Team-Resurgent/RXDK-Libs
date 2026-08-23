@@ -24,7 +24,7 @@
 #endif
 
 #define VER_PRODUCTBUILD_QFE        1
-#define VER_PRODUCTBUILD            4400        // Must be greater than Windows 2000 gold
+#define VER_PRODUCTBUILD            6800        // RXDK: distinct build# (> any real XDK, e.g. 5849) so titles/tools show this is the RXDK build. Uplifted to the 5849 ABI; stamped 6800 to mark it as ours.
 #define VER_PRODUCTBETA_STR         ""
 #define VER_PRODUCTVERSION_STRING   "1.00"      // Not sure this will work, might have problems being less than NT5
 #define VER_PRODUCTVERSION          1,00,VER_PRODUCTBUILD,VER_PRODUCTBUILD_QFE
@@ -35,7 +35,7 @@
 
 /* Define the _XTL_VER constant that will end up in xtl.h */
 #if 0
-#define _XTL_VER                   4400        // xtl
+#define _XTL_VER                   6800        // xtl (inactive: nothing gates on this)
 #endif
 
 /* Define the minimum library version that we will approve (3911 == August Final). */

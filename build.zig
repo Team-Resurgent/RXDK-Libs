@@ -372,6 +372,21 @@ pub fn build(b: *std.Build) void {
     b.getInstallStep().dependOn(&install_libc.step);
     b.getInstallStep().dependOn(&install_libcpp.step);
     b.getInstallStep().dependOn(&install_libxapi.step);
+    // The default build produces every shippable lib, not just the core set, so a
+    // plain `zig build` matches what the dist packages (and no lib -- e.g. xonline
+    // -- is silently skipped and left stale).
+    b.getInstallStep().dependOn(&install_libd3d8i.step);
+    b.getInstallStep().dependOn(&install_libd3dx8.step);
+    b.getInstallStep().dependOn(&install_libxgraphics.step);
+    b.getInstallStep().dependOn(&install_libdsound.step);
+    b.getInstallStep().dependOn(&install_libxnet.step);
+    b.getInstallStep().dependOn(&install_libxneto.step);
+    b.getInstallStep().dependOn(&install_libxmv.step);
+    b.getInstallStep().dependOn(&install_libxact.step);
+    b.getInstallStep().dependOn(&install_libxonline.step);
+    b.getInstallStep().dependOn(&install_libuix.step);
+    b.getInstallStep().dependOn(&install_libxvoice.step);
+    b.getInstallStep().dependOn(&install_libdmusic.step);
     b.getInstallStep().dependOn(stage_c_headers);
     b.getInstallStep().dependOn(stage_cxx_headers);
     b.getInstallStep().dependOn(stage_xapi_headers);

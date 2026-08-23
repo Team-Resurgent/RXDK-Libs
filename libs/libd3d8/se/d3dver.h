@@ -14,7 +14,7 @@ extern "C"
 #if DBG
 #pragma comment(linker, "/include:_D3D8BuildNumberD")
 __declspec(selectany) unsigned short D3D8BuildNumberD[8] = { 'D' | ('3' << 8), 'D' | ('8' << 8), 'D', 0,
-                                                             VER_PRODUCTVERSION | 0x8000 };
+                                                             VER_PRODUCTVERSION };
 #elif PROFILE
 #pragma comment(linker, "/include:_D3D8BuildNumberP")
 __declspec(selectany) unsigned short D3D8BuildNumberP[8] = { 'D' | ('3' << 8), 'D' | ('8' << 8), 'I', 0,
@@ -22,11 +22,11 @@ __declspec(selectany) unsigned short D3D8BuildNumberP[8] = { 'D' | ('3' << 8), '
 #elif LTCG
 #pragma comment(linker, "/include:_D3D8BuildNumberL")
 __declspec(selectany) unsigned short D3D8BuildNumberL[8] = { 'D' | ('3' << 8), 'D' | ('8' << 8), 'L' | ('T' << 8), 'C' | ('G' << 8),
-                                                             VER_PRODUCTVERSION | 0x4000 };
+                                                             VER_PRODUCTVERSION };
 #else
 #pragma comment(linker, "/include:_D3D8BuildNumber")
 __declspec(selectany) unsigned short D3D8BuildNumber[8] = { 'D' | ('3' << 8), 'D' | ('8' << 8), 0, 0,
-                                                            VER_PRODUCTVERSION | 0x4000 };
+                                                            VER_PRODUCTVERSION };
 #endif
 
 #pragma data_seg()

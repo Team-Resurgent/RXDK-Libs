@@ -8,7 +8,7 @@
 #if DBG
 #pragma comment(linker, "/include:_XapiBuildNumberPD")
 __declspec(selectany) USHORT XapiBuildNumberPD[8] = { 'AX', 'IP', 'BL', 'DP',
-    VER_PRODUCTVERSION | 0x8000
+    VER_PRODUCTVERSION
 #else  // DBG
 #pragma comment(linker, "/include:_XapiBuildNumberP")
 __declspec(selectany) USHORT XapiBuildNumberP[8] = { 'AX', 'IP', 'BL', 'P',
@@ -20,11 +20,11 @@ __declspec(selectany) USHORT XapiBuildNumberP[8] = { 'AX', 'IP', 'BL', 'P',
 #if DBG
 #pragma comment(linker, "/include:_XapiBuildNumberD")
 __declspec(selectany) USHORT XapiBuildNumberD[8] = { 'AX', 'IP', 'IL', 'DB',
-    VER_PRODUCTVERSION | 0x8000
+    VER_PRODUCTVERSION
 #else  // DBG
 #pragma comment(linker, "/include:_XapiBuildNumber")
 __declspec(selectany) USHORT XapiBuildNumber[8] = { 'AX', 'IP', 'IL', 'B',
-    VER_PRODUCTVERSION | 0x4000
+    VER_PRODUCTVERSION
 #endif // DBG
 
 #endif // XAPILIBP

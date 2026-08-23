@@ -1,6 +1,6 @@
 # RXDK-Libs
 
-<p align="center"><b>A from-source, MSVC-free C/C++ runtime and SDK for the original Xbox — picolibc + LLVM libc++, a clean-room xAPI, and the D3D8 / DirectSound / XGraphics / XMV / XNet libraries, built with Zig</b></p>
+<p align="center"><b>A from-source, MSVC-free C/C++ runtime and SDK for the original Xbox — picolibc + LLVM libc++, an xAPI, and the D3D8 / DirectSound / XGraphics / XMV / XNet libraries, built with Zig</b></p>
 
 <p align="center">
   <a href="https://github.com/Team-Resurgent/RXDK-Libs/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
@@ -12,7 +12,7 @@
   <a href="https://www.patreon.com/teamresurgent"><img src="https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white" alt="Patreon"></a>
 </p>
 
-Zig-built Xbox C/C++ runtime and SDK for original Xbox devkits — **picolibc** + **LLVM libc++**, a clean-room **xAPI**, and the **D3D8 / D3DX8 / DirectSound / XGraphics / XMV / XNet** subsystem libraries, ISO C23 / C++23.
+Zig-built Xbox C/C++ runtime and SDK for original Xbox devkits — **picolibc** + **LLVM libc++**, an **xAPI**, and the **D3D8 / D3DX8 / DirectSound / XGraphics / XMV / XNet** subsystem libraries, ISO C23 / C++23.
 
 No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. Host deploy tools (`imagebld`, `xdvdfs`, neighborhood, etc.) live under `tools/` and may stay MSBuild-based.
 

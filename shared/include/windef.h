@@ -333,6 +333,19 @@ typedef int HFILE;
 
 #define HFILE_ERROR ((HFILE)-1)
 
+// GDI color types. The Xbox has no GDI device layer, but XDK-era titles routinely use
+// COLORREF and the RGB helper macros as plain 0x00BBGGRR color values (clear colors,
+// vertex colors, palette entries), so the type and macros carry over verbatim.
+typedef DWORD           COLORREF;
+typedef DWORD           *LPCOLORREF;
+
+#define RGB(r,g,b)          ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+#define PALETTERGB(r,g,b)   (0x02000000 | RGB(r,g,b))
+#define PALETTEINDEX(i)     ((COLORREF)(0x01000000 | (DWORD)(WORD)(i)))
+#define GetRValue(rgb)      ((BYTE)(rgb))
+#define GetGValue(rgb)      ((BYTE)(((WORD)(rgb)) >> 8))
+#define GetBValue(rgb)      ((BYTE)((rgb)>>16))
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,6 +1,28 @@
 #ifndef XBOXKRNL_API_NT_H
 #define XBOXKRNL_API_NT_H
 
+// NtCreateFile / NtOpenFile CreateOptions flags (standard NT values). The kernel exposes the
+// calls; titles pass these flags for the CreateOptions argument. Guarded on one representative
+// macro so a fuller windows header can define the set instead without clashing.
+#ifndef FILE_SYNCHRONOUS_IO_NONALERT
+#define FILE_DIRECTORY_FILE             0x00000001
+#define FILE_WRITE_THROUGH              0x00000002
+#define FILE_SEQUENTIAL_ONLY            0x00000004
+#define FILE_NO_INTERMEDIATE_BUFFERING  0x00000008
+#define FILE_SYNCHRONOUS_IO_ALERT       0x00000010
+#define FILE_SYNCHRONOUS_IO_NONALERT    0x00000020
+#define FILE_NON_DIRECTORY_FILE         0x00000040
+#define FILE_CREATE_TREE_CONNECTION     0x00000080
+#define FILE_COMPLETE_IF_OPLOCKED       0x00000100
+#define FILE_NO_EA_KNOWLEDGE            0x00000200
+#define FILE_OPEN_FOR_RECOVERY          0x00000400
+#define FILE_RANDOM_ACCESS              0x00000800
+#define FILE_DELETE_ON_CLOSE            0x00001000
+#define FILE_OPEN_BY_FILE_ID            0x00002000
+#define FILE_OPEN_FOR_BACKUP_INTENT     0x00004000
+#define FILE_NO_COMPRESSION             0x00008000
+#endif
+
 NTSTATUS STDCALL NtAllocateVirtualMemory
 (
     IN OUT PVOID *BaseAddress,

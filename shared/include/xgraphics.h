@@ -1,11 +1,23 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xgraphics.h
- *  Content:    Xbox graphics helper utilities
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox graphics helper utilities that sit alongside Direct3D. The main groups:
+ *   - Swizzle/tiling: the Swizzler class and XGSwizzle/Unswizzle Rect/Box copy
+ *     pixels between linear buffers and the NV2A's swizzled texture layout, plus
+ *     format queries (XGIsSwizzledFormat, XGBytesPerPixelFromFormat).
+ *   - Push-buffer compiler: pre-bakes indexed-draw commands into a push buffer.
+ *   - XGBuffer: a self-sizing data blob (the XG analogue of ID3DXBuffer).
+ *   - Vertex-shader micro-code splicing and query helpers.
+ *   - Resource "header" setters (XGSetTextureHeader, XGSetSurfaceHeader, ...):
+ *     fill in a D3D resource struct describing memory the title already owns,
+ *     so no D3D allocation happens. The caller is responsible for correct size,
+ *     pitch, swizzle, and tiling alignment - these do not validate.
+ *   - XPR / surface writers for tooling.
+ */
 
 #ifndef _XGRAPHICS_H_
 #define _XGRAPHICS_H_
@@ -449,13 +461,13 @@ void WINAPI XGUnswizzleBox(
     DWORD       Width,        // The width of the entire source texture.
     DWORD       Height,       // The height of the entire source texture.
     DWORD       Depth,        // The depth of the entire destination texture.
-    CONST D3DBOX * pBox,      // RXDK: const to match the swizzler.cpp definition (reads only)
+    CONST D3DBOX * pBox,      // The box within the texture to copy (read-only).
     LPVOID      pDest,        // The destination buffer
     DWORD       RowPitch,     // Byte offset from the left edge of one row to
                                 // the left edge of the next row
     DWORD       SlicePitch,   // Byte offset from the top-left of one slice to
                                 // the top-left of the next deepest slice
-    CONST XGPOINT3D * pPoint, // RXDK: const to match the swizzler.cpp definition
+    CONST XGPOINT3D * pPoint, // Where to copy the box to (read-only).
     DWORD       BytesPerPixel
     );
 
@@ -668,10 +680,8 @@ typedef HRESULT (*SASM_ResolverCallback)(LPVOID pResolverUserData,
 #define SASM_DISABLE_GLOBAL_OPTIMIZATIONS           (1 << 14)
 #define SASM_VERIFY_OPTIMIZATIONS                   (1 << 15)
 
-// 5849: the assembler ships TWO vertex optimisers, selectable per call, and a
-// matrix packing order. Nothing in RXDK reads these yet -- the managed xsasm port
-// implements neither optimiser -- but a title's build can pass them, and a flag
-// silently ignored is worse than one that is at least declared.
+// Select which of the assembler's two vertex optimizers to run, and the packing
+// order for matrix constants (row- vs column-major).
 #define SASM_USE_V1_OPTIMIZER                       (1 << 16)
 #define SASM_USE_V2_OPTIMIZER                       (1 << 17)
 #define SASM_PACKMATRIX_ROWMAJOR                    (1 << 18)
@@ -714,7 +724,7 @@ typedef HRESULT (*SASM_ResolverCallback)(LPVOID pResolverUserData,
 #define SASMT_SHADERTYPEMASK            0xff
 
 #define SASMT_SHADERTYPE(X) ((X) & SASMT_SHADERTYPEMASK)
-// 5849: a shader FRAGMENT -- a partial shader for XGSpliceVertexShaders.
+// A shader fragment: a partial shader assembled for use with XGSpliceVertexShaders.
 #define SASMT_FRAGMENT                  0x200
 
 #define SASMT_ISSCREENSPACE(X) (((X) & SASMT_SCREENSPACE) != 0)
@@ -932,6 +942,9 @@ HRESULT WINAPI XGWriteSurfaceToFile(
  *   unique identifier for this file type.
  *
  ****************************************************************************/
+/* Leading header of an XPR packed-resource file: magic ("XPR0"), total file
+ * size, and the size of the header/resource-descriptor region that precedes the
+ * bundled resource data. */
 typedef struct {
     DWORD dwMagic;
     DWORD dwTotalSize;
@@ -1022,8 +1035,16 @@ HRESULT WINAPI XGCompressRect(
 
 
 /*****************************************************************************
- * 
- * XGSetSurfaceHeader
+ *
+ * XGSet*Header
+ *
+ * Fill an already-allocated D3D resource struct (surface, texture, cube/volume
+ * texture, vertex/index buffer, palette, push buffer, fixup) so it describes
+ * memory the title itself owns and manages, without D3D allocating anything.
+ * The Data argument is the GPU-visible byte offset of the pixel/vertex data
+ * (the physical address masked to the low bits, not the CPU virtual pointer);
+ * the caller is responsible for correct format, pitch, swizzle, and tiling
+ * alignment. These setters do not validate their arguments.
  *
  ****************************************************************************/
 

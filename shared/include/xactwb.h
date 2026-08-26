@@ -1,11 +1,16 @@
-/***************************************************************************
- *
- *  Copyright (C) 02/27/2002 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xactwb.h
- *  Content:    XACT Wave Bank definitions.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT wave bank on-disk format. Defines the 'WBND' file header and its four
+ * segments (bank data, per-entry meta-data, entry names, wave data), the packed
+ * WAVEBANKMINIWAVEFORMAT, the full and compact entry records, and the type/
+ * flag/alignment constants. Shared by the wave-bank tool and the XACT runtime;
+ * all structs are byte-packed and read directly from the file image.
+ */
 
 #ifndef __XACTWB_H__
 #define __XACTWB_H__

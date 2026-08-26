@@ -1,8 +1,17 @@
-//****************************************************************************
-//
-// XBox font library
-//
-//****************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox font library. Opens bitmap fonts (compiled to the xfontformat.h layout)
+ * or, optionally, TrueType fonts, and draws Unicode text onto a D3D surface or
+ * into a memory bitmap. An XFONT is a refcounted opaque handle carrying the
+ * current draw state (height, color, alignment, spacing, clip rect). The API is
+ * exposed both as C functions (XFONT_*) and, in C++, as inline XFONT methods.
+ * Errors are generally fatal - close the font if one is returned.
+ */
 
 // NOTE: You need to #define "XFONT_TRUETYPE" before including this
 //  : file if you're planning on using the TypeType font scaler.  This 

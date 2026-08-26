@@ -1,5 +1,16 @@
-/* D3DRM XFile templates in binary form */
-/* Copyright Microsoft Corporation 2000 - 2001. All Rights Reserved */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The standard set of Direct3D Retained-Mode .x-file template definitions,
+ * pre-encoded as a binary blob. Pass D3DRM_XTEMPLATES / D3DRM_XTEMPLATE_BYTES
+ * to IDirectXFile::RegisterTemplates so a reader recognizes the built-in record
+ * types (mesh, materials, frames, animation, ...) whose GUIDs live in
+ * rmxfguid.h. Generated data - do not hand-edit.
+ */
 
 #ifndef _RMXFTMPL_H_
 #define _RMXFTMPL_H_

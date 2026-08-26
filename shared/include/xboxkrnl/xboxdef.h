@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Foundational Win32/NT type definitions for the Xbox kernel headers, included
+ * first by everything else. Defines the primitive scalar and pointer typedefs
+ * (VOID, HANDLE, DWORD, LARGE_INTEGER, ...), the counted STRING type, the CPU
+ * context and exception structures, the RTL critical section, and the file
+ * attribute / access-right / page-protection constant sets. All widths and
+ * struct layouts match the x86 Xbox ABI.
+ */
+
 #ifndef __XBOXDEF_H__
 #define __XBOXDEF_H__
 
@@ -5,8 +20,11 @@ typedef const void *LPCVOID;
 typedef void VOID, *PVOID, *LPVOID;
 typedef PVOID HANDLE, *PHANDLE;
 
+/* Pseudo-handle constant standing for the current thread in kernel calls. */
 #define NtCurrentThread() ( (HANDLE) -2 )
 
+/* Primitive scalar and pointer typedefs matching the Win32/NT names and their
+ * x86 widths (char=8, short=16, long/int=32, long long=64 bits). */
 typedef unsigned char BOOLEAN, *PBOOLEAN;
 typedef signed char SCHAR, *PSCHAR;
 typedef char CHAR, *PCHAR, CCHAR, *LPCH, *PCH, OCHAR, *POCHAR;
@@ -55,6 +73,7 @@ typedef ULONG_PTR DWORD_PTR;
 typedef ULONG_PTR *PULONG_PTR;
 typedef LONG_PTR *PLONG_PTR;
 
+/* Saved x87/SSE FPU state as laid out by FXSAVE; embedded in CONTEXT. */
 typedef struct _FLOATING_SAVE_AREA {
     WORD    ControlWord;
     WORD    StatusWord;
@@ -72,6 +91,7 @@ typedef struct _FLOATING_SAVE_AREA {
     DWORD   Cr0NpxState;
 } __attribute__((packed)) FLOATING_SAVE_AREA;
 
+/* CONTEXT.ContextFlags bits selecting which register groups a CONTEXT holds. */
 #define CONTEXT_X86                0x00010000
 #define CONTEXT_i386               CONTEXT_X86
 #define CONTEXT_CONTROL            (CONTEXT_X86 | 0x00000001)
@@ -80,6 +100,8 @@ typedef struct _FLOATING_SAVE_AREA {
 #define CONTEXT_FLOATING_POINT     (CONTEXT_X86 | 0x00000008)
 #define CONTEXT_EXTENDED_REGISTERS (CONTEXT_X86 | 0x00000020)
 
+/* Full x86 thread register state (control, integer, segment, and FPU registers).
+ * ContextFlags says which groups are valid. */
 typedef struct _CONTEXT {
     DWORD ContextFlags;
 
@@ -101,6 +123,7 @@ typedef struct _CONTEXT {
 
 } __attribute__((packed)) CONTEXT, *PCONTEXT;
 
+/* EXCEPTION_RECORD.ExceptionFlags bits (continuability and unwind state). */
 #define EXCEPTION_NONCONTINUABLE     0x01
 #define EXCEPTION_UNWINDING          0x02
 #define EXCEPTION_EXIT_UNWIND        0x04
@@ -111,6 +134,9 @@ typedef struct _CONTEXT {
 #define EXCEPTION_UNWIND             (EXCEPTION_UNWINDING | EXCEPTION_EXIT_UNWIND | EXCEPTION_TARGET_UNWIND | EXCEPTION_COLLIDED_UNWIND)
 #define EXCEPTION_MAXIMUM_PARAMETERS 15
 
+/* Describes a raised exception: its code, flags, faulting address, and up to
+ * EXCEPTION_MAXIMUM_PARAMETERS code-specific parameters. Chains via
+ * ExceptionRecord for nested exceptions. */
 typedef struct _EXCEPTION_RECORD {
     NTSTATUS ExceptionCode;
     ULONG ExceptionFlags;
@@ -122,12 +148,17 @@ typedef struct _EXCEPTION_RECORD {
 
 #ifndef RXDK_EXCEPTION_POINTERS_DEFINED
 #define RXDK_EXCEPTION_POINTERS_DEFINED
+/* Pairs an exception record with the CPU context at the fault, as passed to a
+ * structured-exception filter. */
 typedef struct _EXCEPTION_POINTERS {
     PEXCEPTION_RECORD ExceptionRecord;
     PCONTEXT ContextRecord;
 } EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
 #endif
 
+/* Counted (not necessarily null-terminated) byte string: Length and
+ * MaximumLength are byte counts, Buffer points at the data. The Rtl* string
+ * routines operate on this and its UNICODE_STRING sibling. */
 typedef struct _STRING {
     USHORT Length;
     USHORT MaximumLength;
@@ -136,6 +167,7 @@ typedef struct _STRING {
 
 typedef STRING ANSI_STRING, *PANSI_STRING;
 
+/* Signed 64-bit value addressable as two 32-bit halves or one QuadPart. */
 typedef union _LARGE_INTEGER {
     struct
     {
@@ -150,6 +182,7 @@ typedef union _LARGE_INTEGER {
     LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
+/* Unsigned 64-bit value addressable as two 32-bit halves or one QuadPart. */
 typedef union _ULARGE_INTEGER {
     struct
     {
@@ -164,12 +197,16 @@ typedef union _ULARGE_INTEGER {
     ULONGLONG QuadPart;
 } ULARGE_INTEGER, *PULARGE_INTEGER;
 
+/* Node/head for the kernel's intrusive circular doubly-linked lists (forward
+ * and backward links). */
 typedef struct _LIST_ENTRY {
     struct _LIST_ENTRY *Flink;
     struct _LIST_ENTRY *Blink;
 
 } LIST_ENTRY, *PLIST_ENTRY;
 
+/* User-mode recursive mutex: an embedded synchronization event plus owner and
+ * recursion bookkeeping. Manipulated via the Rtl*CriticalSection routines. */
 typedef struct _RTL_CRITICAL_SECTION {
     union {
         struct {
@@ -188,6 +225,8 @@ typedef struct _RTL_CRITICAL_SECTION {
     PVOID OwningThread;
 } RTL_CRITICAL_SECTION, *PRTL_CRITICAL_SECTION;
 
+/* File attribute bits (FileAttributes for create/query; INVALID_FILE_ATTRIBUTES
+ * marks a failed query). */
 #define FILE_ATTRIBUTE_READONLY  0x00000001
 #define FILE_ATTRIBUTE_HIDDEN    0x00000002
 #define FILE_ATTRIBUTE_SYSTEM    0x00000004
@@ -285,6 +324,9 @@ typedef struct _RTL_CRITICAL_SECTION {
 #define FILE_GENERIC_EXECUTE (STANDARD_RIGHTS_EXECUTE | FILE_READ_ATTRIBUTES | FILE_EXECUTE | SYNCHRONIZE)
 #endif
 
+/* One XBE image section's descriptor: placement (virtual/file address and size),
+ * name, and the reference counts and checksum used by XeLoadSection to
+ * demand-load and verify it. */
 typedef struct _XBE_SECTION_HEADER {
     DWORD Flags;
     DWORD VirtualAddress;

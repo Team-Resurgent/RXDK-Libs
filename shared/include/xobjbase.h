@@ -1,13 +1,20 @@
-//+---------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//  Copyright (C) Microsoft Corporation, 1992-2001. All rights reserved.
-//
-//  File:       xobjbase.h
-//
-//  Contents:   Xbox component object model defintions.
-//
-//----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xobjbase.h - the Xbox COM base definitions.
+ *
+ * The trimmed objbase.h/unknwn.h the Xbox uses: the interface-declaration
+ * machinery (DECLARE_INTERFACE / STDMETHOD / the STDMETHODCALLTYPE calling
+ * conventions and the C-vs-C++ vtable expansion), the OLECHAR/LPOLESTR string
+ * types, and the core system interfaces IUnknown, ISequentialStream, IStream,
+ * IClassFactory, IPersist and IPersistStream. Runtime IIDs (IID_IUnknown, ...)
+ * are provided by uuid.lib. Included by the D3D8 / DirectSound public headers,
+ * whose interfaces derive from IUnknown.
+ */
 
 #if !defined( _XOBJBASE_H_ )
 #define _XOBJBASE_H_

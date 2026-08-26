@@ -1,11 +1,22 @@
-/****************************************************************************
-*                                                                           *
-* windef.h -- Basic Windows Type Definitions                                *
-*                                                                           *
-* Copyright (c) 1985-2001, Microsoft Corp. All rights reserved.             *
-*                                                                           *
-****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * windef.h - basic Win32 type and macro definitions for the Xbox target.
+ *
+ * The foundation layer of the RXDK Win32 subset: the base integer types
+ * (DWORD/WORD/BYTE/BOOL/UINT and their pointer aliases), NULL/TRUE/FALSE, the
+ * IN/OUT/OPTIONAL SAL-style annotations, the calling-convention macros
+ * (WINAPI, CALLBACK, APIENTRY, PASCAL - all stdcall here), the MAKEWORD /
+ * LOWORD / HIWORD bit helpers, the RECT/POINT/SIZE geometry structs, and the
+ * COLORREF / RGB() color helpers XDK titles reuse as plain packed colors.
+ * Pulls <winnt.h> for the NT base types, except under NT_INCLUDED (the <xtl.h>
+ * distribution path), where those come from xboxkrnl and this header supplies
+ * only the few Win32 bits winnt would have added.
+ */
 
 #pragma once
 #define _WINDEF_

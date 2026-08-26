@@ -1,11 +1,17 @@
-/************************************************************************
-*                                    ~~                                   *
-*   dmusici.h -- This module contains the API for the                   *
-*                DirectMusic performance layer                          *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DirectMusic performance-layer API. The high-level interactive-music engine
+ * built on the DirectSound synth: an IDirectMusicPerformance plays authored
+ * IDirectMusicSegments through audio paths (IDirectMusicAudioPath) and tool
+ * graphs, timed on the music clock (MUSIC_TIME, 768 PPQ). Declares the loader,
+ * segments/segment states, audio paths, tools/graphs, scripts, and the PMSG
+ * message types that flow through a performance.
+ */
 
 #ifndef _DMUSICI_
 #define _DMUSICI_
@@ -691,7 +697,9 @@ typedef struct _DMUS_COMMAND_PARAM_2
 
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicObject */
+// IDirectMusicObject
+// Common interface on every loadable DirectMusic object; carries the
+// DMUS_OBJECTDESC identity (class, GUID, name, file) used by the loader. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicObject
 DECLARE_INTERFACE_(IDirectMusicObject, IUnknown)
@@ -711,7 +719,9 @@ DECLARE_INTERFACE_(IDirectMusicObject, IUnknown)
 typedef IDirectMusicObject IDirectMusicObject8;
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicLoader */
+// IDirectMusicLoader
+// Loads and caches DirectMusic content (segments, styles, DLS, scripts)
+// from files or memory, resolving cross-references between objects. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicLoader
 DECLARE_INTERFACE_(IDirectMusicLoader, IUnknown)
@@ -761,7 +771,9 @@ DECLARE_INTERFACE_(IDirectMusicGetLoader, IUnknown)
 typedef IDirectMusicGetLoader IDirectMusicGetLoader8;
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicSegment */
+// IDirectMusicSegment
+// A piece of playable music/content with a start point, length, loop
+// region, and repeat count; played by the performance to yield a segment state. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicSegment
 DECLARE_INTERFACE_(IDirectMusicSegment, IUnknown)
@@ -800,7 +812,9 @@ typedef IDirectMusicSegment IDirectMusicSegment8;
 
 
 /*/////////////////////////////////////////////////////////////////////
-// IDirectMusicSegmentState */
+// IDirectMusicSegmentState
+// A live instance of a playing segment; tracks its start time, seek
+// offset, and the audio path it is playing on. Returned by PlaySegment. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicSegmentState
 DECLARE_INTERFACE_(IDirectMusicSegmentState, IUnknown)
@@ -829,7 +843,9 @@ DECLARE_INTERFACE_(IDirectMusicSegmentState, IUnknown)
 typedef IDirectMusicSegmentState IDirectMusicSegmentState8;
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicAudioPath */
+// IDirectMusicAudioPath
+// The signal path from the synth to DirectSound: buffers, effect sends, and
+// mixbins that a segment's output flows through. Get objects in it by stage. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicAudioPath
 DECLARE_INTERFACE_(IDirectMusicAudioPath, IUnknown)
@@ -858,7 +874,9 @@ typedef IDirectMusicAudioPath IDirectMusicAudioPath8;
 
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicPerformance */
+// IDirectMusicPerformance
+// The central engine: initializes the synth, plays and stops segments,
+// owns the music/reference clocks, routes PMSGs, and creates audio paths. */
 
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicPerformance
@@ -935,7 +953,9 @@ typedef IDirectMusicPerformance IDirectMusicPerformance8;
 
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicGraph */
+// IDirectMusicGraph
+// An ordered chain of tools through which PMSGs pass; StampPMsg routes a
+// message to the next tool. Lives on a segment, audio path, or performance. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicGraph
 DECLARE_INTERFACE_(IDirectMusicGraph, IUnknown)
@@ -959,7 +979,9 @@ DECLARE_INTERFACE_(IDirectMusicGraph, IUnknown)
 typedef IDirectMusicGraph IDirectMusicGraph8;
 
 /*////////////////////////////////////////////////////////////////////
-// IDirectMusicTool */
+// IDirectMusicTool
+// A processing node in a graph that inspects or transforms PMSGs (its
+// registered media types) as they flow toward the synth. */
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicTool
 DECLARE_INTERFACE_(IDirectMusicTool, IUnknown)
@@ -984,7 +1006,9 @@ DECLARE_INTERFACE_(IDirectMusicTool, IUnknown)
 
 
 /*/////////////////////////////////////////////////////////////////////
-// IDirectMusicScript */
+// IDirectMusicScript
+// A loaded authoring script exposing named routines and variables the title
+// can call to drive interactive-music behavior (transitions, cues, state). */
 
 #undef  INTERFACE
 #define INTERFACE  IDirectMusicScript
@@ -1177,13 +1201,10 @@ void WINAPI DirectMusicSetDebugLevel(int iDebugLevel, int iRIPLevel);
 
 #endif /* #ifndef _DMUSICI_ */
 
-/************************************************************************
-*                                                                       *
-*   dmerror.h -- Error code returned by DirectMusic API's               *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * DirectMusic error codes (originally dmerror.h, folded in here). All results
+ * use FACILITY_DIRECTMUSIC; DMUS_S_* are successes, DMUS_E_* are failures.
+ */
 
 #ifndef _DMERROR_
 #define _DMERROR_

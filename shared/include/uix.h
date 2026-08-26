@@ -1,10 +1,18 @@
-/*==========================================================================;
- *
- *  uix.h -- This module defines the Xbox Drop-In UI APIs
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox Drop-In UI (UIX) API. The skinnable, prebuilt Xbox Live user-interface
+ * component a title hosts to provide sign-in, friends, and players screens
+ * without building them itself. Declares the LiveEngine that owns the features
+ * and screen stack, the title-supplied plugin interfaces it renders through
+ * (font renderer, UI and audio plugins), the screen/feature/players-list
+ * interfaces, and the layout, input, and notification constants. Xbox Live
+ * (<xonline.h>) backed.
+ */
 
 #ifndef __UIX__
 #define __UIX__
@@ -1210,6 +1218,11 @@ HRESULT WINAPI LiveEngine_UseVoiceMail(          IN  LiveEngine               *p
 // UIX functions
 //-----------------------------------------------------------------------------
 
+// Entry points. UIXCreateLiveEngine builds the Live UI engine from a skin file
+// and language id -- the root object a title drives each frame. UIXCreateUIPlugin
+// and UIXCreateAudioPlugin build the default UI/audio plugins (given the title's
+// font renderer, or an XACT engine and sound bank) for the engine to render and
+// sound through.
 XBOXAPI
 HRESULT
 WINAPI

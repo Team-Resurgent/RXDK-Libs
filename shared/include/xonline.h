@@ -1,17 +1,32 @@
-/*==========================================================================;
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xonline.h -- public API for Xbox Live (XOnline), the console's online
+ * service layer. Titles include this header to sign users on, then reach the
+ * back-end services: friends and presence, session matchmaking, competitions
+ * and arbitration, statistics and leaderboards, messaging, teams, remote
+ * storage, downloadable offerings and billing, player feedback, and the
+ * string/query helpers.
  *
- *  xonline.h -- This module defines the XBox Live APIs
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- ***************************************************************************/
+ * Almost every service call is asynchronous: the API kicks off work and hands
+ * back an XONLINETASK_HANDLE that the title pumps to completion (see the Task
+ * Pump section) before reading results. This header declares those entry
+ * points along with the service IDs, task/HRESULT status codes, and the
+ * request/result structures they exchange.
+ */
 
 #ifndef __XONLINE__
 #define __XONLINE__
 
-// RXDK: the XDK-5849 xonline.h uses winsock (IN_ADDR) and XNet (XNKID/XNADDR/XNKEY) types without
-// including their headers -- the XDK relied on <xtl.h> having pulled them first. Make it
-// self-sufficient so include order doesn't matter (winsockx.h is guarded).
+/*
+ * xonline.h references winsock (IN_ADDR) and XNet (XNKID/XNADDR/XNKEY) types.
+ * Pull in winsockx.h (itself include-guarded) so this header is self-sufficient
+ * regardless of include order.
+ */
 #include <winsockx.h>
 
 #ifdef __cplusplus
@@ -25,12 +40,17 @@ extern "C" {
 // XOnline Startup & Cleanup
 //
 
+// Parameters to XOnlineStartup. dwMaxPrivatePool caps, in bytes, the private
+// heap the XOnline runtime carves out for itself; 0 selects the default.
 typedef struct _XONLINE_STARTUP_PARAMS {
 
     DWORD           dwMaxPrivatePool;
 
 } XONLINE_STARTUP_PARAMS, *PXONLINE_STARTUP_PARAMS;
 
+// Initialize the XOnline runtime. Must be called (once) before any other
+// XOnline API. Requires that networking has already been brought up via XNet.
+// pxosp may be NULL to accept the defaults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -38,6 +58,8 @@ XOnlineStartup(
     IN const XONLINE_STARTUP_PARAMS*  pxosp
     );
 
+// Tear down the XOnline runtime and release its resources. Pair with
+// XOnlineStartup; do not call other XOnline APIs afterward.
 XBOXAPI
 HRESULT
 WINAPI
@@ -46,6 +68,12 @@ XOnlineCleanup();
 
 //
 // XOnline Error Codes
+//
+// HRESULTs returned by XOnline APIs and, more often, surfaced as the completion
+// status of an async task (via XOnlineTaskContinue or the matching *GetResults
+// call). All use FACILITY_XONLINE; codes with the severity bit set (0x8015xxxx)
+// are failures, the 0x0015xxxx variants are success/informational states. They
+// are grouped below by the service that produces them.
 //
 
 #define FACILITY_XONLINE                                21
@@ -155,7 +183,7 @@ XOnlineCleanup();
 #define XONLINE_E_OFFERING_BAD_REQUEST                  _HRESULT_TYPEDEF_(0x80153001L)  // server received incorrectly formatted request
 #define XONLINE_E_OFFERING_INVALID_USER                 _HRESULT_TYPEDEF_(0x80153002L)  // cannot find account for this user
 #define XONLINE_E_OFFERING_INVALID_OFFER_ID             _HRESULT_TYPEDEF_(0x80153003L)  // offer does not exist
-#define XONLINE_E_OFFERING_INELIGIBLE_FOR_OFFER         _HRESULT_TYPEDEF_(0x80153004L)  // )] private /title not allowed to purchase offer
+#define XONLINE_E_OFFERING_INELIGIBLE_FOR_OFFER         _HRESULT_TYPEDEF_(0x80153004L)  // title not allowed to purchase this offer
 #define XONLINE_E_OFFERING_OFFER_EXPIRED                _HRESULT_TYPEDEF_(0x80153005L)  // offer no longer available
 #define XONLINE_E_OFFERING_SERVICE_UNREACHABLE          _HRESULT_TYPEDEF_(0x80153006L)  // apparent connectivity problems
 #define XONLINE_E_OFFERING_PURCHASE_BLOCKED             _HRESULT_TYPEDEF_(0x80153007L)  // this user is not allowed to make purchases
@@ -370,16 +398,34 @@ XOnlineCleanup();
 //
 // XOnline Task Pump
 //
+// The async model behind nearly every XOnline call. A service API that takes an
+// OUT PXONLINETASK_HANDLE starts work on the network and returns immediately
+// with a handle. The title drives that handle forward by calling
+// XOnlineTaskContinue repeatedly (typically once per frame): while the task is
+// still working it returns XONLINETASK_S_RUNNING, and when finished it returns
+// the task's terminal HRESULT -- SUCCEEDED for completion, or an XONLINE_E_*
+// failure. Once complete, the matching XOnline...GetResults function copies the
+// results out. Always XOnlineTaskClose the handle when done, success or not.
+//
+// The optional hWorkEvent supplied at task creation is signaled when the task
+// has new work to pump, letting the title wait on it instead of polling.
+//
 
 DECLARE_HANDLE(XONLINETASK_HANDLE);
 typedef XONLINETASK_HANDLE* PXONLINETASK_HANDLE;
 
+// Return states from XOnlineTaskContinue. S_RUNNING means keep pumping;
+// S_RESULTS_AVAIL signals partial results are ready to read while the task
+// continues; S_RUNNING_IDLE means running but currently blocked on external
+// input; S_SUCCESS is normal completion.
 #define XONLINETASK_S_RUNNING                   (S_OK)
 #define XONLINETASK_S_SUCCESS                   _HRESULT_TYPEDEF_(0x001500F0L)
 #define XONLINETASK_S_RESULTS_AVAIL             _HRESULT_TYPEDEF_(0x001500F1L)
 #define XONLINETASK_S_RUNNING_IDLE              _HRESULT_TYPEDEF_(0x001500F2L)
 
 
+// Advance an outstanding task. Call in a loop until it returns other than
+// XONLINETASK_S_RUNNING; the returned HRESULT is then the task's final status.
 XBOXAPI
 HRESULT
 WINAPI
@@ -387,6 +433,8 @@ XOnlineTaskContinue(
     IN XONLINETASK_HANDLE hTask
     );
 
+// Release a task handle and its resources. Valid at any point; cancels the task
+// if it is still running.
 XBOXAPI
 HRESULT
 WINAPI
@@ -400,11 +448,16 @@ XOnlineTaskClose(
 // XOnline Authentication
 //
 
+// Gamertag buffer is 16 bytes including the terminating null (15 usable
+// characters). Up to 4 users can be signed on at once; a passcode is 4 button
+// presses.
 #define XONLINE_GAMERTAG_SIZE                   16
 #define XONLINE_MAX_GAMERTAG_LENGTH             (XONLINE_GAMERTAG_SIZE - 1)
 #define XONLINE_PASSCODE_LENGTH                  4
 #define XONLINE_MAX_LOGON_USERS                  4
 
+// A passcode digit is one controller input; a passcode is XONLINE_PASSCODE_LENGTH
+// of these packed one per byte in XONLINE_USER.passcode.
 typedef enum {
     XONLINE_PASSCODE_DPAD_UP = 1,
     XONLINE_PASSCODE_DPAD_DOWN,
@@ -416,6 +469,9 @@ typedef enum {
     XONLINE_PASSCODE_GAMEPAD_RIGHT_TRIGGER
 } XONLINE_PASSCODE_TYPE;
 
+// Classification of the console's NAT, as detected against the Live servers and
+// returned by XOnlineGetNatType. OPEN peers can host and connect freely; STRICT
+// peers may only reach OPEN peers, which affects matchmaking eligibility.
 typedef enum {
     XONLINE_NAT_OPEN = 1,
     XONLINE_NAT_MODERATE,
@@ -423,6 +479,9 @@ typedef enum {
 } XONLINE_NAT_TYPE;
 
 
+// Service IDs passed in the pdwServiceIDs array to XOnlineLogon/XOnlineSilentLogon
+// (and to XOnlineGetServiceInfo/XOnlineThrottle*) to request access to a Live
+// back-end service. Only the services a title logs on for are usable.
 #define XONLINE_STRING_SERVICE                  ((DWORD)2)
 #define XONLINE_CONTENT_AVAILABLE_SERVICE       ((DWORD)4)
 #define XONLINE_MATCHMAKING_SERVICE             ((DWORD)6)
@@ -441,6 +500,10 @@ typedef enum {
 #define XONLINE_INVALID_SERVICE                 ((DWORD)0)
 
 
+// Bitfields packed into XUID.dwUserFlags: guest slot number, the user's
+// no-show/disconnect reputation ratings, country ID, and per-user parental
+// permission bits (voice, purchase, nickname, shared content). Decode them with
+// the XOnline...  accessor macros below rather than masking by hand.
 #define XONLINE_USER_GUEST_MASK                 0x00000003
 #define XONLINE_USER_NOSHOW_RATING_MASK         0x0000001C
 #define XONLINE_USER_DISCONNECT_RATING_MASK     0x000000E0
@@ -452,6 +515,9 @@ typedef enum {
 #define XONLINE_USER_NICKNAME_NOT_ALLOWED       0x00040000
 #define XONLINE_USER_SHARED_CONTENT_NOT_ALLOWED 0x00080000
 
+// Accessors for the dwUserFlags bitfields above. The IsUser... macros return
+// TRUE when the corresponding privilege is permitted; guest 0 denotes the
+// primary (non-guest) account.
 #define XOnlineUserCountryId(dwUserFlags) ((BYTE)(((dwUserFlags) & XONLINE_USER_COUNTRY_MASK) >> 8))
 
 #define XOnlineIsUserVoiceAllowed(dwUserFlags) (((dwUserFlags) & XONLINE_USER_VOICE_NOT_ALLOWED) == 0)
@@ -473,6 +539,10 @@ typedef enum {
 #define XOnlineSetUserGuestNumber(dwUserFlags,guestNumber) ((dwUserFlags) = ((dwUserFlags) & ~XONLINE_USER_GUEST_MASK) | (guestNumber & XONLINE_USER_GUEST_MASK))
 
 
+// The persistent Live identity of a user or a team: a 64-bit ID plus the packed
+// dwUserFlags described above. The same union holds a team ID when the XUID
+// names a team (test with XOnlineXUIDIsTeam). This is the currency of every
+// friends/presence/messaging/team API.
 #pragma pack(push, 4)
 
 typedef struct _XUID {
@@ -486,17 +556,25 @@ typedef struct _XUID {
 
 #pragma pack(pop)
 
+// TRUE when two XUIDs name the same user account and guest slot. Compare with
+// this rather than memcmp, since dwUserFlags carries fields beyond identity.
 #define XOnlineAreUsersIdentical(pXUID1, pXUID2) (((pXUID1)->qwUserID == (pXUID2)->qwUserID) && \
                 (XOnlineUserGuestNumber((pXUID1)->dwUserFlags) == XOnlineUserGuestNumber((pXUID2)->dwUserFlags)))
 
+// TRUE when the XUID names a team rather than a user (team IDs carry a 0xFE tag
+// in their top byte).
 #define XOnlineXUIDIsTeam(pxuid) (((pxuid)->qwUserID & 0xFF00000000000000) == 0xFE00000000000000)
 
 
+// Opaque 64-bit identifier for a purchasable/downloadable offering.
 typedef ULONGLONG XOFFERING_ID;
 
 
 #pragma pack(push, 4)
 
+// dwUserOptions flags on a stored user account. REQUIRE_PASSCODE means the
+// account is passcode-protected; the CAME_FROM_MU / MU_PORT / MU_SLOT bits
+// record which memory unit the account was loaded from.
 #define XONLINE_USER_RESERVED_SIZE              72
 #define XONLINE_MAX_STORED_ONLINE_USERS         16
 
@@ -508,6 +586,9 @@ typedef ULONGLONG XOFFERING_ID;
 #define XONLINE_USER_OPTION_MU_SLOT_MASK        0x10000000
 #define XONLINE_USER_OPTION_MU_SLOT_SHIFT               28
 
+// A stored user account as returned by XOnlineGetUsers and passed to
+// XOnlineLogon. Fill in passcode only for accounts that require one; after a
+// logon, hr carries the per-user sign-on result.
 typedef struct _XONLINE_USER {
     XUID xuid;
     CHAR szGamertag[XONLINE_GAMERTAG_SIZE];
@@ -517,6 +598,8 @@ typedef struct _XONLINE_USER {
     HRESULT hr;
 } XONLINE_USER, *PXONLINE_USER;
 
+// Address of a Live service endpoint, as returned by XOnlineGetServiceInfo for
+// a service the title logged on for.
 typedef struct _XONLINE_SERVICE_INFO{
     DWORD          dwServiceID;
     IN_ADDR        serviceIP;
@@ -527,6 +610,9 @@ typedef struct _XONLINE_SERVICE_INFO{
 #pragma pack(pop)
 
 
+// Enumerate the user accounts stored on the console's hard disk and mounted
+// memory units. On entry *pdwUsers is the pUsers capacity; on exit it is the
+// count filled in. Use these XONLINE_USERs as the input to XOnlineLogon.
 XBOXAPI
 HRESULT
 WINAPI
@@ -535,6 +621,10 @@ XOnlineGetUsers(
     OUT DWORD *pdwUsers
     );
 
+// Begin signing the given users on to Live and requesting the listed services.
+// Asynchronous: pump the returned task, then call XOnlineLogonTaskGetResults.
+// The task stays alive after logon as the connection manager; keep pumping it
+// for the duration of the online session and watch for connection-lost status.
 XBOXAPI
 HRESULT
 WINAPI
@@ -546,6 +636,9 @@ XOnlineLogon(
     OUT PXONLINETASK_HANDLE pHandle
     );
 
+// Poll the logon task for its current connection state; returns
+// XONLINE_S_LOGON_CONNECTION_ESTABLISHED once connected, an XONLINE_E_LOGON_*
+// failure, or XONLINETASK_S_RUNNING while still connecting.
 XBOXAPI
 HRESULT
 WINAPI
@@ -554,6 +647,8 @@ XOnlineLogonTaskGetResults(
     );
 
 
+// Change the set of signed-on users without a full re-logon (e.g. add or drop a
+// controller's user). Async; results via XOnlineChangeLogonUsersTaskGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -563,6 +658,8 @@ XOnlineChangeLogonUsers(
     OUT PXONLINETASK_HANDLE pHandle
     );
 
+// Retrieve the outcome of an XOnlineChangeLogonUsers task; *phr receives the
+// commit/complete or failure HRESULT for the user change.
 XBOXAPI
 HRESULT
 WINAPI
@@ -571,16 +668,20 @@ XOnlineChangeLogonUsersTaskGetResults(
     OUT HRESULT *phr
     );
 
+// Pointer to the runtime's array of XONLINE_MAX_LOGON_USERS currently signed-on
+// users (indexed by user index). Slots for absent users have a zeroed xuid.
 XBOXAPI
 PXONLINE_USER
 WINAPI
 XOnlineGetLogonUsers();
 
+// The console's detected NAT classification (see XONLINE_NAT_TYPE).
 XBOXAPI
 XONLINE_NAT_TYPE
 WINAPI
 XOnlineGetNatType();
 
+// Look up the endpoint for one requested service after logon; fills pServiceInfo.
 XBOXAPI
 HRESULT
 WINAPI
@@ -589,6 +690,10 @@ XOnlineGetServiceInfo(
     OUT PXONLINE_SERVICE_INFO pServiceInfo
     );
 
+// Like XOnlineLogon but signs on the users already cached from a prior session
+// without prompting, using no XONLINE_USER array. Fails with
+// XONLINE_E_SILENT_LOGON_* when silent logon is disabled, no accounts are
+// cached, or a passcode is required.
 XBOXAPI
 HRESULT
 WINAPI
@@ -602,6 +707,12 @@ XOnlineSilentLogon(
 //
 // Preserving state across reboots
 //
+// A title that reboots into another XBE (e.g. to launch the downloader) can
+// carry its Live session forward: XOnlineSaveLogonState serializes the current
+// logon into an opaque XONLINE_LOGON_STATE blob to hand across in launch data,
+// and the next title reconstructs the users and services from it with
+// XOnlineRetrieveLogonState before re-logging on.
+//
 
 // This should be same as XONLINE_MAX_NUMBER_SERVICE
 #define XONLINE_MAX_LOGON_STATE_SERVICES    16
@@ -610,6 +721,8 @@ XOnlineSilentLogon(
 #define XONLINE_LOGON_STATE_TYPE 0x4C
 #define XONLINE_LOGON_STATE_VERSION 1
 
+// Opaque, versioned snapshot of the logged-on users and requested services.
+// Treat Data as private to the XOnline runtime; move the whole struct intact.
 typedef struct _XONLINE_LOGON_STATE {
     BYTE bType;
     BYTE bVersion;
@@ -621,6 +734,9 @@ typedef struct _XONLINE_LOGON_STATE {
 // Launch data passed to Downloader.XBE
 //
 
+// Launch-data layout for rebooting into the system downloader title. dwID is
+// LAUNCH_DATA_DOWNLOADER_ID, LogonState carries the saved session, and
+// UserDefined is title space returned when the downloader reboots back.
 #define LAUNCH_DATA_DOWNLOADER_ID  'dl01'
 
 typedef struct _LD_DOWNLOADER {
@@ -634,6 +750,7 @@ typedef struct _LD_DOWNLOADER {
 } LD_DOWNLOADER, *PLD_DOWNLOADER;
 
 
+// Serialize the current logon into pLogonState for transfer across a reboot.
 XBOXAPI
 HRESULT
 WINAPI
@@ -641,6 +758,9 @@ XOnlineSaveLogonState(
     OUT PXONLINE_LOGON_STATE pLogonState
     );
 
+// Reconstruct the users and service IDs from a saved logon state. On entry
+// *pdwServices is the pdwServiceIDs capacity; on exit it is the count restored.
+// Feed the recovered users/services back into XOnlineLogon to reconnect.
 XBOXAPI
 HRESULT
 WINAPI
@@ -656,6 +776,9 @@ XOnlineRetrieveLogonState(
 // XOnline Title Update (Security updates)
 //
 
+// Reboot into the system downloader to fetch and apply a mandatory security
+// update for this title. dwContext is passed through to the update flow.
+// See XOnlineTitleUpdateEx for the launch-data variant.
 XBOXAPI
 HRESULT
 WINAPI
@@ -666,7 +789,12 @@ XOnlineTitleUpdate(
 //
 // Signature Service APIs
 //
+// The signature service lets a title verify that a digest (e.g. of stats or a
+// game result) was signed by Live, guarding against tampered peer submissions.
+//
 
+// One (digest, online-signature) pair to check. pbDigest is the data hash;
+// pbOnlineSignature is the Live-issued signature over it.
 typedef struct
 {
     DWORD   cbDigest;
@@ -678,6 +806,8 @@ typedef struct
 
 typedef XONLINE_SIGNATURE_TO_VERIFY *PXONLINE_SIGNATURE_TO_VERIFY;
 
+// Verify a batch of signatures against the service. Async; the per-signature
+// results are collected by XOnlineSignatureVerifyGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -688,6 +818,8 @@ XOnlineSignatureVerify(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the array of per-signature HRESULTs from a completed verify task;
+// *pdwHresults receives the count, *prgHresults points at runtime-owned storage.
 XBOXAPI
 HRESULT
 WINAPI
@@ -697,6 +829,17 @@ XOnlineSignatureVerifyGetResults(
     OUT DWORD *pdwHresults
     );
 
+//
+// XOnline Storage
+//
+// Server-side file storage for titles: upload/download packages and blobs to
+// per-title, per-user, or service-owned areas, keyed by a facility plus a
+// storage path. All transfers are async tasks; long ones expose progress via
+// XOnlineStorageGetProgress. Paths are wide strings under XONLINESTORAGE_MAX_PATH.
+//
+
+// Upload a file identified by a server file reference (as returned by a stats
+// write) into szDirectory. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -708,6 +851,9 @@ XOnlineStorageUpload(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Storage facility, selecting which namespace/quota a file lives in. STATS,
+// MESSAGING and TEAMS are service-owned; PER_TITLE and PER_USER_TITLE are the
+// title's own areas.
 typedef enum
 {
     XONLINESTORAGE_FACILITY_INVALID = 0,
@@ -722,6 +868,9 @@ typedef enum
 
 #define XONLINESTORAGE_MAX_PATH                 256
 
+// Compose the canonical server path for a stored file from its facility, owner
+// (user and/or team) and file name; the path then addresses the other storage
+// APIs. *pcchStorageServerPath is in/out (capacity then length).
 XBOXAPI
 HRESULT
 WINAPI
@@ -734,6 +883,8 @@ XOnlineStorageCreateServerPath(
     IN OUT DWORD *pcchStorageServerPath
     );
 
+// Upload the contents of a local directory as a named storage file, expiring on
+// the server at ftServerExpirationDate. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -748,6 +899,8 @@ XOnlineStorageUploadByServerPath(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Download a stored file and install it into szInstallDirectory. Async; use
+// XOnlineStorageGetProgress to track a large download.
 XBOXAPI
 HRESULT
 WINAPI
@@ -761,6 +914,7 @@ XOnlineStorageDownload(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Upload a blob straight from memory as a named storage file. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -776,6 +930,8 @@ XOnlineStorageUploadFromMemory(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Download a stored file into a caller-supplied memory buffer. Async; retrieve
+// the received bytes and metadata with XOnlineStorageDownloadToMemoryGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -790,6 +946,8 @@ XOnlineStorageDownloadToMemory(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Results of a download-to-memory task: received data pointer/size, total size,
+// owning user PUID, and creation date. All OUT parameters are optional.
 XBOXAPI
 HRESULT
 WINAPI
@@ -802,6 +960,7 @@ XOnlineStorageDownloadToMemoryGetResults(
     OUT OPTIONAL FILETIME *pftCreationDate
     );
 
+// Delete a stored file. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -813,6 +972,9 @@ XOnlineStorageDeleteFile(
     OUT XONLINETASK_HANDLE *phTask
     );
 
+// List stored files under an enumeration path, a page at a time from
+// dwStartingIndex. Async; XOnlineStorageEnumerateGetResults returns the
+// XONLINESTORAGE_FILE_INFO records.
 XBOXAPI
 HRESULT
 WINAPI
@@ -826,6 +988,7 @@ XOnlineStorageEnumerate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Storage content kind: an installable PACKAGE versus an opaque BLOB.
 typedef enum
 {
     XONLINESTORAGE_CONTENT_TYPE_PACKAGE = 0,
@@ -833,6 +996,8 @@ typedef enum
 
 } XONLINESTORAGE_CONTENT_TYPE;
 
+// Metadata for one enumerated storage file: owner, content type, wire and
+// installed sizes, timestamps, path name, and an attribute blob.
 #pragma pack(push, 1)
 
 typedef struct
@@ -856,6 +1021,9 @@ typedef struct
 
 #pragma pack(pop)
 
+// Retrieve the enumerated file records; *pdwTotalResults is the full match
+// count, *pdwResultsReturned the number in this page, *prgpStorageFileInfo an
+// array of runtime-owned XONLINESTORAGE_FILE_INFO pointers.
 XBOXAPI
 HRESULT
 WINAPI
@@ -866,6 +1034,8 @@ XOnlineStorageEnumerateGetResults(
     OUT PXONLINESTORAGE_FILE_INFO **prgpStorageFileInfo
     );
 
+// Progress of an in-flight storage transfer: percent done and/or a
+// numerator/denominator byte ratio. All OUT parameters are optional.
 XBOXAPI
 HRESULT
 WINAPI
@@ -876,6 +1046,8 @@ XOnlineStorageGetProgress(
     OUT OPTIONAL ULONGLONG *pqwDenominator
     );
 
+// Return the local install path of a previously downloaded storage file.
+// *pdwLocationSize is in/out (buffer capacity then written length).
 XBOXAPI
 HRESULT
 WINAPI
@@ -886,6 +1058,8 @@ XOnlineStorageGetInstallLocation(
     IN OUT DWORD *pdwLocationSize
     );
 
+// Set the family title ID used to scope subsequent storage operations, letting
+// a title share storage with related titles in its family.
 XBOXAPI
 HRESULT
 WINAPI
@@ -894,6 +1068,8 @@ XOnlineStorageSetFamilyTitleID(
     );
 
 
+// Launch-data payload for XOnlineTitleUpdateEx: dwContext plus title-defined
+// Data carried across the reboot into the update flow.
 typedef struct
 {
     DWORD   dwContext;
@@ -902,6 +1078,8 @@ typedef struct
 
 } LD_UPDATE, *PLD_UPDATE;
 
+// Reboot into the security-update flow, passing an LD_UPDATE launch payload.
+// The extended form of XOnlineTitleUpdate.
 XBOXAPI
 HRESULT
 WINAPI
@@ -912,13 +1090,20 @@ XOnlineTitleUpdateEx(
 //
 // XOnline Offerings
 //
+// The billing/offering service: query, purchase and cancel downloadable content
+// and subscriptions, and enumerate the offerings available or already owned.
+// Purchases draw on the payment instrument on file for the account.
+//
 
+// Non-USD currency the account may be billed in (a bitmask/format hint used with
+// XONLINE_PRICE); absence implies the default currency.
 #define XO_CURRENCY_EUR     1
 #define XO_CURRENCY_GBP     2
 #define XO_CURRENCY_JPY     4
 #define XO_CURRENCY_KRW     8
 
 
+// Tax treatment applied to an offering's price.
 typedef enum {
     NO_TAX = 0,
     DEFAULT,
@@ -928,7 +1113,9 @@ typedef enum {
 } XONLINE_TAX_TYPE;
 
 
-
+// A localized price: whole and fractional parts, ISO currency code, free flag,
+// tax type, and a currency-format hint. Format it for display with
+// XOnlineOfferingPriceFormat rather than assembling the string by hand.
 typedef struct _XONLINE_PRICE{
     DWORD               dwWholePart;
     DWORD               dwFractionalPart;
@@ -939,7 +1126,7 @@ typedef struct _XONLINE_PRICE{
 } XONLINE_PRICE, *PXONLINE_PRICE;
 
 
-
+// How often a recurring (subscription) offering bills.
 typedef enum {
     ONE_TIME_CHARGE = 0,
     MONTHLY,
@@ -949,17 +1136,22 @@ typedef enum {
 } XONLINE_OFFERING_FREQUENCY;
 
 
+// Details of a single offering, returned by XOnlineOfferingDetailsGetResults:
+// the title-specific details blob, count already owned, price, and the billing
+// schedule for subscriptions.
 typedef struct _XONLINEOFFERING_DETAILS{
     PBYTE                       pbDetailsBuffer;            // Pointer to buffer of details blob
     DWORD                       dwDetailsBuffer;            // Length of details blob
     DWORD                       dwInstances;                // Count of currently-owned instances
-    XONLINE_PRICE               Price;                      // price strcture
+    XONLINE_PRICE               Price;                      // price structure
     DWORD                       dwFreeMonthsBeforeCharge;   // free months before charge begins
     DWORD                       dwDuration;                 // duration of the recurring charge (months)
     XONLINE_OFFERING_FREQUENCY  Frequency;                  // how often charges are made
 } XONLINEOFFERING_DETAILS, *PXONLINEOFFERING_DETAILS;
 
 
+// Purchase an offering for a user, charging the payment instrument on file.
+// Async; failures arrive as XONLINE_E_OFFERING_* completion codes.
 XBOXAPI
 HRESULT
 WINAPI
@@ -970,6 +1162,7 @@ XOnlineOfferingPurchase(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Cancel a previously purchased offering/subscription. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -980,6 +1173,9 @@ XOnlineOfferingCancel(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Query the price and details of an offering in a given language. Async; the
+// buffer is sized via XOnlineOfferingDetailsMaxSize and the parsed result is
+// read back with XOnlineOfferingDetailsGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -994,6 +1190,7 @@ XOnlineOfferingDetails(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Parse a completed details task into an XONLINEOFFERING_DETAILS.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1002,6 +1199,8 @@ XOnlineOfferingDetailsGetResults(
     OUT PXONLINEOFFERING_DETAILS pDetails
     );
 
+// Maximum buffer size XOnlineOfferingDetails may need, given the largest
+// expected title-specific data size.
 XBOXAPI
 DWORD
 WINAPI
@@ -1009,6 +1208,9 @@ XOnlineOfferingDetailsMaxSize(
     IN DWORD dwTitleSpecificDataMaxSize
     );
 
+// Format an XONLINE_PRICE into a localized display string. *pdwLength is in/out
+// (buffer capacity then length); dwExtendedCharsFilter restricts glyphs a title
+// cannot render.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1026,9 +1228,8 @@ XOnlineOfferingPriceFormat(
 // Offering enumeration APIs
 //
 
-
-
-
+// Country IDs, as stored in the XONLINE_USER_COUNTRY_MASK field of dwUserFlags
+// (decode with XOnlineUserCountryId) and used to scope offering availability.
 #define XONLINE_COUNTRY_UNITED_ARAB_EMIRATES 1
 #define XONLINE_COUNTRY_ALBANIA              2
 #define XONLINE_COUNTRY_ARMENIA              3
@@ -1142,6 +1343,8 @@ XOnlineOfferingPriceFormat(
 
 
 
+// Offering type filter bits for enumeration: subscriptions and/or one-off
+// content. _ALL matches every type or every publisher bit.
 #define    XONLINE_OFFERING_SUBSCRIPTION        0x1
 #define    XONLINE_OFFERING_CONTENT             0x2
 
@@ -1153,12 +1356,15 @@ XOnlineOfferingPriceFormat(
 
 
 
+// Bit in XONLINEOFFERING_INFO.fOfferingFlags; test it with XOnlineOfferingIsFree.
 #define    XONLINE_OFFERING_IS_NOT_FREE         0x1
 
 
 #define XOnlineOfferingIsFree(x)    (((x) & XONLINE_OFFERING_IS_NOT_FREE) == 0)
 
 
+// Filter/paging parameters for XOnlineOfferingEnumerate: which offering types
+// and publisher-defined bits to match, and the result window to return.
 #pragma pack(push, 1)
 typedef struct _XONLINEOFFERING_ENUM_PARAMS
 {
@@ -1171,6 +1377,8 @@ typedef struct _XONLINEOFFERING_ENUM_PARAMS
 #pragma pack(pop)
 
 
+// One offering returned by enumeration: its ID, type, sizes, activation date,
+// rating, flags, and a title-specific data blob.
 #pragma pack(push, 1)
 typedef struct _XONLINEOFFERING_INFO{
     XOFFERING_ID        OfferingId;             // Offering ID
@@ -1190,6 +1398,8 @@ typedef struct _XONLINEOFFERING_INFO{
 
 
 
+// Check whether any new content matching dwBitFilter is available for the user.
+// Async; completes with XONLINE_S_OFFERING_NEW_CONTENT or _NO_NEW_CONTENT.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1201,6 +1411,8 @@ XOnlineOfferingIsNewContentAvailable(
 
 
 
+// Enumerate offerings matching pEnumParams into a caller buffer (size it with
+// XOnlineOfferingEnumerateMaxSize). Async; parse with the GetResults call.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1214,6 +1426,8 @@ XOnlineOfferingEnumerate(
     );
 
 
+// Retrieve the enumerated offerings as an array of XONLINEOFFERING_INFO pointers;
+// *pfMoreResults indicates another page can be fetched.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1225,6 +1439,8 @@ XOnlineOfferingEnumerateGetResults(
     );
 
 
+// Buffer size XOnlineOfferingEnumerate needs for the given params and expected
+// per-offering title data.
 XBOXAPI
 DWORD
 WINAPI
@@ -1234,6 +1450,8 @@ XOnlineOfferingEnumerateMaxSize(
     );
 
 
+// Download and install owned content for an offering. Async; track it with
+// XOnlineContentInstallGetProgress and query its footprint with GetSize.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1244,6 +1462,7 @@ XOnlineContentInstall(
     );
 
 
+// Progress of a content install (percent and/or byte ratio). OUT params optional.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1254,6 +1473,8 @@ XOnlineContentInstallGetProgress(
     OUT OPTIONAL ULONGLONG *pqwDenominator
     );
 
+// Report an install's total installed size and additional blocks still needed,
+// so a title can check for free space before committing.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1263,6 +1484,7 @@ XOnlineContentInstallGetSize(
     OUT DWORD *pdwAdditionalBlocksRequired
     );
 
+// Provide the title's secret key used to decrypt installed content.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1275,7 +1497,19 @@ XOnlineContentSetSecurityKey(
 //
 // Messaging
 //
+// Inter-user messages (friend requests, game invites, team recruits, custom
+// title messages, Live system messages). A message is a typed envelope
+// (XONLINE_MSG_TYPE_*) carrying a set of tagged properties (text, voice,
+// session ID, and so on). Incoming messages surface first as lightweight
+// XONLINE_MSG_SUMMARY records via XOnlineMessageEnumerate; the full property
+// set and any storage attachments are fetched on demand with
+// XOnlineMessageDetails. Outgoing messages are built with
+// XOnlineMessageCreate / XOnlineMessageSetProperty and sent with
+// XOnlineMessageSend.
+//
 
+// Inbox capacity, per-send recipient cap, and the maximum inline details size
+// (larger payloads become downloadable attachments).
 #define XONLINE_MAX_NUM_MESSAGES        125
 #define XONLINE_MAX_MESSAGE_RECIPIENTS  100
 #define XONLINE_MAX_MESSAGE_DETAILS     4096
@@ -1418,6 +1652,9 @@ typedef XONLINE_MSG_HANDLE* PXONLINE_MSG_HANDLE;
 
 
 
+// Lightweight header for one message (sender, type, context, timestamps, flags,
+// details size). Returned by XOnlineMessageEnumerate/Summary without fetching
+// the message body.
 #pragma pack(push, 8)
 typedef struct _XONLINE_MSG_SUMMARY
 {
@@ -1434,6 +1671,9 @@ typedef struct _XONLINE_MSG_SUMMARY
 } XONLINE_MSG_SUMMARY, *PXONLINE_MSG_SUMMARY;
 #pragma pack(pop)
 
+// Per-recipient outcome of a send: whom, the HRESULT, and (on success) the
+// assigned message ID. One entry per recipient; also the input to
+// XOnlineMessageRevoke.
 typedef struct _XONLINE_MSG_SEND_RESULT
 {
     XUID        xuidRecipient;  // User ID of recipient
@@ -1442,6 +1682,8 @@ typedef struct _XONLINE_MSG_SEND_RESULT
 } XONLINE_MSG_SEND_RESULT, *PXONLINE_MSG_SEND_RESULT;
 
 
+// Enumerate the summaries of the user's inbox messages into pMsgSummaries
+// (capacity/count via *pdwNumMsgSummaries). Synchronous, from the local cache.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1452,6 +1694,7 @@ XOnlineMessageEnumerate(
     );
 
 
+// Fetch the cached summary for one message by ID.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1462,6 +1705,9 @@ XOnlineMessageSummary(
     );
 
 
+// Download a message's full property set (and optionally mark flags read).
+// Async; the same task handle is then used with the GetResults* property
+// readers and with XOnlineMessageDownloadAttachment* for large attachments.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1475,6 +1721,8 @@ XOnlineMessageDetails(
     );
 
 
+// From a completed details task, read the summary, the property count, and the
+// total size of downloadable attachments.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1486,6 +1734,9 @@ XOnlineMessageDetailsGetResultsSummary(
     );
 
 
+// Read one property value by tag from a completed details task. If the property
+// is an attachment too large to inline, *pdwAttachmentFlags is set and the data
+// must be fetched with XOnlineMessageDownloadAttachment*.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1499,6 +1750,8 @@ XOnlineMessageDetailsGetResultsProperty(
     );
 
 
+// Download an attachment property into memory. Started from the details task;
+// results via the matching GetResults call. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1512,6 +1765,7 @@ XOnlineMessageDownloadAttachmentToMemory(
     );
 
 
+// Results of an attachment-to-memory download: data pointer/size and total size.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1523,6 +1777,7 @@ XOnlineMessageDownloadAttachmentToMemoryGetResults(
     );
 
 
+// Download an attachment property directly to a local directory. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1535,6 +1790,7 @@ XOnlineMessageDownloadAttachmentToDirectory(
     );
 
 
+// Progress of an attachment download (percent and/or byte ratio). OUT optional.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1546,6 +1802,7 @@ XOnlineMessageDownloadAttachmentGetProgress(
     );
 
 
+// Set and/or clear message flags (e.g. mark read) on the server. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1559,6 +1816,8 @@ XOnlineMessageSetFlags(
     );
 
 
+// Delete a message locally and on the server, optionally blocking further
+// messages from its sender. Async is not used; returns directly.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1569,6 +1828,10 @@ XOnlineMessageDelete(
     );
 
 
+// Build a new outgoing message of the given type, pre-sizing it for
+// wNumProperties properties totaling wExpectedValuesSize bytes. Populate it with
+// XOnlineMessageSetProperty, send with XOnlineMessageSend, and free with
+// XOnlineMessageDestroy.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1583,6 +1846,7 @@ XOnlineMessageCreate(
     );
 
 
+// Free a message built with XOnlineMessageCreate.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1591,6 +1855,8 @@ XOnlineMessageDestroy(
     );
 
 
+// Add or replace one property (tagged by wPropTag) on an outgoing message;
+// dwAttachmentFlags apply when the property is an attachment.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1603,6 +1869,8 @@ XOnlineMessageSetProperty(
     );
 
 
+// Send a built message to up to XONLINE_MAX_MESSAGE_RECIPIENTS users. Async;
+// per-recipient outcomes come from XOnlineMessageSendGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1616,6 +1884,7 @@ XOnlineMessageSend(
     );
 
 
+// Progress of a send that is uploading attachments (percent and/or byte ratio).
 XBOXAPI
 HRESULT
 WINAPI
@@ -1627,6 +1896,7 @@ XOnlineMessageSendGetProgress(
     );
 
 
+// Retrieve one XONLINE_MSG_SEND_RESULT per recipient from a completed send.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1636,6 +1906,8 @@ XOnlineMessageSendGetResults(
     );
 
 
+// Recall previously sent messages, identified by the send-result records.
+// Async. Fails with XONLINE_E_MESSAGE_NO_VALID_SENDS_TO_REVOKE if none qualify.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1647,6 +1919,8 @@ XOnlineMessageRevoke(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Enable or disable automatic background refresh of the message summary list.
+// Returns the previous setting.
 XBOXAPI
 BOOL
 WINAPI
@@ -1654,6 +1928,7 @@ XOnlineMessageSetSummaryRefresh(
     IN BOOL fEnable
     );
 
+// Allow this title to receive messages sent by the listed family title IDs.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1662,6 +1937,7 @@ XOnlineMessageEnableReceivingFamilyTitleIDs(
     IN const DWORD *pdwTitleIDs
     );
 
+// Set the family title ID stamped on messages this title sends.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1675,7 +1951,17 @@ XOnlineMessageSetSendingFamilyTitleID(
 //
 // XOnline Matchmaking
 //
+// Advertise and find multiplayer game sessions. A host creates a session
+// described by a set of typed attributes (XONLINE_ATTRIBUTE) and public/private
+// slot counts; other consoles run a stored search procedure to find matching
+// sessions and receive XONLINE_MATCH_SEARCHRESULT records with the host's XNADDR
+// and key-exchange key needed to connect. The same XONLINE_ATTRIBUTE model is
+// reused by the query, competition, and arbitration services.
+//
 
+// A single matchmaking attribute: an ID (whose data-type field selects the
+// active union member) and its integer, string, or blob value. fChanged marks
+// attributes to update in XOnlineMatchSessionUpdate.
 typedef struct _XONLINE_ATTRIBUTE {
     DWORD dwAttributeID;
     BOOL fChanged;
@@ -1693,11 +1979,17 @@ typedef struct _XONLINE_ATTRIBUTE {
     } info;
 } XONLINE_ATTRIBUTE, *PXONLINE_ATTRIBUTE;
 
+// Describes one result column to return from a search: its data type and, for
+// string/blob columns, the reserved length. An array of these shapes the
+// result buffer.
 typedef struct _XONLINE_ATTRIBUTE_SPEC {
     DWORD            dwType;
     DWORD            dwLength;
 } XONLINE_ATTRIBUTE_SPEC, *PXONLINE_ATTRIBUTE_SPEC;
 
+// Attribute size limits and the bitfields packed into an attribute ID: the
+// data-type nibble (integer/string/blob/null), the title-specific scope, and
+// the low 16-bit identifier.
 #define X_MAX_STRING_ATTRIBUTE_LEN         400
 #define X_MAX_BLOB_ATTRIBUTE_LEN           800
 
@@ -1711,6 +2003,10 @@ typedef struct _XONLINE_ATTRIBUTE_SPEC {
 
 #define X_ATTRIBUTE_ID_MASK                0x0000FFFF
 
+// One found session: its ID, the host's address and key-exchange key (to
+// establish a secure XNet connection), current public/private slot occupancy,
+// and attribute count. Parse a result buffer into these with
+// XOnlineMatchSearchParse.
 #pragma pack(push, 1)
 
 typedef struct _XONLINE_MATCH_SEARCHRESULT
@@ -1728,6 +2024,9 @@ typedef struct _XONLINE_MATCH_SEARCHRESULT
 
 #pragma pack(pop)
 
+// Create and advertise a new matchmaking session with the given slot counts and
+// attributes. Async; the assigned session ID and key come from
+// XOnlineMatchSessionGetInfo.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1742,6 +2041,8 @@ XOnlineMatchSessionCreate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Update a session's slot counts and changed attributes (mark them with
+// fChanged) as the game fills or its state changes. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1757,6 +2058,8 @@ XOnlineMatchSessionUpdate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the server-assigned session ID and key-exchange key from a completed
+// create/find task.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1766,6 +2069,7 @@ XOnlineMatchSessionGetInfo(
     OUT XNKEY *pKeyExchangeKey
     );
 
+// Remove an advertised session (host tear-down). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1775,6 +2079,8 @@ XOnlineMatchSessionDelete(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Look up a specific session by ID (e.g. to join a friend's game). Async;
+// details via XOnlineMatchSessionGetInfo.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1784,6 +2090,9 @@ XOnlineMatchSessionFindFromID(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Run a stored search procedure with query attributes to find sessions.
+// dwResultsLen sizes the result buffer (see XOnlineMatchSearchResultsLen).
+// Async; results via XOnlineMatchSearchGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1797,6 +2106,8 @@ XOnlineMatchSearch(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the array of XONLINE_MATCH_SEARCHRESULT pointers from a completed
+// search.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1806,6 +2117,8 @@ XOnlineMatchSearchGetResults(
     OUT DWORD *pdwReturnedResults
     );
 
+// Expand one search result's attribute blob into a caller struct described by
+// the attribute spec array.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1816,6 +2129,8 @@ XOnlineMatchSearchParse(
     OUT PVOID pQuerySession
     );
 
+// Compute the result-buffer length XOnlineMatchSearch needs for the requested
+// result count and per-session attribute spec.
 XBOXAPI
 DWORD
 WINAPI
@@ -1830,16 +2145,19 @@ XOnlineMatchSearchResultsLen(
 // Title Name
 //
 
+// Localized title name buffer: up to MAX_TITLENAME_LEN wide characters.
 #define MAX_TITLENAME_LEN 40
 #define MAX_TITLENAME_SIZE (MAX_TITLENAME_LEN * sizeof(WCHAR))
 
 
+// TRUE if dwTitleID is this same title (any version).
 BOOL
 WINAPI
 XOnlineTitleIdIsSameTitle(
     IN DWORD dwTitleID
     );
 
+// TRUE if dwTitleID belongs to this title's publisher.
 BOOL
 WINAPI
 XOnlineTitleIdIsSamePublisher(
@@ -1849,7 +2167,13 @@ XOnlineTitleIdIsSamePublisher(
 //
 // Notification
 //
+// Fast, poll-based flags for pending social events, driven by the presence
+// connection. A title polls XOnlineGetNotification(Ex) each frame to know when
+// to refresh friends, show an invite, etc., and publishes its own joinable
+// state with XOnlineNotificationSetState.
+//
 
+// Kinds of pending notification queried by XOnlineGetNotification.
 typedef enum {
     XONLINE_NOTIFICATION_FRIEND_REQUEST             = 0,
     XONLINE_NOTIFICATION_GAME_INVITE                = 1,
@@ -1858,6 +2182,8 @@ typedef enum {
     XONLINE_NOTIFICATION_NUM                        = 4
 } XONLINE_NOTIFICATION_TYPE;
 
+// Publish the user's current session/joinable state and a title-defined state
+// data blob to friends via the presence channel.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1869,6 +2195,8 @@ XOnlineNotificationSetState(
     IN const BYTE *pbStateData
     );
 
+// TRUE if a notification of the given type is pending for the user. Poll this
+// cheaply to decide when to run the heavier friends/messaging queries.
 XBOXAPI
 BOOL
 WINAPI
@@ -1879,11 +2207,14 @@ XOnlineGetNotification(
 
 //
 // Special State flags for XOnlineGetNotificationEx
+// PENDING_SYNC: the list is still syncing; MORE_ITEMS: more notifications
+// remain to be drained; OVERFLOW_ITEMS: some were dropped.
 //
 #define XONLINE_NOTIFICATION_STATE_FLAG_PENDING_SYNC          (0x80000000)
 #define XONLINE_NOTIFICATION_STATE_FLAG_MORE_ITEMS            (0x00000001)
 #define XONLINE_NOTIFICATION_STATE_FLAG_OVERFLOW_ITEMS        (0x00000002)
 
+// One dequeued notification: the message type/ID and its notify flags.
 #pragma pack(push, 1)
 
 typedef struct
@@ -1895,6 +2226,9 @@ typedef struct
 
 #pragma pack(pop)
 
+// Dequeue the next detailed notification for the user. Returns TRUE when one was
+// returned; *pdwStateFlags reports sync/more/overflow status. Call repeatedly
+// while MORE_ITEMS is set.
 XBOXAPI
 BOOL
 WINAPI
@@ -1908,7 +2242,18 @@ XOnlineGetNotificationEx(
 //
 // Friends
 //
+// The friends list and its request/invite lifecycle. After
+// XOnlineFriendsStartup, XOnlineFriendsEnumerate begins a background feed that
+// the title reads with the XOnlineFriendsGetLatest* accessors; each
+// XONLINE_FRIEND carries the friend's presence (dwFriendState flags), current
+// session, and any pending request/invite. The XOnlineFriends* action calls
+// add/remove friends, send and answer requests and game invites, and join a
+// friend's game.
+//
 
+// Bits in XONLINE_FRIEND.dwFriendState: presence (online, playing, voice,
+// joinable), guest count (mask), and the pending request/invite state of the
+// relationship. Extract the guest count with XOnlineGetGuests.
 #define XONLINE_FRIENDSTATE_FLAG_NONE              0x00000000
 #define XONLINE_FRIENDSTATE_FLAG_ONLINE            0x00000001
 #define XONLINE_FRIENDSTATE_FLAG_PLAYING           0x00000002
@@ -1925,22 +2270,28 @@ XOnlineGetNotificationEx(
 
 #define XOnlineGetGuests(dwState) ((dwState & XONLINE_FRIENDSTATE_MASK_GUESTS) >> 5)
 
+// Answer to an incoming friend request: decline, accept, or block the sender.
 typedef enum {
     XONLINE_REQUEST_NO = 0,
     XONLINE_REQUEST_YES = 1,
     XONLINE_REQUEST_BLOCK = 2
 } XONLINE_REQUEST_ANSWER_TYPE;
 
+// Answer to an incoming game invite: decline, accept, or remove it.
 typedef enum {
     XONLINE_GAMEINVITE_NO = 0,
     XONLINE_GAMEINVITE_YES = 1,
     XONLINE_GAMEINVITE_REMOVE = 2
 } XONLINE_GAMEINVITE_ANSWER_TYPE;
 
+// Friends-list capacity and the size of the title-defined state-data blob each
+// friend can publish.
 #define MAX_FRIENDS         100
 #define MAX_STATEDATA_SIZE  32
 #define MAX_USERDATA_SIZE   0
 
+// One entry in the friends list: the friend's identity and gamertag, presence
+// flags, current title/session, and any published state data.
 #pragma pack(push, 1)
 typedef struct _XONLINE_FRIEND {
     XUID                    xuid;
@@ -1955,6 +2306,9 @@ typedef struct _XONLINE_FRIEND {
 } XONLINE_FRIEND, *PXONLINE_FRIEND;
 #pragma pack(pop)
 
+// A game invite that was accepted and carried across a title launch: the
+// inviting friend, who accepted, when, and the users logged on at accept time.
+// Retrieved once by the joining title with XOnlineFriendsGetAcceptedGameInvite.
 typedef struct _XONLINE_ACCEPTED_GAMEINVITE{
     XONLINE_FRIEND InvitingFriend;
     XUID           xuidAcceptedFriend;
@@ -1962,6 +2316,8 @@ typedef struct _XONLINE_ACCEPTED_GAMEINVITE{
     XUID           xuidLogonUsers[XONLINE_MAX_LOGON_USERS];
 } XONLINE_ACCEPTED_GAMEINVITE, *PXONLINE_ACCEPTED_GAMEINVITE;
 
+// Initialize the friends subsystem for the logged-on users. Async; call once
+// before any other XOnlineFriends* API.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1970,6 +2326,9 @@ XOnlineFriendsStartup(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Begin the background feed that keeps a user's friends list current. Async and
+// long-lived: keep the task pumping and read snapshots with the
+// XOnlineFriendsGetLatest* accessors; stop it with XOnlineFriendsEnumerateFinish.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1979,6 +2338,7 @@ XOnlineFriendsEnumerate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Stop a friends enumeration feed and release its task.
 XBOXAPI
 HRESULT
 WINAPI
@@ -1986,6 +2346,8 @@ XOnlineFriendsEnumerateFinish(
     IN XONLINETASK_HANDLE hTask
     );
 
+// Copy the latest friends snapshot (up to dwFriendBufferCount entries) into
+// pFriendBuffer; returns the number written. Cheap to call each frame.
 XBOXAPI
 DWORD
 WINAPI
@@ -1995,6 +2357,8 @@ XOnlineFriendsGetLatest(
     OUT PXONLINE_FRIEND pFriendBuffer
     );
 
+// Retrieve a window of the friends list starting at dwRangeStart, with counts of
+// how many friends fall before and after the window (for scrolling UI).
 XBOXAPI
 HRESULT
 WINAPI
@@ -2007,6 +2371,8 @@ XOnlineFriendsGetLatestByRange(
     OUT DWORD *pdwFriendsAfter
     );
 
+// Like GetLatestByRange but centered on a focused friend (xuidFriendFocus) with
+// dwBeforeFocus entries shown before it; useful for a cursor-centered list view.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2020,6 +2386,8 @@ XOnlineFriendsGetLatestByFocus(
     OUT DWORD *pdwFriendsAfter
     );
 
+// Resolve a title ID to its localized display name (for showing what a friend
+// is playing). Cached locally.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2030,6 +2398,7 @@ XOnlineFriendsGetTitleName(
     OUT LPWSTR lpTitleName
     );
 
+// Remove a friend from the user's list.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2038,6 +2407,7 @@ XOnlineFriendsRemove(
     IN const XONLINE_FRIEND *pFriend
     );
 
+// Send a friend request to a user by XUID.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2046,6 +2416,7 @@ XOnlineFriendsRequest(
     IN XUID xuidToUser
     );
 
+// Send a friend request to a user by XUID with an attached message. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2057,6 +2428,7 @@ XOnlineFriendsRequestEx(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Send a friend request to a user by gamertag (resolving the name). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2067,6 +2439,7 @@ XOnlineFriendsRequestByName(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Send a friend request by gamertag with an attached message. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2078,6 +2451,7 @@ XOnlineFriendsRequestByNameEx(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Invite a set of friends into the given session.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2088,6 +2462,7 @@ XOnlineFriendsGameInvite(
     IN const XONLINE_FRIEND *pToFriendList
     );
 
+// Withdraw a previously sent game invite from a set of friends.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2098,6 +2473,7 @@ XOnlineFriendsRevokeGameInvite(
     IN const XONLINE_FRIEND *pToFriendList
     );
 
+// Answer an incoming friend request (accept, decline, or block).
 XBOXAPI
 HRESULT
 WINAPI
@@ -2107,6 +2483,7 @@ XOnlineFriendsAnswerRequest(
     IN XONLINE_REQUEST_ANSWER_TYPE Answer
     );
 
+// Answer an incoming game invite (accept, decline, or remove).
 XBOXAPI
 HRESULT
 WINAPI
@@ -2116,6 +2493,7 @@ XOnlineFriendsAnswerGameInvite(
     IN XONLINE_GAMEINVITE_ANSWER_TYPE Answer
     );
 
+// Join the session a friend is currently in (if joinable).
 XBOXAPI
 HRESULT
 WINAPI
@@ -2124,6 +2502,8 @@ XOnlineFriendsJoinGame(
     IN const XONLINE_FRIEND *pToFriend
     );
 
+// After launching to answer an invite, retrieve the accepted-invite details
+// (see XONLINE_ACCEPTED_GAMEINVITE) so the title can join the right session.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2135,15 +2515,21 @@ XOnlineFriendsGetAcceptedGameInvite(
 //
 // Mute List
 //
+// The user's persistent voice mute list. Titles suppress voice from these users
+// and keep the list in sync across the network.
+//
 
 #define MAX_MUTELISTUSERS      250
 
 
+// One muted user (identity only).
 typedef struct _XONLINE_MUTELISTUSER {
     XUID                    xuid;
     DWORD                   dwReserved;
 } XONLINE_MUTELISTUSER, *PXONLINE_MUTELISTUSER;
 
+// Fetch the current mute list into the caller buffer. Async; *pdwNumMustlistUsers
+// receives the count.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2156,6 +2542,7 @@ XOnlineMutelistGet(
     OUT DWORD *pdwNumMustlistUsers
     );
 
+// Initialize the mute-list subsystem for the user. Async; call before Get.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2164,6 +2551,7 @@ XOnlineMutelistStartup(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Add a user to the mute list.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2172,6 +2560,7 @@ XOnlineMutelistAdd(
     IN XUID xUserID
     );
 
+// Remove a user from the mute list.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2188,6 +2577,9 @@ XOnlineMutelistRemove(
 
 #define XONLINE_MAX_NICKNAME_SIZE 63
 
+// Submit a proposed nickname for server-side validation (length and content
+// screening). Async; a failure code such as XONLINE_E_STRING_OFFENSIVE_TEXT or
+// XONLINE_E_OFFERING_NAME_TAKEN indicates why it was rejected.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2201,7 +2593,11 @@ XOnlineVerifyNickname(
 //
 // XOnline Feedback
 //
+// Player-reputation feedback: a title reports positive or negative feedback
+// about another user, feeding the Live reputation system.
+//
 
+// Category of feedback filed against a target user.
 typedef enum {
     XONLINE_FEEDBACK_NEG_NICKNAME,
     XONLINE_FEEDBACK_NEG_GAMEPLAY,
@@ -2231,11 +2627,14 @@ typedef enum {
 
 } XONLINE_FEEDBACK_TYPE;
 
+// Extra parameter for feedback types that reference a string (e.g. an offending
+// nickname or team name).
 typedef struct
 {
     LPCWSTR lpStringParam;
 } XONLINE_FEEDBACK_PARAMS, *PXONLINE_FEEDBACK_PARAMS;
 
+// File feedback of the given type against a target user. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2252,7 +2651,12 @@ XOnlineFeedbackSend(
 //
 // String service
 //
+// Server-side string screening and the reverse lookup of Live string IDs to
+// localized text (used by system messages and competition data).
+//
 
+// Screen a batch of user-entered strings for offensive content in a language.
+// Async; per-string HRESULTs come from XOnlineStringVerifyGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2264,6 +2668,7 @@ XOnlineStringVerify(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the per-string screening results (one HRESULT each).
 XBOXAPI
 HRESULT
 WINAPI
@@ -2273,6 +2678,9 @@ XOnlineStringVerifyGetResults(
     IN OUT HRESULT *pResults
     );
 
+// Resolve a set of Live string IDs to localized text for the given title and
+// language. Async; text is read back with XOnlineStringLookupGetResults. The
+// XOnlineStringLookup macro defaults dwTitleID to the current title.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2288,6 +2696,8 @@ XOnlineStringLookupEx(
 #define XOnlineStringLookup(wNumStringIDs, pdwStringIDs, dwLanguage, hWorkEvent, phTask) \
             XOnlineStringLookupEx(0, wNumStringIDs, pdwStringIDs, dwLanguage, hWorkEvent, phTask)
 
+// Retrieve the resolved strings into a caller buffer; ppwszStrings receives an
+// array of pointers into pbBuffer. Sizes are in/out.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2304,9 +2714,17 @@ XOnlineStringLookupGetResults(
 //
 // Query service
 //
+// A general server-side dataset store: titles add, update, remove, and search
+// "entities" (rows) described by XONLINE_ATTRIBUTE values, against title-defined
+// datasets and stored procedures. Entities are keyed by a 64-bit XENTITY_ID. The
+// same attribute/spec model as matchmaking is reused here.
+//
 
+// An entity (row) key in a query dataset.
 #define XENTITY_ID ULONGLONG
 
+// Query service limits: attributes per entity, string/blob attribute lengths,
+// paging bounds, and the max IDs per XOnlineQueryFindFromIds call.
 #define XONLINE_QUERY_MAX_ATTRIBUTES                   255
 #define XONLINE_QUERY_MAX_STRING_ATTRIBUTE_LEN         400
 #define XONLINE_QUERY_MAX_BLOB_ATTRIBUTE_LEN           800
@@ -2316,6 +2734,8 @@ XOnlineStringLookupGetResults(
 #define X_ATTRIBUTE_DATATYPE_ENTITY_ID                  X_ATTRIBUTE_DATATYPE_INTEGER
 
 
+// Insert a new entity into a dataset with the given attributes. Async; the
+// assigned XENTITY_ID comes from XOnlineQueryAddGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2329,6 +2749,7 @@ XOnlineQueryAdd(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the entity ID assigned to a newly added entity.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2338,6 +2759,7 @@ XOnlineQueryAddGetResults(
     );
 
 
+// Run an update stored procedure over entities matched by attributes. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2353,6 +2775,7 @@ XOnlineQueryUpdate(
     );
 
 
+// Update a single entity identified by entityId. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2369,6 +2792,8 @@ XOnlineQueryUpdateId(
     );
 
 
+// Compute the result-buffer size a search needs for the given result count and
+// column specs.
 XBOXAPI
 DWORD
 WINAPI
@@ -2378,6 +2803,9 @@ XOnlineQueryGetResultsBufferSize(
     IN const XONLINE_ATTRIBUTE_SPEC *pSpecs
     );
 
+// Run a search stored procedure against a dataset, one page at a time,
+// requesting the columns named by the attribute specs. Async; results via
+// XOnlineQuerySearchGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2395,6 +2823,8 @@ XOnlineQuerySearch(
     );
 
 
+// Retrieve a search page: total match count, count returned, and the packed
+// result rows. *pdwResultsSize is in/out.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2407,6 +2837,8 @@ XOnlineQuerySearchGetResults(
     );
 
 
+// Fetch a specific set of entities by their IDs (up to
+// XONLINE_QUERY_MAX_FIND_NUM_ENTITYIDS). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2422,6 +2854,7 @@ XOnlineQueryFindFromIds(
     );
 
 
+// Retrieve the entities returned by a find-from-IDs task.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2432,6 +2865,7 @@ XOnlineQueryFindFromIdsGetResults(
     );
 
 
+// Remove entities matched by attributes from a dataset. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2447,6 +2881,7 @@ XOnlineQueryRemove(
     );
 
 
+// Remove a single entity by ID. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2460,6 +2895,8 @@ XOnlineQueryRemoveId(
     );
 
 
+// Invoke a dataset-defined select action on one entity (e.g. claim or vote).
+// Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2479,15 +2916,24 @@ XOnlineQuerySelect(
 //
 // Peer gaming
 //
+// Direct, peer-to-peer game invites and session joins that do not go through the
+// friends list: look up a peer's current session, send/answer/revoke invites,
+// and join a peer's game. Accepted invites carried across a title launch are
+// picked up with XOnlineGameInviteGetLatestAccepted.
+//
 
+// How long an accepted game invite remains valid to act on.
 #define XONLINE_ACCEPTED_GAMEINVITE_EXPIRATION_INTERVAL     (15 * 60) // seconds
 
+// Answer to a peer invite/recruit: decline, accept, or never (block future).
 typedef enum {
     XONLINE_PEER_ANSWER_NO,
     XONLINE_PEER_ANSWER_YES,
     XONLINE_PEER_ANSWER_NEVER
 } XONLINE_PEER_ANSWER_TYPE;
 
+// A peer's session as resolved by XOnlineGetUserSession: their identity, title
+// (ID/version/region), and the XNet address and keys needed to connect.
 typedef struct _PXONLINE_PEER_SESSION_RESULTS {
     XUID   xuid;
     DWORD  dwTitleID;
@@ -2498,6 +2944,7 @@ typedef struct _PXONLINE_PEER_SESSION_RESULTS {
     XNKEY  xnkey;
 } XONLINE_PEER_SESSION_RESULTS, *PXONLINE_PEER_SESSION_RESULTS;
 
+// Details of an incoming game invite to answer with XOnlineGameInviteAnswer.
 typedef struct _XONLINE_GAMEINVITE_ANSWER_INFO{
     XUID     xuidInvitingUser;
     CHAR     szInvitingUserGamertag[XONLINE_GAMERTAG_SIZE];
@@ -2506,6 +2953,8 @@ typedef struct _XONLINE_GAMEINVITE_ANSWER_INFO{
     FILETIME GameInviteTime;
 } XONLINE_GAMEINVITE_ANSWER_INFO, *PXONLINE_GAMEINVITE_ANSWER_INFO;
 
+// The most recently accepted invite, returned by
+// XOnlineGameInviteGetLatestAccepted after a launch-to-join.
 typedef struct _XONLINE_LATEST_ACCEPTED_GAMEINVITE{
     XUID     xuidAcceptedUser;
     XUID     xuidInvitingUser;
@@ -2515,6 +2964,7 @@ typedef struct _XONLINE_LATEST_ACCEPTED_GAMEINVITE{
     XUID     xuidLogonUsers[XONLINE_MAX_LOGON_USERS];
 } XONLINE_LATEST_ACCEPTED_GAMEINVITE, *PXONLINE_LATEST_ACCEPTED_GAMEINVITE;
 
+// Identifies the session a peer wants to join, passed to XOnlineGameJoin.
 typedef struct _XONLINE_GAME_JOIN_INFO{
     XUID  xuidJoinedUser;
     CHAR  szJoinedUserGamertag[XONLINE_GAMERTAG_SIZE];
@@ -2523,6 +2973,8 @@ typedef struct _XONLINE_GAME_JOIN_INFO{
 } XONLINE_GAME_JOIN_INFO, *PXONLINE_GAME_JOIN_INFO;
 
 
+// Return the local user's current session address and keys, for advertising to
+// peers.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2532,6 +2984,8 @@ XOnlineGetSession(
     OUT XNKEY *pxnkey
     );
 
+// Resolve a peer's current session (address, title, keys) so the caller can
+// connect. Async; fills pResults on completion.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2543,6 +2997,8 @@ XOnlineGetUserSession(
     OUT PXONLINE_PEER_SESSION_RESULTS pResults
     );
 
+// Send a game invite for a session to one or more peers, with an attached
+// message. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2557,6 +3013,7 @@ XOnlineGameInviteSend(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Answer an incoming game invite (accept, decline, or never). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2568,6 +3025,7 @@ XOnlineGameInviteAnswer(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Withdraw game invites previously sent to a set of peers. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2580,6 +3038,7 @@ XOnlineGameInviteRevoke(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the invite the user accepted before this launch, to join its session.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2587,6 +3046,7 @@ XOnlineGameInviteGetLatestAccepted(
     OUT XONLINE_LATEST_ACCEPTED_GAMEINVITE *pLatestAcceptedGameInvite
     );
 
+// Notify the service that the user is joining a peer's game session.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2602,7 +3062,15 @@ XOnlineGameJoin(
 //
 // Teams
 //
+// Persistent player clans. A team has properties (name, description, motto, URL,
+// custom data) and a roster of members with per-member permissions. Titles
+// create and administer teams, recruit and answer recruits, and enumerate a
+// user's teams and a team's members. Team-identifying XUIDs test true under
+// XOnlineXUIDIsTeam.
+//
 
+// A user may belong to up to XONLINE_MAX_TEAM_COUNT teams; a team holds up to
+// XONLINE_MAX_TEAM_MEMBER_COUNT members.
 #define XONLINE_MAX_TEAM_COUNT                   8
 #define XONLINE_MAX_TEAM_MEMBER_COUNT            100
 
@@ -2625,7 +3093,9 @@ XOnlineGameJoin(
 
 
 //
-// Team/Team Member structure flags
+// Team/Team Member structure flags (dwFlags in XONLINE_TEAM / XONLINE_TEAM_MEMBER):
+// a pending recruit message, a pending game invite, or a not-yet-accepted
+// recruited member.
 //
 
 #define XONLINE_TEAM_MSG_RECRUIT                0x00000001
@@ -2633,11 +3103,14 @@ XOnlineGameJoin(
 #define XONLINE_TEAM_MEMBER_RECRUITED           0x00000004
 
 //
-// XOnlineTeamMembersEnumerate flags
+// XOnlineTeamMembersEnumerate flags: include pending (not-yet-accepted) recruits
+// in the enumeration.
 //
 
 #define XONLINE_TEAM_SHOW_RECRUITS              0x00000001
 
+// Per-member administrative permissions (dwPrivileges bits): who may delete the
+// team, edit its data, change member permissions, remove members, or recruit.
 typedef enum {
     XONLINE_TEAM_DELETE                    = 0x00000001,
     XONLINE_TEAM_MODIFY_DATA               = 0x00000002,
@@ -2648,6 +3121,7 @@ typedef enum {
     XONLINE_TEAM_LIVE_PERMISSIONS_FORCE_DWORD = 0xFFFFFFFF
 } XONLINE_TEAM_LIVE_PERMISSIONS;
 
+// The editable properties of a team: display strings plus a custom data blob.
 #pragma pack(push, 1)
 typedef struct _XONLINE_TEAM_PROPERTIES {
     WCHAR    wszTeamName[XONLINE_MAX_TEAM_NAME_SIZE];
@@ -2658,6 +3132,8 @@ typedef struct _XONLINE_TEAM_PROPERTIES {
     BYTE     TeamData[XONLINE_MAX_TEAM_DATA_SIZE];
 } XONLINE_TEAM_PROPERTIES, *PXONLINE_TEAM_PROPERTIES;
 
+// A team: its team XUID, properties, state flags, creation time, and member
+// count. Returned by the team create/get/enumerate calls.
 typedef struct _XONLINE_TEAM {
     XUID     xuidTeam;
     XONLINE_TEAM_PROPERTIES TeamProperties;
@@ -2666,12 +3142,14 @@ typedef struct _XONLINE_TEAM {
     DWORD    dwMemberCount;
 } XONLINE_TEAM, *PXONLINE_TEAM;
 
+// A member's editable properties: their permission bits and a custom data blob.
 typedef struct _XONLINE_TEAM_MEMBER_PROPERTIES {
   DWORD    dwPrivileges;
   WORD     TeamMemberDataSize;
   BYTE     TeamMemberData[XONLINE_MAX_TEAM_MEMBER_DATA_SIZE];
 } XONLINE_TEAM_MEMBER_PROPERTIES, *PXONLINE_TEAM_MEMBER_PROPERTIES;
 
+// A team member: identity, gamertag, properties, flags, and join date.
 typedef struct _XONLINE_TEAM_MEMBER {
     XUID                 xuidTeamMember;
     CHAR                 szGamertag[XONLINE_GAMERTAG_SIZE];
@@ -2685,6 +3163,9 @@ typedef struct _XONLINE_TEAM_MEMBER {
 // Teams Managing
 //
 
+// Create a new team with the given properties and founding member, capping the
+// roster at dwMaxTeamMemberCount. Async; the created XONLINE_TEAM comes from
+// XOnlineTeamCreateGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2697,6 +3178,7 @@ XOnlineTeamCreate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the newly created team record.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2705,6 +3187,8 @@ XOnlineTeamCreateGetResults(
     OUT XONLINE_TEAM *pTeam
     );
 
+// Update a team's properties (requires XONLINE_TEAM_MODIFY_DATA permission).
+// Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2716,6 +3200,7 @@ XOnlineTeamSetProperties(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Disband a team (requires XONLINE_TEAM_DELETE permission). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2726,6 +3211,7 @@ XOnlineTeamDelete(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Change a member's properties/permissions. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2738,6 +3224,7 @@ XOnlineTeamMemberSetProperties(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Remove a member from a team (or leave, when removing oneself). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2749,6 +3236,8 @@ XOnlineTeamMemberRemove(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Invite a peer (by XUID) to join a team, with proposed member properties and a
+// recruit message. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2762,6 +3251,7 @@ XOnlineTeamMemberRecruit(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Recruit a peer by gamertag rather than XUID. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2775,6 +3265,7 @@ XOnlineTeamMemberRecruitByName(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Answer a pending team recruit (accept, decline, or never). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2790,6 +3281,8 @@ XOnlineTeamMemberAnswerRecruit(
 // Teams Listing
 //
 
+// Fetch details for a specific set of teams by XUID. Async; after completion,
+// XOnlineTeamGetDetails reads each XONLINE_TEAM out of the same task.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2801,6 +3294,8 @@ XOnlineTeamEnumerate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// List the teams a given user belongs to. Async; the team XUIDs come from
+// XOnlineTeamEnumerateGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2811,6 +3306,7 @@ XOnlineTeamEnumerateByUserXUID(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the enumerated team XUIDs; *pdwTeamCount is capacity in, count out.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2820,6 +3316,7 @@ XOnlineTeamEnumerateGetResults(
     OUT XUID *pxuidTeams
     );
 
+// Read one team's full record from a completed XOnlineTeamEnumerate task.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2829,6 +3326,8 @@ XOnlineTeamGetDetails(
     OUT XONLINE_TEAM *pTeamInfo
     );
 
+// List a team's members (dwFlags may include XONLINE_TEAM_SHOW_RECRUITS). Async;
+// members are read with the GetResults/GetDetails calls below.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2840,6 +3339,7 @@ XOnlineTeamMembersEnumerate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the enumerated member XUIDs; *pdwTeamMemberCount is capacity/count.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2849,6 +3349,7 @@ XOnlineTeamMembersEnumerateGetResults(
     OUT XUID *pxuidTeamMembers
     );
 
+// Read one member's full record from a completed members-enumerate task.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2858,6 +3359,7 @@ XOnlineTeamMemberGetDetails(
     OUT XONLINE_TEAM_MEMBER *pTeamMemberInfo
     );
 
+// Set the family title ID used to scope team operations across related titles.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2867,6 +3369,13 @@ XOnlineTeamSetFamilyTitleID(
 
 //
 // Presence
+//
+// Watch the online state of arbitrary users (not necessarily friends), such as
+// a recent-players or roster list. After XOnlinePresenceInit, add users to
+// watch groups (XOnlinePresenceAdd), submit the subscription
+// (XOnlinePresenceSubmit), then poll XOnlinePresenceGetLatest for their current
+// XONLINE_PRESENCE. The presence flags mirror the friend-state flags plus a few
+// received-invite kinds.
 //
 
 #define XONLINE_MAX_PRESENCE_USERS_COUNT                1000
@@ -2884,6 +3393,8 @@ XOnlineTeamSetFamilyTitleID(
 #define XONLINE_PRESENCE_FLAG_RECEIVEDCOMPREQUEST       0x00000400
 #define XONLINE_PRESENCE_FLAG_RECEIVEDTITLECUSTOM       0x00000800
 
+// A watched user's current presence: identity, state flags, current session and
+// title, and any published state data.
 #pragma pack(push, 1)
 typedef struct _XONLINE_PRESENCE {
     XUID     xuid;
@@ -2895,6 +3406,9 @@ typedef struct _XONLINE_PRESENCE {
 } XONLINE_PRESENCE, *PXONLINE_PRESENCE;
 #pragma pack(pop)
 
+// Create a long-lived presence subscription task for a user. Async and
+// persistent: keep it pumping; drive it with the Add/Clear/Submit/GetLatest
+// calls below.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2904,6 +3418,7 @@ XOnlinePresenceInit(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Add users to a numbered watch group in the subscription (call Submit to apply).
 XBOXAPI
 HRESULT
 WINAPI
@@ -2914,6 +3429,7 @@ XOnlinePresenceAdd(
     IN XUID *pxuidUsers
     );
 
+// Clear all watched users from the subscription.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2921,6 +3437,7 @@ XOnlinePresenceClear(
     IN XONLINETASK_HANDLE hTask
     );
 
+// Commit the current set of watched users to the server.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2928,6 +3445,8 @@ XOnlinePresenceSubmit(
     IN XONLINETASK_HANDLE hTask
     );
 
+// Copy the latest presence snapshot for a watch group into pUserPresence. Cheap
+// to poll each frame.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2938,6 +3457,7 @@ XOnlinePresenceGetLatest(
     OUT XONLINE_PRESENCE *pUserPresence
     );
 
+// Resolve a title ID seen in presence data to its localized name.
 XBOXAPI
 HRESULT
 WINAPI
@@ -2953,7 +3473,15 @@ XOnlinePresenceGetTitleName(
 //
 // Statistics
 //
+// Persistent per-user and per-"unit" (small team of up to
+// XONLINE_STAT_MAX_MEMBERS_IN_UNIT players) stats and leaderboards. Titles write
+// stats by leaderboard ID -- either as simple specs (XONLINE_STAT_SPEC) or via
+// server stored procedures (XONLINE_STAT_PROC: replace, increment, ELO,
+// conditional, or custom) -- and read them back or page through leaderboards.
+// Some stats carry a downloadable attachment via the storage service.
+//
 
+// Batch/size limits for stat requests.
 #define XONLINE_STAT_MAX_SPECS_IN_WRITE_REQUEST 20
 #define XONLINE_STAT_MAX_STATS_IN_SPEC          64
 #define XONLINE_STAT_MAX_NICKNAME_LENGTH        32
@@ -2963,6 +3491,9 @@ XOnlinePresenceGetTitleName(
 #define XONLINE_STAT_MAX_PARAM_COUNT            256
 #define XONLINE_STAT_MAX_NUM_UNIT_READ_SPECS    5
 
+// Reserved (virtual) stat IDs: reading these WORD IDs returns computed values
+// such as a user's rank, rating, nickname, leaderboard size, and attachment
+// path/size rather than a stored stat.
 #define XONLINE_STAT_RANK                       ((WORD)0xFFFF)
 #define XONLINE_STAT_RATING                     ((WORD)0xFFFE)
 #define XONLINE_STAT_NICKNAME                   ((WORD)0xFFFD)
@@ -2972,6 +3503,9 @@ XOnlinePresenceGetTitleName(
 #define XONLINE_STAT_UNIT_ACTIVITY_COUNTER      ((WORD)0xFFF9)
 #define XONLINE_STAT_UNIT_LAST_ACTIVITY_DATE    ((WORD)0xFFF8)
 
+// Comparison operators for conditional stat updates (bComparisonType): the
+// update only applies if the stored value satisfies the test against the
+// supplied value.
 #define XONLINE_STAT_COMPTYPE_EQUAL             1 // if the current stored stat value equals the specified value
 #define XONLINE_STAT_COMPTYPE_GREATER           2 // if the current stored stat value is greater than the specified value
 #define XONLINE_STAT_COMPTYPE_GREATER_OR_EQUAL  3 // if the current stored stat value is greater than or equal to the specified value
@@ -2981,6 +3515,9 @@ XOnlinePresenceGetTitleName(
 #define XONLINE_STAT_COMPTYPE_NOT_EXISTS        7 // if the current stored stat value does not exist (specified value is ignored)
 #define XONLINE_STAT_COMPTYPE_NOT_EQUAL         8 // if the current stored stat value does not equal the specified value
 
+// Built-in stored-procedure IDs for XOnlineStatWriteEx; each names the
+// XONLINE_STAT_PROC union member to fill in. IDs outside this range are custom
+// procedures that use XONLINE_STAT_CUSTOM.
 #define XONLINE_STAT_PROCID_UPDATE_REPLACE          0x8001 // use XONLINE_STAT_UPDATE structure
 #define XONLINE_STAT_PROCID_UPDATE_REPLACE_UNIT     0x8002 // use XONLINE_STAT_UPDATE_UNIT structure
 #define XONLINE_STAT_PROCID_UPDATE_INCREMENT        0x8003 // use XONLINE_STAT_UPDATE structure
@@ -2991,6 +3528,7 @@ XOnlinePresenceGetTitleName(
 #define XONLINE_STAT_PROCID_CONDITIONAL_UNIT        0x8008 // use XONLINE_STAT_CONDITIONAL_UNIT structure
 // All other procedure IDs are custom and use the XONLINE_STAT_CUSTOM structure
 
+// Data type of a stat value; selects the active member of the XONLINE_STAT union.
 typedef enum _XONLINE_STAT_TYPE {
     XONLINE_STAT_NONE,
     XONLINE_STAT_LONG,
@@ -2999,6 +3537,8 @@ typedef enum _XONLINE_STAT_TYPE {
     XONLINE_STAT_LPCWSTR
 } XONLINE_STAT_TYPE;
 
+// Data type of a custom-procedure parameter; selects the XONLINE_STAT_CUSTOM_PARAM
+// union member.
 typedef enum _XONLINE_STAT_PARAM_TYPE {
     XONLINE_STAT_PARAM_NONE,
     XONLINE_STAT_PARAM_BYTE,
@@ -3010,11 +3550,14 @@ typedef enum _XONLINE_STAT_PARAM_TYPE {
     XONLINE_STAT_PARAM_XUID
 } XONLINE_STAT_PARAM_TYPE;
 
+// Ordering for unit-leaderboard enumeration.
 typedef enum _XONLINE_STAT_SORTORDER {
     XONLINE_STAT_SORTORDER_LASTACTIVITY,
     XONLINE_STAT_SORTORDER_RATING
 } XONLINE_STAT_SORTORDER;
 
+// A single stat value: its WORD ID, type, and the typed value. The atom read
+// and written throughout this service.
 typedef struct _XONLINE_STAT {
     WORD wID;
     XONLINE_STAT_TYPE type;
@@ -3026,6 +3569,8 @@ typedef struct _XONLINE_STAT {
     };
 } XONLINE_STAT, *PXONLINE_STAT;
 
+// A user's set of stats on one leaderboard: the read/write unit for
+// XOnlineStatWrite / XOnlineStatRead.
 typedef struct _XONLINE_STAT_SPEC {
     XUID          xuidUser;
     DWORD         dwLeaderBoardID;
@@ -3082,6 +3627,10 @@ typedef struct _XONLINE_STAT_CUSTOM_PARAM {
     };
 } XONLINE_STAT_CUSTOM_PARAM, *PXONLINE_STAT_CUSTOM_PARAM;
 
+// Payload structures for the built-in stat stored procedures, one per
+// XONLINE_STAT_PROCID_*: plain replace/increment (UPDATE), their unit variants,
+// conditional guards, ELO rating adjustments, and the generic custom parameter
+// list. The chosen structure goes in the XONLINE_STAT_PROC union.
 typedef struct _XONLINE_STAT_UPDATE {
     XUID          xuid;
     DWORD         dwLeaderBoardID;
@@ -3137,6 +3686,9 @@ typedef struct _XONLINE_STAT_CUSTOM {
     XONLINE_STAT_CUSTOM_PARAM *pParams;
 } XONLINE_STAT_CUSTOM, *PXONLINE_STAT_CUSTOM;
 
+// One stored-procedure invocation: the procedure ID plus the matching payload.
+// Arrays of these drive XOnlineStatWriteEx and the arbitration/competition
+// result submissions.
 typedef struct _XONLINE_STAT_PROC {
     WORD wProcedureID;
     union {
@@ -3151,6 +3703,8 @@ typedef struct _XONLINE_STAT_PROC {
 } XONLINE_STAT_PROC, *PXONLINE_STAT_PROC;
 
 
+// Write stats using simple replace specs. Async. May return a server file
+// reference for an attachment via XOnlineStatWriteGetResult.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3161,6 +3715,8 @@ XOnlineStatWrite(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Write stats via stored procedures (increment, ELO, conditional, custom, and
+// their unit variants). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3171,6 +3727,9 @@ XOnlineStatWriteEx(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve a completed write's result: a server file reference and the
+// attachment references for any stats that accept an uploadable attachment
+// (see XONLINE_S_STAT_CAN_UPLOAD_ATTACHMENT).
 XBOXAPI
 HRESULT
 WINAPI
@@ -3181,6 +3740,8 @@ XOnlineStatWriteGetResult(
     OUT DWORD *pdwReferences
     );
 
+// Read stats for a set of users/leaderboards. Async; values are filled into the
+// specs by XOnlineStatReadGetResult.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3191,6 +3752,8 @@ XOnlineStatRead(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve read results into the caller's specs; pExtraBuffer backs string
+// stats.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3202,6 +3765,7 @@ XOnlineStatReadGetResult(
     IN OUT BYTE *pExtraBuffer
     );
 
+// Read stats for a unit (small team) identified by its member XUIDs. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3213,6 +3777,7 @@ XOnlineStatUnitRead(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve unit read results into the caller's unit specs.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3222,6 +3787,8 @@ XOnlineStatUnitReadGetResult(
     OUT XONLINE_STAT_SPEC_UNIT *pStatSpecUnits
     );
 
+// Page through a leaderboard around a pivot user, returning each ranked user and
+// their stats. Async; results via XOnlineStatLeaderEnumerateGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3236,6 +3803,8 @@ XOnlineStatLeaderEnumerate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve a leaderboard page: the ranked users and their stats, plus the total
+// leaderboard size. pExtraBuffer backs string stats.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3251,6 +3820,8 @@ XOnlineStatLeaderEnumerateGetResults(
     IN OUT BYTE *pExtraBuffer
     );
 
+// Enumerate the unit leaderboards a member belongs to, ordered by SortOrder.
+// Async; results via XOnlineStatUnitEnumerateGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3265,6 +3836,7 @@ XOnlineStatUnitEnumerate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the enumerated units and their stats.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3276,6 +3848,8 @@ XOnlineStatUnitEnumerateGetResults(
     OUT DWORD *pdwReturnedResults
     );
 
+// Reset a user's stats on a leaderboard (development/administrative use; denied
+// in production). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3291,9 +3865,20 @@ XOnlineStatReset(
 //
 // Arbitration
 //
+// Trusted refereeing of a multiplayer round so that match results and stats can
+// be reported authoritatively. Each console registers in the session
+// (XOnlineArbitrationRegister) for a bounded round, optionally extends it, then
+// reports the agreed results, connectivity losses, and any suspicious activity
+// (XOnlineArbitrationReport). The server reconciles the reports before accepting
+// stats.
+//
 
+// Suspicious-info message length limit.
 #define XONLINE_ARB_MAX_SUSPICIOUS_INFO_MESSAGE_LENGTH   256 // max characters, not including null termination
 
+// Flags for XOnlineArbitrationRegister describing the round: competition kind,
+// whether it can be time-extended, host packet forwarding, teams, and
+// free-for-all.
 #define XONLINE_ARB_REGISTER_FLAG_USER_COMPETITION       0x00000001 // Arbitrated round is part of a user-organized competition
 #define XONLINE_ARB_REGISTER_FLAG_PUBLISHER_COMPETITION  0x00000002 // Arbitrated round is part of a publisher-organized competition
 #define XONLINE_ARB_REGISTER_FLAG_TIME_EXTENDABLE        0x00000004 // Arbitrated round duration can be extended with XOnlineArbitrationExtendRound
@@ -3301,21 +3886,28 @@ XOnlineStatReset(
 #define XONLINE_ARB_REGISTER_FLAG_TEAMS                  0x00000010 // Arbitrated round includes team participants
 #define XONLINE_ARB_REGISTER_FLAG_FFA                    0x00000020 // Arbitrated round is free-for-all style of gameplay
 
+// Flags for XOnlineArbitrationReport.
 #define XONLINE_ARB_REPORT_FLAG_WAS_HOST                 0x00000001 // Caller was the host for the arbitrated round
 #define XONLINE_ARB_REPORT_FLAG_VOLUNTARILY_QUITTING     0x00000002 // Caller accepts disconnect penalty and stats submitted by other participants, but wants to report connectivity or suspicious info before leaving
 
 
+// Identifies one arbitrated round: the session and a round ID (from
+// XOnlineArbitrationCreateRoundID).
 typedef struct _XONLINE_ARB_ID {
     XNKID         SessionID;            // Session ID
     ULONGLONG     qwRoundID;            // Arbitration round ID
 } XONLINE_ARB_ID, *PXONLINE_ARB_ID;
 
+// One registered participant in an arbitrated round: its machine, logged-on
+// users, and a relative reliability value. Returned by the register GetResults.
 typedef struct _XONLINE_ARB_REGISTRANT {
     ULONGLONG qwMachineID;                        // Machine ID for this registrant
     XUID      xuidUsers[XONLINE_MAX_LOGON_USERS]; // Array of users logged on by this registrant
     BYTE      bReliabilityValue;                  // Relative reliability value for this registrant
 } XONLINE_ARB_REGISTRANT, *PXONLINE_ARB_REGISTRANT;
 
+// A report of suspected cheating: a message plus the addresses and users
+// implicated.
 #pragma pack(push, 4)
 typedef struct _XONLINE_ARB_SUSPICIOUS_INFO {
     CHAR   *pszMessage;              // Pointer to suspicious activity message string, up to XONLINE_ARB_MAX_SUSPICIOUS_INFO_MESSAGE_LENGTH characters
@@ -3325,6 +3917,8 @@ typedef struct _XONLINE_ARB_SUSPICIOUS_INFO {
     XUID   *pxuidRelatedUsers;       // Array of users involved in suspicious activity
 } XONLINE_ARB_SUSPICIOUS_INFO, *PXONLINE_ARB_SUSPICIOUS_INFO;
 
+// The connectivity and cheating evidence a participant submits with its results:
+// addresses it lost connectivity to, and up to three suspicious-info reports.
 typedef struct _XONLINE_ARB_REPORT_DATA {
     BYTE                         bNumLostConnectivityAddresses;    // Number of addresses in lost-connectivity array
     XNADDR                      *pxnaddrLostConnectivityAddresses; // Array of addresses to whom connectivity was lost
@@ -3336,6 +3930,8 @@ typedef struct _XONLINE_ARB_REPORT_DATA {
 
 
 
+// Generate a fresh, unique round ID for a new arbitrated round (host does this
+// and shares it with peers).
 XBOXAPI
 HRESULT
 WINAPI
@@ -3343,6 +3939,8 @@ XOnlineArbitrationCreateRoundID(
     OUT ULONGLONG *pqwRoundID
     );
 
+// Register this console in an arbitrated round bounded to wMaxRoundSeconds.
+// Async; the agreed registrant roster comes from the register GetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3354,6 +3952,7 @@ XOnlineArbitrationRegister(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the round's registrant list.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3364,6 +3963,8 @@ XOnlineArbitrationRegisterGetResults(
     OUT DWORD *pdwNumRegistrants
     );
 
+// Extend a still-running round's time limit (only if it registered with
+// XONLINE_ARB_REGISTER_FLAG_TIME_EXTENDABLE). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3374,6 +3975,9 @@ XOnlineArbitrationExtendRound(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Report the round's results: stat stored-procedures plus optional connectivity
+// and suspicious-activity data. The server arbitrates across all reports before
+// committing stats. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3391,9 +3995,19 @@ XOnlineArbitrationReport(
 //
 // Competitions
 //
+// Structured tournaments (e.g. single-elimination brackets) run on top of the
+// query and arbitration services. A title creates a competition from a template
+// or the friendly XONLINE_COMP_SINGLE_ELIMINATION_ATTRIBUTES, players join and
+// check in, the bracket topology is queried for pairings, and match results are
+// submitted through arbitration. Competition data is exposed as query
+// attributes, addressed by the XONLINE_COMP_ATTR_* IDs below.
+//
 
 //
 // Attribute IDs
+// Well-known query attribute IDs for competition/entrant/event/bracket data.
+// The top nibble encodes scope and data type as in the query service; the
+// XOnlineCompetition* calls pass and return these as XONLINE_ATTRIBUTE values.
 //
 #define XONLINE_QUERY_ENTITY_ID                   0x80000000
 #define XONLINE_QUERY_OWNER_PUID                  0x80000001
@@ -3488,7 +4102,7 @@ XOnlineArbitrationReport(
 
 
 //
-// Competition status codes
+// Competition status codes (value of XONLINE_COMP_ATTR_STATUS)
 //
 #define XONLINE_COMP_STATUS_PRE_INIT              0
 #define XONLINE_COMP_STATUS_ACTIVE                1
@@ -3541,7 +4155,8 @@ XOnlineArbitrationReport(
 #define XONLINE_COMP_ML_BRACKET_UPDATEID_SLOT_INFO 0x10001
 
 //
-// Action IDs
+// Action IDs for XOnlineCompetitionManageEntrant (join, withdraw, check in,
+// request bye/pass, submit results, forfeit, cancel, eject).
 //
 #define XONLINE_COMP_ACTION_JOIN                  1
 #define XONLINE_COMP_ACTION_JOIN_PRIVATE          2
@@ -3569,7 +4184,7 @@ XOnlineArbitrationReport(
 
 
 //
-// Defined types of competition intervals
+// Defined types of competition intervals (how often rounds recur).
 //
 typedef enum
 {
@@ -3580,7 +4195,7 @@ typedef enum
 
 } XONLINE_COMP_INTERVAL_UNIT;
 
-// Day mask data type
+// Bitmask of weekdays on which rounds run (see XONLINE_COMP_DAY_MASK_* below).
 typedef DWORD XONLINE_COMP_DAY_MASK;
 
 //
@@ -3595,6 +4210,8 @@ typedef DWORD XONLINE_COMP_DAY_MASK;
 #define XONLINE_COMP_DAY_MASK_FRIDAY          0x0020
 #define XONLINE_COMP_DAY_MASK_SATURDAY        0x0040
 
+// Either a count of time units or a day mask, depending on the round interval
+// type (day mask when the interval is daily).
 typedef union
 {
     DWORD                   dwUnitsOfTime;
@@ -3603,7 +4220,10 @@ typedef union
 } XONLINE_COMP_UNITS_OR_MASK;
 
 //
-// User-friendly structure for Single Eliminations
+// User-friendly structure for Single Eliminations: the common competition
+// parameters (slots, schedule, interval, team settings) as plain fields, so a
+// title need not assemble the raw attribute list. Passed to
+// XOnlineCompetitionCreateSingleElimination.
 //
 typedef struct
 {
@@ -3630,7 +4250,8 @@ typedef struct
 typedef XONLINE_COMP_SINGLE_ELIMINATION_ATTRIBUTES *PXONLINE_COMP_SINGLE_ELIMINATION_ATTRIBUTES;
 
 //
-// Structure returning results for a created competition
+// Result of creating a competition: its assigned ID (from
+// XOnlineCompetitionCreateGetResults).
 //
 typedef struct
 {
@@ -3641,7 +4262,9 @@ typedef struct
 typedef XONLINE_COMP_CREATE_RESULTS *PXONLINE_COMP_CREATE_RESULTS;
 
 //
-// Topology results structure
+// Single-elimination bracket topology: the pairing tree returned by
+// XOnlineCompetitionTopologySingleEliminationGetResults, as packed result rows
+// described by attribute specs.
 //
 typedef struct
 {
@@ -3657,9 +4280,12 @@ typedef struct
 
 typedef XONLINE_COMP_TOPOLOGY_SE_RESULTS *PXONLINE_COMP_TOPOLOGY_SE_RESULTS;
 
+// Compose an event's topology ID from its round and event numbers.
 #define TOPOLOGY_ID(roundNumber, eventNumber) (((roundNumber) << 16) + (eventNumber))
 
 
+// Create a competition from a template and raw attribute list. Async; the
+// competition ID comes from XOnlineCompetitionCreateGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3673,6 +4299,7 @@ XOnlineCompetitionCreate(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the created competition's ID.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3681,6 +4308,8 @@ XOnlineCompetitionCreateGetResults(
     OUT PXONLINE_COMP_CREATE_RESULTS pCompResults
     );
 
+// Convenience creator for a single-elimination bracket using the friendly
+// attributes struct plus any extra raw attributes. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3695,6 +4324,9 @@ XOnlineCompetitionCreateSingleElimination(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Search for competitions matching attributes, one page at a time. Async;
+// results via XOnlineCompetitionSearchGetResults (size the buffer with
+// XOnlineCompetitionGetResultsBufferSize).
 XBOXAPI
 HRESULT
 WINAPI
@@ -3711,6 +4343,7 @@ XOnlineCompetitionSearch(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve a competition search page (total count, count returned, packed rows).
 XBOXAPI
 HRESULT
 WINAPI
@@ -3722,6 +4355,8 @@ XOnlineCompetitionSearchGetResults(
     IN OUT PBYTE pbResultBuffer
     );
 
+// Result-buffer size a competition search/topology query needs for the page size
+// and column specs.
 XBOXAPI
 DWORD
 WINAPI
@@ -3731,6 +4366,8 @@ XOnlineCompetitionGetResultsBufferSize(
     IN const XONLINE_ATTRIBUTE_SPEC* pSpecs
     );
 
+// Perform an entrant action on a competition (join, withdraw, check in, forfeit,
+// etc.; see XONLINE_COMP_ACTION_*). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3746,6 +4383,8 @@ XOnlineCompetitionManageEntrant(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Check in for a scheduled event of a competition (within its check-in window).
+// Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3759,6 +4398,7 @@ XOnlineCompetitionCheckin(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Cancel a competition the caller administers. Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3771,6 +4411,8 @@ XOnlineCompetitionCancel(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Register a competition match's session for arbitration (the competition-aware
+// wrapper over XOnlineArbitrationRegister). Async.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3782,6 +4424,7 @@ XOnlineCompetitionSessionRegister(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the registrant list for a competition match session.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3792,6 +4435,9 @@ XOnlineCompetitionSessionRegisterGetResults(
     OUT DWORD *pdwNumRegistrants
     );
 
+// Submit a competition match's arbitrated results (stats plus arbitration report
+// data) to advance the bracket. Async. For multi-level competitions use
+// XONLINE_COMP_MULTILEVEL_ENTITY_ID as the entity ID.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3809,6 +4455,8 @@ XOnlineCompetitionSubmitResults(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Query a range of a competition's event topology (the pairing/bracket tree),
+// paged. Async; results via XOnlineCompetitionTopologyGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3825,6 +4473,7 @@ XOnlineCompetitionTopology(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve a topology query page (packed result rows).
 XBOXAPI
 HRESULT
 WINAPI
@@ -3836,6 +4485,9 @@ XOnlineCompetitionTopologyGetResults(
     IN OUT PBYTE pbResultBuffer
     );
 
+// Query a single-elimination bracket around an origin event (so many rounds
+// forward/backward), returning a structured tree. Async; results via
+// XOnlineCompetitionTopologySingleEliminationGetResults.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3852,6 +4504,7 @@ XOnlineCompetitionTopologySingleElimination(
     OUT PXONLINETASK_HANDLE phTask
     );
 
+// Retrieve the structured single-elimination topology (XONLINE_COMP_TOPOLOGY_SE_RESULTS).
 XBOXAPI
 HRESULT
 WINAPI
@@ -3862,6 +4515,10 @@ XOnlineCompetitionTopologySingleEliminationGetResults(
 
 //
 // Live Server Platform (LSP)
+//
+// Well-known query attribute IDs and the default dataset used to discover a
+// publisher-hosted dedicated server (its title-server address, session ID, and
+// key-exchange key) through the query service.
 //
 
 #define XONLINE_LSP_ATTR_TSADDR         0x80200001
@@ -3877,9 +4534,16 @@ XOnlineCompetitionTopologySingleEliminationGetResults(
 // ====================================================================
 // Throttling Functions
 //
+// Rate-limit how often a title issues heavy service calls. The server can
+// request or enforce a minimum delay between calls of a given type; a title
+// tunes the local policy with XOnlineThrottleSet/Get, keyed by service ID and an
+// operation tag (the XONLINE_THROTTLE_TAG_* strings) and governed by the
+// XONLINE_THROTTLE_FLAG_* behavior flags.
+//
 
 //
-// Throttle type tags
+// Throttle type tags: the operation each throttle policy applies to, named by
+// the corresponding XOnline API.
 //
 
 
@@ -3922,6 +4586,8 @@ XOnlineCompetitionTopologySingleEliminationGetResults(
                                                  XONLINE_THROTTLE_FLAG_RIP | \
                                                  XONLINE_THROTTLE_FLAG_IGNORE_SERVER)
 
+// Set the throttle policy (behavior flags and delay in ms) for one operation of
+// one service.
 XBOXAPI
 HRESULT
 WINAPI
@@ -3934,6 +4600,7 @@ XOnlineThrottleSet(
 
 
 
+// Query the current throttle policy for one operation of one service.
 XBOXAPI
 HRESULT
 WINAPI

@@ -1,13 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3d8perf.h
- *  Content:    Xbox Direct3D debug library API
- *
- ****************************************************************************/
-
+/*
+ * Direct3D performance and debug instrumentation API. The performance counters
+ * and query/report helpers here are implemented only by the instrumented and
+ * debug builds of the D3D runtime (d3d8i.lib / d3d8d.lib); against the retail
+ * runtime the counter calls compile away or read as empty. The PIX-style frame
+ * annotation entry points (D3DPERF_BeginEvent / EndEvent / SetMarker) are the
+ * exception - they exist in every build so titles can bracket their frame with
+ * named, colored regions for capture tools.
+ */
 
 #ifndef _D3D8PERF_H_
 #define _D3D8PERF_H_
@@ -883,25 +888,21 @@ struct D3DPERF_BlockTimer
 #endif // __cplusplus
 
 /*
- * RXDK: PIX-style event markers. Retail d3d8.lib exports all three
- * (_D3DPERF_BeginEvent, _D3DPERF_EndEvent@0, _D3DPERF_SetMarker) -- unlike the
- * profiling counters, which live only in d3d8d.lib / d3d8i.lib -- so they belong
- * on the retail surface. Titles annotate their frame with them (Fur brackets
- * FrameMove); see se/uplift5849.cpp for what they do here.
- */
-/*
- * RXDK 5849 uplift: retail d3d8.lib exports this too, and its retail body is
- * an unconditional FALSE (`xor eax,eax; ret`) -- only the instrumented
- * d3d8i.lib consults the capture tooling's repeat-frame request. With no
- * capture protocol in this stack there is never a writer for that request,
- * so FALSE is the answer in both flavors here as well.
+ * Asks a capture tool whether the current frame should be repeated (re-rendered)
+ * rather than presented. Present in every build but only meaningful under an
+ * active capture session; with no capture protocol connected it always returns
+ * FALSE, so a plain title can ignore it.
  */
 BOOL WINAPI D3DPERF_QueryRepeatFrame(void);
 
-/* The varargs pair is __cdecl: a variadic __stdcall is impossible (the callee
- * cannot balance an unknown-size stack), so WINAPI on these is silently treated
- * as __cdecl anyway and retail exports them undecorated (_D3DPERF_BeginEvent).
- * Spelling __cdecl makes that explicit and avoids -Wignored-attributes. */
+/*
+ * PIX-style frame annotation. BeginEvent/EndEvent bracket a named, Color-tinted
+ * region of GPU/CPU work (they nest and return the current nesting depth);
+ * SetMarker drops a single labeled point. szName is a printf-style format string
+ * plus arguments. These are variadic and therefore __cdecl (a variadic callee
+ * cannot balance a __stdcall stack). Available in all builds - a capture tool
+ * turns them into a labeled timeline; without one they are cheap no-ops.
+ */
 INT  __cdecl D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...);
 INT  WINAPI  D3DPERF_EndEvent(void);
 void __cdecl D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...);

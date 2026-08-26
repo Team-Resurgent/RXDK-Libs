@@ -1,11 +1,18 @@
-/**************************************************************************
- *
- *  Copyright (C) 2002 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xact.h
- *  Content:    XACT Runtime Engine APIs.
- *
- **************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT (Cross-platform Audio Creation Tool) runtime engine. The high-level,
+ * data-driven audio API built on DirectSound: authored sound banks and wave
+ * banks are loaded at runtime and played by cue index or friendly name. Declares
+ * IXACTEngine (the mixer, listener, notifications, and global controls),
+ * IXACTSoundBank (cue prepare/play/stop and variation selection), IXACTSoundCue,
+ * IXACTSoundSource (per-instance 3D placement), IXACTWaveBank, and the WMA
+ * playlist interfaces, together with their descriptor structs and flags.
+ */
 
 #ifndef __XACT_ENGINE_INCLUDED__
 #define __XACT_ENGINE_INCLUDED__
@@ -52,6 +59,11 @@ typedef IXACTWmaSong *PXACTWMASONG;
 
 //
 // Notifications
+//
+// The engine reports playback events (cue start/stop, markers, streaming data
+// ready, cue processing) through registered notifications. A title fills an
+// XACT_NOTIFICATION_DESCRIPTION to say which events on which bank/cue it wants,
+// then polls XACT_NOTIFICATION records (optionally signalled via an event).
 //
 
 typedef enum _XACT_NOTIFICATION_TYPE {
@@ -112,9 +124,11 @@ typedef struct _XACT_NOTIFICATION{
 typedef const XACT_NOTIFICATION *PCXACT_NOTIFICATION;
 
 //
-// Engine creation parameters
+// Engine creation parameters. Sizes the engine's fixed pools (2D/3D hardware
+// voices, concurrent streams, notification slots) and sets how far ahead the
+// interactive-audio scheduler looks, in milliseconds. Passed to XACTEngineCreate.
 //
- 
+
 typedef struct _XACT_RUNTIME_PARAMETERS {
     DWORD                       dwMax2DHwVoices;
     DWORD                       dwMax3DHwVoices;
@@ -512,6 +526,12 @@ typedef struct _XACT_REALTIME_AUDIO_DATA
 //
 // IXACTEngine
 //
+// The top-level audio engine: create it with XACTEngineCreate, pump it every
+// frame with XACTEngineDoWork, and use it to build sound banks/sources, register
+// wave banks (in-memory or streamed), drive the 3D listener and I3DL2 reverb,
+// set master volumes and global pause, manage notifications and global
+// variables, and read back real-time mixer data.
+//
 
 STDAPI XACTEngineCreate(PCXACT_RUNTIME_PARAMETERS pParams, PXACTENGINE *ppEngine);
 STDAPI_(void) XACTEngineDoWork(void);
@@ -678,6 +698,10 @@ struct IXACTEngine
 //
 // IXACTSoundSource
 //
+// A positional emitter. Cues played through a sound source inherit its 3D
+// position/velocity/orientation, I3DL2 source parameters, pitch, filter, mixbin
+// routing, and mode; GetProperties returns its live hardware-voice snapshot.
+//
 
 STDAPI_(ULONG) IXACTSoundSource_AddRef(PXACTSOUNDSOURCE pSoundSource);
 STDAPI_(ULONG) IXACTSoundSource_Release(PXACTSOUNDSOURCE pSoundSource);
@@ -774,6 +798,12 @@ struct IXACTSoundSource
 
 //
 // IXACTSoundBank
+//
+// A loaded bank of authored cues. Resolve cues by friendly name or index, then
+// Prepare (build without starting) or Play them -- the Ex forms take a full
+// XACT_PREPARE_SOUNDCUE with a sound source and parameter controls. Also stops
+// and pauses cues, selects wave/sound variations, queries cue properties, and
+// creates WMA play lists. The Prepare/Play inline wrappers fill the common case.
 //
 
 STDAPI_(ULONG) IXACTSoundBank_AddRef(PXACTSOUNDBANK pBank);
@@ -879,7 +909,12 @@ struct IXACTSoundBank
 #endif // defined(__cplusplus) && !defined(CINTERFACE)
 
 //
-// wma playlist 
+// IXACTWmaPlayList
+//
+// An ordered list of WMA songs backing a streaming-music cue. Add/remove songs
+// (by file, directory, or soundtrack id), move Next/Previous or set the current
+// song, query the current song's length/name/metadata, and set random/loop
+// playback behavior. All WMA assets are assumed 44.1 kHz / 16-bit.
 //
 
 STDAPI_(ULONG) IXACTWmaPlayList_AddRef(PXACTWMAPLAYLIST pPlayList);

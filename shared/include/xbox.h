@@ -1,10 +1,27 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xbox.h - the public XAPI (libxapi) title surface.
+ *
+ * Declares the Xbox game/system services a title calls directly: XBE resource
+ * sections (XLoadSection), save games and content packages, soundtracks, the
+ * console configuration settings (XGetLanguage / XGetAVPack / XGetVideoFlags
+ * / ...), device enumeration and XInput (gamepad, debug mouse, rumble,
+ * lightgun), memory-unit and utility-drive mounting, XLaunchNewImage launch
+ * data, thread notifications, and the XMem / XPhysical allocators. Pulled by
+ * xapi.h and by the <xtl.h> umbrella; keyboard input lives in xkbd.h.
+ */
+
 #pragma once
 #define _XBOX_
 
-//
-// Define API decoration for direct importing of DLL references.
-//
-
+/* Calling-convention decoration for the XAPI exports. On Xbox the XAPI is a
+ * static library (not a DLL import), so this expands to nothing; the stdcall
+ * ABI is carried by the explicit __stdcall on each prototype. */
 #define XBOXAPI
 
 #ifdef __cplusplus
@@ -14,6 +31,12 @@ extern "C" {
 
 //========================================================================
 //  Resource sections
+//
+//  XBE sections (named regions of the executable, e.g. bundled .xpr resources)
+//  can be paged in on demand. XLoadSection maps a section by name and returns
+//  its base pointer, bumping a reference count; XFreeSection drops a reference
+//  (the section is unmapped when the count reaches zero). The *ByHandle forms
+//  cache the lookup so a hot section is not re-resolved by name each frame.
 //========================================================================
 XBOXAPI PVOID __attribute__((__stdcall__)) XLoadSectionA(IN LPCSTR pSectionName);
 #define XLoadSection  XLoadSectionA
@@ -164,6 +187,11 @@ XBOXAPI HRESULT __attribute__((__stdcall__)) XAddSongToSoundtrack(IN UINT dwSoun
 
 //========================================================================
 //  Configuration settings (XGetXConfig)
+//
+//  Read-only accessors for the console's persisted settings (dashboard /
+//  EEPROM): UI language, auto-logon, the attached AV pack, video standard and
+//  video/audio capability flags, parental-control level and game region. Each
+//  returns the raw setting value; the XC_* constants below name the values.
 //========================================================================
 #define XC_LANGUAGE_ENGLISH         1
 #define XC_LANGUAGE_JAPANESE        2
@@ -301,10 +329,18 @@ typedef struct _XDEVICE_PREALLOC_TYPE
 #define XGetPortCount() 4
 
 
+// Initialize the input subsystem. Call once at startup, passing the device
+// types the title will use and how many objects to pre-allocate for each (so
+// later opens never allocate). DeviceType tables are the XDEVICE_TYPE_* macros.
 XBOXAPI VOID __attribute__((__stdcall__)) XInitDevices(DWORD dwPreallocTypeCount, PXDEVICE_PREALLOC_TYPE PreallocTypes);
 
+// Bitmask of ports/slots currently holding a device of the given type. Bits are
+// the XDEVICE_PORTn[_TOP/_BOTTOM]_MASK values.
 XBOXAPI DWORD __attribute__((__stdcall__)) XGetDevices(IN PXPP_DEVICE_TYPE DeviceType);
 
+// Poll for hot-plug changes since the last call: pdwInsertions/pdwRemovals get
+// the port masks that gained/lost a device of this type. Returns FALSE if a
+// device enumeration is still in progress (see XGetDeviceEnumerationStatus).
 XBOXAPI BOOL __attribute__((__stdcall__)) XGetDeviceChanges(IN PXPP_DEVICE_TYPE DeviceType, OUT PDWORD pdwInsertions, OUT PDWORD pdwRemovals);
 
 
@@ -438,16 +474,29 @@ typedef struct _XINPUT_POLLING_PARAMETERS
     BYTE       ReservedMBZ2;
 } XINPUT_POLLING_PARAMETERS, *PXINPUT_POLLING_PARAMETERS;
 
+// Open an input device on a given port/slot and return a handle for the
+// XInput* calls. pPollingParameters is optional; NULL selects auto-polling
+// (the device state is refreshed for you, so XInputGetState never blocks).
 XBOXAPI HANDLE __attribute__((__stdcall__)) XInputOpen(IN PXPP_DEVICE_TYPE DeviceType, IN DWORD dwPort, IN DWORD dwSlot, IN PXINPUT_POLLING_PARAMETERS pPollingParameters OPTIONAL);
 
 XBOXAPI VOID __attribute__((__stdcall__)) XInputClose(IN HANDLE hDevice);
 
+// Copy the current input state (gamepad buttons/analog or debug-mouse deltas)
+// into pState. dwPacketNumber changes only when the state changed since the
+// last read, so a title can skip re-processing an unchanged frame. ERROR_SUCCESS
+// on success, ERROR_DEVICE_NOT_CONNECTED if the device was removed.
 XBOXAPI DWORD __attribute__((__stdcall__)) XInputGetState(IN HANDLE hDevice, OUT PXINPUT_STATE pState);
 
+// Manually refresh a device opened without auto-polling. Not needed for
+// auto-polled devices.
 XBOXAPI DWORD __attribute__((__stdcall__)) XInputPoll(IN HANDLE hDevice);
 
+// Send an output packet (e.g. gamepad rumble via XINPUT_FEEDBACK.Rumble). The
+// call is asynchronous; Header.dwStatus/hEvent report completion.
 XBOXAPI DWORD __attribute__((__stdcall__)) XInputSetState(IN HANDLE hDevice, IN OUT PXINPUT_FEEDBACK pFeedback);
 
+// Query the device's static capabilities (subtype, and which inputs/outputs it
+// supports).
 XBOXAPI DWORD __attribute__((__stdcall__)) XInputGetCapabilities(IN HANDLE hDevice, OUT PXINPUT_CAPABILITIES pCapabilities);
 
 
@@ -475,6 +524,8 @@ typedef struct _XINPUT_LIGHTGUN_CALIBRATION_OFFSETS
 
 XBOXAPI DWORD __attribute__((__stdcall__)) XInputSetLightgunCalibration(IN HANDLE hDevice, IN PXINPUT_LIGHTGUN_CALIBRATION_OFFSETS pCalibrationOffsets);
 
+// Mount the memory unit in the given port/slot and return the drive letter it
+// was mapped to in pchDrive. Pair with XUnmountMU. ERROR_SUCCESS on success.
 XBOXAPI DWORD __attribute__((__stdcall__)) XMountMUA(IN DWORD dwPort, IN DWORD dwSlot, OUT PCHAR pchDrive);
 #define XMountMU  XMountMUA
 
@@ -511,6 +562,9 @@ PDEVICE_OBJECT MU_GetExistingDeviceObject(IN ULONG Port, IN ULONG Slot);
 #define XINIT_UTILITY_DRIVE_64K_CLUSTER_SIZE    0x80000000
 #define XINIT_UTILITY_DRIVE_128K_CLUSTER_SIZE   0xC0000000
 
+// Mount the per-title utility partition (scratch space on the hard disk, drive
+// Z:). fFormatClean formats it empty first. The XINIT_* flags above (passed via
+// XapiInitProcess) select cluster size and formatting behaviour.
 XBOXAPI BOOL __attribute__((__stdcall__)) XMountUtilityDrive(IN BOOL fFormatClean);
 
 XBOXAPI BOOL __attribute__((__stdcall__)) XFormatUtilityDrive(VOID);
@@ -634,6 +688,10 @@ typedef struct _LD_FROM_UPDATE  // Required for launching out of auto-updates, d
     BYTE    Data[MAX_LAUNCH_DATA_SIZE - 28];
 } LD_FROM_UPDATE, *PLD_FROM_UPDATE;
 
+// Launch another XBE, ending the current title. lpImagePath names the image
+// (NULL relaunches the dashboard); pLaunchData is an optional 3 KB blob handed
+// to the next title, which reads it back with XGetLaunchInfo. Does not return
+// on success. Use the LD_* structures above to build a typed pLaunchData.
 XBOXAPI DWORD __attribute__((__stdcall__)) XLaunchNewImageA(IN LPCSTR lpImagePath, IN PLAUNCH_DATA pLaunchData);
 #define XLaunchNewImage XLaunchNewImageA
 
@@ -643,6 +701,9 @@ XBOXAPI DWORD __attribute__((__stdcall__)) XLaunchNewImageA(IN LPCSTR lpImagePat
 #define LDT_FROM_UPDATE           4
 
 
+// Retrieve the launch data handed to this title by whoever launched it.
+// pdwLaunchDataType receives one of the LDT_* values naming how to interpret
+// pLaunchData. ERROR_SUCCESS if launch data was present, else ERROR_NOT_FOUND.
 XBOXAPI DWORD __attribute__((__stdcall__)) XGetLaunchInfo(OUT PDWORD pdwLaunchDataType, OUT PLAUNCH_DATA pLaunchData);
 
 
@@ -779,6 +840,11 @@ typedef struct _XALLOC_ATTRIBUTES {
 
 #define XALLOC_IS_PHYSICAL(Attributes) ((BOOL)(Attributes & 0x80000000)!=0)
 
+// Attribute-driven allocator used by the D3D/DSound/XGraphics runtimes (and
+// available to titles): dwAllocAttributes is a MAKE_XALLOC_ATTRIBUTES() word
+// selecting heap-vs-physical memory, alignment, protection and zeroing. A title
+// can hook allocation by defining XMemAlloc/XMemFree; XMemAllocDefault is the
+// built-in implementation those hooks fall back to. Pair with XMemFree.
 XBOXAPI LPVOID __attribute__((__stdcall__)) XMemAlloc(IN SIZE_T dwSize, IN DWORD dwAllocAttributes);
 
 XBOXAPI LPVOID __attribute__((__stdcall__)) XMemAllocDefault(IN SIZE_T dwSize, IN DWORD dwAllocAttributes);

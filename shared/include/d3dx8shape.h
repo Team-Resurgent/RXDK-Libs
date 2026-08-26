@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8shapes.h
-//  Content:    D3DX simple shapes
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX simple-shape generators. Each routine builds an ID3DXMesh for a basic
+ * primitive (polygon, box, cylinder, sphere, torus, teapot) ready to draw,
+ * useful for quick geometry, placeholders, and samples. The caller owns the
+ * returned mesh and optional adjacency buffer and must Release() both.
+ */
 
 #include "d3dx8.h"
 

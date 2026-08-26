@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // rxdk_xhash.h -- shared guts of the <hash_map> / <hash_set> compatibility headers.
 //
 // The XDK shipped Visual C++ 7.x, whose standard library carried Dinkumware's

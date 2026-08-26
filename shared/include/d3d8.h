@@ -1,11 +1,22 @@
-/*==========================================================================;
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox Direct3D 8 - the primary graphics API header. Declares the D3D object
+ * types (Direct3D factory, D3DDevice, textures, surfaces, vertex/index buffers,
+ * palettes, ...), the D3DDevice rendering methods, device-creation flags, and
+ * the D3DERR_* result codes, and pulls in d3d8types.h / d3d8caps.h.
  *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3d8.h
- *  Content:    Xbox Direct3D include file
- *
- ****************************************************************************/
+ * The Xbox object model differs from desktop D3D8: objects are plain refcounted
+ * structs (not full COM interfaces), and most calls are also exposed as flat C
+ * functions - Direct3D_*, D3DDevice_*, D3DTexture_*, etc. - with inline
+ * IDirect3D8_* / method-style wrappers. Because the hardware is a single fixed
+ * NV2A, CreateDevice largely ignores adapter/window parameters. Objects follow
+ * COM lifetime rules: AddRef/Release, and the caller releases what it creates.
+ */
 
 #ifndef _D3D8_H_
 #define _D3D8_H_
@@ -31,6 +42,11 @@
 
 #include <stdlib.h>
 
+/* The Direct3D object family. Direct3D is the factory that creates the device;
+ * D3DDevice is the rendering device; D3DResource is the base of all GPU-memory
+ * objects (textures of each dimensionality, vertex/index buffers, surfaces,
+ * volumes, palettes, push buffers, fixups). The LP.../P... aliases below are
+ * the SDK-style pointer names for the same structs. */
 typedef struct Direct3D                  Direct3D;
 typedef struct D3DDevice                 D3DDevice;
 typedef struct D3DResource               D3DResource;
@@ -114,6 +130,9 @@ Direct3D * WINAPI Direct3DCreate8(UINT SDKVersion);
  *
  ****************************************************************************/
 
+// Choose where vertex processing (transform/light) runs: on the GPU (HARDWARE),
+// on the CPU (SOFTWARE), a mix, or a stripped-state PUREDEVICE. HARDWARE is the
+// usual choice on Xbox. The desktop threading/FPU flags below do not apply.
 #define D3DCREATE_PUREDEVICE                    0x00000010L
 #define D3DCREATE_SOFTWARE_VERTEXPROCESSING     0x00000020L
 #define D3DCREATE_HARDWARE_VERTEXPROCESSING     0x00000040L
@@ -176,7 +195,9 @@ Direct3D * WINAPI Direct3DCreate8(UINT SDKVersion);
 #define MAKE_D3DHRESULT( code )  MAKE_HRESULT( 1, _FACD3D, code )
 
 /*
- * Direct3D Errors
+ * Direct3D result codes. D3D_OK (S_OK) is success; the D3DERR_* values are
+ * failure HRESULTs (test with FAILED()). They cover invalid/ unsupported state
+ * combinations, lost/busy devices, and out-of-memory conditions.
  */
 
 #define D3D_OK                              S_OK
@@ -579,6 +600,11 @@ typedef void (__cdecl * D3DWAITCALLBACK)(DWORD Flags);
 /*
  * Direct3D, IDirect3D8 interface
  *
+ * The object-creation factory (obtained from Direct3DCreate8). Enumerates the
+ * adapter/display modes, checks format and device support, reports caps, and
+ * creates the D3DDevice. On Xbox there is one fixed adapter, so most query
+ * methods are effectively constant. Its methods are static because there is a
+ * single global Direct3D object.
  */
 
 #ifdef __cplusplus
@@ -607,7 +633,13 @@ struct Direct3D
 
 /*
  * D3DDevice, IDirect3DDevice8 interface
- */
+ *
+ * The rendering device - the central object for all drawing. Creates resources
+ * (textures, surfaces, vertex/index buffers, palettes), sets render/texture/
+ * transform state, binds streams and shaders, issues Draw calls, and manages
+ * the frame (BeginScene/EndScene/Present, Clear, render targets). Xbox adds
+ * push-buffer, tiling, overlay, and fence primitives. Same calls are also
+ * available as flat D3DDevice_* C functions further down. */
 
 #ifdef __cplusplus
 
@@ -1450,8 +1482,11 @@ D3DINLINE void WINAPI D3D_CopyContiguousMemoryToVideo(
 
 
 /*
- * C exported method definitions for the class methods defined above and the C++
- * thunks that defer to them.
+ * Flat C entry points for every method declared above (Direct3D_*, D3DDevice_*,
+ * and the per-resource families), plus inline IDirect3D8_* / method-style C++
+ * thunks that simply forward to them. C code calls these directly; C++ code can
+ * use either these or the struct methods. Trivial no-op refcount stubs are
+ * defined inline; the rest are exported from the D3D library.
  */
 
 /* Direct3D */

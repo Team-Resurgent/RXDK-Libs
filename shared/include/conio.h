@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 /*
  * RXDK stub for the vendored D3D8 sources (mp.hpp / mpcore.cpp #include <conio.h>).

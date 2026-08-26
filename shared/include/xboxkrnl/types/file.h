@@ -1,6 +1,23 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * File-system and object type definitions used by the Nt and Io file APIs.
+ * Defines the information-class enumerations (FILE_INFORMATION_CLASS,
+ * FS_INFORMATION_CLASS) and the corresponding query/set payload structures, the
+ * IO_STATUS_BLOCK completion record, broken-down time fields, memory and SID
+ * descriptors, and OBJECT_ATTRIBUTES with its initializer. Each info-class enum
+ * value selects the identically named FILE_ or FILE_FS_ structure.
+ */
+
 #ifndef XBOXKRNL_TYPES_FILE_H
 #define XBOXKRNL_TYPES_FILE_H
 
+/* Broken-down calendar time (Weekday 0 = Sunday); converts to/from a 64-bit
+ * system time via the Rtl time routines. */
 typedef struct _TIME_FIELDS {
     SHORT Year;
     SHORT Month;
@@ -17,6 +34,8 @@ typedef enum _WAIT_TYPE {
     WaitAny = 1
 } WAIT_TYPE;
 
+/* Result of an I/O operation: final Status and an Information count whose meaning
+ * is operation-specific (bytes transferred, disposition taken, etc.). */
 typedef struct _IO_STATUS_BLOCK {
     union
     {
@@ -27,6 +46,8 @@ typedef struct _IO_STATUS_BLOCK {
     ULONG_PTR Information;
 } IO_STATUS_BLOCK, *PIO_STATUS_BLOCK;
 
+/* Volume information classes for NtQueryVolumeInformationFile; each selects the
+ * matching FILE_FS_* structure. */
 typedef enum _FSINFOCLASS {
     FileFsVolumeInformation = 1,
     FileFsLabelInformation,
@@ -84,6 +105,8 @@ typedef struct _FILE_FS_ATTRIBUTE_INFORMATION {
     OCHAR FileSystemName[1];
 } FILE_FS_ATTRIBUTE_INFORMATION, *PFILE_FS_ATTRIBUTE_INFORMATION;
 
+/* Describes a virtual-address region as returned by NtQueryVirtualMemory:
+ * base/allocation base, size, state, and protection. */
 typedef struct _MEMORY_BASIC_INFORMATION {
     PVOID BaseAddress;
     PVOID AllocationBase;
@@ -105,6 +128,8 @@ typedef struct _SID {
     DWORD SubAuthority[1];
 } SID, *PISID;
 
+/* File information classes for NtQueryInformationFile / NtSetInformationFile and
+ * directory enumeration; each selects the matching FILE_* structure below. */
 typedef enum _FILE_INFORMATION_CLASS {
     FileDirectoryInformation = 1,
     FileFullDirectoryInformation,
@@ -403,12 +428,17 @@ typedef struct _FILE_TRACKING_INFORMATION {
     CHAR ObjectInformation[1];
 } FILE_TRACKING_INFORMATION, *PFILE_TRACKING_INFORMATION;
 
+/* Names an object for open/create calls: an optional RootDirectory handle the
+ * ObjectName is relative to, plus OBJ_* Attributes. The Xbox variant carries no
+ * security descriptor. Initialize with InitializeObjectAttributes. */
 typedef struct _OBJECT_ATTRIBUTES {
         HANDLE RootDirectory;
         PANSI_STRING ObjectName;
         ULONG Attributes;
 } OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
 
+/* OBJECT_ATTRIBUTES.Attributes flags: inheritance, permanence, exclusive open,
+ * case-insensitive match, open-if-exists, and open-link behavior. */
 #define OBJ_INHERIT                   0x00000002L
 #define OBJ_PERMANENT                 0x00000010L
 #define OBJ_EXCLUSIVE                 0x00000020L
@@ -429,6 +459,7 @@ typedef struct _OBJECT_ATTRIBUTES {
 #define InitializeObjectAttributes(...) \
     RXDK_IOA_PICK(__VA_ARGS__, RXDK_IOA5, RXDK_IOA4)(__VA_ARGS__)
 
+/* Pseudo-handles for the well-known namespace roots, usable as RootDirectory. */
 #define ObDosDevicesDirectory()        ((HANDLE)-3)
 #define ObWin32NamedObjectsDirectory() ((HANDLE)-4)
 

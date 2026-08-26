@@ -1,8 +1,23 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * NTSTATUS result codes returned throughout the kernel API. The top two bits
+ * encode severity: 0x0.. success, 0x4.. informational, 0x8.. warning, 0xC..
+ * error. Test with the NT_SUCCESS-style sign check (values >= 0xC0000000 are
+ * failures). Only the subset the Xbox kernel actually returns is defined here.
+ */
+
 #ifndef _NTSTATUS_
 #define _NTSTATUS_
 
 #include <xboxkrnl/xboxdef.h>
 
+/* Success and informational codes (severity 0x0.. and 0x4..): normal completion,
+ * timeouts, pending/alerted waits, end-of-enumeration markers. */
 #define STATUS_SUCCESS                     ((DWORD)0x00000000L)
 #define STATUS_WAIT_0                      ((DWORD)0x00000000L)
 #define STATUS_ABANDONED_WAIT_0            ((DWORD)0x00000080L)
@@ -13,6 +28,7 @@
 #define STATUS_OBJECT_NAME_EXISTS          ((DWORD)0x40000000L)
 #define STATUS_NO_YIELD_PERFORMED          ((DWORD)0x40000024L)
 #define STATUS_SEGMENT_NOTIFICATION        ((DWORD)0x40000005L)
+/* Warning codes (severity 0x8..): CPU traps and short-read/overflow conditions. */
 #define STATUS_GUARD_PAGE_VIOLATION        ((DWORD)0x80000001L)
 #define STATUS_DATATYPE_MISALIGNMENT       ((DWORD)0x80000002L)
 #define STATUS_BREAKPOINT                  ((DWORD)0x80000003L)
@@ -20,6 +36,9 @@
 #define STATUS_BUFFER_OVERFLOW             ((DWORD)0x80000005L)
 #define STATUS_NO_MORE_FILES               ((DWORD)0x80000006L)
 #define STATUS_NO_MORE_ENTRIES             ((DWORD)0x8000001AL)
+/* Error codes (severity 0xC..): failed operations -- bad parameters/handles,
+ * access and object-name failures, arithmetic and FPU faults, resource limits,
+ * and image/media policy violations. */
 #define STATUS_UNSUCCESSFUL                ((DWORD)0xC0000001L)
 #define STATUS_ACCESS_VIOLATION            ((DWORD)0xC0000005L)
 #define STATUS_IN_PAGE_ERROR               ((DWORD)0xC0000006L)
@@ -74,6 +93,7 @@
 #define STATUS_IMAGE_GAME_REGION_VIOLATION ((DWORD)0xC0050001L)
 #define STATUS_IMAGE_MEDIA_TYPE_VIOLATION  ((DWORD)0xC0050002L)
 
+/* Device / I/O error codes. */
 #define STATUS_INVALID_DEVICE_REQUEST      ((DWORD)0xC0000010L)
 #define STATUS_IO_TIMEOUT                  ((DWORD)0xC00000B5L)
 #define STATUS_DEVICE_DOES_NOT_EXIST       ((DWORD)0xC00000C0L)

@@ -1,17 +1,20 @@
-//+---------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//  Copyright (C) Microsoft Corporation, 1998-2001. All rights reserved.
-//
-//  File:       guiddef.h
-//
-//  Contents:   GUID definition
-//
-//  Note:       RXDK distribution copy. Kept clean (standalone, no internal
-//              headers) so it ships in dist\include and titles get GUID /
-//              REFGUID / DECLSPEC_SELECTANY without pulling libxapi internals.
-//
-//----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * guiddef.h - the GUID type and COM GUID helper macros.
+ *
+ * Defines the GUID/IID/CLSID/FMTID structs and their REF and LP aliases, the
+ * DEFINE_GUID / DEFINE_OLEGUID declarators (which emit a real definition under
+ * INITGUID and an extern reference otherwise), and IsEqualGUID / the C++ ==
+ * and != operators. RXDK distribution copy: standalone with no internal
+ * headers, so a title gets GUID / REFGUID / DECLSPEC_SELECTANY from dist\include
+ * without pulling libxapi internals. Pulled by xobjbase.h and the <xtl.h>
+ * umbrella.
+ */
 #define one 1
 #ifndef GUID_DEFINED
 #define GUID_DEFINED

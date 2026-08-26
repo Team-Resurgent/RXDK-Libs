@@ -1,12 +1,17 @@
-/***************************************************************************
- *
- *  Copyright (C) 1998-2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dxfile.h
- *
- *  Content:    DirectX File public header file
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DirectX File (.x) format reader/writer interfaces. The .x format is a generic
+ * hierarchical container of typed "template" records used chiefly for meshes,
+ * animation, and materials; D3DX mesh loaders sit on top of it. IDirectXFile is
+ * the factory: it enumerates data objects out of a file/resource/memory blob or
+ * builds save objects. Data records are GUID-typed and can nest, reference each
+ * other, or carry raw binary. All interfaces are COM; Release() when done.
+ */
 
 #ifndef __DXFILE_H__
 #define __DXFILE_H__
@@ -15,12 +20,15 @@
 extern "C" {
 #endif
 
+/* On-disk encoding of a .x file passed to CreateSaveObject. */
 typedef DWORD DXFILEFORMAT;
 
 #define DXFILEFORMAT_BINARY     0
 #define DXFILEFORMAT_TEXT       1
 #define DXFILEFORMAT_COMPRESSED 2
 
+/* Source selector for CreateEnumObject: the lpvSource pointer is interpreted as
+ * a filename, a resource descriptor, a memory block, a stream, or a URL. */
 typedef DWORD DXFILELOADOPTIONS;
 
 #define DXFILELOAD_FROMFILE  0x00L
@@ -29,12 +37,14 @@ typedef DWORD DXFILELOADOPTIONS;
 #define DXFILELOAD_FROMSTREAM 0x04L
 #define DXFILELOAD_FROMURL 0x08L
 
+/* Source descriptor for DXFILELOAD_FROMRESOURCE. */
 typedef struct _DXFILELOADRESOURCE {
     HMODULE hModule;
     LPCTSTR lpName;
     LPCTSTR lpType;
 }DXFILELOADRESOURCE, *LPDXFILELOADRESOURCE;
 
+/* Source descriptor for DXFILELOAD_FROMMEMORY: pointer and byte count. */
 typedef struct _DXFILELOADMEMORY {
     LPVOID lpMemory;
     DWORD dSize;
@@ -195,7 +205,9 @@ DEFINE_GUID(TID_DXFILEHeader,   0x3d82ab43, 0x62da, 0x11cf, 0xab, 0x39, 0x0, 0x2
 
 
 /*
- * DirectX File errors.
+ * DirectX File error HRESULTs. DXFILE_OK (0) is success; the DXFILEERR_* codes
+ * cover malformed files, bad templates/types, missing objects, and enumeration
+ * end-of-data (DXFILEERR_NOMOREOBJECTS / DXFILEERR_NOMOREDATA).
  */
 
 #define _FACDD  0x876

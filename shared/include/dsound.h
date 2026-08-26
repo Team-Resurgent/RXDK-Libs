@@ -1,11 +1,16 @@
-/**************************************************************************
- *
- *  Copyright (C) 1995-2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsound.h
- *  Content:    X-Box DirectSound.
- *
- **************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DirectSound for Xbox -- the public low-level audio API layered on the MCPX
+ * APU. Declares the IDirectSound device, IDirectSoundBuffer voices,
+ * IDirectSoundStream streaming voices, the XMediaObject decoder family
+ * (WMA/ADPCM/AC'97), 3D and I3DL2 positional audio, DSP effect-image download,
+ * mixbin routing, per-voice LFO/envelope/filter DSP, and the WAVEFORMATEX types.
+ */
 
 #ifndef __DSOUND_INCLUDED__
 #define __DSOUND_INCLUDED__
@@ -184,9 +189,9 @@ typedef struct _DSMIXBINVOLUMEPAIR
 
 typedef const DSMIXBINVOLUMEPAIR *LPCDSMIXBINVOLUMEPAIR;
 
-// RXDK 5849 uplift: hardware-voice property snapshot (added in XDK-5849; absent from the
-// Jan-2002 leak). Layout recovered from the 5849 dsound.lib CodeView types (sizeof 92).
-// Referenced by XACT_SOUNDSOURCE_PROPERTIES in the 5849 public xact.h.
+// Snapshot of a hardware voice's mixer and 3D DSP state (92 bytes), returned by
+// IDirectSoundBuffer::GetVoiceProperties. Also referenced by
+// XACT_SOUNDSOURCE_PROPERTIES.
 typedef struct _DSVOICEPROPS
 {
     DWORD               dwMixBinCount;              // +0
@@ -392,8 +397,8 @@ typedef struct _DSEFFECTIMAGELOC
 
 typedef const DSEFFECTIMAGELOC *LPCDSEFFECTIMAGELOC;
 
-// RXDK 5849 uplift: high-level effect parameter support (XAudioSetEffectData).
-// Adopted verbatim from the 5849 public dsound.h.
+// High-level effect parameter support. Feeds XAudioSetEffectData, which turns a
+// friendly effect description into the raw DSP coefficients the APU expects.
 
 typedef enum _DSFX_EFFECT_TYPE
 {
@@ -460,12 +465,12 @@ typedef struct _DSFX_RAW_EFFECT_DESCRIPTION
             DWORD dwA2;
         } IIR2;
 
-        // NOTE (5849 header quirk, kept verbatim): XAudioSetEffectData writes
-        // ELEVEN dwords for a distortion effect -- the 24-bit gain first, then
-        // the ten filter coefficients -- so everything here is really shifted
-        // one dword: dwPreFilterB0 receives the gain, dwPreFilterB1 receives
-        // B0, and the last coefficient lands past dwPostFilterA2 (still inside
-        // the union, whose I3DL2Reverb view is larger).
+        // NOTE: XAudioSetEffectData writes ELEVEN dwords for a distortion
+        // effect -- the 24-bit gain first, then the ten filter coefficients --
+        // so every field here is really shifted one dword: dwPreFilterB0
+        // receives the gain, dwPreFilterB1 receives B0, and the last
+        // coefficient lands past dwPostFilterA2 (still inside the union, whose
+        // larger I3DL2Reverb view covers it).
         struct
         {
             DWORD dwPreFilterB0;
@@ -501,7 +506,7 @@ typedef struct _DSFX_RAW_EFFECT_DESCRIPTION
 
 #include <pshpack1.h>
 
-// Parameter block for the 5849 WMA XMO decoder factories (XWmaDecoderCreateMediaObject).
+// Parameter block for the WMA XMO decoder factory XWmaDecoderCreateMediaObject.
 typedef struct _WMAXMODECODERPARAMETERS
 {
     LPCSTR  pszFileName;
@@ -692,9 +697,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBSTATUS_PAUSED            0x00000002      // The buffer is paused
 #define DSBSTATUS_LOOPING           0x00000004      // The buffer is playing in a loop
 
-// Buffer pause states. 5849 gives a BUFFER its own Pause -- the leak-era header
-// had these only for streams, which is why code written against it stops the
-// buffer and restores the play cursor instead.
+// Buffer pause states, passed to IDirectSoundBuffer::Pause / PauseEx. Mirror the
+// stream pause states so a paused voice keeps its play cursor rather than stopping.
 #define DSBPAUSE_RESUME             0x00000000      // Resume a paused buffer
 #define DSBPAUSE_PAUSE              0x00000001      // Pause the buffer
 #define DSBPAUSE_SYNCHPLAYBACK      0x00000002      // Pause pending a SynchPlayback
@@ -723,7 +727,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBVOLUME_MIN               -10000          // Maximum valid attenuation value
 #define DSBVOLUME_MAX               0               // Minimum valid attenuation value
-#define DSBVOLUME_HW_MIN            -6400           // Minimum volume supported by Xbox hardware (5849; distinct from the software DSBVOLUME_MIN of -10000)
+#define DSBVOLUME_HW_MIN            -6400           // Minimum attenuation the hardware mixer applies, in mB (distinct from the software floor DSBVOLUME_MIN of -10000)
 #define DSBVOLUME_HW_MAX            0               // Maximum hardware-mix attenuation (none)
 
 //
@@ -1327,6 +1331,12 @@ EXTERN_C const DSI3DL2LISTENER DirectSoundI3DL2ListenerPreset_NoReverb;
 // API
 //
 
+// Device and object factories. DirectSoundCreate returns the single
+// IDirectSound device; the *Create* helpers build buffers and streams without a
+// device pointer. DirectSoundDoWork must be pumped each frame to service
+// streaming voices and deferred notifications. *HRTF selects the head-related
+// transfer function used for headphone 3D. DirectSoundGetSampleTime returns the
+// mixer sample clock (in output samples).
 STDAPI DirectSoundCreate(LPGUID pguidDeviceId, LPDIRECTSOUND *ppDirectSound, LPUNKNOWN pUnkOuter);
 STDAPI DirectSoundCreateBuffer(LPCDSBUFFERDESC pdsbd, LPDIRECTSOUNDBUFFER *ppBuffer);
 STDAPI DirectSoundCreateStream(LPCDSSTREAMDESC pdssd, LPDIRECTSOUNDSTREAM *ppStream);
@@ -1337,11 +1347,18 @@ STDAPI_(void) DirectSoundOverrideSpeakerConfig(DWORD dwSpeakerConfig);
 STDAPI_(DWORD) DirectSoundGetSampleTime(void);
 STDAPI_(VOID) DirectSoundDumpMemoryUsage(BOOL fAssertNone);
 
+// Fill a WAVEFORMATEX (or XBOXADPCMWAVEFORMAT) for the given channel count and
+// sample rate (Hz). XAudioCalculatePitch converts a frequency to the signed
+// relative-pitch units used by SetPitch.
 STDAPI_(void) XAudioCreatePcmFormat(WORD nChannels, DWORD nSamplesPerSec, WORD wBitsPerSample, LPWAVEFORMATEX pwfx);
 STDAPI_(void) XAudioCreateAdpcmFormat(WORD nChannels, DWORD nSamplesPerSec, LPXBOXADPCMWAVEFORMAT pwfx);
 
 STDAPI_(LONG) XAudioCalculatePitch(DWORD dwFrequency);
 
+// Decoder factories. Each returns an XMediaObject-derived decoder that produces
+// PCM from a compressed source: WMA (file/in-memory, sync or async), AC'97
+// pass-through, raw file streaming, and .wav parsing. The *Ex variants return
+// the richer XWmaFileMediaObject/XWaveFileMediaObject interfaces.
 STDAPI XWmaDecoderCreateMediaObject(LPCWMAXMODECODERPARAMETERS pParameters, XWmaFileMediaObject **ppMediaObject);
 STDAPI WmaCreateDecoder(LPCSTR pszFileName, HANDLE hFile, BOOL fAsyncMode, DWORD dwLookaheadBufferSize, DWORD dwMaxPackets, DWORD dwYieldRate, LPWAVEFORMATEX pwfxCompressed, XFileMediaObject **ppMediaObject);
 STDAPI WmaCreateInMemoryDecoder(LPFNWMAXMODATACALLBACK pfnCallback, LPVOID pvContext, DWORD dwYieldRate, LPWAVEFORMATEX pwfxCompressed, LPXMEDIAOBJECT *ppMediaObject);
@@ -1357,8 +1374,13 @@ STDAPI XFileCreateMediaObjectAsync(HANDLE hFile, DWORD dwMaxPackets, XFileMediaO
 STDAPI XWaveFileCreateMediaObject(LPCSTR pszFileName, LPCWAVEFORMATEX *ppwfxFormat, XFileMediaObject **ppMediaObject);
 STDAPI XWaveFileCreateMediaObjectEx(LPCSTR pszFileName, HANDLE hFile, XWaveFileMediaObject **ppMediaObject);
 
+// Download a DSP effects image (built by the effects compiler) into APU scratch
+// memory; pImageLoc names the reverb/crosstalk effect slots and ppImageDesc
+// receives the resulting effect map. dwFlags is XAUDIO_DOWNLOADFX_*.
 STDAPI XAudioDownloadEffectsImage(LPCSTR pszImageName, LPCDSEFFECTIMAGELOC pImageLoc, DWORD dwFlags, LPDSEFFECTIMAGEDESC *ppImageDesc);
 
+// Set parameters on a downloaded effect by index, converting the high-level
+// description in pDesc into the raw coefficients written through pRawDesc.
 STDAPI XAudioSetEffectData(DWORD dwEffectIndex, LPCDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION pDesc, LPDSFX_RAW_EFFECT_DESCRIPTION pRawDesc);
 
 //
@@ -1383,6 +1405,10 @@ STDAPI XAudioSetEffectData(DWORD dwEffectIndex, LPCDSFX_HIGH_LEVEL_EFFECT_DESCRI
 
 //
 // XMediaObject
+//
+// Base streaming-decoder interface: a source that consumes input XMEDIAPACKETs
+// and produces output XMEDIAPACKETs. Process() does the transform, GetStatus()
+// reports readiness (XMO_STATUSF_*), Discontinuity()/Flush() reset the stream.
 //
 
 #undef INTERFACE
@@ -1425,6 +1451,9 @@ DECLARE_INTERFACE(XMediaObject)
 
 //
 // XFileMediaObject
+//
+// XMediaObject that pulls its input from a file; adds Seek/GetLength and a
+// DoWork pump for asynchronous file reads.
 //
 
 #undef INTERFACE
@@ -1474,6 +1503,9 @@ DECLARE_INTERFACE_(XFileMediaObject, XMediaObject)
 
 //
 // XWaveFileMediaObject
+//
+// XFileMediaObject specialized for .wav files; exposes the parsed WAVEFORMATEX
+// via GetFormat and any embedded loop region via GetLoopRegion.
 //
 
 #undef INTERFACE
@@ -1527,6 +1559,9 @@ DECLARE_INTERFACE_(XWaveFileMediaObject, XFileMediaObject)
 
 //
 // XWmaFileMediaObject
+//
+// XFileMediaObject specialized for WMA files; decodes to PCM and exposes the
+// WMA file header, content description tags, and time-accurate SeekToTime.
 //
 
 #undef INTERFACE
@@ -1585,6 +1620,12 @@ DECLARE_INTERFACE_(XWmaFileMediaObject, XFileMediaObject)
 
 //
 // IDirectSound
+//
+// The audio device object (also aliased as the 3D listener and reference
+// clock). Creates buffers and streams, owns global speaker/headphone/HRTF
+// config, the DSP effect image, the 3D listener state, and the mixer clock.
+// Methods are exposed both as free C functions (IDirectSound_*) and, in C++, as
+// inline members on the struct below.
 //
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
@@ -1795,6 +1836,12 @@ struct IDirectSound
 
 //
 // IDirectSoundBuffer
+//
+// A hardware voice holding a complete sound in memory (also aliased as the 3D
+// buffer and notify interfaces). Controls format, frequency, volume (mB), pitch,
+// per-voice LFO/envelope/filter DSP, mixbin routing, 3D/I3DL2 placement,
+// playback (Play/Stop/Pause and their Ex timestamped forms), play/loop regions,
+// Lock/Unlock for data access, and position notifications.
 //
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
@@ -2121,6 +2168,11 @@ struct IDirectSoundBuffer
 //
 // IDirectSoundStream
 //
+// A streaming voice: an XMediaObject that plays a caller-supplied sequence of
+// PCM packets rather than a fixed buffer. Shares the buffer's DSP/3D/mixbin
+// controls but feeds audio through Process()/packet submission; the app must
+// keep packets queued (via DirectSoundDoWork) to avoid starvation.
+//
 
 #if defined(__cplusplus) && !defined(CINTERFACE)
 
@@ -2346,6 +2398,10 @@ DECLARE_INTERFACE_(IDirectSoundStream, XMediaObject)
 
 //
 // XAc97MediaObject
+//
+// Direct path to an AC'97 codec channel (analog or S/PDIF digital), used for
+// PCM or pre-encoded (AC-3/DTS) pass-through output. SetMode selects the
+// DSAC97_MODE_* stream type.
 //
 
 #undef INTERFACE

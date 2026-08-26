@@ -1,10 +1,17 @@
-/*==========================================================================;
- *
- *  xhv.h -- This module defines the XBox High-Level Voice APIs
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * High-level Xbox Voice (XHV) API. Wraps voice capture, encoding, network
+ * transport hand-off, decoding, and mixed playback behind a single XHVEngine.
+ * Declares the engine and its ITitleXHV callback interface, per-port processing
+ * modes (voice chat, loopback, speech recognition, voice mail), local/remote
+ * talker management keyed by XUID, voice masks, and voice-mail record/play.
+ * Requires <xonline.h>; mutually exclusive with the low-level XVoice API.
+ */
 
 #ifndef __XHV__
 #define __XHV__
@@ -77,6 +84,9 @@ typedef DWORD                                         XHV_SR_VOCAB_SELECTION;
 typedef PVOID                                         XHV_PROCESSING_MODE;
 typedef DWORD                                         XHV_PLAYBACK_PRIORITY;
 
+// Per-port processing modes, set with SetProcessingMode and pre-enabled with
+// EnableProcessingMode: inactive, loopback (hear yourself), live voice chat,
+// speech recognition, and voice-mail record/playback. Use the XHV_*_MODE macros.
 extern const XHV_PROCESSING_MODE                     _xhv_inactive_mode;
 extern const XHV_PROCESSING_MODE                     _xhv_loopback_mode;
 extern const XHV_PROCESSING_MODE                     _xhv_voicechat_mode;
@@ -108,6 +118,10 @@ typedef struct _XHV_VOICE_MASK
 
 } XHV_VOICE_MASK, *PXHV_VOICE_MASK;
 
+// Engine creation parameters: pool sizes (remote/local talkers, compressed
+// buffers), behavior flags, the DSP effect image and where XHV's effects start
+// within it, the lip-sync out-of-sync threshold, and opt-ins for a custom voice-
+// activity detector and always-on headphone routing. Passed to XHVEngineCreate.
 typedef struct _XHV_RUNTIME_PARAMS 
 {
     DWORD                                 dwMaxRemoteTalkers;
@@ -173,6 +187,12 @@ typedef struct XHVEngine                 *LPXHVENGINE, *PXHVENGINE;
 //
 //-----------------------------------------------------------------------------
 
+// Title-implemented callback interface. The engine calls these on the title:
+// LocalChatDataReady hands back a compressed local voice packet to send over the
+// network; CommunicatorStatusUpdate reports headset insert/remove; SpeechRecognized
+// delivers recognition results; MicrophoneRawDataReady exposes raw mic PCM (and
+// lets the title report voice detection); the VoiceMail* callbacks signal recording
+// progress. Register it with SetCallbackInterface; unwanted methods may return E_NOTIMPL.
 #undef INTERFACE
 #define INTERFACE ITitleXHV
 
@@ -279,6 +299,12 @@ typedef struct ITitleXHV                       *LPTITLEXHV, *PTITLEXHV;
 //
 //-----------------------------------------------------------------------------
 
+// The high-level voice engine. Pump DoWork each frame. Register local talkers by
+// controller port and remote talkers by XUID; feed received network packets via
+// SubmitIncomingVoicePacket; route each remote talker to local players through
+// mixbin mapping, volumes, and playback priority. Also drives voice masks, speech
+// recognition (vocabulary banks), and voice mail. Every method is available both
+// as a C free function (XHVEngine_*) and as a member here.
 #ifdef __cplusplus
 
 struct XHVEngine
@@ -572,6 +598,8 @@ XHVINLINE HRESULT WINAPI IXHVEngine::VoiceMailStop( DWORD dwLocalPort)
 //
 //-----------------------------------------------------------------------------
 
+// Create the single XHV engine from the runtime parameters. This is the only
+// standalone entry point; everything else is reached through the returned engine.
 XBOXAPI
 HRESULT
 WINAPI

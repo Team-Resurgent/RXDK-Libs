@@ -1,9 +1,22 @@
-//
-//
-// Xbox debug interface functions
-// Copyright Microsoft Corporation 2000 - 2001. All Rights Reserved.
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xbdm.h - the Xbox Debug Monitor (XBDM) interface.
+ *
+ * Public surface of the on-console debug monitor (libxbdm), the service a
+ * remote debugger / dev-kit tool talks to and that a title can drive in-process
+ * on a debug kit. Covers stop/go and breakpoint control, thread and module
+ * enumeration, memory read/write, notification sessions (DM_* events), custom
+ * command and notification processors, profiling and performance counters,
+ * allocation tracking, user/security management, and the XBDM_* HRESULT codes.
+ * DMAPI functions are no-ops (or fail) on a retail console with no debug
+ * monitor present. Only meaningful on a development kit.
+ */
+
 #ifndef _XBDM_H
 #define _XBDM_H
 
@@ -145,7 +158,10 @@ typedef struct _DMN_PROFINT {
     DWORD SegCs;
 } DMN_PROFINT, *PDMN_PROFINT;
 
-// Notification
+// Notification sessions. Open a session, then register a handler with DmNotify
+// to be called back when a debug event (DM_* notification type) fires. dwFlags:
+// DM_PERSISTENT keeps the session across reboots, DM_DEBUGSESSION marks it a
+// debugger, DM_ASYNCSESSION delivers on a worker rather than the stopped thread.
 #define DM_PERSISTENT 1
 #define DM_DEBUGSESSION 2
 #define DM_ASYNCSESSION 4
@@ -203,7 +219,9 @@ DMHRAPI DmStopOn(DWORD dwStopFlags, BOOL fStop);
 #define DMBOOT_STOP 8
 DMHRAPI DmReboot(DWORD dwFlags);
 
-// memory
+// Read/write title memory through the debug monitor. cb bytes are copied to/from
+// lpbBuf; pcbRet (optional) receives the count actually transferred, which is
+// short if the range crosses unmapped memory.
 DMHRAPI DmGetMemory(LPCVOID lpbAddr, DWORD cb, LPVOID lpbBuf,
     LPDWORD pcbRet);
 DMHRAPI DmSetMemory(LPVOID lpbAddr, DWORD cb, LPCVOID lpbBuf,

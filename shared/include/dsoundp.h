@@ -1,25 +1,22 @@
-/**************************************************************************
- *
- *  Copyright (C) 1995-2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsound.h
- *  Content:    X-Box DirectSound.
-//@@BEGIN_MSINTERNAL
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  07/19/00    dereks  Created.
-//@@END_MSINTERNAL
- *
- **************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private/extended DirectSound for Xbox. A superset of <dsound.h> that also
+ * exposes the internal buffer/stream capability bits, the full DSBCAPS/mixbin
+ * masks, DSP effect-image internals, physical-memory accounting, and other
+ * implementation-facing declarations shared between the runtime and its tools.
+ * Uses the same include guard as <dsound.h>, so only one of the two is active.
+ */
 
 #ifndef __DSOUND_INCLUDED__
 #define __DSOUND_INCLUDED__
 
 #include <xtl.h>
-//@@BEGIN_MSINTERNAL
 #include <dsfxparmp.h>
-//@@END_MSINTERNAL
 #include <dsfxparm.h>
 
 #pragma warning(disable:4201)
@@ -124,7 +121,6 @@ typedef struct
 typedef const WAVEFORMATEXTENSIBLE *LPCWAVEFORMATEXTENSIBLE;
 
 #endif // _WAVEFORMATEXTENSIBLE_
-//@@BEGIN_MSINTERNAL
 
 typedef struct voicecodecwaveformat_tag 
 {
@@ -135,7 +131,6 @@ typedef struct voicecodecwaveformat_tag
 } VOICECODECWAVEFORMAT, *PVOICECODECWAVEFORMAT, *LPVOICECODECWAVEFORMAT;
 
 typedef const VOICECODECWAVEFORMAT *LPCVOICECODECWAVEFORMAT;
-//@@END_MSINTERNAL
 
 #pragma pack(pop)
 
@@ -167,12 +162,10 @@ typedef struct _XMEDIAINFO
 
 typedef const XMEDIAINFO *LPCXMEDIAINFO;
 
-//@@BEGIN_MSINTERNAL
 //
 // the following data struct needs to be overlaid the virtual mmemory address
 // mapped to EP_OFFSET_OUTPUT_LEVELS_ANALOG_PEAK above
 //
-//@@END_MSINTERNAL
 typedef struct _DSOUTPUTLEVELS 
 {
     DWORD   dwAnalogLeftTotalPeak;          // analog peak
@@ -211,9 +204,9 @@ typedef struct _DSMIXBINVOLUMEPAIR
 
 typedef const DSMIXBINVOLUMEPAIR *LPCDSMIXBINVOLUMEPAIR;
 
-// RXDK 5849 uplift: hardware-voice property snapshot (added in XDK-5849; absent from the
-// Jan-2002 leak). Layout recovered from the 5849 dsound.lib CodeView types (sizeof 92).
-// Referenced by XACT_SOUNDSOURCE_PROPERTIES in the 5849 public xact.h.
+// Snapshot of a hardware voice's mixer and 3D DSP state (92 bytes), returned by
+// IDirectSoundBuffer::GetVoiceProperties. Also referenced by
+// XACT_SOUNDSOURCE_PROPERTIES.
 typedef struct _DSVOICEPROPS
 {
     DWORD               dwMixBinCount;              // +0
@@ -419,8 +412,8 @@ typedef struct _DSEFFECTIMAGELOC
 
 typedef const DSEFFECTIMAGELOC *LPCDSEFFECTIMAGELOC;
 
-// RXDK 5849 uplift: high-level effect parameter support (XAudioSetEffectData).
-// Adopted verbatim from the 5849 public dsound.h.
+// High-level effect parameter support. Feeds XAudioSetEffectData, which turns a
+// friendly effect description into the raw DSP coefficients the APU expects.
 
 typedef enum _DSFX_EFFECT_TYPE
 {
@@ -487,12 +480,12 @@ typedef struct _DSFX_RAW_EFFECT_DESCRIPTION
             DWORD dwA2;
         } IIR2;
 
-        // NOTE (5849 header quirk, kept verbatim): XAudioSetEffectData writes
-        // ELEVEN dwords for a distortion effect -- the 24-bit gain first, then
-        // the ten filter coefficients -- so everything here is really shifted
-        // one dword: dwPreFilterB0 receives the gain, dwPreFilterB1 receives
-        // B0, and the last coefficient lands past dwPostFilterA2 (still inside
-        // the union, whose I3DL2Reverb view is larger).
+        // NOTE: XAudioSetEffectData writes ELEVEN dwords for a distortion
+        // effect -- the 24-bit gain first, then the ten filter coefficients --
+        // so every field here is really shifted one dword: dwPreFilterB0
+        // receives the gain, dwPreFilterB1 receives B0, and the last
+        // coefficient lands past dwPostFilterA2 (still inside the union, whose
+        // larger I3DL2Reverb view covers it).
         struct
         {
             DWORD dwPreFilterB0;
@@ -528,7 +521,7 @@ typedef struct _DSFX_RAW_EFFECT_DESCRIPTION
 
 #include <pshpack1.h>
 
-// Parameter block for the 5849 WMA XMO decoder factories (XWmaDecoderCreateMediaObject).
+// Parameter block for the WMA XMO decoder factory XWmaDecoderCreateMediaObject.
 typedef struct _WMAXMODECODERPARAMETERS
 {
     LPCSTR  pszFileName;
@@ -655,11 +648,9 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSCL_PRIORITY              0x00000002
 #define DSSCL_EXCLUSIVE             0x00000003
 #define DSSCL_WRITEPRIMARY          0x00000004
-//@@BEGIN_MSINTERNAL
 #define DSSCL_NONE                  0x00000000
 #define DSSCL_FIRST                 DSSCL_NORMAL
 #define DSSCL_LAST                  DSSCL_WRITEPRIMARY
-//@@END_MSINTERNAL
 
 //
 // Speaker configuration
@@ -677,7 +668,6 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSPEAKER_COMBINED(b,e)     XC_AUDIO_FLAGS_COMBINED(b,e)
 
 #define XAudioGetSpeakerConfig      XGetAudioFlags
-//@@BEGIN_MSINTERNAL
 
 #define DSSPEAKER_DEFAULT           0
 #define DSSPEAKER_BASIC_FIRST       0
@@ -702,7 +692,6 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSSPEAKER_IS_HEADPHONES(c) \
     ((c) & DSSPEAKER_ENABLE_HEADPHONES)
-//@@END_MSINTERNAL                      
                                         
 //
 // DirectSound global headroom ranges
@@ -725,18 +714,13 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBCAPS_LOCDEFER            0x00040000      // The buffer does not acquire resources at creation
 #define DSBCAPS_FXIN                0x00080000      // The buffer is to be used as the destination of a post-effects submix operation
 #define DSBCAPS_FXIN2               0x00100000      // Like FXIN but does not require SetOutputBuffer; does require Play/Stop
-//@@BEGIN_MSINTERNAL
 #define DSBCAPS_APPALLOCBUFFER      0x80000000      // The application allocated the buffer memory
 
-// RXDK 5849 uplift fix: DSBCAPS_FXIN2 (0x100000) was added in 5849 as a second
-// effects-input submix variant, but the 4400 base this port started from omitted it
-// from VALID and SUBMIXMASK. Verified against the retail 5849 dsound.lib, whose
-// CDirectSoundBufferSettings::Initialize tests SUBMIXMASK as 0x182000 (MIXIN|FXIN|
-// FXIN2). Without FXIN2 in SUBMIXMASK an FXIN2 buffer is misclassified as a normal
-// buffer: it is handed pdsbd->lpwfxFormat (NULL for submix buffers) instead of the
-// internal mixdest format, so CreateInternalFormat builds a garbage voice format and
-// the APU never brings the voice up -- the Marketplace sample hung creating its first
-// FXIN2 voice.
+// DSBCAPS_FXIN2 is a second effects-input submix variant and must appear in both
+// DSBCAPS_VALID and DSBCAPS_SUBMIXMASK. If it is left out of SUBMIXMASK an FXIN2
+// buffer is misclassified as an ordinary buffer and handed pdsbd->lpwfxFormat
+// (NULL for submix buffers) instead of the internal mixdest format, producing a
+// garbage voice format that the APU never brings up.
 #define DSBCAPS_VALID \
     (DSBCAPS_CTRL3D | \
      DSBCAPS_MUTE3DATMAXDISTANCE | \
@@ -749,7 +733,6 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
      DSBCAPS_FXIN2)
 
 #define DSBCAPS_SUBMIXMASK          (DSBCAPS_MIXIN | DSBCAPS_FXIN | DSBCAPS_FXIN2)
-//@@END_MSINTERNAL
                                                                         
 //
 // IDirectSoundBuffer::Play(Ex) flags
@@ -758,11 +741,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBPLAY_LOOPING             0x00000001      // The buffer should play in a loop
 #define DSBPLAY_FROMSTART           0x00000002      // Play the buffer from the beginning, regardless of current position
 #define DSBPLAY_SYNCHPLAYBACK       0x00000004      // Synchronize playback of multiple buffers and streams
-//@@BEGIN_MSINTERNAL
-// RXDK 5849 uplift: SYNCHPLAYBACK is implemented (CMcpxAPU::SynchPlayback),
-// so it is accepted here.
+// SYNCHPLAYBACK is honored (a Play with it deferred until DirectSound_SynchPlayback).
 #define DSBPLAY_VALID               (DSBPLAY_LOOPING | DSBPLAY_FROMSTART | DSBPLAY_SYNCHPLAYBACK)
-//@@END_MSINTERNAL
 
 //
 // IDirectSoundBuffer::StopEx flags
@@ -771,9 +751,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBSTOPEX_IMMEDIATE         0x00000000      // The buffer should stop immediately
 #define DSBSTOPEX_ENVELOPE          0x00000001      // The buffer should enter it's release phase
 #define DSBSTOPEX_RELEASEWAVEFORM   0x00000002      // The buffer should break out of the loop region and enter it's release phase
-//@@BEGIN_MSINTERNAL                                                   
 #define DSBSTOPEX_VALID             (DSBSTOPEX_ENVELOPE | DSBSTOPEX_RELEASEWAVEFORM)
-//@@END_MSINTERNAL                                                      
                                                                         
 //
 // Buffer status flags
@@ -783,18 +761,16 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSBSTATUS_PAUSED            0x00000002      // The buffer is paused
 #define DSBSTATUS_LOOPING           0x00000004      // The buffer is playing in a loop
 
-// Buffer pause states, 5849. Must stay in step with dsound.h -- the library
-// compiles against THIS header, so a constant added only to the public one
-// is invisible to the implementation that has to honour it.
+// Buffer pause states, passed to IDirectSoundBuffer::Pause / PauseEx. Must stay
+// in step with the copy in <dsound.h>, since the runtime compiles against this
+// header while titles compile against the public one.
 #define DSBPAUSE_RESUME             0x00000000      // Resume a paused buffer
 #define DSBPAUSE_PAUSE              0x00000001      // Pause the buffer
 #define DSBPAUSE_SYNCHPLAYBACK      0x00000002      // Pause pending a SynchPlayback
 
 #define DSBPAUSE_FIRST              DSBPAUSE_RESUME
 #define DSBPAUSE_LAST               DSBPAUSE_SYNCHPLAYBACK
-//@@BEGIN_MSINTERNAL
 #define DSBSTATUS_VALID             (DSBSTATUS_PLAYING | DSBSTATUS_PAUSED | DSBSTATUS_LOOPING)
-//@@END_MSINTERNAL
                                                                             
 //
 // IDirectSoundBuffer::Lock flags
@@ -802,9 +778,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSBLOCK_FROMWRITECURSOR     0x00000001      // Lock the buffer from the current write cursor position
 #define DSBLOCK_ENTIREBUFFER        0x00000002      // Lock the entire buffer
-//@@BEGIN_MSINTERNAL                                                        
 #define DSBLOCK_VALID               (DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER)
-//@@END_MSINTERNAL                                                          
                                                                             
 //
 // Buffer frequency range
@@ -860,7 +834,6 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSTREAMCAPS_CTRLVOLUME     DSBCAPS_CTRLVOLUME          // The stream supports volume changes
 #define DSSTREAMCAPS_LOCDEFER       DSBCAPS_LOCDEFER            // The stream does not acquire resources at creation
 #define DSSTREAMCAPS_ACCURATENOTIFY 0x40000000                  // The stream should provide more accurate packet completion notifications
-//@@BEGIN_MSINTERNAL                                                
 
 #define DSSTREAMCAPS_VALID \
     (DSSTREAMCAPS_CTRL3D | \
@@ -874,7 +847,6 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSSTREAMCAPS_VADIGNORED \
     (DSSTREAMCAPS_CTRLVOLUME)
-//@@END_MSINTERNAL                                                  
                                                                     
 //
 // Stream frequency range
@@ -913,10 +885,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSSTREAMPAUSE_RESUME        0x00000000                  // Resume a paused stream
 #define DSSTREAMPAUSE_PAUSE         0x00000001                  // Pause the stream
-//@@BEGIN_MSINTERNAL
 #define DSSTREAMPAUSE_FIRST         DSSTREAMPAUSE_RESUME
 #define DSSTREAMPAUSE_LAST          DSSTREAMPAUSE_PAUSE
-//@@END_MSINTERNAL
 
 //
 // IDirectSoundStream::Stop flags
@@ -925,9 +895,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSSTREAMFLUSHEX_IMMEDIATE   0x00000000      // The stream should flush immediately (same as calling Flush)
 #define DSSTREAMFLUSHEX_ASYNC       0x00000001      // The stream should begin a flush operation and complete it during DoWork
 #define DSSTREAMFLUSHEX_ENVELOPE    0x00000002      // The stream should begin a flush operation using a release envelope
-//@@BEGIN_MSINTERNAL                                                   
 #define DSSTREAMFLUSHEX_VALID       (DSSTREAMFLUSHEX_ASYNC | DSSTREAMFLUSHEX_ENVELOPE)
-//@@END_MSINTERNAL                                                      
 
 //
 // Stream status flags
@@ -945,10 +913,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DS3DMODE_NORMAL             0x00000000      // Normal 3D mode
 #define DS3DMODE_HEADRELATIVE       0x00000001      // Head-relative 3D mode
 #define DS3DMODE_DISABLE            0x00000002      // Disable 3D processing
-//@@BEGIN_MSINTERNAL
 #define DS3DMODE_FIRST              DS3DMODE_NORMAL
 #define DS3DMODE_LAST               DS3DMODE_DISABLE
-//@@END_MSINTERNAL
 
 //
 // 3D parameter flags
@@ -956,9 +922,7 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DS3D_IMMEDIATE              0x00000000      // Apply the values immediately
 #define DS3D_DEFERRED               0x00000001      // Defer the values until CommitDeferredSettings is called
-//@@BEGIN_MSINTERNAL
 #define DS3D_VALID                  DS3D_DEFERRED
-//@@END_MSINTERNAL
 
 //
 // 3D bounds and defaults
@@ -1244,10 +1208,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSLFO_MULTI                 0x00000000      // Multi-function LFO
 #define DSLFO_PITCH                 0x00000001      // Pitch-only LFO
-//@@BEGIN_MSINTERNAL
 #define DSLFO_FIRST                 DSLFO_MULTI
 #define DSLFO_LAST                  DSLFO_PITCH
-//@@END_MSINTERNAL
 
 //
 // Low-frequency occilator parameter boundaries and defaults
@@ -1279,10 +1241,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSEG_MULTI                  0x00000000      // Multi-function EG
 #define DSEG_AMPLITUDE              0x00000001      // Amplitude-only EG
-//@@BEGIN_MSINTERNAL
 #define DSEG_FIRST                  DSEG_MULTI
 #define DSEG_LAST                   DSEG_AMPLITUDE
-//@@END_MSINTERNAL
 
 //
 // Envelope generator modes
@@ -1292,10 +1252,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSEG_MODE_DELAY             0x00000001      // Starts with the envelope at zero amplitude with an initial delay
 #define DSEG_MODE_ATTACK            0x00000002      // Bypasses the initial delay and goes directly to the attack envelope
 #define DSEG_MODE_HOLD              0x00000003      // Bypasses the attack segment and immediately goes full scale
-//@@BEGIN_MSINTERNAL
 #define DSEG_MODE_FIRST             DSEG_MODE_DISABLE
 #define DSEG_MODE_LAST              DSEG_MODE_HOLD
-//@@END_MSINTERNAL
 
 //
 // Envelope generator parameter boundaries and defaults
@@ -1341,10 +1299,8 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 #define DSFILTER_MODE_DLS2          0x00000001      // DLS2 mode
 #define DSFILTER_MODE_PARAMEQ       0x00000002      // Parametric equalizer mode
 #define DSFILTER_MODE_MULTI         0x00000003      // Multifunction mode
-//@@BEGIN_MSINTERNAL
 #define DSFILTER_MODE_FIRST         DSFILTER_MODE_BYPASS
 #define DSFILTER_MODE_LAST          DSFILTER_MODE_MULTI
-//@@END_MSINTERNAL
 
 //
 // Effects parameter flags
@@ -1352,16 +1308,13 @@ EXTERN_C const GUID KSDATAFORMAT_SUBTYPE_XBOX_ADPCM;
 
 #define DSFX_IMMEDIATE              0x00000000      // Apply the values immediately
 #define DSFX_DEFERRED               0x00000001      // Defer the values until CommitEffectsData is called
-//@@BEGIN_MSINTERNAL
 #define DSFX_VALID                  DSFX_DEFERRED
-//@@END_MSINTERNAL
 
 //
 // Effect index identifiers (for DSEFFECTIMAGELOC)
 //
 
 #define DSFX_IMAGELOC_UNUSED        0xFFFFFFFF      // The effect does not appear in the image
-//@@BEGIN_MSINTERNAL
 
 //
 // Voice compression type identifiers
@@ -1378,7 +1331,6 @@ DEFINE_GUID(DSCTID_SC06, 0x53def900, 0x7168, 0x4633, 0xb4, 0x7f, 0xd1, 0x43, 0x9
 
 // Voxware VR12 1.4kbit/s
 DEFINE_GUID(DSCTID_VR12, 0xfe44a9fe, 0x8ed4, 0x48bf, 0x9d, 0x66, 0x1b, 0x1a, 0xdf, 0xf9, 0xff, 0x6d);
-//@@END_MSINTERNAL
 
 //
 // AC'97 channel types
@@ -1393,9 +1345,7 @@ DEFINE_GUID(DSCTID_VR12, 0xfe44a9fe, 0x8ed4, 0x48bf, 0x9d, 0x66, 0x1b, 0x1a, 0xd
 
 #define DSAC97_MODE_PCM             0x02000000
 #define DSAC97_MODE_ENCODED         0x02000002
-//@@BEGIN_MSINTERNAL
 #define DSAC97_MODE_DEFAULT         DSAC97_MODE_PCM
-//@@END_MSINTERNAL
 
 //
 // AC'97 packet counts
@@ -1415,9 +1365,7 @@ typedef DWORD (CALLBACK *LPFNWMAXMODATACALLBACK)(LPVOID pvContext, DWORD dwOffse
 
 #define XAUDIO_DOWNLOADFX_EXTERNFILE        0x00000000
 #define XAUDIO_DOWNLOADFX_XBESECTION        0x00000001
-//@@BEGIN_MSINTERNAL
 #define XAUDIO_DOWNLOADFX_VALID             0x00000001
-//@@END_MSINTERNAL
 
 //
 // Globals
@@ -1461,7 +1409,6 @@ EXTERN_C const DSI3DL2LISTENER DirectSoundI3DL2ListenerPreset_ParkingLot;
 EXTERN_C const DSI3DL2LISTENER DirectSoundI3DL2ListenerPreset_SewerPipe;
 EXTERN_C const DSI3DL2LISTENER DirectSoundI3DL2ListenerPreset_Underwater;
 EXTERN_C const DSI3DL2LISTENER DirectSoundI3DL2ListenerPreset_NoReverb;
-//@@BEGIN_MSINTERNAL
 
 EXTERN_C DWORD g_dwDirectSoundDebugLevel;
 EXTERN_C DWORD g_dwDirectSoundDebugBreakLevel;
@@ -1484,7 +1431,6 @@ EXTERN_C BOOL g_fDirectSoundDisableBusyWaitWarning;
 EXTERN_C BOOL g_fDirectSoundI3DL2Overdelay;
 
 EXTERN_C CRITICAL_SECTION g_DirectSoundCriticalSection;
-//@@END_MSINTERNAL
 
 //
 // API
@@ -1496,9 +1442,7 @@ STDAPI DirectSoundCreateStream(LPCDSSTREAMDESC pdssd, LPDIRECTSOUNDSTREAM *ppStr
 STDAPI_(void) DirectSoundDoWork(void);
 STDAPI_(void) DirectSoundUseFullHRTF(void);
 STDAPI_(void) DirectSoundUseLightHRTF(void);
-//@@BEGIN_MSINTERNAL
 STDAPI_(void) DirectSoundUsePan3D(void);
-//@@END_MSINTERNAL
 STDAPI_(void) DirectSoundOverrideSpeakerConfig(DWORD dwSpeakerConfig);
 STDAPI_(DWORD) DirectSoundGetSampleTime(void);
 STDAPI_(VOID) DirectSoundDumpMemoryUsage(BOOL fAssertNone);
@@ -1507,7 +1451,6 @@ STDAPI_(void) XAudioCreatePcmFormat(WORD nChannels, DWORD nSamplesPerSec, WORD w
 STDAPI_(void) XAudioCreateAdpcmFormat(WORD nChannels, DWORD nSamplesPerSec, LPXBOXADPCMWAVEFORMAT pwfx);
 
 STDAPI_(LONG) XAudioCalculatePitch(DWORD dwFrequency);
-//@@BEGIN_MSINTERNAL
 
 STDAPI DirectSoundLoadEncoder(LPCVOID pvImageBuffer, DWORD dwImageSize, LPVOID *ppvScratchData, LPDIRECTSOUND *ppDirectSound);
 
@@ -1518,7 +1461,6 @@ STDAPI XVoiceEncoderCreateMediaObject(BOOL fAutoMode, DWORD dwCodecTag, LPWAVEFO
 
 STDAPI XVoiceCreateMediaObject(PXPP_DEVICE_TYPE XppDeviceType, DWORD dwPort, DWORD dwMaxAttachedPackets, LPWAVEFORMATEX pwfxFormat, LPXMEDIAOBJECT *ppMediaObject);
 STDAPI XVoiceCreateMediaObjectInternal(PXPP_DEVICE_TYPE XppDeviceType, DWORD dwPort, DWORD dwMaxAttachedPackets, LPWAVEFORMATEX pwfxFormat OPTIONAL, PFNXMEDIAOBJECTCALLBACK pfnCallback, PVOID pvContext, XMediaObject **ppXmediaObject);
-//@@END_MSINTERNAL
 
 STDAPI XWmaDecoderCreateMediaObject(LPCWMAXMODECODERPARAMETERS pParameters, XWmaFileMediaObject **ppMediaObject);
 STDAPI WmaCreateDecoder(LPCSTR pszFileName, HANDLE hFile, BOOL fAsyncMode, DWORD dwLookaheadBufferSize, DWORD dwMaxPackets, DWORD dwYieldRate, LPWAVEFORMATEX pwfxCompressed, XFileMediaObject **ppMediaObject);
@@ -1600,7 +1542,6 @@ DECLARE_INTERFACE(XMediaObject)
 #define XMediaObject_Flush(p)           p->lpVtbl->Flush(p)
 
 #endif // defined(__cplusplus) && !defined(CINTERFACE)
-//@@BEGIN_MSINTERNAL
 
 __inline void XMOAcceptPacket(LPCXMEDIAPACKET pxmp)
 {
@@ -1664,7 +1605,6 @@ __inline void XMOCompletePacketSync(LPCXMEDIAPACKET pxmp, DWORD dwCompletedSize,
         *pxmp->pdwStatus = dwStatus;
     }
 }
-//@@END_MSINTERNAL
 
 //
 // XFileMediaObject

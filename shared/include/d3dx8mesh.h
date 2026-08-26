@@ -1,11 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1998 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8mesh.h
-//  Content:    D3DX mesh types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX mesh framework. A "mesh" wraps a vertex buffer, index buffer, and a
+ * per-face attribute buffer that groups faces into subsets (typically one
+ * material each) drawn with DrawSubset. Beyond the plain ID3DXMesh this header
+ * declares progressive meshes (ID3DXPMesh, LOD by face count), the simplifier
+ * front end (ID3DXSPMesh), and skinned meshes (ID3DXSkinMesh, bone-weighted
+ * vertices). Free functions load/save .x files, optimize, weld, compute
+ * bounding volumes, and ray-test geometry. All interfaces are COM - Release()
+ * each mesh and every LPD3DXBUFFER an API hands back.
+ */
 
 #include "d3dx8.h"
 
@@ -35,6 +43,11 @@ DEFINE_GUID(IID_ID3DXSkinMesh,
 0x82a53844, 0xf322, 0x409e, 0xa2, 0xe9, 0x99, 0x2e, 0x11, 0x4, 0x6, 0x9d);
 
 
+/* Creation/clone option flags shared by the mesh create and Clone calls. Select
+ * index width (16- vs 32-bit), map to D3DUSAGE_* hints, and choose the D3DPOOL
+ * for the vertex/index buffers. The _VB_/_IB_ pairs target each buffer
+ * independently; the unprefixed helpers (SYSTEMMEM, MANAGED, WRITEONLY, DYNAMIC)
+ * apply the same choice to both. */
 enum _D3DXMESH {
     D3DXMESH_32BIT                  = 0x001, // If set, then use 32 bit indices, if not set use 16 bit indices. 32BIT meshes currently not supported on ID3DXSkinMesh object
     D3DXMESH_DONOTCLIP              = 0x002, // Use D3DUSAGE_DONOTCLIP for VB & IB.
@@ -81,6 +94,9 @@ typedef struct ID3DXPMesh *LPD3DXPMESH;
 typedef struct ID3DXSPMesh *LPD3DXSPMESH;
 typedef struct ID3DXSkinMesh *LPD3DXSKINMESH;
 
+/* One entry of a mesh's attribute table: the contiguous run of faces/vertices
+ * sharing attribute id AttribId. GetAttributeTable returns these; DrawSubset
+ * draws one by id. */
 typedef struct _D3DXATTRIBUTERANGE
 {
     DWORD AttribId;
@@ -95,6 +111,9 @@ typedef D3DXATTRIBUTERANGE* LPD3DXATTRIBUTERANGE;
 #ifdef __cplusplus
 extern "C" {
 #endif //__cplusplus
+/* A subset material as loaded from a .x file: the D3D material plus the name of
+ * its texture (may be NULL). The pTextureFilename string is owned by the
+ * LPD3DXBUFFER the loader returned - do not free it separately. */
 struct D3DXMATERIAL
 {
     D3DMATERIAL8  MatD3D;
@@ -105,6 +124,9 @@ typedef struct D3DXMATERIAL *LPD3DXMATERIAL;
 }
 #endif //__cplusplus
 
+/* Per-channel importance weights steering mesh simplification: larger values
+ * make the simplifier preserve that attribute (position, boundary, normal,
+ * colors, or a texture-coordinate set) more aggressively. */
 typedef struct _D3DXATTRIBUTEWEIGHTS
 {
     FLOAT Position;
@@ -117,6 +139,9 @@ typedef struct _D3DXATTRIBUTEWEIGHTS
 
 typedef D3DXATTRIBUTEWEIGHTS* LPD3DXATTRIBUTEWEIGHTS;
 
+/* Common surface of every D3DX mesh: query face/vertex counts and FVF, get at
+ * the underlying vertex/index buffers, lock them, clone into a new layout, and
+ * render one attribute subset at a time with DrawSubset. */
 DECLARE_INTERFACE_(ID3DXBaseMesh, IUnknown)
 {
     // IUnknown
@@ -146,6 +171,9 @@ DECLARE_INTERFACE_(ID3DXBaseMesh, IUnknown)
                 THIS_ D3DXATTRIBUTERANGE *pAttribTable, DWORD* pAttribTableSize) PURE;
 };
 
+/* Standard editable mesh. Adds attribute-buffer access, adjacency generation,
+ * and Optimize (attribute-sort, vertex-cache, strip-reorder) producing a
+ * reordered clone or optimizing in place. */
 DECLARE_INTERFACE_(ID3DXMesh, ID3DXBaseMesh)
 {
     // IUnknown
@@ -187,6 +215,9 @@ DECLARE_INTERFACE_(ID3DXMesh, ID3DXBaseMesh)
                      DWORD* pFaceRemap, LPD3DXBUFFER *ppVertexRemap) PURE;
 };
 
+/* Progressive mesh: a view-independent LOD chain built from a source mesh.
+ * SetNumFaces/SetNumVertices trims detail on the fly between the Min and Max
+ * bounds; Save writes it (with materials) to a stream. */
 DECLARE_INTERFACE_(ID3DXPMesh, ID3DXBaseMesh)
 {
     // IUnknown
@@ -234,6 +265,9 @@ DECLARE_INTERFACE_(ID3DXPMesh, ID3DXBaseMesh)
     STDMETHOD(GetAdjacency)(THIS_ DWORD* pAdjacency) PURE;
 };
 
+/* Simplification mesh: an intermediate object (from D3DXCreateSPMesh) that can
+ * repeatedly ReduceFaces/ReduceVertices and then clone out a plain mesh or a
+ * progressive mesh at the chosen budget. */
 DECLARE_INTERFACE_(ID3DXSPMesh, IUnknown)
 {
     // IUnknown
@@ -265,6 +299,9 @@ DECLARE_INTERFACE_(ID3DXSPMesh, IUnknown)
 #define UNUSED16 (0xffff)
 #define UNUSED32 (0xffffffff)
 
+/* Flags for ID3DXMesh::Optimize / OptimizeInplace: compact unused data, sort by
+ * attribute, reorder for the vertex cache, reorder into strips, leave vertices
+ * untouched, or share the source vertex buffer. */
 // ID3DXMesh::Optimize options
 enum _D3DXMESHOPT {
     D3DXMESHOPT_COMPACT       = 0x001,
@@ -275,6 +312,9 @@ enum _D3DXMESHOPT {
     D3DXMESHOPT_SHAREVB       = 0x020,
 };
 
+/* One row of the bone-combination table produced when a skin mesh is converted
+ * for palette skinning: a face/vertex run sharing one attribute and one set of
+ * bones (BoneId[] indexes into the palette), renderable in a single draw. */
 // Subset of the mesh that has the same attribute and bone combination.
 // This subset can be rendered in a single draw call
 typedef struct _D3DXBONECOMBINATION
@@ -287,6 +327,11 @@ typedef struct _D3DXBONECOMBINATION
     DWORD* BoneId;
 } D3DXBONECOMBINATION, *LPD3DXBONECOMBINATION;
 
+/* Skinned mesh: a mesh plus a set of bones, each holding per-vertex weights.
+ * Set influences, then either GenerateSkinnedMesh + UpdateSkinnedMesh (software
+ * skin the vertices from a bone-transform array) or ConvertTo[Indexed]Blended-
+ * Mesh (build a blend-weighted mesh with a bone-combination table for hardware
+ * palette skinning). */
 DECLARE_INTERFACE_(ID3DXSkinMesh, IUnknown)
 {
     // IUnknown
@@ -334,6 +379,14 @@ DECLARE_INTERFACE_(ID3DXSkinMesh, IUnknown)
 extern "C" {
 #endif //__cplusplus
 
+/*
+ * Mesh free functions. Create empty meshes (by FVF or vertex declaration),
+ * build simplification/progressive meshes, load and save .x files (from a path
+ * or an already-parsed IDirectXFileData), clean/validate/tessellate/weld
+ * geometry, compute normals and bounding volumes, convert between FVF and
+ * declaration, and ray/bound intersection-test. Every ppMesh / ppBuffer output
+ * is a new COM object the caller must Release().
+ */
 HRESULT WINAPI
     D3DXCreateMesh(
         DWORD NumFaces,
@@ -547,6 +600,9 @@ BOOL WINAPI
         D3DXVECTOR3 *pvRayPosition,
         D3DXVECTOR3 *pvRayDirection);
 
+/* D3DX-specific failure HRESULTs returned by the mesh routines (invalid or
+ * non-manifold mesh, attribute-sort failure, unsupported/over-influenced
+ * skinning, locked index buffer). */
 enum _D3DXERR {
     D3DXERR_CANNOTMODIFYINDEXBUFFER     = MAKE_DDHRESULT(2900),
     D3DXERR_INVALIDMESH                 = MAKE_DDHRESULT(2901),

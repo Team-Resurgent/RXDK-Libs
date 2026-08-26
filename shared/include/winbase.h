@@ -1,10 +1,24 @@
-/************************************************************************
-*                                                                       *
-*   winbase.h -- This module defines the 32-Bit Windows Base APIs       *
-*                                                                       *
-*   Copyright (c) 1990-2001, Microsoft Corp. All rights reserved.       *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * winbase.h - the Win32 base API surface RXDK provides on Xbox.
+ *
+ * The kernel32-style APIs a title links against, implemented in libxapi/libc
+ * over the Xbox kernel: file I/O (CreateFile/ReadFile/WriteFile, find, attrs),
+ * synchronization (events, mutexes, semaphores, waitable timers, the WaitFor*
+ * objects, critical-section and Interlocked* macros), threads and fibers
+ * (CreateThread, CreateFiber/SwitchToFiber, TLS), heap and Global/Local/Virtual
+ * memory, time (system/file time conversions, GetTickCount), lstr* string
+ * helpers, structured-exception hooks and OutputDebugString. Many entries are
+ * macros mapping onto the kernel's Rtl and Nt primitives. The ...A ANSI variants
+ * are the canonical names (Xbox never builds UNICODE). Behaviour and ABI are
+ * pinned to how libxapi was compiled - see the inline notes on fibers, CDECL
+ * and the Interlocked* intrinsics.
+ */
 
 #pragma once
 #define _WINBASE_

@@ -1,11 +1,18 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8tex.h
-//  Content:    D3DX texturing APIs
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX texturing helpers. Loads and color-converts image data into D3D
+ * surfaces, volumes, and 2D/cube/volume textures from files, resources, or
+ * memory; creates textures with validated parameters; and (re)builds mipmap
+ * chains. Filtering, color-key transparency, and palette handling are common to
+ * most calls. Note: the Xbox stores most textures swizzled/tiled, so these
+ * loaders lay pixels out in the NV2A's native order - do not assume a linear
+ * surface. Returned texture objects are COM; Release() when done.
+ */
 
 #include "d3dx8.h"
 

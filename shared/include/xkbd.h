@@ -1,4 +1,21 @@
-﻿#pragma once
+﻿/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xkbd.h - public USB debug-keyboard input for titles.
+ *
+ * Layers a buffered keystroke queue over the XID keyboard device: a title calls
+ * XInputDebugInitKeyboardQueue once, then polls XInputDebugGetKeystroke for
+ * XINPUT_DEBUG_KEYSTROKE records (virtual key, translated ASCII, and modifier /
+ * key-up / repeat flags). RXDK builds SINGLE_KEYBOARD_ONLY, so one shared queue
+ * serves every attached keyboard and the per-device handle is elided. The VK_*
+ * virtual-key constants are defined at the bottom of this file.
+ */
+
+#pragma once
 
 #include "xbox.h"
 

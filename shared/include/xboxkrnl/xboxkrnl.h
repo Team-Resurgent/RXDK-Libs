@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Top-level Xbox kernel header. Titles include this one header to obtain the
+ * whole kernel API surface: the shared type definitions plus every exported
+ * Nt/Ke/Ex/Mm/Io/Ob/Ps/Rtl/Hal/Av/Dbg/Xc/Xbox import. It also sets up the ABI
+ * pragmas (ms_struct packing, extern "C" linkage) and the IntelliSense shim so
+ * the same headers parse cleanly under both the clang build and the Visual
+ * Studio MSVC front-end.
+ */
+
 #ifndef _XBOXKRNL_H_
 #define _XBOXKRNL_H_
 

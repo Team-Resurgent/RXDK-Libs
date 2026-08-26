@@ -1,11 +1,19 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3d8types.h
- *  Content:    Xbox Direct3D types include file
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox Direct3D 8 type definitions: the enums, structs, and flag constants the
+ * rest of the API is expressed in. Covers the basic math types (D3DVECTOR,
+ * D3DMATRIX, D3DCOLORVALUE), render/texture-stage/transform state enums, the
+ * D3DFORMAT surface-format list, FVF vertex-format flags, vertex/pixel shader
+ * token encodings, resource-description structs, and Xbox-only extensions
+ * (color-key, logic op, tiling, copy-rect). This is the Xbox variant of the D3D8
+ * SDK header - many desktop states are absent (see the "not supported on Xbox"
+ * notes) and Xbox-specific ones are added, tagged "Xbox extension".
+ */
 
 #ifndef _D3D8TYPES_H_
 #define _D3D8TYPES_H_
@@ -79,6 +87,9 @@ typedef struct _D3DRECT {
 #define D3DRECT_DEFINED
 #endif
 
+/* 4x4 transform matrix, row-major: _ij is row i, column j, and m[row][col] is
+ * the same storage. D3D applies it as row-vector * matrix, so translation lives
+ * in row 4 (_41,_42,_43). */
 #ifndef D3DMATRIX_DEFINED
 typedef struct _D3DMATRIX {
     union {
@@ -361,6 +372,9 @@ typedef enum _D3DPRIMITIVETYPE {
     D3DPT_FORCE_DWORD           = 0x7fffffff, /* force 32-bit size enum */
 } D3DPRIMITIVETYPE;
 
+/* Selects which matrix SetTransform/GetTransform target: the view, projection,
+ * per-stage texture matrices, and the world matrices (world 0..3 for vertex
+ * blending). Use D3DTS_WORLDMATRIX(i) for indexed world matrices. */
 typedef enum _D3DTRANSFORMSTATETYPE {
     D3DTS_VIEW          = 0,
     D3DTS_PROJECTION    = 1,
@@ -379,6 +393,12 @@ typedef enum _D3DTRANSFORMSTATETYPE {
 
 #define D3DTS_WORLDMATRIX(index) (D3DTRANSFORMSTATETYPE)(index + D3DTS_WORLD)
 
+/* Identifiers for SetRenderState/GetRenderState - the global fixed-function and
+ * pixel-pipeline knobs (blending, depth/stencil, fog, culling, alpha test,
+ * point sprites, and the Xbox pixel-shader combiner inputs). The values are
+ * dense and partitioned into ranges (the D3DRS_*_MIN/_MAX markers bound each
+ * group); many desktop states are absent on Xbox and several here are Xbox
+ * extensions. */
 typedef enum _D3DRENDERSTATETYPE {
 
     // Simple render states that are processed by D3D immediately:
@@ -823,7 +843,13 @@ typedef enum _D3DTEXTUREFILTERTYPE
 #define D3DMAXNUMPRIMITIVES  ((1<<16) - 1)
 
 //-------------------------------------------------------------------
-// Flexible vertex format bits
+// Flexible vertex format (FVF) bits
+//
+// OR these together to describe a vertex layout: one position type
+// (D3DFVF_XYZ, D3DFVF_XYZRHW, or D3DFVF_XYZBn for n blend weights), optional
+// normal/diffuse/specular, and a texture-coordinate-set count encoded in the
+// TEXCOUNT field (D3DFVF_TEX0..TEX4, shifted by D3DFVF_TEXCOUNT_SHIFT). Passed
+// to SetVertexShader and used by D3DX helpers to compute vertex stride.
 //
 #define D3DFVF_RESERVED0        0x001
 #define D3DFVF_POSITION_MASK    0x00E
@@ -1650,6 +1676,15 @@ typedef enum _D3DMULTISAMPLEMODE
 //    : to make the mapping to the NV internal format value easier.
 //    : Most noteably is that D3DFMT_UNKNOWN is no longer zero.
 //
+/*
+ * Surface / texture pixel formats. The values are the NV2A hardware format codes
+ * (not the desktop D3D8 enum), so D3DFMT_UNKNOWN is 0xFFFFFFFF, not 0. Formats
+ * fall into families: swizzled (the default GPU-native layout, dimensions must
+ * be powers of two), LIN_* linear (row-major, needed for lockable/CPU-touched
+ * or non-pow2 surfaces), the DXT1/2/3/4/5 block-compressed formats, depth /
+ * stencil formats, and packed YUV. Choose a LIN_* variant whenever the CPU must
+ * read or write the pixels directly.
+ */
 typedef enum _D3DFORMAT
 {
     D3DFMT_UNKNOWN              = 0xFFFFFFFF,
@@ -1855,6 +1890,11 @@ typedef DWORD D3DPOOL;
 #define D3DPRESENT_RATE_UNLIMITED       0x00000000
 
 
+/* Describes the swap chain requested at CreateDevice / Reset: back-buffer size,
+ * format and count, multisample mode, swap effect, and the optional auto depth/
+ * stencil buffer. On Xbox the "Windowed"/hDeviceWindow fields are vestigial
+ * (output is always full screen); refresh rate and presentation interval select
+ * the video mode and vsync behavior. */
 /* Reset and CreateDevice Parameters */
 typedef struct _D3DPRESENT_PARAMETERS_
 {
@@ -1987,6 +2027,8 @@ typedef struct _D3DINDEXBUFFER_DESC
 } D3DINDEXBUFFER_DESC;
 
 
+/* Filled by IDirect3DSurface8::GetDesc: pixel Format, resource Type, Usage
+ * flags, byte Size of the surface data, multisample mode, and dimensions. */
 /* Surface Description */
 typedef struct _D3DSURFACE_DESC
 {
@@ -2012,6 +2054,9 @@ typedef struct _D3DVOLUME_DESC
     UINT                Depth;
 } D3DVOLUME_DESC;
 
+/* Result of IDirect3D*::LockRect: pBits points at the (top-left of the) locked
+ * pixels and Pitch is the byte stride between rows. For a swizzled surface the
+ * data is in GPU-native order, not a simple linear image. */
 /* Structure for LockRect */
 typedef struct _D3DLOCKED_RECT
 {
@@ -2181,6 +2226,12 @@ typedef struct _D3DSTREAM_INPUT                 // Xbox extension
 #define D3DTILE_PITCH_C000          0xC000
 #define D3DTILE_PITCH_E000          0xE000
 
+/* Configures one of the NV2A's tiled-memory regions (SetTile). A tiled region
+ * lets the GPU access a block of video/AGP memory in an accelerated tiled
+ * layout: pMemory/Size give the region, Pitch is one of the fixed D3DTILE_PITCH_*
+ * strides, and the Z fields set up the depth-compression tags. The base address
+ * and size must meet the hardware tile alignment (D3DTILE_ALIGNMENT); a
+ * misaligned region wedges the GPU. */
 /* SetTile struct */
 typedef struct _D3DTILE                         // Xbox extension
 {                   

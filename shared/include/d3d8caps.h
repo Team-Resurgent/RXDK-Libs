@@ -1,11 +1,18 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3d8caps.h
- *  Content:    Direct3D capabilities include file
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Direct3D 8 device capabilities. Defines D3DCAPS8 (returned by
+ * GetDeviceCaps) and the bit-flag constants for its DWORD cap fields. On Xbox
+ * the hardware is fixed (a single NV2A GPU), so these caps are effectively
+ * constant rather than something to branch on for portability - they are mainly
+ * useful for querying concrete limits (max texture size, shader versions, blend
+ * stages, etc.). The D3D*CAPS_* families below map to the like-named struct
+ * members (RasterCaps <- D3DPRASTERCAPS_*, TextureCaps <- D3DPTEXTURECAPS_*, ...).
+ */
 
 #ifndef _D3D8CAPS_H
 #define _D3D8CAPS_H
@@ -16,6 +23,9 @@
 
 #pragma pack(4)
 
+/* Hardware capability report for a Direct3D 8 device: identity, feature-bit
+ * fields (each decoded by a D3D*CAPS_* group below), and hard limits (texture
+ * dimensions, primitive/vertex counts, stream limits, shader versions). */
 typedef struct _D3DCAPS8
 {
     /* Device Info */

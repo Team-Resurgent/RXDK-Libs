@@ -1,11 +1,17 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       decoder.h
- *  Content:    The main definitions for the XMV decoder.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XMV video playback. Declares the XMVDecoder object and its API for playing
+ * Xbox Media Video files, either from a file or from a caller-fed packet stream.
+ * Two playback modes: XMVDecoder_Play blocks and blits frames to a D3D overlay,
+ * while XMVDecoder_GetNextFrame drives frame-by-frame decode into a caller
+ * surface. Also covers audio-stream selection (including ADPCM 5.1 tri-stream
+ * sets), A/V synchronization, and video/audio descriptors.
+ */
 
 #pragma once
 

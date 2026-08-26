@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8core.h
-//  Content:    D3DX core types and functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX core helper objects: ID3DXBuffer (a self-sizing blob returned by other
+ * D3DX calls), ID3DXSprite (2D screen-space textured-quad batcher), and the
+ * render-to-surface / render-to-environment-map helpers, plus small utilities
+ * such as FVF vertex sizing and HRESULT-to-string. All interfaces are COM;
+ * Release() each object when done.
+ */
 
 #include "d3dx8.h"
 
@@ -122,6 +127,8 @@ HRESULT WINAPI
 // render target is used, and the result copied into surface at end scene.
 ///////////////////////////////////////////////////////////////////////////
 
+/* Describes an ID3DXRenderToSurface target: pixel dimensions, surface Format,
+ * and whether a depth/stencil buffer of DepthStencilFormat is attached. */
 typedef struct _D3DXRTS_DESC
 {
     UINT                Width;
@@ -183,6 +190,9 @@ HRESULT WINAPI
 // --------------------
 ///////////////////////////////////////////////////////////////////////////
 
+/* Describes an ID3DXRenderToEnvMap target: cube edge / map Size, Format, and
+ * optional depth/stencil of DepthStencilFormat. Used to render dynamic
+ * environment maps (cube, sphere, hemisphere, or dual-parabolic). */
 typedef struct _D3DXRTE_DESC
 {
     UINT        Size;

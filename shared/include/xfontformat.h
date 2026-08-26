@@ -1,8 +1,17 @@
-//****************************************************************************
-//
-// XBox font file format description.
-//
-//****************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * On-disk layout of a compiled Xbox font file (.xfnt), consumed by xfont.h.
+ * The format is tuned for large Unicode (Kanji) sets: characters split into a
+ * 12-bit segment index plus a 4-bit offset, glyphs are looked up through a
+ * segment-run table, and each glyph bitmap is RLE-compressed with optional
+ * antialiasing. Structures here (FontHeader, SegmentRun, SegmentDescriptor,
+ * Glyph) plus the segment/RLE macros describe every part of that file.
+ */
 
 #pragma once
 

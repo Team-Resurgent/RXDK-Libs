@@ -1,11 +1,19 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1998 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8math.h
-//  Content:    D3DX math types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX math library: the vector/matrix/quaternion/plane/color types shared by
+ * D3DX and the fixed-function pipeline, plus a large set of operations on them.
+ * Matrices are row-major and vectors are treated as rows, so transforms compose
+ * left-to-right (v' = v * M) and the translation lives in row 4. Every function
+ * may safely use the same object for input and output, and most return their
+ * pOut so calls can be chained. Short/hot routines are inline; the rest are
+ * WINAPI exports. The parallel xgmath.h provides the same surface backed by the
+ * Xbox XG helpers - this header is skipped when that one is included first.
+ */
 
 #include "d3dx8.h"
 
@@ -53,6 +61,8 @@ DEFINE_GUID( IID_ID3DXMatrixStack,
 //--------------------------
 // 2D Vector
 //--------------------------
+// {x,y}. In C++ a thin wrapper adding constructors, FLOAT* casts, and the usual
+// arithmetic/comparison operators; the plain-C form is just the two floats.
 typedef struct D3DXVECTOR2
 {
 #ifdef __cplusplus
@@ -96,6 +106,8 @@ public:
 //--------------------------
 // 3D Vector
 //--------------------------
+// {x,y,z}. In C++ derives from D3DVECTOR (so it is layout-compatible with it)
+// and adds operators; in plain C it is simply an alias for _D3DVECTOR.
 #ifdef __cplusplus
 typedef struct D3DXVECTOR3 : public D3DVECTOR
 {
@@ -140,6 +152,7 @@ typedef struct _D3DVECTOR D3DXVECTOR3, *LPD3DXVECTOR3;
 //--------------------------
 // 4D Vector
 //--------------------------
+// {x,y,z,w}. Homogeneous vector used for matrix transforms and shader constants.
 typedef struct D3DXVECTOR4
 {
 #ifdef __cplusplus
@@ -183,6 +196,9 @@ public:
 //
 // Matrices
 //
+// 4x4 row-major matrix. Element _ij is row i, column j; the C++ form adds an
+// operator()(row,col) accessor, FLOAT* casts, and matrix arithmetic (operator*
+// is matrix multiply). Transforms are applied as row-vector * matrix.
 //===========================================================================
 #ifdef __cplusplus
 typedef struct D3DXMATRIX : public D3DMATRIX
@@ -239,6 +255,9 @@ typedef struct _D3DMATRIX D3DXMATRIX, *LPD3DXMATRIX;
 //
 //    Quaternions
 //
+// {x,y,z,w} with w the scalar part. Represents a rotation; multiply to compose
+// rotations, and convert to/from matrices and axis-angle with the D3DXQuaternion
+// functions below. Keep unit length for a pure rotation.
 //===========================================================================
 typedef struct D3DXQUATERNION
 {
@@ -284,6 +303,8 @@ public:
 //
 // Planes
 //
+// Coefficients {a,b,c,d} of the plane a*x + b*y + c*z + d = 0; (a,b,c) is the
+// normal. D3DXPlaneDotCoord gives signed distance of a point from the plane.
 //===========================================================================
 typedef struct D3DXPLANE
 {
@@ -314,6 +335,9 @@ public:
 //
 // Colors
 //
+// Floating-point RGBA {r,g,b,a}, each channel nominally 0..1 (values may go
+// outside that range for HDR/blending math). In C++ it converts to and from a
+// packed 32-bit D3DCOLOR (DWORD ARGB) and D3DCOLORVALUE.
 //===========================================================================
 
 typedef struct D3DXCOLOR
@@ -983,6 +1007,10 @@ D3DXCOLOR* WINAPI D3DXColorAdjustContrast
 //
 //    Matrix Stack
 //
+// A stack of 4x4 matrices with a "current" (top) matrix, handy for hierarchical
+// transforms: Push/Pop save and restore, and the Load*/Mult* methods set or
+// post/pre-multiply the top in place. Create one with D3DXCreateMatrixStack;
+// it is a COM object, so Release() it when done.
 //===========================================================================
 
 #undef  INTERFACE

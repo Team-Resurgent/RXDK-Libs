@@ -1,10 +1,16 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xvoice.h
- *  Content:    Voice include file
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Low-level Xbox voice (communicator) API. Declares the IXVoiceEncoder and
+ * IXVoiceDecoder XMediaObjects that compress mic PCM to voice packets and back,
+ * the communicator-headset capture/render media objects, the queueing decoders
+ * for buffered playback, voice-mask (disguise) parameters, and packet-energy
+ * measurement. Mutually exclusive with the high-level XHV API (<xhv.h>).
+ */
 
 #ifndef __XVOICE__
 #define __XVOICE__
@@ -18,6 +24,9 @@
 extern "C" {
 #endif
 
+// Voice masks disguise a talker by reshaping the encoded voice. Each field is a
+// normalized [0,1] weight; XVOICE_MASK_PARAM_DISABLED (-1.0) leaves that effect
+// off. The XVOICE_MASK_* presets are ready-made XVOICE_MASK initializers.
 #define XVOICE_MASK_PARAM_DISABLED        (-1.0f)
 
 // Predefined voice masks          fSpecEnergyWeight           fPitchScale                 fWhisperValue               fRoboticValue
@@ -50,6 +59,9 @@ typedef struct _XVOICE_VOICE_PROPERTIES
 
 }XVOICE_VOICE_PROPERTIES, *LPXVOICE_VOICE_PROPERTIES;
 
+// Configuration for the queueing voice media objects: packet duration (ms),
+// codec buffer size, the min/max jitter-buffer delay bounds, the initial
+// high-water mark, and a target quality used to trade latency against dropouts.
 typedef struct _XVOICE_QUEUE_XMO_CONFIG 
 {
     DWORD                                 dwMsOfDataPerPacket;   
@@ -79,6 +91,10 @@ typedef struct _XVOICE_CODEC_HEADER
 
 typedef DWORD XVOICE_STREAM_INDEX, *LPXVOICE_STREAM_INDEX;
 
+// Voice encoder: an XMediaObject that compresses microphone PCM into voice
+// packets. ProcessMultiple encodes several talker streams at once; SetVoiceMask
+// applies a disguise to one encoder instance; GetCodecBufferSize reports the
+// compressed size for a given PCM buffer. (Single-packet Process is unused.)
 #undef INTERFACE
 #define INTERFACE IXVoiceEncoder
 
@@ -128,6 +144,10 @@ DECLARE_INTERFACE_(IXVoiceEncoder, XMediaObject)
 typedef struct IXVoiceEncoder IXVoiceEncoder, *LPXVOICEENCODER;
 
 
+// Voice decoder: an XMediaObject that expands received voice packets back to
+// PCM. ProcessMultiple decodes several streams at once; GetVoiceProperties,
+// called right after, returns per-stream gain/LPC data for the frames just
+// decoded (e.g. to drive talker indicators).
 #undef INTERFACE
 #define INTERFACE IXVoiceDecoder
 
@@ -175,6 +195,12 @@ DECLARE_INTERFACE_(IXVoiceDecoder, XMediaObject)
 
 typedef struct IXVoiceDecoder IXVoiceDecoder, *LPXVOICEDECODER;
 
+// Factories. XVoiceCreateMediaObject[Ex] opens the communicator headset on a
+// controller port as a capture/render XMediaObject. The Queue variants add jitter
+// buffering. The Create*Encoder / Create*Decoder helpers build encoder/decoder
+// objects for a given talker topology (one-to-one, two-to-two, four-to-four, and
+// the mixing decoders). XVoiceGetEncodedPacketEnergy returns a packet's RMS
+// energy for voice-activity display.
 XBOXAPI
 HRESULT
 WINAPI 

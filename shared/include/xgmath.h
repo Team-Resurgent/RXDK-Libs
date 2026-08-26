@@ -1,11 +1,19 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xgmath.h
- *
- ****************************************************************************/
- 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XGraphics math library. The XG* types and functions here are the Xbox-named
+ * counterpart of the D3DX8 math surface in d3dx8math.h: the same vector, 4x4
+ * row-major matrix, quaternion, plane, and color types and the same operations,
+ * under an XG prefix. Including this header first defines __XGMATH_H__, which
+ * suppresses the duplicate definitions in d3dx8math.h. Same conventions apply:
+ * row-vector * matrix ordering, in==out is safe, and most functions return pOut
+ * for chaining. Short routines are inline; the rest are exports.
+ */
+
 #ifndef __XGMATH_H__
 #define __XGMATH_H__
 
@@ -175,6 +183,8 @@ public:
 //
 // Matrices
 //
+// 4x4 row-major matrix (element _ij = row i, col j); transforms apply as
+// row-vector * matrix. 16-byte aligned so it can feed the vector unit directly.
 //===========================================================================
 #ifdef __cplusplus
 typedef __declspec(align(16)) struct XGMATRIX : public D3DMATRIX

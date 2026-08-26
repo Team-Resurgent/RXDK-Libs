@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8effect.h
-//  Content:    D3DX effect types and functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX effect framework. An "effect" bundles one or more rendering techniques
+ * (each a sequence of passes with their render/texture state and shaders) plus
+ * named tweakable parameters, authored in a small text description language.
+ * Compile the text to binary with D3DXCompileEffect, instantiate it with
+ * D3DXCreateEffect, then drive it through ID3DXEffect / ID3DXTechnique.
+ */
 
 #include "d3dx8.h"
 
@@ -13,6 +18,8 @@
 #define __D3DX8EFFECT_H__
 
 
+/* Data type of a named effect parameter (matches the SetXxx/GetXxx accessor
+ * on ID3DXEffect used to bind it). */
 typedef enum _D3DXPARAMETERTYPE
 {
     D3DXPT_DWORD        = 0,
@@ -28,6 +35,8 @@ typedef enum _D3DXPARAMETERTYPE
 } D3DXPARAMETERTYPE;
 
 
+/* Top-level effect description: parameter count, technique count, and the
+ * D3DUSAGE flags it was created with. Filled by ID3DXEffect::GetDesc. */
 typedef struct _D3DXEFFECT_DESC
 {
     UINT Parameters;
@@ -37,6 +46,8 @@ typedef struct _D3DXEFFECT_DESC
 } D3DXEFFECT_DESC;
 
 
+/* One effect parameter: its Name (a hashed DWORD handle, not a string) and
+ * data Type. Filled by ID3DXEffect::GetParameterDesc. */
 typedef struct _D3DXPARAMETER_DESC
 {
     DWORD Name;
@@ -45,6 +56,7 @@ typedef struct _D3DXPARAMETER_DESC
 } D3DXPARAMETER_DESC;
 
 
+/* One technique: its Name handle and how many passes it contains. */
 typedef struct _D3DXTECHNIQUE_DESC
 {
     DWORD Name;
@@ -53,6 +65,7 @@ typedef struct _D3DXTECHNIQUE_DESC
 } D3DXTECHNIQUE_DESC;
 
 
+/* One pass within a technique, identified by its Name handle. */
 typedef struct _D3DXPASS_DESC
 {
     DWORD Name;
@@ -70,6 +83,9 @@ typedef struct ID3DXTechnique *LPD3DXTECHNIQUE;
 // ID3DXTechnique ////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+/* A single technique selected out of an effect. Begin() returns the pass count;
+ * loop Pass(i) around your draw calls; End() when done. Names/handles are the
+ * hashed DWORDs from the desc structs, not strings. */
 // {A00F378D-AF79-4917-907E-4D635EE63844}
 DEFINE_GUID( IID_ID3DXTechnique,
 0xa00f378d, 0xaf79, 0x4917, 0x90, 0x7e, 0x4d, 0x63, 0x5e, 0xe6, 0x38, 0x44);
@@ -101,6 +117,9 @@ DECLARE_INTERFACE_(ID3DXTechnique, IUnknown)
 //////////////////////////////////////////////////////////////////////////////
 
 
+/* An instantiated effect: enumerate its techniques and parameters, bind
+ * parameter values by name handle with the typed Set/Get accessors, and
+ * render through a chosen ID3DXTechnique. Release() when finished. */
 // {281BBDD4-AEDF-4907-8650-E79CDFD45165}
 DEFINE_GUID( IID_ID3DXEffect,
 0x281bbdd4, 0xaedf, 0x4907, 0x86, 0x50, 0xe7, 0x9c, 0xdf, 0xd4, 0x51, 0x65);

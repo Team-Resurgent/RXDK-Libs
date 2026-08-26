@@ -1,10 +1,19 @@
-/************************************************************************
-*                                                                       *
-*   winerror.h --  error code definitions for the Win32 API functions   *
-*                                                                       *
-*   Copyright (c) 1991-2001, Microsoft Corp. All rights reserved.       *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * winerror.h - Win32 status and error code definitions.
+ *
+ * The ERROR_* system error codes (returned by GetLastError), the S_OK / E_FAIL
+ * family of HRESULTs, and the FACILITY_* / severity bit-field layout and the
+ * MAKE_HRESULT / SUCCEEDED / FAILED / HRESULT_FROM_WIN32 helper macros that
+ * pack and test them. RXDK ships this Win32-compatible table so ported titles
+ * and the D3D/DirectSound runtimes share one set of result codes; the encoding
+ * is documented in the bit diagram below.
+ */
 
 #pragma once
 #define _WINERROR_

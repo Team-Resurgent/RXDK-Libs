@@ -1,12 +1,16 @@
-/***************************************************************************
- *
- *  Copyright (C) 1998-2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       rmxfguid.h
- *
- *  Content:    Defines GUIDs of D3DRM's templates.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Template GUIDs (TID_*) for the standard Direct3D Retained-Mode record types
+ * carried inside DirectX File (.x) data. These identify the built-in templates
+ * a .x file can contain (mesh, normals, materials, texture coords, frames,
+ * animation, and so on); pass them to the dxfile.h APIs to recognize or emit
+ * the corresponding data objects. Definitions only - no code.
+ */
 
 #ifndef __RMXFGUID_H_
 #define __RMXFGUID_H_

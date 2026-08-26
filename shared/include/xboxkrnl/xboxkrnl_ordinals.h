@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Export ordinal numbers for every xboxkrnl.exe import. The Xbox kernel exports
+ * its API by ordinal rather than by name, so each RXDK_ORDINAL_<Symbol> maps a
+ * kernel symbol to the ordinal the loader resolves it through. Entries marked
+ * DATA are exported variables rather than functions. The numbering is fixed by
+ * the kernel ABI and is not contiguous. Used when building import thunks and
+ * linking titles against the kernel.
+ */
+
 #ifndef RXDK_XBOXKRNL_ORDINALS_H
 #define RXDK_XBOXKRNL_ORDINALS_H
 

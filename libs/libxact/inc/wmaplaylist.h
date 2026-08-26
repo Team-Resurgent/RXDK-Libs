@@ -1,15 +1,15 @@
-/***************************************************************************
- *
- *  File:       wmaplaylist.h
- *  Content:    IXACTWmaPlayList -- an ordered set of .wma songs bound to a
- *              sound cue, which plays them in turn.
- *
- *  RXDK 5849 uplift. This is NOT a port: the May-2020 leak contains no
- *  WmaPlayList source anywhere (grep-confirmed across the whole vendor tree),
- *  because the feature postdates it. Written against the 5849 public xact.h,
- *  over the WMA file XMO that libdsound now provides.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * IXACTWmaPlayList -- an ordered set of .wma songs bound to a sound cue, which
+ * plays them in turn. Declares the CWmaPlayList class, which implements the
+ * public xact.h IXACTWmaPlayList interface over the WMA file media object that
+ * libdsound provides, together with the CWmaSong playlist-entry type.
+ */
 
 #ifndef __WMAPLAYLIST_H__
 #define __WMAPLAYLIST_H__

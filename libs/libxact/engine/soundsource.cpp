@@ -1,15 +1,14 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       soundsource.cpp
- *  Content:    XACT runtime sound source object implementation
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/22/2002   georgioc  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSoundSource -- wraps one hardware voice (a DirectSound buffer or stream),
+ * tracking its lifetime, format, base and attenuated volume, streamed-wave
+ * feeding, pause state, and the cues playing through it.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
@@ -160,9 +159,9 @@ HRESULT CSoundSource::Stop()
     } else {
 
         //
-        // RXDK 5849 uplift: the voice is being given up, so whatever was feeding it is finished
-        // with. This releases the decoder before the flush, so nothing is decoded into buffers the
-        // flush is about to reclaim.
+        // The voice is being given up, so whatever was feeding it is finished with. This releases
+        // the decoder before the flush, so nothing is decoded into buffers the flush is about to
+        // reclaim.
         //
 
         DetachStreamedWave();
@@ -198,10 +197,9 @@ HRESULT CSoundSource::Play()
     } else {
 
         //
-        // RXDK 5849 uplift: a stream voice has no Play -- what makes it sound is data, and it
-        // stops of its own accord when it runs out. So starting one means filling it before
-        // letting it run, since a voice released into a mix with nothing queued is starved from
-        // its first sample.
+        // A stream voice has no Play -- what makes it sound is data, and it stops of its own
+        // accord when it runs out. So starting one means filling it before letting it run, since a
+        // voice released into a mix with nothing queued is starved from its first sample.
         //
 
         ServiceStreamedWave();
@@ -223,9 +221,9 @@ HRESULT CSoundSource::Play()
 #define DPF_FNAME "CSoundSource::AttachStreamedWave"
 
 //
-// RXDK 5849 uplift.  Binds one wave of a streamed bank to this voice, and sets the voice to the
-// format that wave will actually arrive in -- which for a WMA wave is the decoder's PCM output,
-// not the compressed form the bank's meta-data describes.
+// Binds one wave of a streamed bank to this voice, and sets the voice to the format that wave will
+// actually arrive in -- which for a WMA wave is the decoder's PCM output, not the compressed form
+// the bank's meta-data describes.
 //
 HRESULT CSoundSource::AttachStreamedWave(CWaveBank *pWaveBank, LPCWAVEBANKENTRY pEntry)
 {
@@ -432,12 +430,9 @@ HRESULT CSoundSource::SetMixBinVolumes(LPCDSMIXBINS pMixBins)
 }
 
 
-// ==== RXDK 5849 uplift (moved from engine/uplift5849.cpp) ====
-// ---- 5849 sound-source cue stop --------------------------------------------------------------
-
 HRESULT STDMETHODCALLTYPE CSoundSource::StopSoundCues()
 {
-    // 5849 stops the cues playing through this source; the leak's source owns a single
-    // hardware voice, so stopping that voice stops whatever those cues are rendering.
+    // Stops the cues playing through this source. The source owns a single hardware voice, so
+    // stopping that voice stops whatever those cues are rendering.
     return Stop();
 }

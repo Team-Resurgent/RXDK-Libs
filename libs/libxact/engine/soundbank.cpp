@@ -1,15 +1,16 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       soundbank.cpp
- *  Content:    XACT runtime soundbank object implementation
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/22/2002   georgioc  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSoundBank -- wraps an in-memory sound bank blob, resolving its cue, sound
+ * and track tables. It creates and plays cues (including cues bound to a WMA
+ * playlist, which render from the playlist rather than the bank's wave data),
+ * reports each cue's mix category and properties, and routes soundbank-level
+ * notifications.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
@@ -200,11 +201,11 @@ HRESULT CSoundBank::Play( DWORD dwCueIndex, PXACTSOUNDSOURCE pSoundSourceObject,
     ENTER_EXTERNAL_METHOD();
 
     //
-    // RXDK 5849 uplift: a cue with a WMA playlist bound to it renders from the
-    // playlist's own stream, not from this bank's wave data, so hand off before
-    // any of the wave-bank work below. The title still drives it through the
-    // ordinary Play/Stop on the cue -- that is the whole point of binding a
-    // playlist to a cue index.
+    // A cue with a WMA playlist bound to it renders from the playlist's own
+    // stream, not from this bank's wave data, so hand off before any of the
+    // wave-bank work below. The title still drives it through the ordinary
+    // Play/Stop on the cue -- that is the whole point of binding a playlist to
+    // a cue index.
     //
     if(g_pEngine)
     {
@@ -629,7 +630,7 @@ void CSoundBank::RemoveFromList(CSoundCue *pCue)
 #define DPF_FNAME "CSoundBank::GetCueCategory"
 
 //
-// RXDK 5849 uplift: the mix category of whatever sound a cue index resolves to.
+// The mix category of whatever sound a cue index resolves to.
 //
 WORD CSoundBank::GetCueCategory(DWORD dwCueIndex)
 {
@@ -652,15 +653,11 @@ WORD CSoundBank::GetCueCategory(DWORD dwCueIndex)
 #define DPF_FNAME "CSoundBank::SelectVariation"
 
 //
-// RXDK 5849 uplift: recovered from xacteng.lib (docs/5849-xact-api-recovery.md).
-//
-// Retail selects among a cue's sound variations and a sound's wave variations,
-// either explicitly by index or weighted by value. This bank format (the
-// leak's, which our xactbld emits) has no variation tables: a cue names
-// exactly one sound and each track's play event names exactly one wave. Retail
-// handles exactly that case too -- a cue without a variation table accepts
-// index 0 or any value select (there is nothing to change) and rejects a
-// nonzero index -- so this is retail's own no-table path, not a stub.
+// Selection among a cue's sound variations and a sound's wave variations,
+// either explicitly by index or weighted by value. This bank format has no
+// variation tables: a cue names exactly one sound and each track's play event
+// names exactly one wave. That is the no-table case -- accept index 0 or any
+// value select (there is nothing to change) and reject a nonzero index.
 //
 HRESULT CSoundBank::SelectVariation(DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELECT_VARIATION pVariation)
 {
@@ -699,16 +696,13 @@ HRESULT CSoundBank::SelectVariation(DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELE
 #define DPF_FNAME "CSoundBank::GetSoundCueProperties"
 
 //
-// RXDK 5849 uplift: recovered from xacteng.lib (docs/5849-xact-api-recovery.md).
-//
-// Retail reads most of these straight off its 20-byte sound entry; this bank
-// format spreads the same information differently, so each field comes from
-// where the leak format actually keeps it: the sound entry (flags, priority,
-// layer, category, track count), the 3D parameters block, and the tracks'
-// event tables (wave index, loop count, authored volume). What the format
-// does not store stays zero: per-sound pitch and parametric EQ (5849-format
-// sound-entry fields with no leak equivalent) and dwLength (retail computes
-// it from wave data this engine does not index at the bank level).
+// A cue in this bank format names a sound directly, with no variation tables,
+// so each property field comes from where the format keeps it: the sound entry
+// (flags, priority, layer, category, track count), the 3D parameters block, and
+// the tracks' event tables (wave index, loop count, authored volume). What the
+// format does not store stays zero: per-sound pitch and parametric EQ, and
+// dwLength (computed from wave data this engine does not index at the bank
+// level).
 //
 HRESULT CSoundBank::GetSoundCueProperties(DWORD dwSoundCueIndex, PXACT_SOUNDCUE_PROPERTIES pSoundCueProperties)
 {

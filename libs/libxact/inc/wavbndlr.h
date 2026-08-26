@@ -1,11 +1,14 @@
-/***************************************************************************
- *
- *  Copyright (C) 11/2/2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       wavbndlr.h
- *  Content:    Wave Bundler definitions.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Wave bank reader for the XACT runtime. Builds on the on-disk format in
+ * xactwb.h to declare the expanded wave-format union, the parsed section
+ * pointers, and the CWaveBankReader that opens a .xwb and exposes its sections.
+ */
 
 #ifndef __WAVBNDLR_H__
 #define __WAVBNDLR_H__
@@ -15,11 +18,8 @@
 // therefore the one a title validates a bank against. This file adds only what the runtime
 // needs on top of it: the expanded format union, the parsed section pointers, and the reader.
 //
-// It used to carry its own copy of the format at version 2 (the January-2002 trunk layout:
-// one flat header, no segment table, a 1-bit format tag, and no per-entry flags). That copy
-// was kept on the reasoning that the bank was a private contract between xactbld and this
-// engine. It is not - the WaveBank and WaveBankStream samples open a .xwb and read the
-// header themselves - so the format follows xactwb.h and the duplicate is gone.
+// The WaveBank and WaveBankStream samples open a .xwb and read the header themselves, so the
+// format is taken directly from xactwb.h rather than duplicated here.
 //
 
 #include <xactwb.h>

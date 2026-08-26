@@ -1,15 +1,15 @@
-/***************************************************************************
- *
- *  Copyright (C) 2002 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xacti.h
- *  Content:    XACT runtime main internal header file.
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  01/23/2002  georgioc  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT runtime -- the internal engine header. Declares the C++ implementation
+ * classes (CEngine, CSoundBank, CSoundCue, CSoundSource, CStreamedWave,
+ * CWmaPlayList) that sit behind the flat C API, along with their shared
+ * contexts and helper types.
+ */
 
 #ifndef __XACTI_H__
 #define __XACTI_H__
@@ -94,9 +94,9 @@ __inline CAutoLock::~CAutoLock(void)
     CAutoLock __AutoLock
 
 
-// RXDK: callers pass a method-name string (e.g. ENTER_EXTERNAL_METHOD("Foo::Bar"))
-// that the leak's zero-arg macros silently dropped under MSVC. Make them variadic
-// so clang's stricter preprocessor accepts the extra argument.
+// Callers pass a method-name string (e.g. ENTER_EXTERNAL_METHOD("Foo::Bar")).
+// These macros are variadic so they accept that extra argument under clang's
+// stricter preprocessor.
 #define ENTER_EXTERNAL_FUNCTION(...) \
     AutoLock()
 
@@ -197,20 +197,18 @@ public:
     // Total attenuation for a category: the global master plus that category's own.
     LONG GetCategoryAttenuation(WORD wCategory);
     HRESULT STDMETHODCALLTYPE SetListenerParameters(LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
-    // RXDK 5849 uplift: 5849's per-component listener setters, backed by a persistent listener that
-    // delegates to the (real) SetListenerParameters; and a runtime-variable table.
+    // Per-component listener setters, backed by a persistent listener that
+    // delegates to SetListenerParameters, plus a runtime-variable table.
     HRESULT STDMETHODCALLTYPE SetListenerPosition(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetListenerVelocity(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetListenerOrientation(FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetVariable(DWORD dwVariable, WORD wValue);
     HRESULT STDMETHODCALLTYPE GetVariable(DWORD dwVariable, PWORD pwValue);
 
-    // RXDK 5849 uplift: recovered from xacteng.lib -- see docs/5849-xact-api-recovery.md.
     HRESULT STDMETHODCALLTYPE EnableHeadphones(BOOL fEnabled);
     HRESULT STDMETHODCALLTYPE SetI3dl2Listener(LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE GetRealtimeData(PXACT_REALTIME_AUDIO_DATA pData);
-    // RXDK 5849 uplift: 5849 renamed LoadDspImage to DownloadEffectsImage and returns the
-    // downloaded image description (the leak stored it privately).
+    // Downloads the DSP effect image and returns its description.
     HRESULT STDMETHODCALLTYPE DownloadEffectsImage(PVOID pvData, DWORD dwSize, LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc);
     HRESULT STDMETHODCALLTYPE GlobalPause(WORD wCategory, BOOL bPause);
 
@@ -237,7 +235,7 @@ public:
     HRESULT CreateSoundSourceInternal(DWORD dwFlags, CWaveBank *pWaveBank, CSoundSource **ppSoundSource);
 
     //
-    // RXDK 5849 uplift: hands out one of the stream voices reserved by
+    // Hands out one of the stream voices reserved by
     // XACT_RUNTIME_PARAMETERS::dwMaxConcurrentStreams, for a wave that has to be fed as it plays.
     //
     HRESULT AllocateStreamSoundSource(CSoundSource **ppSoundSource);
@@ -297,9 +295,8 @@ private:
 
     VOID SetTimer();
 
-    // RXDK: __stdcall to match PKDEFERRED_ROUTINE (the leak built the whole lib
-    // /Gz stdcall; libxact builds default-__cdecl, so the DPC callback needs the
-    // explicit convention to bind to KeInitializeDpc).
+    // __stdcall to match PKDEFERRED_ROUTINE. libxact builds default-__cdecl, so
+    // the DPC callback needs the explicit convention to bind to KeInitializeDpc.
     static VOID __stdcall DPCTimerCallBack(
         PKDPC Dpc,
         PVOID DeferredContext,
@@ -321,7 +318,7 @@ protected:
     LPDSEFFECTIMAGEDESC     m_pDspImageDesc;
     LPDIRECTSOUND           m_pDirectSound;
 
-    // RXDK 5849 uplift: persistent 3D listener (updated by the per-component setters) + a runtime-
+    // Persistent 3D listener (updated by the per-component setters) plus a runtime-
     // variable table (SetVariable/GetVariable round-trip; RPC modulation is not implemented).
     DS3DLISTENER            m_ds3dListener;
     WORD                    m_aVariables[64];
@@ -428,7 +425,6 @@ public:
     HRESULT STDMETHODCALLTYPE Play( DWORD dwCueIndex, PXACTSOUNDSOURCE pSoundSource, DWORD dwFlags, PXACTSOUNDCUE *ppCue);
     HRESULT STDMETHODCALLTYPE Stop( DWORD dwCueIndex, DWORD dwFlags, PXACTSOUNDCUE pCue);
 
-    // RXDK 5849 uplift: recovered from xacteng.lib -- see docs/5849-xact-api-recovery.md.
     HRESULT STDMETHODCALLTYPE SelectVariation(DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELECT_VARIATION pVariation);
     HRESULT STDMETHODCALLTYPE GetSoundCueProperties(DWORD dwSoundCueIndex, PXACT_SOUNDCUE_PROPERTIES pSoundCueProperties);
 
@@ -562,7 +558,7 @@ public:
     HRESULT STDMETHODCALLTYPE Play(DWORD dwFlags);
     HRESULT STDMETHODCALLTYPE Stop(DWORD dwFlags);
 
-    // RXDK 5849 uplift: pause/resume every voice this cue is rendering on.
+    // Pause/resume every voice this cue is rendering on.
     HRESULT Pause(BOOL fPause);
 
     // Re-apply each voice's remembered base volume against this cue's category
@@ -637,7 +633,7 @@ private:
 //
 // streamed wave object
 //
-// RXDK 5849 uplift.  One wave of a streamed wave bank, playing through a hardware stream voice.
+// One wave of a streamed wave bank, playing through a hardware stream voice.
 //
 // A wave in WMA form cannot be handed to a voice at all -- the APU plays PCM and ADPCM and knows
 // nothing of WMA -- so it is decoded as it plays: the WMA decoder XMO is pointed at the bank's file
@@ -715,7 +711,7 @@ public:
     HRESULT STDMETHODCALLTYPE SetVelocity(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
     HRESULT STDMETHODCALLTYPE SetMixBins(LPCDSMIXBINS pMixBins);
     HRESULT STDMETHODCALLTYPE SetMixBinVolumes(LPCDSMIXBINS pMixBins);
-    // RXDK 5849 uplift: stop whatever is playing through this source's hardware voice.
+    // Stop whatever is playing through this source's hardware voice.
     HRESULT STDMETHODCALLTYPE StopSoundCues();
 
     //
@@ -752,15 +748,12 @@ public:
     }
 
     //
-    // RXDK 5849 uplift: pause/resume this voice in place.
+    // Pause/resume this voice in place.
     //
-    // Both voice kinds have a real Pause in 5849, so this is symmetric. It was
-    // not always: the leak-era dsound.h gave a BUFFER only Play/Stop, and this
-    // function used to pause one by stopping it and remembering the play cursor,
-    // restoring that cursor on resume. That approximation is gone now that
-    // libdsound implements IDirectSoundBuffer_Pause -- it could only restore to
-    // a buffer-position granularity, where the hardware pause holds the voice
-    // exactly where it stood.
+    // Both voice kinds have a real Pause, so this is symmetric. libdsound
+    // implements IDirectSoundBuffer_Pause, so a buffer voice pauses at the
+    // hardware where it stands, rather than being stopped and later restored to
+    // a buffer-position granularity.
     //
     HRESULT Pause(BOOL fPause)
     {
@@ -785,9 +778,9 @@ public:
     BOOL IsPaused() const { return m_fPaused; }
 
     //
-    // RXDK 5849 uplift: set this voice's volume as a BASE (what the content
-    // asked for) plus a category attenuation, and remember the base so a later
-    // SetMasterVolume can re-apply against the new attenuation.
+    // Set this voice's volume as a BASE (what the content asked for) plus a
+    // category attenuation, and remember the base so a later SetMasterVolume can
+    // re-apply against the new attenuation.
     //
     // Xbox volumes are hundredths of a decibel, i.e. logarithmic, so combining
     // two attenuations is an ADD, not a multiply.
@@ -817,9 +810,6 @@ public:
         return SetVoiceVolume(m_lBaseVolume, lAttenuation);
     }
 
-    //
-    // RXDK 5849 uplift: recovered from xacteng.lib rather than invented -- the
-    // leak has neither of these. See docs/5849-xact-api-recovery.md.
     //
     // Retail CSoundSource::SetPitch takes the object lock and then dispatches on
     // which voice kind is present, testing the BUFFER first and falling back to
@@ -887,12 +877,11 @@ public:
     //
     // Retail writes the priority word, calls the dsound voice's
     // GetVoiceProperties, and then -- for a 3D source -- overwrites the five
-    // 3D/I3DL2 volume fields with copies XACT caches on the source (see
-    // docs/5849-xact-api-recovery.md for the non-sequential offsets that make
-    // that overwrite easy to misread). Our libdsound GetVoiceProperties fills
-    // those five fields from the live HRTF/I3DL2 calculation data -- the very
-    // values retail's cache mirrors -- so the overwrite has nothing to change
-    // here and is deliberately absent.
+    // 3D/I3DL2 volume fields with copies XACT caches on the source (the
+    // non-sequential offsets make that overwrite easy to misread). Our libdsound
+    // GetVoiceProperties fills those five fields from the live HRTF/I3DL2
+    // calculation data -- the very values retail's cache mirrors -- so the
+    // overwrite has nothing to change here and is deliberately absent.
     //
     HRESULT GetProperties(PXACT_SOUNDSOURCE_PROPERTIES pProperties)
     {
@@ -926,11 +915,11 @@ public:
 
     //
     // Retail's SetMode goes through XACT's own deferred-settings engine (mark a
-    // dirty bit, store the mode, let CommitDeferredSettings push it -- see
-    // docs/5849-xact-api-recovery.md). That engine exists because retail XACT
-    // does its own 3D math; in this port the 3D pipeline lives in libdsound,
-    // whose SetMode already honors dwApply's immediate/deferred split, so the
-    // buffer-then-stream forward IS the deferred-settings path here.
+    // dirty bit, store the mode, let CommitDeferredSettings push it). That engine
+    // exists because retail XACT does its own 3D math; in this port the 3D
+    // pipeline lives in libdsound, whose SetMode already honors dwApply's
+    // immediate/deferred split, so the buffer-then-stream forward IS the
+    // deferred-settings path here.
     //
     HRESULT SetMode(DWORD dwMode, DWORD dwApply)
     {
@@ -958,7 +947,7 @@ public:
         } else {
 
             //
-            // RXDK 5849 uplift: a voice being fed from a streamed bank is playing until the wave
+            // A voice being fed from a streamed bank is playing until the wave
             // has been read to its end AND the voice has played everything we gave it. Asking
             // DirectSound alone would call it stopped the moment the ring momentarily ran dry.
             //
@@ -974,7 +963,7 @@ public:
     }
 
     //
-    // RXDK 5849 uplift: streamed-bank playback (see CStreamedWave). The source owns the feeder
+    // Streamed-bank playback (see CStreamedWave). The source owns the feeder
     // for as long as the wave plays; attaching a second one replaces the first.
     //
     HRESULT AttachStreamedWave(CWaveBank *pWaveBank, LPCWAVEBANKENTRY pEntry);
@@ -1279,9 +1268,8 @@ private:
 } //namespace
 
 //
-// RXDK 5849 uplift: IXACTWmaPlayList. Declared after the namespace block above
-// because it refers to CSoundBank and CRefCount; it opens namespace XACT again
-// itself.
+// IXACTWmaPlayList. Declared after the namespace block above because it refers
+// to CSoundBank and CRefCount; it opens namespace XACT again itself.
 //
 
 #include "wmaplaylist.h"

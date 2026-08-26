@@ -1,15 +1,20 @@
-/***************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSoundCue -- a playing cue instance built from a soundbank sound entry.
  *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       voice.cpp
- *  Content:    XACT runtime voice object implementation
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/22/2002   georgioc  Created.
- *
- ****************************************************************************/
+ * A cue owns one voice (CSoundSource) per track and schedules each track's
+ * authored events -- play, stop, loop, marker -- through the engine sequencer,
+ * converting sample-relative event times into absolute reference times. DoWork
+ * drives playback forward: it services streamed voices, decides when every
+ * track has stopped, and reschedules the next quantum of events. The cue also
+ * handles pause/resume, category-volume re-application, and delivering start /
+ * stop / marker notifications back to the title.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
@@ -663,10 +668,10 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
                 pEvent->EventData.Play.PlayDesc.WaveSource.wWaveIndex);
             
             //
-            // RXDK 5849 uplift: a WMA wave is in no form the hardware can play, so it cannot be
-            // handed to a buffer voice the way a PCM or ADPCM wave is. It is decoded as it plays
-            // instead, which takes a stream voice and the file the bank was registered from --
-            // hence only a streamed bank can hold one.
+            // A WMA wave is in no form the hardware can play, so it cannot be handed to a buffer
+            // voice the way a PCM or ADPCM wave is. It is decoded as it plays instead, which takes
+            // a stream voice and the file the bank was registered from -- hence only a streamed
+            // bank can hold one.
             //
 
             BOOL fStreamedWave = pWaveBank->IsStreaming() &&
@@ -713,8 +718,8 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
             }
 
             //
-            // RXDK 5849 uplift: the voice reports the highest priority of the
-            // sounds played through it (IXACTSoundSource_GetProperties).
+            // the voice reports the highest priority of the sounds played
+            // through it (IXACTSoundSource_GetProperties).
             //
 
             pTrack->pSoundSource->NoteCuePriority(m_pSoundEntry->wPriority);
@@ -763,9 +768,7 @@ HRESULT CSoundCue::SubmitEvent(PTRACK_EVENT_CONTEXT pEventContext)
             if (fStreamedWave) {
 
                 //
-                // RXDK 5849 uplift: this is where the leak's engine left a note saying a buffer
-                // ought to become a stream when the bank is streamed. Binding the wave to the
-                // stream voice is what that amounts to: the decoder reads the wave in place out of
+                // bind the wave to the stream voice: the decoder reads the wave in place out of
                 // the bank's file and reports the format the voice must play, and from here the
                 // cue's DoWork keeps the voice supplied.
                 //
@@ -1023,9 +1026,9 @@ VOID CSoundCue::DoWork()
         }
 
         //
-        // RXDK 5849 uplift: a voice playing a wave out of a streamed bank runs on what we give it,
-        // so hand it more before asking whether it is still playing -- a voice left unfed would
-        // report itself stopped and take the track with it.
+        // a voice playing a wave out of a streamed bank runs on what we feed it, so feed it more
+        // before asking whether it is still playing -- a voice left unfed would report itself
+        // stopped and take the track with it.
         //
 
         if (pTrack->pSoundSource) {
@@ -1300,7 +1303,7 @@ VOID CSoundCue::ProcessRuntimeEvent(XACT_TRACK_EVENT *pEventDesc)
         // copy data to cached context
         //
 
-        // 5849: the delivered marker is a single DWORD (the authored Value). The 8-byte
+        // the delivered marker is a single DWORD (the authored Value). The 8-byte
         // track-event marker holds Value in its first DWORD (xactbld writes Value first);
         // the remaining 4 bytes are type/duration metadata the title never receives.
         pContext->PendingNotification.Data.Marker.dwData =
@@ -1335,7 +1338,7 @@ PNOTIFICATION_CONTEXT CSoundCue::GetNotificationContext(DWORD dwType)
 #define DPF_FNAME "CSoundCue::Pause"
 
 //
-// RXDK 5849 uplift: pause/resume every voice this cue is rendering on.
+// pause/resume every voice this cue is rendering on.
 //
 // Each track owns a CSoundSource, and a source knows how to pause the voice it
 // holds (a stream directly, a buffer by remembering its play cursor). A cue can
@@ -1375,10 +1378,10 @@ HRESULT CSoundCue::Pause(BOOL fPause)
 #define DPF_FNAME "CSoundCue::ReapplyVolume"
 
 //
-// RXDK 5849 uplift: the cue's category volume changed, so every voice it is
-// rendering on has to be re-attenuated. Each source remembers the base volume
-// the content last asked for, so this is base + new attenuation -- the content's
-// own volume is never lost by repeated category changes.
+// the cue's category volume changed, so every voice it is rendering on has to
+// be re-attenuated. Each source remembers the base volume the content last
+// asked for, so this is base + new attenuation -- the content's own volume is
+// never lost by repeated category changes.
 //
 VOID CSoundCue::ReapplyVolume()
 {

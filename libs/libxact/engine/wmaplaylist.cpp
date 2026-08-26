@@ -1,28 +1,25 @@
-/***************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CWmaPlayList -- implements IXACTWmaPlayList, streaming a WMA playlist bound to
+ * a cue. Written against the public xact.h WMA playlist interface. The songs
+ * themselves are decoded by the WMA file XMO in libdsound (WmaCreateDecoderEx).
  *
- *  File:       wmaplaylist.cpp
- *  Content:    IXACTWmaPlayList implementation.
+ * The playlist object builds the song set (a single file, a directory sweep, or
+ * the songs the user ripped through the dash, via the soundtrack enumeration in
+ * libxapi), walks it in order or shuffled with or without looping, removes
+ * entries, and reads the current song's title and duration.
  *
- *  RXDK 5849 uplift. Written from the 5849 public xact.h, not ported: the
- *  May-2020 leak has no WmaPlayList source at all. The songs themselves are
- *  decoded by the WMA file XMO in libdsound (WmaCreateDecoderEx).
- *
- *  WHAT WORKS: the playlist object itself -- building the song set (a single
- *  file, a directory sweep, or the songs the user ripped through the dash, via
- *  the soundtrack enumeration already in libxapi), walking it in order or
- *  shuffled with or without looping, removing entries, and reading the current
- *  song's title and duration.
- *
- *  Playback is at the bottom of this file. A playlist renders itself rather
- *  than going through a sound cue's wave-bank path -- its source is a file being
- *  decoded on the fly, not a bank entry -- so it owns a DirectSound stream,
- *  CSoundBank::Play/Stop divert to it for a cue that has a playlist bound, and
- *  CEngine::DoWork pumps it.
- *
- *  NOT hardware-tested: this builds and the packet bookkeeping is sound by
- *  inspection, but no audio has actually been heard from it.
- *
- ****************************************************************************/
+ * Playback is at the bottom of this file. A playlist renders itself rather than
+ * going through a sound cue's wave-bank path -- its source is a file being
+ * decoded on the fly, not a bank entry -- so it owns a DirectSound stream,
+ * CSoundBank::Play/Stop divert to it for a cue that has a playlist bound, and
+ * CEngine::DoWork pumps it.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"

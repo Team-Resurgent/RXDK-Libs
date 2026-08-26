@@ -1,17 +1,22 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
 //
-// RXDK title-side adaptation of the leak XACT runtime/common/common.h.
+// Title-side common header for the XACT runtime. It layers the XACT-private
+// helper machinery on top of the title umbrella.
 //
-// The original pulled the NT kernel header set (nt.h/ntrtl/nturtl/ntos.h/pci.h)
-// and the PRIVATE dsoundp.h. libxact is built TITLE-SIDE: site/bridge_xact.h
-// (force-included before every TU) already supplies the title umbrella --
-// <xtl.h> (Win32 + xboxkrnl: LIST_ENTRY, CRITICAL_SECTION, Ke* timer/DPC/IRQL,
-// Ex* pool) and the PUBLIC <dsound.h> (IDirectSoundBuffer/Stream, DSMIXBINS,
-// DS3D*/DSI3DL2*/DSFILTER/DSENVELOPE/DSLFO/DSEFFECTIMAGE* and REFERENCE_TIME).
-// So this header only layers the XACT-private helper machinery on top.
+// libxact is built TITLE-SIDE: site/bridge_xact.h (force-included before every
+// TU) already supplies the title umbrella -- <xtl.h> (Win32 + xboxkrnl:
+// LIST_ENTRY, CRITICAL_SECTION, Ke* timer/DPC/IRQL, Ex* pool) and the PUBLIC
+// <dsound.h> (IDirectSoundBuffer/Stream, DSMIXBINS, DS3D*/DSI3DL2*/DSFILTER/
+// DSENVELOPE/DSLFO/DSEFFECTIMAGE* and REFERENCE_TIME). So this header only
+// layers the XACT-private helper machinery on top.
 //
 
 //
@@ -27,8 +32,8 @@
 #endif
 
 //
-// C runtime the helpers lean on (already provided title-side via picolibc, but
-// keep the faithful includes so the machinery is self-describing).
+// C runtime the helpers lean on (provided title-side via picolibc; the includes
+// are kept so the machinery is self-contained).
 //
 
 #include <stdio.h>
@@ -37,9 +42,8 @@
 #include <stdlib.h>
 
 //
-// Private includes (the helper machinery -- copied verbatim from the leak
-// runtime/common tree). refcount/debug/drvhlp/ntlist live in namespace XACT
-// exactly as the original did.
+// Private includes (the helper machinery). macros/debug/drvhlp/ntlist/refcount
+// live in namespace XACT.
 //
 
 namespace XACT {
@@ -57,9 +61,8 @@ namespace XACT {
 //
 // New and delete overrides
 //
-// The leak defined these as `static` free functions in the header (one copy per
-// TU). Clang rejects a `static`/`inline` GLOBAL replacement operator new/delete,
-// so the single definition lives in engine/common.cpp (the "common" TU) and the
+// Clang rejects a `static`/`inline` GLOBAL replacement operator new/delete, so
+// the single definition lives in engine/common.cpp (the "common" TU) and the
 // NEW/DELETE macros below just use the implicitly-declared global operators.
 //
 

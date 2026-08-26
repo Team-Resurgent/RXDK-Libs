@@ -1,18 +1,17 @@
-/***************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Playback of one wave of a streamed wave bank. See CStreamedWave in xacti.h.
  *
- *  RXDK 5849 uplift.
- *
- *  File:       streamwave.cpp
- *  Content:    Playback of one wave of a streamed wave bank.  See CStreamedWave
- *              in xacti.h.
- *
- *  The leak's engine has nothing here: its streamed-bank support amounted to a
- *  comment in cue.cpp saying a buffer voice ought to become a stream voice.
- *  5849 banks can hold WMA waves, which no voice can play directly, so this
- *  supplies the missing half -- the WMA decoder XMO on one side, a hardware
- *  stream voice on the other, and a two-packet ring between them.
- *
- ****************************************************************************/
+ * A streamed bank can hold WMA waves, which no voice can play directly. This
+ * bridges that gap: a WMA decoder XMO on one side, a hardware stream voice on
+ * the other, and a two-packet ring between them, playing one wave of a streamed
+ * bank.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"

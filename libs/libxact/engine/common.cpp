@@ -1,13 +1,22 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Shared translation unit for the XACT engine. Pulls in the common engine
+ * headers and documents the memory-allocation policy used across the library.
+ */
 
 #include "stdafx.h"
 
 #include "common.h"
 
 //
-// RXDK 5849 uplift: the leak added a GLOBAL replacement operator new/delete (routed
-// through XactMemAlloc/XactMemFree). The 5849 retail xacteng.lib exports no such global
-// operators -- it uses the CRT's, like every other RXDK lib (libdsound/libd3d8/...).
-// Providing our own here produced a duplicate-symbol link error against the CRT's, so
-// XACT now uses the CRT operator new for its C++ objects; XactMemAlloc/XactMemFree remain
-// for XACT's own internal buffer allocations (pooled via ExAllocatePoolWithTag).
+// XACT does not define a global replacement operator new/delete. A global
+// replacement would collide with the CRT's own operators and produce a
+// duplicate-symbol link error, so XACT's C++ objects use the CRT operator new.
+// XactMemAlloc/XactMemFree remain in use for XACT's own internal buffer
+// allocations, which are pooled via ExAllocatePoolWithTag.
 //

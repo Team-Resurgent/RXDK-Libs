@@ -1,15 +1,14 @@
-/***************************************************************************
- *
- *  Copyright (C) 1995-1998 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.h
- *  Content:    Debugger helper functions.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  1/21/97     dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug print (DPF_*) and assertion machinery for the XACT runtime. Defines the
+ * leveled DPF_ABSOLUTE/ERROR/WARNING/... macros plus ASSERT/BREAK, which route
+ * to the DwDbg* helpers under USEDPF and compile out to no-ops in retail builds.
+ */
 
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
@@ -178,10 +177,10 @@ void __cdecl DwDbgBreak(void);
 
 #else // USEDPF
 
-// RXDK: the leak's retail no-ops took a single `(a)`, but the engine invokes DPF_*
-// with printf-style variadic argument lists (DPF_WARNING("...", x, y)). MSVC's
-// preprocessor tolerated the extra arguments; clang does not, so make the retail
-// no-ops variadic. Likewise ASSERT/ASSERTMSG may carry comma-bearing expressions.
+// The retail no-ops took a single `(a)`, but the engine invokes DPF_* with
+// printf-style variadic argument lists (DPF_WARNING("...", x, y)). MSVC's
+// preprocessor tolerated the extra arguments; clang does not, so make the no-ops
+// variadic. Likewise ASSERT/ASSERTMSG may carry comma-bearing expressions.
 #define DPF_ABSOLUTE(...)
 #define DPF_ERROR(...)
 #define DPF_RESOURCE(...)

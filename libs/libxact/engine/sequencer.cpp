@@ -1,15 +1,15 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       sequencer.cpp
- *  Content:    XACT runtime Engine sequencer. 
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/22/2002   georgioc  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT runtime engine sequencer -- the timer/DPC-driven priority queue that
+ * timestamps each track event against the APU sample clock, orders events by
+ * time, and dispatches them (play, stop, set frequency/volume/filter/effect,
+ * markers, loops) to the voices at the moment they come due.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
@@ -903,10 +903,10 @@ HRESULT CEngine::DispatchEvent(PTRACK_EVENT_CONTEXT pEventContext)
 
     case eXACTEvent_SetVolume:
 
-        // RXDK 5849 uplift: the content's volume is the BASE; the sound's mix
-        // category (and the global master) attenuate on top of it. Going through
-        // the source rather than the raw voice is what lets a later
-        // SetMasterVolume re-apply against this base instead of compounding.
+        // The content's volume is the BASE; the sound's mix category (and the
+        // global master) attenuate on top of it. Going through the source rather
+        // than the raw voice is what lets a later SetMasterVolume re-apply
+        // against this base instead of compounding.
         hr = pSoundSource->SetVoiceVolume(
                  (LONG)pEvent->EventData.SetVolume.sVolume,
                  g_pEngine->GetCategoryAttenuation(

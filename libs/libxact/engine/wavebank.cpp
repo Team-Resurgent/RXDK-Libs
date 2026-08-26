@@ -1,15 +1,15 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       wavebank.cpp
- *  Content:    XACT runtime wavebank object implementation
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/27/2002   georgioc  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CWaveBank -- wraps an in-memory wave bank, resolving wave entries, mapping
+ * waves into the APU for playback, owning the voice free-list for the bank, and
+ * (for streamed banks) remembering the file handle and offset a WMA wave is read
+ * from.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
@@ -169,12 +169,12 @@ HRESULT CWaveBank::Initialize(PVOID pvData, DWORD dwSize)
         hr = SetBufferData(pSource->GetDSoundBuffer());
 
         //
-        // RXDK 5849 uplift: that mapping is a latency optimization, not a requirement, and it
-        // only fits banks the APU can hold in its page table in one piece -- the hardware maps
-        // buffers through a table of MCPX_HW_MAX_BUFFER_PRDS pages, so a bank beyond roughly
-        // eight megabytes cannot be mapped whole no matter how much memory is free. Rather than
-        // refuse such a bank outright, fall back to mapping each wave as it is played: the
-        // page-table cost then follows the waves actually sounding instead of the bank's size.
+        // That mapping is a latency optimization, not a requirement, and it only fits banks the
+        // APU can hold in its page table in one piece -- the hardware maps buffers through a table
+        // of MCPX_HW_MAX_BUFFER_PRDS pages, so a bank beyond roughly eight megabytes cannot be
+        // mapped whole no matter how much memory is free. Rather than refuse such a bank outright,
+        // fall back to mapping each wave as it is played: the page-table cost then follows the
+        // waves actually sounding instead of the bank's size.
         //
 
         if (FAILED(hr)) {

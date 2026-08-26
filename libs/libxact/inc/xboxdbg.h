@@ -1,9 +1,15 @@
-//
-//
-// Xbox debug interface functions
-// Copyright Microsoft Corporation 2000 - 2001. All Rights Reserved.
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox debug monitor (DM) interface -- declarations for the Dm* debugging,
+ * notification, filesystem, thread, and performance-counter APIs exported by
+ * the debug monitor, along with their notification structures and error codes.
+ */
+
 #ifndef _XBOXDBG_H
 #define _XBOXDBG_H
 

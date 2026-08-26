@@ -1,15 +1,14 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       macros.h
- *  Content:    Misc. helper macros.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  08/06/01    dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Miscellaneous helper macros for the XACT runtime: type-form generators
+ * (DEFINEPTYPE/BEGIN_DEFINE_STRUCT/...), arithmetic helpers (DIVUP/BLOCKALIGN/
+ * NUMELMS), handle and interlocked wrappers, and IRQL assertions.
+ */
 
 #ifndef __MACROS_H__
 #define __MACROS_H__

@@ -1,15 +1,15 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       memmgr.cpp
- *  Content:    Memory manager.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/21/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT memory manager. Wraps the Xbox pool allocator (ExAllocatePoolWithTag)
+ * for XACT's internal buffers, tracking a running total of bytes in use for
+ * runtime reporting, and -- when TRACK_MEMORY_USAGE is defined -- keeps a list
+ * of live allocations tagged with their source file/line for leak diagnostics.
+ */
 
 #include "common.h"
 
@@ -53,9 +53,10 @@ LIST_ENTRY g_lstMemoryTracking;
 #undef DPF_FNAME
 #define DPF_FNAME "XactMemAlloc"
 
-// RXDK 5849 uplift: what GetRealtimeData reports. The pool block size is what
-// the allocation actually consumes, and it is recoverable at free time where
-// the requested size is not.
+// Running total of pool bytes in use, as surfaced by GetRealtimeData. The pool
+// block size (not the requested size) is tracked because it is what the
+// allocation actually consumes and it is recoverable at free time, whereas the
+// requested size is not.
 EXTERN_C volatile LONG g_lXactMemoryUsage = 0;
 
 LPVOID

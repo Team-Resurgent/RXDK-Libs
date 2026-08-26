@@ -1,11 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XACT_BRIDGE_H
 
 /*
  * Force-included before each libxact translation unit (engine/*.cpp -> stdafx.h/
- * xacti.h). xacteng.lib is the TITLE-SIDE XACT runtime audio engine ported from
- * the May-2020 leak (private/windows/directx/xact/runtime). It drives playback
- * through DirectSound's PUBLIC API (IDirectSoundBuffer/IDirectSoundStream,
+ * xacti.h). xacteng.lib is the TITLE-SIDE XACT runtime audio engine. It drives
+ * playback through DirectSound's PUBLIC API (IDirectSoundBuffer/IDirectSoundStream,
  * DirectSoundCreate, WAVEFORMATEX, DSMIXBINS ...) and the xboxkrnl timer/DPC/IRQL
  * + pool primitives (Ke*, Ex*). It links into a title alongside libxapi, libd3d8
  * and libdsound. Built default-__cdecl (the exported IXACT* / XACTEngineCreate

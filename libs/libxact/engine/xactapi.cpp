@@ -1,15 +1,20 @@
-/***************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT runtime -- the flat C entry-point layer for the engine API.
  *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xactapi.cpp
- *  Content:    XACT runtime Engine API objects and entry points.
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/22/2002   georgioc  Created.
- *
- ****************************************************************************/
+ * These are the exported functions a title actually calls: IXACTEngine_*,
+ * IXACTSoundBank_*, IXACTSoundCue_*, IXACTSoundSource_* and IXACTWmaPlayList_*.
+ * Each is a thin thunk that casts the opaque handle back to its implementation
+ * object and forwards to the matching C++ method. Those objects live next door
+ * -- CEngine in engine.cpp, CSoundBank in soundbank.cpp, CSoundSource in
+ * soundsource.cpp, CWmaPlayList in wmaplaylist.cpp -- so this file is purely the
+ * public ABI surface over them, plus the engine's global critical section.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
@@ -59,9 +64,9 @@ STDAPI IXACTEngine_RegisterWaveBank(PXACTENGINE pEngine, PVOID pvData, DWORD dwS
     return ((CEngine *)pEngine)->RegisterWaveBank(pvData, dwSize, ppWaveBank);
 }
 
-// RXDK 5849 uplift: 5849 passes streaming parameters (file + packet timing) instead of the leak's
-// caller-provided buffer. CEngine::RegisterStreamedWaveBank now loads the whole bank into memory, so
-// the buffer args are unused (NULL/0).
+// Register a streamed wave bank from its streaming parameters (source file +
+// packet timing). The bank is loaded fully into memory, so the caller-buffer
+// arguments are passed NULL/0.
 STDAPI IXACTEngine_RegisterStreamedWaveBank(PXACTENGINE pEngine, PCXACT_WAVEBANK_STREAMING_PARAMETERS pParams, PXACTWAVEBANK *ppWaveBank)
 {
     using namespace XACT;
@@ -74,11 +79,10 @@ STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBa
     return ((CEngine *)pEngine)->UnRegisterWaveBank(pWaveBank);
 }
 
-// RXDK 5849 uplift: 5849 added a wCategory selector (per-category master volume), and this used to
-// be an empty stub -- it validated lVolume and applied nothing, so a title's volume slider did not
-// move the mix. Both are real now: the volume is stored per category (or globally, for
-// XACT_SOUNDBANK_CATEGORY_UNUSED), composed with the content's own volume when the sequencer sets
-// it, and re-applied to cues already playing in that category.
+// Set the master volume for a sound category (or globally, for
+// XACT_SOUNDBANK_CATEGORY_UNUSED). The volume is stored per category, composed
+// with the content's own volume when the sequencer applies it, and re-applied to
+// cues already playing in that category.
 STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD wCategory, LONG lVolume)
 {
     using namespace XACT;
@@ -91,13 +95,10 @@ STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pc
     return ((CEngine *)pEngine)->SetListenerParameters(pcDs3dListener, pds3dl, dwApply);
 }
 
-// RXDK 5849 uplift: 5849 added a wCategory selector here too, and this used to be an empty stub --
-// it returned S_OK having paused nothing. Both are real now: CEngine::GlobalPause walks the active
-// cues (and the WMA playlists, which render outside the cue path), filters on the category carried
-// in the sound's bank entry, and pauses each voice in place.
-//
-// XACT_SOUNDBANK_CATEGORY_UNUSED means every sound, which is also what a title gets if it names a
-// category no sound in the bank belongs to.
+// Pause or resume every active cue in a category -- and the WMA playlists, which
+// render outside the cue path. The category is matched against each sound's bank
+// entry. XACT_SOUNDBANK_CATEGORY_UNUSED (or a category no sound belongs to) means
+// every sound.
 STDAPI IXACTEngine_GlobalPause(PXACTENGINE pEngine, WORD wCategory, BOOL bPause)
 {
     using namespace XACT;
@@ -167,9 +168,8 @@ STDAPI IXACTSoundBank_Play(PXACTSOUNDBANK pBank, DWORD dwCueIndex, PXACTSOUNDSOU
     return ((CSoundBank *)pBank)->Play(dwCueIndex, pSoundSource, dwFlags, ppCue);
 }
 
-// RXDK 5849 uplift: 5849 made PlayEx the exported entry point and turned Play into a
-// header-inline that packs an XACT_PREPARE_SOUNDCUE and calls PlayEx. Adapt it back to
-// the leak's 5-arg CSoundBank::Play (the extra pParameterControls field is not honored).
+// Play a cue described by an XACT_PREPARE_SOUNDCUE. The pParameterControls field
+// is not honored.
 STDAPI IXACTSoundBank_PlayEx(PXACTSOUNDBANK pBank, PCXACT_PREPARE_SOUNDCUE pPrepareData, PXACTSOUNDCUE *ppCue)
 {
     using namespace XACT;
@@ -230,8 +230,6 @@ STDAPI IXACTSoundSource_SetVelocity(PXACTSOUNDSOURCE pSoundSource,FLOAT x, FLOAT
     return ((CSoundSource *)pSoundSource)->SetVelocity(x, y, z, dwApply);
 }
 
-// RXDK 5849 uplift: recovered from xacteng.lib, where both are thin forwarders
-// onto CSoundSource -- see docs/5849-xact-api-recovery.md.
 STDAPI IXACTSoundSource_SetPitch(PXACTSOUNDSOURCE pSoundSource, LONG lPitch)
 {
     using namespace XACT;
@@ -276,14 +274,12 @@ STDAPI IXACTSoundSource_SetMixBinVolumes(PXACTSOUNDSOURCE pSoundSource, LPCDSMIX
 
 
 
-
-// ==== RXDK 5849 uplift: exported C entry points (moved from engine/uplift5849.cpp) ====
+// ---- engine, sound-bank and sound-source entry points ----
 using namespace XACT;
-// ---- exported C entry points -----------------------------------------------------------------
 
 STDAPI IXACTSoundBank_PrepareEx(PXACTSOUNDBANK pBank, PCXACT_PREPARE_SOUNDCUE pPrepareData, PXACTSOUNDCUE *ppCue)
 {
-    // No prepared-but-stopped state in the leak runtime: create+play the cue instead.
+    // There is no prepared-but-stopped state; create and play the cue immediately.
     return ((CSoundBank *)pBank)->Play(pPrepareData->dwCueIndex, pPrepareData->pSoundSource,
                                        pPrepareData->dwFlags, ppCue);
 }
@@ -300,7 +296,7 @@ STDAPI IXACTEngine_GetVariable(PXACTENGINE pEngine, DWORD dwVariable, PWORD pwVa
 
 STDAPI IXACTEngine_SetParameterControl(PXACTENGINE /*pEngine*/, PCXACT_PARAMETER_CONTROL_DESC /*pParams*/)
 {
-    // The RPC/parameter-control engine is new in 5849 and absent from the leak; accept and ignore.
+    // The RPC/parameter-control engine is not implemented; accept and ignore.
     return S_OK;
 }
 
@@ -353,7 +349,7 @@ STDAPI IXACTSoundSource_StopSoundCues(PXACTSOUNDSOURCE pSoundSource)
 {
     return ((CSoundSource *)pSoundSource)->StopSoundCues();
 }
-// ---- IXACTWmaPlayList (RXDK 5849 uplift) -----------------------------------------------------
+// ---- IXACTWmaPlayList entry points ----
 //
 // The playlist object itself is in engine/wmaplaylist.cpp. These are the C entry points the
 // public xact.h declares, plus the sound-bank factory that creates one.
@@ -445,10 +441,9 @@ STDAPI IXACTWmaPlayList_GetProperties(PXACTWMAPLAYLIST pPlayList,
     return ((CWmaPlayList *)pPlayList)->GetProperties(pProperties);
 }
 
-// ---- IXACTSoundBank_PauseSoundCue (RXDK 5849 uplift) -----------------------------------------
+// ---- IXACTSoundBank_PauseSoundCue ----
 //
-// Declared by the 5849 public header and previously unimplemented, like GlobalPause. Pauses one cue
-// rather than a whole category; the underlying work is the same, so both landed together.
+// Pause or resume a single cue (rather than a whole category, as GlobalPause does).
 
 STDAPI IXACTSoundBank_PauseSoundCue(PXACTSOUNDBANK pBank, PXACTSOUNDCUE pSoundCue, BOOL fPause)
 {

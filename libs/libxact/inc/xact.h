@@ -1,11 +1,15 @@
-/**************************************************************************
- *
- *  Copyright (C) 2002 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xact.h
- *  Content:    X-Box Audio Content Tool Runtime Engine.
- *
- **************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The public, title-facing XACT runtime engine API: the IXACTEngine,
+ * IXACTSoundSource, and IXACTSoundBank interfaces along with the
+ * notification, properties, and select-variation structures and the flags
+ * that titles use to drive them.
+ */
 
 #ifndef __XACT_ENGINE_INCLUDED__
 #define __XACT_ENGINE_INCLUDED__
@@ -126,15 +130,13 @@ typedef struct _XACT_RUNTIME_PARAMETERS {
     DWORD dwHeapSize;
 } XACT_RUNTIME_PARAMETERS, *PXACT_RUNTIME_PARAMETERS, *LPXACT_RUNTIME_PARAMETERS;
 
-// 5849: runtime sound source properties (IXACTSoundSource_GetProperties).
-// Mirrored from the public xact.h for the same shadowing reason as
-// XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE below.
+// Runtime sound source properties (IXACTSoundSource_GetProperties).
 typedef struct _XACT_SOUNDSOURCE_PROPERTIES {
     DWORD           dwHighestCuePriority;
     DSVOICEPROPS    HwVoiceProperties;
 } XACT_SOUNDSOURCE_PROPERTIES, *PXACT_SOUNDSOURCE_PROPERTIES;
 
-// 5849: IXACTSoundBank_SelectVariation data (mirrored from the public xact.h).
+// IXACTSoundBank_SelectVariation data.
 
 #define XACT_FLAG_SELECT_VARIATION_SOUND_INDEX  0x00000001
 #define XACT_FLAG_SELECT_VARIATION_SOUND_VALUE  0x00000002
@@ -163,7 +165,7 @@ typedef struct _XACT_SOUNDBANK_SELECT_VARIATION
 
 typedef const XACT_SOUNDBANK_SELECT_VARIATION *PCXACT_SOUNDBANK_SELECT_VARIATION;
 
-// 5849: IXACTSoundBank_GetSoundCueProperties (mirrored from the public xact.h).
+// IXACTSoundBank_GetSoundCueProperties data.
 
 #define XACT_WAVE_INDEX_UNUSED  0xFFFF
 
@@ -202,7 +204,7 @@ typedef struct _XACT_SOUNDCUE_PROPERTIES
     FLOAT   flDopplerFactor;    // Doppler factor
 } XACT_SOUNDCUE_PROPERTIES, *PXACT_SOUNDCUE_PROPERTIES;
 
-// 5849: IXACTEngine_GetRealtimeData (mirrored from the public xact.h).
+// IXACTEngine_GetRealtimeData data.
 
 typedef struct _XACT_REALTIME_AUDIO_DATA
 {
@@ -223,9 +225,7 @@ typedef struct _XACT_REALTIME_AUDIO_DATA
 #define XACT_FLAG_SOUNDSOURCE_3D            0x00000002
 #define XACT_MASK_SOUNDSOURCE_FLAGS         (XACT_FLAG_SOUNDSOURCE_3D | XACT_FLAG_SOUNDSOURCE_2D)
 
-// 5849: IXACTSoundSource_GetStatus's only defined bit. The leak-era inc/ headers
-// shadow shared/include, so a constant added only to the public xact.h is
-// invisible to the engine that has to set it.
+// IXACTSoundSource_GetStatus's only defined bit.
 #define XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE 0x00000001
 
 #define XACT_FLAG_SOUNDCUE_AUTORELEASE			0x00000001

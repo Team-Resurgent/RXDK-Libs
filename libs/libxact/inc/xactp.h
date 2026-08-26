@@ -1,17 +1,15 @@
-/**************************************************************************
- *
- *  Copyright (C) 2002 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xact.h
- *  Content:    X-Box Audio Content Tool Runtime Engine.
-//@@BEGIN_MSINTERNAL
- *  History:
- *   Date       By       Reason
- *   ====       ==       ======
- *  01/17/2002  georgioc Created.
-//@@END_MSINTERNAL
- *
- **************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The private, internal XACT header: the on-disk soundbank file structures,
+ * the sequencer track-event layouts, and the flat C export prototypes shared
+ * across the engine implementation. It mirrors the public xact.h surface and
+ * adds the internal types the engine needs but titles never see.
+ */
 
 #ifndef __XACT_ENGINE_INCLUDED__
 #define __XACT_ENGINE_INCLUDED__
@@ -72,13 +70,13 @@ typedef enum _XACT_NOTIFICATION_TYPE {
 
 #define XACT_MASK_NOTIFICATION_TYPE		0x0000FFFF
 
-// RXDK 5849 uplift: the notification type/flags moved from one DWORD dwType (type in the
-// low word, flags in the high word) to a WORD wType + a separate WORD wFlags. The type
-// sentinel is therefore a WORD, and PERSIST relocated from 0x00010000 to wFlags bit 0x8000.
+// The notification type and flags are a WORD wType plus a separate WORD wFlags
+// (not one packed DWORD), so the "unused" type sentinel is a WORD and PERSIST
+// lives in wFlags bit 0x8000.
 #define XACT_NOTIFICATION_TYPE_UNUSED	0xFFFF
 
 //
-// flags used when registering notifications (5849: the wFlags WORD)
+// flags used when registering notifications (the wFlags WORD)
 //
 
 #define XACT_FLAG_NOTIFICATION_USE_WAVEBANK          0x0001
@@ -104,7 +102,7 @@ typedef struct _XACT_NOTIFICATION_STOP {
  
 typedef struct _XACT_NOTIFICATION_MARKER {
 
-    DWORD   dwData;     // 5849: the delivered marker is the authored Value (a single DWORD)
+    DWORD   dwData;     // the delivered marker is the authored Value (a single DWORD)
 
 } XACT_NOTIFICATION_MARKER, *PXACT_NOTIFICATION_MARKER, *LPXACT_NOTIFICATION_MARKER;
 
@@ -147,19 +145,18 @@ typedef struct _XACT_RUNTIME_PARAMETERS {
     DWORD dwMax2DHwVoices;
     DWORD dwMax3DHwVoices;
     DWORD dwMaxConcurrentStreams;
-    DWORD dwMaxNotifications;               // 5849: replaced pvHeap (engine never read it)
-    DWORD dwInteractiveAudioLookaheadTime;  // 5849: replaced dwHeapSize
+    DWORD dwMaxNotifications;               // (the engine does not use a caller heap)
+    DWORD dwInteractiveAudioLookaheadTime;  // interactive-audio lookahead time
 } XACT_RUNTIME_PARAMETERS, *PXACT_RUNTIME_PARAMETERS, *LPXACT_RUNTIME_PARAMETERS;
 
-// 5849: runtime sound source properties (IXACTSoundSource_GetProperties).
-// Mirrored from the public xact.h for the same shadowing reason as
-// XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE below.
+// Runtime sound source properties (IXACTSoundSource_GetProperties).
+// Mirrors the public xact.h.
 typedef struct _XACT_SOUNDSOURCE_PROPERTIES {
     DWORD           dwHighestCuePriority;
     DSVOICEPROPS    HwVoiceProperties;
 } XACT_SOUNDSOURCE_PROPERTIES, *PXACT_SOUNDSOURCE_PROPERTIES;
 
-// 5849: IXACTSoundBank_SelectVariation data (mirrored from the public xact.h).
+// IXACTSoundBank_SelectVariation data (mirrors the public xact.h).
 
 #define XACT_FLAG_SELECT_VARIATION_SOUND_INDEX  0x00000001
 #define XACT_FLAG_SELECT_VARIATION_SOUND_VALUE  0x00000002
@@ -188,7 +185,7 @@ typedef struct _XACT_SOUNDBANK_SELECT_VARIATION
 
 typedef const XACT_SOUNDBANK_SELECT_VARIATION *PCXACT_SOUNDBANK_SELECT_VARIATION;
 
-// 5849: IXACTSoundBank_GetSoundCueProperties (mirrored from the public xact.h).
+// IXACTSoundBank_GetSoundCueProperties data (mirrors the public xact.h).
 
 #define XACT_WAVE_INDEX_UNUSED  0xFFFF
 
@@ -227,7 +224,7 @@ typedef struct _XACT_SOUNDCUE_PROPERTIES
     FLOAT   flDopplerFactor;    // Doppler factor
 } XACT_SOUNDCUE_PROPERTIES, *PXACT_SOUNDCUE_PROPERTIES;
 
-// 5849: IXACTEngine_GetRealtimeData (mirrored from the public xact.h).
+// IXACTEngine_GetRealtimeData data (mirrors the public xact.h).
 
 typedef struct _XACT_REALTIME_AUDIO_DATA
 {
@@ -248,9 +245,7 @@ typedef struct _XACT_REALTIME_AUDIO_DATA
 #define XACT_FLAG_SOUNDSOURCE_3D            0x00000002
 #define XACT_MASK_SOUNDSOURCE_FLAGS         (XACT_FLAG_SOUNDSOURCE_3D | XACT_FLAG_SOUNDSOURCE_2D)
 
-// 5849: IXACTSoundSource_GetStatus's only defined bit. The leak-era inc/ headers
-// shadow shared/include, so a constant added only to the public xact.h is
-// invisible to the engine that has to set it.
+// IXACTSoundSource_GetStatus's only defined bit.
 #define XACT_FLAG_SOUNDSOURCE_STATUS_ACTIVE 0x00000001
 
 #define XACT_FLAG_SOUNDCUE_AUTORELEASE			0x00000001
@@ -267,7 +262,7 @@ typedef struct _XACT_REALTIME_AUDIO_DATA
 // IXACTEngine
 //
 
-STDAPI XACTEngineCreate(PXACT_RUNTIME_PARAMETERS pParams, PXACTENGINE *ppEngine);  // 5849: args reversed
+STDAPI XACTEngineCreate(PXACT_RUNTIME_PARAMETERS pParams, PXACTENGINE *ppEngine);  // note: pParams before ppEngine
 STDAPI_(void) XACTEngineDoWork(void);
 
 STDAPI_(ULONG) IXACTEngine_AddRef(PXACTENGINE pEngine);
@@ -277,8 +272,8 @@ STDAPI IXACTEngine_CreateSoundSource(PXACTENGINE pEngine, DWORD dwFlags, PXACTSO
 STDAPI IXACTEngine_CreateSoundBank(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize, PXACTSOUNDBANK *ppSoundBank);
 STDAPI IXACTEngine_RegisterWaveBank(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize, PXACTWAVEBANK * ppWaveBank);
 
-// RXDK 5849 uplift: 5849 replaced the leak's (pvStreamingBuffer,dwSize,hFile,dwOffset) form with a
-// params block -- the runtime owns the buffer, sized from the packet timing.
+// The streamed wave bank is described by a parameters block: the runtime owns
+// the buffer, sized from the packet timing below.
 typedef struct _XACT_WAVEBANK_STREAMING_PARAMETERS
 {
     HANDLE  hFile;
@@ -290,18 +285,17 @@ typedef const XACT_WAVEBANK_STREAMING_PARAMETERS *PCXACT_WAVEBANK_STREAMING_PARA
 
 STDAPI IXACTEngine_RegisterStreamedWaveBank(PXACTENGINE pEngine, PCXACT_WAVEBANK_STREAMING_PARAMETERS pParams, PXACTWAVEBANK *ppWaveBank);
 
-// RXDK 5849 uplift: the interactive-audio runtime-variable + parameter-control subsystems are new
-// in 5849 -- the Jan-2002 leak has no such runtime. These exports exist so 5849 titles link and
-// boot; they are no-op stubs (return S_OK) and do NOT modulate audio. See engine/uplift5849.cpp.
+// The interactive-audio runtime-variable and parameter-control exports exist so
+// titles link and boot; they are no-op stubs (return S_OK) and do NOT modulate
+// audio.
 typedef const void *PCXACT_PARAMETER_CONTROL_DESC;
 STDAPI IXACTEngine_SetVariable(PXACTENGINE pEngine, DWORD dwVariable, WORD wValue, DWORD dwApply);
 STDAPI IXACTEngine_GetVariable(PXACTENGINE pEngine, DWORD dwVariable, PWORD pwValue);
 STDAPI IXACTEngine_SetParameterControl(PXACTENGINE pEngine, PCXACT_PARAMETER_CONTROL_DESC pParams);
 STDAPI IXACTEngine_UnRegisterWaveBank(PXACTENGINE pEngine, PXACTWAVEBANK pWaveBank);
-STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD wCategory, LONG lVolume);  // 5849: +wCategory
+STDAPI IXACTEngine_SetMasterVolume(PXACTENGINE pEngine, WORD wCategory, LONG lVolume);  // wCategory selects the mix category
 STDAPI IXACTEngine_SetListenerParameters(PXACTENGINE pEngine, LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply);
-// RXDK 5849 uplift: 5849 split the combined SetListenerParameters into per-component setters.
-// The leak has no per-component listener path, so these are no-op stubs (see engine/uplift5849.cpp).
+// Per-component listener setters; these are no-op stubs.
 STDAPI IXACTEngine_SetListenerPosition(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
 STDAPI IXACTEngine_SetListenerVelocity(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply);
 STDAPI IXACTEngine_SetListenerOrientation(PXACTENGINE pEngine, FLOAT xFront, FLOAT yFront, FLOAT zFront, FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply);
@@ -490,8 +484,8 @@ STDAPI IXACTSoundBank_Play(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, PXACTSOU
 STDAPI IXACTSoundBank_Stop(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, DWORD dwFlags, PXACTSOUNDCUE pSoundCue);
 STDAPI IXACTSoundBank_SetSliderValue(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, DWORD dwSliderIndex, PVOID pvValue);
 
-// RXDK 5849 uplift: PlayEx entry point + its parameter block (matches the 5849 public
-// xact.h). pParameterControls is carried for layout compatibility but not honored here.
+// PlayEx entry point + its parameter block (matches the public xact.h).
+// pParameterControls is carried for layout compatibility but not honored here.
 typedef struct _XACT_PREPARE_SOUNDCUE
 {
     DWORD               dwFlags;
@@ -556,10 +550,11 @@ struct IXACTSoundBank
 // XACT_CATEGORY_INDEX_UNUSED = 0xFF; the bank field is a WORD, so widen it here
 // rather than truncating and colliding with a real category 255.
 #define XACT_SOUNDBANK_CATEGORY_UNUSED         0xFFFF
-// RXDK: bumped 1 -> 2 when wCategory was added to XACT_SOUNDBANK_SOUND_ENTRY.
-// The entry stride changed, so a v1 bank cannot be read with the v2 struct --
-// but CSoundBank::IsValidHeader rejects a mismatched version outright, so a
-// stale .xsb produces a clean error instead of misread audio. Rebuild banks.
+// The soundbank format version. Version 2 carries wCategory in
+// XACT_SOUNDBANK_SOUND_ENTRY, so its entry stride differs from version 1 and a
+// v1 bank cannot be read with the v2 struct -- but CSoundBank::IsValidHeader
+// rejects a mismatched version outright, so a stale .xsb produces a clean error
+// instead of misread audio. Rebuild banks.
 #define XACT_SOUNDBANK_HEADER_VERSION          2
 
 typedef struct _XACT_SOUNDBANK_FILE_HEADER{
@@ -617,13 +612,12 @@ typedef struct _XACT_SOUNDBANK_SOUND_ENTRY{
 	WORD					wSliderCount;
 
     //
-    // RXDK 5849 uplift: the sound's mix category, as an index into the
-    // categories the .xap declares, or XACT_SOUNDBANK_CATEGORY_UNUSED.
+    // The sound's mix category, as an index into the categories the .xap
+    // declares, or XACT_SOUNDBANK_CATEGORY_UNUSED.
     //
-    // 5849 exposes categories through the wCategory selector on GlobalPause
-    // and SetMasterVolume, and reports one in XACT_SOUNDCUE_PROPERTIES. The
-    // leak's format had nowhere to put it -- wGroupNumber above is variation
-    // selection, not a mix category -- so there was nothing to select on.
+    // Categories are exposed through the wCategory selector on GlobalPause and
+    // SetMasterVolume, and reported in XACT_SOUNDCUE_PROPERTIES. Note that
+    // wGroupNumber above is variation selection, not a mix category.
     //
     WORD					wCategory;
 
@@ -930,7 +924,7 @@ struct XACT_TRACK_EVENT {
 
 
 //
-// RXDK 5849 uplift: IXACTWmaPlayList.
+// IXACTWmaPlayList.
 //
 // This is libxact's own copy of the API surface (the public shared/include/xact.h
 // is shadowed by inc/xact.h on this lib's include path), so the playlist

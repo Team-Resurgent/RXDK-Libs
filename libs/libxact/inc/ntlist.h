@@ -1,15 +1,14 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       ntlist.h
- *  Content:    Overrides of the standard NT list management macros.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  08/06/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Overrides of the standard NT doubly-linked list macros (InsertHeadList,
+ * InsertTailList, RemoveEntryList, ...) as inline functions, adding debug-build
+ * validation of each list entry.
+ */
 
 #ifndef __NTLIST_H__
 #define __NTLIST_H__

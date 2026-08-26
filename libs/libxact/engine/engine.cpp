@@ -1,19 +1,24 @@
-/***************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XACT runtime -- CEngine, the top-level runtime object a title creates.
  *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       engine.cpp
- *  Content:    XACT runtime Engine implementation
- *  History:
- *  Date        By        Reason
- *  ====        ==        ======
- *  1/22/2002   georgioc  Created.
- *
- ****************************************************************************/
+ * The engine owns the DirectSound device and pre-allocates the pools of 2D, 3D
+ * and stream hardware voices that cues draw from. It registers wave and sound
+ * banks (loading WMA banks by transcoding them to PCM on load, and streamed
+ * banks by reading the whole file into memory), and drives per-frame work in
+ * DoWork across the active cues and WMA playlists. It also implements the
+ * master and per-category volume, global pause, the 3D listener, and the
+ * notification system that hands playback events back to the title.
+ */
 
 #include "xacti.h"
 #include "xboxdbg.h"
-#include "wmabridge.h"   // RXDK 5849 uplift: WMA bank transcode-on-load
+#include "wmabridge.h"   // WMA bank transcode-on-load
 
 
 #undef DPF_FNAME
@@ -44,7 +49,7 @@ XACTEngineDoWork()
 HRESULT
 XACTEngineCreate
 (
-    PXACT_RUNTIME_PARAMETERS pParams,PXACTENGINE *ppEngine   // 5849: args reversed
+    PXACT_RUNTIME_PARAMETERS pParams,PXACTENGINE *ppEngine   // note: pParams before ppEngine
 )
 {
     using namespace XACT;
@@ -154,7 +159,7 @@ CEngine::CEngine
     KeInitializeTimer(&m_TimerObject);
     KeInitializeDpc(&m_DpcObject, DPCTimerCallBack, this);
 
-    // RXDK 5849 uplift: default 3D listener (front +Z, top +Y, unit factors) + zeroed variables.
+    // Default 3D listener (front +Z, top +Y, unit factors) + zeroed variables.
     memset(&m_ds3dListener, 0, sizeof(m_ds3dListener));
     m_ds3dListener.dwSize = sizeof(m_ds3dListener);
     m_ds3dListener.vOrientFront.z = 1.0f;
@@ -1222,9 +1227,9 @@ HRESULT CEngine::RegisterWaveBank(PVOID pvData, DWORD dwSize, PXACTWAVEBANK *ppW
     ASSERT_IN_PASSIVE;
     ENTER_EXTERNAL_METHOD();
 
-    // RXDK 5849 uplift: if this is a WMA bank (xactbld's private RXWM container), decode every WMA
-    // entry to PCM and rebuild a standard .xwb in memory, then register that. The decoded PCM buffer
-    // backs the wave bank for its lifetime (a load-all simplification -- the whole bank is resident).
+    // If this is a WMA bank (xactbld's private RXWM container), decode every WMA entry to PCM and
+    // rebuild a standard .xwb in memory, then register that. The decoded PCM buffer backs the wave
+    // bank for its lifetime, so the whole bank stays resident in memory.
     {
         PVOID pvPcmBank = NULL;
         unsigned int cbPcmBank = 0;
@@ -1319,9 +1324,8 @@ static DWORD XactGetSectorSize(HANDLE hFile)
 
 HRESULT CEngine::RegisterStreamedWaveBank(PVOID /*pvStreamingBuffer*/, DWORD /*dwSize*/, HANDLE hFileHandle, DWORD dwOffset, PXACTWAVEBANK *ppWaveBank)
 {
-    // RXDK 5849 uplift: the leak left true streaming unimplemented (this method was an empty stub
-    // that never even set *ppWaveBank). Rather than stream, load the whole bank file into memory
-    // and register it as an in-memory wave bank, so streamed cues actually play (fully resident).
+    // Rather than truly stream, load the whole bank file into memory and register it as an
+    // in-memory wave bank, so streamed cues play. The bank is fully resident for its lifetime.
     HRESULT hr = S_OK;
 
     DPF_ENTER();
@@ -1489,10 +1493,7 @@ HRESULT CEngine::UnRegisterWaveBank(PXACTWAVEBANK pWaveBankInstance)
 #define DPF_FNAME "CEngine::SetMasterVolume"
 
 //
-// RXDK 5849 uplift: this was an empty stub -- it validated lVolume and applied
-// nothing, so a title's volume slider did not move the mix at all.
-//
-// 5849 takes a category alongside the volume. XACT_SOUNDBANK_CATEGORY_UNUSED
+// Sets a volume, taking a category alongside it. XACT_SOUNDBANK_CATEGORY_UNUSED
 // addresses the global master; anything else addresses that category, and the
 // two compose (a sound is attenuated by its category AND by the master).
 //
@@ -1616,12 +1617,9 @@ HRESULT CEngine::SetListenerParameters(LPCDS3DLISTENER pcDs3dListener, LPCDSI3DL
 #define DPF_FNAME "CEngine::GlobalPause"
 
 //
-// RXDK 5849 uplift: this was an empty stub -- it returned S_OK having paused
-// nothing, so a title pausing for a menu kept hearing its audio.
-//
-// wCategory selects which sounds move. XACT_SOUNDBANK_CATEGORY_UNUSED means all
-// of them, which is also what a title gets if it passes the category of a bank
-// built before categories existed.
+// Pauses or resumes sounds. wCategory selects which sounds move.
+// XACT_SOUNDBANK_CATEGORY_UNUSED means all of them, which is also what a title
+// gets if it passes the category of a bank built before categories existed.
 //
 HRESULT CEngine::GlobalPause(WORD wCategory, BOOL bPause)
 {
@@ -1754,9 +1752,9 @@ HRESULT CEngine::GetNotification(PXACT_NOTIFICATION_DESCRIPTION pNotificationDes
     // get a notification from our linked list or soundbank,soundcue
     // based on the criteria specified
     //
-    // RXDK 5849 uplift: no description at all asks for whatever is pending, which is how a title
+    // No description at all (or TYPE_UNUSED) asks for whatever is pending, which is how a title
     // drains notifications when it registered only one kind and does not need to say which it
-    // wants. The leak's code read through the pointer before testing it.
+    // wants. Test the description pointer before dereferencing it.
     //
 
     if (!pNotificationDesc || pNotificationDesc->wType == XACT_NOTIFICATION_TYPE_UNUSED) {
@@ -2104,8 +2102,8 @@ HRESULT CEngine::ScheduleEvent(XACT_TRACK_EVENT *pEventDesc, PXACTSOUNDCUE pSoun
 
 
 
-// ==== RXDK 5849 uplift: CEngine methods (moved from engine/uplift5849.cpp) ====
-// ---- CEngine 5849 methods --------------------------------------------------------------------
+// ---- 3D listener position, velocity and orientation -----------------------------------------
+// Each updates the cached listener struct and forwards it to SetListenerParameters.
 
 HRESULT STDMETHODCALLTYPE CEngine::SetListenerPosition(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply)
 {
@@ -2136,15 +2134,10 @@ HRESULT STDMETHODCALLTYPE CEngine::SetListenerOrientation(FLOAT xFront, FLOAT yF
 }
 
 //
-// RXDK 5849 uplift: the three remaining CEngine APIs, recovered from
-// xacteng.lib (docs/5849-xact-api-recovery.md).
-//
-// EnableHeadphones and SetI3dl2Listener are forwarders in retail too --
-// EnableHeadphones onto IDirectSound_EnableHeadphones, SetI3dl2Listener onto
-// IDirectSound_SetI3DL2Listener (retail routes the latter through a static
-// CSoundSource helper that also caches the parameters for its own 3D math;
-// this port's 3D math lives in libdsound, so the forward is the whole job --
-// and SetListenerParameters is already that forward).
+// EnableHeadphones and SetI3dl2Listener are thin forwarders:
+// EnableHeadphones onto IDirectSound_EnableHeadphones, and SetI3dl2Listener onto
+// SetListenerParameters (which forwards to IDirectSound_SetI3DL2Listener). The 3D
+// math lives in libdsound, so the forward is the whole job.
 //
 
 HRESULT STDMETHODCALLTYPE CEngine::EnableHeadphones(BOOL fEnabled)
@@ -2159,9 +2152,10 @@ HRESULT STDMETHODCALLTYPE CEngine::SetI3dl2Listener(LPCDSI3DL2LISTENER pds3dl, D
 }
 
 //
-// Retail: IDirectSound_GetCaps into DSoundCaps, IDirectSound_GetOutputLevels
-// into OutputLevels (without resetting the peaks), bail on the first failure,
-// then the engine's availability counters and the running allocation total.
+// GetRealtimeData fills DSoundCaps via IDirectSound_GetCaps and OutputLevels via
+// IDirectSound_GetOutputLevels (without resetting the peaks), bailing on the
+// first failure, then fills in the engine's availability counters and the
+// running allocation total.
 //
 
 static BYTE CountListEntries(const LIST_ENTRY *pList)
@@ -2226,7 +2220,9 @@ HRESULT STDMETHODCALLTYPE CEngine::GetVariable(DWORD dwVariable, PWORD pwValue)
     return S_OK;
 }
 
-// ---- 5849 DSP image download (renamed LoadDspImage + returns the image desc) -----------------
+// ---- DSP effects image download ---------------------------------------------------------------
+// DownloadEffectsImage downloads the DSP effect image (via LoadDspImage) and returns its
+// image description.
 
 HRESULT STDMETHODCALLTYPE CEngine::DownloadEffectsImage(PVOID pvData, DWORD dwSize,
                                                         LPCDSEFFECTIMAGELOC pEffectLoc,

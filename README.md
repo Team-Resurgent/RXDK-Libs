@@ -16,6 +16,16 @@ Zig-built Xbox C/C++ runtime and SDK for original Xbox devkits — **picolibc** 
 
 No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. Host deploy tools (`imagebld`, `xdvdfs`, neighborhood, etc.) live under `tools/` and may stay MSBuild-based.
 
+## Origins & attribution
+
+RXDK's low-level runtime (`libc`, `libc++`, `libkernel`) and the entire Zig/Clang build system are original work. The higher-level subsystem libraries — the xAPI and the D3D8, D3DX8, DirectSound, XGraphics, XMV, XNet, XACT and XOnline drivers — are **derived from Microsoft's original Xbox Development Kit source**.
+
+That source has been **recompiled from source against a modern, MSVC-free toolchain** (Zig + Clang, picolibc + LLVM libc++) rather than the original Microsoft compiler, and adapted extensively to build and run under it — a large amount of code had to be reworked for the new ABI, calling conventions and freestanding runtime.
+
+Where the leaked source was incomplete, missing functionality was **recovered by decompiling and disassembling the shipped retail Xbox libraries** — reconstructing the absent functions from the prebuilt `.lib`/binary objects (via symbol recovery and decompilation) — so the libraries match the retail XDK build they target.
+
+"Xbox" and all related names are trademarks of Microsoft Corporation. RXDK is an independent, non-commercial preservation and homebrew project; it is **not affiliated with, authorised by, or endorsed by Microsoft**. It is distributed under the GNU GPL v3 (see [LICENSE.md](LICENSE.md)) on a best-effort basis with no warranty.
+
 ## Prerequisites
 
 - [Zig](https://ziglang.org/) **0.16+** (tested with 0.16.0)

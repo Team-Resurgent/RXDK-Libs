@@ -1,13 +1,19 @@
-//===----------------------------------------------------------------------===//
-// RXDK-Libs: floating-point std::to_chars only.
-//
-// libc++'s charconv.cpp instantiates both to_chars and from_chars for floating
-// point, but from_chars_floating_point.h pulls in src/include/shared/*.h, which
-// this libc++ snapshot does not vendor. std::format / std::print only need the
-// FP to_chars (output) path, so we instantiate just those overloads here. They
-// are backed by the Ryu sources (vendor/llvm-project/libcxx/src/ryu/*.cpp,
-// compiled by libs/libcpp/build.zig). Definitions mirror charconv.cpp exactly.
-//===----------------------------------------------------------------------===//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Floating-point std::to_chars only.
+ *
+ * libc++'s charconv.cpp instantiates both to_chars and from_chars for floating
+ * point, but from_chars_floating_point.h pulls in src/include/shared/*.h, which
+ * this libc++ snapshot does not vendor. std::format / std::print only need the
+ * FP to_chars (output) path, so only those overloads are instantiated here. They
+ * are backed by the Ryu sources (vendor/llvm-project/libcxx/src/ryu/*.cpp,
+ * compiled by libs/libcpp/build.zig). Definitions mirror charconv.cpp.
+ */
 
 #include <charconv>
 

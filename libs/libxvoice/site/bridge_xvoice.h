@@ -1,16 +1,20 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XVOICE_BRIDGE_H
 
 /*
  * Force-included before each libxvoice translation unit. xvoice.lib is the
- * XDK-5849 voice library: the XHV high-level voice-chat engine (xhv.h) plus the
+ * voice library: the XHV high-level voice-chat engine (xhv.h) plus the
  * low-level voice XMO/codec API (xvoice.h) and the XDEVICE_TYPE_VOICE_* device
- * tables. The May-2020 leak carries NO implementation for it (only the older
- * public header), so this lib is a fresh RXDK implementation of the 5849 public
- * C surface: engine/talker bookkeeping is real; anything that needs the voice
- * communicator USB audio driver or the SC03/WMAVoice codecs (neither of which
- * exists anywhere in the leak) reports the same failure the retail lib produces
- * when no communicator is inserted. See libs/libxvoice/sources.zig.
+ * tables. It implements the public C surface: engine/talker bookkeeping is real;
+ * anything that needs the voice communicator USB audio driver or the SC03/WMAVoice
+ * codecs (which RXDK does not provide) reports the same failure the retail lib
+ * produces when no communicator is inserted. See libs/libxvoice/sources.zig.
  *
  * Same shape as libxact's site/bridge_xact.h (a title-side lib built on the
  * public header surface):

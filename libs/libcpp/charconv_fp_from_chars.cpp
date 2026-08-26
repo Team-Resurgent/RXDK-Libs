@@ -1,17 +1,23 @@
-//===----------------------------------------------------------------------===//
-// RXDK-Libs: floating-point std::from_chars (string -> float/double).
-//
-// libc++ 23 delegates its from_chars float parsing to LLVM libc's __support tree
-// (libc/shared/{fp_bits,str_to_float,str_to_integer}.h -> libc/src/__support/...),
-// which is not vendored here and pulls in a deep dependency web. Rather than
-// vendor that, we provide the one out-of-line entry point the <charconv> header
-// calls -- std::__from_chars_floating_point<Fp> -- backed by the C library's
-// strtof/strtod (C locale). This covers the general/scientific/fixed forms and
-// hex floats; it is not the bit-exact correctly-rounded LLVM implementation for
-// every edge case, but parses the conforming forms used in practice.
-//
-// (The matching FP to_chars lives in charconv_fp_to_chars.cpp.)
-//===----------------------------------------------------------------------===//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Floating-point std::from_chars (string -> float/double).
+ *
+ * libc++ delegates its from_chars float parsing to LLVM libc's __support tree
+ * (libc/shared/{fp_bits,str_to_float,str_to_integer}.h -> libc/src/__support/...),
+ * which is not vendored here and pulls in a deep dependency web. Instead, this
+ * file provides the one out-of-line entry point the <charconv> header calls --
+ * std::__from_chars_floating_point<Fp> -- backed by the C library's strtof/strtod
+ * (C locale). This covers the general/scientific/fixed forms and hex floats; it
+ * is not the bit-exact correctly-rounded LLVM implementation for every edge case,
+ * but parses the conforming forms used in practice.
+ *
+ * (The matching FP to_chars lives in charconv_fp_to_chars.cpp.)
+ */
 
 #include <charconv>
 

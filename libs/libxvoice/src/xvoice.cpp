@@ -1,24 +1,29 @@
-// RXDK 5849 uplift: the low-level voice API (xvoice.h / xvoice.lib) + the
-// XDEVICE_TYPE_VOICE_* device tables.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// The low-level voice API (xvoice.h / xvoice.lib) + the XDEVICE_TYPE_VOICE_*
+// device tables.
 //
-// The leak carries no xvoice implementation at all. The low-level surface is
-// two things RXDK cannot make real:
+// The low-level surface is two things RXDK cannot make real:
 //  - XVoiceCreateMediaObject[Ex]: an XMO over the voice communicator's USB
-//    microphone/headphone endpoints. The USB audio class driver was never in
-//    the leak, so no communicator device can exist; the retail lib fails this
-//    call when no communicator is inserted at the given port, and that is the
-//    failure we reproduce.
-//  - the SC03 voice encoder/decoder XMO factories: the codec exists only as
-//    binaries inside the retail lib. Absent a codec, the factories fail
-//    cleanly (E_FAIL, *ppMediaObject = NULL) so titles degrade the same way
-//    they would on codec-init failure.
+//    microphone/headphone endpoints. With no USB audio class driver, no
+//    communicator device can exist; the retail lib fails this call when no
+//    communicator is inserted at the given port, and that is the failure we
+//    reproduce.
+//  - the SC03 voice encoder/decoder XMO factories: the codec ships only as
+//    binaries in the retail lib. Absent a codec, the factories fail cleanly
+//    (E_FAIL, *ppMediaObject = NULL) so titles degrade the same way they would
+//    on codec-init failure.
 // The queue XMOs sit between the two (pure software jitter buffers), but with
 // neither capture nor codec they can never be fed, so they fail alike rather
 // than hand the title a working object whose neighbors are absent.
 //
 // This is a CAPABILITY BOUNDARY, not unfinished work (see the note at the top
-// of xhv.cpp): the USB audio driver and the SC03 codec were binary-only in the
-// retail libs -- nothing exists in the leak to port.
+// of xhv.cpp): the USB audio driver and the SC03 codec ship only as binaries
+// in the retail libs.
 
 #include <xvoice.h>
 

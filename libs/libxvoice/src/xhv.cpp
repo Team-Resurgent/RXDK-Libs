@@ -1,28 +1,30 @@
-// RXDK 5849 uplift: the XHV high-level voice-chat engine (xhv.h / xvoice.lib).
-//
-// The May-2020 leak has NO xvoice implementation (private/genx/directx/xvoice
-// carries only the older public header), so unlike the other RXDK libs this is
-// a fresh implementation of the XDK-5849 public C surface, not a port.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// The XHV high-level voice-chat engine (xhv.h / xvoice.lib): an implementation
+// of the public C surface.
 //
 // What is REAL here: engine lifetime/refcounting, processing-mode bookkeeping,
 // the title callback interface, local/remote talker registration and
 // enumeration, voice masks, mix-bin/priority/stream-count state. A title can
 // drive the whole XHV API and observe consistent state.
 //
-// What is intentionally INERT: everything that needs hardware or codecs the
-// leak simply does not contain -- the voice communicator USB audio class
-// driver (so no communicator can ever be inserted; GetLocalTalkerStatus
-// faithfully reports REMOVED, exactly like retail with no headset plugged in),
-// the SC03 voice codec (SubmitIncomingVoicePacket accepts and discards, no
-// audio is rendered, IsTalking is FALSE) and the WMAVoice voicemail codec +
-// speech recognition (VoiceMail*/SR entry points fail cleanly). DoWork is a
-// no-op that succeeds, so title main loops run unchanged.
+// What is intentionally INERT: everything that needs hardware or codecs RXDK
+// does not provide -- the voice communicator USB audio class driver (so no
+// communicator can ever be inserted; GetLocalTalkerStatus faithfully reports
+// REMOVED, exactly like retail with no headset plugged in), the SC03 voice
+// codec (SubmitIncomingVoicePacket accepts and discards, no audio is rendered,
+// IsTalking is FALSE) and the WMAVoice voicemail codec + speech recognition
+// (VoiceMail*/SR entry points fail cleanly). DoWork is a no-op that succeeds,
+// so title main loops run unchanged.
 //
 // This is a CAPABILITY BOUNDARY, not unfinished work: the communicator USB
-// audio class driver and the SC03/WMAVoice codecs only ever existed as
-// binaries inside the retail libs -- there is no source anywhere in the leak
-// to port. Audible voice would require writing a USB audio driver and a codec
-// from scratch (or licensing one), which is out of scope for an SDK
+// audio class driver and the SC03/WMAVoice codecs ship only as binaries in the
+// retail libs. Audible voice would require writing a USB audio driver and a
+// codec from scratch (or licensing one), which is out of scope for an SDK
 // reconstruction.
 
 #include <xonline.h> // XUID (xhv.h insists it is included first)

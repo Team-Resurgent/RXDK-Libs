@@ -1,6 +1,6 @@
 # RXDK-Libs
 
-<p align="center"><b>A from-source, MSVC-free C/C++ runtime and SDK for the original Xbox — picolibc + LLVM libc++, an xAPI, and the D3D8 / DirectSound / XGraphics / XMV / XNet libraries, built with Zig</b></p>
+<p align="center"><b>A from-source, MSVC-free C/C++ runtime and SDK for the original Xbox — picolibc + LLVM libc++, an xAPI, and the D3D8 / D3DX8 / DirectSound / DirectMusic / XGraphics / XMV / XNet / XACT / XOnline libraries, built with Zig</b></p>
 
 <p align="center">
   <a href="https://github.com/Team-Resurgent/RXDK-Libs/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
@@ -14,7 +14,7 @@
 
 Zig-built Xbox C/C++ runtime and SDK for original Xbox devkits — **picolibc** + **LLVM libc++**, an **xAPI**, and the **D3D8 / D3DX8 / DirectSound / XGraphics / XMV / XNet** subsystem libraries, ISO C23 / C++23.
 
-No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. Host deploy tools (`imagebld`, `xdvdfs`, neighborhood, etc.) live under `tools/` and may stay MSBuild-based.
+No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. The host-side deploy tools (`imagebld`, `xdvdfs`, Xbox Neighborhood, etc.) and the IDE integrations live in the separate [RXDK-Tools](https://github.com/Team-Resurgent/RXDK-Tools) and RXDK extension repos.
 
 ## Origins & attribution
 
@@ -56,43 +56,43 @@ shared/libcxx/             LLVM libc++ headers (headers-only distribution)
 libs/libc/                 First-party libc runtime — xbox/ (HAL, crt0, kernel glue) + c23/ gap-fill (→ libc.lib)
 libs/libcpp/               libc++ build orchestration over vendored libcxx (→ libcpp.lib)
 libs/libkernel/            Xbox kernel import lib, generated from xboxkrnl.def (→ libkernel.lib)
-libs/libxapi/              Clean-room xAPI port (→ libxapi.lib)
-libs/libd3d8/              Xbox D3D8 (NV2A) graphics driver (→ libd3d8.lib)
+libs/libxbdm/              Xbox debug monitor import lib (→ libxbdm.lib)
+libs/libxapi/              xAPI port — k32 + dll + rtl + uuid + USB (→ libxapi.lib)
+libs/libd3d8/              Xbox D3D8 (NV2A) graphics driver (→ libd3d8.lib / libd3d8i.lib)
 libs/libd3dx8/             D3DX8 helper / utility library (→ libd3dx8.lib)
+libs/libxgraphics/         XGraphics swizzle / texture utilities + XFONT (→ libxgraphics.lib)
 libs/libdsound/            DirectSound (MCPX APU) audio (→ libdsound.lib)
-libs/libxgraphics/         XGraphics swizzle / texture utilities (→ libxgraphics.lib)
 libs/libxmv/               XMV video decoder (→ libxmv.lib)
-libs/libxnet/              Xbox net stack — XNet / winsock (→ libxnet.lib)
+libs/libxnet/              Xbox net stack — XNet / winsock (→ libxnet.lib / libxneto.lib)
+libs/libxact/              XACT audio engine (→ libxact.lib)
+libs/libxonline/           Xbox Live client + UIX (→ libxonline.lib / libuix.lib)
+libs/libxvoice/            Xbox Communicator voice (→ libxvoice.lib)
+libs/libdmusic/            DirectMusic (→ libdmusic.lib)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
-zig-out/lib/               Staged .lib outputs + object response files
+zig-out/lib/               Staged .lib outputs + object response files (per `zig build`)
 zig-out/include/           Staged C / C++ / xAPI / subsystem headers (after `zig build`)
-samples/                   Conformance smokes + D3D8 / DirectSound / XMV / XNet / input demos
-build.ps1              Interactive menu: pick a sample and build its ISO
+dist/                      Redistributable bundle from build.ps1 — lib/{debug,release} + include/ (gitignored)
+build.ps1                  Build the redistributable library distribution (Debug + ReleaseSmall)
 ```
 
 ## Build
 
 ```powershell
 cd D:\Git\RXDK-Libs
-.\build.ps1                                # interactive menu → sample ISO
-.\scripts\compile.ps1                          # libs + all samples (default)
-.\scripts\compile.ps1 -Target libs            # libraries + headers only
-.\scripts\compile.ps1 -Target xapi-smoke      # single sample
-.\scripts\compile.ps1 -Target xapi-smoke -Iso # PE → XBE → XISO (default.xbe at root)
+.\build.ps1                 # build the dist (Debug + ReleaseSmall) → dist\lib\{debug,release} + dist\include
+.\build.ps1 -Clean         # clean the zig cache first, then build the dist from scratch
+.\scripts\compile.ps1 -Target libs   # build every library + staged headers into zig-out (no dist packaging)
 ```
 
 Or invoke `zig build` directly:
 
 ```powershell
 zig build verify-no-vs    # assert build/*.zig never invokes MSVC toolchain
-zig build                 # libs + staged headers
+zig build                 # every library + staged headers into zig-out
 zig build libkernel       # libkernel.lib (kernel import lib) only
 zig build libxapi         # libxapi.lib only
-zig build libd3d8         # a single subsystem lib (libd3d8 / libdsound / libxnet / …)
-zig build libc-smoke      # libc / C23 runtime matrix
-zig build libcpp-smoke    # libc++ / C++23 smoke
-zig build xapi-smoke      # 27-test xAPI smoke PE
+zig build libd3d8         # a single subsystem lib (libd3d8 / libdsound / libxnet / libxact / libdmusic / …)
 ```
 
 ### Ship artifacts
@@ -102,20 +102,27 @@ zig build xapi-smoke      # 27-test xAPI smoke PE
 | `zig-out/lib/libc.lib` | picolibc + minimal libm + `libs/libc/xbox/*` runtime |
 | `zig-out/lib/libcpp.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
 | `zig-out/lib/libkernel.lib` | Xbox kernel import library (from `libs/libkernel/xboxkrnl.def`) |
-| `zig-out/lib/libxapi.lib` | Clean-room xAPI (k32 + dll + rtl + uuid + USB) |
-| `zig-out/lib/libd3d8.lib` | Xbox D3D8 (NV2A) graphics driver |
+| `zig-out/lib/libxbdm.lib` | Xbox debug monitor import library |
+| `zig-out/lib/libxapi.lib` | xAPI (k32 + dll + rtl + uuid + USB) |
+| `zig-out/lib/libd3d8.lib` / `libd3d8i.lib` | Xbox D3D8 (NV2A) graphics driver (plain / D3DPERF-instrumented) |
 | `zig-out/lib/libd3dx8.lib` | D3DX8 helper / utility library |
+| `zig-out/lib/libxgraphics.lib` | XGraphics swizzle / texture utilities + XFONT |
 | `zig-out/lib/libdsound.lib` | DirectSound (MCPX APU) audio |
-| `zig-out/lib/libxgraphics.lib` | XGraphics swizzle / texture utilities |
 | `zig-out/lib/libxmv.lib` | XMV video decoder |
-| `zig-out/lib/libxnet.lib` | Xbox net stack (XNet / winsock) |
+| `zig-out/lib/libxnet.lib` / `libxneto.lib` | Xbox net stack — sockets / +ONLINE (QoS, SG) |
+| `zig-out/lib/libxact.lib` | XACT audio engine |
+| `zig-out/lib/libxonline.lib` / `libuix.lib` | Xbox Live client / UIX drop-in UI |
+| `zig-out/lib/libxvoice.lib` | Xbox Communicator voice |
+| `zig-out/lib/libdmusic.lib` | DirectMusic |
 | `zig-out/include/` | picolibc + `xbox/` + `xboxkrnl/` + `c++/v1/` + public subsystem headers (`xt.h`/`xapi.h`/`xbox.h`/`xkbd.h`/`d3d8.h`/`dsound.h`/`xnet.h`/…) |
+
+`build.ps1` packages the same set — plus `libcompat.lib` — into `dist\lib\{debug,release}` with the public headers in `dist\include`, ready to ship.
 
 Library layering is one-way — `libxapi → libc → libkernel` and `libcpp → libc`, with the subsystem libs (`libd3d8`, `libdsound`, `libxnet`, …) layering above `libxapi` — so a C-only title can link `libc.lib` + `libkernel.lib` without dragging in xAPI or libc++.
 
 The malloc family is the one exception: `libs/libc/xbox/heapalloc.c` allocates from the Xbox process heap (`RtlAllocateHeap` on `XapiProcessHeap`), so it reaches up into libxapi, where RXDK implements the RTL heap. Going through that heap is what gives every allocation the 16-byte alignment the XDK's SSE math code assumes, and it keeps `malloc`, `HeapAlloc`, `LocalAlloc` and `operator new` on one heap the way the retail XDK's CRT did. A program that calls `malloc` therefore also needs `libxapi.lib`, even if it uses nothing else from xAPI.
 
-Samples link via direct object response files (`zig-out/link/*.rsp`) because COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`. External consumers can link the staged `.lib`s or mirror the object-rsp pattern.
+COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`, so the dist also ships `libcompat.lib` — picolibc's own memcpy/math/CRT shims force-linked as loose objects — which an external title link should include alongside the staged `.lib`s.
 
 ### Target
 
@@ -126,23 +133,11 @@ Samples link via direct object response files (`zig-out/link/*.rsp`) because COF
 
 ## Samples
 
-| Sample | PE | Notes |
-|--------|-----|-------|
-| `xapi-smoke` | `zig-out/samples/xapi-smoke/xapi-smoke.exe` | 27 xAPI category tests (kit hardware + HDD) |
-| `xapi-input` | `zig-out/samples/xapi-input/xapi-input.exe` | Controller / keyboard input via xAPI |
-| `libc-smoke` | `zig-out/samples/libc-smoke/libc-smoke.exe` | libc / C23 runtime matrix incl. `<stdbit.h>` (see `docs/conformance.md`) |
-| `libcpp-smoke` | `zig-out/samples/libcpp-smoke/libcpp-smoke.exe` | libc++ / C++23 — 59 tests incl. exceptions, coroutines + `std::generator`, `thread_local`, `<format>`/`<print>`, `<fstream>`, `<ranges>`, `<chrono>`, `<thread>` + atomic-wait/`<latch>`/`<semaphore>`/`<barrier>`, `<pmr>`, `<valarray>`, `<charconv>`, `<regex>`, `<filesystem>`, `<any>`/`<mdspan>`/`<flat_map>`/`std::bind` (see `docs/conformance.md`) |
-| `d3d8-triangle` | `zig-out/samples/d3d8-triangle/d3d8-triangle.exe` | D3D8 (NV2A) gouraud triangle |
-| `d3d8-textures` | `zig-out/samples/d3d8-textures/d3d8-textures.exe` | D3D8 textured rendering |
-| `dsound-music` | `zig-out/samples/dsound-music/dsound-music.exe` | DirectSound audio playback |
-| `xmv-play` | `zig-out/samples/xmv-play/xmv-play.exe` | XMV video playback |
-| `xnet-net` | `zig-out/samples/xnet-net/xnet-net.exe` | XNet networking |
-
-Kit validation and XBE/ISO packaging: see [docs/kit-runbook.md](docs/kit-runbook.md), or just run [`build.ps1`](build.ps1).
+This repo builds the libraries only. Sample titles and the XDK sample ports live in the separate [RXDK-Samples](https://github.com/Team-Resurgent/RXDK-Samples) repo, which links the libraries built here. For kit validation and XBE/ISO packaging notes, see [docs/kit-runbook.md](docs/kit-runbook.md).
 
 ## Design notes
 
-- **Root-cause policy:** fix runtime/HAL here; do not patch samples to dodge library bugs.
+- **Root-cause policy:** fix runtime/HAL bugs here rather than working around them in downstream titles.
 - **C++ exceptions / EH:** DWARF/Itanium exceptions via vendored libunwind + libc++abi (`__cxa_throw`, `__gxx_personality_v0`, `.eh_frame`). Two Xbox-specific fixes: `main` runs on a dedicated `PsCreateSystemThreadEx` thread (the kernel's init-thread stack is too small for the unwinder), and `_LIBCXXABI_DTOR_FUNC` is forced to `__thiscall` (clang emits i386 member functions thiscall, but `-U_WIN32` would drop it). RTTI enabled for `dynamic_cast` / `typeinfo`.
 
 See [docs/porting-notes.md](docs/porting-notes.md) for architecture and vendor mapping.

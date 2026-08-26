@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// ipdns.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the DNS resolver.
+ *
+ * Builds and sends DNS queries to the configured name servers, parses the
+ * responses (following CNAME chains), and implements the name-lookup APIs the
+ * winsock layer exposes to titles.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// socktcp.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the TCP protocol implementation.
+ *
+ * Runs the TCP state machine (connection setup and teardown, sequence/ack
+ * tracking, sliding-window send and receive buffering, retransmission and
+ * round-trip timers) that backs SOCK_STREAM sockets.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

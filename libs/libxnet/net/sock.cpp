@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// sock.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnSock, the winsock socket layer titles call through.
+ *
+ * Implements the protocol-independent socket API (socket, bind, connect,
+ * accept, send/recv, select, closesocket and friends) over the CSocket objects
+ * and dispatches to the TCP and UDP protocol code in socktcp.cpp / sockudp.cpp.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

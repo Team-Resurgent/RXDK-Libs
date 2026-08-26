@@ -1,10 +1,12 @@
-// ---------------------------------------------------------------------------------------
-// xn.h
-//
-// Exported shared definitions for use by xnet.lib and xonline.lib
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Exported shared definitions used by both xnet.lib and xonline.lib.
+ */
 
 #ifndef __XN_H__
 #define __XN_H__

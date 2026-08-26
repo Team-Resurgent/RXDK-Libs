@@ -1,10 +1,14 @@
-// ---------------------------------------------------------------------------------------
-// xnp.h
-//
-// Private header file for the XNet Secure Networking Library
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private precompiled header for the XNet secure networking library: pulls in
+ * the kernel, winsock and internal class declarations shared across every TU in
+ * the stack.
+ */
 
 #ifndef _XNP_H
 #define _XNP_H

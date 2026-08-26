@@ -1,8 +1,18 @@
-// ---------------------------------------------------------------------------------------
-// enet.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnEnet, the Ethernet link layer sitting above the NIC driver.
+ *
+ * Frames outgoing IP packets with Ethernet headers and dispatches received
+ * frames by EtherType, and implements ARP: the address cache, request/reply
+ * handling, and the per-entry queue of packets waiting on address resolution.
+ * Runs its receive/transmit work from a kernel DPC and ages ARP entries on a
+ * periodic timer.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

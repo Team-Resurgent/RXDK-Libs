@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// ipqos.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- Quality of Service (compiled only under XNET_FEATURE_QOS).
+ *
+ * Implements the XNetQos* probe protocol Live titles use to measure round-trip
+ * latency and bandwidth to a set of peers and to serve QoS data back to
+ * probers, feeding matchmaking and host-selection decisions.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

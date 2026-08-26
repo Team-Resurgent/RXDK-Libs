@@ -1,8 +1,17 @@
-// ---------------------------------------------------------------------------------------
-// halw.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnHal, the Windows-hosted variant of the hardware abstraction
+ * layer (compiled only under XNET_FEATURE_WINDOWS).
+ *
+ * Emulates the kernel primitives the stack expects -- IRQL levels, DPCs, timers
+ * and interlocked pool operations -- on top of the Win32 host so the same net
+ * code can be built and exercised off-target. The Xbox counterpart is halx.cpp.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

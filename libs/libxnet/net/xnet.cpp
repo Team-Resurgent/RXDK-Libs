@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// xnet.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the public XNet API a title links against.
+ *
+ * Implements XNetStartup/Cleanup, secure-address registration and translation
+ * (XNetXnAddrToInAddr and friends), the QoS entry points, key-exchange and the
+ * rest of the exported XNet surface, driving the stack objects underneath.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

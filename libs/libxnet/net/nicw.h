@@ -1,10 +1,13 @@
-// ----------------------------------------------------------------------------
-// nicw.h
-//
-// Software implementation of a NIC for simulating an Ethernet network
-//
-// Copyright (C) Microsoft Corporation
-// ----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the software NIC (nicw.cpp): the CXnNic class that simulates
+ * an Ethernet interface for running the stack on the Windows host.
+ */
 
 #ifndef __NICW_H__
 #define __NICW_H__

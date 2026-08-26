@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// ip.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the IP layer.
+ *
+ * Handles IPv4 datagram send and receive: header construction and checksum,
+ * routing to the local interface or gateway, fragmentation and reassembly, and
+ * demultiplexing received datagrams up to the ICMP, UDP and TCP handlers.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

@@ -1,8 +1,14 @@
-// ---------------------------------------------------------------------------------------
-// nicx.h
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the Xbox NIC driver (nicx.cpp): the CXnNic class plus the
+ * controller CSR layout and DMA descriptor structures for the on-board
+ * nForce/MCPX Ethernet MAC.
+ */
 
 #ifndef _NICX_H_
 #define _NICX_H_

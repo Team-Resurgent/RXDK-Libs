@@ -1,8 +1,17 @@
-// ----------------------------------------------------------------------------
-// nicw.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnNic, the software NIC used on the Windows host (compiled
+ * only under XNET_FEATURE_WINDOWS).
+ *
+ * Stands in for real Ethernet hardware by shuttling frames over a simulated
+ * network so the stack can run off-target. The Xbox hardware driver is
+ * nicx.cpp.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

@@ -1,8 +1,18 @@
-// ---------------------------------------------------------------------------------------
-// base.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnBase, the shared foundation every network layer derives from.
+ *
+ * Holds the XNetStartupParams table (the default/min/max values generated from
+ * XNETPARAMDEFS, cross-checked against the struct layout at compile time), the
+ * Oakley Group 1 Diffie-Hellman modulus/base constants used by the secure
+ * networking crypto, and the common init-flag bookkeeping that tracks which
+ * layers of the stack have been brought up.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

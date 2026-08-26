@@ -1,24 +1,26 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef RXDK_XNET_COMPAT_H
 #define RXDK_XNET_COMPAT_H
 
 /*
- * RXDK reconstruction header for libxnet.
+ * Compatibility definitions that bridge libxnet's implementation to the public
+ * winsock header.
  *
- * The leak's xnet SOURCE is an older API generation, but its matching private
- * winsock headers are missing from the leak. The public winsockx.h we have is a
- * SLIMMED winsock2.h (title-facing: raw sockets, full hostent/servent, several
- * XP1_/PFL_ protocol flags and the WSAPROTOCOL_INFOW struct were stripped). The
- * xnet IMPLEMENTATION (getxbyy.c / enumprot.c / sockinit.c / dhcp.c) was built
- * against the FULL winsock2.h plus an older private xnet config header.
+ * The public winsockx.h is a slimmed winsock2.h: it drops raw sockets, the full
+ * hostent/servent, several XP1_/PFL_ protocol flags and the WSAPROTOCOL_INFOW
+ * struct. The xnet implementation (getxbyy.c / enumprot.c / sockinit.c / dhcp.c)
+ * needs the full winsock2.h plus an older private xnet config header, so this
+ * file supplies exactly those omitted definitions: the standard winsock2 types
+ * verbatim, and the XnetInit* config types with the XNET_ADDR_* flags anchored
+ * to the public XNET_GET_XNADDR_* values in winsockx.h.
  *
- * This header supplies exactly those omitted/older definitions. The standard
- * winsock pieces are copied verbatim from the leak's full winsock2.h
- * (public/wsdk/inc/winsock2.h); the XnetInit* config is reconstructed from the
- * source's usage, with the XNET_ADDR_* flags anchored to the public
- * XNET_GET_XNADDR_* values in winsockx.h.
- *
- * Included from winsockp.h, immediately after <winsockx.h> (so GUID / the base
- * winsock types are already defined).
+ * Included from winsockp.h immediately after <winsockx.h>, so GUID and the base
+ * winsock types are already defined.
  */
 
 /* MinGW spelling some headers expect. */

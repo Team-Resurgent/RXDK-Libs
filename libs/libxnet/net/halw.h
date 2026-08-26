@@ -1,8 +1,14 @@
-// ---------------------------------------------------------------------------------------
-// halw.h
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the Windows-hosted hardware abstraction layer (halw.cpp):
+ * the CXnHal class and the emulated kernel primitives the stack builds on when
+ * compiled for the Win32 host.
+ */
 
 #ifndef _HALW_H_
 #define _HALW_H_

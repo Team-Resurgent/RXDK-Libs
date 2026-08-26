@@ -1,8 +1,17 @@
-// ---------------------------------------------------------------------------------------
-// ipdhcp.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the DHCP client (compiled only under XNET_FEATURE_DHCP).
+ *
+ * Drives the DISCOVER/OFFER/REQUEST/ACK state machine to lease an IPv4 address,
+ * subnet mask, gateway and DNS servers from a DHCP server, handles lease renewal
+ * and rebinding on their timers, and falls back to auto-IP when no server
+ * responds.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

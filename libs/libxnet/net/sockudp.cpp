@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// sockudp.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the UDP protocol implementation.
+ *
+ * Handles datagram send and receive for SOCK_DGRAM sockets: port binding and
+ * demultiplexing of incoming datagrams to the right socket, the UDP header and
+ * checksum, and the per-socket receive queue.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

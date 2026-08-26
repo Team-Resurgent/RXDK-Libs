@@ -1,8 +1,13 @@
-// ---------------------------------------------------------------------------------------
-// xnver.h
-//
-// Include file for stamping source files with the appropriate version structure
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Stamps the source file that includes it with the library's version structure.
+ * Deliberately single-include: re-inclusion is a build error.
+ */
 
 #ifdef  __XNVER_H__
 #error "xnver.h should not be included more than once"

@@ -1,10 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// xnetp.cpp
-//
-// Implementation of private XNet API's
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the private XNet APIs (not part of the title-facing surface).
+ *
+ * Includes access to the persisted network configuration on the hard disk:
+ * opening the config volume and reading/writing the config sectors that hold IP
+ * settings, plus the internal NAT/port helpers the stack uses.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

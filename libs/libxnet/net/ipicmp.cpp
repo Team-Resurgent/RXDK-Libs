@@ -1,8 +1,16 @@
-// ---------------------------------------------------------------------------------------
-// ipicmp.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- the ICMP layer.
+ *
+ * Processes received ICMP messages (echo request/reply, destination
+ * unreachable, time exceeded and the like) and builds outgoing ICMP packets,
+ * feeding error notifications back to the IP and transport layers.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

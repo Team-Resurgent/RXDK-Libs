@@ -1,21 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-Module Name:
-
-    phy.h
-
-Abstract:
-
-    Interface to Ethernet transceiver code inside the ROM
-
-Revision History:
-
-    04/05/2001 davidx
-        Created it.
-
---*/
+/*
+ * Interface to the Ethernet transceiver (PHY) support code residing in the
+ * Xbox ROM.
+ */
 
 #ifndef _PHY_H_
 #define _PHY_H_

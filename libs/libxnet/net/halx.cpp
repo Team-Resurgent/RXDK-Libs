@@ -1,8 +1,18 @@
-// ---------------------------------------------------------------------------------------
-// halx.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnHal, the Xbox variant of the hardware abstraction layer
+ * (compiled only under XNET_FEATURE_XBOX).
+ *
+ * Wraps the Xbox kernel's IRQL/DPC/timer services the stack runs on, and the
+ * thread-context checks (USER vs user-DPC vs system-DPC) used to assert that
+ * each routine executes at the IRQL it assumes. The Windows counterpart is
+ * halw.cpp.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

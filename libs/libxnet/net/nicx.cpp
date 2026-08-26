@@ -1,8 +1,17 @@
-// ---------------------------------------------------------------------------------------
-// nicx.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XNet stack -- CXnNic, the driver for the Xbox's on-board Ethernet controller
+ * (the nForce/MCPX MAC; compiled only under XNET_FEATURE_XBOX).
+ *
+ * Programs the controller's CSR registers, manages the descriptor-based DMA
+ * transmit and receive rings, services the NIC interrupt, and reports link and
+ * statistics. The host-side software stand-in is nicw.cpp.
+ */
 
 #include "xnp.h"
 #include "xnver.h"

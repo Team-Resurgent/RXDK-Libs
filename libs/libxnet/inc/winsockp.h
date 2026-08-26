@@ -1,13 +1,22 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private winsock definitions extending the public winsockx.h.
+ */
 
 #ifndef _WINSOCKP_H
 #define _WINSOCKP_H
 
-/* RXDK: winsockp.h (private) extends the public winsockx.h but the original
-   relied on it being pre-included. Pull it here so IN_ADDR / SOCKADDR_IN /
-   WSADATA / the XNet types are defined before this header's structs use them. */
+/* This private header assumes winsockx.h is already visible; pull it in here so
+   IN_ADDR / SOCKADDR_IN / WSADATA / the XNet types are defined before this
+   header's structs use them. */
 #include <winsockx.h>
-/* RXDK: supply the winsock2 bits the slimmed winsockx.h omits + the older xnet
-   config types the leak source uses (see rxdk_xnet_compat.h). */
+/* Supply the winsock2 bits the slimmed winsockx.h omits plus the older xnet
+   config types the implementation needs (see rxdk_xnet_compat.h). */
 #include "rxdk_xnet_compat.h"
 
 #ifdef __cplusplus

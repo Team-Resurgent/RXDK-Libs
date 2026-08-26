@@ -1,8 +1,13 @@
-// ---------------------------------------------------------------------------------------
-// halx.h
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the Xbox hardware abstraction layer (halx.cpp): the CXnHal
+ * class and the Xbox kernel IRQL/DPC/timer wrappers the stack runs on.
+ */
 
 #ifndef _HALX_H_
 #define _HALX_H_

@@ -1,12 +1,15 @@
 /*
- * RXDK C reimplementation of lib/i386/tcpipxsum.asm (David N. Cutler, 1992).
- *
- * Computes the internet checksum (RFC 1071): the one's-complement sum of the
- * buffer's 16-bit words, added to the initial value `xsum`, folded to 16 bits.
- * Faithfully reproduces the asm's handling of an unaligned start (first byte
- * taken as the high byte of a word, result byte-swapped at the end) so the
- * result is bit-identical for any buffer alignment. The original was hand-asm
- * for Pentium prefetch/loop-unrolling; correctness here, not micro-speed.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The internet checksum routine (RFC 1071): the one's-complement sum of the
+ * buffer's 16-bit words, added to the initial value `xsum` and folded to 16
+ * bits. Handles an unaligned start (first byte taken as the high byte of a
+ * word, result byte-swapped at the end) so the result is bit-identical for any
+ * buffer alignment.
  *
  * Callers complement the low 16 bits, e.g.
  *   field = (WORD) ~tcpipxsum(0, buf, len);   // COMPUTE_CHECKSUM (netutil.h)

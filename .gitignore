@@ -1,5 +1,6 @@
 # Zig build output
 .zig-cache/
+zig-cache*/
 zig-out/
 
 # Staged redistributable bundle (build-iso.ps1 -Dist)

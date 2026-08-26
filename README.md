@@ -63,7 +63,7 @@ libs/libxnet/              Xbox net stack — XNet / winsock (→ libxnet.lib)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
 vendor/xbox_private/       Xbox subsystem sources (local-only, synced from RXDK-LibsOld)
-prebuilt/                  Committed kernel object shims (DbgPrint / descriptor / .XBLD) used at link time
+prebuilt/                  Committed .XBLD kernel object (xboxkrnl_xbld.obj) packed into libc.lib / linked into the PE
 zig-out/lib/               Staged .lib outputs + object response files
 zig-out/include/           Staged C / C++ / xAPI / subsystem headers (after `zig build`)
 samples/                   Conformance smokes + D3D8 / DirectSound / XMV / XNet / input demos

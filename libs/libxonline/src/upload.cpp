@@ -1,20 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau (keithlau)
-
-Description:
-	Module implementing XRL upload APIs:
-		XOnlineUploadFromMemory
-		XOnlineUploadFile
-
-Module Name:
-
-    upload.c
-
---*/
+/*
+ * XRL upload APIs -- XOnlineUploadFromMemory and XOnlineUploadFile.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

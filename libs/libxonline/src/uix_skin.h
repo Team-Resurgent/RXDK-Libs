@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // RXDK UIX skin (.uix / "XSK0") runtime loader + IPluginSupport backing.
 //
 // The retail UIX built-in features render as plain text (see uix.cpp), but

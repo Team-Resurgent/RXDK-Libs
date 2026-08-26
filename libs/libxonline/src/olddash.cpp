@@ -1,18 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau (keithlau)
-
-Description:
-	Module implementing cleanup code for old dash files
-
-Module Name:
-
-    olddash.cpp
-
---*/
+/*
+ * Cleanup of leftover files from previous dashboard versions.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

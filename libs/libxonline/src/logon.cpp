@@ -1,8 +1,13 @@
-/*==========================================================================
- *
- *  Copyright Microsoft Corporation.  All Rights Reserved.
- *
-========================================================================== */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox Live logon -- drives the authentication handshake and holds the signed-in
+ * session.
+ */
 
 #include "xonp.h"
 #include "xonver.h"
@@ -13,7 +18,7 @@
 DefineTag(AuthVerbose,TAG_ENABLE);
 DefineTag(AuthWarn,TAG_ENABLE);
 
-// RXDK 5849 uplift: service-ID capture for XOnlineSaveLogonState (uplift5849.cpp).
+// Service-ID capture for XOnlineSaveLogonState (see xonexports.cpp).
 extern "C" VOID WINAPI RxdkCaptureLogonServices(const DWORD *pdwServiceIDs, DWORD cServices);
 
 #define TEMP_SEND_REQUESTS_SEQUENTIALLY 1
@@ -2938,9 +2943,9 @@ HRESULT CXo::XOnlineLogon(
     XoCheck((cServices == 0) == (pdwServiceIDs == NULL));
     XoCheck(pHandle != NULL);
 
-    // RXDK 5849 uplift: record the requested service IDs so XOnlineSaveLogonState
-    // (uplift5849.cpp) can persist them -- the leak keeps them only inside the
-    // opaque logon task.
+    // Record the requested service IDs so XOnlineSaveLogonState (xonexports.cpp)
+    // can persist them; they are otherwise held only inside the opaque logon
+    // task.
     RxdkCaptureLogonServices(pdwServiceIDs, cServices);
 
     BOOL fHasUsers = FALSE;

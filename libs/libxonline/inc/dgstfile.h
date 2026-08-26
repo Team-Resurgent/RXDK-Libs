@@ -1,8 +1,12 @@
-// ---------------------------------------------------------------------------------------
-// dgstfile.h
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Digest-file (content manifest) on-disk structure and version constants.
+ */
 
 #ifndef __DGSTFILE_H__
 #define __DGSTFILE_H__

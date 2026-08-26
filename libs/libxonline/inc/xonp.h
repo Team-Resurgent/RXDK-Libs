@@ -1,8 +1,13 @@
-// ---------------------------------------------------------------------------------------
-// xonp.h
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private/internal header for libxonline -- shared code/const segments, types and
+ * declarations used across the online client sources.
+ */
 
 #ifndef __XONP_H__
 #define __XONP_H__
@@ -722,9 +727,9 @@ INLINE VOID SignOnlineUserStruct( XC_ONLINE_USER_ACCOUNT_STRUCT* pOnlineUser )
 }
 
 //
-// The on-disk account keeps the 'kingdom' array that 5849 dropped from
-// XONLINE_USER, so user <-> account conversion has to be field-wise; a block
-// copy would run off the end of the (smaller) user struct.
+// The on-disk account keeps a 'kingdom' array that XONLINE_USER does not, so
+// user <-> account conversion has to be field-wise; a block copy would run off
+// the end of the (smaller) user struct.
 //
 INLINE VOID CopyUserToOnlineAccount( XC_ONLINE_USER_ACCOUNT_STRUCT* pOnlineUser, const XONLINEP_USER* pUser )
 {

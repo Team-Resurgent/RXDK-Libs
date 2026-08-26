@@ -1,15 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Description:
-    Module implementing Xbox Online Task pump APIs
-
-Module Name:
-
-    xontask.c
-
---*/
+/*
+ * Xbox online task-pump APIs -- the cooperative scheduler that drives all
+ * asynchronous online operations.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

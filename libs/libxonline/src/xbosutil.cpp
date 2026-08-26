@@ -1,13 +1,14 @@
 /*
- *  xbosutil.cpp
- *
- *  XBOS Utility APIs.  Copyright (c) Microsoft Corporation.
- *  
- *  Author: Ben Zotto (benzotto)
- *  Created: 12/10/01
- *
- *  Implements the APIs:   XOnlineOfferingPriceFormat()
- */		
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XBOS utility APIs -- XOnlineOfferingPriceFormat and related price-formatting
+ * helpers.
+ */
+
 #include "xonp.h"
 #include "xonver.h"
 

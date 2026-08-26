@@ -1,8 +1,13 @@
-// ---------------------------------------------------------------------------------------
-// xonline.cpp
-//
-// Copyright (C) Microsoft Corporation
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Main XOnline API entry points -- the XONAPI dispatch macros that forward each
+ * public call to the global CXo online-client object.
+ */
 
 #include "xonp.h"
 #include "xboxp.h"

@@ -1,18 +1,13 @@
 /*
- *  billing.cpp
- *
- *  XBOX Online Service.  Copyright (c) Microsoft Corporation.
- *  
- *  Author: Ben Zotto (benzotto), Steve Lamb (slamb)
- *  Created: 9/24/01
- *
- *  Implements the APIs:   XOnlineOfferingPurchase()
- *                         XOnlineOfferingCancel()
- *                         XOnlineOfferingGetDetails()
- *                          XOnlineOfferingGetDetailsGetResults()
- *                          [XOnlineOfferingPriceFormat() is elsewhere]
- *                         XOnlineOfferingVerify()
- */     
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox online billing and offerings -- XOnlineOfferingPurchase / Cancel /
+ * GetDetails / Verify.
+ */
 
 #include "xonp.h"
 #include "xonlinep.h"

@@ -1,16 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:        xonline.cpp
- *  Content:    Implementation of Xbox online API
- *
- *  History:
- *   Date        By            Reason
- *   ====        ==            ======
- * 10/20/00      tonychen     Created
- *  7/25/01      t-ankurm     MU support added
- ========================================================================== */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Signed-in user management -- the XONLINE_USER table, sign-in state and
+ * memory-unit account storage.
+ */
 
 #include "xonp.h"
 #include "xonver.h"
@@ -64,9 +61,9 @@ VOID CXo::CopyAndAdjustUser(
     )
 {
     //
-    // Field-wise, not a block copy: the on-disk account still carries the
-    // 'kingdom' array that 5849 dropped from XONLINE_USER, so the two layouts
-    // no longer line up (and the account struct is the larger of the two).
+    // Field-wise, not a block copy: the on-disk account still carries a
+    // 'kingdom' array that XONLINE_USER does not, so the two layouts no longer
+    // line up (and the account struct is the larger of the two).
     //
     RtlZeroMemory( pUser, sizeof(XONLINEP_USER) );
     pUser->xuid = pUserAccount->xuid;

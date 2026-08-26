@@ -1,8 +1,13 @@
-//+-----------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation
-//
-//------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Kerberos RC4-HMAC encrypt/decrypt primitives used by the online logon and
+ * authentication path.
+ */
 
 #include "xonp.h"
 #include "xboxp.h"
@@ -2118,8 +2123,8 @@ CXo::XkerbBuildAsRequest(
     //
     // Copy all the names into the request message
     //
-    // 5849 principals are the bare gamertag; the leak's name#kingdom form went
-    // away with the kingdom field.
+    // Principals are the bare gamertag; the older name#kingdom form went away
+    // with the kingdom field.
     strcpy(acPrincipleBuffer,User->name);
     if (User->domain[0] != '\0')
     {

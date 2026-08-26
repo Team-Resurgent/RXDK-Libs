@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Kerberos v5 ASN.1 type declarations for the KERB_* wire structures used by online
+ * authentication (companion to krb5.cpp).
+ */
+
 #ifndef _KRB5_Module_H_
 #define _KRB5_Module_H_
 

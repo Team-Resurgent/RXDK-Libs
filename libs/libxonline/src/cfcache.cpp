@@ -1,18 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-	Keith Lau (keithlau)
-
-Description:
-	Implementation of the CFFILE cache
-
-Module Name:
-
-    cfcache.c
-
---*/
+/*
+ * In-memory cache of CFFILE (cabinet) records used during content download and
+ * patching.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

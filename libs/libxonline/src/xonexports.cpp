@@ -1,22 +1,33 @@
-// xonexports.cpp -- the flat XOnline/XAPI public C export layer for XDK-5849.
-//
-// These are the entry points the imported 5849 Live samples reference but that the
-// Jan-2002 leak does not export: some are real (they wrap the leak's XOnlineLogon,
-// friends, notification and title services), most are boundary stubs that fail
-// cleanly because the leak lacks the 5849 server protocol. They form one cohesive
-// export unit and MUST stay together in this file rather than move next to their
-// CXo:: subsystem implementations, for one hard reason:
-//
-//   This file includes ONLY the PUBLIC 5849 headers (<xtl.h>/<xonline.h>), exactly
-//   like the titles that call these functions -- and deliberately NOT the leak's
-//   internal xonp.h/xonlinep.h. Several of these names (the Offering*, ContentInstall
-//   and StatLeaderEnumerate family) are declared in xonlinep.h with older, DIFFERENT
-//   signatures -- different stdcall argument sizes, i.e. genuinely different exported
-//   symbols (e.g. XOnlineOfferingEnumerate is @24 public vs @28 internal). A title
-//   built against the public headers calls the public symbol, so that is the one this
-//   layer must define. Compiling these in any TU that also pulls xonlinep.h (every
-//   CXo:: source does) is a hard "conflicting types" error. The force-included bridge
-//   already establishes the NT/xtl base environment.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xonexports.cpp -- the flat XOnline/XAPI public C export layer for the XDK 5849
+ * ABI.
+ *
+ * These are the entry points Live titles reference. Some are real (they wrap the
+ * online client's XOnlineLogon, friends, notification and title services); most
+ * are boundary stubs that fail cleanly because the corresponding 5849 server
+ * protocol is unavailable. They form one cohesive export unit and MUST stay
+ * together in this file rather than move next to their CXo:: subsystem
+ * implementations, for one hard reason:
+ *
+ *   This file includes ONLY the PUBLIC 5849 headers (<xtl.h> / <xonline.h>),
+ *   exactly like the titles that call these functions -- and deliberately NOT the
+ *   internal xonp.h / xonlinep.h. Several of these names (the Offering*,
+ *   ContentInstall and StatLeaderEnumerate family) are declared in xonlinep.h with
+ *   older, DIFFERENT signatures -- different stdcall argument sizes, i.e. genuinely
+ *   different exported symbols (e.g. XOnlineOfferingEnumerate is @24 public vs @28
+ *   internal). A title built against the public headers calls the public symbol,
+ *   so that is the one this layer must define. Compiling these in any TU that also
+ *   pulls xonlinep.h (every CXo:: source does) is a hard "conflicting types"
+ *   error. The force-included bridge already establishes the NT/xtl base
+ *   environment.
+ */
+
 #include <xtl.h>
 #include <xonline.h>
 
@@ -32,9 +43,9 @@ extern "C" {
 // of the XCalculateSignature* family -- it is an XAPI export, and titles that
 // use it must not have to link the whole Live client to get it.)
 
-// 5849 mid-session logon-user change (REAL). The leak has no dedicated
-// change-users path, but its XOnlineLogon already tears down and replaces a
-// previous logon session -- which is exactly what changing the user set means:
+// Mid-session logon-user change (REAL). There is no dedicated change-users
+// path, but XOnlineLogon already tears down and replaces a previous logon
+// session -- which is exactly what changing the user set means:
 // re-logon with the new users and the same services as the current session.
 static DWORD RxdkGetCapturedServices(const DWORD **ppdwServiceIDs); // defined with the capture globals below
 
@@ -52,13 +63,13 @@ XBOXAPI HRESULT WINAPI XOnlineChangeLogonUsers(const XONLINE_USER *pUsers, HANDL
 }
 
 // -------------------------------------------------------------------------------------------------
-// 5849 Live services whose WIRE PROTOCOLS do not exist in the Jan-2002 leak (stats v2, storage,
+// Live services whose WIRE PROTOCOLS are not implemented here (stats v2, storage,
 // messaging, arbitration, competition, teams, mutelist, offerings, query). These entry points
 // implement the "service unavailable" behavior: each fails cleanly with no task created, which is
 // the same thing retail reports when the corresponding service is down or absent from the logon's
 // service list -- titles are required to handle it. This is a protocol boundary, not unfinished
-// work: implementing them for real needs the 5849 LSP protocol documentation (or an Insignia-side
-// definition of these services), neither of which exists in the leak.
+// work: implementing them for real needs the 5849 LSP wire-protocol definitions for these
+// services, which are not available.
 // -------------------------------------------------------------------------------------------------
 
 #define RXDK_XO_TASK_STUB(_body) { _body; return E_FAIL; }
@@ -96,7 +107,7 @@ XBOXAPI HRESULT WINAPI XOnlineFriendsEnumerateFinish(XONLINETASK_HANDLE) { retur
 
 // --- Notifications / friends / title --- (REAL)
 
-// 5849's notification query. The leak's friends machinery already carries the
+// Notification query. The friends machinery already carries the
 // notification-worthy state in each friend's dwFriendState (received request /
 // received invite / invite answered), refreshed by the friends enumeration task
 // the title (or the UIX engine) keeps pumping -- so derive the notifications
@@ -167,11 +178,11 @@ XBOXAPI HRESULT WINAPI XOnlineFriendsGetAcceptedGameInvite(PXONLINE_ACCEPTED_GAM
 XBOXAPI HRESULT WINAPI XOnlineFriendsJoinGame(DWORD, const XONLINE_FRIEND *) { return E_FAIL; }
 
 // --- Logon-state save/restore --- (REAL)
-// The 5849 logon state is a title-persisted snapshot of the current logon
+// The logon state is a title-persisted snapshot of the current logon
 // (users + requested services) used to hand a session across XLaunchNewImage.
 // Users come from the live logon session (XOnlineGetLogonUsers); the service
 // IDs are captured at XOnlineLogon time (see RxdkCaptureLogonServices below --
-// the leak keeps them only inside the opaque logon task). Layout of Data[]
+// they are otherwise held only inside the opaque logon task). Layout of Data[]
 // follows XONLINE_LOGON_STATE_SIZE: MAX_LOGON_USERS XONLINE_USERs, then
 // MAX_LOGON_STATE_SERVICES DWORD service IDs (zero-terminated).
 
@@ -230,8 +241,8 @@ XBOXAPI DWORD WINAPI XOnlineMatchSearchResultsLen(DWORD, DWORD, const XONLINE_AT
 XBOXAPI HRESULT WINAPI XOnlineCompetitionTopology(DWORD, ULONGLONG, DWORD, DWORD, DWORD, DWORD, DWORD, const XONLINE_ATTRIBUTE_SPEC *, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 
-// --- Silent logon --- (REAL: wraps the leak's XOnlineLogon)
-// 5849 titles use this to sign in without UI. Retail reads the dashboard's
+// --- Silent logon --- (REAL: wraps XOnlineLogon)
+// Titles use this to sign in without UI. Retail reads the dashboard's
 // persistent "last logged on" store, which does not exist in the RXDK world
 // (titles that want session handoff use XOnlineSaveLogonState/
 // XOnlineRetrieveLogonState, both real above). RXDK policy: sign in the FIRST
@@ -284,7 +295,7 @@ XBOXAPI HRESULT WINAPI XOnlineStorageEnumerateGetResults(XONLINETASK_HANDLE, DWO
 XBOXAPI HRESULT WINAPI XOnlineStorageUploadByServerPath(DWORD, DWORD, LPCWSTR, FILETIME, LPCSTR, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 
-// --- Offerings / content install (5849 renamed content-download surface) ---
+// --- Offerings / content install (the renamed content-download surface) ---
 XBOXAPI HRESULT WINAPI XOnlineContentInstall(XOFFERING_ID, HANDLE, PXONLINETASK_HANDLE phTask)
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 XBOXAPI HRESULT WINAPI XOnlineOfferingCancel(DWORD, XOFFERING_ID, HANDLE, PXONLINETASK_HANDLE phTask)
@@ -345,7 +356,7 @@ XBOXAPI HRESULT WINAPI XOnlineMessageSetFlags(DWORD, DWORD, DWORD, DWORD, HANDLE
     RXDK_XO_TASK_STUB(if (phTask) *phTask = NULL)
 XBOXAPI HRESULT WINAPI XOnlineMessageSetProperty(XONLINE_MSG_HANDLE, WORD, DWORD, const VOID *, DWORD)
     RXDK_XO_TASK_STUB((void)0)
-// (XOnlineNotificationSetState is already implemented by the leak's presence/notification code.)
+// (XOnlineNotificationSetState is already implemented by the presence/notification code.)
 XBOXAPI BOOL WINAPI XOnlineGetNotificationEx(DWORD, PXONLINE_NOTIFICATION_EX_INFO pNotificationInfo, DWORD *pdwStateFlags)
 {
     if (pNotificationInfo)
@@ -357,7 +368,7 @@ XBOXAPI BOOL WINAPI XOnlineGetNotificationEx(DWORD, PXONLINE_NOTIFICATION_EX_INF
 
 
 // --- Arbitration / competition / teams / presence / query / storage-to-memory / sessions ---
-// (the Integrated demo exercises the whole 5849 Live surface)
+// (the Integrated demo exercises the whole Live API surface)
 XBOXAPI HRESULT WINAPI XOnlineArbitrationCreateRoundID(ULONGLONG *pqwRoundID)
     RXDK_XO_TASK_STUB(if (pqwRoundID) *pqwRoundID = 0)
 XBOXAPI HRESULT WINAPI XOnlineArbitrationRegister(const XONLINE_ARB_ID *, WORD, DWORD, HANDLE, PXONLINETASK_HANDLE phTask)
@@ -470,9 +481,9 @@ XBOXAPI HRESULT WINAPI XOnlineMutelistRemove(DWORD, XUID)
     RXDK_XO_TASK_STUB((void)0)
 
 // =================================================================================================
-// 5849 API-surface completion: the omitted siblings of the families already stubbed above. Each is
-// a thin C wrapper over a CXo:: method in retail xonline.lib -- the same wire-protocol services the
-// leak does not carry -- so they take the same "service unavailable" behavior as their siblings. A
+// API-surface completion: the omitted siblings of the families already stubbed above. Each is
+// a thin C wrapper over a CXo:: method in retail xonline.lib -- the same wire-protocol services
+// not implemented here -- so they take the same "service unavailable" behavior as their siblings. A
 // title calling one now links and gets a clean failure instead of an unresolved symbol. Three are
 // NOT wire calls and are done for real, matching the retail disassembly exactly; they are marked.
 // =================================================================================================
@@ -510,7 +521,7 @@ XBOXAPI HRESULT WINAPI XOnlineContentSetSecurityKey(const BYTE *) { return E_FAI
 XBOXAPI HRESULT WINAPI XOnlineTitleUpdateEx(const LD_UPDATE *) { return E_FAIL; }
 
 // --- Friends (windowed retrieval + Ex requests). GetLatestByFocus/ByRange are synchronous getters
-// over the friends service; the leak's snapshot has no windowing service, so report an empty
+// over the friends service; the friends snapshot has no windowing service, so report an empty
 // window rather than inventing one. ---
 XBOXAPI HRESULT WINAPI XOnlineFriendsGetLatestByFocus(DWORD, XUID, DWORD, DWORD *pdwFriendBuffer, PXONLINE_FRIEND, DWORD *pdwFriendsBefore, DWORD *pdwFriendsAfter)
     RXDK_XO_TASK_STUB(if (pdwFriendBuffer) *pdwFriendBuffer = 0; if (pdwFriendsBefore) *pdwFriendsBefore = 0; if (pdwFriendsAfter) *pdwFriendsAfter = 0)

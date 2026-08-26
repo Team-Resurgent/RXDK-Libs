@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // RXDK UIX skin (.uix / "XSK0") runtime loader + IPluginSupport, per the format
 // produced by Rxdk.SkinBld (UixWriter.cs). Serves strings/layouts/images/audio by
 // resource id to title extension features (e.g. the UIXKeyboard on-screen keyboard),

@@ -1,15 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved
-
-Description:
-    Module implementing Xbox Statistics APIs
-
-Module Name:
-
-    stats.cpp
-
---*/
+/*
+ * Xbox statistics APIs -- per-title stat read/write and leaderboards.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

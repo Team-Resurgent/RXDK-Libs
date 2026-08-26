@@ -1,19 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau   (keithlau)
-
-Description:
-	Implementation of piecemeal decryption routines using a
-	symmetric key and the RC4-SHA1 Hmac algorithm.
-
-Module Name:
-
-	symmdec.c
-
---*/
+/*
+ * Piecemeal decryption routines using a symmetric key and the RC4/SHA-1 HMAC
+ * algorithm.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

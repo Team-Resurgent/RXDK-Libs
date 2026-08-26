@@ -1,8 +1,12 @@
-// ---------------------------------------------------------------------------------------
-// xonver.h
-//
-// Include file for stamping source files with the appropriate version structure
-// ---------------------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Stamps each source file with the appropriate build/version structure.
+ */
 
 #ifdef  __XONVER_H__
 #error "xonver.h should not be included more than once"

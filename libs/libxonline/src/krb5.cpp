@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Kerberos v5 ASN.1 encoder/decoder tables -- machine-generated serialization for
+ * the KERB_* wire structures used by online authentication.
+ */
+
 #include "xonp.h"
 #include "xonver.h"
 

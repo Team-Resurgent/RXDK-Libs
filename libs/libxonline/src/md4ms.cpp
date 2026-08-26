@@ -1,15 +1,15 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-    This second implementation of MD4 entry points is the newer style,
-    optimized implementation, compatible with newer code expecting these
-    entry point names.
-
-    Modelled after MD5 and SHA-1.
-
-    Scott Field (sfield)    21-Oct-97
-
-*/
-
+/*
+ * MD4 message-digest entry points -- the optimized implementation modelled on the
+ * MD5 and SHA-1 code, exposing the newer-style RSA32API entry-point names.
+ *
+ * Original implementation by Scott Field (sfield), 21 October 1997.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

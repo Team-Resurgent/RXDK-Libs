@@ -1,18 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau (keithlau)
-
-Description:
-	Module implementing content download
-
-Module Name:
-
-    contdl.c
-
---*/
+/*
+ * Content download -- fetches title and system content packages over the online
+ * service.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

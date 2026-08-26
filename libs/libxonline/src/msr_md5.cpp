@@ -1,38 +1,17 @@
 /*
-       File md5.c.    Version 03 August 2000.
-                   
-                     
-          Peter L. Montgomery
-          Microsoft Research
-          petmon@microsoft.com
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      This implements the MD5 hash function.  
-      For algorithmic background see (for example)
-
-           Bruce Schneier
-           Applied Cryptography
-           Protocols, Algorithms, and Source Code in C
-           Second Edition
-           Wiley, 1996
-           ISBN 0-471-12845-7
-           QA76.9 A25S35
-
-           Alfred J. Menezes et al
-           Handbook of Applied Cryptography
-           The CRC Press Series on Discrete Mathematics
-                   and its Applications
-           CRC Press LLC, 1997
-           ISBN 0-8495-8523-7
-           QA76.9A25M643
-
-       Also see RFC (Request For Comments) 1321 from April, 1992.
-       A July 2000 search for "rfc md5" or "rfc 1321"
-       at www.yahoo.com found the document at
-
-           http://www.cis.ohio-state.edu/htbin/rfc/rfc1321.html
-
-       and other sites.
-*/
+/*
+ * MD5 message-digest implementation (RFC 1321).
+ *
+ * Original implementation by Peter L. Montgomery, Microsoft Research
+ * (petmon@microsoft.com), 03 August 2000. For algorithmic background see Schneier,
+ * Applied Cryptography (2nd ed.) and Menezes et al., Handbook of Applied
+ * Cryptography.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

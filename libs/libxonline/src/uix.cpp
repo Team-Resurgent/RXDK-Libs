@@ -1,37 +1,44 @@
-// RXDK 5849 uplift: the UIX "Drop-In UI" Live engine (uix.h / uix.lib). The leak
-// has no UIX source at all (uix.lib shipped binary-only), so this is a fresh
-// RXDK implementation of the public surface, folded into libxonline (every Live
-// sample already links it, and UIX is the UI face of the same online stack).
-//
-// Everything here drives the leak's REAL Live client (the machinery whose
-// server side Insignia reimplements):
-//
-//  LOGON    - account picker over XOnlineGetUsers with multi-user (1..4)
-//             per-controller claims, guest sign-in, and passcode entry; runs
-//             the real XOnlineLogon task, pumped non-blocking in DoWork; also
-//             supports SILENT, RETRIEVED_STATE (XOnlineRetrieveLogonState) and
-//             RETRIEVED_GAME_INVITE starts. After success the engine keeps
-//             pumping the logon task, which is what holds the Live connection.
-//  FRIENDS  - real friends screen over the leak's friends enumeration
-//             (XOnlineFriendsStartup/Enumerate/GetLatest) with accept/decline
-//             requests and invites, join, remove, invite-to-game and optional
-//             sign-out; reports FRIENDS_JOIN_GAME[_CROSS_TITLE] with the
-//             XONLINE_FRIEND as exit data, exactly like retail.
-//  PLAYERS  - real players screen over the engine's ILivePlayersList registry
-//             (RegisterPlayer/Unregister/departed list/filters/sort) with
-//             mute/unmute through the mutelist API and selection reporting.
-//  Notifications - real: derived from the live friends snapshot
-//             (XOnlineGetNotification), surfaced through the DoWork NOTIFY
-//             flags and GetNotifications, gated by the properties.
-//  Reboot   - real: XLaunchNewImage to the dashboard with the given context.
-//
-// Rendering intentionally goes through the title's ITitleUIPlugin/
-// ITitleFontRenderer as clean text screens instead of the retail skin system:
-// the skin pipeline (skinbld texture bundling) does not survive on modern
-// hosts, so RXDK defines the font-renderer path as THE rendering contract --
-// skin file names passed to UIXCreateLiveEngine are accepted and unused by
-// design. Voicemail record/play is a capability boundary shared with libxvoice:
-// the WMAVoice codec only ever existed as binaries inside the retail libs.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The UIX "Drop-In UI" Live engine (uix.h). This is RXDK's implementation of the
+ * public UIX surface, folded into libxonline: every Live sample links it, and UIX
+ * is the UI face of the same online stack. (Retail ships it as a separate,
+ * binary-only uix.lib.)
+ *
+ * Everything here drives the real Live client:
+ *
+ *  LOGON    - account picker over XOnlineGetUsers with multi-user (1..4)
+ *             per-controller claims, guest sign-in, and passcode entry; runs the
+ *             real XOnlineLogon task, pumped non-blocking in DoWork; also supports
+ *             SILENT, RETRIEVED_STATE (XOnlineRetrieveLogonState) and
+ *             RETRIEVED_GAME_INVITE starts. After success the engine keeps pumping
+ *             the logon task, which is what holds the Live connection.
+ *  FRIENDS  - friends screen over the friends enumeration
+ *             (XOnlineFriendsStartup/Enumerate/GetLatest) with accept/decline
+ *             requests and invites, join, remove, invite-to-game and optional
+ *             sign-out; reports FRIENDS_JOIN_GAME[_CROSS_TITLE] with the
+ *             XONLINE_FRIEND as exit data, exactly like retail.
+ *  PLAYERS  - players screen over the engine's ILivePlayersList registry
+ *             (RegisterPlayer/Unregister/departed list/filters/sort) with
+ *             mute/unmute through the mutelist API and selection reporting.
+ *  Notifications - derived from the live friends snapshot
+ *             (XOnlineGetNotification), surfaced through the DoWork NOTIFY flags
+ *             and GetNotifications, gated by the properties.
+ *  Reboot   - XLaunchNewImage to the dashboard with the given context.
+ *
+ * Rendering intentionally goes through the title's ITitleUIPlugin /
+ * ITitleFontRenderer as clean text screens instead of the retail skin system: the
+ * skin pipeline (skinbld texture bundling) does not survive on modern hosts, so
+ * RXDK defines the font-renderer path as THE rendering contract -- skin file names
+ * passed to UIXCreateLiveEngine are accepted and unused by design. Voicemail
+ * record/play is a capability boundary shared with libxvoice: the WMAVoice codec
+ * only ever existed as binaries inside the retail libs.
+ */
 
 #include <xtl.h>
 #include <xobjbase.h>
@@ -2333,7 +2340,7 @@ HRESULT WINAPI LiveEngine_UseVoiceMail(LiveEngine *pThis, UIX_VOICE_MAIL_ENTRY_P
 }
 
 // -------------------------------------------------------- ILiveFriendsList ---
-// Engine-owned per-user objects over the leak's live friends snapshot.
+// Engine-owned per-user objects over the live friends snapshot.
 
 typedef RXDK_UIX_ENGINE::FRIENDS_LIST_OBJ FRIENDS_LIST_OBJ;
 

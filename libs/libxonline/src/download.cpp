@@ -1,20 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau (keithlau)
-
-Description:
-	Module implementing XRL download APIs:
-		XOnlineDownloadToMemory
-		XOnlineDownloadFile
-
-Module Name:
-
-    download.c
-
---*/
+/*
+ * XRL download APIs -- XOnlineDownloadToMemory and XOnlineDownloadFile.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

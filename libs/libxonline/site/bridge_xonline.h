@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XONLINE_BRIDGE_H
 
@@ -20,7 +26,7 @@
  * libxnet's xnp.h _XBOX block (ntos/nturtl/xtl/xboxp, NOT the xboxkrnl umbrella).
  * Using ntos.h rather than <xboxkrnl/xboxkrnl.h> is essential: the umbrella
  * redefines the Xc* crypto types (CRYPTO_VECTOR) and ExSaveNonVolatileSetting with
- * signatures that clash with the leak's xcrypt.h / winsockp.h.
+ * signatures that clash with the shared xcrypt.h / winsockp.h.
  *
  *   1. Build identity + features (NT, _XBOX, XONLINE_BUILD_LIBX, DBG=0,
  *      DASH_UPDATE_IN_TITLE) + i386 machine defines BEFORE any header.

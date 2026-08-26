@@ -1,17 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1999-2002  Microsoft Corporation
-
-Module Name:
-
-    xapip.h
-
-Abstract:
-
-    Contains common precompiled headers for kernel-mode
-    Win32-equivalents for xbox
-
---*/
+/*
+ * Aggregate precompiled-header of the kernel-mode Win32-equivalent (XAPI) surface
+ * used by the online client.
+ */
 
 #ifndef _XAPIP_
 #define _XAPIP_

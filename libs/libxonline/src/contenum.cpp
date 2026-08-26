@@ -1,18 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau (keithlau), Ben Lewis (t-blewis)
-
-Description:
-	Module implementing content enumeration
-
-Module Name:
-
-    contenum.c
-
---*/
+/*
+ * Content enumeration -- lists downloadable and installed content items.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

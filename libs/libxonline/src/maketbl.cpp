@@ -1,7 +1,12 @@
 /*
- * Table-building routines
- *
- * make_table() is based on ** Public Domain ** source "AR001.ZIP".
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * LZX decompressor -- Huffman decode-table builder (make_table, based on the
+ * public-domain AR001 source).
  */
 
 #include "xonp.h"

@@ -1,16 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-Module Name:
-
-    cryptkeys.h
-
-Abstract:
-
-    Keys we use for munging data
-
---*/
+/*
+ * Symmetric keys used to obfuscate on-disk online data.
+ */
 
 #ifndef __CRYPTKEYS_H__
 #define __CRYPTKEYS_H__

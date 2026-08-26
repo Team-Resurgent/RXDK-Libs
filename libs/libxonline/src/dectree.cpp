@@ -1,13 +1,15 @@
 /*
- * dectree.c
- *
- * Decoding the encoded tree structures
- *
- * To save much code size, the fillbuf()/getbits() calls have
- * been made into functions, rather than being inlined macros.
- * The macros actually take up a lot of space.  There is no
- * performance loss from doing so here.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * LZX decompressor -- Huffman tree decoding. The fillbuf/getbits helpers are real
+ * functions rather than inlined macros: much smaller code, with no measurable
+ * speed cost here.
+ */
+
 #include "xonp.h"
 #include "xonver.h"
 

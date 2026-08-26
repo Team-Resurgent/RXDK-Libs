@@ -1,23 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Author:
-    Keith Lau (keithlau)
-
-Description:
-	Module implementing DVD "download":
-		DownloadFromDVD
-
-	This is the "catch-all" function to do any "content download"
-	kind of operation using a DVD as the source instead of going
-	online.
-
-Module Name:
-
-    dvdload.c
-
---*/
+/*
+ * DVD content download -- sources content from the DVD instead of the network,
+ * reusing the online content-install path.
+ */
 
 #include "xonp.h"
 #include "xonver.h"

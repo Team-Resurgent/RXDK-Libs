@@ -1,12 +1,13 @@
 /*
- *  accounts.cpp
- *
- *  XBOX Online Service.  Copyright (c) Microsoft Corporation.
- *  
- *  Author: Steve Lamb (slamb), Ben Zotto (benzotto)
- *  Created: 12/20/01
- *
- */     
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox online account management -- account creation, retrieval and update over
+ * the online service (XBOS account APIs).
+ */
 
 #include "xonp.h"
 #include "xonlinep.h"

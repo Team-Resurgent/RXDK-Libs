@@ -1,6 +1,6 @@
 // RXDK UIX skin (.uix / "XSK0") runtime loader + IPluginSupport backing.
 //
-// The retail UIX built-in features render as plain text (see uix5849.cpp), but
+// The retail UIX built-in features render as plain text (see uix.cpp), but
 // TITLE-supplied *extension* features (e.g. the on-screen keyboard in the
 // UIXKeyboard sample) read all their geometry, key labels, and textures out of
 // the .uix skin through IPluginSupport. This module parses the XSK0 skin and

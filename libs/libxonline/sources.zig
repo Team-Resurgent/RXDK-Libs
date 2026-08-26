@@ -82,7 +82,7 @@ pub const cpp_sources = [_][]const u8{
 // The UIX drop-in UI. 5849 ships this as its own uix.lib rather than inside
 // xonline.lib, so it is packed separately -- see the root build.zig's libuix.
 pub const uix_sources = [_][]const u8{
-    X ++ "/src/uix5849.cpp",
+    X ++ "/src/uix.cpp",
     X ++ "/src/uix_skin.cpp",
 };
 

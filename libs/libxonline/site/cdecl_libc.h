@@ -32,7 +32,7 @@ __attribute__((cdecl)) void  *memmove(void *, const void *, __SIZE_TYPE__);
 __attribute__((cdecl)) void  *memset(void *, int, __SIZE_TYPE__);
 __attribute__((cdecl)) int    memcmp(const void *, const void *, __SIZE_TYPE__);
 __attribute__((cdecl)) void  *memchr(const void *, int, __SIZE_TYPE__);
-/* The heap. uix5849.cpp allocates its engine/plugin objects through these; left
+/* The heap. uix.cpp allocates its engine/plugin objects through these; left
    unpinned they compiled stdcall against a cdecl libc, so every call leaked 4
    bytes of ESP and the caller's epilogue returned through the wrong slot. */
 __attribute__((cdecl)) void  *malloc(__SIZE_TYPE__);

@@ -367,3 +367,33 @@ HRESULT WINAPI D3DVolume_GetContainer(
 
 } // end of namespace
 
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+D3DBaseTexture* WINAPI D3DSurface_GetContainer2(
+    D3DSurface *pThis)
+{
+    D3DBaseTexture* pTexture = NULL;
+    if (FAILED(D3DSurface_GetContainer(pThis, &pTexture)))
+        return NULL;
+    return pTexture;
+}
+
+extern "C"
+D3DBaseTexture* WINAPI D3DVolume_GetContainer2(
+    D3DVolume *pThis)
+{
+    D3DBaseTexture* pTexture = NULL;
+    if (FAILED(D3DVolume_GetContainer(pThis, &pTexture)))
+        return NULL;
+    return pTexture;
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

@@ -2102,3 +2102,139 @@ HRESULT CEngine::ScheduleEvent(XACT_TRACK_EVENT *pEventDesc, PXACTSOUNDCUE pSoun
 
 
 
+
+
+// ==== RXDK 5849 uplift: CEngine methods (moved from engine/uplift5849.cpp) ====
+// ---- CEngine 5849 methods --------------------------------------------------------------------
+
+HRESULT STDMETHODCALLTYPE CEngine::SetListenerPosition(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply)
+{
+    m_ds3dListener.vPosition.x = x;
+    m_ds3dListener.vPosition.y = y;
+    m_ds3dListener.vPosition.z = z;
+    return SetListenerParameters(&m_ds3dListener, NULL, dwApply);
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::SetListenerVelocity(FLOAT x, FLOAT y, FLOAT z, DWORD dwApply)
+{
+    m_ds3dListener.vVelocity.x = x;
+    m_ds3dListener.vVelocity.y = y;
+    m_ds3dListener.vVelocity.z = z;
+    return SetListenerParameters(&m_ds3dListener, NULL, dwApply);
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::SetListenerOrientation(FLOAT xFront, FLOAT yFront, FLOAT zFront,
+                                                          FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply)
+{
+    m_ds3dListener.vOrientFront.x = xFront;
+    m_ds3dListener.vOrientFront.y = yFront;
+    m_ds3dListener.vOrientFront.z = zFront;
+    m_ds3dListener.vOrientTop.x = xTop;
+    m_ds3dListener.vOrientTop.y = yTop;
+    m_ds3dListener.vOrientTop.z = zTop;
+    return SetListenerParameters(&m_ds3dListener, NULL, dwApply);
+}
+
+//
+// RXDK 5849 uplift: the three remaining CEngine APIs, recovered from
+// xacteng.lib (docs/5849-xact-api-recovery.md).
+//
+// EnableHeadphones and SetI3dl2Listener are forwarders in retail too --
+// EnableHeadphones onto IDirectSound_EnableHeadphones, SetI3dl2Listener onto
+// IDirectSound_SetI3DL2Listener (retail routes the latter through a static
+// CSoundSource helper that also caches the parameters for its own 3D math;
+// this port's 3D math lives in libdsound, so the forward is the whole job --
+// and SetListenerParameters is already that forward).
+//
+
+HRESULT STDMETHODCALLTYPE CEngine::EnableHeadphones(BOOL fEnabled)
+{
+    ENTER_EXTERNAL_METHOD();
+    return m_pDirectSound->EnableHeadphones(fEnabled);
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::SetI3dl2Listener(LPCDSI3DL2LISTENER pds3dl, DWORD dwApply)
+{
+    return SetListenerParameters(NULL, pds3dl, dwApply);
+}
+
+//
+// Retail: IDirectSound_GetCaps into DSoundCaps, IDirectSound_GetOutputLevels
+// into OutputLevels (without resetting the peaks), bail on the first failure,
+// then the engine's availability counters and the running allocation total.
+//
+
+static BYTE CountListEntries(const LIST_ENTRY *pList)
+{
+    DWORD dwCount = 0;
+
+    for (const LIST_ENTRY *pEntry = pList->Flink; pEntry != pList; pEntry = pEntry->Flink) {
+        if (++dwCount == 255) {
+            break;
+        }
+    }
+
+    return (BYTE)dwCount;
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::GetRealtimeData(PXACT_REALTIME_AUDIO_DATA pData)
+{
+    HRESULT hr;
+
+    ENTER_EXTERNAL_METHOD();
+
+    if (!pData) {
+        return E_INVALIDARG;
+    }
+
+    hr = m_pDirectSound->GetCaps(&pData->DSoundCaps);
+
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    hr = m_pDirectSound->GetOutputLevels(&pData->OutputLevels, FALSE);
+
+    if (FAILED(hr)) {
+        return hr;
+    }
+
+    pData->dwXactMemoryUsage = (DWORD)g_lXactMemoryUsage;
+    pData->bXactAvailable2DBuffers = CountListEntries(&m_lstAvailable2DBuffers);
+    pData->bXactAvailable2DStreams = CountListEntries(&m_lstAvailableStreams);
+    pData->bXactAvailable3DBuffers = CountListEntries(&m_lstAvailable3DBuffers);
+    pData->bReserved = 0;
+
+    return hr;
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::SetVariable(DWORD dwVariable, WORD wValue)
+{
+    if (dwVariable >= (sizeof(m_aVariables) / sizeof(m_aVariables[0])))
+        return E_INVALIDARG;
+    m_aVariables[dwVariable] = wValue;
+    return S_OK;
+}
+
+HRESULT STDMETHODCALLTYPE CEngine::GetVariable(DWORD dwVariable, PWORD pwValue)
+{
+    if (!pwValue)
+        return E_POINTER;
+    if (dwVariable >= (sizeof(m_aVariables) / sizeof(m_aVariables[0])))
+        return E_INVALIDARG;
+    *pwValue = m_aVariables[dwVariable];
+    return S_OK;
+}
+
+// ---- 5849 DSP image download (renamed LoadDspImage + returns the image desc) -----------------
+
+HRESULT STDMETHODCALLTYPE CEngine::DownloadEffectsImage(PVOID pvData, DWORD dwSize,
+                                                        LPCDSEFFECTIMAGELOC pEffectLoc,
+                                                        LPDSEFFECTIMAGEDESC *ppImageDesc)
+{
+    HRESULT hr = LoadDspImage(pvData, dwSize, pEffectLoc);
+    if (ppImageDesc) {
+        *ppImageDesc = SUCCEEDED(hr) ? m_pDspImageDesc : NULL;
+    }
+    return hr;
+}

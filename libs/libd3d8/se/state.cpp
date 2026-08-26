@@ -2524,3 +2524,205 @@ VOID UpdateProjectionViewportTransform()
 }
 
 } // end of namespace
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+VOID WINAPI D3DDevice_SetRenderState_SampleAlpha(
+    DWORD Value)
+{
+    CDevice* pDevice = g_pDevice;
+
+    // The hardware carries both controls in the anti-aliasing control
+    // register; D3DSAMPLEALPHA_TOCOVERAGE and _TOONE are already the
+    // hardware bit positions (0x10 / 0x100).
+
+    PPUSH pPush = pDevice->StartPush();
+
+    // NV097_SET_ANTI_ALIASING_CONTROL is a single bundled register holding the
+    // MSAA enable, the alpha-to-coverage / alpha-to-one bits, AND the
+    // multisample SAMPLE_MASK (bits 31:16).  We must re-emit the sample mask
+    // here or we would zero it, masking out every coverage sample (a blank
+    // screen).  This mirrors CommonSetAntiAliasingControl().
+    Push1(pPush, NV097_SET_ANTI_ALIASING_CONTROL,
+          DRF_NUM(097, _SET_ANTI_ALIASING_CONTROL, _ENABLE,
+                  D3D__RenderState[D3DRS_MULTISAMPLEANTIALIAS])
+        | DRF_NUM(097, _SET_ANTI_ALIASING_CONTROL, _SAMPLE_MASK,
+                  D3D__RenderState[D3DRS_MULTISAMPLEMASK])
+        | (Value & (D3DSAMPLEALPHA_TOCOVERAGE | D3DSAMPLEALPHA_TOONE)));
+
+    pDevice->EndPush(pPush + 2);
+
+    D3D__RenderState[D3DRS_SAMPLEALPHA] = Value;
+}
+
+extern "C"
+void WINAPI D3DDevice_SetStipple(
+    CONST DWORD *pPattern)
+{
+    CDevice* pDevice = g_pDevice;
+
+    if (DBG_CHECK(TRUE))
+    {
+        if (pPattern == NULL)
+        {
+            DPF_ERR("NULL pPattern parameter");
+        }
+    }
+
+    memcpy(&pDevice->m_StipplePattern[0], pPattern,
+           D3D_STIPPLE_PATTERN_COUNT * sizeof(DWORD));
+
+    PPUSH pPush = pDevice->StartPush(D3D_STIPPLE_PATTERN_COUNT + 1);
+
+    *pPush++ = PUSHER_METHOD(SUBCH_3D, NV097_SET_STIPPLE_PATTERN(0),
+                             D3D_STIPPLE_PATTERN_COUNT);
+
+    for (DWORD i = 0; i < D3D_STIPPLE_PATTERN_COUNT; i++)
+    {
+        *pPush++ = pPattern[i];
+    }
+
+    pDevice->EndPush(pPush);
+}
+
+extern "C"
+void WINAPI D3DDevice_GetStipple(
+    DWORD *pPattern)
+{
+    if (DBG_CHECK(TRUE))
+    {
+        if (pPattern == NULL)
+        {
+            DPF_ERR("NULL pPattern parameter");
+        }
+    }
+
+    memcpy(pPattern, &g_pDevice->m_StipplePattern[0],
+           D3D_STIPPLE_PATTERN_COUNT * sizeof(DWORD));
+}
+
+extern "C"
+void WINAPI D3DDevice_SetDepthClipPlanes(
+    float Near,
+    float Far,
+    DWORD Flags)
+{
+    CDevice* pDevice = g_pDevice;
+
+    switch (Flags)
+    {
+    case D3DSDCP_USE_DEFAULT_VERTEXPROGRAM_PLANES:
+        Near = 0.0f;
+        Far  = pDevice->m_ZScale;
+        // fall through
+    case D3DSDCP_SET_VERTEXPROGRAM_PLANES:
+        pDevice->m_VertexProgramClipNear = Near;
+        pDevice->m_VertexProgramClipFar  = Far;
+        break;
+
+    case D3DSDCP_USE_DEFAULT_FIXEDFUNCTION_PLANES:
+        Near = 0.0f;
+        Far  = pDevice->m_ZScale;
+        // fall through
+    case D3DSDCP_SET_FIXEDFUNCTION_PLANES:
+        pDevice->m_FixedFunctionClipNear = Near;
+        pDevice->m_FixedFunctionClipFar  = Far;
+        break;
+
+    default:
+        if (DBG_CHECK(TRUE))
+        {
+            DPF_ERR("Invalid Flags parameter");
+        }
+        return;
+    }
+
+    // The viewport state owns NV097_SET_CLIP_MIN/MAX; make it re-emit.
+
+    D3D__DirtyFlags |= D3DDIRTYFLAG_TRANSFORM;
+}
+
+extern "C"
+void WINAPI D3DDevice_GetDepthClipPlanes(
+    float *pNear,
+    float *pFar,
+    DWORD Flags)
+{
+    CDevice* pDevice = g_pDevice;
+
+    if (DBG_CHECK(TRUE))
+    {
+        if ((pNear == NULL) || (pFar == NULL))
+        {
+            DPF_ERR("NULL pointer");
+        }
+    }
+
+    if (Flags == D3DGDCP_GET_VERTEXPROGRAM_PLANES)
+    {
+        *pNear = pDevice->m_VertexProgramClipNear;
+        *pFar  = pDevice->m_VertexProgramClipFar;
+    }
+    else if (Flags == D3DGDCP_GET_FIXEDFUNCTION_PLANES)
+    {
+        *pNear = pDevice->m_FixedFunctionClipNear;
+        *pFar  = pDevice->m_FixedFunctionClipFar;
+    }
+    else if (DBG_CHECK(TRUE))
+    {
+        DPF_ERR("Invalid Flags parameter");
+    }
+}
+
+extern "C"
+void WINAPI D3DDevice_GetViewportOffsetAndScale(
+    D3DVECTOR4 *pOffset,
+    D3DVECTOR4 *pScale)
+{
+    CDevice* pDevice = g_pDevice;
+
+    if (DBG_CHECK(TRUE))
+    {
+        if ((pOffset == NULL) || (pScale == NULL))
+        {
+            DPF_ERR("NULL pointer");
+        }
+    }
+
+    FLOAT xViewport = pDevice->m_Viewport.X * pDevice->m_SuperSampleScaleX
+                    + pDevice->m_ScreenSpaceOffsetX;
+    FLOAT yViewport = pDevice->m_Viewport.Y * pDevice->m_SuperSampleScaleY
+                    + pDevice->m_ScreenSpaceOffsetY;
+
+    if ((pDevice->m_StateFlags & STATE_MULTISAMPLING) &&
+        (D3D__RenderState[D3DRS_MULTISAMPLEANTIALIAS]))
+    {
+        xViewport -= 0.5f;
+        yViewport -= 0.5f;
+    }
+
+    FLOAT fm11 = 0.5f * pDevice->m_Viewport.Width * pDevice->m_SuperSampleScaleX;
+    FLOAT fm22 = -0.5f * pDevice->m_Viewport.Height * pDevice->m_SuperSampleScaleY;
+    FLOAT fm33 = pDevice->m_ZScale * (pDevice->m_Viewport.MaxZ -
+                                      pDevice->m_Viewport.MinZ);
+    FLOAT fm43 = pDevice->m_ZScale * (pDevice->m_Viewport.MinZ);
+
+    pOffset->x = fm11 + xViewport;
+    pOffset->y = -fm22 + yViewport;
+    pOffset->z = fm43;
+    pOffset->w = 0.0f;
+
+    pScale->x = fm11;
+    pScale->y = fm22;
+    pScale->z = fm33;
+    pScale->w = 0.0f;
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

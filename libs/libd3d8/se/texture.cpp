@@ -383,3 +383,47 @@ void WINAPI D3DVolumeTexture_LockBox
 }
 
 } // end of namespace
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+D3DSurface* WINAPI D3DTexture_GetSurfaceLevel2(
+    D3DTexture *pThis,
+    UINT Level)
+{
+    D3DSurface* pSurface = NULL;
+    if (FAILED(D3DTexture_GetSurfaceLevel(pThis, Level, &pSurface)))
+        return NULL;
+    return pSurface;
+}
+
+extern "C"
+D3DVolume* WINAPI D3DVolumeTexture_GetVolumeLevel2(
+    D3DVolumeTexture *pThis,
+    UINT Level)
+{
+    D3DVolume* pVolume = NULL;
+    if (FAILED(D3DVolumeTexture_GetVolumeLevel(pThis, Level, &pVolume)))
+        return NULL;
+    return pVolume;
+}
+
+extern "C"
+D3DSurface* WINAPI D3DCubeTexture_GetCubeMapSurface2(
+    D3DCubeTexture *pThis,
+    D3DCUBEMAP_FACES FaceType,
+    UINT Level)
+{
+    D3DSurface* pSurface = NULL;
+    if (FAILED(D3DCubeTexture_GetCubeMapSurface(pThis, FaceType, Level, &pSurface)))
+        return NULL;
+    return pSurface;
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

@@ -1146,3 +1146,53 @@ BYTE * WINAPI D3DPERF_GetRegisterBase()
 
 } // end of namespace
 
+
+
+// RXDK 5849 uplift: PIX-style event markers (moved from se/uplift5849.cpp)
+//------------------------------------------------------------------------------
+// PIX-style event markers.
+//
+// Retail d3d8.lib exports these three, unlike the profiling counters
+// (D3DPERF_Reset/GetStatistics/...), which exist only in d3d8d.lib and
+// d3d8i.lib. Titles use them to bracket and label regions of a frame -- Fur
+// wraps FrameMove in BeginEvent/EndEvent.
+//
+// On retail hardware they fed the analysis tools that consumed the annotation
+// stream. RXDK has no such consumer, so they keep the nesting depth (which is
+// what BeginEvent/EndEvent are specified to return) and otherwise do nothing.
+// That is the honest behaviour: a title's control flow and return values are
+// unchanged, and no annotation is silently claimed to have been recorded.
+//------------------------------------------------------------------------------
+
+// extern "C": these are C entry points that titles reach through d3d8perf.h's
+// extern "C" block. Without it here the definitions come out C++-mangled
+// (__Z18D3DPERF_BeginEventmPKcz) and the title's reference goes unresolved --
+// retail exports them undecorated for the varargs pair, _D3DPERF_EndEvent@0 for
+// the other.
+extern "C" {
+
+static LONG g_D3DPerfEventDepth = 0;
+
+INT __cdecl D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...)
+{
+    UNREFERENCED_PARAMETER(Color);
+    UNREFERENCED_PARAMETER(szName);
+    return (INT)g_D3DPerfEventDepth++;
+}
+
+INT WINAPI D3DPERF_EndEvent(void)
+{
+    if(g_D3DPerfEventDepth > 0)
+    {
+        g_D3DPerfEventDepth--;
+    }
+    return (INT)g_D3DPerfEventDepth;
+}
+
+void __cdecl D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...)
+{
+    UNREFERENCED_PARAMETER(Color);
+    UNREFERENCED_PARAMETER(szName);
+}
+
+} // extern "C"

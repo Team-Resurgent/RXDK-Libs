@@ -430,3 +430,14 @@ HRESULT CSoundSource::SetMixBinVolumes(LPCDSMIXBINS pMixBins)
     return hr;
  
 }
+
+
+// ==== RXDK 5849 uplift (moved from engine/uplift5849.cpp) ====
+// ---- 5849 sound-source cue stop --------------------------------------------------------------
+
+HRESULT STDMETHODCALLTYPE CSoundSource::StopSoundCues()
+{
+    // 5849 stops the cues playing through this source; the leak's source owns a single
+    // hardware voice, so stopping that voice stops whatever those cues are rendering.
+    return Stop();
+}

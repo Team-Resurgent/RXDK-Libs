@@ -4419,3 +4419,162 @@ D3DCOLOR WINAPI D3DDevice_GetOverscanColor()
 }
 
 } // end namespace
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+D3DTexture* WINAPI D3DDevice_CreateTexture2(
+    DWORD Width,
+    DWORD Height,
+    DWORD Depth,
+    DWORD Levels,
+    DWORD Usage,
+    D3DFORMAT Format,
+    D3DRESOURCETYPE D3DType)
+{
+    D3DBaseTexture* pTexture = NULL;
+
+    // D3DType selects which of the three leak creators to use.
+    switch (D3DType)
+    {
+    case D3DRTYPE_VOLUMETEXTURE:
+        if (FAILED(CreateTexture(Width, Height, Depth, Levels, Usage, Format,
+                                 false,  // isCubeMap
+                                 true,   // isVolumeTexture
+                                 &pTexture)))
+            return NULL;
+        break;
+
+    case D3DRTYPE_CUBETEXTURE:
+        if (FAILED(CreateTexture(Width, Width, 1, Levels, Usage, Format,
+                                 true,   // isCubeMap
+                                 false,  // isVolumeTexture
+                                 &pTexture)))
+            return NULL;
+        break;
+
+    default:
+        if (FAILED(CreateTexture(Width, Height, 1, Levels, Usage, Format,
+                                 false, false, &pTexture)))
+            return NULL;
+        break;
+    }
+
+    return (D3DTexture*) pTexture;
+}
+
+extern "C"
+D3DSurface* WINAPI D3DDevice_CreateSurface2(
+    DWORD Width,
+    DWORD Height,
+    DWORD Usage,
+    D3DFORMAT Format)
+{
+    D3DSurface* pSurface = NULL;
+
+    if (Usage & D3DUSAGE_DEPTHSTENCIL)
+    {
+        if (FAILED(D3DDevice_CreateDepthStencilSurface(Width, Height, Format,
+                                                       D3DMULTISAMPLE_NONE,
+                                                       &pSurface)))
+            return NULL;
+    }
+    else if (Usage & D3DUSAGE_RENDERTARGET)
+    {
+        if (FAILED(D3DDevice_CreateRenderTarget(Width, Height, Format,
+                                                D3DMULTISAMPLE_NONE, FALSE,
+                                                &pSurface)))
+            return NULL;
+    }
+    else
+    {
+        if (FAILED(D3DDevice_CreateImageSurface(Width, Height, Format, &pSurface)))
+            return NULL;
+    }
+
+    return pSurface;
+}
+
+extern "C"
+D3DSurface* WINAPI D3DDevice_GetBackBuffer2(
+    INT BackBuffer)
+{
+    D3DSurface* pSurface = NULL;
+    D3DDevice_GetBackBuffer(BackBuffer, D3DBACKBUFFER_TYPE_MONO, &pSurface);
+    return pSurface;
+}
+
+extern "C"
+D3DSurface* WINAPI D3DDevice_GetRenderTarget2()
+{
+    D3DSurface* pSurface = NULL;
+    if (FAILED(D3DDevice_GetRenderTarget(&pSurface)))
+        return NULL;
+    return pSurface;
+}
+
+extern "C"
+D3DSurface* WINAPI D3DDevice_GetDepthStencilSurface2()
+{
+    D3DSurface* pSurface = NULL;
+    if (FAILED(D3DDevice_GetDepthStencilSurface(&pSurface)))
+        return NULL;
+    return pSurface;
+}
+
+extern "C"
+D3DSurface* WINAPI D3DDevice_GetPersistedSurface2()
+{
+    D3DSurface* pSurface = NULL;
+    D3DDevice_GetPersistedSurface(&pSurface);
+    return pSurface;
+}
+
+extern "C"
+D3DBaseTexture* WINAPI D3DDevice_GetTexture2(
+    DWORD Stage)
+{
+    D3DBaseTexture* pTexture = NULL;
+    D3DDevice_GetTexture(Stage, &pTexture);
+    return pTexture;
+}
+
+extern "C"
+D3DPalette* WINAPI D3DDevice_GetPalette2(
+    DWORD Stage)
+{
+    D3DPalette* pPalette = NULL;
+    D3DDevice_GetPalette(Stage, &pPalette);
+    return pPalette;
+}
+
+extern "C"
+D3DIndexBuffer* WINAPI D3DDevice_GetIndices2(
+    UINT *pBaseVertexIndex)
+{
+    D3DIndexBuffer* pIndexBuffer = NULL;
+    D3DDevice_GetIndices(&pIndexBuffer, pBaseVertexIndex);
+    return pIndexBuffer;
+}
+
+extern "C"
+void WINAPI D3DDevice_SetRenderTargetFast(
+    D3DSurface *pRenderTarget,
+    D3DSurface *pNewZStencil,
+    DWORD Flags)
+{
+    // Flags is reserved in 5849 (documented as "must be zero"), so the fast
+    // path is exactly the regular path minus the parameter validation the
+    // caller has promised to have done.
+    (void) Flags;
+
+    D3DDevice_SetRenderTarget(pRenderTarget, pNewZStencil);
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

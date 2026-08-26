@@ -2010,3 +2010,76 @@ VOID WINAPI D3DFixup_GetSpace(
 }
 
 } // end of namespace
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+D3DFixup* WINAPI D3DDevice_CreateFixup2(
+    UINT Size)
+{
+    D3DFixup* pFixup = NULL;
+    if (FAILED(D3DDevice_CreateFixup(Size, &pFixup)))
+        return NULL;
+    return pFixup;
+}
+
+extern "C"
+D3DPushBuffer* WINAPI D3DDevice_CreatePushBuffer2(
+    UINT Size,
+    BOOL RunUsingCpuCopy)
+{
+    D3DPushBuffer* pPushBuffer = NULL;
+    if (FAILED(D3DDevice_CreatePushBuffer(Size, RunUsingCpuCopy, &pPushBuffer)))
+        return NULL;
+    return pPushBuffer;
+}
+
+extern "C"
+void WINAPI D3DPushBuffer_SetRenderState(
+    D3DPushBuffer* pPushBuffer,
+    DWORD Offset,
+    D3DRENDERSTATETYPE State,
+    DWORD Value)
+{
+    CHECK(pPushBuffer, "D3DPushBuffer_SetRenderState");
+
+    if (DBG_CHECK(TRUE))
+    {
+        if (State >= D3DRS_SIMPLE_MAX)
+        {
+            DPF_ERR("Only simple render states can be set in a push buffer");
+        }
+    }
+
+    // Record into the push buffer using the same encoding the inline
+    // SetRenderState would emit.
+    PPUSH pPush = (PPUSH) ((BYTE*) pPushBuffer->Data + Offset);
+
+    *pPush++ = D3DSIMPLERENDERSTATEENCODE[State];
+    *pPush   = Value;
+}
+
+extern "C"
+void WINAPI D3DPushBuffer_CopyRects(
+    D3DPushBuffer* pPushBuffer,
+    DWORD Offset,
+    D3DSurface *pSourceSurface,
+    D3DSurface *pDestinationSurface)
+{
+    CHECK(pPushBuffer, "D3DPushBuffer_CopyRects");
+
+    // Patch the source and destination surface addresses of a CopyRects
+    // sequence previously recorded at 'Offset'.
+    PPUSH pPush = (PPUSH) ((BYTE*) pPushBuffer->Data + Offset);
+
+    pPush[0] = pSourceSurface->Data;
+    pPush[1] = pDestinationSurface->Data;
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

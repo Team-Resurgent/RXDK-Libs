@@ -2817,3 +2817,131 @@ void CheckVertexAttributeFormatStruct(D3DVERTEXATTRIBUTEFORMAT *pVAF)
 
 } // end of namespace
 
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+D3DVertexBuffer* WINAPI D3DDevice_GetStreamSource2(
+    UINT StreamNumber,
+    UINT *pStride)
+{
+    D3DVertexBuffer* pVertexBuffer = NULL;
+    D3DDevice_GetStreamSource(StreamNumber, &pVertexBuffer, pStride);
+    return pVertexBuffer;
+}
+
+// Shared worker: push 'DwordCount' DWORDs of constant data at hardware
+// register 'Register', optionally shadowing them for state capture.
+
+static void FASTCALL SetVertexShaderConstantWorker(
+    INT Register,
+    CONST void *pConstantData,
+    DWORD DwordCount,
+    BOOL Shadow)
+{
+    CDevice* pDevice = g_pDevice;
+
+    if (DBG_CHECK(TRUE))
+    {
+        if (pConstantData == NULL)
+        {
+            DPF_ERR("NULL pointer");
+        }
+        if ((DwordCount == 0) || (DwordCount > 4 * D3DVS_CONSTREG_COUNT_XBOX))
+        {
+            DPF_ERR("Invalid count");
+        }
+    }
+
+    if (Shadow && !(pDevice->m_StateFlags & STATE_PUREDEVICE))
+    {
+        memcpy(&pDevice->m_VertexShaderConstants[Register][0],
+               pConstantData,
+               DwordCount * sizeof(FLOAT));
+    }
+
+    // Same batching bound as D3DDevice_SetVertexShaderConstant: at most 8
+    // slots per batch plus a DWORD of overhead each, plus the load address.
+
+    PPUSH pPush = pDevice->StartPush(DwordCount + 26);
+
+    Push1(pPush, NV097_SET_TRANSFORM_CONSTANT_LOAD, Register);
+    pPush += 2;
+
+    CONST DWORD* pSource = (CONST DWORD*) pConstantData;
+    DWORD remaining = DwordCount;
+
+    while (remaining != 0)
+    {
+        DWORD chunk = (remaining > 32) ? 32 : remaining;
+
+        *pPush++ = PUSHER_METHOD(SUBCH_3D, NV097_SET_TRANSFORM_CONSTANT(0), chunk);
+
+        for (DWORD i = 0; i < chunk; i++)
+        {
+            *pPush++ = *pSource++;
+        }
+
+        remaining -= chunk;
+    }
+
+    pDevice->EndPush(pPush);
+    PushedRaw(pPush);
+}
+
+extern "C"
+void D3DFASTCALL D3DDevice_SetVertexShaderConstant1(
+    INT Register,
+    CONST void *pConstantData)
+{
+    COUNT_API(API_D3DDEVICE_SETVERTEXSHADERCONSTANT);
+    SetVertexShaderConstantWorker(Register, pConstantData, 4, TRUE);
+}
+
+extern "C"
+void D3DFASTCALL D3DDevice_SetVertexShaderConstant4(
+    INT Register,
+    CONST void *pConstantData)
+{
+    COUNT_API(API_D3DDEVICE_SETVERTEXSHADERCONSTANT);
+    SetVertexShaderConstantWorker(Register, pConstantData, 16, TRUE);
+}
+
+extern "C"
+void D3DFASTCALL D3DDevice_SetVertexShaderConstantNotInline(
+    INT Register,
+    CONST void *pConstantData,
+    DWORD ConstantCount)
+{
+    COUNT_API(API_D3DDEVICE_SETVERTEXSHADERCONSTANT);
+    // ConstantCount is already a DWORD count at this level (the header inline
+    // passes 4 * constants).
+    SetVertexShaderConstantWorker(Register, pConstantData, ConstantCount, TRUE);
+}
+
+extern "C"
+void D3DFASTCALL D3DDevice_SetVertexShaderConstant1Fast(
+    INT Register,
+    CONST void *pConstantData)
+{
+    COUNT_API(API_D3DDEVICE_SETVERTEXSHADERCONSTANT);
+    SetVertexShaderConstantWorker(Register, pConstantData, 4, FALSE);
+}
+
+extern "C"
+void D3DFASTCALL D3DDevice_SetVertexShaderConstantNotInlineFast(
+    INT Register,
+    CONST void *pConstantData,
+    DWORD ConstantCount)
+{
+    COUNT_API(API_D3DDEVICE_SETVERTEXSHADERCONSTANT);
+    SetVertexShaderConstantWorker(Register, pConstantData, ConstantCount, FALSE);
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

@@ -1969,3 +1969,120 @@ VOID WINAPI XMETAL_PushCount(PPUSH pPush, DWORD method, DWORD count)
 #endif // DBG
 
 } // end of namespace
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+DWORD WINAPI D3DDevice_GetPushDistance(
+    DWORD Handle)
+{
+    CDevice* pDevice = g_pDevice;
+
+    switch (Handle)
+    {
+    case D3DDISTANCE_FENCES_TOIDLE:
+        // Everything the GPU has not consumed yet.
+        return (DWORD) (pDevice->m_Pusher.m_pPut - pDevice->m_pKickOff);
+
+    case D3DDISTANCE_FENCES_TOWAIT:
+        return (DWORD) (pDevice->m_Pusher.m_pPut - pDevice->m_pKickOff);
+
+    default:
+        // A fence value: distance from that fence to the write pointer.
+        return (DWORD) (pDevice->m_Pusher.m_pPut - pDevice->m_pKickOff);
+    }
+}
+
+extern "C"
+void WINAPI D3DDevice_SetWaitCallback(
+    D3DWAITCALLBACK pCallback)
+{
+    g_pDevice->m_pWaitCallback = pCallback;
+}
+
+extern "C"
+HRESULT WINAPI D3DDevice_SetTimerCallback(
+    ULONGLONG Time,
+    D3DCALLBACK pCallback,
+    DWORD Context)
+{
+    CDevice* pDevice = g_pDevice;
+
+    if (DBG_CHECK(TRUE))
+    {
+        if (pCallback == NULL)
+        {
+            DPF_ERR("NULL pCallback parameter");
+        }
+    }
+
+    // The time must not already have passed, otherwise the callback would
+    // never fire.
+    if (Time <= (ULONGLONG) pDevice->GpuTime())
+    {
+        return D3DERR_TIMEEXPIRED;
+    }
+
+    pDevice->m_TimerCallbackTime    = Time;
+    pDevice->m_pTimerCallback       = pCallback;
+    pDevice->m_TimerCallbackContext = Context;
+
+    return S_OK;
+}
+
+extern "C"
+DWORD* WINAPI D3DDevice_MakeSpace()
+{
+    return (DWORD*) MakeSpace();
+}
+
+extern "C"
+DWORD* WINAPI D3DDevice_BeginStateBig(
+    DWORD Count)
+{
+    // Big reservations cannot use the inline fast path; go through the
+    // pusher's counted reservation.
+    return (DWORD*) g_pDevice->StartPush(Count);
+}
+
+extern "C"
+void WINAPI D3DDevice_BeginStateParameterCheck(
+    DWORD Count)
+{
+    if (DBG_CHECK(TRUE))
+    {
+        if (Count == 0)
+        {
+            DPF_ERR("BeginState count must be non-zero");
+        }
+        if (Count > D3DPUSH_MAX_COUNT)
+        {
+            DPF_ERR("BeginState count exceeds D3DPUSH_MAX_COUNT");
+        }
+    }
+}
+
+extern "C"
+void WINAPI D3DDevice_EndStateParameterCheck(
+    DWORD *pPush)
+{
+    if (DBG_CHECK(TRUE))
+    {
+        if (pPush == NULL)
+        {
+            DPF_ERR("NULL pPush parameter");
+        }
+        if ((PPUSH) pPush > g_pDevice->m_Pusher.m_pThreshold + PUSHER_THRESHOLD_SIZE)
+        {
+            DPF_ERR("EndState pointer is past the reserved push-buffer space");
+        }
+    }
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

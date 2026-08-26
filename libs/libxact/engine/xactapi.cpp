@@ -275,3 +275,186 @@ STDAPI IXACTSoundSource_SetMixBinVolumes(PXACTSOUNDSOURCE pSoundSource, LPCDSMIX
 }
 
 
+
+
+// ==== RXDK 5849 uplift: exported C entry points (moved from engine/uplift5849.cpp) ====
+using namespace XACT;
+// ---- exported C entry points -----------------------------------------------------------------
+
+STDAPI IXACTSoundBank_PrepareEx(PXACTSOUNDBANK pBank, PCXACT_PREPARE_SOUNDCUE pPrepareData, PXACTSOUNDCUE *ppCue)
+{
+    // No prepared-but-stopped state in the leak runtime: create+play the cue instead.
+    return ((CSoundBank *)pBank)->Play(pPrepareData->dwCueIndex, pPrepareData->pSoundSource,
+                                       pPrepareData->dwFlags, ppCue);
+}
+
+STDAPI IXACTEngine_SetVariable(PXACTENGINE pEngine, DWORD dwVariable, WORD wValue, DWORD /*dwApply*/)
+{
+    return ((CEngine *)pEngine)->SetVariable(dwVariable, wValue);
+}
+
+STDAPI IXACTEngine_GetVariable(PXACTENGINE pEngine, DWORD dwVariable, PWORD pwValue)
+{
+    return ((CEngine *)pEngine)->GetVariable(dwVariable, pwValue);
+}
+
+STDAPI IXACTEngine_SetParameterControl(PXACTENGINE /*pEngine*/, PCXACT_PARAMETER_CONTROL_DESC /*pParams*/)
+{
+    // The RPC/parameter-control engine is new in 5849 and absent from the leak; accept and ignore.
+    return S_OK;
+}
+
+STDAPI IXACTEngine_SetListenerPosition(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply)
+{
+    return ((CEngine *)pEngine)->SetListenerPosition(x, y, z, dwApply);
+}
+
+STDAPI IXACTEngine_SetListenerVelocity(PXACTENGINE pEngine, FLOAT x, FLOAT y, FLOAT z, DWORD dwApply)
+{
+    return ((CEngine *)pEngine)->SetListenerVelocity(x, y, z, dwApply);
+}
+
+STDAPI IXACTEngine_SetListenerOrientation(PXACTENGINE pEngine, FLOAT xFront, FLOAT yFront, FLOAT zFront,
+                                          FLOAT xTop, FLOAT yTop, FLOAT zTop, DWORD dwApply)
+{
+    return ((CEngine *)pEngine)->SetListenerOrientation(xFront, yFront, zFront, xTop, yTop, zTop, dwApply);
+}
+
+STDAPI IXACTEngine_EnableHeadphones(PXACTENGINE pEngine, BOOL fEnabled)
+{
+    return ((CEngine *)pEngine)->EnableHeadphones(fEnabled);
+}
+
+STDAPI IXACTEngine_SetI3dl2Listener(PXACTENGINE pEngine, LPCDSI3DL2LISTENER pds3dl, DWORD dwApply)
+{
+    return ((CEngine *)pEngine)->SetI3dl2Listener(pds3dl, dwApply);
+}
+
+STDAPI IXACTEngine_GetRealtimeData(PXACTENGINE pEngine, XACT_REALTIME_AUDIO_DATA *pData)
+{
+    return ((CEngine *)pEngine)->GetRealtimeData(pData);
+}
+
+STDAPI IXACTSoundBank_SelectVariation(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, PCXACT_SOUNDBANK_SELECT_VARIATION pVariation)
+{
+    return ((CSoundBank *)pBank)->SelectVariation(dwSoundCueIndex, pVariation);
+}
+
+STDAPI IXACTSoundBank_GetSoundCueProperties(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex, PXACT_SOUNDCUE_PROPERTIES pSoundCueProperties)
+{
+    return ((CSoundBank *)pBank)->GetSoundCueProperties(dwSoundCueIndex, pSoundCueProperties);
+}
+STDAPI IXACTEngine_DownloadEffectsImage(PXACTENGINE pEngine, PVOID pvData, DWORD dwSize,
+                                        LPCDSEFFECTIMAGELOC pEffectLoc, LPDSEFFECTIMAGEDESC *ppImageDesc)
+{
+    return ((CEngine *)pEngine)->DownloadEffectsImage(pvData, dwSize, pEffectLoc, ppImageDesc);
+}
+STDAPI IXACTSoundSource_StopSoundCues(PXACTSOUNDSOURCE pSoundSource)
+{
+    return ((CSoundSource *)pSoundSource)->StopSoundCues();
+}
+// ---- IXACTWmaPlayList (RXDK 5849 uplift) -----------------------------------------------------
+//
+// The playlist object itself is in engine/wmaplaylist.cpp. These are the C entry points the
+// public xact.h declares, plus the sound-bank factory that creates one.
+
+STDAPI IXACTSoundBank_CreateWmaPlayList(PXACTSOUNDBANK pBank, DWORD dwSoundCueIndex,
+                                        DWORD dwPlaybackFlags, PXACTWMAPLAYLIST *ppWmaPlayList)
+{
+    if (pBank == NULL || ppWmaPlayList == NULL) {
+        return E_INVALIDARG;
+    }
+
+    *ppWmaPlayList = NULL;
+
+    CWmaPlayList *pPlayList = new CWmaPlayList;
+    if (pPlayList == NULL) {
+        return E_OUTOFMEMORY;
+    }
+
+    HRESULT hr = pPlayList->Initialize((CSoundBank *)pBank, dwSoundCueIndex, dwPlaybackFlags);
+    if (FAILED(hr)) {
+        pPlayList->Release();
+        return hr;
+    }
+
+    *ppWmaPlayList = (PXACTWMAPLAYLIST)pPlayList;
+
+    return S_OK;
+}
+
+STDAPI_(ULONG) IXACTWmaPlayList_AddRef(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->AddRef();
+}
+
+STDAPI_(ULONG) IXACTWmaPlayList_Release(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->Release();
+}
+
+STDAPI IXACTWmaPlayList_Add(PXACTWMAPLAYLIST pPlayList, PCXACT_WMA_PLAYLIST_ADD pDesc,
+                            PXACTWMASONG *ppSong)
+{
+    return ((CWmaPlayList *)pPlayList)->Add(pDesc, ppSong);
+}
+
+STDAPI IXACTWmaPlayList_Remove(PXACTWMAPLAYLIST pPlayList, PXACTWMASONG pSong)
+{
+    return ((CWmaPlayList *)pPlayList)->Remove(pSong);
+}
+
+STDAPI IXACTWmaPlayList_SetCurrent(PXACTWMAPLAYLIST pPlayList, PXACTWMASONG pSong)
+{
+    return ((CWmaPlayList *)pPlayList)->SetCurrent(pSong);
+}
+
+STDAPI IXACTWmaPlayList_Next(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->Next();
+}
+
+STDAPI IXACTWmaPlayList_Previous(PXACTWMAPLAYLIST pPlayList)
+{
+    return ((CWmaPlayList *)pPlayList)->Previous();
+}
+
+STDAPI IXACTWmaPlayList_GetCurrentSongInfo(PXACTWMAPLAYLIST pPlayList, PDWORD pdwSongLength,
+                                           PWCHAR pszNameBuffer, DWORD dwBufferSize,
+                                           PXACTWMASONG *ppSong)
+{
+    return ((CWmaPlayList *)pPlayList)->GetCurrentSongInfo(pdwSongLength, pszNameBuffer,
+                                                           dwBufferSize, ppSong);
+}
+
+STDAPI IXACTWmaPlayList_GetCurrentSongInfoEx(PXACTWMAPLAYLIST pPlayList,
+                                             PXACT_WMASONG_DESCRIPTION pDesc,
+                                             PXACTWMASONG *ppSong)
+{
+    return ((CWmaPlayList *)pPlayList)->GetCurrentSongInfoEx(pDesc, ppSong);
+}
+
+STDAPI IXACTWmaPlayList_SetPlaybackBehavior(PXACTWMAPLAYLIST pPlayList, DWORD dwFlags)
+{
+    return ((CWmaPlayList *)pPlayList)->SetPlaybackBehavior(dwFlags);
+}
+
+STDAPI IXACTWmaPlayList_GetProperties(PXACTWMAPLAYLIST pPlayList,
+                                      PXACT_WMA_PLAYLIST_PROPERTIES pProperties)
+{
+    return ((CWmaPlayList *)pPlayList)->GetProperties(pProperties);
+}
+
+// ---- IXACTSoundBank_PauseSoundCue (RXDK 5849 uplift) -----------------------------------------
+//
+// Declared by the 5849 public header and previously unimplemented, like GlobalPause. Pauses one cue
+// rather than a whole category; the underlying work is the same, so both landed together.
+
+STDAPI IXACTSoundBank_PauseSoundCue(PXACTSOUNDBANK pBank, PXACTSOUNDCUE pSoundCue, BOOL fPause)
+{
+    if (pBank == NULL || pSoundCue == NULL) {
+        return E_INVALIDARG;
+    }
+
+    return ((CSoundCue *)pSoundCue)->Pause(fPause);
+}

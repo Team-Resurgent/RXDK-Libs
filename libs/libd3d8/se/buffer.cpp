@@ -300,3 +300,67 @@ D3DPALETTESIZE WINAPI D3DPalette_GetSize(
 }
 
 } // end of namespace
+
+
+#ifdef STARTUPANIMATION
+namespace D3DK
+#else
+namespace D3D
+#endif
+{
+
+extern "C"
+D3DVertexBuffer* WINAPI D3DDevice_CreateVertexBuffer2(
+    UINT Length)
+{
+    D3DVertexBuffer* pVertexBuffer = NULL;
+    if (FAILED(D3DDevice_CreateVertexBuffer(Length, 0, 0, D3DPOOL_DEFAULT,
+                                            &pVertexBuffer)))
+        return NULL;
+    return pVertexBuffer;
+}
+
+extern "C"
+D3DIndexBuffer* WINAPI D3DDevice_CreateIndexBuffer2(
+    UINT Length)
+{
+    D3DIndexBuffer* pIndexBuffer = NULL;
+    if (FAILED(D3DDevice_CreateIndexBuffer(Length, 0, D3DFMT_INDEX16,
+                                           D3DPOOL_DEFAULT, &pIndexBuffer)))
+        return NULL;
+    return pIndexBuffer;
+}
+
+extern "C"
+D3DPalette* WINAPI D3DDevice_CreatePalette2(
+    D3DPALETTESIZE Size)
+{
+    D3DPalette* pPalette = NULL;
+    if (FAILED(D3DDevice_CreatePalette(Size, &pPalette)))
+        return NULL;
+    return pPalette;
+}
+
+extern "C"
+BYTE* WINAPI D3DVertexBuffer_Lock2(
+    D3DVertexBuffer *pThis,
+    DWORD Flags)
+{
+    BYTE* pbData = NULL;
+    // Offset 0 / size 0 means "the whole buffer" for the leak implementation,
+    // which is what the 5849 Lock2 contract is.
+    D3DVertexBuffer_Lock(pThis, 0, 0, &pbData, Flags);
+    return pbData;
+}
+
+extern "C"
+D3DCOLOR* WINAPI D3DPalette_Lock2(
+    D3DPalette *pThis,
+    DWORD Flags)
+{
+    D3DCOLOR* pColors = NULL;
+    D3DPalette_Lock(pThis, &pColors, Flags);
+    return pColors;
+}
+
+}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)

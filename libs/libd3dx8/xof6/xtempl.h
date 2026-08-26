@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-// Copyright (C) 1997 - 1998 Microsoft Corporation. All Rights Reserved.
-//
-// FileName:    xtempl.h
-//
-// Description: Template related classes header file
-//
-// History:
-//      01/09/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares the template-related classes (XTemplate and its lists) describing
+ * .X file template definitions.
+ */
 
 #ifndef _XTEMPL_H_
 #define _XTEMPL_H_

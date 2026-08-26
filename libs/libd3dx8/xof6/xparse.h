@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Token-type constants (YT_...) shared between the .X file lexer and the
+ * generated parser.
+ */
+
 #define YT_END_OF_FILE 0
 #define YT_YIELD 0
 #define YT_ERROR 255

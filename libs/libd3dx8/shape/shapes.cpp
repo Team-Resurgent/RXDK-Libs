@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Procedural shape generators for the D3DX shape library. Implements the
+ * D3DXCreate* primitives - Polygon, Box, Cylinder, Sphere, Torus and Teapot -
+ * each of which builds a D3DX mesh of positions and normals for the requested
+ * shape.
+ */
+
 #include "pchshape.h"
 
 

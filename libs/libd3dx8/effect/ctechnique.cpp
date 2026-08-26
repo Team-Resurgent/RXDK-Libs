@@ -1,11 +1,18 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       effect.h
-//  Content:    D3DX effect types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Loader-side technique/pass/assignment objects for the D3DX8 effect runtime.
+ * CD3DXAssignment is one "state = value" line from a compiled effect: it binds
+ * a render/texture-stage state (or a light or material field) to either a
+ * constant or an effect parameter, and its Apply() pushes the value onto the
+ * device. Passes group assignments and techniques group passes; Validate checks
+ * them against the device caps. This is what actually renders a loaded effect,
+ * as opposed to the higher-level CD3DXEffect/CD3DXTechnique data holders.
+ */
 
 
 #include "pcheffect.h"

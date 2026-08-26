@@ -1,11 +1,17 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8tex.cpp
-//  Content:    D3DX texturing APIs
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Public D3DX texturing API surface. Implements the D3DXCreateTexture,
+ * D3DXCreateCubeTexture and D3DXCreateVolumeTexture families (including the
+ * From-File / From-Resource / From-Memory variants), the surface- and volume-load
+ * helpers, the mip-filter functions, the texture-requirement checks, and the
+ * Xbox DXT get/set entry points - built on top of the image loader, codecs and
+ * blitter in this library.
+ */
 
 #include "pchtex.h"
 

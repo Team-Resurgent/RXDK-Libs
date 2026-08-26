@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xstrmrd.cpp
-//
-//  Description:    Implement XStreamRead and its subclasses.
-//
-//  History:
-//      02/24/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements XStreamRead and its subclasses, the input-stream abstractions the
+ * parser reads a .X file from (file, memory, URL and so on).
+ */
 
 #include "precomp.h"
 

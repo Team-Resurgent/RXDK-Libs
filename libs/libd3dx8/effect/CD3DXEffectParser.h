@@ -1,16 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       compiler.h
-//  Content:    Vertex Shader compiler
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Parse-tree node classes for the D3DX8 effect parser. The NODE_* enum tags the
+ * node kinds, and each grammar construct has a Node subclass (EffectNode,
+ * DeclarationNode, TechniqueNode, PassNode, StageNode, ...) holding pointers to
+ * its child nodes. CD3DXEffectParser (in CD3DXEffectParser.cpp) builds this
+ * tree, and the compiler stage (ccompiler.cpp) walks it.
+ */
 
 enum
 {

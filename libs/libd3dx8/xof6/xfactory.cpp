@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xclsfac.cpp
-//
-//  Description:    Implement IClassFactory interface.
-//
-//  History:
-//      04/23/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements XFactory, the IClassFactory used to create DirectXFile COM
+ * objects, tracking server locks and the live instance count.
+ */
 
 #include "precomp.h"
 #include "xfactory.h"

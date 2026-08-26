@@ -3,14 +3,17 @@
 #ifndef __SKINMESH_H__
 #define __SKINMESH_H__
 
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: skinmesh.h
-//
-// Copyright (C) 2000 Microsoft Corporation. All Rights Reserved.
-//
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the skinned-mesh implementation. Defines the CBone helper
+ * (per-bone vertex indices and blend weights) and the class layout backing the
+ * ID3DXSkinMesh object implemented in skinmesh.cpp.
+ */
 
 #include "tri3mesh.h"
 

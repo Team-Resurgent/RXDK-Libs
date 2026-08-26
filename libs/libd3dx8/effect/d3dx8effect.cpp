@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8effect.cpp
-//  Content:    Compile D3DX Effect files
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Public D3DX8 effect entry points. The D3DXCompileEffectFromFileA/W functions
+ * read an effect source file (via CD3DXFile) and run it through
+ * CD3DXEffectCompiler, returning the compiled binary effect and any compilation
+ * error text as ID3DXBuffers. This is the exported ABI over the effect
+ * compiler.
+ */
 
 #include "pcheffect.h"
 #include "CD3DXFile.h"

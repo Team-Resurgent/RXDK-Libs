@@ -3,23 +3,18 @@
 #ifndef __TRI3MESH_H__
 #define __TRI3MESH_H__
 
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: createmesh.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created 
-// -@- 08/19/99 (mikemarr)  - started comment history
-//                          - added #include <limits.h>
-//                          - added #pragma once
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Triangle-mesh class used as the base representation for D3DX meshes. Holds the
+ * vertex and index buffers together with the FVF/declarator, and provides the
+ * operations (creation, attribute and adjacency handling) that the higher-level
+ * mesh objects and loaders build on.
+ */
 
 #include "gxcrackfvf.h"
 

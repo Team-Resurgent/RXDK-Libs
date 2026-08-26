@@ -1,15 +1,12 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xstring.h
-//
-//  Description:    XString class header file.
-//
-//  History:
-//      01/02/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares XString, a simple owning string wrapper.
+ */
 
 #ifndef _XSTRING_H_
 #define _XSTRING_H_

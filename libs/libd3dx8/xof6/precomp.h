@@ -1,15 +1,14 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   precomp.h
-//
-//  Description:    Precompiled header file.
-//
-//  History:
-//      02/20/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precompiled header for the xof6 (DirectX .X file) parser. Pulls in the D3DX
+ * segment, CRT and XTL headers plus every internal xof6 class header so each
+ * translation unit shares one consistent include set.
+ */
 
 #ifndef _PRECOMP_H_
 #define _PRECOMP_H_

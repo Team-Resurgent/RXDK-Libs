@@ -1,11 +1,18 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       effect.h
-//  Content:    D3DX effect types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Loader side of the D3DX8 effect framework. CEffectNode walks the compiled
+ * binary effect produced by the compiler -- a packed tree where each node
+ * stores its id, its inline DWORD data and its child nodes contiguously -- via
+ * Children()/Sibling(). CD3DXValue is a tagged union holding a single typed
+ * effect parameter (DWORD, float, vector, matrix, texture, shader handle or raw
+ * constant block), the runtime representation of the values read out of that
+ * tree.
+ */
 
 #include "pcheffect.h"
 

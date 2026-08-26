@@ -1,11 +1,18 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       parse.cpp
-//  Content:    Parse D3DX Effect files
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The D3DX8 effect compiler. CD3DXEffectCompiler drives the generated yacc
+ * grammar (effect_y.h) over effect source text and, in the grammar's reduction
+ * actions, emits the compiled binary effect: a tree of fourcc-tagged nodes
+ * (N_EFFECT/N_PARAMETERS/N_TECHNIQUES/N_PASS/...) with parameter values,
+ * render- and texture-stage-state assignments and assembled vertex/pixel
+ * shaders. The RValue/LValue lookup tables here bind effect keywords (types,
+ * booleans, render states) to their compiled encodings.
+ */
 
 #include "pcheffect.h"
 #include <xgraphics.h>

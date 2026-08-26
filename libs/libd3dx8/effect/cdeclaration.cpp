@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CDeclaration.cpp
-//  Content:    Parse declarations
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The D3DX8 vertex-declaration compiler. CD3DXDeclarationCompiler runs the
+ * generated yacc grammar (decl_y.h) over vertex-declaration source text and, in
+ * the reduction actions, builds and serializes the compiled declaration (vertex
+ * element types -- UINT8/INT16/FLOAT/D3DCOLOR -- and FVF specifiers) into an
+ * output buffer, collecting any parse errors into a separate error buffer.
+ */
 
 #include "pcheffect.h"
 

@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xfactory.h
-//
-//  Description:    XFactory class header file.
-//
-//  History:
-//      04/22/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares XFactory, the IClassFactory implementation for the DirectXFile
+ * object.
+ */
 
 #ifndef _XFACTORY_H_
 #define _XFACTORY_H_

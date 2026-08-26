@@ -3,21 +3,18 @@
 #ifndef __LOADUTIL_H
 #define __LOADUTIL_H
 
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: loadutil.h
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created
-// -@- 09/23/99 (mikemarr)  - copyright, started history
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Intermediate structures and helper prototypes shared by the mesh file
+ * loaders. Defines the SLoadVertex / SLoadedFace / SCorner types the loaders
+ * accumulate geometry into, and declares the Init/Set helpers implemented in
+ * loadutil.cpp that build a finished D3DX mesh from that data.
+ */
 
 
 struct SLoadVertex

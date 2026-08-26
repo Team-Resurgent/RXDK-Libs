@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXBlt.cpp
-//  Content:    Blitter
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXBlt - the surface blitter for the D3DX texture library. Copies pixel data
+ * between surfaces described by D3DX_BLT records, converting between pixel formats
+ * through the codecs and applying the requested filtering (including scaling
+ * blits) as it goes.
+ */
 
 #include "pchtex.h"
 

@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the CVertexArray vertex-buffer wrapper and the
+ * D3DXVERTEXCOMPONENT enumeration describing which vertex fields a given array
+ * carries. Implemented in vbwrap.cpp and used by the shape generators.
+ */
+
 #ifndef __VBWRAP_H__
 #define __VBWRAP_H__
 

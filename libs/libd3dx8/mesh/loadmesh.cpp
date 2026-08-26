@@ -1,21 +1,17 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: loadmesh.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created
-// -@- 08/06/99 (mikemarr)  - prepend GX to all Luciform functions
-//                          - started comment history
-// -@- 08/26/99 (mikemarr)  - replace gxbasetype.h with gxmathcore.h
-// -@- 09/23/99 (mikemarr)  - changed <> to "" in #includes
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * ASCII .m mesh-file parser for the D3DX mesh library.
+ *
+ * LoadMeshFromM reads a mesh from a text stream: CFileContext handles buffered
+ * line reading, CParseOptionalArgs decodes per-element attributes (colors,
+ * normals, texture coordinates), and the LoadVertex / LoadFace / LoadCorner
+ * helpers accumulate the geometry that loadutil then turns into a D3DX mesh.
+ */
 
 #include "pchmesh.h"
 

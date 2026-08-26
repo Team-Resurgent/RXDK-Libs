@@ -1,11 +1,19 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXRenderToSurface.cpp
-//  Content:    RenderToSurface object
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXRenderToSurface -- the ID3DXRenderToSurface implementation, which lets a
+ * title render a scene into an arbitrary surface (typically a texture) instead
+ * of the back buffer. BeginScene saves the device's current render target and
+ * depth-stencil in a state block, points the device at the requested surface
+ * (creating a scratch render target and/or depth-stencil buffer when the target
+ * cannot be rendered to directly) and sets the viewport. EndScene closes the
+ * scene, blits the scratch buffer into the target when one was used, and
+ * restores the previously captured device state.
+ */
 
 #include "pchcore.h"
 

@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of the CQuadric error-metric class used by mesh simplification,
+ * plus a small isnanf fallback for platforms whose math library does not
+ * provide one. The quadric matrices scored here drive the edge-collapse
+ * ordering in the simplification code.
+ */
+
 #ifndef QUADRIC_INCLUDED
 #define QUADRIC_INCLUDED
 

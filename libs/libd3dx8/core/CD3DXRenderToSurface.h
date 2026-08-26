@@ -1,11 +1,13 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXRenderToSurface.h
-//  Content:    Render to surface object
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CD3DXRenderToSurface, the render-to-surface helper.
+ * See CD3DXRenderToSurface.cpp for the behaviour.
+ */
 
 #ifndef __D3DXRENDERTOSURFACE_H__
 #define __D3DXRENDERTOSURFACE_H__

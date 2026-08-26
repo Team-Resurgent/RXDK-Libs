@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   ximplapi.cpp
-//
-//  Description:    Implement interface implementation classes.
-//
-//  History:
-//      01/13/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements the public DirectXFile API classes, including DirectXFileCreate
+ * and the IDirectXFile implementation that sits on top of the parser.
+ */
 
 #include "precomp.h"
 

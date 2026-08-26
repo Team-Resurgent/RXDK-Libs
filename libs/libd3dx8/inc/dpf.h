@@ -1,11 +1,15 @@
-/*==========================================================================
- *
- *  Copyright (C) 1995-2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dpf.h
- *  Content:    header file for debug printf
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug-printf and assertion macros (WARNING, ASSERT, ASSERTMSG, RIP, DPF and
+ * friends). In debug (DBG) builds they route through the kernel's DebugPrint
+ * and trigger a breakpoint on assertion failure; in retail builds they all
+ * expand to no-ops.
+ */
 
 // These macros are used for debugging. They expand to
 // whitespace on a free build.

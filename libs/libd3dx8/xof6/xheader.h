@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xheader.h
-//
-//  Description:    X file header definitions.
-//
-//  History:
-//      02/03/98    congpay     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * .X file header definitions: the magic, version and format constants that
+ * identify a DirectX .X file and its encoding.
+ */
 
 #ifndef _XHEADER_H_
 #define _XHEADER_H_

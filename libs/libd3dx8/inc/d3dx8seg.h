@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8seg.h
-//  Content:    sets the sections for code and data in d3dx8.lib
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Section-layout control for the D3DX8 library. Directs the compiler to place
+ * D3DX8's code, data and constants into a merged D3DX section marked
+ * executable/read/write, and emits the D3DX8 build-number stamp into the .XBLD
+ * version section (debug and retail variants) so the library's version is
+ * recorded in the linked image.
+ */
 
 #ifndef __D3DX8SEG_H__
 #define __D3DX8SEG_H__

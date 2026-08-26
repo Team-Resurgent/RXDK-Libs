@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXImage.cpp
-//  Content:    Image loader
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXImage - the image-file loader for the D3DX texture library. Decodes image
+ * files (BMP, and via the bundled libraries PNG and JPEG) into a surface with a
+ * known D3D format, pitch and palette, ready for the blitter to load into a
+ * texture.
+ */
 
 #include "pchtex.h"
 ///////////////////////////////////////////////////////////////////////////

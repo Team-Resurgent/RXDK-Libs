@@ -1,15 +1,12 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xmemory.cpp
-//
-//  Description:    Implement memory alloc/free functions.
-//
-//  History:
-//      03/02/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements the XMalloc, XRealloc and XFree memory helpers used by the parser.
+ */
 
 #include "precomp.h"
 

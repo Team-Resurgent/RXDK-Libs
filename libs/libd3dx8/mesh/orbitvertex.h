@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * COrbitVertexIter - iterates the faces surrounding a given mesh vertex ("orbits"
+ * it) using the adjacency array, in clockwise or counter-clockwise order and with
+ * optional stopping at boundary edges. Used by the cleaning and simplification
+ * code to walk the fan of triangles around a vertex.
+ */
 
 const BYTE x_iAllFaces = 0;
 const BYTE x_iClockwise = 1;

@@ -1,11 +1,17 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1998 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8mesh.h
-//  Content:    D3DX mesh types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX8 mesh interfaces and API. Declares the mesh COM interfaces
+ * (ID3DXBaseMesh, ID3DXMesh, ID3DXPMesh, ID3DXSPMesh, ID3DXSkinMesh), their
+ * IIDs, the associated flag enums and data structures (attribute ranges, bone
+ * combinations, material and weight structs), and the D3DX mesh functions:
+ * creation, cloning, optimization, simplification, .X-file load/save, bounding
+ * volume computation and ray intersection.
+ */
 
 #include "d3dx8.h"
 

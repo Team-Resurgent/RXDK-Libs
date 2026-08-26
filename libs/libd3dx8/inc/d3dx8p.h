@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 - 2001 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8.h
-//  Content:    D3DX utility library
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Umbrella header for the D3DX8 utility library. Defines the common D3DX
+ * conventions (D3DXINLINE, the D3DX_DEFAULT sentinels) and pulls in the module
+ * headers for math, core, textures, meshes, shapes and effects, so a title need
+ * only include this one header.
+ */
 
 #ifndef __D3DX8_H__
 #define __D3DX8_H__

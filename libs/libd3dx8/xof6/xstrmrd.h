@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xstrmrd.h
-//
-//  Description:    XStreamRead and its sub classes header file.
-//
-//  History:
-//      02/23/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares XStreamRead and its subclasses, the parser's input-stream
+ * abstraction.
+ */
 
 #ifndef _XSTRMRD_H_
 #define _XSTRMRD_H_

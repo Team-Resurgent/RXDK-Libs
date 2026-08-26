@@ -1,11 +1,13 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXEffect.h
-//  Content:    D3DX effect types and functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations of CEffectNode (the packed compiled-effect tree walker) and
+ * CD3DXValue (a typed effect parameter value). See ceffect.cpp for details.
+ */
 
 #ifndef __CD3DXEFFECT_H__
 #define __CD3DXEFFECT_H__

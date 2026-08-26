@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xdata.h
-//
-//  Description:    Data object classes header file.
-//
-//  History:
-//      01/10/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares the data-object classes and their list chunk sizes for the .X file
+ * data model.
+ */
 
 #ifndef _XDATA_H_
 #define _XDATA_H_

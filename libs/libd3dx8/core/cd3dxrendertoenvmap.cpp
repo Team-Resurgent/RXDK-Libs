@@ -1,11 +1,20 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXRenderToEnvMap.cpp
-//  Content:    RenderToEnvMap object
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXRenderToEnvMap -- the ID3DXRenderToEnvMap implementation, which renders a
+ * scene once per face into an environment map. BeginCube/BeginSphere/
+ * BeginHemisphere/BeginParabolic select the target kind and capture the device
+ * state; Face flips to a new cube face by ending the current scene and starting
+ * the next; BeginScene points the device at the chosen face surface (using a
+ * scratch render target and blit when the texture cannot be rendered to
+ * directly), and End restores the saved device state. The cube path is
+ * complete; the sphere, hemisphere and parabolic remaps are not implemented and
+ * return E_NOTIMPL.
+ */
 
 #include "pchcore.h"
 

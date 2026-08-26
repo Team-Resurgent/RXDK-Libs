@@ -3,20 +3,17 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
-/*/////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File: common.h
-//
-// @@BEGIN_MSINTERNAL
-//
-// -@- 03/17/99 (mikemarr)  - created for Luciform99
-// -@- 08/23/99 (mikemarr)  - HRESULTS for library - snarfed from gxutils.h
-//
-// @@END_MSINTERNAL
-//
-/////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Common definitions shared across the D3DX mesh library: TRUE/FALSE fallbacks,
+ * the fixed-width integer typedefs copied from basetsd.h, and the library's
+ * internal HRESULT codes.
+ */
 
 #include <xtl.h>
 #include "d3dx8dbg.h"

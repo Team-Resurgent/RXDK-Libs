@@ -1,11 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXTechnique.h
-//  Content:    D3DX technique types and functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations of the loader-side effect objects CD3DXAssignment, CD3DXPass and
+ * the technique classes that apply a compiled effect to the device.
+ * See ctechnique.cpp for the behaviour.
+ */
 
 #ifndef __CD3DXTECHNIQUE_H__
 #define __CD3DXTECHNIQUE_H__

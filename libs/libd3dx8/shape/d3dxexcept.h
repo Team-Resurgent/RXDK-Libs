@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Lightweight exception type for the D3DX shape code. CD3DXException carries an
+ * HRESULT, a message and the throw-site line number; the D3DX_TRY / D3DX_CATCH /
+ * D3DX_THROW macros wrap the standard try/catch/throw so a caught exception logs
+ * a debug string and is turned back into its HRESULT return value.
+ */
+
 #ifndef __D3DXEXCEPT_H__
 #define __D3DXEXCEPT_H__
 

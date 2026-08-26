@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xblob.cpp
-//
-//  Description:    Implement XBinaryData class.
-//
-//  History:
-//      01/13/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements the binary-data (blob) object, which holds a chunk of raw binary
+ * data parsed out of a .X file.
+ */
 
 #include "precomp.h"
 

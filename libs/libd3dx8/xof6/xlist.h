@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xlist.h
-//
-//  Description:    list related classes header file.
-//
-//  History:
-//      01/08/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Small array and list container templates (XArray and friends) used
+ * throughout the .X file parser.
+ */
 
 #ifndef _XLIST_H_
 #define _XLIST_H_

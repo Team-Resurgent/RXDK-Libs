@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8dbg.h
-//  Content:    D3DX debugging functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX8 debug-tracing interface. Declares the debug print/assert entry points
+ * and the DPF/DPFHR/D3DXASSERT macros used across the library, which expand to
+ * real calls in debug (DBG) builds and to no-ops otherwise. Also provides the
+ * one-shot SURFACE_PORT_WARNING and optional memory-leak-tracking hooks.
+ */
 
 
 #ifndef __D3DX8DBG_H__

@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Bezier-triangle evaluation helpers for the D3DX mesh library. Would tessellate
+ * a cubic Bezier triangle (its ten control points) into vertices, barycentrically
+ * interpolating position, normal, color and texture coordinates. The body is
+ * currently disabled behind #if 0 and is not built into the library.
+ */
+
 #include "pchmesh.h"
 
 

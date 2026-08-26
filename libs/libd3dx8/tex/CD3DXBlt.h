@@ -1,11 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXBlt.h
-//  Content:    Blitter
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of the CD3DXBlt surface blitter and its Blt entry point, which
+ * copies and filters pixel data between D3DX_BLT surfaces. Implemented in
+ * CD3DXBlt.cpp.
+ */
 
 #ifndef __CD3DXBlt_H__
 #define __CD3DXBlt_H__

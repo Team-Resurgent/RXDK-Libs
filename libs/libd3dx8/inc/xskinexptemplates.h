@@ -1,10 +1,17 @@
-//-----------------------------------------------------------------------------
-// File: XSkinExpTemplates.h
-//
-// Desc: Custom templates used for skin export format.
-//
-// Copyright (C) 1998-2000 Microsoft Corporation. All Rights Reserved.
-//-----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Custom .X-file template GUIDs and definitions for the skinned-mesh export
+ * format: skin-mesh headers, skin weights, vertex duplication indices, patch
+ * meshes and the progressive-mesh (PM) records. These extend the standard
+ * DirectX .X-file templates so D3DX can load and save skinned and progressive
+ * meshes.
+ */
+
 #ifndef __XSKINEXPTEMPLATES_H__
 #define __XSKINEXPTEMPLATES_H__
 

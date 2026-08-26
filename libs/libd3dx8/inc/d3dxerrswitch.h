@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Include fragment: a run of CASE_ERROR(...) entries mapping the legacy D3DX
+ * error codes to their symbolic names. It is textually included inside a switch
+ * on an HRESULT (with CASE_ERROR defined by the includer) to extend the error
+ * string lookup, and has no standalone declarations of its own.
+ */
 
     CASE_ERROR( D3DXERR_NOMEMORY );
     CASE_ERROR( D3DXERR_NULLPOINTER );

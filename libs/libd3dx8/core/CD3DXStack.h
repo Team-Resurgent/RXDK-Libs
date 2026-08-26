@@ -1,11 +1,13 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       stacks.h
-//  Content:    Stacks
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations of the D3DX8 helper stacks CD3DXDwStack (DWORD stack) and
+ * CD3DXSzStack (string stack). See CD3DXStack.cpp for the behaviour.
+ */
 
 
 

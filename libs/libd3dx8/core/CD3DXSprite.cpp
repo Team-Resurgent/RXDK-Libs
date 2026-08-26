@@ -1,11 +1,19 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXSprite.cpp
-//  Content:    Bitmap font support
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXSprite -- the ID3DXSprite implementation for drawing textured 2D quads.
+ * Initialize records two state blocks (the sprite's own render state, and a
+ * capture slot for restoring the caller's state) configured for pre-transformed
+ * alpha-blended sprites. Begin/End apply and restore that state around a batch;
+ * Draw builds a transform from optional scale/rotation-centre/rotation/
+ * translation and forwards to DrawTransform, which emits the four-vertex quad,
+ * transforms it, applies the half-pixel offset, chooses alpha blending based on
+ * the colour and texture format, and issues the triangle-fan draw.
+ */
 
 #include "pchcore.h"
 

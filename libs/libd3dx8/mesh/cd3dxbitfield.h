@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXBitField256 - a fixed 256-bit set stored as eight DWORDs. Used by the
+ * skinned-mesh code to track which of the (up to 256) bones influence a face,
+ * with fast set / test / subset and population-count operations.
+ */
 
 #define BITSPERINT      32
 #define BITSHIFT        5 // 2^5 == 32 bits == 1 DWORD

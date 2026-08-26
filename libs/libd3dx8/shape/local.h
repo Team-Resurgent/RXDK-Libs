@@ -1,16 +1,14 @@
-/******************************Module*Header*******************************\
-* Module Name: local.h                                                     *
-*                                                                          *
-* Definitions needed for client side objects and attribute caching.        *
-*                                                                          *
-* Modified: 3-Aug-1992 22:35:30 by Gerrit van Wingerden [gerritv]          *
-*   Added client side transform support.                                   *
-*                                                                          *
-* Created: 30-May-1991 21:55:01                                            *
-* Author: Charles Whitmer [chuckwh]                                        *
-*                                                                          *
-* Copyright (c) 1993 Microsoft Corporation                                 *
-\**************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Client-side handle macros inherited from the GDI object model. Provides the
+ * index/uniqueness packing used to encode and validate handles (INDEX_MASK,
+ * UNIQ_SHIFT and friends) for the shape code's local object tables.
+ */
 
 /**************************************************************************\
  *

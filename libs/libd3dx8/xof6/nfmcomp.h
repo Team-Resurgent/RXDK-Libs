@@ -1,22 +1,14 @@
 /*
- *  Microsoft Confidential
- *  Copyright (C) Microsoft Corporation 1993,1994,1996
- *  All Rights Reserved.
- *
- *  NFMCOMP.H -- definitions for NFMCOMP.C
- *
- *  History:
- *      13-Feb-1994     msliger     revised type names, ie, UINT16 -> UINT.
- *                                  normalized MCI_MEMORY type.
- *      23-Feb-1994     msliger     changed how LGM defines work
- *      24-Feb-1994     msliger     Changed MCI_MEMORY to MI_MEMORY.
- *      15-Mar-1994     msliger     Changes for 32 bits.
- *      22-Mar-1994     msliger     Changed !INT32 to BIT16.
- *                                  Changed interface USHORT -> UINT.
- *      12-May-1994     msliger     ifdef'd 1's complement LARGE_STORED_BLOCKS.
- *      26-Sep-1994     msliger     Changed pcbResult to a FAR pointer.
- *      12-Jun-1995     msliger     Found cases to increase MAX_GROWTH.
- *      10-Sep-1996     jhiggins    Added support for multiple contexts.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Public definitions for the in-memory MSZIP (deflate) compressor implemented
+ * in nfmcomp.c. Declares the NFMcomp create, destroy, init and compress entry
+ * points, the allocation and free callback typedefs, the compressor return
+ * codes and the literal and distance buffer sizes callers must provide.
  */
 
 #ifndef NO_LGM

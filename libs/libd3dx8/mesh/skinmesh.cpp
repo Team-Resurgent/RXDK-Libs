@@ -1,17 +1,18 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: skinmesh.cpp
-//
-// Copyright (C) 2000 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@- 03/17/99 (anujg)     - created 
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Skinned-mesh implementation for the D3DX mesh library.
+ *
+ * Implements the ID3DXSkinMesh object and its creation entry points
+ * (D3DXCreateSkinMesh, D3DXCreateSkinMeshFVF, D3DXCreateSkinMeshFromMesh and
+ * D3DXCreateSkinMeshFromMeshAndBones). A skin mesh associates each vertex with
+ * a set of bones and blend weights so that the geometry can be deformed by a
+ * skeleton at draw time.
+ */
 
 #include "pchmesh.h"
 

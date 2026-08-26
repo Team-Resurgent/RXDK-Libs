@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       stacks.cpp
-//  Content:    Stacks
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Two small auto-growing stacks used by the D3DX8 effect/shader machinery:
+ * CD3DXDwStack pushes and pops DWORDs, and CD3DXSzStack pushes and pops
+ * strings (taking a private copy of each on push and freeing them on
+ * destruction). Both grow their backing array 16 slots at a time and latch the
+ * first failure in an HRESULT that GetLastError returns and clears.
+ */
 
 #include "pchcore.h"
 

@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Static vertex and index tables for the Utah teapot used by D3DXCreateTeapot.
+ * These arrays hold the teapot's positions and triangle indices as constant data.
+ */
+
 // TEAPOT.CPP
 // Static vertex data for teapot object
 

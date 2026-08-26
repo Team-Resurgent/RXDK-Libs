@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CD3DXMatrixStack, the ID3DXMatrixStack implementation.
+ * See cstack.cpp for the behaviour.
+ */
+
 #ifndef  __CSTACK_H__
 #define  __CSTACK_H__
 

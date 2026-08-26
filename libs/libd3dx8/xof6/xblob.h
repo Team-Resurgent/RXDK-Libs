@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xblob.h
-//
-//  Description:    Blob data related classes header file.
-//
-//  History:
-//      01/13/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares the blob-data classes used to carry raw binary payloads within a
+ * parsed .X file.
+ */
 
 #ifndef _XBLOB_H_
 #define _XBLOB_H_

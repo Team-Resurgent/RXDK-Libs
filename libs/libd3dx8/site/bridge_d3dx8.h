@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_D3DX8_BRIDGE_H
 
@@ -8,12 +14,13 @@
  * d3d8 + CRT surface. It is built default-__cdecl (d3dx.mk sets 386_STDCALL=0),
  * so -fdefault-calling-conv is NOT used here.
  *
- * Two gaps between the leak build env and ours, both mirroring bridge_d3d8.h:
+ * Two gaps between the original XDK build environment and ours, both mirroring
+ * bridge_d3d8.h:
  *  1. The component pch*.h files pull <xtl.h>, whose windef.h wants the Win32
  *     base/NT types from winnt.h. We must skip zig's MinGW winnt.h (NT_INCLUDED)
  *     and supply those types from xboxkrnl. libxapi's compile.h is exactly that
  *     title-build environment, so we reuse it.
- *  2. The leak's real xtl.h pulled in the whole DirectX surface, including the
+ *  2. The original xtl.h pulled in the whole DirectX surface, including the
  *     public d3dx8 headers; our libxapi xtl.h shim does not. The component pches
  *     (e.g. math/pchmath.h -> cstack.h) reference D3DXMATRIX / ID3DXMatrixStack
  *     without including d3dx8math.h, so we pre-include the <d3dx8.h> umbrella.
@@ -138,15 +145,15 @@ typedef unsigned int       DWORD32;
    enum _D3DXMESHOPT carries the internal flags the mesh optimizer needs
    (D3DXMESHOPT_VALIDBITS etc.). Public d3dx8mesh.h and private d3dx8meshp.h
    share the guard __D3DX8MESH_H__, so whichever is included first wins -- and
-   the components were built against the private superset. d3dx8p.h pulls
+   the components need the private superset. d3dx8p.h pulls
    <d3d8.h> + <xobjbase.h> + all the d3dx8 sub-headers; the component pch*.h
    re-includes are then guarded no-ops. d3dx8 uses the INLINE public d3d8 API
    (like the samples), so D3DCOMPILE_NOTINLINE is intentionally NOT defined. */
 #include <xtl.h>
 #include <d3dx8p.h>
 
-/* ctype: xof6's parser uses isdigit/isxdigit/isspace; the leak pulled ctype via
-   the title CRT headers, our shim doesn't. */
+/* ctype: xof6's parser uses isdigit/isxdigit/isspace; the original title CRT
+   headers pulled ctype, our shim doesn't. */
 #include <ctype.h>
 
 /* MSVC CRT float intrinsics the D3DX math/mesh code calls by their underscore

@@ -1,12 +1,16 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       effect.h
-//  Content:    D3DX effect types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Runtime data for a compiled effect technique. A technique is a list of passes;
+ * each pass carries render state (StateData), texture-stage state (StageData)
+ * and optional vertex/pixel shaders (VShaderData/PShaderData). This file holds
+ * the constructors and destructors for those linked data structures and the
+ * CD3DXTechnique object that applies a technique's passes to the device.
+ */
 
 #include "pcheffect.h"
 

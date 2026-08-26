@@ -1,6 +1,15 @@
-//
-// D3DX effect precompiled header
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precompiled header for the D3DX8 effect module: pulls in the CRT, xtl.h and
+ * the D3DX8/D3D8 public headers, forward-declares the effect classes, includes
+ * the compiler/declaration/effect/technique headers, and defines the RELEASE()
+ * convenience macro used throughout.
+ */
 
 #ifndef __PCHEFFECT_H__
 #define __PCHEFFECT_H__

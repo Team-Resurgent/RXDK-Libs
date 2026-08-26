@@ -1,15 +1,12 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xstring.cpp
-//
-//  Description:    Implement XString class.
-//
-//  History:
-//      01/02/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements XString, the simple owning string wrapper used by the parser.
+ */
 
 #include "precomp.h"
 

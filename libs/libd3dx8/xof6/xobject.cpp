@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xobject.cpp
-//
-//  Description:    Implement XObject class.
-//
-//  History:
-//      01/14/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements XObject, the reference-counted base object for parsed .X file
+ * entities.
+ */
 
 #include "precomp.h"
 

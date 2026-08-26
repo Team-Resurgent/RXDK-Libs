@@ -1,11 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CBuffer.h
-//  Content:    Buffer object
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the D3DX8 buffer objects: CD3DXBuffer (the ID3DXBuffer
+ * implementation) and CD3DXStringBuffer (its two-ended string-arena subclass),
+ * plus the D3DXCreateStringBuffer helper. See CD3DXBuffer.cpp for details.
+ */
 
 #ifndef __D3DXBUFFER_H__
 #define __D3DXBUFFER_H__

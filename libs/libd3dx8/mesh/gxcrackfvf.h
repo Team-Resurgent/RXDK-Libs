@@ -3,22 +3,19 @@
 #ifndef __DXCRACKFVF_H__
 #define __DXCRACKFVF_H__
 
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: DXCrackFVF.h
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created
-// -@- 09/23/99 (mikemarr)  - added copyright and history
-//                          - newline to end of file
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DXCrackFVF - flexible-vertex-format (FVF) decoder used throughout the mesh
+ * library. Given an FVF code it computes the vertex stride and the byte offsets
+ * of each component (position, normal, diffuse/specular color, texture
+ * coordinates), so callers can read and write individual vertex fields without
+ * hard-coding the layout.
+ */
 
 
 // -------------------------------------------------------------------------------

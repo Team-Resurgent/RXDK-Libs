@@ -1,11 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXCodec.h
-//  Content:    Pixel format codecs
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the D3DX pixel-format codecs: the D3DX_BLT surface descriptor
+ * and the codec-class enumeration (RGB, palettized, UV bump, depth/stencil) that
+ * classify how each format is encoded and decoded. Implemented in CD3DXCodec.cpp.
+ */
 
 #ifndef __CD3DXCodec_H__
 #define __CD3DXCodec_H__

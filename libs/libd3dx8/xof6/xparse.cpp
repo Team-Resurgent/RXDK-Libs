@@ -8,24 +8,17 @@ static char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #define yyerrok (yyerrflag=0)
 #define YYRECOVERING (yyerrflag!=0)
 
-/*==========================================================================
- *
- *  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
- *
- *  File: xparse.y
- *
- *  Content:
- *
- *@@BEGIN_MSINTERNAL
- *
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *   04/19/96   v-paulf This header added
- *
- *@@END_MSINTERNAL
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The .X file grammar parser generated from xparse.y by byacc, together with
+ * the ASCII and binary lexers, that turns a token stream into the parsed
+ * object tree. The surrounding parser skeleton is standard byacc output.
+ */
 
 
 #undef XOFDEBUG

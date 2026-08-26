@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dx8dbg.cpp
-//  Content:    D3DX debugging functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * D3DX8 debug-build tracing helpers, compiled only when DBG is set.
+ * D3DXDebugPrintf formats a message, prefixes it with "D3DX: " and sends it to
+ * the debugger; D3DXDebugPrintfHR appends the symbolic text of an HRESULT via
+ * D3DXGetErrorStringA. D3DXDebugAssert is the assertion hook (a no-op here).
+ * The DPF/DPFHR/D3DXASSERT macros expand to these in debug builds.
+ */
 
 #include "pchcore.h"
 #if DBG

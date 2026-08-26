@@ -1,11 +1,12 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXFile.h
-//  Content:    Memory-mapped file class
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CD3DXFile, the whole-file reader. See CD3DXFile.cpp.
+ */
 
 #ifndef __CD3DXFile_H__
 #define __CD3DXFile_H__

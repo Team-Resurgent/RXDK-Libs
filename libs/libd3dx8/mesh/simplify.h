@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Mesh-simplification engine declarations. GXSimplifyMesh implements ID3DXSPMesh,
+ * reducing a mesh by repeated edge collapses ordered by quadric error and kept in
+ * a simplification heap; the supporting CEdgeInfo, SFaceEdgeInfo and
+ * SEdgeCollapseContext types track the per-edge state during that process.
+ */
+
 #ifndef __SIMPLIFY_H__
 #define __SIMPLIFY_H__
 

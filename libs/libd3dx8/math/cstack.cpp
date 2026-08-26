@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXMatrixStack -- the ID3DXMatrixStack implementation, a growable stack of
+ * 4x4 matrices with a "current" top. Push/Pop save and restore the top matrix,
+ * and the transform methods (LoadIdentity, LoadMatrix, MultMatrix[Local],
+ * Rotate*, Scale[Local], Translate[Local]) update the top in place, pre- or
+ * post-multiplying for the "Local" variants. GetTop returns the current matrix.
+ */
+
 #include "pchmath.h"
 
 CD3DXMatrixStack::CD3DXMatrixStack()

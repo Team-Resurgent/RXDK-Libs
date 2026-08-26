@@ -3,19 +3,18 @@
 #ifndef _FMATH_H
 #define _FMATH_H
 
-/*///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1998 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       fmath.h
-//  Content:    C++ header to define standard float-valued math entry points
-//              with the same names. This leverages function overloading in
-//              C++ to 1) get more efficient implementations of the math
-//              runtime if floats are being used, and 2) avoid thorny build
-//              problems caused by downcasting the double-valued returns from
-//              the standard math lib.
-//
-///////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Float-valued overloads of the standard math entry points (sincos, sqrt, and
+ * so on). Using C++ overloading to provide same-named float versions gives more
+ * efficient code when working in single precision and avoids the build problems
+ * caused by downcasting the double-valued returns of the standard math library.
+ */
 
 _inline void
 sincos( float fRadians, float *pfSin, float *pfCos )

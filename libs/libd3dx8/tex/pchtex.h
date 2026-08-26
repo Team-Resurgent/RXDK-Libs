@@ -1,5 +1,12 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //
-// D3DX texture precompiled header
+// D3DX texture precompiled header: the standard C runtime, Xbox graphics and
+// image-library (PNG, JPEG, S3TC) includes shared by the texture sources.
 //
 
 #ifndef __PCHTEX_H__

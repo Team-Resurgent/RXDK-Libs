@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXCodec.cpp
-//  Content:    Pixel format codecs
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Pixel-format codecs for the D3DX texture library. Encodes and decodes each
+ * supported surface format to and from a common intermediate representation so
+ * the blitter can convert between arbitrary formats, with optional dithering
+ * (the dither offset tables here) and premultiplied-alpha handling.
+ */
 
 #include "pchtex.h"
 

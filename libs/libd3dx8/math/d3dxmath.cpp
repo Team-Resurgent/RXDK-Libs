@@ -1,11 +1,17 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1998 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       d3dxmath.cpp
-//  Content:
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The D3DX8 math library implementation: the non-inline D3DX* vector, matrix,
+ * quaternion, plane and colour routines (multiplies, inverses, transforms,
+ * projection/view matrix builders, quaternion/matrix conversions, spline and
+ * interpolation helpers and so on). Includes a fast x86 fsincos helper and an
+ * epsilon comparison used by the routines that must guard against degenerate
+ * input.
+ */
 
 #include "pchmath.h"
 #define EPSILON 0.00001f

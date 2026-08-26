@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xprim.h
-//
-//  Description:    XPrimitive and XPrimitiveList classes.
-//
-//  History:
-//      01/08/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares the XPrimitive type enum and XPrimitiveList used to describe .X file
+ * primitive types.
+ */
 
 #ifndef _XPRIM_H_
 #define _XPRIM_H_

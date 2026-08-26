@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       s3tchelp.cpp
-//  Content:    S3 texture compression helpper functions
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Wrapper helpers around the S3TC compressor. XXEncodeBlockRGB / XXDecodeBlockRGB
+ * sit in front of the S3 encode and decode routines and work around the S3
+ * encoder ignoring per-pixel alpha: transparent pixels (alpha MSB clear) are
+ * mapped to a color-key value so the single alpha bit of the compressed block is
+ * preserved.
+ */
 
 #include "pchtex.h"
 

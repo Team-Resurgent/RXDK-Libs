@@ -1,12 +1,15 @@
-/*==========================================================================
- *
- *  Copyright (C) 1995 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       memalloc.h
- *  Content:	header file for memory allocation
- *  History:
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Memory-allocation convenience macros (MemAlloc, MemAllocNoZero, MemReAlloc,
+ * MemFree) wrapping the Xbox Local* heap allocator, which is backed by
+ * RtlAllocateHeap on the process heap and provides 8-byte alignment.
+ */
+
 #ifndef __MEMALLOC_INCLUDED__
 #define __MEMALLOC_INCLUDED__
 

@@ -1,11 +1,13 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXRenderToEnvMap.h
-//  Content:    Render to surface object
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CD3DXRenderToEnvMap, the render-to-environment-map helper.
+ * See cd3dxrendertoenvmap.cpp for the behaviour.
+ */
 
 #ifndef __D3DXRenderToEnvMap_H__
 #define __D3DXRenderToEnvMap_H__

@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXFile.cpp
-//  Content:    Memory-mappied files
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXFile -- a simple whole-file reader. Open() takes an ANSI or Unicode
+ * path, opens the file for sequential read, allocates a buffer of the file's
+ * size and slurps the entire contents into memory; the data and its byte count
+ * are exposed as public members. Close() (also run by the destructor) frees
+ * the buffer. Used by the loaders that want a file mapped in one shot.
+ */
 
 #include "pchcore.h"
 

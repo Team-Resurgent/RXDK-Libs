@@ -1,22 +1,18 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: loadutil.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created 
-// -@- 08/06/99 (mikemarr)  - prepend GX to all Luciform functions
-//                          - started comment history
-// -@- 08/26/99 (mikemarr)  - replace gxbasetype.h with gxmathcore.h
-// -@- 09/23/99 (mikemarr)  - GXCross return D3DXVECTOR
-//                          - added newline to the end of the file
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Shared mesh-loading utilities for the D3DX mesh library.
+ *
+ * The various file loaders (.m, .3ds, .x) collect raw vertices, faces and
+ * per-corner attributes into the intermediate SLoadVertex / SLoadedFace / SCorner
+ * arrays declared in loadutil.h. This file provides the helpers that allocate
+ * those arrays, assign per-corner colors and attributes (welding vertices as
+ * needed), and finally build a finished D3DX mesh from the collected data.
+ */
 
 #include "pchmesh.h"
 

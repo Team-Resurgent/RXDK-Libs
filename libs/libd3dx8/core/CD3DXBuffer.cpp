@@ -1,11 +1,19 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CBuffer.cpp
-//  Content:    Buffer object
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Growable byte-buffer objects used throughout D3DX8.
+ *
+ * CD3DXBuffer implements ID3DXBuffer: a reference-counted blob of memory with
+ * a pointer and a size, handed back to callers (shader/effect compile output,
+ * message buffers, and so on). CD3DXStringBuffer extends it into a two-ended
+ * arena: a table of char* pointers grows up from the low end while the string
+ * bytes they point at grow down from the high end, so a caller can accumulate
+ * a set of strings and keep stable indices into them, reallocating as needed.
+ */
 
 #include "pchcore.h"
 

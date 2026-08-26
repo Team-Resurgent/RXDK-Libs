@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CCapsDatabase.cpp
-//  Content:    D3DX capabilities database
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Assorted D3DX8 core entry points. The D3DXCreate* factories instantiate and
+ * initialize the helper objects (sprite, render-to-surface, render-to-env-map),
+ * returning the interface pointer. D3DXGetFVFVertexSize computes the byte size
+ * of a vertex from its flexible-vertex-format flags. D3DXGetErrorStringA/W map
+ * a D3D or D3DX HRESULT to its symbolic name text.
+ */
 
 #include "pchcore.h"
 

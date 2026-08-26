@@ -1,15 +1,12 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xobject.h
-//
-//  Description:    XObject class header file.
-//
-//  History:
-//      01/03/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares XObject, the reference-counted base for .X file data objects.
+ */
 
 #ifndef _XOBJECT_H_
 #define _XOBJECT_H_

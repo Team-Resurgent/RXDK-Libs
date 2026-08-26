@@ -1,15 +1,13 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   xdata.cpp
-//
-//  Description:    Implement data object classes.
-//
-//  History:
-//      01/10/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements the data-object classes that represent instantiated template data
+ * read from a .X file.
+ */
 
 #include "precomp.h"
 

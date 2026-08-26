@@ -1,20 +1,17 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: bezier.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created 
-// -@- 08/26/99 (mikemarr)  - started comment history
-//                          - replace gxbasetype.h with gxmathcore.h
-// -@- 09/23/99 (mikemarr)  - changed <> to "" on #includes
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Quadric error-metric implementation for mesh simplification.
+ *
+ * Implements the CQuadric class declared in quadric.h: the symmetric quadric
+ * matrices are accumulated per vertex and evaluated to score candidate edge
+ * collapses, giving the simplification code a measure of the geometric error
+ * introduced by removing a vertex.
+ */
 #include "pchmesh.h"
 #include "quadric.h"
 

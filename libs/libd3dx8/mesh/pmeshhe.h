@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Half-edge vertex-split record for progressive meshes. CHalfEdgeVSplit encodes
+ * the data needed to split one vertex back into two - adding a vertex and one or
+ * two faces - so a progressive mesh can be refined from its simplified base back
+ * up to full detail. The encoding fixes the limits on face count, vertex valence
+ * and material count noted inline.
+ */
+
 #ifndef __PMESHHE_H__
 #define __PMESHHE_H__
 

@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       compiler.h
-//  Content:    Vertex Shader compiler
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Encodings shared by the D3DX8 effect compiler and loader: the fourcc tags for
+ * the compiled binary effect nodes (N_EFFECT, N_PARAMETERS, N_PASS, ...) and the
+ * D3DXES_* effect-state identifiers that pack render states, texture-stage
+ * states and light/material parameters into a single DWORD keyspace.
+ */
 
 
 

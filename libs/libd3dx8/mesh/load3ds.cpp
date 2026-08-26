@@ -1,20 +1,17 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: load3ds.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created
-// -@- 08/26/99 (mikemarr)  - started comment history
-//                          - replace gxbasetype.h with gxmathcore.h
-// -@- 09/23/99 (mikemarr)  - replaced <> with "" on #includes
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * 3D Studio (.3ds) file loader for the D3DX mesh library.
+ *
+ * Implements D3DXLoadMeshFrom3ds: it drives the 3DS file toolkit to read the
+ * scene's meshes, flips texture V coordinates into the D3D convention, and
+ * feeds the collected vertices and faces through the shared loadutil path
+ * (SetMesh) to build a D3DX mesh.
+ */
 #include "pchmesh.h"
 
 #include "loadutil.h"

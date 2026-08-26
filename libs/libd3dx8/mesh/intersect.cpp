@@ -1,17 +1,16 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: intersect.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Ray-geometry intersection tests for the D3DX mesh library.
+ *
+ * Provides the ray/bounding-sphere volume test and the ray/triangle picking
+ * used by mesh intersection queries. The triangle test follows the algorithm
+ * from "Real-Time Rendering" (Moller/Haines).
+ */
 
 #include "pchmesh.h"
 

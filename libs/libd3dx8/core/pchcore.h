@@ -1,6 +1,15 @@
-//
-// D3DX core precompiled header
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precompiled header for the D3DX8 core module: pulls in the CRT, xtl.h and the
+ * D3DX8/D3D8 public headers, then the core helper class declarations (files,
+ * stacks, buffers, sprites, render-to-surface and render-to-env-map), and
+ * defines the RELEASE() convenience macro used throughout.
+ */
 
 #ifndef __PCHCORE_H__
 #define __PCHCORE_H__

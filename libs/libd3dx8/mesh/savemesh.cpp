@@ -1,17 +1,16 @@
-/*//////////////////////////////////////////////////////////////////////////////
-//
-// File: savemesh.cpp
-//
-// Copyright (C) 1999 Microsoft Corporation. All Rights Reserved.
-//
-// @@BEGIN_MSINTERNAL
-//
-// History:
-// -@-          (craigp)    - created
-//
-// @@END_MSINTERNAL
-//
-//////////////////////////////////////////////////////////////////////////////*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Mesh saving (.x file writer) for the D3DX mesh library.
+ *
+ * Would serialize a D3DX mesh back out to a DirectX .x file using the RM X-file
+ * templates. The entire body is currently disabled behind #if 0 and is not
+ * built into the library.
+ */
 
 #if 0
 #include "pchmesh.h"

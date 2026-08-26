@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CVertexArray implementation - a growable vertex-buffer helper for the shape
+ * generators. It manages a Direct3D vertex buffer for a chosen set of components
+ * (position, normal, colors, texture coordinates), growing it as needed and
+ * providing a simple Begin/SetCurrentVertex style interface for filling geometry.
+ */
+
 #include "pchshape.h"
 
 CVertexArray::CVertexArray()

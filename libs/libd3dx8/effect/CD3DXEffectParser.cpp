@@ -1,11 +1,18 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       parse.cpp
-//  Content:    Parse D3DX Effect files
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The D3DX8 effect-file parser. It drives the generated yacc grammar
+ * (effect_y.h) to turn effect source text into a tree of Node objects
+ * (EffectNode, DeclarationNode, TechniqueNode, PassNode, StageNode and so on).
+ * The grammar's semantic actions call back into CD3DXEffectParser through the
+ * Prod/Production reduction hook, and the Binding tables here map the effect's
+ * keyword names (declaration types, render states, boolean and blend values)
+ * onto their numeric encodings for the later compile step.
+ */
 
 #include "pcheffect.h"
 

@@ -1,11 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       CD3DXImage.h
-//  Content:    Image file class
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of the CD3DXImage class - the decoded-image container used by the
+ * texture loaders. Holds the pixel data along with its format, pitch, rectangle
+ * and optional palette. Implemented in CD3DXImage.cpp.
+ */
 
 #ifndef __CD3DXImage_H__
 #define __CD3DXImage_H__

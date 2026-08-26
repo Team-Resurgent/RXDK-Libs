@@ -1,24 +1,13 @@
 /*
- *  Microsoft Confidential
- *  Copyright (C) Microsoft Corporation 1993,1994,1995,1996
- *  All Rights Reserved.
- *
- *  NFMDECO.H -- features of NFMDECO.C, the NF decompressor
- *
- *  History:
- *      13-Feb-1994     msliger     revised type names, ie, UINT16 -> UINT.
- *                                  normalized MCI_MEMORY type.
- *      24-Feb-1994     msliger     Changed MDI_MEMORY to MI_MEMORY.
- *      22-Mar-1994     msliger     Changed !INT32 to BIT16.
- *                                  Changed interface USHORT -> UINT.
- *      06-Apr-1994     msliger     Defined UNALIGNED for RISC.
- *      13-Apr-1994     msliger     Defined call convention for alloc/free.
- *      12-May-1994     msliger     ifdef'd 1's complement LARGE_STORED_BLOCKS.
- *      15-Nov-1994     msliger     No longer needs alloc/free.
- *      25-May-1995     msliger     Dropped NFMuncompress, added NFM_Prepare()
- *                                  and NFM_Decompress().
- *      12-Jun-1995     msliger     Found cases to increase MAX_GROWTH.
- *      06-Nov-1996     msliger     Added support for multiple contexts.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Public definitions for the in-memory MSZIP (inflate) decompressor implemented
+ * in nfmdeco.c. Declares the NFM_Prepare and NFM_Decompress entry points along
+ * with the types and constants callers share with the decompressor.
  */
 
 /* --- types -------------------------------------------------------------- */

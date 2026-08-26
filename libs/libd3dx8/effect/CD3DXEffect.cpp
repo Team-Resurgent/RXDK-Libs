@@ -1,12 +1,18 @@
-//////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       effect.h
-//  Content:    D3DX effect types and functions
-//
-//////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Runtime side of the D3DX8 effect framework. EffectData is the parsed
+ * representation of a compiled effect (its counts of parameters, its LOD range
+ * and its technique tree). CD3DXEffect is the ID3DXEffect implementation built
+ * over that data: Initialize allocates the per-instance texture and matrix
+ * parameter arrays, the Set* methods write into them, and GetTechnique/
+ * PickTechnique hand back the ID3DXTechnique objects that apply the effect to
+ * the device.
+ */
 
 #include "pcheffect.h"
 

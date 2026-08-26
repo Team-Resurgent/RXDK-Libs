@@ -1,15 +1,12 @@
-//**************************************************************************
-//
-//  Copyright (C) 1998 Microsoft Corporation. All Rights Reserved.
-//
-//  File:   ximplapi.h
-//
-//  Description:    api interface implementation classes.
-//
-//  History:
-//      01/13/98    CongpaY     Created
-//
-//**************************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares the interface-implementation classes backing the IDirectXFile API.
+ */
 
 #ifndef _XIMPLAPI_H_
 #define _XIMPLAPI_H_

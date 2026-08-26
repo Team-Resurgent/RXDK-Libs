@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Force-included prefix header for the whole xfont library: it sets up the
+ * NT/title build environment and the small set of Win32/COM/CRT aliases the
+ * vendor XFONT sources expect but the RXDK slimmed headers do not provide.
+ */
+
 #pragma once
 #define RXDK_XFONT_BRIDGE_H
 

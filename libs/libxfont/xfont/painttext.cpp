@@ -1,11 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //****************************************************************************
 //
 // XBox font drawer
 //
-// Ported from the leaked Xbox SDK source, near-verbatim -- this file has no
-// CRT dependency beyond <assert.h> and no file I/O, so it needed no scope
-// trimming. D3DFORMAT/D3DCOLOR usage matches shared/include/d3d8.h's D3DFMT_*
-// ordering exactly.
+// Depends only on <assert.h> with no file I/O. D3DFORMAT/D3DCOLOR usage
+// matches the D3DFMT_* ordering in the public d3d8.h.
 //
 // History:
 //

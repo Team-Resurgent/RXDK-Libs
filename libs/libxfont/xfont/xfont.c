@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //****************************************************************************
 //
 // XBox true-type font scan converter library
@@ -9,11 +15,10 @@
 //
 //****************************************************************************
 //
-// RXDK: restored to the leak's full content. The earlier pass trimmed TrueType
-// support and disk-file font loading; both are back, so this file is once again
-// unedited apart from this note. The `#ifdef _XBOX` branches resolve correctly
-// on their own -- the build defines _XBOX, so the PC branch (xfont-pc.h) is
-// never reached and needs no surgery.
+// Public xfont entry points: font creation, glyph metrics and text drawing,
+// with TrueType support and disk-file font loading. Only the Xbox path is
+// built: the PC branch (xfont-pc.h) sits behind #ifdef _XBOX and is never
+// compiled here.
 //
 
 #ifdef _XBOX

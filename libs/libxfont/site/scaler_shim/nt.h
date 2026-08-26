@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * RXDK shim for the TrueType scan converter.
  *
  * scaler/fsconfig.h pulls <nt.h> and <ntrtl.h> under FSCFG_INTERNAL for exactly

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //****************************************************************************
 //
 // XBox internal font header.
@@ -9,11 +15,9 @@
 //
 //****************************************************************************
 //
-// RXDK: restored to the leak's full content. The earlier pass trimmed TrueType
-// support and disk-file font loading; both are back, so this file is once again
-// unedited apart from this note. The `#ifdef _XBOX` branches resolve correctly
-// on their own -- the build defines _XBOX, so the PC branch (xfont-pc.h) is
-// never reached and needs no surgery.
+// Internal font data structures shared by the xfont sources. Only the Xbox
+// path is built: the PC branch (xfont-pc.h) sits behind #ifdef _XBOX and is
+// never compiled here.
 //
 
 #include <d3d8.h>

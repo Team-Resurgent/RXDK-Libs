@@ -43,14 +43,7 @@ git -C vendor/llvm-project sparse-checkout init --cone
 git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
 ```
 
-The xAPI and subsystem libraries (`libxapi`, `libd3d8`, `libd3dx8`, `libdsound`, `libxgraphics`, `libxmv`, `libxnet`) build over the Xbox source tree in `vendor/xbox_private/`, which is **not** committed here. Populate it from a local [RXDK-LibsOld](https://github.com/Team-Resurgent/RXDK-LibsOld) checkout:
-
-```powershell
-# RXDK-LibsOld cloned beside this repo, or set $env:RXDK_LIBS_ROOT to its path
-.\scripts\sync-xapi-vendor.ps1
-```
-
-`libc`, `libcpp`, and `libkernel` build without it.
+All library sources are committed in this repo under `libs/`. The xAPI and subsystem libraries (`libxapi`, `libd3d8`, `libd3dx8`, `libdsound`, `libxgraphics`, `libxmv`, `libxnet`, …) build directly from the in-tree sources — no external source checkout is required.
 
 ## Layout
 
@@ -72,8 +65,6 @@ libs/libxmv/               XMV video decoder (→ libxmv.lib)
 libs/libxnet/              Xbox net stack — XNet / winsock (→ libxnet.lib)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
-vendor/xbox_private/       Xbox subsystem sources (local-only, synced from RXDK-LibsOld)
-prebuilt/                  Committed .XBLD kernel object (xboxkrnl_xbld.obj) packed into libc.lib / linked into the PE
 zig-out/lib/               Staged .lib outputs + object response files
 zig-out/include/           Staged C / C++ / xAPI / subsystem headers (after `zig build`)
 samples/                   Conformance smokes + D3D8 / DirectSound / XMV / XNet / input demos

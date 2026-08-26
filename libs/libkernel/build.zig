@@ -8,11 +8,12 @@ pub const Result = struct {
 // Build libkernel.lib: the Xbox kernel import library, generated from the
 // checked-in decorated module-definition file (libs/libkernel/xboxkrnl.def).
 //
-// The .def is produced offline by tools/generate_xboxkrnl_lib.py from two
-// authoritative leak artifacts -- the rebuilt console kernel map (decorated
-// names + @N + calling convention) and the leak xboxkrnl.def (ordinals). The
-// kernel export set is fixed, so the .def changes ~never; we commit it as the
-// human-readable source of truth and let `zig lib` (LLVM, not MSVC) archive it.
+// The .def was produced offline from two authoritative leak artifacts -- the
+// rebuilt console kernel map (decorated names + @N + calling convention) and the
+// leak xboxkrnl.def (ordinals). The kernel export set is fixed, so the .def
+// changes ~never; it is the committed, human-readable source of truth (the
+// generator and its leak inputs have since been removed) and `zig lib` (LLVM,
+// not MSVC) archives it.
 //
 // This replaces the opaque prebuilt/xboxkrnl.lib: the generated import surface
 // is symbol-identical (371/371 __imp_ exports + descriptors) to that blob.

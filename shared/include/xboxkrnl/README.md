@@ -12,11 +12,9 @@ Optional granular includes:
 #include <xboxkrnl/winnt/pe.h>
 ```
 
-Regenerate:
-
-```powershell
-python tools/generate_xboxkrnl_headers.py
-```
+These headers are the committed source of truth — edit them directly. (They were
+originally generated from the May-2020 leak; that generator and its leak inputs
+have been removed, so there is no regeneration step.)
 
 Link with `prebuilt/xboxkrnl.lib`.
 

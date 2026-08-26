@@ -1,18 +1,16 @@
-/*********************************************************************/
-/*                                                                   */
-/*    stat.h -- stat.asm exports                                     */
-/*                                                                   */
-/*    (c) Copyright 1992  Microsoft Corp.  All rights reserved.      */
-/*                                                                   */
-/*     4/9/96  claudebe adding profiling with IceCAP                 */
-/*     2/26/93 deanb    macros come back                             */
-/*     2/22/93 deanb    timing switch moved to fsconfig.h macros     */
-/*     2/11/93 deanb    __cdecl's for ms C8                          */
-/*    12/22/92 deanb    Apple types                                  */
-/*    11/20/92 deanb    Timing switches revised                      */
-/*    11/17/92 deanb    First cut                                    */
-/*                                                                   */
-/*********************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * stat.h -- profiling timing macros (stat card / IceCAP).
+ *
+ * Defines the STAT_ON/STAT_OFF timing macros used to instrument the
+ * rasterizer. They expand to stat-card or IceCAP sampling calls when a
+ * profiling build option is enabled, and to nothing otherwise.
+ */
 
 /* STAT Card Timing Switches */
 

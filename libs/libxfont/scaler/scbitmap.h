@@ -1,21 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scbitmap.h -- BitMap Module Exports
-
-	  (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-	   8/19/93 deanb    fsc_CalcGrayRow added
-	   6/10/93 deanb    fsc_InitializeBitMasks added
-	   4/29/93 deanb    BLTCopy routine added
-	   9/15/92 deanb    GetBit returns uint32 
-	   8/17/92 deanb    GetBit, SetBit added 
-	   7/27/92 deanb    ClearBitMap call added 
-	   6/02/92 deanb    Row pointer, integer limits, no descriptor 
-	   4/09/92 deanb    New types again 
-	   3/16/92 deanb    New types 
-	   1/15/92 deanb    First cut 
-
-**********************************************************************/
+/*
+ * scbitmap.h -- bitmap module exports.
+ *
+ * Declares the fsc_ bitmap primitives (mask init, bit access, clear and
+ * gray-row calculation) used by the scan converter.
+ */
 
 #include "fscdefs.h"                /* for type definitions */
 

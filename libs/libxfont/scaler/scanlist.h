@@ -1,30 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scanlist.h -- ScanList Module Exports
-
-	  (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-	   8/23/93  deanb   gray scale pass through functions
-	   6/10/93  deanb   fsc_InitializeScanlist added
-	  12/22/92  deanb   Rectangle -> Rect
-	  10/28/92  deanb   uiRowBytes moved from setup to fillbitmap
-	  10/09/92  deanb   PSTP added
-	  10/08/92  deanb   reworked for split workspace
-	   9/25/92  deanb   separate entry for nodrop/dropout 
-	   9/10/92  deanb   horiz & vert callbacks 
-	   9/09/92  deanb   size_t changes 
-	   9/08/92  deanb   SetElemGlobals added 
-	   6/18/92  deanb   int x coord for HorizScanAdd 
-	   6/01/92  deanb   New/Old FillBitMap for debug comparisons 
-	   4/21/92  deanb   Single HorizScan with flag 
-	   4/13/92  deanb   unsigned int to int for HorizScanOn/Off 
-	   3/31/92  deanb   InitScanArray Rectangle param 
-	   3/23/92  deanb   GetWorkSize added 
-	   3/16/92  deanb   New types 
-	   1/31/92  deanb   HorizScan[On/Off] export functions 
-	   1/14/92  deanb   First cut 
-
-**********************************************************************/
+/*
+ * scanlist.h -- scan-list module exports.
+ *
+ * Declares the fsc_ scanlist entry points and the opaque reversal-root type
+ * used by the scan converter.
+ */
 
 #include "fscdefs.h"                /* for type definitions */
 #include "scgray.h"                 /* for gray param definition */

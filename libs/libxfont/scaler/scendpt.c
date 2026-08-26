@@ -1,26 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scendpt.c -- New Scan Converter EndPoint Module
-
-	  (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-	   6/10/93  deanb   assert.h and stdio.h removed
-	   3/19/93  deanb   size_t replaced with int32
-	  10/28/92  deanb   reentrant params renamed
-	  10/09/92  deanb   reentrant
-	   9/25/92  deanb   branch on scan kind 
-	   9/14/92  deanb   check vert topology written 
-	   9/10/92  deanb   first dropout code 
-	   8/18/92  deanb   include struc.h, scconst.h 
-	   6/18/92  deanb   int x coord for HorizScanAdd 
-	   5/08/92  deanb   reordered includes for precompiled headers 
-	   4/21/92  deanb   Single HorizScanAdd 
-	   4/09/92  deanb   New types 
-	   4/06/92  deanb   Check Topology corrected 
-	   4/02/92  deanb   Coded 
-	   3/23/92  deanb   First cut 
-
-**********************************************************************/
+/*
+ * scendpt.c -- scan-converter endpoint module.
+ *
+ * Emits and checks contour endpoints, feeding scan intersections for
+ * dropout-controlled filling.
+ */
 
 /*********************************************************************/
 

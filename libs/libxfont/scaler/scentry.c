@@ -1,50 +1,16 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scentry.c -- New Scan Converter NewScan Module
-
-	  (c) Copyright 1992-1997  Microsoft Corp.  All rights reserved.
-
-	  10/14/97  claudebe    accessing unitialized memory
-	   1/31/95  deanb       added fsc_GetCoords function
-	   8/04/94  deanb       State initialized to more it out of bss
-	   8/24/93  deanb       flatcount fix to reversal detection
-	   8/10/93  deanb       gray scale support routines added
-	   6/22/93  deanb       all black bounding box, (0,0) for null glyph
-	   6/11/93  gregh       Removed ONCURVE definition
-	   6/11/93  deanb       if HiBand <= LoBand do entire bitmap
-	   6/10/93  deanb       fsc_Initialize added, stdio & assert gone
-	   4/06/92  deanb       CheckContour removed
-	   3/19/92  deanb       ScanArrays rather than lists
-	  12/22/92  deanb       MultDivide -> LongMulDiv; Rectangle -> Rect
-	  12/21/92  deanb       interface types aligned with rasterizer
-	  12/11/92  deanb       fserror.h imported, new error codes
-	  11/30/92  deanb       WorkSpace renamed WorkScan
-	  11/04/92  deanb       remove duplicate points function added
-	  10/28/92  deanb       memory requirement calculation reworked
-	  10/19/92  deanb       bad contours ignored rather than error'd
-	  10/16/92  deanb       first contour point off curve fix
-	  10/13/92  deanb       rect.bounds correction
-	  10/12/92  deanb       reentrant State implemented
-	  10/08/92  deanb       reworked for split workspace
-	  10/05/92  deanb       global ListMemory replace with stListSize 
-	   9/25/92  deanb       scankind included in line/spline/endpoint calls 
-	   9/10/92  deanb       dropout coding begun 
-	   9/08/92  deanb       MAXSPLINELENGTH now imported from scspline.h 
-	   8/18/92  deanb       New i/f for dropout control, contour elems 
-	   7/28/92  deanb       Recursive calls for up/down & left/right 
-	   7/23/92  deanb       EvaluateSpline included 
-	   7/17/92  deanb       Included EvaluateLine 
-	   7/13/92  deanb       Start/End point made SHORT 
-	   6/01/92  deanb       fsc_FillBitMap debug switch added 
-	   5/08/92  deanb       reordered includes for precompiled headers 
-	   4/27/92  deanb       Splines coded 
-	   4/09/92  deanb       New types 
-	   4/06/92  deanb       rectBounds calc corrected 
-	   3/30/92  deanb       MinMax calc added to MeasureContour 
-	   3/24/92  deanb       GetWorkspaceSize coded 
-	   3/23/92  deanb       First cut 
- 
-**********************************************************************/
+/*
+ * scentry.c -- scan-converter entry module.
+ *
+ * Top-level glyph scan conversion: measures contours, drives the
+ * line/spline/endpoint processing, and produces the glyph bitmap and
+ * bounding box for both black/white and grayscale output.
+ */
 
 /*********************************************************************/
 

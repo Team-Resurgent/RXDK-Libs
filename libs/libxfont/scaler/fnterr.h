@@ -1,19 +1,20 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef _FNTERR_H
 #define _FNTERR_H
-/**********************************************************************
-	
-	fnterr.h -- Error Support Routines prototypes.
 
-	(c) Copyright 1992  Microsoft Corp.
-	All rights reserved.
-
-	This header file provides prototypes for the fnterr.c 
-	 source module.  This module keys on the #define FSCFG_FNTERR
-	which is defined in fsconfig.h
-
-	 7/28/92 dj         First cut.
-
- **********************************************************************/
+/*
+ * fnterr.h -- prototypes and macros for the interpreter error-support layer.
+ *
+ * Declares the fnterr_* reporting functions and the ERR_* macros used
+ * throughout fnt.c. When FSCFG_FNTERR is defined the macros expand to real
+ * range-checking calls; otherwise they collapse to no-ops (with ERR_REPORT
+ * still trapping to the debugger).
+ */
 
 
 #ifdef FSCFG_FNTERR

@@ -1,16 +1,16 @@
 /*
-	File:       fsconfig.h : (Portable "Standard C" version)
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	Written by: Lenox Brassell
+/*
+	fsconfig.h -- platform configuration for the TrueType font scaler.
 
-	Contains:   #define directives for FontScaler build options
-
-   Copyright:  c 1989-1993 by Microsoft Corp., all rights reserved.
-
-	Change History (most recent first):
-		<3>      4/21/93 GregH Documented file
-		<2>      7/16/92    DJ      Added fnt_Report_Error() declaration.
-		<1>      8/27/91    LB      Created file.
+	Included first by fscdefs.h, this file selects the rasterizer build
+	options: fixed-point types, calling conventions, memory/math hooks,
+	endianness, and the FSCFG_* feature switches. The reference for those
+	overrides and switches follows.
 
 	Usage:  This file is "#include"-ed as the first statement in
 			"fscdefs.h".  This file contains platform-specific

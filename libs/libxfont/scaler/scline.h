@@ -1,24 +1,14 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scline.h -- Line Module Exports
-
-	  (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-	   3/19/93 deanb    size_t replaced with int32
-	  10/28/92 deanb    reentrant params renamed, mem req redone
-	  10/09/92 deanb    PSTP added
-	   9/25/92 deanb    include scan control type 
-	   9/09/92 deanb    GetLineElemSize returns size_t 
-	   8/21/92 deanb    GetLineElemSize added 
-	   7/23/92 deanb    Back to x2,y2 again 
-	   7/17/92 deanb    Changed from longline to line 
-	   4/21/92 deanb    Scan lines and on/off added 
-	   4/09/92 deanb    New types 
-	   4/01/92 deanb    Back to x2,y2 
-	   3/20/92 deanb    Reintroduced 
-	   1/14/92 deanb    First cut 
-
-**********************************************************************/
+/*
+ * scline.h -- line module exports.
+ *
+ * Declares the fsc_ line setup and scan entry points.
+ */
 
 #include "fscdefs.h"                /* for type definitions */
 

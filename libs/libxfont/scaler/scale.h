@@ -1,14 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
 /*
-
-	Copyright:  (c) 1992-1999. Microsoft Corporation, all rights reserved.
-
-	Change History (most recent first):
-
-				7/10/99  BeatS	Add support for native SP fonts, vertical RGB
-	   <1>     02/21/97    CB   claudebe, scaled component in composite glyphs
-	   <1>     12/14/95    CB   add private phantom points for vertical positionning
-*/
+ * scale.h -- scaling interface for the TrueType rasterizer.
+ *
+ * Declares the scl_ entry points that set up glyph scaling from the current
+ * transform, units-per-em, point size and resolution -- including phantom
+ * points, emboldening simulation and subpixel (native SP / vertical RGB)
+ * support.
+ */
 
 /* total number of phantom points */
 

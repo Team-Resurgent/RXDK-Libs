@@ -1,19 +1,17 @@
-/**********************************************************************
-	
-	fnterr.c -- Error Support Routines.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	(c) Copyright 1992  Microsoft Corp.
-	All rights reserved.
-
-	This source file provides support for debugging routines in fnt.c
-	(and macjob.c to a much lesser extent).  This module keys on the
-	 #define FSCFG_FNTERR which is defined in fsconfig.h
-
-	 7/28/92 dj         First cut.
-	 8/12/94 deanb      included fnterr.h for mac
-	12/07/94 deanb		changed %x to %hx or %lx; %d to %hd
-
- **********************************************************************/
+/*
+ * fnterr.c -- TrueType interpreter error-support routines.
+ *
+ * Provides the diagnostic reporting used by the bytecode interpreter in
+ * fnt.c: it names opcodes, tracks IF/EIF balance, and formats range,
+ * assertion, CVT and stack error messages to stdout and a log file. The
+ * entire module compiles only when FSCFG_FNTERR is defined in fsconfig.h.
+ */
 
 #define FSCFG_INTERNAL
 

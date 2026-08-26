@@ -1,27 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      scbitmap.c -- New Scan Converter BitMap Module
-
-      (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-      10/03/93  deanb   use (x) in bitmask shift macros
-       8/23/93  deanb   gray scale functions
-       6/11/93  deanb   use MEMSET macro, string & stddef removed
-       6/10/93  deanb   Start/Stop/Bit mask macros
-       6/10/93  deanb   InitializeBitMasks added, stdio & assert removed
-       4/29/93  deanb   BLTCopy routine added
-       3/19/93  deanb   size_t caste checked
-      10/14/92  deanb   memset for fsc_ClearBitMap
-       9/15/92  deanb   Set bit coded 
-       8/18/92  deanb   include scconst.h 
-       6/02/92  deanb   Row pointer, integer limits, no descriptor 
-       5/08/92  deanb   reordered includes for precompiled headers 
-       5/04/92  deanb   Array tags added 
-       4/27/92  deanb   Negative runs handled 
-       4/16/92  deanb   Coding 
-       3/23/92  deanb   First cut 
-
-**********************************************************************/
+/*
+ * scbitmap.c -- scan-converter bitmap module.
+ *
+ * Manages the output bitmap: bit-mask setup, set/clear/get bit, run filling
+ * and BLT copy, plus grayscale row calculation.
+ */
 
 #define FSCFG_INTERNAL
 

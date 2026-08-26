@@ -1,29 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      scspline.c -- New Scan Converter Spline Module
-
-      (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-       6/10/93  deanb   assert.h and stdio.h removed
-       3/19/93  deanb   size_t replaced with int32
-      10/28/92  deanb   memory requirements reworked
-      10/09/92  deanb   reentrant
-       9/28/92  deanb   quick out for nearly vert/horiz splines 
-       9/25/92  deanb   branch on scan kind 
-       9/22/92  deanb   subpix calculation using subdivision 
-       9/14/92  deanb   reflection correction with iX/YOffset 
-       9/10/92  deanb   first dropout code 
-       9/02/92  deanb   Precision reduction by shifting control points 
-       7/24/92  deanb   Initial Q set for perfect symmetry 
-       7/23/92  deanb   EvaluateSpline split out and moved to NewScan 
-       7/20/92  deanb   removed unreachable case 
-       7/16/92  deanb   faster power of 2 
-       7/06/92  deanb   Cleanups 
-       7/01/92  deanb   Reinstate a single spline routine 
-       6/30/92  deanb   Implicit spline rendering 
-       3/23/92  deanb   First cut 
-
-**********************************************************************/
+/*
+ * scspline.c -- scan-converter spline module.
+ *
+ * Renders quadratic B-spline segments by recursive subdivision into scan
+ * intersections, with dropout handling.
+ */
 
 /*********************************************************************/
 

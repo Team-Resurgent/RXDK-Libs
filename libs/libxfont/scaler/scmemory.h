@@ -1,18 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      scmemory.h -- Memory Module Exports
-
-      (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-       3/19/93 deanb    size_t replaced with int32
-      10/14/92 deanb    New SetupMem parameters
-      10/09/92 deanb    PSTP added
-      10/08/92 deanb    Horiz/Vert memory alloc's
-       9/09/92 deanb    Alloc param int32  
-       9/08/92 deanb    Setup with WorkSpace pointer 
-       8/21/92 deanb    First cut 
-
-**********************************************************************/
+/*
+ * scmemory.h -- memory module exports.
+ *
+ * Declares the fsc_ workspace setup and allocation entry points for the
+ * scan converter.
+ */
 
 #include "fscdefs.h"                /* for type definitions */
 

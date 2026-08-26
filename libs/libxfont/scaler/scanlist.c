@@ -1,50 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scanlist.c -- New Scan Converter ScanList Module
-
-	  (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-	   8/23/93  deanb   gray scale pass through functions
-	   6/22/93  deanb   all dropouts confined to bounding box
-	   6/10/93  deanb   fsc_InitializeScanlist added, stdio & assert gone
-	   4/26/93  deanb   fix pointers now works with segmented memory
-	   4/19/93  deanb   banding added
-	   4/07/93  deanb   sorting is now done on the fly
-	   4/01/93  deanb   intersection arrays replace linked lists
-	   3/19/93  deanb   size_t replaced with int32
-	  12/22/92  deanb   Rectangle -> Rect
-	  10/28/92  deanb   memory requirements reworked
-	  10/19/92  deanb   smart dropout tiebreak left & down
-	  10/14/92  deanb   delete usScanKind from state
-	  10/09/92  deanb   reentrant
-	  10/08/92  deanb   reworked for split workspace
-	  10/02/92  deanb   correct AddVertDropoutScan assertions
-	   9/25/92  deanb   separate nodrop/dropout entry points
-	   9/22/92  deanb   smart dropout control
-	   9/17/92  deanb   stub control
-	   9/15/92  deanb   simple dropout control
-	   9/11/92  deanb   setupscan handles scankind
-	   9/09/92  deanb   dropout / nodropout begun
-	   8/17/92  deanb   include struc.h scconst.h
-	   8/07/92  deanb   initial dropout control
-	   8/06/92  deanb   assertions reinstated
-	   7/27/92  deanb   bitmap clear added
-	   7/16/92  deanb   gulBytesRemaining -> gulIntersectRemaining
-	   6/18/92  deanb   int x coord for HorizScanAdd
-	   6/01/92  deanb   incorporate bitmap functions
-	   5/08/92  deanb   reordered includes for precompiled headers
-	   5/04/92  deanb   Array tags added
-	   4/28/92  deanb   list array sentinels added
-	   4/21/92  deanb   single HorizScanAdd routine
-	   4/15/92  deanb   calls to BitMap
-	   4/13/92  deanb   uiY to iY for HorizScanOn/Off
-	   4/09/92  deanb   New types
-	   4/03/92  deanb   HorizScan On/Off coded
-	   3/31/92  deanb   InitScanArray begun
-	   3/25/92  deanb   GetWorkSizes and local types
-	   3/23/92  deanb   First cut
-
-**********************************************************************/
+/*
+ * scanlist.c -- scan-converter intersection-list module.
+ *
+ * Builds and sorts the per-scanline intersection arrays, applies smart
+ * dropout control, and fills the output bitmap (black/white and grayscale).
+ */
 
 /*********************************************************************/
 

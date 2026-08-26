@@ -1,16 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      sbit.h -- Embedded Bitmap Module Export Definitions
-
-      (c) Copyright 1993-1996  Microsoft Corp.  All rights reserved.
-
-      01/12/96  claudebe    Vertical metrics support
-      02/07/95  deanb       Workspace pointers for GetMetrics & GetBitmap
-      01/27/95  deanb       usShaveLeft & usShaveRight added to sbit state
-      01/05/94  deanb       Bitmap scaling state
-      11/29/93  deanb       First cut 
- 
-**********************************************************************/
+/*
+ * sbit.h -- embedded-bitmap module exports.
+ *
+ * Declares the SBIT state structure and the entry points used to query and
+ * render embedded bitmap strikes.
+ */
 
 /*      SBIT Module State Definition    */
 

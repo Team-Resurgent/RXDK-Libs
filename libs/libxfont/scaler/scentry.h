@@ -1,35 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      scentry.h -- NewScan Module Exports
-
-      (c) Copyright 1992-95  Microsoft Corp.  All rights reserved.
-
-       1/23/95  deanb       added fsc_GetCoords helper function
-       9/07/93  deanb       F26Dot6 min/max added to gbmp structure
-       8/10/93  deanb       expand interface for gray scale
-       6/10/93  deanb       fsc_Initialize added
-       4/21/93  deanb       banding params for MeasureGlyph
-       3/29/93  deanb       reversal memory added to WorkScan
-       3/19/93  deanb       size_t replaced with int32
-      12/22/92  deanb       Rectangle -> Rect
-      12/21/92  deanb       Interface types aligned with rasterizer
-      11/30/92  deanb       WorkSpace renamed WorkScan
-      11/05/92  deanb       ulPointCount removed from ContourList
-      11/04/92  deanb       RemoveDups function added
-      10/14/92  deanb       Exported data structures added
-       8/18/92  deanb       Scan type param added 
-       8/17/92  deanb       Functions renamed to ..Glyph 
-       7/24/92  deanb       Polyline functions deleted 
-       4/09/92  deanb       New types 
-       3/30/92  deanb       WorkspaceSize renamed MeasureContour 
-       3/24/92  deanb       BitMap back to WorkspaceSize 
-       3/20/92  deanb       Structs moved to fscdefs.h, params trimmed 
-       3/17/92  deanb       Add ulPointCount, rework fcn params 
-       3/05/92  deanb       Add data structures 
-       3/04/92  deanb       Size reports added 
-       2/21/92  deanb       First cut 
-
-*********************************************************************/
+/*
+ * scentry.h -- scan-converter entry module exports.
+ *
+ * Declares the fsc_ glyph measurement and scan entry points along with the
+ * exported work and state data structures.
+ */
 
 #include "fscdefs.h"                /* for type definitions */
 

@@ -1,19 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      sbit.c -- Embedded Bitmap Module
-
-      (c) Copyright 1993-96  Microsoft Corp.  All rights reserved.
-
-      04/01/96  claudebe    adding support for embedded grayscale bitmap
-      02/07/95  deanb       Workspace pointers for GetMetrics & GetBitmap
-      01/31/95  deanb       memset unrotated bitmap to zero
-      01/27/95  deanb       usShaveLeft & usShaveRight added to sbit state
-      12/21/94  deanb       rotation and vertical metrics support
-      08/02/94  deanb       pf26DevLSB->y calculated correctly
-      01/05/94  deanb       Bitmap scaling added
-      11/29/93  deanb       First cut 
- 
-**********************************************************************/
+/*
+ * sbit.c -- embedded-bitmap (bloc/bdat) module.
+ *
+ * Locates, reads and scales embedded bitmap strikes from the sfnt for the
+ * font scaler, including grayscale, rotation and vertical-metrics support.
+ */
 
 #define FSCFG_INTERNAL
 

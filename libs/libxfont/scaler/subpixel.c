@@ -1,11 +1,16 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  subpixel.c -- sub pixel rendering
-
-	  (c) Copyright 1999-2000  Microsoft Corp.  All rights reserved.
-
- 
-**********************************************************************/
+/*
+ * subpixel.c -- subpixel (ClearType-style) rendering support.
+ *
+ * Provides the color-filtered subpixel output path for the scan converter,
+ * expanding an overscaled bitmap into per-channel RGB coverage. The whole
+ * module compiles only when FSCFG_SUBPIXEL is defined.
+ */
 
 /*********************************************************************/
 

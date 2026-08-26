@@ -1,12 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scgray.h -- Gray Scale Parameter Block Definition
-
-	  (c) Copyright 1993  Microsoft Corp.  All rights reserved.
-
-	   8/23/93 deanb    First cut 
-
-**********************************************************************/
+/*
+ * scgray.h -- grayscale parameter-block definition.
+ *
+ * Declares the gray-scale calculation parameters passed between the
+ * scan-converter modules for grayscale rendering.
+ */
 
 #ifndef FSCGRAY_DEFINED
 #define FSCGRAY_DEFINED

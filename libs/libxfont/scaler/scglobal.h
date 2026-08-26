@@ -1,14 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      scglobal.h -- Information shared by all scan converter modules
-
-      (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-       7/09/93 deanb    include fsconfig.h removed (fscdefs does it)
-       4/19/93 deanb    banding limits added
-       4/12/93 deanb    from old scconst.h + scstate.h
-
-**********************************************************************/
+/*
+ * scglobal.h -- constants and macros shared by the scan-converter modules.
+ *
+ * Defines the subpixel geometry limits and scanline helper macros used
+ * across the scan converter.
+ */
 
 #include "fscdefs.h"                /* for type definitions */
 

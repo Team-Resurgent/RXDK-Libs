@@ -1,27 +1,15 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-	  scline.c -- New Scan Converter Line Module
-
-	  (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-	   6/10/93  deanb   assert.h and stdio.h removed
-	   3/19/93  deanb   size_t replaced with int32
-	  12/22/92  deanb   MultDivide replaced with LongMulDiv
-	  10/28/92  deanb   mem requirement reworked
-	  10/13/92  deanb   horiz / vert line rework
-	  10/09/92  deanb   reentrant
-	   9/25/92  deanb   branch on scan kind 
-	   9/21/92  deanb   rework horiz & vert lines 
-	   9/14/92  deanb   reflection correction with iX/YOffset 
-	   9/10/92  deanb   first dropout code 
-	   9/08/92  deanb   quickstep deleted 
-	   8/18/92  deanb   include struc.h, scconst.h 
-	   7/23/92  deanb   Back to x1,y1,x2,y2 input params 
-	   7/17/92  deanb   Changed from longline to line 
-	   6/18/92  deanb   Cross product line rendering  
-	   3/23/92  deanb   First cut 
-
-**********************************************************************/
+/*
+ * scline.c -- scan-converter line module.
+ *
+ * Renders straight edges into scan intersections using cross-product
+ * stepping, with dropout handling.
+ */
 
 /*********************************************************************/
 

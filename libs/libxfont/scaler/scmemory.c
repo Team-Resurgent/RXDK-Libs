@@ -1,17 +1,16 @@
-/*********************************************************************
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-      scmemory.c -- New Scan Converter Memory Managment Module
-
-      (c) Copyright 1992  Microsoft Corp.  All rights reserved.
-
-       6/10/93  deanb   assert.h and stdio.h removed
-      10/28/92  deanb   reentrant params renamed
-      10/14/92  deanb   New fsc_SetupMem parameters
-      10/09/92  deanb   Reentrant
-      10/08/92  deanb   Separate Horiz/Vert memory pools
-       9/10/92  deanb   First cut 
-
-**********************************************************************/
+/*
+ * scmemory.c -- scan-converter memory-management module.
+ *
+ * Sub-allocates the client work buffer into the horizontal and vertical
+ * scan-array pools used during scan conversion. The two-pool split also lets
+ * a client disable dropout control by giving the vertical pool zero size.
+ */
 
 /*********************************************************************/
 

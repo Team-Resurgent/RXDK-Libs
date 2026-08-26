@@ -1,16 +1,13 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992-1999  Microsoft Corporation
-
-Module Name:
-
-    devguid.h
-
-Abstract:
-
-    Defines GUIDs for device classes used in Plug & Play.
-
---*/
+/*
+ * Defines the device-class GUIDs (GUID_DEVCLASS_*) used to categorize devices
+ * under Plug and Play.
+ */
 
 DEFINE_GUID( GUID_DEVCLASS_1394,            0x6bdd1fc1L, 0x810f, 0x11d0, 0xbe, 0xc7, 0x08, 0x00, 0x2b, 0xe2, 0x09, 0x2f );
 DEFINE_GUID( GUID_DEVCLASS_ADAPTER,         0x4d36e964L, 0xe325, 0x11ce, 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18 );

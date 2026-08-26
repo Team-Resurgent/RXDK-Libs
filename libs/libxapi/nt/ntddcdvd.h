@@ -1,26 +1,13 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation
-
-Module Name:
-
-    ntddcdvd.h
-
-Abstract:
-
-    This module contains structures and definitions
-    associated with DVD ioctls.
-
-    This module is used in conjunction with ntddcdrm.h which contains the
-    cdrom specific ioctls which will work on CDVD drives
-
-Author:
-
-    Peter Wieland
-
-Revision History:
-
---*/
+/*
+ * Structures and definitions for the DVD device I/O control codes. Used
+ * together with ntddcdrm.h, whose CD-ROM IOCTLs also work on DVD drives.
+ */
 
 // begin_winioctl
 

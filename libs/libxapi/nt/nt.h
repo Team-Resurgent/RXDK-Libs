@@ -1,28 +1,14 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    nt.h
-
-Abstract:
-
-    Top level include file for applications and subsystems written to
-    the NT API.  Including this file defines all the public types
-    and system calls that an application program can use.
-
-    Initial clients of this include file are the NT Shell, along with
-    the Windows, OS2 and POSIX subsystems.
-
-
-Author:
-
-    Steve Wood   [stevewo]   23-Feb-1989
-
-Revision History:
-
---*/
+/*
+ * Top-level NT API include file. Pulling in this header defines the public NT
+ * types and system-call declarations that an application or subsystem written
+ * to the NT API can use; it aggregates the individual nt*api.h sub-headers.
+ */
 
 #pragma once
 #define NT_INCLUDED

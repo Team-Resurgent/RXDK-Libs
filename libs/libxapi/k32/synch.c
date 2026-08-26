@@ -1,18 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    synch.c
-
-Abstract:
-
-    This module implements all Win32 syncronization
-    objects.
-
---*/
+/*
+ * Win32 synchronization objects: events, semaphores, mutexes, and waitable
+ * timers (create/open/signal), the wait primitives (WaitForSingle/MultipleObjects
+ * and their Ex/SignalObjectAndWait forms), and Sleep/SleepEx.
+ */
 
 #include "basedll.h"
 

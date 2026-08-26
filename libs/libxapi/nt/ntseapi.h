@@ -1,27 +1,13 @@
-/*++ BUILD Version: 0003    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntseapi.h
-
-Abstract:
-
-    This module contains the Security APIs and any public data
-    structures needed to call these APIs.
-
-    This module should be included by including "nt.h".
-
-Author:
-
-    Gary Kimura (GaryKi) 06-Mar-1989
-
-Revision History:
-
-
-
---*/
+/*
+ * Security (Se) APIs and the public data structures needed to call them.
+ * Reached by including nt.h.
+ */
 
 #pragma once
 #define _NTSEAPI_

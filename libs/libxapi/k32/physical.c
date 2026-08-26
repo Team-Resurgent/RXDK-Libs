@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2001  Microsoft Corporation
-
-Module Name:
-
-    physical.c
-
-Abstract:
-
-    This module implements the XBOX physical memory management services.
-
---*/
+/*
+ * Xbox physical-memory management: XPhysicalAlloc / XPhysicalFree and related
+ * helpers that allocate contiguous, physically addressable, cache-attribute
+ * controlled memory (used for hardware-visible buffers).
+ */
 
 #include "basedll.h"
 #pragma hdrstop

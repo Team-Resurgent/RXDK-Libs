@@ -1,17 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2001-2002  Microsoft Corporation
-
-Module Name:
-
-    mountmu.c
-
-Abstract:
-
-    This module implements the XTL memory unit services.
-
---*/
+/*
+ * Memory-unit (MU) services: XMountMU / XMountMURoot / XUnmountMU map an MU in a
+ * controller port/slot to a drive letter, XReadMUMetaData reads its metadata,
+ * and the XMU*FromPortSlot / *FromDriveLetter helpers convert between port/slot
+ * and drive-letter forms.
+ */
 
 #include "basedll.h"
 #include <usbxapi.h>

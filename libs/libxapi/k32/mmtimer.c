@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1985-2000  Microsoft Corporation
-
-Module Name:
-
-    mmtimer.c
-
-Abstract:
-
-    This module implements the Win32 multimedia timer services.
-
---*/
+/*
+ * Win32 multimedia-timer services: timeSetEvent, timeKillEvent, and
+ * timeGetSystemTime. A dedicated worker thread waits on the pool of kernel
+ * timer objects and dispatches the registered one-shot/periodic callbacks.
+ */
 
 #include "basedll.h"
 

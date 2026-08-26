@@ -1,30 +1,14 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000  Microsoft Corporation
-
-Module Name:
-
-    usbdev.cpp
-
-Abstract:
-
-    This module contains the implementation of IUsbDevice
-    except for the routine involved with device enumeration.
-    
-Environment:
-
-    XBOX kernel.
-
-Notes:
-  
-
-Revision History:
-    
-    03-24-00: Create (mitchd)
-    06-12-00: renamed to usbdev and changed to implement in c++.
-
---*/
+/*
+ * Implementation of IUsbDevice, except for the device-enumeration routines.
+ * Xbox kernel.
+ */
 
 //
 //  Pull in OS headers

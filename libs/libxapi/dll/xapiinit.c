@@ -1,17 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Process-startup initialization for the Win32-API layer on the Xbox kernel.
+ * Defines the standard device-object strings, validates and mounts the
+ * hard-disk partitions, maps per-title T: and U: save directories (writing the
+ * title metadata files), verifies X2 media, creates the process heap, enforces
+ * parental-control ratings, and boots to the dashboard on fatal startup errors.
+ */
+
 #include "bridge_k32.h"
-/*++
-
-Copyright (c) 1999-2002  Microsoft Corporation
-
-Module Name:
-
-    init.c
-
-Abstract:
-
-    Initialization code for the win32 api equivalents in kernel mode for xbox
-
---*/
 
 #include "dllp.h"
 #include <xboxverp.h>

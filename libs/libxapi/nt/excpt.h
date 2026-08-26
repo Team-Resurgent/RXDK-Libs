@@ -1,20 +1,15 @@
-/***
-*excpt.h - defines exception values, types and routines
-*
-*       Copyright (c) 1990-2001, Microsoft Corporation. All rights reserved.
-*
-*Purpose:
-*       This file contains the definitions and prototypes for the compiler-
-*       dependent intrinsics, support functions and keywords which implement
-*       the structured exception handling extensions.
-*
-*       nt.h pulls <excpt.h> for SEH types (EXCEPTION_DISPOSITION, etc.); this
-*       is the verbatim XDK SDK CRT excpt.h, inlined so the nt slice needs no
-*       SDK include path of its own.
-*
-*       [Public]
-*
-****/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Compiler-dependent intrinsics, support functions, and keywords that
+ * implement the structured exception handling (SEH) extensions. nt.h pulls in
+ * excpt.h for the SEH types (EXCEPTION_DISPOSITION and friends); this is the
+ * CRT excpt.h inlined so the nt slice needs no separate SDK include path.
+ */
 
 #if     _MSC_VER > 1000
 #pragma once

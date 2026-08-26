@@ -1,17 +1,17 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2001  Microsoft Corporation
-
-Module Name:
-
-    fiber.c
-
-Abstract:
-
-    This module implements the Win32 fiber services.
-
---*/
+/*
+ * Win32 fiber services: CreateFiber/DeleteFiber, ConvertThreadToFiber, and
+ * SwitchToFiber. Each fiber owns a kernel stack with its XFIBER state packed at
+ * the top; the context switch is a hand-written assembly routine that swaps the
+ * non-volatile registers and exception chain. The DBG build wraps the retail
+ * switch with validation checks.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

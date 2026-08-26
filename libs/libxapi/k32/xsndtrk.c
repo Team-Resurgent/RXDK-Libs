@@ -1,21 +1,16 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-Module Name:
-
-    xsndtrk.c
-
-Abstract:
-
-    XTL Soundtrack Enumeration APIs
-
-    Provides support for enumerating the soundtracks a user has ripped through
-    the dash and enumerating the songs within those soundtracks. Ported from the
-    original xapilib source; reads the on-disk soundtrack database
-    (TDATA\FFFE0000\MUSIC\ST.DB) described by the STDB_* structures in xboxp.h.
-
---*/
+/*
+ * Soundtrack enumeration APIs: enumerate the soundtracks a user has ripped
+ * through the dashboard and the songs within them (XFindFirst/XFindNextSoundtrack,
+ * XGetSoundtrackSongInfo, XOpenSoundtrackSong). Reads the on-disk soundtrack
+ * database (TDATA\FFFE0000\MUSIC\ST.DB) described by the STDB_* structures in
+ * xboxp.h.
+ */
 
 #include "bridge_k32.h"
 #include "basedll.h"

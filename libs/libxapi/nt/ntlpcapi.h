@@ -1,23 +1,12 @@
-/*++ BUILD Version: 0002    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999 Microsoft Corporation
-
-Module Name:
-
-    ntlpcapi.h
-
-Abstract:
-
-    This is the include file for the Local Procedure Call (LPC) sub-component
-    of NTOS.
-
-Author:
-
-    Steve Wood (stevewo) 13-Mar-1989
-
-Revision History:
-
---*/
+/*
+ * Header for the Local Procedure Call (LPC) sub-component of NTOS.
+ */
 
 #pragma once
 #define _NTLPCAPI_

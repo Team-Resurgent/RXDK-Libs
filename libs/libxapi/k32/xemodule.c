@@ -1,18 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-2001  Microsoft Corporation
-
-Module Name:
-
-    xemodule.c
-
-Abstract:
-
-    This module contains implementation of the routines that interface with
-    XE loader in the kernel
-
---*/
+/*
+ * Interface to the kernel XBE (XE) loader: section-handle lookup and the
+ * XGetSectionHandle / section load/free routines used to demand-load and
+ * release the image's named sections.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

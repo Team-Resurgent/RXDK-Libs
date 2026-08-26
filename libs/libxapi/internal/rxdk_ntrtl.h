@@ -1,10 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XAPI_NTRTL_H
 
 
 /*
- * Shadow of leak ntrtl.h — memory Rtl macros for libxapi, not full sdk/ntrtl.h.
- * Heap/random implement Rtl* locally; no xboxkrnl/api/rtl.h import surface here.
+ * ntrtl.h shadow: the memory Rtl macros libxapi needs, not the full sdk/ntrtl.h.
+ * Heap and random routines implement the Rtl* entry points locally, so there is
+ * no xboxkrnl/api/rtl.h import surface here.
  */
 
 #ifndef _NTRTL_

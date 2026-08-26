@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Umbrella header that pulls in the core Windows SDK headers (windef.h,
+ * winbase.h, wingdi.h, winerror.h and related) for this library's build.
+ */
+
 #if defined (_MSC_VER) && (_MSC_VER >= 1020)
 #pragma once
 #endif

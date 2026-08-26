@@ -1,28 +1,13 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-
-Module Name:
-
-    isoch.c
-
-Abstract:
-
-    Functions used to support isochronous transfers.
-
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    06-29-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Functions that support isochronous USB transfers in the OHCD driver.
+ */
 //
 //  Pull in OS headers
 //

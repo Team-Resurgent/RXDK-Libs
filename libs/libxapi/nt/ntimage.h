@@ -1,22 +1,13 @@
-/*++ BUILD Version: 0004    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntimage.h
-
-Abstract:
-
-    This is the include file that describes all image structures.
-
-Author:
-
-    Mike O'Leary (mikeol) 21-Mar-1991
-
-Revision History:
-
---*/
+/*
+ * Definitions of the PE image structures: the DOS and NT headers, section
+ * headers, data directories, and the import/export/relocation tables.
+ */
 
 #pragma once
 #define _NTIMAGE_

@@ -1,4 +1,16 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Character-encoding conversion: the Win32 MultiByteToWideChar /
+ * WideCharToMultiByte APIs plus the internal UTF-8 <-> UTF-16 helpers
+ * (UTF8ToUnicode / UnicodeToUTF8) they use for the UTF-8 code page.
+ */
+
 #include "basedll.h"
 
 int

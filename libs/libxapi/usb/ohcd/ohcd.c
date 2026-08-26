@@ -1,30 +1,13 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-
-Module Name:
-
-    ohcd.c
-
-Abstract:
-    
-    Basic entry point implementation of the OpenHCI
-    driver.
-    
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-17-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Entry-point implementation of the OpenHCI (OHCD) host controller driver.
+ */
 
 
 //

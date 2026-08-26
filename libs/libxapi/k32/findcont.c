@@ -1,4 +1,17 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Content-enumeration APIs: XFindFirstContent / XFindNextContent walk the
+ * per-title content directory, filtering by flags and filling in an
+ * XCONTENT_FIND_DATA (including the display name read from each item's
+ * ContentMeta.xbx metadata file).
+ */
+
 #include "basedll.h"
 #include "xmeta.h"
 #include <xboxp.h>

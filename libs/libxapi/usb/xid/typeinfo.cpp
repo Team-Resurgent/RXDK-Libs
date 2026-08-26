@@ -1,30 +1,13 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    input.c
-
-Abstract:
-    
-    Tables with information concerning the currently supported
-    set of XID devices.
-    
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    08-01-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Tables describing the currently supported set of XID devices.
+ */
 //
 //  Pull in OS headers
 //

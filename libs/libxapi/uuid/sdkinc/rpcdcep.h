@@ -1,18 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1991-1999 Microsoft Corporation
-
-Module Name:
-
-    rpcdcep.h
-
-Abstract:
-
-    This module contains the private RPC runtime APIs for use by the
-    stubs and by support libraries.  Applications must not call these
-    routines.
-
---*/
+/*
+ * Private RPC runtime APIs used by generated stubs and RPC support libraries.
+ * These are internal interfaces and are not meant to be called by applications.
+ */
 
 #ifndef __RPCDCEP_H__
 #define __RPCDCEP_H__

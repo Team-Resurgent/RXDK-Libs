@@ -1,10 +1,16 @@
-#include "bridge_usb.h"
 /*
- * Native USBD pool allocator (vendor usbd tree declares but does not define).
- *
- * Must match the cdecl linkage usbd.cpp / tree.cpp use at call sites (__attribute__((__stdcall__)) on
- * a forward decl alone does not fix stdcall/cdecl mismatches with lld-link).
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * USBD pool allocator (USBD_AllocateMemory / USBD_FreeMemory), which the USB
+ * stack declares but does not define. Implemented over ExAllocatePool /
+ * ExFreePool with the cdecl linkage the usbd and tree call sites expect.
+ */
+
+#include "bridge_usb.h"
 
 #include <ntos.h>
 

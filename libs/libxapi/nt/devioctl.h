@@ -1,24 +1,14 @@
-/*++ BUILD Version: 0004    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992-1999  Microsoft Corporation
-
-Module Name:
-
-    devioctl.h
-
-Abstract:
-
-    This module contains
-
-Author:
-
-    Andre Vachon (andreva) 21-Feb-1992
-
-
-Revision History:
-
-
---*/
+/*
+ * Device I/O control code layout: the CTL_CODE macro and the device-type,
+ * access, and transfer-method fields shared by all NT DeviceIoControl IOCTL
+ * definitions.
+ */
 
 // begin_winioctl
 

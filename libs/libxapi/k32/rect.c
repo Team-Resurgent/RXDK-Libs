@@ -1,4 +1,16 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * RECT geometry helpers: set, copy, offset, inflate, intersect, union, and
+ * subtract rectangles, plus emptiness/equality/point-in-rect tests and RECT
+ * <-> SIZERECT conversion.
+ */
+
 #include "basedll.h"
 
 #define VALIDATERECT(prc, retval)                              \

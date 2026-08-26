@@ -1,16 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1991-1999 Microsoft Corporation
-
-Module Name:
-
-    rpcdce.h
-
-Abstract:
-
-    This module contains the DCE RPC runtime APIs.
-
---*/
+/*
+ * Declares the DCE-style RPC runtime APIs (bindings, UUIDs, protocol sequences,
+ * and the public client / server calls).
+ */
 
 #ifndef __RPCDCE_H__
 #define __RPCDCE_H__

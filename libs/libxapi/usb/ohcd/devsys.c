@@ -1,30 +1,14 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    devsys.c
-
-Abstract:
-    
-    Implementation of code that is conditionally compiled to perform
-    operation on development systems (i.e. non-final development system
-    hardware.)  This code may also be useful for verifying final hardware.
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-21-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Code conditionally compiled to run on development-system (non-final)
+ * hardware; also useful for verifying final hardware.
+ */
 
 //
 //  This file only compiles if development system

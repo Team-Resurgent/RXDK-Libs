@@ -1,24 +1,14 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-   xclndrv.c
-
-Abstract:
-
-    API's that clean drives by reclaiming empty title directories
-    and corrupt games.
-
-Author:
-
-    Mitchell S. Dernis (mitchd) 05-Jun-2001
-
-Revision History:
-
---*/
+/*
+ * Drive-cleaning APIs that reclaim space by removing empty per-title
+ * directories and corrupt saved games from the utility drives.
+ */
 
 #include "basedll.h"
 

@@ -1,29 +1,14 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntrtl.h
-
-Abstract:
-
-    Include file for NT runtime routines that are callable by only
-    user mode code in various.
-
-Author:
-
-    Steve Wood (stevewo) 10-Aug-1989
-
-Environment:
-
-    These routines are statically linked in the caller's executable and
-    are callable in only from user mode.  They make use of Nt system
-    services.
-
-Revision History:
-
---*/
+/*
+ * NT runtime library (Rtl) routines callable only from user mode; they build
+ * on the Nt system services and are statically linked into the caller's
+ * executable.
+ */
 
 #pragma once
 #define _NTURTL_

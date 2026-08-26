@@ -1,14 +1,13 @@
-/*********************************************************/
-/**               Microsoft LAN Manager                 **/
-/**       Copyright(c) Microsoft Corp., 1987-1999       **/
-/**                                                     **/
-/**     Rpc Error Codes from the compiler and runtime   **/
-/**                                                     **/
-/*********************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
 /*
-If you change this file, you must also change rpcerr.h.
-*/
+ * Maps the RPC status codes (RPC_S_*) emitted by the compiler and runtime onto
+ * the corresponding Win32 system error codes.
+ */
 
 #ifndef __RPCNTERR_H__
 #define __RPCNTERR_H__

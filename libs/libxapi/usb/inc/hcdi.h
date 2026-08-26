@@ -1,22 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-Module Name:
-
-    hcdi.h
-
-    Generated from usb.x
-
-Abstract:
-
-    Header File for  host controller driver
-
-Environment:
-
-    Xbox
-
---*/
+/*
+ * Host controller driver interface for the Xbox USB stack: the shared
+ * USB/URB/HCD definitions (URB structures, URB_FUNCTION_ codes, USBD status
+ * codes, and the HCD-to-USBD interface).
+ */
 
 #pragma once
 #define __USB_X__

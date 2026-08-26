@@ -1,4 +1,17 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox configuration-value access backed by EEPROM non-volatile settings:
+ * XSetValue / XQueryValue, plus the typed accessors for common settings -
+ * language, AV pack, video standard and flags, audio flags, parental-control
+ * level, game region, and the auto-logon flag.
+ */
+
 #include "basedll.h"
 #include "fatx.h"
 #include "av.h"
@@ -218,10 +231,9 @@ XGetGameRegion(
 
 
 //
-// RXDK 5849 uplift: recovered from the retail xapilib. Reports whether the
-// dashboard's auto-logon setting permits a title to sign the user in without
-// prompting. Bit 0x4 of the misc-flags EEPROM setting is the "not allowed"
-// bit; a failed read is treated as not allowed.
+// Reports whether the dashboard's auto-logon setting permits a title to sign
+// the user in without prompting. Bit 0x4 of the misc-flags EEPROM setting is
+// the "not allowed" bit; a failed read is treated as not allowed.
 //
 #define XC_MISC_FLAG_AUTO_LOGON_NOT_ALLOWED  0x0004
 

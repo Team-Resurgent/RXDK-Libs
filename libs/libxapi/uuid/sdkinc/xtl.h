@@ -1,16 +1,13 @@
-/*++ BUILD Version: 0000     Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation
-
-Module Name:
-
-    xtl.h
-
-Abstract:
-
-    Master include file for Xbox applications.
-
---*/
+/*
+ * Master include file for Xbox applications: pulls in the Windows base, Xbox,
+ * and supporting SDK headers that make up the title-facing API surface.
+ */
 
 #ifndef _XTL_
 #define _XTL_

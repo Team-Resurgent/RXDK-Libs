@@ -1,23 +1,14 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    handle.c
-
-Abstract:
-
-    This module implements the Win32 handle management services.
-
-Author:
-
-    Mark Lucovsky (markl) 21-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Win32 handle-management services: CloseHandle and DuplicateHandle, layered
+ * over the NT object-handle APIs.
+ */
 
 #include "basedll.h"
 

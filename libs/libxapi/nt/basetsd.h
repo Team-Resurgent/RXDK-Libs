@@ -1,22 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1997-2001  Microsoft Corporation
-
-Module Name:
-
-    basetsd.h
-
-Abstract:
-
-    Type definitions for the basic sized types.
-
-Author:
-
-    Jeff Havens (jhavens)   23-Oct-1997
-
-Revision History:
-
---*/
+/*
+ * Basic sized integer type definitions (INT8/16/32/64, UINT8/16/32/64 and the
+ * pointer-precision INT_PTR/UINT_PTR/LONG_PTR family) used throughout the NT
+ * headers.
+ */
 
 #pragma once
 #define _BASETSD_H_

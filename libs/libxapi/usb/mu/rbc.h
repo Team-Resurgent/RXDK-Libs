@@ -1,25 +1,16 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Module Name:
-
-    rbc.h
-
-Abstract:
-
-    This was scsi.h from the Windows 2000 tree.  Our Xbox MU protocol is an extreme subset of the
-    SCSI commands.  Additionally, we are packing a little extra information into the READ_CAPACITY
-    command than is specified in the RBC specification.  Not really an issue, since do not need to
-    be SCSI compatible anyway.
-
-    So this file is paired don't to have only relevant definitions
-
-Authors:
-
-Revision History:
-
---*/
+/*
+ * Reduced Block Command (RBC) definitions, pared down from the Windows 2000
+ * scsi.h. The Xbox MU protocol is an extreme subset of the SCSI commands and
+ * packs a little extra information into the READ_CAPACITY command beyond the
+ * RBC specification; SCSI compatibility is not required. Only the relevant
+ * definitions are kept.
+ */
 
 #pragma once
 #define __RBC_H__

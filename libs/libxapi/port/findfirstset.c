@@ -1,5 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * RtlFindFirstSetRightMember: returns the bit index of the lowest set bit in a
+ * 32-bit set (0 when the set is empty). C reimplementation of the original
+ * hand-written i386 bitmap assembly.
+ */
+
 #include "bridge_k32.h"
-/* RXDK replacement for rtl/i386/bitmapa.asm (RtlFindFirstSetRightMember). */
 
 #include <xboxkrnl/xboxdef.h>
 

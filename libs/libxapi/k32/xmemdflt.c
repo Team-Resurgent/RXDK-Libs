@@ -1,26 +1,20 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    xmemdflt.c
-
-Abstract:
-
-    xAPI's built-in allocator: XMemAllocDefault / XMemFreeDefault /
-    XMemSizeDefault.
-
-    These are always present. A title that replaces XMemAlloc & co. still needs
-    them -- an override is nearly always a wrapper that tracks the request and
-    then defers to the original behaviour, and it reaches that behaviour by
-    calling these. CustomMemoryAllocator is exactly that shape.
-
-    The overridable XMemAlloc/XMemFree/XMemSize forwarders live separately, in
-    xmem.c; see the note there for why the split matters to the linker.
-
---*/
+/*
+ * xAPI's built-in allocator: XMemAllocDefault / XMemFreeDefault /
+ * XMemSizeDefault. These are always present. A title that replaces XMemAlloc &
+ * co. still needs them - an override is nearly always a wrapper that tracks the
+ * request and then defers to the original behaviour, which it reaches by calling
+ * these.
+ *
+ * The overridable XMemAlloc/XMemFree/XMemSize forwarders live separately, in
+ * xmem.c; see the note there for why the split matters to the linker.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

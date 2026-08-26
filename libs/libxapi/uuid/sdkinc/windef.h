@@ -1,11 +1,14 @@
-/****************************************************************************
-*                                                                           *
-* windef.h -- Basic Windows Type Definitions                                *
-*                                                                           *
-* Copyright (c) 1985-2001, Microsoft Corp. All rights reserved.             *
-*                                                                           *
-****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Basic Windows type definitions (the fundamental scalar typedefs, handle
+ * types, MIN/MAX macros, and calling-convention decorations) shared by the rest
+ * of the Windows headers.
+ */
 
 #ifndef _WINDEF_
 #define _WINDEF_

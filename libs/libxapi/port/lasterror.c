@@ -1,9 +1,17 @@
-#include "bridge_k32.h"
 /*
- * RXDK: Clang emits __declspec(thread) via fs:[0x2C]; Xbox xAPI uses a different
- * TLS layout. Route GetLastError/SetLastError through the copied TLS template
- * in KeGetCurrentThread()->TlsData instead of touching TEB fs:[0x2C].
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * GetLastError / SetLastError for libxapi. Clang emits thread-locals via the
+ * TEB (fs:[0x2C]), but the Xbox xAPI uses a different TLS layout, so the
+ * last-error value is read from and written to a fixed offset in the thread's
+ * copied TLS image (KeGetCurrentThread()->TlsData) instead of the TEB.
+ */
+
+#include "bridge_k32.h"
 
 #include "basedll.h"
 #pragma hdrstop

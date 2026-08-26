@@ -1,7 +1,19 @@
-#include "bridge_usb.h"
 /*
- * Pointers to xboxkrnl NTAPI exports for build/xapi_usb_kernel_wrap.c.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * Constant function-pointer table capturing the __stdcall xboxkrnl exports
+ * (memory, timers, DPCs, interrupts, IO, crypto, PHY, etc.) that the cdecl
+ * facades in usb_kernel_wrap.c call through. Taking the addresses here, in a
+ * translation unit that sees the real kernel prototypes, keeps the calling
+ * convention correct across the cdecl-to-stdcall bridge used by USB, libdsound
+ * and libxnet.
+ */
+
+#include "bridge_usb.h"
 
 #undef RtlZeroMemory
 #undef RtlCopyMemory

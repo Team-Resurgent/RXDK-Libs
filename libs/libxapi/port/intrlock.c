@@ -1,5 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interlocked primitives (InterlockedIncrement / Decrement / Exchange /
+ * CompareExchange / ExchangeAdd) implemented over the Clang __atomic builtins
+ * with sequentially-consistent ordering, replacing the original i386 assembly.
+ */
+
 #include "bridge_k32.h"
-/* RXDK replacement for vendor i386/intrlock.c (clang ICE) and MASM intrlock.asm. */
 
 #include <xboxkrnl/xboxdef.h>
 #include <xboxkrnl/types/common.h>

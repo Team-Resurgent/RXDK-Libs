@@ -1,32 +1,13 @@
-/*++ BUILD Version: 0004    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntldr.h
-
-Abstract:
-
-    This module implements the public interfaces of the Loader (Ldr)
-    subsystem. Ldr is coupled with the session manager. It is not
-    a separate process.
-
-Author:
-
-    Mike O'Leary (mikeol) 22-Mar-1990
-
-[Environment:]
-
-    optional-environment-info (e.g. kernel mode only...)
-
-[Notes:]
-
-    optional-notes
-
-Revision History:
-
---*/
+/*
+ * Public interfaces of the image Loader (Ldr) subsystem, which is coupled with
+ * the session manager rather than being a separate process.
+ */
 
 
 

@@ -1,12 +1,19 @@
-#include "bridge_k32.h"
 /*
- * RXDK: single PE TLS image template for Xbox xAPI (Clang/lld).
- *
- * All per-thread slots live in one translation unit with explicit .tls$ section
- * names so lld merges them between _tls_start and _tls_end. Scatter-gather
- * __declspec(thread) TUs with -fdata-sections produce orphan comdat .tls$$
- * sections that never reach IMAGE_TLS_DIRECTORY (8-byte template bug).
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * The single PE TLS image template for the Xbox xAPI under Clang/lld, plus the
+ * IMAGE_TLS_DIRECTORY (_tls_used) that describes it. Every per-thread slot is
+ * defined in this one translation unit with explicit, ordered .tls section
+ * names so lld lays them out contiguously between _tls_start and _tls_end;
+ * spreading __declspec(thread) across TUs with -fdata-sections instead yields
+ * orphan comdat TLS sections that never reach the TLS directory.
+ */
+
+#include "bridge_k32.h"
 
 #include "dllp.h"
 #pragma hdrstop

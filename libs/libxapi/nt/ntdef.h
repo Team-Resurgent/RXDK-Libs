@@ -1,22 +1,14 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntdef.h
-
-Abstract:
-
-    Type definitions for the basic types.
-
-Author:
-
-    Mark Lucovsky (markl)   02-Feb-1989
-
-Revision History:
-
---*/
+/*
+ * Basic NT type definitions: NTSTATUS, STRING / ANSI_STRING / UNICODE_STRING,
+ * LIST_ENTRY, and the IN / OUT / OPTIONAL parameter annotations used across the
+ * NT headers.
+ */
 
 #pragma once
 #define _NTDEF_

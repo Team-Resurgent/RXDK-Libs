@@ -1,10 +1,13 @@
-/**************************************************************************
-*                                                                         *
-* wingdi.h -- GDI procedure declarations, constant definitions and macros *
-*                                                                         *
-* Copyright (c) 1985-1999, Microsoft Corp. All rights reserved.           *
-*                                                                         *
-**************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * GDI procedure declarations, constant definitions, and macros (device
+ * contexts, brushes, pens, fonts, bitmaps, and the associated structures).
+ */
 
 #ifndef _WINGDI_
 #define _WINGDI_

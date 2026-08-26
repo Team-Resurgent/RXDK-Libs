@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    heap.c
-
-Abstract:
-
-    Maps the Win32 heap APIs to the Rtl heap functions
-
---*/
+/*
+ * Maps the Win32 heap APIs (HeapCreate/HeapDestroy, HeapAlloc/HeapReAlloc/
+ * HeapFree, GetProcessHeap, and friends) onto the kernel Rtl heap functions,
+ * and holds the default process-heap handle.
+ */
 
 #include "basedll.h"
 #pragma hdrstop
@@ -592,9 +590,8 @@ Routine Description:
 
     Stamps a title-defined attribute dword on a heap allocation.
 
-    RXDK 5849 uplift: recovered from the retail xapilib. The Xbox HEAP_ENTRY
-    carries an 8-byte reserved slot (Reserved1) directly before the user
-    pointer -- these two functions are that slot's accessors.
+    The Xbox HEAP_ENTRY carries an 8-byte reserved slot (Reserved1) directly
+    before the user pointer -- these two functions are that slot's accessors.
 
 Arguments:
 

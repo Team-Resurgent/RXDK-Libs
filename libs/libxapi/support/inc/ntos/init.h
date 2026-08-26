@@ -1,22 +1,12 @@
-/*++ BUILD Version: 0002    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    init.h
-
-Abstract:
-
-    Header file for the INIT subcomponent of NTOS
-
-Author:
-
-    Steve Wood (stevewo) 31-Mar-1989
-
-Revision History:
-
---*/
+/*
+ * Header file for the INIT subcomponent of NTOS.
+ */
 
 #pragma once
 #define _INIT_

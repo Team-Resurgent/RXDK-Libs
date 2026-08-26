@@ -1,30 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    isoch.h
-
-Abstract:
-
-    This file contains Macros and Declaration need
-    for Isochronous support.  Since USBD can be compiled
-    with or without isoch support there are two
-    versions of every macro.
-
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    06-29-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Macros and declarations for isochronous transfer support. Because USBD can
+ * be built with or without isoch support, every macro has two versions.
+ */
 
 #pragma once
 #define __ISOCH_H__

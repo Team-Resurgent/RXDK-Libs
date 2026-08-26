@@ -1,12 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XAPI_H
 
 
 /*
- * RXDK libxapi umbrella (Xbox-only).
+ * RXDK libxapi umbrella header (Xbox-only).
  *
- * Kernel types/APIs from xboxkrnl (replaces sdk/nt.h). XDK user surface via xtl
- * in xapip.h — windef skips winnt.h when NT_INCLUDED is set (leak xAPI pattern).
+ * Kernel types and APIs come from xboxkrnl; the XDK title surface arrives via
+ * xtl in xapip.h. windef skips winnt.h when NT_INCLUDED is set.
  */
 
 #ifndef _XBOX

@@ -1,24 +1,17 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    lcompat.c
-
-Abstract:
-
-    This module implements the _l and l compatability functions
-    like _lread, lstrlen...
-
-Author:
-
-    Mark Lucovsky (markl) 13-Mar-1991
-
-Revision History:
-
---*/
+/*
+ * The lstr* compatibility string functions: lstrcmp/lstrcmpi, lstrcpy/lstrcpyn,
+ * lstrcat, and lstrlen. This file is compiled twice: once for the wide (W) form,
+ * and once with LCOMPATA defined - included from lcompata.c - for the ANSI (A)
+ * form. The comparison variants use the Xbox-specific xCompareString, which
+ * needs no locale argument.
+ */
 
 #include "basedll.h"
 #ifdef _XBOX

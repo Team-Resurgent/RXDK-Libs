@@ -1,26 +1,16 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-Module Name:
-
-    usbd.h
-
-Abstract:
-
-    Private header for USBD internal modules.
-
-    The shared USB/URB/HCD definitions (URB structures, URB_FUNCTION_* codes,
-    USBD status codes, the HCD<->USBD interface) live in hcdi.h and were
-    formerly duplicated here verbatim; this header now includes hcdi.h and
-    adds only the USBD-internal C++ surface.
-
-Environment:
-
-    Xbox
-    C++ Only
-
---*/
+/*
+ * Private header for the USBD internal modules. Xbox, C++ only.
+ *
+ * The shared USB/URB/HCD definitions (URB structures, the URB_FUNCTION_ codes,
+ * USBD status codes, and the HCD-to-USBD interface) live in hcdi.h; this header
+ * includes hcdi.h and adds only the USBD-internal C++ surface.
+ */
 
 #pragma once
 

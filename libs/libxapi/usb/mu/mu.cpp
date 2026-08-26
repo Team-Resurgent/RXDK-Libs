@@ -1,38 +1,17 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1996-2000 Microsoft Corporation
-
-Module Name:
-
-    MU.CPP
-
-Abstract:
-
-    This source file implements the major entry points to the MU driver.
-
-        Entries required by the USB core stack:
-            MU_Init
-            MU_AddDevice
-            MU_RemoveDevice
-        Entries used by XAPI for making MU's accessible.
-
-
-
-Environment:
-
-    Xbox USB class driver.
-
-Revision History:
-
-    George Chrysanthakopoulos (georgioc) wrote the original several months ago, loosely based
-    on the existing Win2k USB mass storage driver.
-
-    10-18-00 : Mitchell Dernis(mitchd) - systematic code and comment cleanup, now that all
-               the major architectural issues are resolved.
-    11-08-00 : Mitchell Dernis(mitchd) - change when DeviceObject are allocated
-
---*/
+/*
+ * Major entry points of the MU (Memory Unit) driver, an Xbox USB class driver:
+ *
+ *   Entries required by the USB core stack:
+ *       MU_Init, MU_AddDevice, MU_RemoveDevice
+ *   Entries used by XAPI to make MUs accessible.
+ */
 
 //*****************************************************************************
 // I N C L U D E S

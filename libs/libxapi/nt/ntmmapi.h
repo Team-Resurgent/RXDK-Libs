@@ -1,22 +1,12 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999 Microsoft Corporation
-
-Module Name:
-
-    ntmmapi.h
-
-Abstract:
-
-    This is the include file for the Memory Management sub-component of NTOS
-
-Author:
-
-    Lou Perazzoli (loup) 10-May-1989
-
-Revision History:
-
---*/
+/*
+ * Header for the Memory Management (Mm) sub-component of NTOS.
+ */
 
 #pragma once
 #define _NTMMAPI_

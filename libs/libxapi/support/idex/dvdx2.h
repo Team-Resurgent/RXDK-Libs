@@ -1,17 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2001  Microsoft Corporation
-
-Module Name:
-
-    dvdx2.h
-
-Abstract:
-
-    This module contains the definitions and structures for interfacing with a
-    DVD-X2 ATAPI drive.
-
---*/
+/*
+ * Definitions and structures for interfacing with a DVD-X2 ATAPI drive.
+ */
 
 #ifndef _DVDX2_
 #define _DVDX2_

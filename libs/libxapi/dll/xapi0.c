@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XAPI title bootstrap. mainCRTStartup is xapi.dll's entry point: it fixes up
+ * the XBE certificate, computes the TLS image size and slot index, then spawns
+ * the app's primary thread. That thread (mainXapiStartup) applies kernel
+ * patches, runs XapiInitProcess, publishes the last-error TLS offset to the
+ * debugger, drives the CRT initializers, and finally calls the title's main().
+ */
+
 #include "bridge_k32.h"
 #include "dllp.h"
 #include <xcrypt.h>

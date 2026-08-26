@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Description:
-    Implementation of routines to calculate the signature
-    given a series of piecemeal data blobs
-
-Module Name:
-
-    xcalcsig.c
-
---*/
+/*
+ * Incremental content-signature calculation: begin/update/end routines that
+ * compute a per-title HMAC-SHA1 signature over a series of piecemeal data
+ * blobs, keyed by the per-title key.
+ */
 
 #include "basedll.h"
 #pragma hdrstop
@@ -389,7 +387,7 @@ DWORD __attribute__((__stdcall__)) XCalculateSignatureEnd(
 
 
 //
-// RXDK 5849 uplift: XCalculateSignatureGetSize.
+// XCalculateSignatureGetSize.
 //
 // Returns the byte size XCalculateSignatureEnd writes for the given flags, so
 // a title can size its signature buffer up front. The Xbox content signature

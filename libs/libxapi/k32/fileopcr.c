@@ -1,23 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    fileopcr.c
-
-Abstract:
-
-    This module implements File open and Create APIs for Win32
-
-Author:
-
-    Mark Lucovsky (markl) 25-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Win32 file open/create and copy APIs: CreateFile (mapping the Win32 access,
+ * share, disposition, and flag arguments onto NtCreateFile) and the
+ * CopyFile/CopyFileEx chunked file-copy routines.
+ */
 
 #include "basedll.h"
 

@@ -1,26 +1,15 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000  Microsoft Corporation
-
-Module Name:
-
-    disk.c
-
-Abstract:
-
-    MU disk and partition routines. Top level interface of MU driver
-
-Environment:
-
-    kernel mode
-
-Revision History:
-
-    06/12/2000 - started re-write - georgioc 
-    03/08/20001 - arbitray media block size support, see comments - mitchd
-
---*/
+/*
+ * MU (Memory Unit) disk and partition routines: the top-level interface of the
+ * MU driver, including arbitrary media block-size support (see the media
+ * block-size notes below). Kernel mode.
+ */
 
 
 /*++

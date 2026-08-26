@@ -1,25 +1,12 @@
-/*++ BUILD Version: 0002    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992-1999  Microsoft Corporation
-
-Module Name:
-
-    ntconfig.h
-
-Abstract:
-
-    This module contains the definitions associated with the conventions
-    used to access the configuration registry.
-
-Author:
-
-    Andre Vachon (andreva) 17-Apr-1992
-
-Revision History:
-
-    28-Apr-1992 JohnRo
-        Made changes to be consistent with win32 service controller APIs.
---*/
+/*
+ * Definitions for the conventions used to access the configuration registry.
+ */
 
 #pragma once
 #define _NTCONFIG_

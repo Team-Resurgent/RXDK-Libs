@@ -1,25 +1,12 @@
-/*++ BUILD Version: 0013    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    io.h
-
-Abstract:
-
-    This module contains the internal structure definitions and APIs used by
-    the NT I/O system.
-
-Author:
-
-    Darryl E. Havens (darrylh) 12-Apr-1989
-
-
-Revision History:
-
-
---*/
+/*
+ * Internal structure definitions and APIs used by the NT I/O system.
+ */
 
 #pragma once
 #define _IO_

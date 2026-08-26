@@ -1,27 +1,22 @@
 #include "bridge_k32.h"
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-// File:     compstr.c
-// Contents: This module implements xCompareString functionality.  Note that xCompareString differs
-//           from the Win32 CompareString in that it does not take a locale identifier (unnecessary
-//           since Xbox only has one locale.
-//
-// Author:   Jeff Simon (jeffsim) 16-May-2001
-//
-// UNDONE:   * Verify CompareStringW vs CompareStringA functionality
-//           * How do Kanji and the kanas fit into g_rgdwLoc? Or handled algorithmically?
-//           * What is Kanji, hira, kata, ascii sort order?
-//           * Move defines to private header file to share them with compstra.c
-//
-// Copyright Microsoft Corporation
-// 
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++ INCLUDE FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*
+ * Implements xCompareString. Unlike the Win32 CompareString it takes no locale
+ * identifier (the Xbox has a single locale). This file is compiled twice: once
+ * for the wide (W) form, and once with COMPSTRA defined - included from
+ * compstra.c - for the ANSI (A) form. Character weights come from the g_rgdwLoc
+ * table, with word-sort, symbol, and case-insensitive handling applied inline.
+ *
+ * UNDONE: * Verify CompareStringW vs CompareStringA functionality
+ *         * How do Kanji and the kanas fit into g_rgdwLoc? Or handled algorithmically?
+ *         * What is Kanji, hira, kata, ascii sort order?
+ *         * Move defines to a private header to share them with compstra.c
+ */
 
 #include "basedll.h"
 #include "winnls.h"

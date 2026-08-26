@@ -1,23 +1,18 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The RTL heap allocator (RtlCreateHeap / RtlAllocateHeap / RtlFreeHeap and
+ * friends): segment reservation and commit, free-list and lookaside management,
+ * block coalescing and decommit, with optional debug page-heap and tail-check
+ * support. This is the allocator that backs the process heap and, through it,
+ * the C runtime's malloc.
+ */
+
 #include "bridge_rtl.h"
-/*++
-
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    heap.c
-
-Abstract:
-
-    This module implements a heap allocator.
-
-Author:
-
-    Steve Wood (stevewo) 20-Sep-1989 (Adapted from URTL\alloc.c)
-
-Revision History:
-
---*/
 
 #include "ntrtlp.h"
 #include "heap.h"

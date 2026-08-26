@@ -1,4 +1,16 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug-only version-query helpers: XDebugGetSystemVersion formats the running
+ * kernel version, and XDebugGetXTLVersion formats the title's linked XAPI
+ * library version. Both report whether the build is devkit or retail.
+ */
+
 #include "basedll.h"
 #include "xboxverp.h"
 #pragma hdrstop

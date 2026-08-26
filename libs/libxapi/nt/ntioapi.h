@@ -1,24 +1,13 @@
-/*++ BUILD Version: 0007    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntioapi.h
-
-Abstract:
-
-    This module contains the user APIs for the NT I/O system.
-
-Author:
-
-    Darryl E. Havens (darrylh) 12-Apr-1989
-
-
-Revision History:
-
-
---*/
+/*
+ * User-mode APIs for the NT I/O system: NtCreateFile / NtReadFile / NtWriteFile
+ * and the IO_STATUS_BLOCK, FILE_* information classes, and related types.
+ */
 
 #pragma once
 #define _NTIOAPI_

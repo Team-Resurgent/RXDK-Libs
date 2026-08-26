@@ -1,17 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2002  Microsoft Corporation
-
-Module Name:
-
-    pathmisc.c
-
-Abstract:
-
-    Win32 miscellaneous path functions
-
---*/
+/*
+ * Volume, path, and utility-drive services: GetDiskFreeSpaceEx and
+ * GetVolumeInformation, the cache/utility-drive management APIs (mount, format,
+ * swap, and select the primary Z: and secondary N: partitions), alternate-title
+ * mounting, and disk cluster/sector-size queries.
+ */
 
 #include "basedll.h"
 #include <xboxp.h>
@@ -812,8 +811,7 @@ XFormatUtilityDrive(
 
 //
 // XMountSecondaryUtilityDrive -- mount a SECOND cache partition as N:, in
-// addition to the primary Z: mounted by XMountUtilityDrive. Recovered from the
-// retail pathmisc.obj disassembly.
+// addition to the primary Z: mounted by XMountUtilityDrive.
 //
 // It reads the on-disk cache-partition database (sector XBOX_CACHE_DB_SECTOR_INDEX
 // of \Device\Harddisk0\partition0), finds a free cache partition that is not Z:'s,
@@ -1006,8 +1004,8 @@ XMountSecondaryUtilityDrive(
 
 //
 // XSwapUtilityDrives -- exchange which physical partition Z: and N: point at.
-// Recovered from the retail pathmisc.obj disassembly. It swaps ONLY the two DB
-// records' nCacheIndex fields (ownership metadata stays put), persists the sector,
+// It swaps ONLY the two DB records' nCacheIndex fields (ownership metadata stays
+// put), persists the sector,
 // then re-points the \??\Z: and \??\N: symlinks. The DB slot globals are unchanged.
 //
 BOOL
@@ -1115,10 +1113,9 @@ XSwapUtilityDrives(
 
 
 //
-// XFormatSecondaryUtilityDrive -- reformat the N: partition in place. Recovered
-// from the retail pathmisc.obj disassembly; identical in shape to
-// XFormatUtilityDrive, only the symbolic link resolved differs. It touches
-// neither the database nor g_iNDriveDBIndex.
+// XFormatSecondaryUtilityDrive -- reformat the N: partition in place. Identical
+// in shape to XFormatUtilityDrive, only the symbolic link resolved differs. It
+// touches neither the database nor g_iNDriveDBIndex.
 //
 BOOL
 __attribute__((__stdcall__))

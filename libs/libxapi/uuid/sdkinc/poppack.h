@@ -1,26 +1,15 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation. All rights reserved.
-
-Module Name:
-
-    poppack.h
-
-Abstract:
-
-    This file turns packing of structures off.  (That is, it enables
-    automatic alignment of structure fields.)  An include file is needed
-    because various compilers do this in different ways.
-
-    poppack.h is the complement to pshpack?.h.  An inclusion of poppack.h
-    MUST ALWAYS be preceded by an inclusion of one of pshpack?.h, in one-to-one
-    correspondence.
-
-    For Microsoft compatible compilers, this file uses the pop option
-    to the pack pragma so that it can restore the previous saved by the
-    pshpack?.h include file.
-
---*/
+/*
+ * Restores structure packing to the state saved by the matching pshpack header,
+ * re-enabling the compiler's automatic field alignment (via a pack-pop pragma).
+ * Each inclusion of this file must be paired one-to-one with, and preceded by,
+ * an inclusion of one of the pshpack headers.
+ */
 
 #if ! (defined(lint) || defined(RC_INVOKED))
 #if ( _MSC_VER >= 800 ) || defined(_PUSHPOP_SUPPORTED)

@@ -1,18 +1,14 @@
-/*++ BUILD Version: 0011    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation
-
-Module Name:
-
-    winioctl.h
-
-Abstract:
-
-    This module defines the 32-Bit Windows Device I/O control codes.
-
-Revision History:
-
---*/
+/*
+ * Definitions for the 32-bit Windows device I/O control codes (the IOCTL_*
+ * values and their associated request / result structures) and the related
+ * device interface GUIDs.
+ */
 
 
 //

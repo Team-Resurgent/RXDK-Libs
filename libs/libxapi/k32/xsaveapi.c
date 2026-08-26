@@ -1,4 +1,18 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Saved-game services: create, delete, and enumerate saved games
+ * (XCreateSaveGame, XDeleteSaveGame, XFindFirst/XFindNextSaveGame, XFindClose).
+ * Unicode save-game names are hashed into a 48-bit value rendered as 12 hex
+ * characters to form the on-disk directory name, and the display name is stored
+ * in the per-save SaveMeta.xbx metadata file.
+ */
+
 #include "basedll.h"
 #include "xmeta.h"
 

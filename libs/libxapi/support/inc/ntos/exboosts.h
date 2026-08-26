@@ -1,23 +1,12 @@
-/*++ BUILD Version: 0002    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    exboosts.h
-
-Abstract:
-
-    This file contains all of the Priority boots numbers used by the NT
-    executive.
-
-Author:
-
-    Steve Wood (stevewo) 03-Jun-1989
-
-Revision History:
-
---*/
+/*
+ * Priority boost values used by the NT executive.
+ */
 
 // begin_ntddk begin_wdm begin_ntifs
 //

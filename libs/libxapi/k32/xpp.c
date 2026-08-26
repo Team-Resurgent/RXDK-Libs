@@ -1,33 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-Module Name:
-
-    xpp.c
-
-Abstract:
-
-    Xbox Peripheral Port support
-
-    The USB stack reports the insertion and removal of all devices here.  This module converts the PNP_CLASS_ID
-    to the Xbox Device Type and vice versa.
-
-    The Xbox device type is a simple 0 based index into a table of devices allowing an efficient implementation
-    of XGetDevices, XGetDeviceChanges.
-
-Environment:
-
-    XAPI
-
-Notes:
-
-Revision History:
-
-    06-26-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Xbox Peripheral Port support. The USB stack reports device insertion and
+ * removal here; this module maps between the PNP_CLASS_ID and the Xbox device
+ * type. The Xbox device type is a simple zero-based index into a device table,
+ * which makes XGetDevices / XGetDeviceChanges efficient to implement.
+ */
 
 #include "basedll.h"
 #pragma warning( push, 4 )
@@ -288,11 +271,11 @@ XGetDeviceChanges(
 
 
 //
-// 5849 device (memory-unit / hard-disk) enumeration status query. RXDK
-// enumerates devices synchronously through XGetDevices/XGetDeviceChanges above,
-// so enumeration is never "busy" -- report idle. 5849 ships this in xapilib with
-// the rest of the XGetDevice* family, NOT in the Live client; a non-Live title
-// that links libxapi but not libxonline must still resolve it.
+// Device (memory-unit / hard-disk) enumeration status query. Devices are
+// enumerated synchronously through XGetDevices/XGetDeviceChanges above, so
+// enumeration is never "busy" -- report idle. This ships in libxapi with the
+// rest of the XGetDevice* family (not in the Live client), so a non-Live title
+// that links libxapi but not libxonline still resolves it.
 //
 DWORD
 __attribute__((__stdcall__))

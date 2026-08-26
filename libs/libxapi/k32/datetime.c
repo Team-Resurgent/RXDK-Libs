@@ -1,23 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    datetime.c
-
-Abstract:
-
-    This module implements Win32 time of day functions
-
-Author:
-
-    Mark Lucovsky (markl) 08-Oct-1990
-
-Revision History:
-
---*/
+/*
+ * Win32 time-of-day services: GetLocalTime/GetSystemTime, GetTickCount,
+ * FILETIME <-> SYSTEMTIME conversion, CompareFileTime, and time-zone bias
+ * handling. Time-zone and DST rules are read from the Xbox EEPROM user settings;
+ * the XAPILIBP build additionally provides the set-time entry points.
+ */
 
 #include "basedll.h"
 #include <xboxp.h>

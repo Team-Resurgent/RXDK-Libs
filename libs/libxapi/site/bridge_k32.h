@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Force-included bridge header for the libxapi k32 slice (SEH, paging and IOCTL
+ * helpers).
+ */
+
 #pragma once
 #define RXDK_K32_BRIDGE_H
 

@@ -1,21 +1,16 @@
 #include "bridge_k32.h"
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-// File:     compstra.c
-// Contents: CompareStringA functionality.  Contains CompareString table initilization functions
-//           and includes the C file that has the actual CompareString function definition (we set
-//           a define so that the 'A' functionality gets compiled rather than 'W').
-// Author:	 Jeff Simon (jeffsim) 16-May-2001
-//
-// Copyright Microsoft Corporation
-// 
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++ INCLUDE FILES +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*
+ * ANSI (CompareStringA) build of the string-comparison code. Defines the
+ * g_rgdwLoc character-weight table used by the comparison loop, then defines
+ * COMPSTRA and includes compstr.c so the shared implementation compiles in its
+ * 'A' form.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

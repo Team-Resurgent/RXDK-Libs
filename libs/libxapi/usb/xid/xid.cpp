@@ -1,31 +1,13 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    xid.cpp
-
-Abstract:
-    
-    Basic entry point implementation of the XID driver.
-    
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-    
-    
-Revision History:
-
-    02-21-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Entry-point implementation of the XID (Xbox Input Device) driver.
+ */
 #define XID_IMPLEMENTATION
 
 //

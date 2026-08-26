@@ -1,26 +1,13 @@
-/*++ BUILD Version: 0002    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    nti386.h
-
-Abstract:
-
-    User-mode visible i386 specific i386 structures and constants
-
-Author:
-
-    Mark Lucovsky (markl) 30-Nov-1989
-
-Revision History:
-
-    Bryan Willman (bryanwi) 8-Jan-90
-
-        port to the 386
-
---*/
+/*
+ * User-mode-visible i386-specific structures and constants (CONTEXT, the LDT
+ * entry layout, and related processor definitions).
+ */
 
 #pragma once
 #define _NTI386_

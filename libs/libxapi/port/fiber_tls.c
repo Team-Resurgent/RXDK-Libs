@@ -1,10 +1,18 @@
-#include "bridge_k32.h"
 /*
- * RXDK: per-thread fiber TLS for Clang/libxapi.
- *
- * Templates live in xapi_fiber_tls_data.c. Offsets are fixed in xapi_tls_layout.h
- * (Clang .tls$$ section order); do not use runtime & on emutls symbols.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * Per-thread fiber TLS accessors for libxapi under Clang. The current-fiber and
+ * thread-fiber-data slots live at fixed offsets within the thread's TLS image
+ * (base = KeGetCurrentThread()->TlsData + sizeof(ULONG)); the offsets are pinned
+ * in xapi_tls_layout.h to match Clang's .tls section order rather than taken at
+ * runtime from emutls symbols.
+ */
+
+#include "bridge_k32.h"
 
 #include "basedll.h"
 #pragma hdrstop

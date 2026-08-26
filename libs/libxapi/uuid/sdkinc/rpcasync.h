@@ -1,17 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1997-1999 Microsoft Corporation
-
-Module Name:
-
-    rpcasync.h
-
-Abstract:
-
-    This module contains the RPC runtime APIs needed to use
-    [async] RPC features.
-
---*/
+/*
+ * Declares the RPC runtime APIs used by the asynchronous RPC features.
+ */
 
 #ifndef __RPCASYNC_H__
 #define __RPCASYNC_H__

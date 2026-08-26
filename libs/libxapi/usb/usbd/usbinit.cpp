@@ -1,28 +1,14 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved. 
-
-Module Name:
-
-    usbinit.cpp
-
-Abstract:
-
-    Implementation of IUsbInit.  This class is passed to class drivers to collect
-    resource information during initialization.
-
-Environment:
-
-    XBOX kernel mode only
-
-Notes:
-
-Revision History:
-
-    01-10-01 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Implementation of IUsbInit, the object passed to class drivers to collect
+ * resource information during initialization. Xbox kernel mode only.
+ */
 
 
 //

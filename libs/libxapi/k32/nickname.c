@@ -1,4 +1,16 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Player-nickname services backed by the on-disk nickname database
+ * (UDATA\NICKNAME.XBN): XSetNicknameW stores the current title's nickname, and
+ * XFindFirstNicknameW / XFindNextNicknameW enumerate stored nicknames.
+ */
+
 #include "basedll.h"
 
 const OBJECT_STRING NickFile = CONSTANT_OBJECT_STRING(OTEXT("\\Device\\Harddisk0\\partition1\\UDATA\\NICKNAME.XBN"));

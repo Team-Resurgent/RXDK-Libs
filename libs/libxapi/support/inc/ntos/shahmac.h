@@ -1,17 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Description:
-	Definition of routines to calculate an SHA HMAC
-	given a material key and a series of piecemeal 
-	data blobs
-
-Module Name:
-
-	shahmac.h
-
---*/
+/*
+ * Routines to calculate an SHA HMAC given a material key and a series of
+ * piecemeal data blobs.
+ */
 
 #pragma once
 #define __SHAHMAC_H__

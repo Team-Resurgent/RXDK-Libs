@@ -1,23 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992  Microsoft Corporation
-
-Module Name:
-
-    heappriv.h
-
-Abstract:
-
-    Private include file used by heap allocator (heap.c, heapdll.c and
-    heapdbg.c)
-
-Author:
-
-    Steve Wood (stevewo) 25-Oct-1994
-
-Revision History:
-
---*/
+/*
+ * Private definitions shared by the heap allocator sources: the tail-check
+ * fill pattern, HEAPASSERT, FPO controls, and the internal macros and helpers
+ * the allocator relies on. Not part of the public heap interface.
+ */
 
 #pragma once
 #define _RTL_HEAP_PRIVATE_

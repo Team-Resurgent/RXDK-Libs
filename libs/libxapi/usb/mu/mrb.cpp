@@ -1,37 +1,15 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1996-2000 Microsoft Corporation
-
-Module Name:
-
-    mrb.cpp
-
-Abstract:
-
-    This source file contains the state machine for 
-    MU requests blocks to the device.  The bulk-only protocol
-    specifices three stages for every transfer.
-
-    The only entry point to the MRB state machine is
-
-    MU_fStartMrb
-
-Environment:
-
-    kernel mode
-
-Revision History:
-
-    06-12-2000 : started rewrite : georgioc
-    10-20-2000 : major cleanup (separated out the MRB state machine,
-                 from the partial write state machine, which is now
-                 in disk.cpp : mitchd
-    03-07-2001 : generalized the way write commands are handled to aid
-                 the partial write state machine (in disk.cpp) support
-                 more flexible block sizes : mitchd
-
---*/
+/*
+ * State machine for MU Request Blocks (MRBs) sent to the device. The bulk-only
+ * transport protocol specifies three stages for every transfer. The sole entry
+ * point to the MRB state machine is MU_fStartMrb. Kernel mode.
+ */
 
 
 /*++

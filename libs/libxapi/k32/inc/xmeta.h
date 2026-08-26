@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Shared metadata constants for the save/content enumeration code: the .xbx
+ * metadata file names (SaveMeta, TitleMeta, TitleImage, SaveImage, ContentMeta),
+ * the Unicode tag strings and byte-order signature, and the content-directory
+ * name-format constants.
+ */
+
 #pragma once
 
 static const OCHAR g_cszSaveMetaFileName[] = OTEXT("\\SaveMeta.xbx");

@@ -1,23 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    filehops.c
-
-Abstract:
-
-    This module implements Win32 file handle APIs
-
-Author:
-
-    Mark Lucovsky (markl) 25-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Win32 file-handle operations: synchronous and overlapped read/write
+ * (ReadFile/WriteFile, their Ex/scatter/gather variants), file-pointer and
+ * end-of-file control, size and time queries, GetFileInformationByHandle,
+ * FlushFileBuffers, and DeviceIoControl.
+ */
 
 #include "basedll.h"
 #pragma hdrstop
@@ -1913,10 +1906,9 @@ Routine Description:
     Returns a key that orders files by where they physically live on the
     volume, so a title can read a batch of files in seek-friendly order.
 
-    RXDK 5849 uplift: recovered from the retail xapilib. The key is taken
-    straight from the file system's own on-disk locator: the FAT-family
-    starting cluster, or the XDVDFS starting sector. A directory has no
-    meaningful position, so FATX reports 0 for one; anything else is an
+    The key is taken straight from the file system's own on-disk locator: the
+    FAT-family starting cluster, or the XDVDFS starting sector. A directory has
+    no meaningful position, so FATX reports 0 for one; anything else is an
     unsupported device.
 
 Arguments:
@@ -1959,12 +1951,11 @@ Return Value:
 
     //
     // Both file system names are four characters, so the whole name compares
-    // as one dword -- which is exactly how retail tells them apart. The file
-    // system's per-file context (FILE_OBJECT::FsContext) is private to that
-    // driver and has no public type here, so its two relevant fields are read
-    // at the fixed offsets the retail disassembly uses: for FATX a flags byte
-    // at +0 (bit 0 = directory) and the starting cluster at +0x1C; for XDVDFS
-    // the starting sector at +0.
+    // as one dword, which is how they are told apart. The file system's per-file
+    // context (FILE_OBJECT::FsContext) is private to that driver and has no
+    // public type here, so its two relevant fields are read at fixed offsets:
+    // for FATX a flags byte at +0 (bit 0 = directory) and the starting cluster
+    // at +0x1C; for XDVDFS the starting sector at +0.
     //
 
     if (FsAttributes.Info.FileSystemNameLength == 4) {

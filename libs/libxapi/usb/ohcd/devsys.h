@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Macros wrapping the development-system-only OHCD operations; they expand to
+ * function calls when PERFORM_DEVSYS_OPERATIONS is defined and to nothing
+ * otherwise.
+ */
+
 #pragma once
 #define __DEVSYS_H__
 

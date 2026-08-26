@@ -1,24 +1,12 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/*++ BUILD Version: 0008    // Increment this if a change has global effects
-
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntexapi.h
-
-Abstract:
-
-    This module is the header file for the all the system services that
-    are contained in the "ex" directory.
-
-Author:
-
-    David N. Cutler (davec) 5-May-1989
-
-Revision History:
-
---*/
+/*
+ * Header for the executive (Ex) system services.
+ */
 
 #pragma once
 #define _NTEXAPI_

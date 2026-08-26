@@ -1,9 +1,18 @@
-#include "bridge_k32.h"
 /*
- * Kernel DATA imports are struct slots in the XBE IAT. Vendor NTOS headers
- * (ntos.h, !_NTSYSTEM_) treat them as POBJECT_TYPE pointer variables.
- * Initialize real pointer-to-slot values once before USB init.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * Kernel DATA imports are struct slots in the XBE import table, but the NTOS
+ * headers declare them as POBJECT_TYPE pointer variables. This publishes real
+ * pointer-to-slot values (the Rxdk_p_* globals) once, before USB init, so the
+ * rest of libxapi can reference the object-type and hardware-info imports.
+ */
+
+#include "bridge_k32.h"
+
 #include <xboxkrnl/xboxkrnl.h>
 
 POBJECT_TYPE Rxdk_p_ExEventObjectType;

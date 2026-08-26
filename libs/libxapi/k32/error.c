@@ -1,17 +1,17 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    error.c
-
-Abstract:
-
-    This module contains the Win32 error APIs.
-
---*/
+/*
+ * Win32 last-error handling and I/O-completion-port APIs. Maintains the
+ * per-thread last-error value (GetLastError/SetLastError, plus the NTSTATUS
+ * translation helper XapiSetLastNTError) and wraps the NT completion-port
+ * services (CreateIoCompletionPort, PostQueuedCompletionStatus,
+ * GetQueuedCompletionStatus, GetOverlappedResult).
+ */
 
 #include "basedll.h"
 

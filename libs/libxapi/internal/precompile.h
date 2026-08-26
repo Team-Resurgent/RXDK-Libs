@@ -1,10 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XAPIP_H
 
 
 /*
- * Internal libxapi precompile header (replaces leak private/ntos/xapi/inc/xapip.h).
- * Includes RXDK xapi.h (xboxkrnl) instead of vendor ntos.h / sdk/nt.h.
+ * Internal libxapi precompile header (the xapip.h private surface). It pulls in
+ * the RXDK xapi.h / xboxkrnl types rather than a standalone ntos.h or sdk/nt.h.
  */
 
 #ifndef _XAPIP_

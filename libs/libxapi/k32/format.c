@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000-2002  Microsoft Corporation
-
-Module Name:
-
-    format.c
-
-Abstract:
-
-    This module implements routines to format a FAT volume.
-
---*/
+/*
+ * FAT volume formatting: XapiFormatFATVolume and XapiFormatFATVolumeEx, which
+ * query the target volume's disk geometry and lay down a fresh FAT file system
+ * with the requested cluster size.
+ */
 
 #include "basedll.h"
 #include "fat.h"

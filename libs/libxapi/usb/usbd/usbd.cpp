@@ -1,28 +1,14 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-Module Name:
-
-    usbd.c
-
-Abstract:
-
-    USBD System Driver Main Entry Points
-    and Initialization
-
-Environment:
-
-    XBOX kernel mode only
-
-Notes:
-
-Revision History:
-
-    12-28-99 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * USBD system driver: main entry points and initialization. Xbox kernel mode
+ * only.
+ */
 
 
 //

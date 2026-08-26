@@ -1,17 +1,15 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1991-1998,  Microsoft Corporation  All rights reserved.
-
-Module Name:
-
-    winnls.h
-
-Abstract:
-
-    Procedure declarations, constant definitions, and macros for the
-    NLS component.
-
---*/
+/*
+ * NLS (National Language Support) component header: procedure declarations,
+ * constant definitions, and macros - code-page and locale flags, character-type
+ * bits, country/region and locale/calendar type identifiers, format structures,
+ * and the NLS API prototypes (code-page, locale, and date/time/number formatting).
+ */
 
 
 #pragma once

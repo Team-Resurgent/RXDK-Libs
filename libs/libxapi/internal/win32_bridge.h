@@ -1,10 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XAPI_XDK_BRIDGE_H
 
 
 /*
- * Win32 typedefs windef expects from winnt.h when NT_INCLUDED skips it (leak xAPI
- * pattern: nt.h / xboxkrnl first, then xtl).
+ * Win32 typedefs windef expects from winnt.h when NT_INCLUDED causes it to be
+ * skipped (xboxkrnl / nt.h are included first, then xtl).
  */
 
 #include <xboxkrnl/xboxdef.h>

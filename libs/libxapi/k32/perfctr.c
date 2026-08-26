@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation
-
-Module Name:
-
-    perfctr.c
-
-Abstract:
-
-    This module contains the Win32 Performance Counter APIs
-
---*/
+/*
+ * Win32 high-resolution performance-counter APIs: QueryPerformanceCounter and
+ * QueryPerformanceFrequency, implemented as hand-written assembly reading the
+ * kernel time-stamp counter.
+ */
 
 #include "basedll.h"
 

@@ -1,22 +1,12 @@
-/*++ BUILD Version: 0028    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    ke.h
-
-Abstract:
-
-    This module contains the public (external) header file for the kernel.
-
-Author:
-
-    David N. Cutler (davec) 27-Feb-1989
-
-Revision History:
-
---*/
+/*
+ * Public (external) header file for the kernel.
+ */
 
 #pragma once
 #define _KE_

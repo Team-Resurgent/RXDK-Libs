@@ -1,17 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/*++
-
-Copyright (c) 1992-1999 Microsoft Corporation
-
-Module Name:
-
-    rpcndr.h
-
-Abstract:
-
-    Definitions for stub data structures and prototypes of helper functions.
-
---*/
+/*
+ * NDR (Network Data Representation) definitions: the stub data structures and
+ * marshalling helper-function prototypes used by MIDL-generated RPC stubs.
+ */
 
 // This version of the rpcndr.h file corresponds to MIDL version 5.0.+
 // used with NT5 beta1+ env from build #1700 on.

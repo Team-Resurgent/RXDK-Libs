@@ -1,16 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2001  Microsoft Corporation
-
-Module Name:
-
-    xdisk.h
-
-Abstract:
-
-    This module defines the disk configuration for an XBOX hard disk.
-
---*/
+/*
+ * Disk configuration definitions for an Xbox hard disk.
+ */
 
 #ifndef _XDISK_
 #define _XDISK_

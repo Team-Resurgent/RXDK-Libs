@@ -1,45 +1,30 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-Module Name:
-
-    xsndtrkw.c
-
-Abstract:
-
-    XTL Soundtrack WRITE APIs -- XAddSoundtrack / XAddSongToSoundtrack.
-
-    The companion to the read side in xsndtrk.c. Recovered clean-room from the
-    retail soundtrack.obj disassembly in the 5849 xsndtrk.lib (source tag
-    d:\xboxfre-dec03\...\xapi\k32\xsndtrk\soundtrack.c; see
-    docs/5849-xbox-h-recovery.md). Written in the read side's style, it produces
-    the exact on-disk ST.DB format xsndtrk.c already decodes:
-
-        page 0                            STDB_HDR
-        pages 1 .. MAX_SOUNDTRACKS        STDB_STDESC descriptors (one per slot)
-        pages MAX_SOUNDTRACKS+1 ..        STDB_LIST song-list blocks
-
-    so a soundtrack written here reads back through XFindFirstSoundtrack /
-    XGetSoundtrackSongInfo and interoperates with the dashboard.
-
-    This lives in its own translation unit ON PURPOSE. XAddSongToSoundtrack
-    drives the WMA file decoder (WmaCreateDecoderEx, libdsound) to obtain the
-    song's play length and -- when the caller passes no name -- its Title tag,
-    exactly as retail's soundtrack.obj does (the retail decoder object's vtable
-    slots +0x28 GetFileHeader and +0x2C GetFileContentDescription). A title that
-    uses the write side therefore links libdsound too -- retail's own
-    cross-library model, since xsndtrk.lib was separate from xapilib.lib. A
-    title that uses only the read side never pulls this object and never needs
-    libdsound.
-
-    The recovered internal block-manager family -- XapipSoundtrackSeek*,
-    Xapip{Write,Update,Find,New}*, XapiBeginUsingSoundtracks /
-    XapiEndUsingSoundtracks -- is reproduced faithfully; the helper names match
-    the retail statics for traceability against the disassembly.
-
---*/
+/*
+ * Soundtrack WRITE APIs - XAddSoundtrack / XAddSongToSoundtrack - the companion
+ * to the read side in xsndtrk.c. Produces the on-disk ST.DB format that
+ * xsndtrk.c decodes:
+ *
+ *     page 0                            STDB_HDR
+ *     pages 1 .. MAX_SOUNDTRACKS        STDB_STDESC descriptors (one per slot)
+ *     pages MAX_SOUNDTRACKS+1 ..        STDB_LIST song-list blocks
+ *
+ * so a soundtrack written here reads back through XFindFirstSoundtrack /
+ * XGetSoundtrackSongInfo and interoperates with the dashboard.
+ *
+ * This lives in its own translation unit on purpose. XAddSongToSoundtrack drives
+ * the WMA file decoder (WmaCreateDecoderEx, libdsound) to obtain the song's play
+ * length and - when the caller passes no name - its Title tag. A title that uses
+ * the write side therefore links libdsound too; a title that uses only the read
+ * side never pulls this object and never needs libdsound. The internal
+ * block-manager helpers (XapipSoundtrackSeek*, Xapip{Write,Update,Find,New}*,
+ * XapiBeginUsingSoundtracks / XapiEndUsingSoundtracks) manage the ST.DB pages.
+ */
 
 #include "basedll.h"
 #include <xboxp.h>

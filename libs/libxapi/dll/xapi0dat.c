@@ -1,11 +1,17 @@
-#include "bridge_k32.h"
 /*
- *
- * xapi0dat.c
- *
- * Xapi initializers
- *
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * CRT initializer tables and the _initterm / _cinit / _rtinit drivers. These
+ * walk the .CRT$XC, .CRT$XI and .CRT$RI section ranges to run the C++ static
+ * constructors and CRT init callbacks at startup, RIPing if a callback that
+ * returns a status reports failure.
+ */
+
+#include "bridge_k32.h"
 
 #include "dllp.h"
 

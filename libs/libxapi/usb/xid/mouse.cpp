@@ -1,13 +1,18 @@
 #include "bridge_usb.h"
-/*++
-    Debug USB mouse (xmouse_dbg) -- ported from reference mouse.obj disassembly
-    (originally gated behind DEBUG_MOUSE; compiled in by default here). The mouse
-    is enumerated as a HID boot mouse alongside the keyboard (XID_EnumMouse /
-    XID_EnumMouseComplete live in xid.cpp next to the keyboard path so they can use
-    the file-local enumeration watchdog helpers); this file holds the per-poll
-    report parser registered as XID_TYPE_INFORMATION::pfnProcessNewData. A title
-    reads the result through XInputGetState as XINPUT_STATE::DebugMouse.
---*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug USB mouse (xmouse_dbg), compiled in by default. The mouse is enumerated
+ * as a HID boot mouse alongside the keyboard (XID_EnumMouse and
+ * XID_EnumMouseComplete live in xid.cpp next to the keyboard path so they can
+ * share the file-local enumeration watchdog helpers); this file holds the
+ * per-poll report parser registered as XID_TYPE_INFORMATION::pfnProcessNewData.
+ * A title reads the result through XInputGetState as XINPUT_STATE::DebugMouse.
+ */
 
 #define _XAPI_
 extern "C" {

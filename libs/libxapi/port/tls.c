@@ -1,11 +1,18 @@
-#include "bridge_k32.h"
 /*
- * RXDK replacement for vendor k32/tls.c.
- *
- * Clang maps __declspec(thread) to fs:[0x2C]; Xbox xAPI stores per-thread data
- * in KeGetCurrentThread()->TlsData. Slot storage lives in xapi_tls_data.c;
- * offsets are fixed in xapi_tls_layout.h.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * The Win32 TLS-slot API (TlsAlloc / TlsFree / TlsGetValue / TlsSetValue).
+ * Slot allocation is tracked by a process-wide bitmap; the slot values
+ * themselves live at a fixed offset inside the thread's TLS image
+ * (KeGetCurrentThread()->TlsData), since Clang's __declspec(thread) lowering to
+ * the TEB does not match the Xbox xAPI layout.
+ */
+
+#include "bridge_k32.h"
 
 #include "basedll.h"
 #pragma hdrstop

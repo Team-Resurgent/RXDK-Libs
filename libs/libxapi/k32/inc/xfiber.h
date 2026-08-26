@@ -1,16 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2001  Microsoft Corporation
-
-Module Name:
-
-    xfiber.h
-
-Abstract:
-
-    This module defines fiber structures
-
---*/
+/*
+ * Defines the per-fiber XFIBER structure - the fiber data pointer plus the
+ * stack bookkeeping (base, limit, and saved kernel stack pointer) used by the
+ * fiber services.
+ */
 
 #pragma once
 #define _XFIBER_H

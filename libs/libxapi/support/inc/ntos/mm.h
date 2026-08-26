@@ -1,23 +1,13 @@
-/*-- BUILD Version: 0005    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    mm.h
-
-Abstract:
-
-    This module contains the public data structures and procedure
-    prototypes for the memory management system.
-
-Author:
-
-    Lou Perazzoli (loup) 20-Mar-1989
-
-Revision History:
-
---*/
+/*
+ * Public data structures and procedure prototypes for the memory management
+ * system.
+ */
 
 #ifndef _MM_
 #define _MM_

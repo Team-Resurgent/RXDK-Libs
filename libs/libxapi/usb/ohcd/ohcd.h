@@ -1,29 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-
-Module Name:
-
-    ohcd.h
-
-Abstract:
-
-    Structures used by the OpenHCI hardware dependent driver.
-    These are constructs specific to this driver implementation.
-    Standard Structures defined by Specification are in ohci.h
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-14-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Structures used by the OpenHCI hardware-dependent driver: constructs specific
+ * to this driver implementation. The standard structures defined by the OpenHCI
+ * specification live in ohci.h.
+ */
 
 #ifdef __clang__
 #undef __inline

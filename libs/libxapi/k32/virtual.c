@@ -1,17 +1,14 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2000  Microsoft Corporation
-
-Module Name:
-
-    virtual.c
-
-Abstract:
-
-    This module implements the Win32 virtual memory management services.
-
---*/
+/*
+ * Win32 virtual-memory management: VirtualAlloc/VirtualFree, VirtualProtect,
+ * and VirtualQuery, mapped onto the NT virtual-memory system services.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

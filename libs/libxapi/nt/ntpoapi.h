@@ -1,20 +1,12 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1995-1999  Microsoft Corporation
-
-Module Name:
-
-    ntpoapi.h
-
-Abstract:
-
-    This module contains the user APIs for the NT Power Management.
-
-Author:
-
-Revision History:
-
---*/
+/*
+ * User APIs for NT Power Management (Po).
+ */
 
 #pragma once
 #define _NTPOAPI_

@@ -1,24 +1,12 @@
-/*++ BUILD Version: 0011    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1991  Microsoft Corporation
-
-Module Name:
-
-    hal.h
-
-Abstract:
-
-    This header file defines the Hardware Architecture Layer (HAL) interfaces
-    that are exported by a system vendor to the NT system.
-
-Author:
-
-    David N. Cutler (davec) 25-Apr-1991
-
-
-Revision History:
-
---*/
+/*
+ * Hardware Architecture Layer (HAL) interfaces exported to the NT system.
+ */
 
 #pragma once
 #define _HAL_

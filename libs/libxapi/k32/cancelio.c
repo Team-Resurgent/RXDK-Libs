@@ -1,17 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2002  Microsoft Corporation
-
-Module Name:
-
-    cancelio.c
-
-Abstract:
-
-    This module implements the Win32 CancelIo service.
-
---*/
+/*
+ * Implements the Win32 CancelIo service. Walks the IDEX channel device queue
+ * for IRPs that originated from the given file handle and completes them as
+ * STATUS_CANCELLED from a worker DPC.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

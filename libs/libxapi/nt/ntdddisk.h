@@ -1,19 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    ntdddisk.h
-
-Abstract:
-
-    This is the include file that defines all constants and types for
-    accessing the Disk device.
-
-Revision History:
-
---*/
+/*
+ * Constants and types for accessing the Disk device (geometry, partition, and
+ * disk IOCTL definitions).
+ */
 
 #pragma once
 #define _NTDDDISK_H_

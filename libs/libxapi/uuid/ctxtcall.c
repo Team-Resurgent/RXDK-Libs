@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MIDL-generated IID and CLSID definitions for the COM context-call interfaces
+ * (ctxtcall.idl), linked into the UUID library.
+ */
+
 #include "bridge_uuid.h"
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */

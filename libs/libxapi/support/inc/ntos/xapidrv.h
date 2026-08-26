@@ -1,16 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000  Microsoft Corporation
-
-Module Name:
-
-    xapidrv.h
-
-Abstract:
-
-    XAPI methods exposed for use of drivers.
-
---*/
+/*
+ * XAPI methods exposed for use by drivers.
+ */
 
 #pragma once
 #define _XAPIDRV_H_

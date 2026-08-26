@@ -1,30 +1,14 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    transfer.c
-
-Abstract:
-    
-    Implementation of functions related to queueing and processing transfer.
-    However, isochronous transfers support is not in this file, see isoch.c
-
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-20-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Functions for queueing and processing USB transfers in the OpenHCI driver.
+ * Isochronous transfer support lives separately, in isoch.c.
+ */
 
 
 //

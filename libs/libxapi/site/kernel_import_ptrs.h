@@ -1,10 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_KERNEL_IMPORT_PTRS_H
 
 
 /*
- * Included from init.h / ntos.h when RXDK_USB_LINK is set.
- * Definitions live in build/xapi_kernel_import_ptrs.c.
+ * Pointers to the kernel DATA import objects, included from init.h / ntos.h when
+ * RXDK_USB_LINK is set. The definitions live in build/xapi_kernel_import_ptrs.c.
  */
 
 struct _OBJECT_TYPE;

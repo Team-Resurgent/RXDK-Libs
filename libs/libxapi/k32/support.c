@@ -1,24 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    support.c
-
-Abstract:
-
-    This module implements various conversion routines
-    that transform Win32 parameters into NT parameters.
-
-Author:
-
-    Mark Lucovsky (markl) 20-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Parameter-conversion helpers shared by the base APIs: XapiFormatObjectAttributes
+ * builds an NT OBJECT_ATTRIBUTES from a Win32 name, and XapiFormatTimeOut turns a
+ * millisecond timeout into the NT relative-time LARGE_INTEGER form.
+ */
 
 #include "basedll.h"
 

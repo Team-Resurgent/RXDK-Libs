@@ -1,7 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-//  heappage.h
-//
+/*
+ * Public interface to the debug page-heap manager. In retail builds the hooks
+ * defined here collapse to no-ops; in checked (non-kernel) builds they route
+ * heap operations through the page-heap validator declared in heappagi.h.
+ */
 
 #pragma once
 #define _HEAP_PAGE_H_

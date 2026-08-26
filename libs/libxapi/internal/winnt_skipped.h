@@ -1,10 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XAPI_WINNT_SKIPPED_H
 
 
 /*
- * Typedefs windef.h normally pulls from winnt.h when NT_INCLUDED is set.
- * For USB/kernel TUs that use sdk/nt.h instead of xboxkrnl — no xboxdef.h.
+ * Typedefs windef.h normally pulls from winnt.h when NT_INCLUDED is set,
+ * provided here for the USB/kernel translation units that use sdk/nt.h instead
+ * of xboxkrnl and so never see xboxdef.h.
  */
 
 #ifndef DECLARE_HANDLE

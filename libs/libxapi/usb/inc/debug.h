@@ -1,34 +1,21 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990 Microsoft Corporation
-
-
-Module Name:
-
-    debug.h
-
-Abstract:
-
-    Debug related definitions and declarations used in uhcd, usbd, usbn, and usbh.
-
-    The following compiler definitions are effective
-
-    DBG - Debug function, only works in debug builds.
-    RAISE_TODO_AND_BUGBUG - causes USB_TODO() and USB_BUGBUG statments to compile
-    DBG_MAX     - Changes the default Traceout Level to Maximum (does NOT include RAISE_TODO_AND_BUGBUG)
-    DBG_CALL    - Changes the default Traceout Level to include function entry and exit
-
-Environment:
-
-    XBOX kernel mode only
-
-Notes:
-
-Revision History:
-
-    12-27-99 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Debug definitions and declarations shared by the USB drivers (uhcd, usbd,
+ * usbn, usbh). Xbox kernel mode only. The following compile-time switches are
+ * honored:
+ *
+ *   DBG                   - debug tracing, active only in debug builds.
+ *   RAISE_TODO_AND_BUGBUG - compiles the USB_TODO() and USB_BUGBUG() statements.
+ *   DBG_MAX               - raises the default trace-out level to maximum (does
+ *                           not include RAISE_TODO_AND_BUGBUG).
+ *   DBG_CALL              - adds function entry and exit to the default trace
+ *                           level.
+ */
 
 #pragma once
 #define DEBUG_H

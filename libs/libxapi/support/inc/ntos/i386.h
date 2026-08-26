@@ -1,27 +1,13 @@
-/*++ BUILD Version: 0014    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    i386.h
-
-Abstract:
-
-    This module contains the i386 hardware specific header file.
-
-Author:
-
-    David N. Cutler (davec) 2-Aug-1989
-
-Revision History:
-
-    25-Jan-1990    shielint
-
-                   Added definitions for 8259 ports and commands and
-                   macros for 8259 irq# and system irql conversion.
-
---*/
+/*
+ * i386 hardware-specific definitions, including the 8259 ports and commands and
+ * the macros for 8259 IRQ number and system IRQL conversion.
+ */
 
 #pragma once
 #define _i386_

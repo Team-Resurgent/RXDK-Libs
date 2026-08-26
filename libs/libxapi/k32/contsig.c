@@ -1,16 +1,17 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Description:
-    Content signature installation, verification, and lookup.
-
-Module Name:
-
-    contsig.c
-
---*/
+/*
+ * Content-metadata and content-signature services (the XContent* /
+ * XCreateContentSimple / XInstallContentSignatures* / XLoad-/XLocateSignature
+ * APIs). Reads and HMAC-verifies ContentMeta.xbx headers, creates and installs
+ * signed content, and looks signatures up by index or file name within a loaded
+ * signature blob.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

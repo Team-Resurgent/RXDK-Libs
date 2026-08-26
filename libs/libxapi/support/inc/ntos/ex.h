@@ -1,22 +1,12 @@
-/*++ BUILD Version: 0007    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    ex.h
-
-Abstract:
-
-    Public executive data structures and procedure prototypes.
-
-Author:
-
-    Mark Lucovsky (markl) 23-Feb-1989
-
-Revision History:
-
---*/
+/*
+ * Public executive data structures and procedure prototypes.
+ */
 
 #pragma once
 #define _EX_

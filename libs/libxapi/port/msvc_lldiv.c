@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * MSVC 64-bit integer helper routines (__alldiv / __aulldiv / __allrem /
  * __aullrem / __allmul) referenced by MSVC-C++-ABI objects (libs/libxnet --
  * clang's x86-windows-msvc target emits these for 64-bit / and % instead of

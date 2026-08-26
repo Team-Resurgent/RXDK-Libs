@@ -1,54 +1,35 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    pool.c
-
-Abstract:
-    
-    Implementation of transfer descriptor pool manager.
-
-
-    OHCI implements a multi-plexed DMA scheme.  Rather than having a number of fixed registers for
-    programming DMA.  The host controller and the host controller driver share a common data structure.
-    This structure must be locked down in physical memory at all times.
-
-    The structure is a linked list of queues.  The head of each queue is referred to as an Endpoint Descriptor
-    (Not to be confused to the endpoint descriptor in the USB specification, which is a different entity
-    entirely.)  Each endpoint descriptor points to the head and tail of singly linked list of Transfer Descriptors.
-    Each TD describes the user buffer for transfering a single packet of data across the USB wire.  The host controller
-    walks through this schedule and pulls of transfer descriptors one at a time.  It performs the transfer (or records
-    an error).  Then it places the TD on a DoneHead and moves on to the next one.
-
-    Each of these TDs is 16 bytes long as defined by hardware.  However, the software needs additional fields so
-    each block is expanded to 32 bytes.
-    
-    Isochronous Endpoints to not use a TD pool, but instead come as part of the Isochronous part of the URB extension.
-
-    The code in this module allocates two pages of memory.  The first part of the first page is returned for use as the HCCA area.
-    The rest is broken into 32 byte blocks.
-
-    01-12-01  Originally, this code allocate memory for the TD's and the HCCA area.  There was a separate
-    TD pool for each host controller.  Now there will be one TD pool for both host controllers, plus endpoints
-    will also come out of here.  We can do this, because we are moving to an upfront iniitialization of everything.
-    We also allocate isochronous endpoints from here.
-
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-17-00 created by Mitchell Dernis (mitchd)
-    01-12-01 changed name to pool.c (mitchd)
-
---*/
+/*
+ * Transfer descriptor pool manager for the OpenHCI driver.
+ *
+ * OHCI uses a multiplexed DMA scheme: rather than a set of fixed DMA registers,
+ * the host controller and its driver share a common data structure that must
+ * stay locked down in physical memory at all times.
+ *
+ * That structure is a linked list of queues. The head of each queue is an
+ * Endpoint Descriptor (distinct from the endpoint descriptor of the USB
+ * specification). Each endpoint descriptor points to the head and tail of a
+ * singly linked list of Transfer Descriptors (TDs). Each TD describes the user
+ * buffer for a single packet crossing the USB wire; the host controller walks
+ * the schedule, pulls TDs off one at a time, performs (or records an error on)
+ * each transfer, places the TD on a done queue, and moves on.
+ *
+ * A TD is 16 bytes as defined by hardware, but the software needs extra fields,
+ * so each block is expanded to 32 bytes. Isochronous endpoints do not use this
+ * TD pool; they are carried in the isochronous part of the URB extension.
+ *
+ * This module allocates two pages of memory: the start of the first page is
+ * returned as the HCCA area, and the remainder is broken into 32-byte blocks. A
+ * single TD pool serves both host controllers, and endpoints (including
+ * isochronous endpoints) are also allocated from here, made possible by
+ * up-front initialization of everything.
+ */
 
 //
 //  Pull in OS headers

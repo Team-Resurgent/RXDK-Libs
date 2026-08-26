@@ -1,16 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1991-1999 Microsoft Corporation
-
-Module Name:
-
-    rpc.h
-
-Abstract:
-
-    Master include file for RPC applications.
-
---*/
+/*
+ * Master include file for RPC clients: pulls in windows.h (unless suppressed)
+ * and the DCE / NDR RPC runtime headers that make up the public RPC interface.
+ */
 
 #if !defined( RPC_NO_WINDOWS_H ) && !defined( MAC ) && !defined( _MAC )
 #include <windows.h>

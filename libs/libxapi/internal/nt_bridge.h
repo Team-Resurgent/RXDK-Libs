@@ -1,9 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef RXDK_XAPI_NT_BRIDGE_H
 #define RXDK_XAPI_NT_BRIDGE_H
 
 /*
- * Minimal leak nt.h / ntdef.h surface for vendor ntos.inc (USB slices).
- * Sourced from xboxkrnl headers — not sdk/nt.h.
+ * Minimal nt.h / ntdef.h surface the ntos USB slices need, sourced from the
+ * xboxkrnl headers.
  */
 
 #include <xboxkrnl/xboxdef.h>

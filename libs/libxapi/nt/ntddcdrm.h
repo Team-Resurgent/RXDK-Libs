@@ -1,23 +1,12 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    ntddcdrm.h
-
-Abstract:
-
-    This module contains structures and definitions
-    associated with CDROM IOCTls.
-
-Author:
-
-    Mike Glass
-
-Revision History:
-
---*/
+/*
+ * Structures and definitions for the CD-ROM device I/O control codes.
+ */
 
 // begin_winioctl
 

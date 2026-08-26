@@ -1,23 +1,13 @@
-/*++ BUILD Version: 0003    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    ntosdef.h
-
-Abstract:
-
-    Common type definitions for the NTOS component that are private to
-    NTOS, but shared between NTOS sub-components.
-
-Author:
-
-    Steve Wood (stevewo) 08-May-1989
-
-Revision History:
-
---*/
+/*
+ * Common type definitions private to the NTOS component but shared between its
+ * sub-components.
+ */
 
 #pragma once
 #define _NTOSDEF_

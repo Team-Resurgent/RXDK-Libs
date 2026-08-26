@@ -1,29 +1,16 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    ntrtlp.h
-
-Abstract:
-
-    Include file for NT runtime routines that are callable by both
-    kernel mode code in the executive and user mode code in various
-    NT subsystems, but which are private interfaces.
-
-Author:
-
-    David N. Cutler (davec) 15-Aug-1989
-
-Environment:
-
-    These routines are statically linked in the caller's executable and
-    are callable in either kernel mode or user mode.
-
-Revision History:
-
---*/
+/*
+ * Private (non-public) interface header for the NT runtime-library routines.
+ * Pulls in the NT, RTL and Zw headers, selects the i386-specific declarations,
+ * and defines the internal macros shared across the RTL sources. These routines
+ * are statically linked into the caller and usable from either kernel or user
+ * mode.
+ */
 
 #ifndef _NTRTLP_
 #define _NTRTLP_

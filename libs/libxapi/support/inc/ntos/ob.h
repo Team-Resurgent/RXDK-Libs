@@ -1,18 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-2000  Microsoft Corporation
-
-Module Name:
-
-    ob.h
-
-Abstract:
-
-    This module contains the object manager structure public data
-    structures and procedure prototypes to be used within the NT
-    system.
-
---*/
+/*
+ * Object manager public data structures and procedure prototypes for use within
+ * the NT system.
+ */
 
 #ifndef _OB_
 #define _OB_

@@ -1,27 +1,13 @@
-/*++ BUILD Version: 0003    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntkeapi.h
-
-Abstract:
-
-    This module contains the include file for data types that are exported
-    by kernel for general use.
-
-Author:
-
-    David N. Cutler (davec) 27-Jul-1989
-
-Environment:
-
-    Any mode.
-
-Revision History:
-
---*/
+/*
+ * Data types exported by the kernel (Ke) for general use. Callable from any
+ * mode.
+ */
 
 #pragma once
 #define _NTKEAPI_

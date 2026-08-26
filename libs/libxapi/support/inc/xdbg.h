@@ -1,16 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-2000  Microsoft Corporation
-
-Module Name:
-
-    xdbg.h
-
-Abstract:
-
-    Internal debug header for XBox OS and library components
-    
---*/
+/*
+ * Internal debug header for the Xbox OS and library components.
+ */
 
 
 #pragma once

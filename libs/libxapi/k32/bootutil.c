@@ -1,17 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Description:
-    Boot-time title update utilities: dash partition mount, update
-    detection, and launch/reboot helpers.
-
-Module Name:
-
-    bootutil.c
-
---*/
+/*
+ * Boot-time title-update utilities. Mounts the dashboard partition (Y:),
+ * detects and verifies pending title/dashboard updates via contentmeta.xbx,
+ * and launches or reboots into an updater image while preserving the current
+ * D: drive mapping across the reboot.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

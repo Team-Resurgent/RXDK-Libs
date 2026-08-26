@@ -1,17 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000-2001  Microsoft Corporation
-
-Module Name:
-
-    fatx.h
-
-Abstract:
-
-    This module contains the private data structures and procedure prototypes
-    for the FAT file system driver.
-
---*/
+/*
+ * Private data structures and procedure prototypes for the FATX file system
+ * driver.
+ */
 
 #ifndef _FATX_
 #define _FATX_

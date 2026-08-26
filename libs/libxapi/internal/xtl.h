@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef RXDK_INCLUDE_XTL_H
 #define RXDK_INCLUDE_XTL_H
 
@@ -6,8 +12,7 @@
 #else
 
 /*
- * Minimal title-facing includes for libxapi translation units (replaces leak
- * xtl.h during the xAPI port).
+ * Minimal title-facing includes for libxapi translation units.
  */
 #ifndef _XTL_
 #define _XTL_

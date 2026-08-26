@@ -1,23 +1,13 @@
-/*++ BUILD Version: 0006    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    kd.h
-
-Abstract:
-
-    This module contains the public data structures and procedure
-    prototypes for the Kernel Debugger sub-component of NTOS.
-
-Author:
-
-    Mike O'Leary (mikeol) 29-June-1989
-
-Revision History:
-
---*/
+/*
+ * Public data structures and procedure prototypes for the Kernel Debugger
+ * sub-component of NTOS.
+ */
 
 #pragma once
 #define _KD_

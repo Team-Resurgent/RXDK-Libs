@@ -1,17 +1,14 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Module Name:
-
-    oflstats.c
-
-Abstract:
-
-    Offline statistics store on T: drive (StatsXBE\UserData.sdb).
-
---*/
+/*
+ * Offline statistics store kept on the T: drive (StatsXBE\UserData.sdb): a
+ * per-user record file used to accumulate stats while offline for later upload.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

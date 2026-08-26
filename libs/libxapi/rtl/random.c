@@ -1,27 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * RTL pseudo-random number generators: RtlUniform, a Lehmer linear-congruential
+ * generator, and RtlRandom, which shuffles the Uniform output through a 128-entry
+ * constant vector (the MacLaren-Marsaglia method) for better distribution. Both
+ * return values uniformly distributed over [0..MAXLONG].
+ */
+
 #include "bridge_rtl.h"
-/*++
-
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    Random.c
-
-Abstract:
-
-    This module implements a simple random number generator
-
-Author:
-
-    Gary Kimura     [GaryKi]    26-May-1989
-
-Environment:
-
-    Pure utility routine
-
-Revision History:
-
---*/
 
 #include <ntrtlp.h>
 

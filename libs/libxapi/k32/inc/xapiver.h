@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Emits the XAPI build-number version stamp into the .XBLD linker section. The
+ * stamped symbol name is chosen by build flavor - the process (XAPILIBP) versus
+ * import-library build, and the debug (DBG) versus retail build - and the kernel
+ * build-number symbol is force-referenced so it is linked in.
+ */
+
 #include <xboxverp.h>
 
 #pragma comment(linker, "/include:_XboxKrnlBuildNumber")

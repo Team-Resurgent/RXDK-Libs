@@ -1,16 +1,13 @@
-//=--------------------------------------------------------------------------=
-// MSStkPPg.H
-//=--------------------------------------------------------------------------=
-// Copyright  1995  Microsoft Corporation.  All Rights Reserved.
-//
-// THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF 
-// ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO 
-// THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A 
-// PARTICULAR PURPOSE.
-//=--------------------------------------------------------------------------=
-//
-// class declaration for msprop32's property pages.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declares the CLSIDs for the standard stock property pages (font, color,
+ * picture and related) provided by the property-page component.
+ */
 #ifndef _MS_STOCK_PROP_PAGES_H_
 
 // {7EBDAAE0-8120-11cf-899F-00AA00688B10}

@@ -1,29 +1,13 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    isr.c
-
-Abstract:
-    
-    Implementation of the OpenHCI interrupt service routine and related code
-    including the DPC.
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-24-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * OpenHCI interrupt service routine and its deferred procedure call (DPC).
+ */
 
 //
 //  Pull in OS headers

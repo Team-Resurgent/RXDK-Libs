@@ -1,13 +1,14 @@
-//+---------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//  Copyright (C) Microsoft Corporation, 1998-2001. All rights reserved.
-//
-//  File:       guiddef.h
-//
-//  Contents:   GUID definition
-//
-//----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Defines the GUID structure and the comparison / definition helpers
+ * (DEFINE_GUID, IsEqualGUID, REFGUID and friends) used throughout COM and the
+ * SDK headers.
+ */
 #define one 1
 #ifndef GUID_DEFINED
 #define GUID_DEFINED

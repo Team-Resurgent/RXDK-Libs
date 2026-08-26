@@ -1,5 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef RXDK_XAPI_INIT_TRACE_H
 #define RXDK_XAPI_INIT_TRACE_H
+
+/*
+ * Optional memory-unit init tracing (RXDK_MU_TRACE). When disabled the trace
+ * macros expand to nothing.
+ */
 
 #ifndef RXDK_MU_TRACE
 #define RXDK_MU_TRACE 0

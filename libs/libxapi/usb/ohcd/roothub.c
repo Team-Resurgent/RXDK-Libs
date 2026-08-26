@@ -1,33 +1,16 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    RootHub.c
-
-Abstract:
-    
-    This file implements the OpenHCI root hub support.  Rather than following the model
-    of writing an emulation of a real hub that supports transfers, this module instead
-    acts as a driver for the root-hub.  It detects and reports devices just as a hub driver
-    would.  Since hub drivers do not in the XBOX world expose external interfaces, it
-    is much simpler this way.
-
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    02-10-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * OpenHCI root-hub support. Rather than emulating a real transfer-capable hub,
+ * this module acts directly as a driver for the root hub, detecting and
+ * reporting devices as a hub driver would. Since hub drivers expose no external
+ * interfaces in the Xbox model, this direct approach is much simpler.
+ */
 //
 //  Pull in OS headers
 //

@@ -1,21 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    scsi.h
-
-Abstract:
-
-    These are the structures and defines that are used in the
-    SCSI port and class drivers.
-
-Authors:
-
-Revision History:
-
---*/
+/*
+ * Structures and defines used by the SCSI port and class drivers.
+ */
 
 #pragma once
 #define _NTSCSI_

@@ -1,17 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000-2001  Microsoft Corporation
-
-Module Name:
-
-    fscache.h
-
-Abstract:
-
-    This module contains the public data structures and procedure prototypes
-    for the file system cache.
-
---*/
+/*
+ * Public data structures and procedure prototypes for the file system cache.
+ */
 
 #ifndef _FSCACHE_
 #define _FSCACHE_

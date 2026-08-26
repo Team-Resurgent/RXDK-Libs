@@ -1,17 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation
-
-Module Name:
-
-    thread.c
-
-Abstract:
-
-    This module implements Win32 Thread Object APIs
-
---*/
+/*
+ * Win32 thread services: CreateThread/ExitThread and thread startup, priority
+ * and priority-boost control, suspend/resume, user-APC queueing, exception
+ * raising and the unhandled-exception filter, thread-notify-routine
+ * registration, and the process quantum-length controls.
+ */
 
 #include "basedll.h"
 #pragma hdrstop

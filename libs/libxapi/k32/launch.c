@@ -1,4 +1,17 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Title-launch services: XLaunchNewImage, XWriteTitleInfoNoReboot /
+ * XWriteTitleInfoAndReboot (which persist the launch path and data into the
+ * launch-data page), and XGetLaunchInfo. These arrange the reboot into another
+ * XBE while preserving the D: drive mapping.
+ */
+
 #include "basedll.h"
 #include "xlaunch.h"
 #include <xboxp.h>

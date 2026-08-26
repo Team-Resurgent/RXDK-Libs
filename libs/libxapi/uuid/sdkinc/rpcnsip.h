@@ -1,17 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992-1999 Microsoft Corporation
-
-Module Name:
-
-    rpcnsip.h
-
-Abstract:
-
-    This file contains the types and function definitions to use the
-    to implement the autohandle features of the runtime.
-
---*/
+/*
+ * Private Name Service Independent (NSI) types and function definitions used to
+ * implement the runtime's auto-handle features.
+ */
 
 #ifndef __RPCNSIP_H__
 #define __RPCNSIP_H__

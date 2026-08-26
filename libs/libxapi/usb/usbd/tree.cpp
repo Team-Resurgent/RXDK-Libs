@@ -1,43 +1,22 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000  Microsoft Corporation
-
-Module Name:
-
-    tree.c
-
-Abstract:
-
-    This module contains the code to manage the device tree.
-    
-    The entry points to this module are:
-
-        Called During DriverEntry:
-            CDeviceTree::CDeviceTree
-
-        Called by root-hubs to indicate devices hot-plug events:
-            USBD_DeviceConnected
-            USBD_DeviceDisconnected
-        Called by hubs to indicate devices hot-plug events:
-            IUsbDevice::DeviceConnected
-            IUsbDevice::DeviceDisconnected
-        Called by class drivers to indicate the end of initialization or cleanup:
-            IUsbDevice::AddComplete
-            IUsbDevice::RemoveComplete
-    
-Environment:
-
-    kernel mode only
-
-Notes:
-
-
-Revision History:
-
-    02-11-00 : create by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Device-tree management for USBD. Kernel mode only. Entry points:
+ *
+ *   During DriverEntry:
+ *       CDeviceTree::CDeviceTree
+ *   Called by root hubs to signal device hot-plug events:
+ *       USBD_DeviceConnected, USBD_DeviceDisconnected
+ *   Called by hubs to signal device hot-plug events:
+ *       IUsbDevice::DeviceConnected, IUsbDevice::DeviceDisconnected
+ *   Called by class drivers to signal end of initialization or cleanup:
+ *       IUsbDevice::AddComplete, IUsbDevice::RemoveComplete
+ */
 
 //
 //  Pull in OS headers

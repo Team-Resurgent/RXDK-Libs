@@ -1,41 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Module Name:
-
-    powerdwn.c
-
-Abstract:
-
-    Xbox Auto Power Down
-
-    Provides a 6 hour auto power off timer.
-
-    The following private API's are provided the dashboard
-    and internal XSS components to manage the auto power down
-    feature.
-
-    XAutoPowerDownSet
-    XAutoPowerDownGet
-    XAutoPowerDownResetTimer
-
-    For debug builds there is also:
-
-    XAutoPowerDownDebugSetTimeout
-
-Environment:
-
-    XAPI
-
-Notes:
-
-Revision History:
-
-    05-17-01 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Xbox auto-power-down feature: a 6-hour idle power-off timer. The private
+ * XAutoPowerDownSet / XAutoPowerDownGet / XAutoPowerDownResetTimer APIs (used by
+ * the dashboard and internal XSS components) enable, query, and re-arm the
+ * timer; debug builds also expose XAutoPowerDownDebugSetTimeout.
+ */
 #include "basedll.h"
 #include <xboxp.h>
 

@@ -1,28 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    ohci.h
-
-Abstract:
-
-    OpenHCI Version 1.0a defined registers and data structures
-    Some comments included.  See OpenHCI specification for more details.
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-13-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Registers and data structures defined by OpenHCI version 1.0a. See the
+ * OpenHCI specification for full details.
+ */
 
 #pragma once
 #define __OCHI_H__

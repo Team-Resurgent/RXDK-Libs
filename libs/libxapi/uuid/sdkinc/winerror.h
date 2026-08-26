@@ -1,10 +1,13 @@
-/************************************************************************
-*                                                                       *
-*   winerror.h --  error code definitions for the Win32 API functions   *
-*                                                                       *
-*   Copyright (c) 1991-2001, Microsoft Corp. All rights reserved.       *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Error-code definitions for the Win32 API (the ERROR_* and facility-specific
+ * status values, plus the HRESULT severity / facility / code bit layout).
+ */
 
 #ifndef _WINERROR_
 #define _WINERROR_

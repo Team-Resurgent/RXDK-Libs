@@ -1,8 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef RXDK_RTL_BRIDGE_H
 #define RXDK_RTL_BRIDGE_H
 
-/* rtl implements the NT runtime library: kernel-runtime + exports NTSYSAPI.
-   (was -DNTOS_KERNEL_RUNTIME -D_NTSYSTEM_ in build.zig) */
+/*
+ * Force-included bridge header for the libxapi rtl slice, which implements the
+ * NT runtime library: it builds for the kernel runtime and exports NTSYSAPI
+ * (NTOS_KERNEL_RUNTIME and _NTSYSTEM_).
+ */
 #ifndef NTOS_KERNEL_RUNTIME
 #define NTOS_KERNEL_RUNTIME 1
 #endif

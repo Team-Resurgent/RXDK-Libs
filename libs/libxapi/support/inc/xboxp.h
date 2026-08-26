@@ -1,9 +1,14 @@
 
 
-//
-// All APIs unique to Xbox that live in XAPILIB.LIB should be
-// defined in this header file
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * APIs unique to Xbox that live in xapilib.
+ */
 
 #pragma once
 

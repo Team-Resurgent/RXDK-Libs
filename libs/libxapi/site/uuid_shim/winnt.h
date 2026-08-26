@@ -1,37 +1,28 @@
-/*++ BUILD Version: 0060     Increment this if a change has global effects
-//
-// RXDK copy of the vendored SDK winnt.h, for the libxapi uuid slice only.
-//
-// The one change is three `static`s, marked RXDK below. The x86 branch defines
-// Int64ShllMod32 / Int64ShraMod32 / Int64ShrlMod32 as bare `__inline` NTAPI
-// functions with __asm bodies. MSVC's inline model emits no external definition
-// for those; clang under -fms-compatibility emits one in EVERY translation unit
-// that sees them, so every uuid object carried a copy and any link pulling two of
-// them failed on a duplicate symbol. Nothing pulled two until libdmusic dragged in
-// both unknwn.obj and objidl.obj.
-//
-// Tried and rejected first: -fgnu89-inline (does not change how __inline is
-// emitted under MS compatibility), `#define __inline static __inline` in the
-// slice bridge (leaks into picolibc's ctype.h, which writes `extern __inline`),
-// and compiling the slice as C++ (the vendored header set does not parse as C++).
-// Shadowing the header for this one slice is the smallest change that works and
-// leaves the vendored tree untouched.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-2001  Microsoft Corporation
-
-Module Name:
-
-    winnt.h
-
-Abstract:
-
-    This module defines the 32-Bit Windows types and constants that are
-    defined by NT, but exposed through the Win32 API.
-
-Revision History:
-
---*/
+/*
+ * RXDK copy of the SDK winnt.h, used only by the libxapi uuid slice. It defines
+ * the 32-bit Windows types and constants that NT exposes through the Win32 API.
+ *
+ * The one change from the stock header is three `static`s, marked RXDK below.
+ * The x86 branch defines Int64ShllMod32 / Int64ShraMod32 / Int64ShrlMod32 as
+ * bare `__inline` NTAPI functions with __asm bodies. MSVC's inline model emits
+ * no external definition for those; clang under -fms-compatibility emits one in
+ * every translation unit that sees them, so every uuid object carried a copy and
+ * any link pulling two of them failed on a duplicate symbol. Nothing pulled two
+ * until libdmusic dragged in both unknwn.obj and objidl.obj.
+ *
+ * Rejected alternatives: -fgnu89-inline (does not change how __inline is emitted
+ * under MS compatibility), `#define __inline static __inline` in the slice bridge
+ * (leaks into picolibc's ctype.h, which writes `extern __inline`), and compiling
+ * the slice as C++ (the header set does not parse as C++). Shadowing the header
+ * for this one slice is the smallest change that works and leaves the rest of the
+ * tree untouched.
+ */
 
 #ifndef _WINNT_
 #define _WINNT_

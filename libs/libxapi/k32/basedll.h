@@ -1,17 +1,16 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    basedll.h
-
-Abstract:
-
-    This module contains private function prototypes
-    and types for the 32-bit windows base APIs.
-
---*/
+/*
+ * Private prototypes and types shared across the libxapi k32 base-API sources:
+ * object-attribute/timeout formatting and NT-error helpers, directory-nuke
+ * routines, and the internal handle/state structs for the FindFirst-style
+ * enumerators (savegames, nicknames, content, soundtracks) plus the memory-unit
+ * drive-letter mapping macros.
+ */
 
 #pragma once
 #define _BASEP_

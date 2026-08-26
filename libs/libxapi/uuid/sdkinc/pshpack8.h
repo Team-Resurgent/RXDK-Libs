@@ -1,23 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1995-2001  Microsoft Corporation. All rights reserved.
-
-Module Name:
-
-    pshpack8.h
-
-Abstract:
-
-    This file turns 8 byte packing of structures on.  (That is, it disables
-    automatic alignment of structure fields.)  An include file is needed
-    because various compilers do this in different ways.  For Microsoft
-    compatible compilers, this files uses the push option to the pack pragma
-    so that the poppack.h include file can restore the previous packing
-    reliably.
-
-    The file poppack.h is the complement to this file.
-
---*/
+/*
+ * Turns on 8-byte structure packing (disabling automatic field alignment) using
+ * the compiler's push-pack pragma, so a later inclusion of poppack.h can restore
+ * the previous packing. poppack.h is the complement to this file.
+ */
 
 #if ! (defined(lint) || defined(RC_INVOKED))
 #if ( _MSC_VER >= 800 ) || defined(_PUSHPOP_SUPPORTED)

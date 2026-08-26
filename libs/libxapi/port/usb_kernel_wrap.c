@@ -1,8 +1,18 @@
-#include "bridge_usb.h"
 /*
- * Cdecl facades for vendor ntos.h kernel calls (USB / OHCD objects).
- * xboxkrnl exports are NTAPI (__stdcall @N on x86).
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
+
+/*
+ * Cdecl facades over the __stdcall xboxkrnl exports. Objects built against the
+ * NTOS headers (the USB / OHCI stack, libdsound's APU driver, libxnet) call
+ * these kernel routines with the cdecl convention, whereas the real exports are
+ * NTAPI (__stdcall). Each facade here forwards to the matching stdcall function
+ * pointer from usb_kernel_imports.c, fixing the convention mismatch at link.
+ */
+
+#include "bridge_usb.h"
 
 #undef RtlZeroMemory
 #undef RtlCopyMemory

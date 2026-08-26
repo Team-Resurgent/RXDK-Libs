@@ -1,22 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992-1999 Microsoft Corporation
-
-Module Name:
-
-    ntnls.h
-
-Abstract:
-
-    NLS file formats and data types
-
-Author:
-
-    Mark Lucovsky (markl) 09-Nov-1992
-
-Revision History:
-
---*/
+/*
+ * NLS (National Language Support) file formats and data types: the code-page
+ * and CTYPE table structures.
+ */
 
 #pragma once
 #define _NTNLS_

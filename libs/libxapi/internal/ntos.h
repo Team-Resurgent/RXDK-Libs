@@ -1,12 +1,19 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XAPI_NTOS_H
 
 
 /*
- * Shadow of leak ntos.h for libxapi USB/driver slices.
+ * ntos.h shadow for the libxapi USB/driver slices.
  *
- * Vendor init.h / ntosdef.h use leak sdk/ntdef layouts — not public xboxkrnl
- * types.h (KAPC, KDPC, etc. differ). nt.h supplies sdk/ntdef.h.
+ * init.h / ntosdef.h here use the sdk/ntdef layouts rather than the public
+ * xboxkrnl types.h (KAPC, KDPC, and similar structures differ). nt.h supplies
+ * the sdk/ntdef.h definitions.
  */
 
 #ifndef _NTOS_

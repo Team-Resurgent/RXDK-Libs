@@ -1,27 +1,15 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989  Microsoft Corporation
-
-Module Name:
-
-    ntrtl386.h
-
-Abstract:
-
-    i386 specific parts of ntrtlp.h
-
-Author:
-
-    Bryan Willman   10 April 90
-
-Environment:
-
-    These routines are statically linked in the caller's executable and
-    are callable in either kernel mode or user mode.
-
-Revision History:
-
---*/
+/*
+ * i386-specific portion of ntrtlp.h: prototypes for the architecture-dependent
+ * RTL helpers (context capture, exception-handler chain walking, return-address
+ * retrieval). Included by ntrtlp.h on x86; these routines are statically linked
+ * into the caller and usable from either kernel or user mode.
+ */
 
 //
 // Exception handling procedure prototypes.

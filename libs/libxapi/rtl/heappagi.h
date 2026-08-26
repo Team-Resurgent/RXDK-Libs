@@ -1,13 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-//  heappagi.h
-//
-//  The following definitions are internal to the debug heap manager,
-//  but are placed in this include file so that debugger extensions
-//  can reference the same structure definitions.  The following
-//  definitions are not intended to be referenced externally except
-//  by debugger extensions.
-//
+/*
+ * Internal structures and constants of the debug page-heap manager (per-heap
+ * state, node tables, stack-trace capture, and global page-heap flags). Kept in
+ * a separate header so debugger extensions can share the same definitions; not
+ * intended for use outside the heap manager and those extensions.
+ */
 
 #pragma once
 #define _HEAP_PAGE_I_

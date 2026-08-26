@@ -1,17 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    debug.c
-
-Abstract:
-
-    This module implements Win32 Debug APIs
-
---*/
+/*
+ * Win32 debug output APIs. OutputDebugStringA issues the BREAKPOINT_PRINT
+ * debugger trap; OutputDebugStringW thunks to it via Unicode-to-ANSI
+ * conversion. The DBG build additionally provides the leveled XDebug* tracing
+ * helpers.
+ */
 
 #include "basedll.h"
 #include <stdio.h>

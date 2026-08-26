@@ -1,23 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    dir.c
-
-Abstract:
-
-    This module implements Win32 Directory functions.
-
-Author:
-
-    Mark Lucovsky (markl) 26-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Win32 directory functions: CreateDirectory and RemoveDirectory, implemented
+ * directly on the NT file APIs (NtCreateFile / NtOpenFile plus a delete
+ * disposition) under the DOS-devices object directory.
+ */
 
 #include "basedll.h"
 

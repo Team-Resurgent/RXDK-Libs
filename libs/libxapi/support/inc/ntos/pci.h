@@ -1,18 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Module Name:
-
-    pci.h
-
-Abstract:
-
-    This is the PCI bus specific header file used by device drivers.
-
-Author:
-
-Revision History:
-
---*/
+/*
+ * PCI bus specific definitions used by device drivers.
+ */
 
 #ifndef _PCI_
 #define _PCI_

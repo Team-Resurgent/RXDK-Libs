@@ -1,42 +1,20 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation.  All rights reserved.
-
-
-Module Name:
-
-    schedule.c
-
-Abstract:
-    
-    Implementation of schedule manager.
-
-    The code in this module maintains all of the endpoint lists associated
-    with transfer schedule.  Basically scheduling is only involved when a
-    new endpoint is opened or closed.
-
-    The work to be done is very different for bulk and control versus
-    isochronous and interrupt.
-
-    For bulk and control the endpoint to be open is simply placed at the head
-    of a linked list.
-
-    For interrupt and isochronous a slot must be found in the schedule with
-    sufficient bandwidth and the bandwidth tables must be updated.
-
-    
-Environment:
-
-    Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    01-20-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Schedule manager for the OpenHCI driver. This module maintains the endpoint
+ * lists that make up the transfer schedule; scheduling work happens only when
+ * an endpoint is opened or closed.
+ *
+ * The work differs sharply between transfer types. For bulk and control the
+ * endpoint is simply placed at the head of a linked list. For interrupt and
+ * isochronous a slot with sufficient bandwidth must be found in the schedule
+ * and the bandwidth tables updated.
+ */
 
 //
 //  Pull in OS headers

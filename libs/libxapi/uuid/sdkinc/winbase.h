@@ -1,10 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   winbase.h -- This module defines the 32-Bit Windows Base APIs       *
-*                                                                       *
-*   Copyright (c) 1990-2001, Microsoft Corp. All rights reserved.       *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the 32-bit Windows base APIs (the kernel32-level process,
+ * thread, synchronization, file, and memory functions).
+ */
+
 #ifndef _WINBASE_
 #define _WINBASE_
 

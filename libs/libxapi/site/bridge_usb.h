@@ -1,7 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_USB_BRIDGE_H
 
-/* USB driver slices run in the kernel runtime (was -DNTOS_KERNEL_RUNTIME). */
+/* USB driver slices run in the kernel runtime. */
 #ifndef NTOS_KERNEL_RUNTIME
 #define NTOS_KERNEL_RUNTIME 1
 #endif
@@ -9,13 +15,15 @@
 
 
 /*
- * Force-included for libxapi USB slices (ohcd, usbd, hub, mu, xid).
+ * Force-included bridge header for the libxapi USB slices (ohcd, usbd, hub, mu,
+ * xid).
  *
- * Vendor ntos headers mark kernel entry points DECLSPEC_IMPORT when building
- * as a user-mode driver (!_NTSYSTEM_). libxapi links xboxkrnl.lib directly;
+ * The ntos headers mark kernel entry points DECLSPEC_IMPORT when building as a
+ * user-mode driver (!_NTSYSTEM_). libxapi links xboxkrnl.lib directly, so
  * RXDK_USB_LINK clears NTKERNELAPI in ntosdef.h.
  *
- * RXDK_USB_LINK: kernel DATA imports use rxdk_kernel_import_ptrs.h (struct-in-IAT fix).
+ * With RXDK_USB_LINK set, kernel DATA imports go through kernel_import_ptrs.h
+ * (the struct-in-IAT fix).
  */
 
 #define RXDK_USB_LINK 1

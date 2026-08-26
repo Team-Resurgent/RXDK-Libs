@@ -1,5 +1,11 @@
 /*
- * xapi_start.c - the generic XAPI title startup (RXDK's equivalent of the XDK
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The generic XAPI title startup (RXDK's equivalent of the XDK
  * mainCRTStartup). A title that uses the Xbox API is linked with this object and
  * entered at XapiTitleStartup (-e XapiTitleStartup); the author writes only
  * main() and the XAPI + CRT + TLS bring-up runs before it, invisibly.

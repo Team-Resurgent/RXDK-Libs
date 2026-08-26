@@ -1,4 +1,17 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Win32 character-case conversion helpers: CharUpper/CharLower in ANSI (A) and
+ * wide (W) forms. Each handles both the string-pointer form and the packed
+ * single-character form (when the high word is zero) via the Rtl case-mapping
+ * primitives.
+ */
+
 #include "basedll.h"
 
 LPSTR

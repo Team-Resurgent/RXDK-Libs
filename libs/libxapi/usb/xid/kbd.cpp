@@ -1,16 +1,21 @@
 #include "bridge_usb.h"
-/*++
-    High-level Xbox debug-keyboard support -- the keystroke queue that turns the
-    raw HID boot-keyboard reports (delivered by the XID input path through
-    XID_pKeyboardServices->pfnNewData) into XINPUT_DEBUG_KEYSTROKE events that a
-    title reads with XInputDebugGetKeystroke. Ported from the Xbox kernel source
-    (private/ntos/dd/usb/xkbd/kbd.cpp) and built for SINGLE_KEYBOARD_ONLY (one
-    shared queue; the hDevice argument to XInputDebugGetKeystroke is omitted).
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-    XInputGetState deliberately refuses keyboards (xidinp.cpp) -- keystrokes only
-    come through this queue. The XID driver already calls our pfnOpen/Close/
-    Remove/NewData hooks (xid.cpp); InitKeyboardQueue installs the service table.
---*/
+/*
+ * High-level Xbox debug-keyboard support: the keystroke queue that turns raw
+ * HID boot-keyboard reports (delivered by the XID input path through
+ * XID_pKeyboardServices->pfnNewData) into XINPUT_DEBUG_KEYSTROKE events that a
+ * title reads with XInputDebugGetKeystroke. Built for SINGLE_KEYBOARD_ONLY: one
+ * shared queue, with the hDevice argument to XInputDebugGetKeystroke omitted.
+ *
+ * XInputGetState deliberately refuses keyboards (see xidinp.cpp); keystrokes
+ * only come through this queue. The XID driver calls the pfnOpen/Close/Remove/
+ * NewData hooks (xid.cpp), and InitKeyboardQueue installs the service table.
+ */
 
 #define _XAPI_
 extern "C" {

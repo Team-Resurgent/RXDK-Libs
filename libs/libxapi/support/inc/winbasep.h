@@ -1,19 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
-
-Copyright (c) 1985-2001, Microsoft Corporation
-
-Module Name:
-
-    winbasep.h
-
-Abstract:
-
-    Private
-    Procedure declarations, constant definitions and macros for the Base
-    component.
-
---*/
+/*
+ * Private procedure declarations, constant definitions and macros for the Base
+ * component.
+ */
 
 #pragma once
 #define _WINBASEP_

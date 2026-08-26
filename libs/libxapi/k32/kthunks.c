@@ -1,4 +1,15 @@
 #include "bridge_k32.h"
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Small Win32 thunks over kernel services: DebugBreak, GetSystemTimeAsFileTime,
+ * the wsprintf/wvsprintf string-formatting family, and DebugPrint.
+ */
+
 #include "basedll.h"
 #include <stdio.h>
 #include <wchar.h>

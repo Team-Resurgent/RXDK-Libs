@@ -1,17 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000-2002  Microsoft Corporation
-
-Module Name:
-
-    xbeimage.h
-
-Abstract:
-
-    This module contains the structures that describe the Xbox Executable (XBE)
-    format.
-
---*/
+/*
+ * Structures that describe the Xbox Executable (XBE) format.
+ */
 
 #ifndef _XBEIMAGE_
 #define _XBEIMAGE_

@@ -1,5 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Link-compatibility shims for libxapi under Clang: NtCurrentTeb (read from
+ * fs:0x18), empty CRT early-init / startup hooks, and the OBJECT_STRING helpers
+ * ocslen / ocscpy. The MSVC-named CRT functions that once lived here now ship
+ * in libc (libs/libc/xbox/msvc_crt.c).
+ */
+
 #include "bridge_k32.h"
-/* RXDK libxapi link compat: TEB, string aliases, debug stubs. */
 
 #include <xboxkrnl/xboxkrnl.h>
 #include <stdarg.h>

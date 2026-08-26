@@ -1,23 +1,13 @@
-/*++ BUILD Version: 0009    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1991-1999  Microsoft Corporation
-
-Module Name:
-
-    ntregapi.h
-
-Abstract:
-
-    This module contains the registration apis and related structures,
-    in the forms for use with the Nt api set (as opposed to the win api set).
-
-Author:
-
-    Bryan M. Willman (bryanwi) 26-Aug-1991
-
-Revision History:
-
---*/
+/*
+ * Registry (Cm) APIs and related structures in the Nt-API form, as opposed to
+ * the Win32 API form.
+ */
 
 #pragma once
 #define _NTREGAPI_

@@ -1,23 +1,13 @@
-              /*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990-1999  Microsoft Corporation
-
-Module Name:
-
-    ntddstor.h
-
-Abstract:
-
-    This is the include file that defines all common constants and types
-    accessing the storage class drivers
-
-Author:
-
-    Peter Wieland 19-Jun-1996
-
-Revision History:
-
---*/
+/*
+ * Common constants and types for accessing the storage class drivers (the
+ * device-independent storage IOCTLs shared by disk, CD-ROM, and DVD).
+ */
 
 
 //

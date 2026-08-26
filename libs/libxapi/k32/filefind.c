@@ -1,23 +1,15 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    filefind.c
-
-Abstract:
-
-    This module implements Win32 FindFirst/FindNext
-
-Author:
-
-    Mark Lucovsky (markl) 26-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Win32 directory-enumeration APIs: FindFirstFile and FindNextFile, plus the
+ * helper that maps an NT FILE_DIRECTORY_INFORMATION record into a
+ * WIN32_FIND_DATA structure.
+ */
 
 #include "basedll.h"
 

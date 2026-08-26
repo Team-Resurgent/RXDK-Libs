@@ -1,25 +1,12 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1996-2000 Microsoft Corporation
-
-Module Name:
-
-    MU.H
-
-Abstract:
-
-    Header file for MU driver
-
-Environment:
-
-    kernel mode
-
-Revision History:
-
-    06-13-2000 : started rewrite : georgioc
-    10-11-2000 : cleanup : mitchd
-
---*/
+/*
+ * Header file for the MU (Memory Unit) driver. Kernel mode.
+ */
 
 //*****************************************************************************
 // Includes

@@ -1,23 +1,16 @@
 #include "bridge_k32.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1990  Microsoft Corporation
-
-Module Name:
-
-    filemisc.c
-
-Abstract:
-
-    Misc file operations for Win32
-
-Author:
-
-    Mark Lucovsky (markl) 26-Sep-1990
-
-Revision History:
-
---*/
+/*
+ * Miscellaneous Win32 file operations: get/set file attributes, move and
+ * delete files (MoveFile/MoveFileEx/MoveFileWithProgress, DeleteFile), the
+ * per-file cache-size controls (XSetFileCacheSize/XGetFileCacheSize), and the
+ * free-space "display blocks" queries.
+ */
 
 #include <basedll.h>
 #include "fat.h"

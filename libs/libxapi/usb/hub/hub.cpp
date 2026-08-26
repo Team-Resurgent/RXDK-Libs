@@ -1,29 +1,13 @@
 #include "bridge_usb.h"
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 2000 Microsoft Corporation
-
-
-Module Name:
-
-    hub.cpp
-
-Abstract:
-	
-	Basic entry point implementation of the USB HUB driver.
-    
-	
-Environment:
-
-	Designed for XBOX.
-
-Notes:
-
-Revision History:
-
-    03-02-00 created by Mitchell Dernis (mitchd)
-
---*/
+/*
+ * Entry-point implementation of the Xbox USB hub driver.
+ */
 
 
 //

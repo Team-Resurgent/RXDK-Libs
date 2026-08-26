@@ -1,26 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1992  Microsoft Corporation
-
-Module Name:
-
-    heap.h
-
-Abstract:
-
-    This is the header file that describes the constants and data
-    structures used by the user mode heap manager, exported by ntdll.dll
-    and ntrtl.lib
-
-    Procedure prototypes are defined in ntrtl.h
-
-Author:
-
-    Steve Wood (stevewo) 21-Aug-1992
-
-Revision History:
-
---*/
+/*
+ * Constants and data structures used by the user-mode heap manager. The
+ * procedure prototypes are defined in ntrtl.h.
+ */
 
 #pragma once
 #define _RTL_HEAP_

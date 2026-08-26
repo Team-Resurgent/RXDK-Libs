@@ -1,23 +1,13 @@
-/*++ BUILD Version: 0001    // Increment this if a change has global effects
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) 1989-1999  Microsoft Corporation
-
-Module Name:
-
-    ntxcapi.h
-
-Abstract:
-
-    This module contains procedure prototypes and data structures
-    that support structured exception handling.
-
-Author:
-
-    Mark Lucovsky (markl) 29-Jun-1989
-
-Revision History:
-
---*/
+/*
+ * Procedure prototypes and data structures that support structured exception
+ * handling (RtlRaiseException, RtlUnwind, and the EXCEPTION_RECORD types).
+ */
 
 #pragma once
 #define _NTXCAPI_

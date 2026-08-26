@@ -1,17 +1,13 @@
-/*--
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (c) Microsoft Corporation
-
-Module Name:
-
-    av.h
-
-Abstract:
-
-    This module contains the public data structures and procedure
-    prototypes to identify AV packs and program TV encoder
-
---*/
+/*
+ * Public data structures and procedure prototypes to identify AV packs and
+ * program the TV encoder.
+ */
 
 #pragma once
 #define _AV_H

@@ -1,9 +1,22 @@
-// RXDK 5849 uplift: exports XAPI/XOnline entry points that the imported XDK-5849 Live samples
-// reference but that are absent from the Jan-2002 leak. Kept minimal and self-contained.
-
-// Include the PUBLIC 5849 headers (like the samples) -- NOT the leak's internal xonp.h, whose older
-// decls of a few of these functions would conflict. The force-included bridge already establishes
-// the NT/xtl base environment.
+// xonexports.cpp -- the flat XOnline/XAPI public C export layer for XDK-5849.
+//
+// These are the entry points the imported 5849 Live samples reference but that the
+// Jan-2002 leak does not export: some are real (they wrap the leak's XOnlineLogon,
+// friends, notification and title services), most are boundary stubs that fail
+// cleanly because the leak lacks the 5849 server protocol. They form one cohesive
+// export unit and MUST stay together in this file rather than move next to their
+// CXo:: subsystem implementations, for one hard reason:
+//
+//   This file includes ONLY the PUBLIC 5849 headers (<xtl.h>/<xonline.h>), exactly
+//   like the titles that call these functions -- and deliberately NOT the leak's
+//   internal xonp.h/xonlinep.h. Several of these names (the Offering*, ContentInstall
+//   and StatLeaderEnumerate family) are declared in xonlinep.h with older, DIFFERENT
+//   signatures -- different stdcall argument sizes, i.e. genuinely different exported
+//   symbols (e.g. XOnlineOfferingEnumerate is @24 public vs @28 internal). A title
+//   built against the public headers calls the public symbol, so that is the one this
+//   layer must define. Compiling these in any TU that also pulls xonlinep.h (every
+//   CXo:: source does) is a hard "conflicting types" error. The force-included bridge
+//   already establishes the NT/xtl base environment.
 #include <xtl.h>
 #include <xonline.h>
 

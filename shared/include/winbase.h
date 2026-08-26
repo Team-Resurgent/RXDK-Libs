@@ -24,7 +24,6 @@
 #define _WINBASE_
 
 
-
 //
 // Define API decoration for direct importing of DLL references.
 //
@@ -40,69 +39,69 @@ extern "C" {
  * Compatibility macros
  */
 
-#define GetCurrentTime()                GetTickCount()
+#define GetCurrentTime() GetTickCount()
 
 #define Yield()
 
-#define INVALID_HANDLE_VALUE ((HANDLE)-1)
+#define INVALID_HANDLE_VALUE ((HANDLE) - 1)
 #define INVALID_FILE_SIZE ((DWORD)0xFFFFFFFF)
-#define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#define INVALID_SET_FILE_POINTER ((DWORD) - 1)
 
-#define FILE_BEGIN           0
-#define FILE_CURRENT         1
-#define FILE_END             2
+#define FILE_BEGIN 0
+#define FILE_CURRENT 1
+#define FILE_END 2
 
 #define TIME_ZONE_ID_INVALID ((DWORD)0xFFFFFFFF)
 
 #define WAIT_FAILED ((DWORD)0xFFFFFFFF)
-#define WAIT_OBJECT_0       ((STATUS_WAIT_0 ) + 0 )
+#define WAIT_OBJECT_0 ((STATUS_WAIT_0) + 0)
 
-#define WAIT_ABANDONED         ((STATUS_ABANDONED_WAIT_0 ) + 0 )
-#define WAIT_ABANDONED_0       ((STATUS_ABANDONED_WAIT_0 ) + 0 )
+#define WAIT_ABANDONED ((STATUS_ABANDONED_WAIT_0) + 0)
+#define WAIT_ABANDONED_0 ((STATUS_ABANDONED_WAIT_0) + 0)
 
-#define WAIT_IO_COMPLETION                  STATUS_USER_APC
-#define STILL_ACTIVE                        STATUS_PENDING
-#define EXCEPTION_ACCESS_VIOLATION          STATUS_ACCESS_VIOLATION
-#define EXCEPTION_DATATYPE_MISALIGNMENT     STATUS_DATATYPE_MISALIGNMENT
-#define EXCEPTION_BREAKPOINT                STATUS_BREAKPOINT
-#define EXCEPTION_SINGLE_STEP               STATUS_SINGLE_STEP
-#define EXCEPTION_ARRAY_BOUNDS_EXCEEDED     STATUS_ARRAY_BOUNDS_EXCEEDED
-#define EXCEPTION_FLT_DENORMAL_OPERAND      STATUS_FLOAT_DENORMAL_OPERAND
-#define EXCEPTION_FLT_DIVIDE_BY_ZERO        STATUS_FLOAT_DIVIDE_BY_ZERO
-#define EXCEPTION_FLT_INEXACT_RESULT        STATUS_FLOAT_INEXACT_RESULT
-#define EXCEPTION_FLT_INVALID_OPERATION     STATUS_FLOAT_INVALID_OPERATION
-#define EXCEPTION_FLT_OVERFLOW              STATUS_FLOAT_OVERFLOW
-#define EXCEPTION_FLT_STACK_CHECK           STATUS_FLOAT_STACK_CHECK
-#define EXCEPTION_FLT_UNDERFLOW             STATUS_FLOAT_UNDERFLOW
-#define EXCEPTION_INT_DIVIDE_BY_ZERO        STATUS_INTEGER_DIVIDE_BY_ZERO
-#define EXCEPTION_INT_OVERFLOW              STATUS_INTEGER_OVERFLOW
-#define EXCEPTION_PRIV_INSTRUCTION          STATUS_PRIVILEGED_INSTRUCTION
-#define EXCEPTION_IN_PAGE_ERROR             STATUS_IN_PAGE_ERROR
-#define EXCEPTION_ILLEGAL_INSTRUCTION       STATUS_ILLEGAL_INSTRUCTION
-#define EXCEPTION_NONCONTINUABLE_EXCEPTION  STATUS_NONCONTINUABLE_EXCEPTION
-#define EXCEPTION_STACK_OVERFLOW            STATUS_STACK_OVERFLOW
-#define EXCEPTION_INVALID_DISPOSITION       STATUS_INVALID_DISPOSITION
-#define EXCEPTION_GUARD_PAGE                STATUS_GUARD_PAGE_VIOLATION
-#define EXCEPTION_INVALID_HANDLE            STATUS_INVALID_HANDLE
-#define CONTROL_C_EXIT                      STATUS_CONTROL_C_EXIT
+#define WAIT_IO_COMPLETION STATUS_USER_APC
+#define STILL_ACTIVE STATUS_PENDING
+#define EXCEPTION_ACCESS_VIOLATION STATUS_ACCESS_VIOLATION
+#define EXCEPTION_DATATYPE_MISALIGNMENT STATUS_DATATYPE_MISALIGNMENT
+#define EXCEPTION_BREAKPOINT STATUS_BREAKPOINT
+#define EXCEPTION_SINGLE_STEP STATUS_SINGLE_STEP
+#define EXCEPTION_ARRAY_BOUNDS_EXCEEDED STATUS_ARRAY_BOUNDS_EXCEEDED
+#define EXCEPTION_FLT_DENORMAL_OPERAND STATUS_FLOAT_DENORMAL_OPERAND
+#define EXCEPTION_FLT_DIVIDE_BY_ZERO STATUS_FLOAT_DIVIDE_BY_ZERO
+#define EXCEPTION_FLT_INEXACT_RESULT STATUS_FLOAT_INEXACT_RESULT
+#define EXCEPTION_FLT_INVALID_OPERATION STATUS_FLOAT_INVALID_OPERATION
+#define EXCEPTION_FLT_OVERFLOW STATUS_FLOAT_OVERFLOW
+#define EXCEPTION_FLT_STACK_CHECK STATUS_FLOAT_STACK_CHECK
+#define EXCEPTION_FLT_UNDERFLOW STATUS_FLOAT_UNDERFLOW
+#define EXCEPTION_INT_DIVIDE_BY_ZERO STATUS_INTEGER_DIVIDE_BY_ZERO
+#define EXCEPTION_INT_OVERFLOW STATUS_INTEGER_OVERFLOW
+#define EXCEPTION_PRIV_INSTRUCTION STATUS_PRIVILEGED_INSTRUCTION
+#define EXCEPTION_IN_PAGE_ERROR STATUS_IN_PAGE_ERROR
+#define EXCEPTION_ILLEGAL_INSTRUCTION STATUS_ILLEGAL_INSTRUCTION
+#define EXCEPTION_NONCONTINUABLE_EXCEPTION STATUS_NONCONTINUABLE_EXCEPTION
+#define EXCEPTION_STACK_OVERFLOW STATUS_STACK_OVERFLOW
+#define EXCEPTION_INVALID_DISPOSITION STATUS_INVALID_DISPOSITION
+#define EXCEPTION_GUARD_PAGE STATUS_GUARD_PAGE_VIOLATION
+#define EXCEPTION_INVALID_HANDLE STATUS_INVALID_HANDLE
+#define CONTROL_C_EXIT STATUS_CONTROL_C_EXIT
 #define MoveMemory RtlMoveMemory
 #define CopyMemory RtlCopyMemory
 #define FillMemory RtlFillMemory
 #define ZeroMemory RtlZeroMemory
-#define HeapAlloc   RtlAllocateHeap
+#define HeapAlloc RtlAllocateHeap
 #define HeapReAlloc RtlReAllocateHeap
-#define HeapSize    RtlSizeHeap
+#define HeapSize RtlSizeHeap
 #define InitializeCriticalSection RtlInitializeCriticalSection
-#define DeleteCriticalSection     RtlDeleteCriticalSection
-#define EnterCriticalSection      RtlEnterCriticalSection
-#define LeaveCriticalSection      RtlLeaveCriticalSection
-#define TryEnterCriticalSection   RtlTryEnterCriticalSection
+#define DeleteCriticalSection RtlDeleteCriticalSection
+#define EnterCriticalSection RtlEnterCriticalSection
+#define LeaveCriticalSection RtlLeaveCriticalSection
+#define TryEnterCriticalSection RtlTryEnterCriticalSection
 #if !defined(_NTOS_)
 #define InterlockedCompareExchange _InterlockedCompareExchange
-#define InterlockedDecrement       _InterlockedDecrement
-#define InterlockedExchange        _InterlockedExchange
-#define InterlockedExchangeAdd     _InterlockedExchangeAdd
-#define InterlockedIncrement       _InterlockedIncrement
+#define InterlockedDecrement _InterlockedDecrement
+#define InterlockedExchange _InterlockedExchange
+#define InterlockedExchangeAdd _InterlockedExchangeAdd
+#define InterlockedIncrement _InterlockedIncrement
 #endif // !defined(_NTOS_)
 
 //
@@ -110,40 +109,40 @@ extern "C" {
 // are combined with the attributes
 //
 
-#define FILE_FLAG_WRITE_THROUGH         0x80000000
-#define FILE_FLAG_OVERLAPPED            0x40000000
-#define FILE_FLAG_NO_BUFFERING          0x20000000
-#define FILE_FLAG_RANDOM_ACCESS         0x10000000
-#define FILE_FLAG_SEQUENTIAL_SCAN       0x08000000
-#define FILE_FLAG_DELETE_ON_CLOSE       0x04000000
-#define FILE_FLAG_BACKUP_SEMANTICS      0x02000000
+#define FILE_FLAG_WRITE_THROUGH 0x80000000
+#define FILE_FLAG_OVERLAPPED 0x40000000
+#define FILE_FLAG_NO_BUFFERING 0x20000000
+#define FILE_FLAG_RANDOM_ACCESS 0x10000000
+#define FILE_FLAG_SEQUENTIAL_SCAN 0x08000000
+#define FILE_FLAG_DELETE_ON_CLOSE 0x04000000
+#define FILE_FLAG_BACKUP_SEMANTICS 0x02000000
 
-#define CREATE_NEW          1
-#define CREATE_ALWAYS       2
-#define OPEN_EXISTING       3
-#define OPEN_ALWAYS         4
-#define TRUNCATE_EXISTING   5
+#define CREATE_NEW 1
+#define CREATE_ALWAYS 2
+#define OPEN_EXISTING 3
+#define OPEN_ALWAYS 4
+#define TRUNCATE_EXISTING 5
 
 //
 // Define possible return codes from the CopyFileEx callback routine
 //
 
-#define PROGRESS_CONTINUE   0
-#define PROGRESS_CANCEL     1
-#define PROGRESS_QUIET      3
+#define PROGRESS_CONTINUE 0
+#define PROGRESS_CANCEL 1
+#define PROGRESS_QUIET 3
 
 //
 // Define CopyFileEx callback routine state change values
 //
 
-#define CALLBACK_CHUNK_FINISHED         0x00000000
-#define CALLBACK_STREAM_SWITCH          0x00000001
+#define CALLBACK_CHUNK_FINISHED 0x00000000
+#define CALLBACK_STREAM_SWITCH 0x00000001
 
 //
 // Define CopyFileEx option flags
 //
 
-#define COPY_FILE_FAIL_IF_EXISTS        0x00000001
+#define COPY_FILE_FAIL_IF_EXISTS 0x00000001
 #define COPY_FILE_OPEN_SOURCE_FOR_WRITE 0x00000004
 
 
@@ -154,9 +153,9 @@ extern "C" {
 typedef struct _OVERLAPPED {
     ULONG_PTR Internal;
     ULONG_PTR InternalHigh;
-    DWORD   Offset;
-    DWORD   OffsetHigh;
-    HANDLE  hEvent;
+    DWORD Offset;
+    DWORD OffsetHigh;
+    HANDLE hEvent;
 } OVERLAPPED, *LPOVERLAPPED;
 
 typedef LPVOID PSECURITY_ATTRIBUTES;
@@ -188,16 +187,14 @@ typedef struct _SYSTEMTIME {
 } SYSTEMTIME, *PSYSTEMTIME, *LPSYSTEMTIME;
 
 
-typedef DWORD (__stdcall *PTHREAD_START_ROUTINE)(
-    LPVOID lpThreadParameter
-    );
+typedef DWORD(__stdcall* PTHREAD_START_ROUTINE)(
+    LPVOID lpThreadParameter);
 typedef PTHREAD_START_ROUTINE LPTHREAD_START_ROUTINE;
 
 /* __stdcall pinned explicitly (not __attribute__((__stdcall__))): fiber entry points are invoked by
  * the asm switch / XapiFiberStartup which assume the Xbox stdcall ABI. */
-typedef VOID (__stdcall *PFIBER_START_ROUTINE)(
-    LPVOID lpFiberParameter
-    );
+typedef VOID(__stdcall* PFIBER_START_ROUTINE)(
+    LPVOID lpFiberParameter);
 typedef PFIBER_START_ROUTINE LPFIBER_START_ROUTINE;
 
 typedef RTL_CRITICAL_SECTION CRITICAL_SECTION;
@@ -210,29 +207,29 @@ typedef PRTL_CRITICAL_SECTION LPCRITICAL_SECTION;
 
 
 /* Global Memory Flags */
-#define GMEM_FIXED          0x0000
-#define GMEM_MOVEABLE       0x0002
-#define GMEM_NOCOMPACT      0x0010
-#define GMEM_NODISCARD      0x0020
-#define GMEM_ZEROINIT       0x0040
-#define GMEM_MODIFY         0x0080
-#define GMEM_DISCARDABLE    0x0100
-#define GMEM_NOT_BANKED     0x1000
-#define GMEM_SHARE          0x2000
-#define GMEM_DDESHARE       0x2000
-#define GMEM_NOTIFY         0x4000
-#define GMEM_LOWER          GMEM_NOT_BANKED
-#define GMEM_VALID_FLAGS    0x7F72
+#define GMEM_FIXED 0x0000
+#define GMEM_MOVEABLE 0x0002
+#define GMEM_NOCOMPACT 0x0010
+#define GMEM_NODISCARD 0x0020
+#define GMEM_ZEROINIT 0x0040
+#define GMEM_MODIFY 0x0080
+#define GMEM_DISCARDABLE 0x0100
+#define GMEM_NOT_BANKED 0x1000
+#define GMEM_SHARE 0x2000
+#define GMEM_DDESHARE 0x2000
+#define GMEM_NOTIFY 0x4000
+#define GMEM_LOWER GMEM_NOT_BANKED
+#define GMEM_VALID_FLAGS 0x7F72
 #define GMEM_INVALID_HANDLE 0x8000
 
-#define GHND                (GMEM_MOVEABLE | GMEM_ZEROINIT)
-#define GPTR                (GMEM_FIXED | GMEM_ZEROINIT)
+#define GHND (GMEM_MOVEABLE | GMEM_ZEROINIT)
+#define GPTR (GMEM_FIXED | GMEM_ZEROINIT)
 
-#define GlobalDiscard( h )      GlobalReAlloc( (h), 0, GMEM_MOVEABLE )
+#define GlobalDiscard(h) GlobalReAlloc((h), 0, GMEM_MOVEABLE)
 
 /* Flags returned by GlobalFlags (in addition to GMEM_DISCARDABLE) */
-#define GMEM_DISCARDED      0x4000
-#define GMEM_LOCKCOUNT      0x00FF
+#define GMEM_DISCARDED 0x4000
+#define GMEM_LOCKCOUNT 0x00FF
 
 typedef struct _MEMORYSTATUS {
     DWORD dwLength;
@@ -246,49 +243,49 @@ typedef struct _MEMORYSTATUS {
 } MEMORYSTATUS, *LPMEMORYSTATUS;
 
 /* Local Memory Flags */
-#define LMEM_FIXED          0x0000
-#define LMEM_MOVEABLE       0x0002
-#define LMEM_NOCOMPACT      0x0010
-#define LMEM_NODISCARD      0x0020
-#define LMEM_ZEROINIT       0x0040
-#define LMEM_MODIFY         0x0080
-#define LMEM_DISCARDABLE    0x0F00
-#define LMEM_VALID_FLAGS    0x0F72
+#define LMEM_FIXED 0x0000
+#define LMEM_MOVEABLE 0x0002
+#define LMEM_NOCOMPACT 0x0010
+#define LMEM_NODISCARD 0x0020
+#define LMEM_ZEROINIT 0x0040
+#define LMEM_MODIFY 0x0080
+#define LMEM_DISCARDABLE 0x0F00
+#define LMEM_VALID_FLAGS 0x0F72
 #define LMEM_INVALID_HANDLE 0x8000
 
-#define LHND                (LMEM_MOVEABLE | LMEM_ZEROINIT)
-#define LPTR                (LMEM_FIXED | LMEM_ZEROINIT)
+#define LHND (LMEM_MOVEABLE | LMEM_ZEROINIT)
+#define LPTR (LMEM_FIXED | LMEM_ZEROINIT)
 
-#define NONZEROLHND         (LMEM_MOVEABLE)
-#define NONZEROLPTR         (LMEM_FIXED)
+#define NONZEROLHND (LMEM_MOVEABLE)
+#define NONZEROLPTR (LMEM_FIXED)
 
-#define LocalDiscard( h )   LocalReAlloc( (h), 0, LMEM_MOVEABLE )
+#define LocalDiscard(h) LocalReAlloc((h), 0, LMEM_MOVEABLE)
 
 /* Flags returned by LocalFlags (in addition to LMEM_DISCARDABLE) */
-#define LMEM_DISCARDED      0x4000
-#define LMEM_LOCKCOUNT      0x00FF
+#define LMEM_DISCARDED 0x4000
+#define LMEM_LOCKCOUNT 0x00FF
 
 //
 // dwCreationFlag values
 //
 
 
-#define CREATE_SUSPENDED            0x00000004
+#define CREATE_SUSPENDED 0x00000004
 
-#define THREAD_BASE_PRIORITY_LOWRT  15  // value that gets a thread to LowRealtime-1
-#define THREAD_BASE_PRIORITY_MAX    2   // maximum thread base priority boost
-#define THREAD_BASE_PRIORITY_MIN    (-2) // minimum thread base priority boost
-#define THREAD_BASE_PRIORITY_IDLE   (-15) // value that gets a thread to idle
+#define THREAD_BASE_PRIORITY_LOWRT 15 // value that gets a thread to LowRealtime-1
+#define THREAD_BASE_PRIORITY_MAX 2 // maximum thread base priority boost
+#define THREAD_BASE_PRIORITY_MIN (-2) // minimum thread base priority boost
+#define THREAD_BASE_PRIORITY_IDLE (-15) // value that gets a thread to idle
 
-#define THREAD_PRIORITY_LOWEST          THREAD_BASE_PRIORITY_MIN
-#define THREAD_PRIORITY_BELOW_NORMAL    (THREAD_PRIORITY_LOWEST+1)
-#define THREAD_PRIORITY_NORMAL          0
-#define THREAD_PRIORITY_HIGHEST         THREAD_BASE_PRIORITY_MAX
-#define THREAD_PRIORITY_ABOVE_NORMAL    (THREAD_PRIORITY_HIGHEST-1)
-#define THREAD_PRIORITY_ERROR_RETURN    (MAXLONG)
+#define THREAD_PRIORITY_LOWEST THREAD_BASE_PRIORITY_MIN
+#define THREAD_PRIORITY_BELOW_NORMAL (THREAD_PRIORITY_LOWEST + 1)
+#define THREAD_PRIORITY_NORMAL 0
+#define THREAD_PRIORITY_HIGHEST THREAD_BASE_PRIORITY_MAX
+#define THREAD_PRIORITY_ABOVE_NORMAL (THREAD_PRIORITY_HIGHEST - 1)
+#define THREAD_PRIORITY_ERROR_RETURN (MAXLONG)
 
-#define THREAD_PRIORITY_TIME_CRITICAL   THREAD_BASE_PRIORITY_LOWRT
-#define THREAD_PRIORITY_IDLE            THREAD_BASE_PRIORITY_IDLE
+#define THREAD_PRIORITY_TIME_CRITICAL THREAD_BASE_PRIORITY_LOWRT
+#define THREAD_PRIORITY_IDLE THREAD_BASE_PRIORITY_IDLE
 
 
 #if !defined(MIDL_PASS)
@@ -298,8 +295,8 @@ typedef PEXCEPTION_POINTERS LPEXCEPTION_POINTERS;
 #endif
 
 
-#define IGNORE              0       // Ignore signal
-#define INFINITE            0xFFFFFFFF  // Infinite timeout
+#define IGNORE 0 // Ignore signal
+#define INFINITE 0xFFFFFFFF // Infinite timeout
 
 
 #ifndef _NTOS_
@@ -307,65 +304,57 @@ typedef PEXCEPTION_POINTERS LPEXCEPTION_POINTERS;
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-InterlockedIncrement(
-    IN OUT LPLONG lpAddend
-    );
+    __attribute__((__stdcall__))
+    InterlockedIncrement(
+        IN OUT LPLONG lpAddend);
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-InterlockedDecrement(
-    IN OUT LPLONG lpAddend
-    );
+    __attribute__((__stdcall__))
+    InterlockedDecrement(
+        IN OUT LPLONG lpAddend);
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-InterlockedExchange(
-    IN OUT LPLONG Target,
-    IN LONG Value
-    );
+    __attribute__((__stdcall__))
+    InterlockedExchange(
+        IN OUT LPLONG Target,
+        IN LONG Value);
 
 #define InterlockedExchangePointer(Target, Value) \
-    (PVOID)InterlockedExchange((PLONG)(Target), (LONG)(Value))
+    (PVOID) InterlockedExchange((PLONG)(Target), (LONG)(Value))
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-InterlockedExchangeAdd(
-    IN OUT LPLONG Addend,
-    IN LONG Value
-    );
+    __attribute__((__stdcall__))
+    InterlockedExchangeAdd(
+        IN OUT LPLONG Addend,
+        IN LONG Value);
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-InterlockedCompareExchange (
-    IN OUT LPLONG Destination,
-    IN LONG Exchange,
-    IN LONG Comperand
-    );
+    __attribute__((__stdcall__))
+    InterlockedCompareExchange(
+        IN OUT LPLONG Destination,
+        IN LONG Exchange,
+        IN LONG Comperand);
 
 #ifdef __cplusplus
 // Use a function for C++ so X86 will generate the same errors as RISC.
-__inline
-PVOID
-__cdecl
-__InlineInterlockedCompareExchangePointer (
-    IN OUT PVOID *Destination,
+__inline PVOID __cdecl
+__InlineInterlockedCompareExchangePointer(
+    IN OUT PVOID* Destination,
     IN PVOID ExChange,
-    IN PVOID Comperand
-    )
+    IN PVOID Comperand)
 {
-    return((PVOID)InterlockedCompareExchange((PLONG)Destination, (LONG)ExChange, (LONG)Comperand));
+    return ((PVOID)InterlockedCompareExchange((PLONG)Destination, (LONG)ExChange, (LONG)Comperand));
 }
 #define InterlockedCompareExchangePointer __InlineInterlockedCompareExchangePointer
 
 #else
 
 #define InterlockedCompareExchangePointer(Destination, ExChange, Comperand) \
-    (PVOID)InterlockedCompareExchange((PLONG)(Destination), (LONG)(ExChange), (LONG)(Comperand))
+    (PVOID) InterlockedCompareExchange((PLONG)(Destination), (LONG)(ExChange), (LONG)(Comperand))
 
 #endif
 
@@ -379,8 +368,7 @@ HGLOBAL
 __attribute__((__stdcall__))
 GlobalAlloc(
     IN UINT uFlags,
-    IN SIZE_T dwBytes
-    );
+    IN SIZE_T dwBytes);
 
 WINBASEAPI
 HGLOBAL
@@ -388,15 +376,13 @@ __attribute__((__stdcall__))
 GlobalReAlloc(
     IN HGLOBAL hMem,
     IN SIZE_T dwBytes,
-    IN UINT uFlags
-    );
+    IN UINT uFlags);
 
 WINBASEAPI
 UINT
-__attribute__((__stdcall__))
-GlobalFlags(
-    IN HGLOBAL hMem
-    );
+    __attribute__((__stdcall__))
+    GlobalFlags(
+        IN HGLOBAL hMem);
 
 #define GlobalSize LocalSize
 #define GlobalLock LocalLock
@@ -407,10 +393,9 @@ GlobalFlags(
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-GlobalMemoryStatus(
-    IN OUT LPMEMORYSTATUS lpBuffer
-    );
+    __attribute__((__stdcall__))
+    GlobalMemoryStatus(
+        IN OUT LPMEMORYSTATUS lpBuffer);
 
 
 WINBASEAPI
@@ -418,8 +403,7 @@ HLOCAL
 __attribute__((__stdcall__))
 LocalAlloc(
     IN UINT uFlags,
-    IN SIZE_T uBytes
-    );
+    IN SIZE_T uBytes);
 
 WINBASEAPI
 HLOCAL
@@ -427,50 +411,43 @@ __attribute__((__stdcall__))
 LocalReAlloc(
     IN HLOCAL hMem,
     IN SIZE_T uBytes,
-    IN UINT uFlags
-    );
+    IN UINT uFlags);
 
 WINBASEAPI
 LPVOID
 __attribute__((__stdcall__))
 LocalLock(
-    IN HLOCAL hMem
-    );
+    IN HLOCAL hMem);
 
 WINBASEAPI
 HLOCAL
 __attribute__((__stdcall__))
 LocalHandle(
-    IN LPCVOID pMem
-    );
+    IN LPCVOID pMem);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-LocalUnlock(
-    IN HLOCAL hMem
-    );
+    __attribute__((__stdcall__))
+    LocalUnlock(
+        IN HLOCAL hMem);
 
 WINBASEAPI
 SIZE_T
 __attribute__((__stdcall__))
 LocalSize(
-    IN HLOCAL hMem
-    );
+    IN HLOCAL hMem);
 
 WINBASEAPI
 UINT
-__attribute__((__stdcall__))
-LocalFlags(
-    IN HLOCAL hMem
-    );
+    __attribute__((__stdcall__))
+    LocalFlags(
+        IN HLOCAL hMem);
 
 WINBASEAPI
 HLOCAL
 __attribute__((__stdcall__))
 LocalFree(
-    IN HLOCAL hMem
-    );
+    IN HLOCAL hMem);
 
 
 //
@@ -479,31 +456,31 @@ LocalFree(
 // they live here alongside the functions that consume them.)
 //
 #ifndef PAGE_NOACCESS
-#define PAGE_NOACCESS           0x01
-#define PAGE_READONLY           0x02
-#define PAGE_READWRITE          0x04
-#define PAGE_WRITECOPY          0x08
-#define PAGE_EXECUTE            0x10
-#define PAGE_EXECUTE_READ       0x20
-#define PAGE_EXECUTE_READWRITE  0x40
-#define PAGE_EXECUTE_WRITECOPY  0x80
-#define PAGE_GUARD             0x100
-#define PAGE_NOCACHE           0x200
-#define PAGE_WRITECOMBINE      0x400
-#define PAGE_VIDEO               0x0
+#define PAGE_NOACCESS 0x01
+#define PAGE_READONLY 0x02
+#define PAGE_READWRITE 0x04
+#define PAGE_WRITECOPY 0x08
+#define PAGE_EXECUTE 0x10
+#define PAGE_EXECUTE_READ 0x20
+#define PAGE_EXECUTE_READWRITE 0x40
+#define PAGE_EXECUTE_WRITECOPY 0x80
+#define PAGE_GUARD 0x100
+#define PAGE_NOCACHE 0x200
+#define PAGE_WRITECOMBINE 0x400
+#define PAGE_VIDEO 0x0
 #endif
 
 #ifndef MEM_COMMIT
-#define MEM_COMMIT            0x1000
-#define MEM_RESERVE           0x2000
-#define MEM_DECOMMIT          0x4000
-#define MEM_RELEASE           0x8000
-#define MEM_FREE             0x10000
-#define MEM_PRIVATE          0x20000
-#define MEM_RESET            0x80000
-#define MEM_TOP_DOWN        0x100000
-#define MEM_NOZERO          0x800000
-#define MEM_4MB_PAGES     0x80000000
+#define MEM_COMMIT 0x1000
+#define MEM_RESERVE 0x2000
+#define MEM_DECOMMIT 0x4000
+#define MEM_RELEASE 0x8000
+#define MEM_FREE 0x10000
+#define MEM_PRIVATE 0x20000
+#define MEM_RESET 0x80000
+#define MEM_TOP_DOWN 0x100000
+#define MEM_NOZERO 0x800000
+#define MEM_4MB_PAGES 0x80000000
 #endif
 
 WINBASEAPI
@@ -513,27 +490,24 @@ VirtualAlloc(
     IN LPVOID lpAddress,
     IN SIZE_T dwSize,
     IN DWORD flAllocationType,
-    IN DWORD flProtect
-    );
+    IN DWORD flProtect);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-VirtualFree(
-    IN LPVOID lpAddress,
-    IN SIZE_T dwSize,
-    IN DWORD dwFreeType
-    );
+    __attribute__((__stdcall__))
+    VirtualFree(
+        IN LPVOID lpAddress,
+        IN SIZE_T dwSize,
+        IN DWORD dwFreeType);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-VirtualProtect(
-    IN  LPVOID lpAddress,
-    IN  SIZE_T dwSize,
-    IN  DWORD flNewProtect,
-    OUT PDWORD lpflOldProtect
-    );
+    __attribute__((__stdcall__))
+    VirtualProtect(
+        IN LPVOID lpAddress,
+        IN SIZE_T dwSize,
+        IN DWORD flNewProtect,
+        OUT PDWORD lpflOldProtect);
 
 WINBASEAPI
 DWORD
@@ -541,8 +515,7 @@ __attribute__((__stdcall__))
 VirtualQuery(
     IN LPCVOID lpAddress,
     OUT PMEMORY_BASIC_INFORMATION lpBuffer,
-    IN DWORD dwLength
-    );
+    IN DWORD dwLength);
 
 WINBASEAPI
 LPVOID
@@ -552,29 +525,26 @@ VirtualAllocEx(
     IN LPVOID lpAddress,
     IN SIZE_T dwSize,
     IN DWORD flAllocationType,
-    IN DWORD flProtect
-    );
+    IN DWORD flProtect);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-VirtualFreeEx(
-    IN HANDLE hProcess,
-    IN LPVOID lpAddress,
-    IN SIZE_T dwSize,
-    IN DWORD dwFreeType
-    );
+    __attribute__((__stdcall__))
+    VirtualFreeEx(
+        IN HANDLE hProcess,
+        IN LPVOID lpAddress,
+        IN SIZE_T dwSize,
+        IN DWORD dwFreeType);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-VirtualProtectEx(
-    IN  HANDLE hProcess,
-    IN  LPVOID lpAddress,
-    IN  SIZE_T dwSize,
-    IN  DWORD flNewProtect,
-    OUT PDWORD lpflOldProtect
-    );
+    __attribute__((__stdcall__))
+    VirtualProtectEx(
+        IN HANDLE hProcess,
+        IN LPVOID lpAddress,
+        IN SIZE_T dwSize,
+        IN DWORD flNewProtect,
+        OUT PDWORD lpflOldProtect);
 
 WINBASEAPI
 DWORD
@@ -583,8 +553,7 @@ VirtualQueryEx(
     IN HANDLE hProcess,
     IN LPCVOID lpAddress,
     OUT PMEMORY_BASIC_INFORMATION lpBuffer,
-    IN DWORD dwLength
-    );
+    IN DWORD dwLength);
 
 //
 // Flags for flOptions above and for the dwFlags of HeapAlloc/HeapFree/HeapReAlloc.
@@ -592,19 +561,19 @@ VirtualQueryEx(
 // HeapCreate but had no way to name what it was passing.
 //
 #ifndef HEAP_NO_SERIALIZE
-#define HEAP_NO_SERIALIZE               0x00000001
+#define HEAP_NO_SERIALIZE 0x00000001
 #endif
 #ifndef HEAP_GROWABLE
-#define HEAP_GROWABLE                   0x00000002
+#define HEAP_GROWABLE 0x00000002
 #endif
 #ifndef HEAP_GENERATE_EXCEPTIONS
-#define HEAP_GENERATE_EXCEPTIONS        0x00000004
+#define HEAP_GENERATE_EXCEPTIONS 0x00000004
 #endif
 #ifndef HEAP_ZERO_MEMORY
-#define HEAP_ZERO_MEMORY                0x00000008
+#define HEAP_ZERO_MEMORY 0x00000008
 #endif
 #ifndef HEAP_REALLOC_IN_PLACE_ONLY
-#define HEAP_REALLOC_IN_PLACE_ONLY      0x00000010
+#define HEAP_REALLOC_IN_PLACE_ONLY 0x00000010
 #endif
 
 WINBASEAPI
@@ -613,15 +582,13 @@ __attribute__((__stdcall__))
 HeapCreate(
     IN DWORD flOptions,
     IN SIZE_T dwInitialSize,
-    IN SIZE_T dwMaximumSize
-    );
+    IN SIZE_T dwMaximumSize);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-HeapDestroy(
-    IN OUT HANDLE hHeap
-    );
+    __attribute__((__stdcall__))
+    HeapDestroy(
+        IN OUT HANDLE hHeap);
 
 
 #if !defined(_NTURTL_)
@@ -632,8 +599,7 @@ __attribute__((__stdcall__))
 HeapAlloc(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
-    IN SIZE_T dwBytes
-    );
+    IN SIZE_T dwBytes);
 
 WINBASEAPI
 LPVOID
@@ -642,8 +608,7 @@ HeapReAlloc(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
     IN LPVOID lpMem,
-    IN SIZE_T dwBytes
-    );
+    IN SIZE_T dwBytes);
 
 WINBASEAPI
 SIZE_T
@@ -651,41 +616,37 @@ __attribute__((__stdcall__))
 HeapSize(
     IN HANDLE hHeap,
     IN DWORD dwFlags,
-    IN LPCVOID lpMem
-    );
+    IN LPCVOID lpMem);
 
 #endif // !defined(_NTURTL_)
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-HeapFree(
-    IN HANDLE hHeap,
-    IN DWORD dwFlags,
-    IN LPVOID lpMem
-    );
+    __attribute__((__stdcall__))
+    HeapFree(
+        IN HANDLE hHeap,
+        IN DWORD dwFlags,
+        IN LPVOID lpMem);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-HeapValidate(
-    IN HANDLE hHeap,
-    IN DWORD dwFlags,
-    IN LPCVOID lpMem
-    );
+    __attribute__((__stdcall__))
+    HeapValidate(
+        IN HANDLE hHeap,
+        IN DWORD dwFlags,
+        IN LPCVOID lpMem);
 
 WINBASEAPI
 SIZE_T
 __attribute__((__stdcall__))
 HeapCompact(
     IN HANDLE hHeap,
-    IN DWORD dwFlags
-    );
+    IN DWORD dwFlags);
 
 WINBASEAPI
 HANDLE
 __attribute__((__stdcall__))
-GetProcessHeap( VOID );
+GetProcessHeap(VOID);
 
 
 typedef struct _PROCESS_HEAP_ENTRY {
@@ -697,7 +658,7 @@ typedef struct _PROCESS_HEAP_ENTRY {
     union {
         struct {
             HANDLE hMem;
-            DWORD dwReserved[ 3 ];
+            DWORD dwReserved[3];
         } Block;
         struct {
             DWORD dwCommittedSize;
@@ -708,34 +669,31 @@ typedef struct _PROCESS_HEAP_ENTRY {
     };
 } PROCESS_HEAP_ENTRY, *LPPROCESS_HEAP_ENTRY, *PPROCESS_HEAP_ENTRY;
 
-#define PROCESS_HEAP_REGION             0x0001
-#define PROCESS_HEAP_UNCOMMITTED_RANGE  0x0002
-#define PROCESS_HEAP_ENTRY_BUSY         0x0004
-#define PROCESS_HEAP_ENTRY_MOVEABLE     0x0010
-#define PROCESS_HEAP_ENTRY_DDESHARE     0x0020
+#define PROCESS_HEAP_REGION 0x0001
+#define PROCESS_HEAP_UNCOMMITTED_RANGE 0x0002
+#define PROCESS_HEAP_ENTRY_BUSY 0x0004
+#define PROCESS_HEAP_ENTRY_MOVEABLE 0x0010
+#define PROCESS_HEAP_ENTRY_DDESHARE 0x0020
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-HeapLock(
-    IN HANDLE hHeap
-    );
+    __attribute__((__stdcall__))
+    HeapLock(
+        IN HANDLE hHeap);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-HeapUnlock(
-    IN HANDLE hHeap
-    );
+    __attribute__((__stdcall__))
+    HeapUnlock(
+        IN HANDLE hHeap);
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-HeapWalk(
-    IN HANDLE hHeap,
-    IN OUT LPPROCESS_HEAP_ENTRY lpEntry
-    );
+    __attribute__((__stdcall__))
+    HeapWalk(
+        IN HANDLE hHeap,
+        IN OUT LPPROCESS_HEAP_ENTRY lpEntry);
 
 
 #ifndef GetCurrentProcess
@@ -744,37 +702,33 @@ HeapWalk(
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-RaiseException(
-    IN DWORD dwExceptionCode,
-    IN DWORD dwExceptionFlags,
-    IN DWORD nNumberOfArguments,
-    IN CONST ULONG_PTR *lpArguments
-    );
+    __attribute__((__stdcall__))
+    RaiseException(
+        IN DWORD dwExceptionCode,
+        IN DWORD dwExceptionFlags,
+        IN DWORD nNumberOfArguments,
+        IN CONST ULONG_PTR* lpArguments);
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-UnhandledExceptionFilter(
-    IN struct _EXCEPTION_POINTERS *ExceptionInfo
-    );
+    __attribute__((__stdcall__))
+    UnhandledExceptionFilter(
+        IN struct _EXCEPTION_POINTERS* ExceptionInfo);
 
-typedef LONG (__attribute__((__stdcall__)) *PTOP_LEVEL_EXCEPTION_FILTER)(
-    struct _EXCEPTION_POINTERS *ExceptionInfo
-    );
+typedef LONG(__attribute__((__stdcall__)) * PTOP_LEVEL_EXCEPTION_FILTER)(
+    struct _EXCEPTION_POINTERS* ExceptionInfo);
 typedef PTOP_LEVEL_EXCEPTION_FILTER LPTOP_LEVEL_EXCEPTION_FILTER;
 
 WINBASEAPI
 LPTOP_LEVEL_EXCEPTION_FILTER
 __attribute__((__stdcall__))
 SetUnhandledExceptionFilter(
-    IN LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter
-    );
+    IN LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter);
 
 
-PVOID *rxdk_xapi_current_fiber_slot(void);
+PVOID* rxdk_xapi_current_fiber_slot(void);
 #define GetCurrentFiber() (*rxdk_xapi_current_fiber_slot())
-#define GetFiberData() (*(PVOID *)(GetCurrentFiber()))
+#define GetFiberData() (*(PVOID*)(GetCurrentFiber()))
 
 WINBASEAPI
 LPVOID
@@ -782,41 +736,35 @@ __stdcall
 CreateFiber(
     IN DWORD dwStackSize,
     IN LPFIBER_START_ROUTINE lpStartAddress,
-    IN LPVOID lpParameter
-    );
+    IN LPVOID lpParameter);
 
 WINBASEAPI
-VOID
-__stdcall
+VOID __stdcall
 DeleteFiber(
-    IN LPVOID lpFiber
-    );
+    IN LPVOID lpFiber);
 
 WINBASEAPI
 LPVOID
 __stdcall
 ConvertThreadToFiber(
-    IN LPVOID lpParameter
-    );
+    IN LPVOID lpParameter);
 
 WINBASEAPI
 VOID
-/* Pinned to __stdcall explicitly (not via the __attribute__((__stdcall__)) macro, which can collapse
+    /* Pinned to __stdcall explicitly (not via the __attribute__((__stdcall__)) macro, which can collapse
  * to cdecl depending on _MSC_VER/_STDCALL_SUPPORTED and include order). The
  * implementation is hand-written asm (xapi_fiber_switch.S) that ends in
  * `ret 4`, so the C caller MUST treat the single arg as callee-cleaned;
  * otherwise the stack drifts +4 per switch and a later ret lands in garbage. */
-__stdcall
-SwitchToFiber(
-    IN LPVOID lpFiber
-    );
+    __stdcall
+    SwitchToFiber(
+        IN LPVOID lpFiber);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SwitchToThread(
-    VOID
-    );
+    __attribute__((__stdcall__))
+    SwitchToThread(
+        VOID);
 
 WINBASEAPI
 HANDLE
@@ -827,8 +775,7 @@ CreateThread(
     IN LPTHREAD_START_ROUTINE lpStartAddress,
     IN LPVOID lpParameter,
     IN DWORD dwCreationFlags,
-    OUT LPDWORD lpThreadId
-    );
+    OUT LPDWORD lpThreadId);
 
 
 #ifndef GetCurrentThread
@@ -839,94 +786,82 @@ WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 GetCurrentThreadId(
-    VOID
-    );
+    VOID);
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetThreadPriority(
-    IN HANDLE hThread,
-    IN int nPriority
-    );
+    __attribute__((__stdcall__))
+    SetThreadPriority(
+        IN HANDLE hThread,
+        IN int nPriority);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetThreadPriorityBoost(
-    IN HANDLE hThread,
-    IN BOOL bDisablePriorityBoost
-    );
+    __attribute__((__stdcall__))
+    SetThreadPriorityBoost(
+        IN HANDLE hThread,
+        IN BOOL bDisablePriorityBoost);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetThreadPriorityBoost(
-    IN HANDLE hThread,
-    OUT PBOOL pDisablePriorityBoost
-    );
+    __attribute__((__stdcall__))
+    GetThreadPriorityBoost(
+        IN HANDLE hThread,
+        OUT PBOOL pDisablePriorityBoost);
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-GetThreadPriority(
-    IN HANDLE hThread
-    );
+    __attribute__((__stdcall__))
+    GetThreadPriority(
+        IN HANDLE hThread);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetThreadTimes(
-    IN HANDLE hThread,
-    OUT LPFILETIME lpCreationTime,
-    OUT LPFILETIME lpExitTime,
-    OUT LPFILETIME lpKernelTime,
-    OUT LPFILETIME lpUserTime
-    );
+    __attribute__((__stdcall__))
+    GetThreadTimes(
+        IN HANDLE hThread,
+        OUT LPFILETIME lpCreationTime,
+        OUT LPFILETIME lpExitTime,
+        OUT LPFILETIME lpKernelTime,
+        OUT LPFILETIME lpUserTime);
 
 WINBASEAPI
 DECLSPEC_NORETURN
 VOID
-__attribute__((__stdcall__))
-ExitThread(
-    IN DWORD dwExitCode
-    );
+    __attribute__((__stdcall__))
+    ExitThread(
+        IN DWORD dwExitCode);
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetExitCodeThread(
-    IN HANDLE hThread,
-    OUT LPDWORD lpExitCode
-    );
+    __attribute__((__stdcall__))
+    GetExitCodeThread(
+        IN HANDLE hThread,
+        OUT LPDWORD lpExitCode);
 
 WINBASEAPI
 DWORD
 __stdcall
 GetLastError(
-    VOID
-    );
+    VOID);
 
 WINBASEAPI
-VOID
-__stdcall
+VOID __stdcall
 SetLastError(
-    IN DWORD dwErrCode
-    );
+    IN DWORD dwErrCode);
 
 #define HasOverlappedIoCompleted(lpOverlapped) ((lpOverlapped)->Internal != STATUS_PENDING)
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetOverlappedResult(
-    IN HANDLE hFile,
-    IN LPOVERLAPPED lpOverlapped,
-    OUT LPDWORD lpNumberOfBytesTransferred,
-    IN BOOL bWait
-    );
+    __attribute__((__stdcall__))
+    GetOverlappedResult(
+        IN HANDLE hFile,
+        IN LPOVERLAPPED lpOverlapped,
+        OUT LPDWORD lpNumberOfBytesTransferred,
+        IN BOOL bWait);
 
 WINBASEAPI
 HANDLE
@@ -935,51 +870,43 @@ CreateIoCompletionPort(
     IN HANDLE FileHandle,
     IN HANDLE ExistingCompletionPort,
     IN ULONG_PTR CompletionKey,
-    IN DWORD NumberOfConcurrentThreads
-    );
+    IN DWORD NumberOfConcurrentThreads);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetQueuedCompletionStatus(
-    IN  HANDLE CompletionPort,
-    OUT LPDWORD lpNumberOfBytesTransferred,
-    OUT PULONG_PTR lpCompletionKey,
-    OUT LPOVERLAPPED *lpOverlapped,
-    IN  DWORD dwMilliseconds
-    );
+    __attribute__((__stdcall__))
+    GetQueuedCompletionStatus(
+        IN HANDLE CompletionPort,
+        OUT LPDWORD lpNumberOfBytesTransferred,
+        OUT PULONG_PTR lpCompletionKey,
+        OUT LPOVERLAPPED* lpOverlapped,
+        IN DWORD dwMilliseconds);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-PostQueuedCompletionStatus(
-    IN HANDLE CompletionPort,
-    IN DWORD dwNumberOfBytesTransferred,
-    IN ULONG_PTR dwCompletionKey,
-    IN LPOVERLAPPED lpOverlapped
-    );
+    __attribute__((__stdcall__))
+    PostQueuedCompletionStatus(
+        IN HANDLE CompletionPort,
+        IN DWORD dwNumberOfBytesTransferred,
+        IN ULONG_PTR dwCompletionKey,
+        IN LPOVERLAPPED lpOverlapped);
 
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 SuspendThread(
-    IN HANDLE hThread
-    );
+    IN HANDLE hThread);
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 ResumeThread(
-    IN HANDLE hThread
-    );
+    IN HANDLE hThread);
 
 
-typedef
-VOID
-(APIENTRY *PAPCFUNC)(
-    ULONG_PTR dwParam
-    );
+typedef VOID(APIENTRY* PAPCFUNC)(
+    ULONG_PTR dwParam);
 
 WINBASEAPI
 DWORD
@@ -987,80 +914,69 @@ __attribute__((__stdcall__))
 QueueUserAPC(
     IN PAPCFUNC pfnAPC,
     IN HANDLE hThread,
-    IN ULONG_PTR dwData
-    );
-
+    IN ULONG_PTR dwData);
 
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-DebugBreak(
-    VOID
-    );
+    __attribute__((__stdcall__))
+    DebugBreak(
+        VOID);
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetEvent(
-    IN HANDLE hEvent
-    );
+    __attribute__((__stdcall__))
+    SetEvent(
+        IN HANDLE hEvent);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-ResetEvent(
-    IN HANDLE hEvent
-    );
+    __attribute__((__stdcall__))
+    ResetEvent(
+        IN HANDLE hEvent);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-PulseEvent(
-    IN HANDLE hEvent
-    );
+    __attribute__((__stdcall__))
+    PulseEvent(
+        IN HANDLE hEvent);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-ReleaseSemaphore(
-    IN HANDLE hSemaphore,
-    IN LONG lReleaseCount,
-    OUT LPLONG lpPreviousCount
-    );
+    __attribute__((__stdcall__))
+    ReleaseSemaphore(
+        IN HANDLE hSemaphore,
+        IN LONG lReleaseCount,
+        OUT LPLONG lpPreviousCount);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-ReleaseMutex(
-    IN HANDLE hMutex
-    );
+    __attribute__((__stdcall__))
+    ReleaseMutex(
+        IN HANDLE hMutex);
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 WaitForSingleObject(
     IN HANDLE hHandle,
-    IN DWORD dwMilliseconds
-    );
+    IN DWORD dwMilliseconds);
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 WaitForMultipleObjects(
     IN DWORD nCount,
-    IN CONST HANDLE *lpHandles,
+    IN CONST HANDLE* lpHandles,
     IN BOOL bWaitAll,
-    IN DWORD dwMilliseconds
-    );
+    IN DWORD dwMilliseconds);
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-Sleep(
-    IN DWORD dwMilliseconds
-    );
+    __attribute__((__stdcall__))
+    Sleep(
+        IN DWORD dwMilliseconds);
 
 
 typedef struct _BY_HANDLE_FILE_INFORMATION {
@@ -1078,11 +994,10 @@ typedef struct _BY_HANDLE_FILE_INFORMATION {
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetFileInformationByHandle(
-    IN HANDLE hFile,
-    OUT LPBY_HANDLE_FILE_INFORMATION lpFileInformation
-    );
+    __attribute__((__stdcall__))
+    GetFileInformationByHandle(
+        IN HANDLE hFile,
+        OUT LPBY_HANDLE_FILE_INFORMATION lpFileInformation);
 
 
 WINBASEAPI
@@ -1090,66 +1005,59 @@ DWORD
 __attribute__((__stdcall__))
 GetFileSize(
     IN HANDLE hFile,
-    OUT LPDWORD lpFileSizeHigh
-    );
+    OUT LPDWORD lpFileSizeHigh);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetFileSizeEx(
-    HANDLE hFile,
-    PLARGE_INTEGER lpFileSize
-    );
+    __attribute__((__stdcall__))
+    GetFileSizeEx(
+        HANDLE hFile,
+        PLARGE_INTEGER lpFileSize);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-WriteFile(
-    IN HANDLE hFile,
-    IN LPCVOID lpBuffer,
-    IN DWORD nNumberOfBytesToWrite,
-    OUT LPDWORD lpNumberOfBytesWritten,
-    IN LPOVERLAPPED lpOverlapped
-    );
+    __attribute__((__stdcall__))
+    WriteFile(
+        IN HANDLE hFile,
+        IN LPCVOID lpBuffer,
+        IN DWORD nNumberOfBytesToWrite,
+        OUT LPDWORD lpNumberOfBytesWritten,
+        IN LPOVERLAPPED lpOverlapped);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-ReadFile(
-    IN HANDLE hFile,
-    OUT LPVOID lpBuffer,
-    IN DWORD nNumberOfBytesToRead,
-    OUT LPDWORD lpNumberOfBytesRead,
-    IN LPOVERLAPPED lpOverlapped
-    );
+    __attribute__((__stdcall__))
+    ReadFile(
+        IN HANDLE hFile,
+        OUT LPVOID lpBuffer,
+        IN DWORD nNumberOfBytesToRead,
+        OUT LPDWORD lpNumberOfBytesRead,
+        IN LPOVERLAPPED lpOverlapped);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-FlushFileBuffers(
-    IN HANDLE hFile
-    );
+    __attribute__((__stdcall__))
+    FlushFileBuffers(
+        IN HANDLE hFile);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-DeviceIoControl(
-    IN HANDLE hDevice,
-    IN DWORD dwIoControlCode,
-    IN LPVOID lpInBuffer,
-    IN DWORD nInBufferSize,
-    OUT LPVOID lpOutBuffer,
-    IN DWORD nOutBufferSize,
-    OUT LPDWORD lpBytesReturned,
-    IN LPOVERLAPPED lpOverlapped
-    );
+    __attribute__((__stdcall__))
+    DeviceIoControl(
+        IN HANDLE hDevice,
+        IN DWORD dwIoControlCode,
+        IN LPVOID lpInBuffer,
+        IN DWORD nInBufferSize,
+        OUT LPVOID lpOutBuffer,
+        IN DWORD nOutBufferSize,
+        OUT LPDWORD lpBytesReturned,
+        IN LPOVERLAPPED lpOverlapped);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetEndOfFile(
-    IN HANDLE hFile
-    );
+    __attribute__((__stdcall__))
+    SetEndOfFile(
+        IN HANDLE hFile);
 
 WINBASEAPI
 DWORD
@@ -1158,100 +1066,90 @@ SetFilePointer(
     IN HANDLE hFile,
     IN LONG lDistanceToMove,
     IN PLONG lpDistanceToMoveHigh,
-    IN DWORD dwMoveMethod
-    );
+    IN DWORD dwMoveMethod);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetFilePointerEx(
-    HANDLE hFile,
-    LARGE_INTEGER liDistanceToMove,
-    PLARGE_INTEGER lpNewFilePointer,
-    DWORD dwMoveMethod
-    );
+    __attribute__((__stdcall__))
+    SetFilePointerEx(
+        HANDLE hFile,
+        LARGE_INTEGER liDistanceToMove,
+        PLARGE_INTEGER lpNewFilePointer,
+        DWORD dwMoveMethod);
 
 #define FindClose(hFindFile) CloseHandle(hFindFile)
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetFileTime(
-    IN HANDLE hFile,
-    OUT LPFILETIME lpCreationTime,
-    OUT LPFILETIME lpLastAccessTime,
-    OUT LPFILETIME lpLastWriteTime
-    );
+    __attribute__((__stdcall__))
+    GetFileTime(
+        IN HANDLE hFile,
+        OUT LPFILETIME lpCreationTime,
+        OUT LPFILETIME lpLastAccessTime,
+        OUT LPFILETIME lpLastWriteTime);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetFileTime(
-    IN HANDLE hFile,
-    IN CONST FILETIME *lpCreationTime,
-    IN CONST FILETIME *lpLastAccessTime,
-    IN CONST FILETIME *lpLastWriteTime
-    );
+    __attribute__((__stdcall__))
+    SetFileTime(
+        IN HANDLE hFile,
+        IN CONST FILETIME* lpCreationTime,
+        IN CONST FILETIME* lpLastAccessTime,
+        IN CONST FILETIME* lpLastWriteTime);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CloseHandle(
-    IN OUT HANDLE hObject
-    );
+    __attribute__((__stdcall__))
+    CloseHandle(
+        IN OUT HANDLE hObject);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-DuplicateHandle(
-    IN HANDLE hSourceProcessHandle,
-    IN HANDLE hSourceHandle,
-    IN HANDLE hTargetProcessHandle,
-    OUT LPHANDLE lpTargetHandle,
-    IN DWORD dwDesiredAccess,
-    IN BOOL bInheritHandle,
-    IN DWORD dwOptions
-    );
+    __attribute__((__stdcall__))
+    DuplicateHandle(
+        IN HANDLE hSourceProcessHandle,
+        IN HANDLE hSourceHandle,
+        IN HANDLE hTargetProcessHandle,
+        OUT LPHANDLE lpTargetHandle,
+        IN DWORD dwDesiredAccess,
+        IN BOOL bInheritHandle,
+        IN DWORD dwOptions);
 
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-MulDiv(
-    IN int nNumber,
-    IN int nNumerator,
-    IN int nDenominator
-    );
+    __attribute__((__stdcall__))
+    MulDiv(
+        IN int nNumber,
+        IN int nNumerator,
+        IN int nDenominator);
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-GetSystemTime(
-    OUT LPSYSTEMTIME lpSystemTime
-    );
+    __attribute__((__stdcall__))
+    GetSystemTime(
+        OUT LPSYSTEMTIME lpSystemTime);
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-GetSystemTimeAsFileTime(
-    OUT LPFILETIME lpSystemTimeAsFileTime
-    );
+    __attribute__((__stdcall__))
+    GetSystemTimeAsFileTime(
+        OUT LPFILETIME lpSystemTimeAsFileTime);
 
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-GetLocalTime(
-    OUT LPSYSTEMTIME lpSystemTime
-    );
+    __attribute__((__stdcall__))
+    GetLocalTime(
+        OUT LPSYSTEMTIME lpSystemTime);
 
 
 typedef struct _TIME_ZONE_INFORMATION {
     LONG Bias;
-    WCHAR StandardName[ 32 ];
+    WCHAR StandardName[32];
     SYSTEMTIME StandardDate;
     LONG StandardBias;
-    WCHAR DaylightName[ 32 ];
+    WCHAR DaylightName[32];
     SYSTEMTIME DaylightDate;
     LONG DaylightBias;
 } TIME_ZONE_INFORMATION, *PTIME_ZONE_INFORMATION, *LPTIME_ZONE_INFORMATION;
@@ -1261,8 +1159,7 @@ WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 GetTimeZoneInformation(
-    OUT LPTIME_ZONE_INFORMATION lpTimeZoneInformation
-    );
+    OUT LPTIME_ZONE_INFORMATION lpTimeZoneInformation);
 
 
 //
@@ -1271,51 +1168,45 @@ GetTimeZoneInformation(
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SystemTimeToFileTime(
-    IN CONST SYSTEMTIME *lpSystemTime,
-    OUT LPFILETIME lpFileTime
-    );
+    __attribute__((__stdcall__))
+    SystemTimeToFileTime(
+        IN CONST SYSTEMTIME* lpSystemTime,
+        OUT LPFILETIME lpFileTime);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-FileTimeToLocalFileTime(
-    IN CONST FILETIME *lpFileTime,
-    OUT LPFILETIME lpLocalFileTime
-    );
+    __attribute__((__stdcall__))
+    FileTimeToLocalFileTime(
+        IN CONST FILETIME* lpFileTime,
+        OUT LPFILETIME lpLocalFileTime);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-LocalFileTimeToFileTime(
-    IN CONST FILETIME *lpLocalFileTime,
-    OUT LPFILETIME lpFileTime
-    );
+    __attribute__((__stdcall__))
+    LocalFileTimeToFileTime(
+        IN CONST FILETIME* lpLocalFileTime,
+        OUT LPFILETIME lpFileTime);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-FileTimeToSystemTime(
-    IN CONST FILETIME *lpFileTime,
-    OUT LPSYSTEMTIME lpSystemTime
-    );
+    __attribute__((__stdcall__))
+    FileTimeToSystemTime(
+        IN CONST FILETIME* lpFileTime,
+        OUT LPSYSTEMTIME lpSystemTime);
 
 WINBASEAPI
 LONG
-__attribute__((__stdcall__))
-CompareFileTime(
-    IN CONST FILETIME *lpFileTime1,
-    IN CONST FILETIME *lpFileTime2
-    );
+    __attribute__((__stdcall__))
+    CompareFileTime(
+        IN CONST FILETIME* lpFileTime1,
+        IN CONST FILETIME* lpFileTime2);
 
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 GetTickCount(
-    VOID
-    );
+    VOID);
 
 
 //
@@ -1324,42 +1215,38 @@ GetTickCount(
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-lstrcmpA(
-    IN LPCSTR lpString1,
-    IN LPCSTR lpString2
-    );
+    __attribute__((__stdcall__))
+    lstrcmpA(
+        IN LPCSTR lpString1,
+        IN LPCSTR lpString2);
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-lstrcmpW(
-    IN LPCWSTR lpString1,
-    IN LPCWSTR lpString2
-    );
+    __attribute__((__stdcall__))
+    lstrcmpW(
+        IN LPCWSTR lpString1,
+        IN LPCWSTR lpString2);
 #ifdef UNICODE
-#define lstrcmp  lstrcmpW
+#define lstrcmp lstrcmpW
 #else
-#define lstrcmp  lstrcmpA
+#define lstrcmp lstrcmpA
 #endif // !UNICODE
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-lstrcmpiA(
-    IN LPCSTR lpString1,
-    IN LPCSTR lpString2
-    );
+    __attribute__((__stdcall__))
+    lstrcmpiA(
+        IN LPCSTR lpString1,
+        IN LPCSTR lpString2);
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-lstrcmpiW(
-    IN LPCWSTR lpString1,
-    IN LPCWSTR lpString2
-    );
+    __attribute__((__stdcall__))
+    lstrcmpiW(
+        IN LPCWSTR lpString1,
+        IN LPCWSTR lpString2);
 #ifdef UNICODE
-#define lstrcmpi  lstrcmpiW
+#define lstrcmpi lstrcmpiW
 #else
-#define lstrcmpi  lstrcmpiA
+#define lstrcmpi lstrcmpiA
 #endif // !UNICODE
 
 WINBASEAPI
@@ -1368,20 +1255,18 @@ __attribute__((__stdcall__))
 lstrcpynA(
     OUT LPSTR lpString1,
     IN LPCSTR lpString2,
-    IN int iMaxLength
-    );
+    IN int iMaxLength);
 WINBASEAPI
 LPWSTR
 __attribute__((__stdcall__))
 lstrcpynW(
     OUT LPWSTR lpString1,
     IN LPCWSTR lpString2,
-    IN int iMaxLength
-    );
+    IN int iMaxLength);
 #ifdef UNICODE
-#define lstrcpyn  lstrcpynW
+#define lstrcpyn lstrcpynW
 #else
-#define lstrcpyn  lstrcpynA
+#define lstrcpyn lstrcpynA
 #endif // !UNICODE
 
 WINBASEAPI
@@ -1389,19 +1274,17 @@ LPSTR
 __attribute__((__stdcall__))
 lstrcpyA(
     OUT LPSTR lpString1,
-    IN LPCSTR lpString2
-    );
+    IN LPCSTR lpString2);
 WINBASEAPI
 LPWSTR
 __attribute__((__stdcall__))
 lstrcpyW(
     OUT LPWSTR lpString1,
-    IN LPCWSTR lpString2
-    );
+    IN LPCWSTR lpString2);
 #ifdef UNICODE
-#define lstrcpy  lstrcpyW
+#define lstrcpy lstrcpyW
 #else
-#define lstrcpy  lstrcpyA
+#define lstrcpy lstrcpyA
 #endif // !UNICODE
 
 WINBASEAPI
@@ -1409,37 +1292,33 @@ LPSTR
 __attribute__((__stdcall__))
 lstrcatA(
     IN OUT LPSTR lpString1,
-    IN LPCSTR lpString2
-    );
+    IN LPCSTR lpString2);
 WINBASEAPI
 LPWSTR
 __attribute__((__stdcall__))
 lstrcatW(
     IN OUT LPWSTR lpString1,
-    IN LPCWSTR lpString2
-    );
+    IN LPCWSTR lpString2);
 #ifdef UNICODE
-#define lstrcat  lstrcatW
+#define lstrcat lstrcatW
 #else
-#define lstrcat  lstrcatA
+#define lstrcat lstrcatA
 #endif // !UNICODE
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-lstrlenA(
-    IN LPCSTR lpString
-    );
+    __attribute__((__stdcall__))
+    lstrlenA(
+        IN LPCSTR lpString);
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-lstrlenW(
-    IN LPCWSTR lpString
-    );
+    __attribute__((__stdcall__))
+    lstrlenW(
+        IN LPCWSTR lpString);
 #ifdef UNICODE
-#define lstrlen  lstrlenW
+#define lstrlen lstrlenW
 #else
-#define lstrlen  lstrlenA
+#define lstrlen lstrlenA
 #endif // !UNICODE
 
 
@@ -1447,8 +1326,7 @@ WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 TlsAlloc(
-    VOID
-    );
+    VOID);
 
 #define TLS_OUT_OF_INDEXES (DWORD)0xFFFFFFFF
 
@@ -1456,39 +1334,32 @@ WINBASEAPI
 LPVOID
 __attribute__((__stdcall__))
 TlsGetValue(
-    IN DWORD dwTlsIndex
-    );
+    IN DWORD dwTlsIndex);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-TlsSetValue(
-    IN DWORD dwTlsIndex,
-    IN LPVOID lpTlsValue
-    );
+    __attribute__((__stdcall__))
+    TlsSetValue(
+        IN DWORD dwTlsIndex,
+        IN LPVOID lpTlsValue);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-TlsFree(
-    IN DWORD dwTlsIndex
-    );
+    __attribute__((__stdcall__))
+    TlsFree(
+        IN DWORD dwTlsIndex);
 
-typedef
-VOID
-(__attribute__((__stdcall__)) *LPOVERLAPPED_COMPLETION_ROUTINE)(
+typedef VOID(__attribute__((__stdcall__)) * LPOVERLAPPED_COMPLETION_ROUTINE)(
     DWORD dwErrorCode,
     DWORD dwNumberOfBytesTransfered,
-    LPOVERLAPPED lpOverlapped
-    );
+    LPOVERLAPPED lpOverlapped);
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 SleepEx(
     IN DWORD dwMilliseconds,
-    IN BOOL bAlertable
-    );
+    IN BOOL bAlertable);
 
 WINBASEAPI
 DWORD
@@ -1496,19 +1367,17 @@ __attribute__((__stdcall__))
 WaitForSingleObjectEx(
     IN HANDLE hHandle,
     IN DWORD dwMilliseconds,
-    IN BOOL bAlertable
-    );
+    IN BOOL bAlertable);
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 WaitForMultipleObjectsEx(
     IN DWORD nCount,
-    IN CONST HANDLE *lpHandles,
+    IN CONST HANDLE* lpHandles,
     IN BOOL bWaitAll,
     IN DWORD dwMilliseconds,
-    IN BOOL bAlertable
-    );
+    IN BOOL bAlertable);
 
 WINBASEAPI
 DWORD
@@ -1517,52 +1386,47 @@ SignalObjectAndWait(
     IN HANDLE hObjectToSignal,
     IN HANDLE hObjectToWaitOn,
     IN DWORD dwMilliseconds,
-    IN BOOL bAlertable
-    );
+    IN BOOL bAlertable);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-ReadFileEx(
-    IN HANDLE hFile,
-    OUT LPVOID lpBuffer,
-    IN DWORD nNumberOfBytesToRead,
-    IN LPOVERLAPPED lpOverlapped,
-    IN LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-    );
+    __attribute__((__stdcall__))
+    ReadFileEx(
+        IN HANDLE hFile,
+        OUT LPVOID lpBuffer,
+        IN DWORD nNumberOfBytesToRead,
+        IN LPOVERLAPPED lpOverlapped,
+        IN LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-WriteFileEx(
-    IN HANDLE hFile,
-    IN LPCVOID lpBuffer,
-    IN DWORD nNumberOfBytesToWrite,
-    IN LPOVERLAPPED lpOverlapped,
-    IN LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-    );
+    __attribute__((__stdcall__))
+    WriteFileEx(
+        IN HANDLE hFile,
+        IN LPCVOID lpBuffer,
+        IN DWORD nNumberOfBytesToWrite,
+        IN LPOVERLAPPED lpOverlapped,
+        IN LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-ReadFileScatter(
-    IN HANDLE hFile,
-    IN FILE_SEGMENT_ELEMENT aSegmentArray[],
-    IN DWORD nNumberOfBytesToRead,
-    OUT LPDWORD lpNumberOfBytesRead,
-    IN LPOVERLAPPED lpOverlapped
-    );
+    __attribute__((__stdcall__))
+    ReadFileScatter(
+        IN HANDLE hFile,
+        IN FILE_SEGMENT_ELEMENT aSegmentArray[],
+        IN DWORD nNumberOfBytesToRead,
+        OUT LPDWORD lpNumberOfBytesRead,
+        IN LPOVERLAPPED lpOverlapped);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-WriteFileGather(
-    IN HANDLE hFile,
-    OUT FILE_SEGMENT_ELEMENT aSegmentArray[],
-    IN DWORD nNumberOfBytesToWrite,
-    OUT LPDWORD lpNumberOfBytesWritten,
-    IN LPOVERLAPPED lpOverlapped
-    );
+    __attribute__((__stdcall__))
+    WriteFileGather(
+        IN HANDLE hFile,
+        OUT FILE_SEGMENT_ELEMENT aSegmentArray[],
+        IN DWORD nNumberOfBytesToWrite,
+        OUT LPDWORD lpNumberOfBytesWritten,
+        IN LPOVERLAPPED lpOverlapped);
 
 //
 // Dual Mode API below this line. Dual Mode Structures also included.
@@ -1577,8 +1441,8 @@ typedef struct _WIN32_FIND_DATAA {
     DWORD nFileSizeLow;
     DWORD dwReserved0;
     DWORD dwReserved1;
-    CHAR cFileName[ MAX_PATH ];
-    CHAR cAlternateFileName[ 14 ];
+    CHAR cFileName[MAX_PATH];
+    CHAR cAlternateFileName[14];
 } WIN32_FIND_DATAA, *PWIN32_FIND_DATAA, *LPWIN32_FIND_DATAA;
 typedef WIN32_FIND_DATAA WIN32_FIND_DATA;
 typedef PWIN32_FIND_DATAA PWIN32_FIND_DATA;
@@ -1599,8 +1463,7 @@ __attribute__((__stdcall__))
 CreateMutexA(
     IN LPSECURITY_ATTRIBUTES lpMutexAttributes,
     IN BOOL bInitialOwner,
-    IN LPCSTR lpName
-    );
+    IN LPCSTR lpName);
 #define CreateMutex CreateMutexA
 
 WINBASEAPI
@@ -1609,8 +1472,7 @@ __attribute__((__stdcall__))
 OpenMutexA(
     IN DWORD dwDesiredAccess,
     IN BOOL bInheritHandle,
-    IN LPCSTR lpName
-    );
+    IN LPCSTR lpName);
 #define OpenMutex OpenMutexA
 
 WINBASEAPI
@@ -1620,8 +1482,7 @@ CreateEventA(
     IN LPSECURITY_ATTRIBUTES lpEventAttributes,
     IN BOOL bManualReset,
     IN BOOL bInitialState,
-    IN LPCSTR lpName
-    );
+    IN LPCSTR lpName);
 #define CreateEvent CreateEventA
 
 WINBASEAPI
@@ -1630,8 +1491,7 @@ __attribute__((__stdcall__))
 OpenEventA(
     IN DWORD dwDesiredAccess,
     IN BOOL bInheritHandle,
-    IN LPCSTR lpName
-    );
+    IN LPCSTR lpName);
 #define OpenEvent OpenEventA
 
 WINBASEAPI
@@ -1641,8 +1501,7 @@ CreateSemaphoreA(
     IN LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
     IN LONG lInitialCount,
     IN LONG lMaximumCount,
-    IN LPCSTR lpName
-    );
+    IN LPCSTR lpName);
 #define CreateSemaphore CreateSemaphoreA
 
 WINBASEAPI
@@ -1651,17 +1510,13 @@ __attribute__((__stdcall__))
 OpenSemaphoreA(
     IN DWORD dwDesiredAccess,
     IN BOOL bInheritHandle,
-    IN LPCSTR lpName
-    );
+    IN LPCSTR lpName);
 #define OpenSemaphore OpenSemaphoreA
 
-typedef
-VOID
-(APIENTRY *PTIMERAPCROUTINE)(
+typedef VOID(APIENTRY* PTIMERAPCROUTINE)(
     LPVOID lpArgToCompletionRoutine,
     DWORD dwTimerLowValue,
-    DWORD dwTimerHighValue
-    );
+    DWORD dwTimerHighValue);
 
 WINBASEAPI
 HANDLE
@@ -1669,8 +1524,7 @@ __attribute__((__stdcall__))
 CreateWaitableTimerA(
     IN LPSECURITY_ATTRIBUTES lpTimerAttributes,
     IN BOOL bManualReset,
-    IN LPCSTR lpTimerName
-    );
+    IN LPCSTR lpTimerName);
 #define CreateWaitableTimer CreateWaitableTimerA
 
 WINBASEAPI
@@ -1679,76 +1533,68 @@ __attribute__((__stdcall__))
 OpenWaitableTimerA(
     IN DWORD dwDesiredAccess,
     IN BOOL bInheritHandle,
-    IN LPCSTR lpTimerName
-    );
+    IN LPCSTR lpTimerName);
 #define OpenWaitableTimer OpenWaitableTimerA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetWaitableTimer(
-    IN HANDLE hTimer,
-    IN const LARGE_INTEGER *lpDueTime,
-    IN LONG lPeriod,
-    IN PTIMERAPCROUTINE pfnCompletionRoutine,
-    IN LPVOID lpArgToCompletionRoutine,
-    IN BOOL fResume
-    );
+    __attribute__((__stdcall__))
+    SetWaitableTimer(
+        IN HANDLE hTimer,
+        IN const LARGE_INTEGER* lpDueTime,
+        IN LONG lPeriod,
+        IN PTIMERAPCROUTINE pfnCompletionRoutine,
+        IN LPVOID lpArgToCompletionRoutine,
+        IN BOOL fResume);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CancelWaitableTimer(
-    IN HANDLE hTimer
-    );
+    __attribute__((__stdcall__))
+    CancelWaitableTimer(
+        IN HANDLE hTimer);
 
 
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-OutputDebugStringA(
-    IN LPCSTR lpOutputString
-    );
+    __attribute__((__stdcall__))
+    OutputDebugStringA(
+        IN LPCSTR lpOutputString);
 WINBASEAPI
 VOID
-__attribute__((__stdcall__))
-OutputDebugStringW(
-    IN LPCWSTR lpOutputString
-    );
+    __attribute__((__stdcall__))
+    OutputDebugStringW(
+        IN LPCWSTR lpOutputString);
 #ifdef UNICODE
-#define OutputDebugString  OutputDebugStringW
+#define OutputDebugString OutputDebugStringW
 #else
-#define OutputDebugString  OutputDebugStringA
+#define OutputDebugString OutputDebugStringA
 #endif // !UNICODE
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetDiskFreeSpaceExA(
-    IN LPCSTR lpDirectoryName,
-    OUT PULARGE_INTEGER lpFreeBytesAvailableToCaller,
-    OUT PULARGE_INTEGER lpTotalNumberOfBytes,
-    OUT PULARGE_INTEGER lpTotalNumberOfFreeBytes
-    );
+    __attribute__((__stdcall__))
+    GetDiskFreeSpaceExA(
+        IN LPCSTR lpDirectoryName,
+        OUT PULARGE_INTEGER lpFreeBytesAvailableToCaller,
+        OUT PULARGE_INTEGER lpTotalNumberOfBytes,
+        OUT PULARGE_INTEGER lpTotalNumberOfFreeBytes);
 #define GetDiskFreeSpaceEx GetDiskFreeSpaceExA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CreateDirectoryA(
-    IN LPCSTR lpPathName,
-    IN LPSECURITY_ATTRIBUTES lpSecurityAttributes
-    );
+    __attribute__((__stdcall__))
+    CreateDirectoryA(
+        IN LPCSTR lpPathName,
+        IN LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 #define CreateDirectory CreateDirectoryA
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-RemoveDirectoryA(
-    IN LPCSTR lpPathName
-    );
+    __attribute__((__stdcall__))
+    RemoveDirectoryA(
+        IN LPCSTR lpPathName);
 #define RemoveDirectory RemoveDirectoryA
 
 
@@ -1762,25 +1608,22 @@ CreateFileA(
     IN LPSECURITY_ATTRIBUTES lpSecurityAttributes,
     IN DWORD dwCreationDisposition,
     IN DWORD dwFlagsAndAttributes,
-    IN HANDLE hTemplateFile
-    );
+    IN HANDLE hTemplateFile);
 #define CreateFile CreateFileA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetFileAttributesA(
-    IN LPCSTR lpFileName,
-    IN DWORD dwFileAttributes
-    );
+    __attribute__((__stdcall__))
+    SetFileAttributesA(
+        IN LPCSTR lpFileName,
+        IN DWORD dwFileAttributes);
 #define SetFileAttributes SetFileAttributesA
 
 WINBASEAPI
 DWORD
 __attribute__((__stdcall__))
 GetFileAttributesA(
-    IN LPCSTR lpFileName
-    );
+    IN LPCSTR lpFileName);
 #define GetFileAttributes GetFileAttributesA
 
 typedef enum _GET_FILEEX_INFO_LEVELS {
@@ -1790,20 +1633,18 @@ typedef enum _GET_FILEEX_INFO_LEVELS {
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetFileAttributesExA(
-    IN LPCSTR lpFileName,
-    IN GET_FILEEX_INFO_LEVELS fInfoLevelId,
-    OUT LPVOID lpFileInformation
-    );
+    __attribute__((__stdcall__))
+    GetFileAttributesExA(
+        IN LPCSTR lpFileName,
+        IN GET_FILEEX_INFO_LEVELS fInfoLevelId,
+        OUT LPVOID lpFileInformation);
 #define GetFileAttributesEx GetFileAttributesExA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-DeleteFileA(
-    IN LPCSTR lpFileName
-    );
+    __attribute__((__stdcall__))
+    DeleteFileA(
+        IN LPCSTR lpFileName);
 #define DeleteFile DeleteFileA
 
 WINBASEAPI
@@ -1811,33 +1652,28 @@ HANDLE
 __attribute__((__stdcall__))
 FindFirstFileA(
     IN LPCSTR lpFileName,
-    OUT LPWIN32_FIND_DATA lpFindFileData
-    );
+    OUT LPWIN32_FIND_DATA lpFindFileData);
 #define FindFirstFile FindFirstFileA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-FindNextFileA(
-    IN HANDLE hFindFile,
-    OUT LPWIN32_FIND_DATAA lpFindFileData
-    );
+    __attribute__((__stdcall__))
+    FindNextFileA(
+        IN HANDLE hFindFile,
+        OUT LPWIN32_FIND_DATAA lpFindFileData);
 #define FindNextFile FindNextFileA
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CopyFileA(
-    IN LPCSTR lpExistingFileName,
-    IN LPCSTR lpNewFileName,
-    IN BOOL bFailIfExists
-    );
+    __attribute__((__stdcall__))
+    CopyFileA(
+        IN LPCSTR lpExistingFileName,
+        IN LPCSTR lpNewFileName,
+        IN BOOL bFailIfExists);
 #define CopyFile CopyFileA
 
-typedef
-DWORD
-(__attribute__((__stdcall__)) *LPPROGRESS_ROUTINE)(
+typedef DWORD(__attribute__((__stdcall__)) * LPPROGRESS_ROUTINE)(
     LARGE_INTEGER TotalFileSize,
     LARGE_INTEGER TotalBytesTransferred,
     LARGE_INTEGER StreamSize,
@@ -1846,123 +1682,111 @@ DWORD
     DWORD dwCallbackReason,
     HANDLE hSourceFile,
     HANDLE hDestinationFile,
-    LPVOID lpData OPTIONAL
-    );
+    LPVOID lpData OPTIONAL);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CopyFileExA(
-    IN LPCSTR lpExistingFileName,
-    IN LPCSTR lpNewFileName,
-    IN LPPROGRESS_ROUTINE lpProgressRoutine OPTIONAL,
-    IN LPVOID lpData OPTIONAL,
-    IN LPBOOL pbCancel OPTIONAL,
-    IN DWORD dwCopyFlags
-    );
+    __attribute__((__stdcall__))
+    CopyFileExA(
+        IN LPCSTR lpExistingFileName,
+        IN LPCSTR lpNewFileName,
+        IN LPPROGRESS_ROUTINE lpProgressRoutine OPTIONAL,
+        IN LPVOID lpData OPTIONAL,
+        IN LPBOOL pbCancel OPTIONAL,
+        IN DWORD dwCopyFlags);
 #define CopyFileEx CopyFileExA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-MoveFileA(
-    IN LPCSTR lpExistingFileName,
-    IN LPCSTR lpNewFileName
-    );
+    __attribute__((__stdcall__))
+    MoveFileA(
+        IN LPCSTR lpExistingFileName,
+        IN LPCSTR lpNewFileName);
 #define MoveFile MoveFileA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-MoveFileExA(
-    IN LPCSTR lpExistingFileName,
-    IN LPCSTR lpNewFileName,
-    IN DWORD dwFlags
-    );
+    __attribute__((__stdcall__))
+    MoveFileExA(
+        IN LPCSTR lpExistingFileName,
+        IN LPCSTR lpNewFileName,
+        IN DWORD dwFlags);
 #define MoveFileEx MoveFileExA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-MoveFileWithProgressA(
-    IN LPCSTR lpExistingFileName,
-    IN LPCSTR lpNewFileName,
-    IN LPPROGRESS_ROUTINE lpProgressRoutine OPTIONAL,
-    IN LPVOID lpData OPTIONAL,
-    IN DWORD dwFlags
-    );
+    __attribute__((__stdcall__))
+    MoveFileWithProgressA(
+        IN LPCSTR lpExistingFileName,
+        IN LPCSTR lpNewFileName,
+        IN LPPROGRESS_ROUTINE lpProgressRoutine OPTIONAL,
+        IN LPVOID lpData OPTIONAL,
+        IN DWORD dwFlags);
 #define MoveFileWithProgress MoveFileWithProgressA
 
-#define MOVEFILE_REPLACE_EXISTING       0x00000001
-#define MOVEFILE_COPY_ALLOWED           0x00000002
-#define MOVEFILE_WRITE_THROUGH          0x00000008
+#define MOVEFILE_REPLACE_EXISTING 0x00000001
+#define MOVEFILE_COPY_ALLOWED 0x00000002
+#define MOVEFILE_WRITE_THROUGH 0x00000008
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-GetVolumeInformationA(
-    IN LPCSTR lpRootPathName,
-    OUT LPSTR lpVolumeNameBuffer,
-    IN DWORD nVolumeNameSize,
-    OUT LPDWORD lpVolumeSerialNumber,
-    OUT LPDWORD lpMaximumComponentLength,
-    OUT LPDWORD lpFileSystemFlags,
-    OUT LPSTR lpFileSystemNameBuffer,
-    IN DWORD nFileSystemNameSize
-    );
+    __attribute__((__stdcall__))
+    GetVolumeInformationA(
+        IN LPCSTR lpRootPathName,
+        OUT LPSTR lpVolumeNameBuffer,
+        IN DWORD nVolumeNameSize,
+        OUT LPDWORD lpVolumeSerialNumber,
+        OUT LPDWORD lpMaximumComponentLength,
+        OUT LPDWORD lpFileSystemFlags,
+        OUT LPSTR lpFileSystemNameBuffer,
+        IN DWORD nFileSystemNameSize);
 #define GetVolumeInformation GetVolumeInformationA
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CancelIo(
-    IN HANDLE hFile
-    );
+    __attribute__((__stdcall__))
+    CancelIo(
+        IN HANDLE hFile);
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IsBadReadPtr(
-    IN CONST VOID *lp,
-    IN UINT_PTR ucb
-    );
+    __attribute__((__stdcall__))
+    IsBadReadPtr(
+        IN CONST VOID* lp,
+        IN UINT_PTR ucb);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IsBadWritePtr(
-    IN LPVOID lp,
-    IN UINT_PTR ucb
-    );
+    __attribute__((__stdcall__))
+    IsBadWritePtr(
+        IN LPVOID lp,
+        IN UINT_PTR ucb);
 
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IsBadCodePtr(
-    IN FARPROC lpfn
-    );
+    __attribute__((__stdcall__))
+    IsBadCodePtr(
+        IN FARPROC lpfn);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IsBadStringPtrA(
-    IN LPCSTR lpsz,
-    IN UINT_PTR ucchMax
-    );
+    __attribute__((__stdcall__))
+    IsBadStringPtrA(
+        IN LPCSTR lpsz,
+        IN UINT_PTR ucchMax);
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IsBadStringPtrW(
-    IN LPCWSTR lpsz,
-    IN UINT_PTR ucchMax
-    );
+    __attribute__((__stdcall__))
+    IsBadStringPtrW(
+        IN LPCWSTR lpsz,
+        IN UINT_PTR ucchMax);
 #ifdef UNICODE
-#define IsBadStringPtr  IsBadStringPtrW
+#define IsBadStringPtr IsBadStringPtrW
 #else
-#define IsBadStringPtr  IsBadStringPtrA
+#define IsBadStringPtr IsBadStringPtrA
 #endif // !UNICODE
 
 
@@ -1972,18 +1796,14 @@ IsBadStringPtrW(
 
 /* __stdcall pinned explicitly: naked asm defs (perfctr.c) end in `ret 4`. */
 WINBASEAPI
-BOOL
-__stdcall
+BOOL __stdcall
 QueryPerformanceCounter(
-    OUT LARGE_INTEGER *lpPerformanceCount
-    );
+    OUT LARGE_INTEGER* lpPerformanceCount);
 
 WINBASEAPI
-BOOL
-__stdcall
+BOOL __stdcall
 QueryPerformanceFrequency(
-    OUT LARGE_INTEGER *lpFrequency
-    );
+    OUT LARGE_INTEGER* lpFrequency);
 
 // DOS and OS/2 Compatible Error Code definitions returned by the Win32 Base
 // API functions.
@@ -1993,78 +1813,78 @@ QueryPerformanceFrequency(
 
 /* Abnormal termination codes */
 
-#define TC_NORMAL       0
-#define TC_HARDERR      1
-#define TC_GP_TRAP      2
-#define TC_SIGNAL       3
+#define TC_NORMAL 0
+#define TC_HARDERR 1
+#define TC_GP_TRAP 2
+#define TC_SIGNAL 3
 
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-wvsprintfA(
-    OUT LPSTR,
-    IN LPCSTR,
-    IN va_list arglist);
+    __attribute__((__stdcall__))
+    wvsprintfA(
+        OUT LPSTR,
+        IN LPCSTR,
+        IN va_list arglist);
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-wvsprintfW(
-    OUT LPWSTR,
-    IN LPCWSTR,
-    IN va_list arglist);
+    __attribute__((__stdcall__))
+    wvsprintfW(
+        OUT LPWSTR,
+        IN LPCWSTR,
+        IN va_list arglist);
 #ifdef UNICODE
-#define wvsprintf  wvsprintfW
+#define wvsprintf wvsprintfW
 #else
-#define wvsprintf  wvsprintfA
+#define wvsprintf wvsprintfA
 #endif // !UNICODE
 
 WINBASEAPI
 int
-WINAPIV
-wsprintfA(
-    OUT LPSTR,
-    IN LPCSTR,
-    ...);
+    WINAPIV
+    wsprintfA(
+        OUT LPSTR,
+        IN LPCSTR,
+        ...);
 WINBASEAPI
 int
-WINAPIV
-wsprintfW(
-    OUT LPWSTR,
-    IN LPCWSTR,
-    ...);
+    WINAPIV
+    wsprintfW(
+        OUT LPWSTR,
+        IN LPCWSTR,
+        ...);
 #ifdef UNICODE
-#define wsprintf  wsprintfW
+#define wsprintf wsprintfW
 #else
-#define wsprintf  wsprintfA
+#define wsprintf wsprintfA
 #endif // !UNICODE
 
-#define CP_ACP                    0           // default to ANSI code page
-#define CP_UTF8                   65001       // UTF-8 translation
+#define CP_ACP 0 // default to ANSI code page
+#define CP_UTF8 65001 // UTF-8 translation
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-MultiByteToWideChar(
-    IN UINT     CodePage,
-    IN DWORD    dwFlags,
-    IN LPCSTR   lpMultiByteStr,
-    IN int      cbMultiByte,
-    OUT LPWSTR  lpWideCharStr,
-    IN int      cchWideChar);
+    __attribute__((__stdcall__))
+    MultiByteToWideChar(
+        IN UINT CodePage,
+        IN DWORD dwFlags,
+        IN LPCSTR lpMultiByteStr,
+        IN int cbMultiByte,
+        OUT LPWSTR lpWideCharStr,
+        IN int cchWideChar);
 
 WINBASEAPI
 int
-__attribute__((__stdcall__))
-WideCharToMultiByte(
-    IN UINT     CodePage,
-    IN DWORD    dwFlags,
-    IN LPCWSTR  lpWideCharStr,
-    IN int      cchWideChar,
-    OUT LPSTR   lpMultiByteStr,
-    IN int      cbMultiByte,
-    IN LPCSTR   lpDefaultChar,
-    OUT LPBOOL  lpUsedDefaultChar);
+    __attribute__((__stdcall__))
+    WideCharToMultiByte(
+        IN UINT CodePage,
+        IN DWORD dwFlags,
+        IN LPCWSTR lpWideCharStr,
+        IN int cchWideChar,
+        OUT LPSTR lpMultiByteStr,
+        IN int cbMultiByte,
+        IN LPCSTR lpDefaultChar,
+        OUT LPBOOL lpUsedDefaultChar);
 
 
 WINBASEAPI
@@ -2078,9 +1898,9 @@ __attribute__((__stdcall__))
 CharUpperW(
     IN OUT LPWSTR lpsz);
 #ifdef UNICODE
-#define CharUpper  CharUpperW
+#define CharUpper CharUpperW
 #else
-#define CharUpper  CharUpperA
+#define CharUpper CharUpperA
 #endif // !UNICODE
 
 WINBASEAPI
@@ -2094,97 +1914,95 @@ __attribute__((__stdcall__))
 CharLowerW(
     IN OUT LPWSTR lpsz);
 #ifdef UNICODE
-#define CharLower  CharLowerW
+#define CharLower CharLowerW
 #else
-#define CharLower  CharLowerA
+#define CharLower CharLowerA
 #endif // !UNICODE
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetRect(
-    OUT LPRECT lprc,
-    IN int xLeft,
-    IN int yTop,
-    IN int xRight,
-    IN int yBottom);
+    __attribute__((__stdcall__))
+    SetRect(
+        OUT LPRECT lprc,
+        IN int xLeft,
+        IN int yTop,
+        IN int xRight,
+        IN int yBottom);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SetRectEmpty(
-    OUT LPRECT lprc);
+    __attribute__((__stdcall__))
+    SetRectEmpty(
+        OUT LPRECT lprc);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-CopyRect(
-    OUT LPRECT lprcDst,
-    IN CONST RECT *lprcSrc);
+    __attribute__((__stdcall__))
+    CopyRect(
+        OUT LPRECT lprcDst,
+        IN CONST RECT* lprcSrc);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-InflateRect(
-    IN OUT LPRECT lprc,
-    IN int dx,
-    IN int dy);
+    __attribute__((__stdcall__))
+    InflateRect(
+        IN OUT LPRECT lprc,
+        IN int dx,
+        IN int dy);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IntersectRect(
-    OUT LPRECT lprcDst,
-    IN CONST RECT *lprcSrc1,
-    IN CONST RECT *lprcSrc2);
+    __attribute__((__stdcall__))
+    IntersectRect(
+        OUT LPRECT lprcDst,
+        IN CONST RECT* lprcSrc1,
+        IN CONST RECT* lprcSrc2);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-UnionRect(
-    OUT LPRECT lprcDst,
-    IN CONST RECT *lprcSrc1,
-    IN CONST RECT *lprcSrc2);
+    __attribute__((__stdcall__))
+    UnionRect(
+        OUT LPRECT lprcDst,
+        IN CONST RECT* lprcSrc1,
+        IN CONST RECT* lprcSrc2);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-SubtractRect(
-    OUT LPRECT lprcDst,
-    IN CONST RECT *lprcSrc1,
-    IN CONST RECT *lprcSrc2);
+    __attribute__((__stdcall__))
+    SubtractRect(
+        OUT LPRECT lprcDst,
+        IN CONST RECT* lprcSrc1,
+        IN CONST RECT* lprcSrc2);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-OffsetRect(
-    IN OUT LPRECT lprc,
-    IN int dx,
-    IN int dy);
+    __attribute__((__stdcall__))
+    OffsetRect(
+        IN OUT LPRECT lprc,
+        IN int dx,
+        IN int dy);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-IsRectEmpty(
-    IN CONST RECT *lprc);
+    __attribute__((__stdcall__))
+    IsRectEmpty(
+        IN CONST RECT* lprc);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-EqualRect(
-    IN CONST RECT *lprc1,
-    IN CONST RECT *lprc2);
+    __attribute__((__stdcall__))
+    EqualRect(
+        IN CONST RECT* lprc1,
+        IN CONST RECT* lprc2);
 
 WINBASEAPI
 BOOL
-__attribute__((__stdcall__))
-PtInRect(
-    IN CONST RECT *lprc,
-    IN POINT pt);
+    __attribute__((__stdcall__))
+    PtInRect(
+        IN CONST RECT* lprc,
+        IN POINT pt);
 
 
 #ifdef __cplusplus
 }
 #endif
-
-

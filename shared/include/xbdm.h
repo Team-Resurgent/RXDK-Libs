@@ -65,7 +65,7 @@ extern "C" {
 #define DM_NOTIFICATIONMASK 0xffffff
 #define DM_STOPTHREAD 0x80000000
 
-typedef DWORD (__stdcall *PDM_NOTIFY_FUNCTION)(ULONG dwNotification, DWORD dwParam);
+typedef DWORD(__stdcall* PDM_NOTIFY_FUNCTION)(ULONG dwNotification, DWORD dwParam);
 
 // Break notification structure
 typedef struct _DMN_BREAK {
@@ -104,8 +104,8 @@ typedef struct _DMN_MODLOAD {
     ULONG Flags;
 } DMN_MODLOAD, *PDMN_MODLOAD;
 
-#define DMN_MODFLAG_XBE     0x0001
-#define DMN_MODFLAG_TLS     0x0002
+#define DMN_MODFLAG_XBE 0x0001
+#define DMN_MODFLAG_TLS 0x0002
 
 // Section load/unload notification structure
 typedef struct _DMN_SECTIONLOAD {
@@ -116,8 +116,8 @@ typedef struct _DMN_SECTIONLOAD {
     USHORT Flags;
 } DMN_SECTIONLOAD, *PDMN_SECTIONLOAD;
 
-#define DMN_SECFLAG_LOADED  0x0001
-#define DMN_SECFLAG_WRITEABLE     0x0002
+#define DMN_SECFLAG_LOADED 0x0001
+#define DMN_SECFLAG_WRITEABLE 0x0002
 #define DMN_SECFLAG_UNINITIALIZED 0x0004
 
 // thread create notification structure
@@ -165,14 +165,14 @@ typedef struct _DMN_PROFINT {
 #define DM_PERSISTENT 1
 #define DM_DEBUGSESSION 2
 #define DM_ASYNCSESSION 4
-typedef struct _DMN_SESSION *PDMN_SESSION;
-DMHRAPI DmOpenNotificationSession(DWORD dwFlags, PDMN_SESSION *pSession);
+typedef struct _DMN_SESSION* PDMN_SESSION;
+DMHRAPI DmOpenNotificationSession(DWORD dwFlags, PDMN_SESSION* pSession);
 DMHRAPI DmCloseNotificationSession(PDMN_SESSION Session);
 DMHRAPI DmNotify(PDMN_SESSION Session, DWORD dwNotification,
     PDM_NOTIFY_FUNCTION pfnHandler);
 
 // notification extensions
-typedef DWORD (__stdcall *PDM_EXT_NOTIFY_FUNCTION)(LPCSTR szNotification);
+typedef DWORD(__stdcall* PDM_EXT_NOTIFY_FUNCTION)(LPCSTR szNotification);
 DMHRAPI DmRegisterNotificationProcessor(PDMN_SESSION Session, LPCSTR szType,
     PDM_EXT_NOTIFY_FUNCTION pfn);
 
@@ -209,7 +209,7 @@ DMAPI BOOL __stdcall DmIsDebuggerPresent(void);
 #define DMSTOP_DEBUGSTR 4
 #define DMSTOP_STACKTRACE 8
 #define DM_STACKTRACE_SERVICE 12
-#define DM_MAX_STACK_DEPTH  32
+#define DM_MAX_STACK_DEPTH 32
 DMHRAPI DmStopOn(DWORD dwStopFlags, BOOL fStop);
 
 // reboot
@@ -233,7 +233,7 @@ DMAPI PVOID __stdcall DmAllocatePoolWithTag(ULONG cb, ULONG tag);
 DMAPI VOID __stdcall DmFreePool(PVOID p);
 
 // profile interrupts
-typedef void (__stdcall *PDMPROFILE_HANDLER)(PDMN_PROFINT);
+typedef void(__stdcall* PDMPROFILE_HANDLER)(PDMN_PROFINT);
 DMHRAPI DmStartProfile(PHANDLE, ULONG, PDMPROFILE_HANDLER);
 DMHRAPI DmStopProfile(HANDLE);
 
@@ -272,17 +272,17 @@ typedef struct _DM_XTLDATA {
 DMHRAPI DmGetXtlData(PDM_XTLDATA);
 
 // loaded modules and sections
-typedef struct _DM_WALK_MODULES *PDM_WALK_MODULES;
-DMHRAPI DmWalkLoadedModules(PDM_WALK_MODULES *, PDMN_MODLOAD);
+typedef struct _DM_WALK_MODULES* PDM_WALK_MODULES;
+DMHRAPI DmWalkLoadedModules(PDM_WALK_MODULES*, PDMN_MODLOAD);
 DMHRAPI DmCloseLoadedModules(PDM_WALK_MODULES);
-typedef struct _DM_WALK_MODSECT *PDM_WALK_MODSECT;
-DMHRAPI DmWalkModuleSections(PDM_WALK_MODSECT *, LPCSTR, PDMN_SECTIONLOAD);
+typedef struct _DM_WALK_MODSECT* PDM_WALK_MODSECT;
+DMHRAPI DmWalkModuleSections(PDM_WALK_MODSECT*, LPCSTR, PDMN_SECTIONLOAD);
 DMHRAPI DmCloseModuleSections(PDM_WALK_MODSECT);
 DMHRAPI DmGetModuleLongName(LPCSTR szShortName, LPSTR szLongName, LPDWORD pcch);
 
 // XBE info
 typedef struct _DM_XBE {
-    char LaunchPath[MAX_PATH+1];
+    char LaunchPath[MAX_PATH + 1];
     DWORD TimeStamp;
     DWORD CheckSum;
     DWORD StackSize;
@@ -290,11 +290,10 @@ typedef struct _DM_XBE {
 DMHRAPI DmGetXbeInfo(LPCSTR szName, PDM_XBE);
 
 // command extension
-typedef ULONG (__stdcall *PDM_ENTRYPROC)(ULONG, ULONG, ULONG);
+typedef ULONG(__stdcall* PDM_ENTRYPROC)(ULONG, ULONG, ULONG);
 
-typedef struct _DM_CMDCONT *PDM_CMDCONT;
-typedef HRESULT (__stdcall *PDM_CMDCONTPROC)(PDM_CMDCONT pdmcc, LPSTR
-    szResponse, DWORD cchResponse);
+typedef struct _DM_CMDCONT* PDM_CMDCONT;
+typedef HRESULT(__stdcall* PDM_CMDCONTPROC)(PDM_CMDCONT pdmcc, LPSTR szResponse, DWORD cchResponse);
 typedef struct _DM_CMDCONT {
     PDM_CMDCONTPROC HandlingFunction;
     DWORD DataSize;
@@ -304,7 +303,7 @@ typedef struct _DM_CMDCONT {
     DWORD BytesRemaining;
 } DM_CMDCONT;
 
-typedef HRESULT (__stdcall *PDM_CMDPROC)(LPCSTR szCommand, LPSTR szResponse,
+typedef HRESULT(__stdcall* PDM_CMDPROC)(LPCSTR szCommand, LPSTR szResponse,
     DWORD cchResponse, PDM_CMDCONT pdmcc);
 DMHRAPI DmRegisterCommandProcessor(LPCSTR szProcessor, PDM_CMDPROC pfn);
 DMHRAPI DmRegisterCommandProcessorEx(LPCSTR szProcessor, PDM_CMDPROC pfn,
@@ -334,8 +333,7 @@ typedef struct _DM_MEMORY_STATISTICS {
     DWORD DebuggerPages;
 } DM_MEMORY_STATISTICS, *PDM_MEMORY_STATISTICS;
 
-typedef struct _DM_UTILITY_DRIVE_INFO
-{
+typedef struct _DM_UTILITY_DRIVE_INFO {
     DWORD dwFlags;
     DWORD rgdwTitleId[3];
 } DM_UTILITY_DRIVE_INFO, *PDM_UTILITY_DRIVE_INFO;
@@ -343,54 +341,54 @@ typedef struct _DM_UTILITY_DRIVE_INFO
 #define DM_UTILITY_DRIVE_0_NEVER_USED 0x00000001
 #define DM_UTILITY_DRIVE_1_NEVER_USED 0x00000002
 #define DM_UTILITY_DRIVE_2_NEVER_USED 0x00000004
-#define DM_UTILITY_DRIVE_0_NOT_USED   0x00000010
-#define DM_UTILITY_DRIVE_1_NOT_USED   0x00000020
-#define DM_UTILITY_DRIVE_2_NOT_USED   0x00000040
+#define DM_UTILITY_DRIVE_0_NOT_USED 0x00000010
+#define DM_UTILITY_DRIVE_1_NOT_USED 0x00000020
+#define DM_UTILITY_DRIVE_2_NOT_USED 0x00000040
 
 // Allocation-tracking categories (DmRegisterAllocationType et al).
-#define DM_TRACK_HEAP                   0x0001
-#define DM_TRACK_VIRTUAL_MEMORY         0x0002
-#define DM_TRACK_CONTIGUOUS_MEMORY      0x0004
-#define DM_TRACK_SYSTEM_MEMORY          0x0008
-#define DM_TRACK_DEBUG_MEMORY           0x0010
-#define DM_TRACK_KERNEL_POOL            0x0020
-#define DM_TRACK_HANDLE                 0x0040
-#define DM_TRACK_CUSTOM                 0x0080
-#define DM_TRACK_TYPEMASK               0x00FF
-#define DM_TRACK_ASSERT_ON_FAILURES     0x0100
-#define DM_TRACK_MASK                   0x01FF
+#define DM_TRACK_HEAP 0x0001
+#define DM_TRACK_VIRTUAL_MEMORY 0x0002
+#define DM_TRACK_CONTIGUOUS_MEMORY 0x0004
+#define DM_TRACK_SYSTEM_MEMORY 0x0008
+#define DM_TRACK_DEBUG_MEMORY 0x0010
+#define DM_TRACK_KERNEL_POOL 0x0020
+#define DM_TRACK_HANDLE 0x0040
+#define DM_TRACK_CUSTOM 0x0080
+#define DM_TRACK_TYPEMASK 0x00FF
+#define DM_TRACK_ASSERT_ON_FAILURES 0x0100
+#define DM_TRACK_MASK 0x01FF
 
 // allocation-type identifiers (DmQueryAllocationTypeName / DmInsertAllocationEntry)
-#define DM_ALLOCTYPE_HEAP               ((USHORT)0)
-#define DM_ALLOCTYPE_VIRTUAL_MEMORY     ((USHORT)1)
-#define DM_ALLOCTYPE_CONTIGUOUS_MEMORY  ((USHORT)2)
-#define DM_ALLOCTYPE_SYSTEM_MEMORY      ((USHORT)3)
-#define DM_ALLOCTYPE_DEBUG_MEMORY       ((USHORT)4)
-#define DM_ALLOCTYPE_KERNEL_POOL        ((USHORT)5)
-#define DM_ALLOCTYPE_DIRECTORY_OBJECT   ((USHORT)6)
-#define DM_ALLOCTYPE_EVENT              ((USHORT)7)
-#define DM_ALLOCTYPE_FILE               ((USHORT)8)
-#define DM_ALLOCTYPE_IO_COMPLETION      ((USHORT)9)
-#define DM_ALLOCTYPE_MUTANT             ((USHORT)10)
-#define DM_ALLOCTYPE_SEMAPHORE          ((USHORT)11)
-#define DM_ALLOCTYPE_TIMER              ((USHORT)12)
-#define DM_ALLOCTYPE_THREAD             ((USHORT)13)
-#define DM_ALLOCTYPE_INTERNAL_MAX       ((USHORT)14)
+#define DM_ALLOCTYPE_HEAP ((USHORT)0)
+#define DM_ALLOCTYPE_VIRTUAL_MEMORY ((USHORT)1)
+#define DM_ALLOCTYPE_CONTIGUOUS_MEMORY ((USHORT)2)
+#define DM_ALLOCTYPE_SYSTEM_MEMORY ((USHORT)3)
+#define DM_ALLOCTYPE_DEBUG_MEMORY ((USHORT)4)
+#define DM_ALLOCTYPE_KERNEL_POOL ((USHORT)5)
+#define DM_ALLOCTYPE_DIRECTORY_OBJECT ((USHORT)6)
+#define DM_ALLOCTYPE_EVENT ((USHORT)7)
+#define DM_ALLOCTYPE_FILE ((USHORT)8)
+#define DM_ALLOCTYPE_IO_COMPLETION ((USHORT)9)
+#define DM_ALLOCTYPE_MUTANT ((USHORT)10)
+#define DM_ALLOCTYPE_SEMAPHORE ((USHORT)11)
+#define DM_ALLOCTYPE_TIMER ((USHORT)12)
+#define DM_ALLOCTYPE_THREAD ((USHORT)13)
+#define DM_ALLOCTYPE_INTERNAL_MAX ((USHORT)14)
 
 DMHRAPI DmStartProfiling(LPCSTR szLogFileName, DWORD dwDataBufferSize);
 DMHRAPI DmStopProfiling(VOID);
 DMHRAPI DmQueryMemoryStatistics(PDM_MEMORY_STATISTICS MemStat);
 DMHRAPI DmEnableStackTrace(BOOL fEnable);
 DMHRAPI DmQueryAllocationTypeName(USHORT AllocationType, LPSTR pszName, SIZE_T nSize);
-DMHRAPI DmRegisterAllocationType(LPCSTR pszName, USHORT *AllocationnType);
+DMHRAPI DmRegisterAllocationType(LPCSTR pszName, USHORT* AllocationnType);
 DMHRAPI DmInsertAllocationEntry(PVOID AllocPtr, SIZE_T AllocSize, USHORT AllocType);
 DMHRAPI DmRemoveAllocationEntry(PVOID AllocPtr, SIZE_T AllocSize, USHORT AllocType);
 // DmSetTitleEx flags + title-persist control
-#define DM_XBEONDISKONLY  0x00000001
-#define DMTITLE_PERSIST    0x0001
-#define DMTITLE_UNPERSIST  0x0002
+#define DM_XBEONDISKONLY 0x00000001
+#define DMTITLE_PERSIST 0x0001
+#define DMTITLE_UNPERSIST 0x0002
 DMHRAPI DmSetTitleEx(LPCSTR szDir, LPCSTR szTitle, LPCSTR szCmdLine, DWORD dwFlags);
-DMHRAPI DmCaptureStackBackTrace(ULONG FramesToCapture, PVOID *BackTrace);
+DMHRAPI DmCaptureStackBackTrace(ULONG FramesToCapture, PVOID* BackTrace);
 DMHRAPI DmCrashDump(VOID);
 DMHRAPI DmIsFastCAPEnabled(VOID);
 DMHRAPI DmGetFileAccessCount(LPDWORD lpdwFileAccessCount);
@@ -399,13 +397,13 @@ DMHRAPI DmGetUtilityDriveInfo(PDM_UTILITY_DRIVE_INFO pdmUtilityDriveInfo);
 DMHRAPI DmSendNotificationString(LPCSTR sz);
 
 // per-thread data
-DMHRAPI DmThreadUserData(DWORD tid, LPDWORD *ppdwData);
+DMHRAPI DmThreadUserData(DWORD tid, LPDWORD* ppdwData);
 #define DM_CURRENT_THREAD -1
 
 // Dynamic loading of debugger extensions
-DMHRAPI DmLoadExtension(LPCSTR szName, PHANDLE phModule, PVOID *pvBase);
+DMHRAPI DmLoadExtension(LPCSTR szName, PHANDLE phModule, PVOID* pvBase);
 DMHRAPI DmUnloadExtension(HANDLE hModule);
-DMHRAPI DmGetProcAddress(HANDLE hModule, LPCSTR szProcName, PVOID *ppvRet);
+DMHRAPI DmGetProcAddress(HANDLE hModule, LPCSTR szProcName, PVOID* ppvRet);
 
 // name functions
 DMHRAPI DmGetXboxName(LPSTR, LPDWORD);
@@ -417,18 +415,18 @@ typedef struct _DM_USER {
     DWORD AccessPrivileges;
 } DM_USER, *PDM_USER;
 
-#define DMPL_PRIV_READ           0x0001
-#define DMPL_PRIV_WRITE          0x0002
-#define DMPL_PRIV_CONTROL        0x0004
-#define DMPL_PRIV_CONFIGURE      0x0008
-#define DMPL_PRIV_MANAGE         0x0010
+#define DMPL_PRIV_READ 0x0001
+#define DMPL_PRIV_WRITE 0x0002
+#define DMPL_PRIV_CONTROL 0x0004
+#define DMPL_PRIV_CONFIGURE 0x0008
+#define DMPL_PRIV_MANAGE 0x0010
 
 DMHRAPI DmAddUser(LPCSTR szUserName, DWORD dwAccess);
 DMHRAPI DmRemoveUser(LPCSTR szUserName);
 DMHRAPI DmSetUserAccess(LPCSTR szUserName, DWORD dwAccess);
 DMHRAPI DmGetUserAccess(LPCSTR szUserName, LPDWORD lpdwAccess);
-typedef struct _DM_WALK_USERS *PDM_WALK_USERS;
-DMHRAPI DmWalkUserList(PDM_WALK_USERS *, PDM_USER);
+typedef struct _DM_WALK_USERS* PDM_WALK_USERS;
+DMHRAPI DmWalkUserList(PDM_WALK_USERS*, PDM_USER);
 DMHRAPI DmCloseUserList(PDM_WALK_USERS);
 DMHRAPI DmEnableSecurity(BOOL fEnable);
 DMHRAPI DmIsSecurityEnabled(LPBOOL pfEnabled);
@@ -441,24 +439,24 @@ DMHRAPI DmSetTitle(LPCSTR szDir, LPCSTR szTitle, LPCSTR szCmdLine);
 DMHRAPI DmCAPControl(LPCSTR action);
 
 // performance counters
-#define DMCOUNT_FREQUENCY   0x000F
-#define DMCOUNT_FREQ100MS   0x0001
-#define DMCOUNT_FREQ1SEC    0x000A
+#define DMCOUNT_FREQUENCY 0x000F
+#define DMCOUNT_FREQ100MS 0x0001
+#define DMCOUNT_FREQ1SEC 0x000A
 
-#define DMCOUNT_COUNTTYPE   0x0030
-#define DMCOUNT_EVENT       0x0010
-#define DMCOUNT_VALUE       0x0000
-#define DMCOUNT_PRATIO      0x0020
+#define DMCOUNT_COUNTTYPE 0x0030
+#define DMCOUNT_EVENT 0x0010
+#define DMCOUNT_VALUE 0x0000
+#define DMCOUNT_PRATIO 0x0020
 #define DMCOUNT_COUNTSUBTYPE 0x0FC0
 
 // event rates
-#define DMCOUNT_PERSEC      0x0040
-#define DMCOUNT_PERMSEC     0x0080
-#define DMCOUNT_PERFRAME    0x0100
-#define DMCOUNT_PERTICK     0x0200
+#define DMCOUNT_PERSEC 0x0040
+#define DMCOUNT_PERMSEC 0x0080
+#define DMCOUNT_PERFRAME 0x0100
+#define DMCOUNT_PERTICK 0x0200
 
 // value types
-#define DMCOUNT_AVERAGE     0x0040
+#define DMCOUNT_AVERAGE 0x0040
 
 typedef struct _DM_COUNTDATA {
     LARGE_INTEGER CountValue;
@@ -471,28 +469,28 @@ typedef struct _DM_COUNTINFO {
     DWORD Type;
 } DM_COUNTINFO, *PDM_COUNTINFO;
 
-DMHRAPI DmOpenPerformanceCounter(LPCSTR szName, HANDLE *phCounter);
+DMHRAPI DmOpenPerformanceCounter(LPCSTR szName, HANDLE* phCounter);
 DMHRAPI DmQueryPerformanceCounterHandle(HANDLE hCounter, DWORD dwType, PDM_COUNTDATA);
 DMHRAPI DmClosePerformanceCounter(HANDLE hCounter);
-typedef struct _DM_WALK_COUNTERS *PDM_WALK_COUNTERS;
-DMHRAPI DmWalkPerformanceCounters(PDM_WALK_COUNTERS *, PDM_COUNTINFO);
+typedef struct _DM_WALK_COUNTERS* PDM_WALK_COUNTERS;
+DMHRAPI DmWalkPerformanceCounters(PDM_WALK_COUNTERS*, PDM_COUNTINFO);
 DMHRAPI DmCloseCounters(PDM_WALK_COUNTERS);
 DMHRAPI DmEnableGPUCounter(BOOL);
 
 
-typedef HRESULT (__stdcall *PDM_COUNTPROC)(PLARGE_INTEGER, PLARGE_INTEGER);
-#define DMCOUNT_SYNC      0x00010000
-#define DMCOUNT_ASYNC32   0x00020000
-#define DMCOUNT_ASYNC64   0x00040000
-#define DMCOUNT_ASYNC     0x00080000
+typedef HRESULT(__stdcall* PDM_COUNTPROC)(PLARGE_INTEGER, PLARGE_INTEGER);
+#define DMCOUNT_SYNC 0x00010000
+#define DMCOUNT_ASYNC32 0x00020000
+#define DMCOUNT_ASYNC64 0x00040000
+#define DMCOUNT_ASYNC 0x00080000
 DMHRAPI DmRegisterPerformanceCounter(LPCSTR szName, DWORD dwType, PVOID);
 DMHRAPI DmUnregisterPerformanceCounter(LPCSTR szName);
 
 // error codes
 #define FACILITY_XBDM 0x2db
 #ifndef MAKE_HRESULT
-#define MAKE_HRESULT(sev,fac,code) \
-    ((HRESULT)(((unsigned long)sev<<31)|((unsigned long)fac<<16)|((unsigned long)code)))
+#define MAKE_HRESULT(sev, fac, code) \
+    ((HRESULT)(((unsigned long)sev << 31) | ((unsigned long)fac << 16) | ((unsigned long)code)))
 #endif
 #define XBDM_HRESERR(code) MAKE_HRESULT(1, FACILITY_XBDM, code)
 #define XBDM_HRESSUCC(code) MAKE_HRESULT(0, FACILITY_XBDM, code)
@@ -547,11 +545,10 @@ DMHRAPI DmUnregisterPerformanceCounter(LPCSTR szName);
 #define XBDM_FASTCAPENABLED XBDM_HRESSUCC(7)
 
 // Call Attributes Profiler Support Function
-#define DM_PROFILE_START    1
-#define DM_PROFILE_STOP     2
+#define DM_PROFILE_START 1
+#define DM_PROFILE_STOP 2
 
 DWORD WINAPI DmProfileControl(DWORD Action, DWORD Parameter);
-
 
 
 #ifdef __cplusplus

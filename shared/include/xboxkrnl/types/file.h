@@ -37,8 +37,7 @@ typedef enum _WAIT_TYPE {
 /* Result of an I/O operation: final Status and an Information count whose meaning
  * is operation-specific (bytes transferred, disposition taken, etc.). */
 typedef struct _IO_STATUS_BLOCK {
-    union
-    {
+    union {
         NTSTATUS Status;
         PVOID Pointer;
     };
@@ -368,8 +367,7 @@ typedef struct _FILE_COMPRESSION_INFORMATION {
 typedef struct _FILE_OBJECTID_INFORMATION {
     LONGLONG FileReference;
     UCHAR ObjectId[16];
-    union
-    {
+    union {
         struct
         {
             UCHAR BirthVolumeId[16];
@@ -432,35 +430,36 @@ typedef struct _FILE_TRACKING_INFORMATION {
  * ObjectName is relative to, plus OBJ_* Attributes. The Xbox variant carries no
  * security descriptor. Initialize with InitializeObjectAttributes. */
 typedef struct _OBJECT_ATTRIBUTES {
-        HANDLE RootDirectory;
-        PANSI_STRING ObjectName;
-        ULONG Attributes;
+    HANDLE RootDirectory;
+    PANSI_STRING ObjectName;
+    ULONG Attributes;
 } OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
 
 /* OBJECT_ATTRIBUTES.Attributes flags: inheritance, permanence, exclusive open,
  * case-insensitive match, open-if-exists, and open-link behavior. */
-#define OBJ_INHERIT                   0x00000002L
-#define OBJ_PERMANENT                 0x00000010L
-#define OBJ_EXCLUSIVE                 0x00000020L
-#define OBJ_CASE_INSENSITIVE          0x00000040L
-#define OBJ_OPENIF                    0x00000080L
-#define OBJ_OPENLINK                  0x00000100L
-#define OBJ_VALID_ATTRIBUTES          0x000001F2L
+#define OBJ_INHERIT 0x00000002L
+#define OBJ_PERMANENT 0x00000010L
+#define OBJ_EXCLUSIVE 0x00000020L
+#define OBJ_CASE_INSENSITIVE 0x00000040L
+#define OBJ_OPENIF 0x00000080L
+#define OBJ_OPENLINK 0x00000100L
+#define OBJ_VALID_ATTRIBUTES 0x000001F2L
 // The Xbox OBJECT_ATTRIBUTES has no SecurityDescriptor, so the XDK macro takes 4 args
 // (p, n, a, r). Desktop-NT code (and some of our own libs) passes a 5th. Accept both: the
 // body ignores the security descriptor either way.
-#define RXDK_IOA4(p, n, a, r) { \
-    (p)->RootDirectory = (r); \
-    (p)->Attributes = (a); \
-    (p)->ObjectName = (n); \
-}
+#define RXDK_IOA4(p, n, a, r) \
+    { \
+        (p)->RootDirectory = (r); \
+        (p)->Attributes = (a); \
+        (p)->ObjectName = (n); \
+    }
 #define RXDK_IOA5(p, n, a, r, s) RXDK_IOA4(p, n, a, r)
 #define RXDK_IOA_PICK(_1, _2, _3, _4, _5, NAME, ...) NAME
 #define InitializeObjectAttributes(...) \
     RXDK_IOA_PICK(__VA_ARGS__, RXDK_IOA5, RXDK_IOA4)(__VA_ARGS__)
 
 /* Pseudo-handles for the well-known namespace roots, usable as RootDirectory. */
-#define ObDosDevicesDirectory()        ((HANDLE)-3)
-#define ObWin32NamedObjectsDirectory() ((HANDLE)-4)
+#define ObDosDevicesDirectory() ((HANDLE) - 3)
+#define ObWin32NamedObjectsDirectory() ((HANDLE) - 4)
 
 #endif

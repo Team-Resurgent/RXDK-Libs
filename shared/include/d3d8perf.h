@@ -28,8 +28,7 @@ extern "C" {
  */
 
 // Enumeration of all of the non-api events that the driver counts.
-typedef enum _D3DPERF_PerformanceCounters
-{
+typedef enum _D3DPERF_PerformanceCounters {
     PERF_VERTICES,
 
     PERF_SETTRANSFORM_WORLD,
@@ -66,13 +65,12 @@ typedef enum _D3DPERF_PerformanceCounters
     PERF_SETSTATE_TRANSFORM,
 
     D3DPERF_MAX,
-    D3DPERF_FORCE_LONG  =   0xFFFFFFFF
+    D3DPERF_FORCE_LONG = 0xFFFFFFFF
 
 } D3DPERF_PerformanceCounters;
 
 // Counts of the number of times each API is called.
-typedef enum _D3DPERF_APICounters
-{
+typedef enum _D3DPERF_APICounters {
 
     /* Direct3D APIs */
 
@@ -357,15 +355,14 @@ typedef enum _D3DPERF_APICounters
     API_D3DFIXUP_RESET,
 
     D3DAPI_MAX,
-    D3DAPI_FORCE_LONG  =   0xFFFFFFFF
+    D3DAPI_FORCE_LONG = 0xFFFFFFFF
 
 } D3DPERF_APICounters;
 
 // A structure that contains performance information gathered by
 // the driver.
 //
-typedef struct _D3DWAITINFO
-{
+typedef struct _D3DWAITINFO {
     DWORD Count;
     ULONGLONG Cycles;
 
@@ -373,12 +370,12 @@ typedef struct _D3DWAITINFO
 
 // function callback declaration for cycle time threshold callback
 //
-typedef void (WINAPI *PFNCycleThresholdHandler)(D3DPERF_PerformanceCounters perfctr,
+typedef void(WINAPI* PFNCycleThresholdHandler)(D3DPERF_PerformanceCounters perfctr,
     ULONGLONG Cycles);
 
 // function callback declaration for spewing framerate information
 //
-typedef void (WINAPI *PFNDumpFrameRateInfoHandler)(void);
+typedef void(WINAPI* PFNDumpFrameRateInfoHandler)(void);
 
 // m_dwDumpFPSInfoMask flags which specify what data to display during default
 // m_pfnDumpFrameRateInfoHandler callback. By default everything is enabled
@@ -386,29 +383,27 @@ typedef void (WINAPI *PFNDumpFrameRateInfoHandler)(void);
 //
 // To use set m_FrameRateIntervalTime to 10000 (10ms) or similar.
 //
-#define D3DPERF_DUMP_FPS_INTINFO        0x00000001  // interrupts & context switches
-#define D3DPERF_DUMP_FPS_MEMORY         0x00000002  // memory info
-#define D3DPERF_DUMP_FPS_PUSHBUFFER     0x00000004  // pushbuffer info
-#define D3DPERF_DUMP_FPS_WAITINFO       0x00000008  // *_WAITS timings
-#define D3DPERF_DUMP_FPS_PERFPROFILE    0x00000010  // 100ns timer which pings GPU to
-                                                    // determine %busy/idle time.
-#define D3DPERF_DUMP_FPS_VERTEXINFO     0x00000020  // vertex processing info
-#define D3DPERF_DUMP_FPS_PERFEVENTS     0x00000040  // performance events info
+#define D3DPERF_DUMP_FPS_INTINFO 0x00000001 // interrupts & context switches
+#define D3DPERF_DUMP_FPS_MEMORY 0x00000002 // memory info
+#define D3DPERF_DUMP_FPS_PUSHBUFFER 0x00000004 // pushbuffer info
+#define D3DPERF_DUMP_FPS_WAITINFO 0x00000008 // *_WAITS timings
+#define D3DPERF_DUMP_FPS_PERFPROFILE 0x00000010 // 100ns timer which pings GPU to \
+    // determine %busy/idle time.
+#define D3DPERF_DUMP_FPS_VERTEXINFO 0x00000020 // vertex processing info
+#define D3DPERF_DUMP_FPS_PERFEVENTS 0x00000040 // performance events info
 
 // Structure which allows SetRenderState calls to be overriden. For example,
 // set m_RenderStateOverrides[D3DRS_FILLMODE] = { TRUE, D3DFILL_WIREFRAME }
 // to turn on wireframe mode.
 //
-typedef struct _D3DOVERRIDERENDERSTATE
-{
+typedef struct _D3DOVERRIDERENDERSTATE {
     BOOL Override;
     DWORD Value;
 } D3DOVERRIDERENDERSTATE;
 
 // D3D profile busy/idle samples
 //
-typedef enum _D3DPERFPROF
-{
+typedef enum _D3DPERFPROF {
     D3DPERF_PROF_GPU,
     D3DPERF_PROF_FE,
     D3DPERF_PROF_BE,
@@ -417,64 +412,61 @@ typedef enum _D3DPERFPROF
 
 // D3D performance event types.
 //
-typedef enum _D3DPERFEventsType
-{
-    D3DPERFEvent_Header                 = 0,
-    D3DPERFEvent_DrawVerticesUP         = 1,
-    D3DPERFEvent_DrawIndexedVerticesUP  = 2,
-    D3DPERFEvent_DrawVertices           = 3,
-    D3DPERFEvent_DrawIndexedVertices    = 4,
-    D3DPERFEvent_BeginEnd               = 5,
-    D3DPERFEvent_RunPushBuffer          = 6,
+typedef enum _D3DPERFEventsType {
+    D3DPERFEvent_Header = 0,
+    D3DPERFEvent_DrawVerticesUP = 1,
+    D3DPERFEvent_DrawIndexedVerticesUP = 2,
+    D3DPERFEvent_DrawVertices = 3,
+    D3DPERFEvent_DrawIndexedVertices = 4,
+    D3DPERFEvent_BeginEnd = 5,
+    D3DPERFEvent_RunPushBuffer = 6,
 
-    D3DPERFEvent_VBlank                 = 7,
-    D3DPERFEvent_Kickoff                = 8,
-    D3DPERFEvent_Present                = 9,
+    D3DPERFEvent_VBlank = 7,
+    D3DPERFEvent_Kickoff = 8,
+    D3DPERFEvent_Present = 9,
 
-    D3DPERFEvent_BlockUntilIdle         = 10,
-    D3DPERFEvent_BlockOnFence           = 11,
-    D3DPERFEvent_PushBufferWait         = 12,
-    D3DPERFEvent_ObjectLockWait         = 13,
+    D3DPERFEvent_BlockUntilIdle = 10,
+    D3DPERFEvent_BlockOnFence = 11,
+    D3DPERFEvent_PushBufferWait = 12,
+    D3DPERFEvent_ObjectLockWait = 13,
 
-    D3DPERFEvent_User0                  = 21,
-    D3DPERFEvent_User1                  = 22,
-    D3DPERFEvent_User2                  = 23,
-    D3DPERFEvent_User3                  = 24,
-    D3DPERFEvent_User4                  = 25,
-    D3DPERFEvent_User5                  = 26,
-    D3DPERFEvent_User6                  = 27,
-    D3DPERFEvent_User7                  = 28,
-    D3DPERFEvent_User8                  = 29,
-    D3DPERFEvent_User9                  = 30,
-    D3DPERFEvent_User10                 = 31,
+    D3DPERFEvent_User0 = 21,
+    D3DPERFEvent_User1 = 22,
+    D3DPERFEvent_User2 = 23,
+    D3DPERFEvent_User3 = 24,
+    D3DPERFEvent_User4 = 25,
+    D3DPERFEvent_User5 = 26,
+    D3DPERFEvent_User6 = 27,
+    D3DPERFEvent_User7 = 28,
+    D3DPERFEvent_User8 = 29,
+    D3DPERFEvent_User9 = 30,
+    D3DPERFEvent_User10 = 31,
 
-    D3DPERFEvent_Max                    = 32,
+    D3DPERFEvent_Max = 32,
 } D3DPERFEventsType;
 
 // D3D performance event structure.
-// 
-typedef struct _D3DPERFEvent
-{
-    WORD Type;                          // Event type. D3DPERFEventsType or
-                                        // user defined event.
-    union
-    {
-        char HeaderText[30];            // D3DPERFEvent_Header
+//
+typedef struct _D3DPERFEvent {
+    WORD Type; // Event type. D3DPERFEventsType or
+    // user defined event.
+    union {
+        char HeaderText[30]; // D3DPERFEvent_Header
 
         struct
         {
-            WORD GpuPct;                // Pct fe/be gpu was busy since last sample.
-                                        // 0xffff means there weren't enough samples.
-            DWORD CpuPutPtr;            // cpu put ptr location at CycleCpuStart
+            WORD GpuPct; // Pct fe/be gpu was busy since last sample.
+            // 0xffff means there weren't enough samples.
+            DWORD CpuPutPtr; // cpu put ptr location at CycleCpuStart
 
-            ULONGLONG CycleCpuStart;    // rdtsc for start of timing
-            DWORD CycleCpuLength;       // cpu cycle length of timing block
+            ULONGLONG CycleCpuStart; // rdtsc for start of timing
+            DWORD CycleCpuLength; // cpu cycle length of timing block
 
-            DWORD CycleGpuStartDelta;   // gpu start cycle delta from CycleCpuStart
-            DWORD CycleGpuLength;       // total gpu processing time
+            DWORD CycleGpuStartDelta; // gpu start cycle delta from CycleCpuStart
+            DWORD CycleGpuLength; // total gpu processing time
 
-            DWORD Data;                 // Event Data. Space event took in pushbuffer
-                                        // or for RunPushBuffer size of pushbuffer.
+            DWORD Data; // Event Data. Space event took in pushbuffer
+            // or for RunPushBuffer size of pushbuffer.
         };
     };
 } D3DPERFEvent;
@@ -482,8 +474,7 @@ typedef struct _D3DPERFEvent
 // Structure that contains all of the performance information gathered by
 // the driver.
 //
-typedef struct _D3DPERF
-{
+typedef struct _D3DPERF {
     // Time Stamp Counter value of last D3DPERF_Reset() call.
     ULONGLONG m_TSCLastResetVal;
 
@@ -499,7 +490,7 @@ typedef struct _D3DPERF
     D3DPERF_PerformanceCounters m_Breakperfctr;
 
     // Pushbuffer location at D3DPERF_Reset call
-    DWORD *m_pPutLocationAtReset;
+    DWORD* m_pPutLocationAtReset;
 
     // Count of dwords skipped jumping back to pushbuffer start
     ULONGLONG m_PushBufferEndDwordsSkipped;
@@ -564,7 +555,7 @@ typedef struct _D3DPERF
     // Count of elements in pD3DPerfEvents
     DWORD CountD3DPerfEvents;
     // Pointer to array of pD3DPerfEvents
-    D3DPERFEvent *pD3DPerfEvents;
+    D3DPERFEvent* pD3DPerfEvents;
 
 
     // Values used to override any calls to SetRenderState.
@@ -595,23 +586,21 @@ typedef struct _D3DPERF
 // to search through the array of these things to find the name for the
 // state.
 //
-typedef struct _D3DSTATENAME
-{
+typedef struct _D3DSTATENAME {
     DWORD m_State;
-    char *m_Name;
+    char* m_Name;
 
 } D3DSTATENAME;
 
 // Holds the names for the different performance things gathered
 // by the driver.
 //
-typedef struct _D3DPERFNAMES
-{
+typedef struct _D3DPERFNAMES {
     // Array of string of human-readable names for the above counters.
-    char *m_PerformanceCounterNames[D3DPERF_MAX];
+    char* m_PerformanceCounterNames[D3DPERF_MAX];
 
     // An array of human-readable names for the above counters.
-    char *m_APICounterNames[D3DAPI_MAX];
+    char* m_APICounterNames[D3DAPI_MAX];
 
     // Human-readable names for the renderstate counters.
     D3DSTATENAME m_RenderStateNames[D3DRS_MAX];
@@ -624,14 +613,13 @@ typedef struct _D3DPERFNAMES
 // Holds information on the pushbuffer and guesstimate on count of bytes
 // written since last D3DPERF_Reset.
 //
-typedef struct _D3DPUSHBUFFERINFO
-{
+typedef struct _D3DPUSHBUFFERINFO {
     DWORD PushBufferSize;
     DWORD PushSegmentSize;
     DWORD PushSegmentCount;
 
-    DWORD *pPushBase;
-    DWORD *pPushLimit;
+    DWORD* pPushBase;
+    DWORD* pPushLimit;
 
     ULONGLONG PushBufferBytesWritten;
 
@@ -641,15 +629,15 @@ typedef struct _D3DPUSHBUFFERINFO
 // Returns the performance structure which is statically allocated and should
 // never be freed.
 //
-D3DPERF * WINAPI D3DPERF_GetStatistics();
+D3DPERF* WINAPI D3DPERF_GetStatistics();
 
 // Returns an array of names which is statically allocated.
 //
-D3DPERFNAMES * WINAPI D3DPERF_GetNames();
+D3DPERFNAMES* WINAPI D3DPERF_GetNames();
 
 // Returns information on the pushbuffer
 //
-void WINAPI D3DPERF_GetPushBufferInfo(D3DPUSHBUFFERINFO *pPushBufferInfo);
+void WINAPI D3DPERF_GetPushBufferInfo(D3DPUSHBUFFERINFO* pPushBufferInfo);
 
 // Dumps current frame rate information.
 //
@@ -666,11 +654,10 @@ void WINAPI D3DPERF_Dump();
 
 // D3D Perf states
 //
-typedef enum _D3DPERFSTATETYPE
-{
-    D3DPERFSTATE_VTX_CACHE,     // 4KB pre-t&l cache
-    D3DPERFSTATE_VTX_FILE,      // 24 entry post t&l cache
-    D3DPERFSTATE_VTX_ALL,       // enable/disable all vtx states
+typedef enum _D3DPERFSTATETYPE {
+    D3DPERFSTATE_VTX_CACHE, // 4KB pre-t&l cache
+    D3DPERFSTATE_VTX_FILE, // 24 entry post t&l cache
+    D3DPERFSTATE_VTX_ALL, // enable/disable all vtx states
 } D3DPERFSTATETYPE;
 
 // Set state routine which allows you to enable/disable
@@ -719,19 +706,21 @@ void WINAPI D3DPERF_DumpPerfEvents();
 
 // Sets a breakpoint on a specified performance counter number
 //
-__inline void WINAPI D3DPERF_SetBreakPerfCount(D3DPERF_PerformanceCounters perfctr,
+__inline void WINAPI
+D3DPERF_SetBreakPerfCount(D3DPERF_PerformanceCounters perfctr,
     DWORD BreakCount)
 {
-    D3DPERF *pPerf = D3DPERF_GetStatistics();
+    D3DPERF* pPerf = D3DPERF_GetStatistics();
     pPerf->m_Breakperfctr = perfctr;
     pPerf->m_BreakCount = BreakCount;
 }
 
 // Sets frame rate interval (in ms) to call D3DPERF_DumpFrameRateInfo()
 //
-__inline void WINAPI D3DPERF_SetShowFrameRateInterval(DWORD FrameRateIntervalTime)
+__inline void WINAPI
+D3DPERF_SetShowFrameRateInterval(DWORD FrameRateIntervalTime)
 {
-    D3DPERF *pPerf = D3DPERF_GetStatistics();
+    D3DPERF* pPerf = D3DPERF_GetStatistics();
     pPerf->m_FrameRateIntervalTime = FrameRateIntervalTime;
 }
 
@@ -741,11 +730,12 @@ void WINAPI D3DPERF_DumpCounterCycleInfo(D3DPERF_PerformanceCounters perfctr,
     ULONGLONG Cycles);
 
 // Sets threshold Cycle count and handler function for hitting wait time thresholds
-__inline void WINAPI D3DPERF_SetWaitCycleTimeThreshold(
+__inline void WINAPI
+D3DPERF_SetWaitCycleTimeThreshold(
     PFNCycleThresholdHandler pfnCycleThresholdHandler,
     DWORD DumpWaitCycleTimesThreshold)
 {
-    D3DPERF *pPerf = D3DPERF_GetStatistics();
+    D3DPERF* pPerf = D3DPERF_GetStatistics();
     pPerf->m_DumpWaitCycleTimesThreshold = DumpWaitCycleTimesThreshold;
     pPerf->m_pfnCycleThresholdHandler = pfnCycleThresholdHandler;
 }
@@ -756,37 +746,34 @@ __inline void WINAPI D3DPERF_SetWaitCycleTimeThreshold(
 // any outstanding requests to the gpu will try to write
 // back to pPerf->pD3DPerfEvents.
 //
-__inline BOOL WINAPI D3DPERF_StartCountingPerfEvent(
-    DWORD EventCount
-    )
+__inline BOOL WINAPI
+D3DPERF_StartCountingPerfEvent(
+    DWORD EventCount)
 {
-    D3DPERF *pPerf = D3DPERF_GetStatistics();
+    D3DPERF* pPerf = D3DPERF_GetStatistics();
 
     // if we've got a count of events and it's not the same as last time
-    if(EventCount && pPerf->CountD3DPerfEvents != EventCount)
-    {
+    if (EventCount && pPerf->CountD3DPerfEvents != EventCount) {
         // free old block, alloc new block
         free(pPerf->pD3DPerfEvents);
 
-        pPerf->pD3DPerfEvents = (D3DPERFEvent *)malloc(sizeof(D3DPERFEvent) * EventCount);
-        if(pPerf->pD3DPerfEvents)
+        pPerf->pD3DPerfEvents = (D3DPERFEvent*)malloc(sizeof(D3DPERFEvent) * EventCount);
+        if (pPerf->pD3DPerfEvents)
             memset(pPerf->pD3DPerfEvents, 0, sizeof(D3DPERFEvent) * EventCount);
         else
             EventCount = 0;
     }
 
-    pPerf->CurrentD3DPerfEvent = 0;                 // current entry in pD3DPerfEvents
-    pPerf->CountD3DPerfEvents = EventCount;         // count of items in pD3DPerfEvents
+    pPerf->CurrentD3DPerfEvent = 0; // current entry in pD3DPerfEvents
+    pPerf->CountD3DPerfEvents = EventCount; // count of items in pD3DPerfEvents
 
-    if(!pPerf->D3DPerfEventSpewFrameCount)
-    {
-        pPerf->D3DPerfEventSpewFrameStart = 2;      // by default just spew one frame
-        pPerf->D3DPerfEventSpewFrameCount = 1;      // starting at the second present
+    if (!pPerf->D3DPerfEventSpewFrameCount) {
+        pPerf->D3DPerfEventSpewFrameStart = 2; // by default just spew one frame
+        pPerf->D3DPerfEventSpewFrameCount = 1; // starting at the second present
     }
 
     // record mask (-1 is all)
-    if(!pPerf->RecordD3DPerfEvents)
-    {
+    if (!pPerf->RecordD3DPerfEvents) {
         pPerf->RecordD3DPerfEvents =
             (1 << D3DPERFEvent_Header) |
             (1 << D3DPERFEvent_Present) |
@@ -807,18 +794,17 @@ __inline BOOL WINAPI D3DPERF_StartCountingPerfEvent(
 
 // Insert a performance event header
 //
-__inline void WINAPI D3DPERF_InsertPerfEventHeader(
-    char *szHeader
-    )
+__inline void WINAPI
+D3DPERF_InsertPerfEventHeader(
+    char* szHeader)
 {
-    D3DPERF *pPerf = D3DPERF_GetStatistics();
+    D3DPERF* pPerf = D3DPERF_GetStatistics();
 
-    if(pPerf->CountD3DPerfEvents)
-    {
+    if (pPerf->CountD3DPerfEvents) {
         DWORD CurrentEvent =
             (InterlockedIncrement((PLONG)&pPerf->CurrentD3DPerfEvent) - 1) %
             pPerf->CountD3DPerfEvents;
-        D3DPERFEvent *pD3DPerfEvent = &pPerf->pD3DPerfEvents[CurrentEvent];
+        D3DPERFEvent* pD3DPerfEvent = &pPerf->pD3DPerfEvents[CurrentEvent];
 
         pD3DPerfEvent->Type = D3DPERFEvent_Header;
 
@@ -836,14 +822,14 @@ __inline void WINAPI D3DPERF_InsertPerfEventHeader(
 //      ...
 //      D3DPERF_PerfEventEnd(pD3DPerfEvent, TRUE);
 //
-D3DPERFEvent * WINAPI D3DPERF_PerfEventStart(
+D3DPERFEvent* WINAPI D3DPERF_PerfEventStart(
     WORD Type, BOOL RecordGpuTime);
 
 void WINAPI D3DPERF_PerfEventEnd(
-    D3DPERFEvent *pD3DPerfEvent, BOOL RecordGpuTime);
+    D3DPERFEvent* pD3DPerfEvent, BOOL RecordGpuTime);
 
 // D3DPERF_BlockTimer / PERFEVENT_BLOCKTIMER
-// 
+//
 // Convenient struct+macro for inserting user-defined perf events.
 // Will time the period spanning the life of the object.
 //
@@ -864,16 +850,15 @@ void WINAPI D3DPERF_PerfEventEnd(
 //     }
 //
 #ifdef __cplusplus
-struct D3DPERF_BlockTimer
-{
-    D3DPERFEvent *m_pD3DPerfEvent;
-    BOOL          m_bRecordGpuTime;
+struct D3DPERF_BlockTimer {
+    D3DPERFEvent* m_pD3DPerfEvent;
+    BOOL m_bRecordGpuTime;
 
-    __forceinline D3DPERF_BlockTimer(char *pszHeaderString,
-                                     BOOL  bRecordGpuTime,
-                                     WORD  EventType = D3DPERFEvent_User0)
+    __forceinline D3DPERF_BlockTimer(char* pszHeaderString,
+        BOOL bRecordGpuTime,
+        WORD EventType = D3DPERFEvent_User0)
     {
-        if(pszHeaderString) { D3DPERF_InsertPerfEventHeader(pszHeaderString); }
+        if (pszHeaderString) { D3DPERF_InsertPerfEventHeader(pszHeaderString); }
         m_bRecordGpuTime = bRecordGpuTime;
         m_pD3DPerfEvent = D3DPERF_PerfEventStart(EventType, m_bRecordGpuTime);
     }
@@ -884,7 +869,7 @@ struct D3DPERF_BlockTimer
     }
 };
 
-#define PERFEVENT_BLOCKTIMER(x,y)    D3DPERF_BlockTimer _PerfEventTimer(x,y)
+#define PERFEVENT_BLOCKTIMER(x, y) D3DPERF_BlockTimer _PerfEventTimer(x, y)
 #endif // __cplusplus
 
 /*
@@ -903,9 +888,9 @@ BOOL WINAPI D3DPERF_QueryRepeatFrame(void);
  * cannot balance a __stdcall stack). Available in all builds - a capture tool
  * turns them into a labeled timeline; without one they are cheap no-ops.
  */
-INT  __cdecl D3DPERF_BeginEvent(D3DCOLOR Color, const char *szName, ...);
-INT  WINAPI  D3DPERF_EndEvent(void);
-void __cdecl D3DPERF_SetMarker(D3DCOLOR Color, const char *szName, ...);
+INT __cdecl D3DPERF_BeginEvent(D3DCOLOR Color, const char* szName, ...);
+INT WINAPI D3DPERF_EndEvent(void);
+void __cdecl D3DPERF_SetMarker(D3DCOLOR Color, const char* szName, ...);
 
 #ifdef __cplusplus
 }

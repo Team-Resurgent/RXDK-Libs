@@ -36,7 +36,7 @@
 #define _finite(x) (__builtin_isfinite(x))
 #endif
 #ifndef _isnan
-#define _isnan(x)  (__builtin_isnan(x))
+#define _isnan(x) (__builtin_isnan(x))
 #endif
 
 /* Calling-convention keywords (clang honors them under -fms-extensions). */
@@ -70,8 +70,8 @@ typedef char _TCHAR;
 #endif
 #ifndef __LPCTSTR_DEFINED
 #define __LPCTSTR_DEFINED
-typedef char       *LPTSTR;
-typedef const char *LPCTSTR;
+typedef char* LPTSTR;
+typedef const char* LPCTSTR;
 #endif
 
 /* COM calling-convention + entry macros. xobjbase.h self-supplies the first
@@ -85,25 +85,25 @@ typedef const char *LPCTSTR;
 #endif
 #endif
 #ifndef STDMETHODCALLTYPE
-#define STDMETHODCALLTYPE   __stdcall
+#define STDMETHODCALLTYPE __stdcall
 #endif
 #ifndef STDMETHODVCALLTYPE
-#define STDMETHODVCALLTYPE  __cdecl
+#define STDMETHODVCALLTYPE __cdecl
 #endif
 #ifndef STDAPICALLTYPE
-#define STDAPICALLTYPE      __stdcall
+#define STDAPICALLTYPE __stdcall
 #endif
 #ifndef STDAPIVCALLTYPE
-#define STDAPIVCALLTYPE     __cdecl
+#define STDAPIVCALLTYPE __cdecl
 #endif
 #ifndef STDAPI
-#define STDAPI              EXTERN_C HRESULT STDAPICALLTYPE
+#define STDAPI EXTERN_C HRESULT STDAPICALLTYPE
 #endif
 #ifndef STDAPI_
-#define STDAPI_(type)       EXTERN_C type STDAPICALLTYPE
+#define STDAPI_(type) EXTERN_C type STDAPICALLTYPE
 #endif
 #ifndef STDMETHODIMP
-#define STDMETHODIMP        HRESULT STDMETHODCALLTYPE
+#define STDMETHODIMP HRESULT STDMETHODCALLTYPE
 #endif
 #ifndef STDMETHODIMP_
 #define STDMETHODIMP_(type) type STDMETHODCALLTYPE
@@ -114,22 +114,22 @@ typedef const char *LPCTSTR;
    public D3DX surface uses UINT32/etc. */
 #ifndef _RXDK_FIXEDWIDTH_INTS
 #define _RXDK_FIXEDWIDTH_INTS
-typedef signed char    INT8;
-typedef short          INT16;
-typedef int            INT32;
-typedef unsigned char  UINT8;
+typedef signed char INT8;
+typedef short INT16;
+typedef int INT32;
+typedef unsigned char UINT8;
 typedef unsigned short UINT16;
-typedef unsigned int   UINT32;
-typedef long           LONG32;
-typedef unsigned long  ULONG32;
-typedef unsigned int   DWORD32;
+typedef unsigned int UINT32;
+typedef long LONG32;
+typedef unsigned long ULONG32;
+typedef unsigned int DWORD32;
 #endif
 
 /* Constants the public D3DX surface uses (normally mmsystem.h / MSVC stdlib.h). */
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) \
     ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) | \
-     ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24))
+        ((DWORD)(BYTE)(ch2) << 16) | ((DWORD)(BYTE)(ch3) << 24))
 #endif
 #ifndef _MAX_PATH
 #define _MAX_PATH 260
@@ -140,13 +140,13 @@ typedef unsigned int   DWORD32;
 // MSVC spellings without the leading underscore. Map the common ones so ported titles build.
 #include <strings.h>
 #ifndef stricmp
-#define stricmp   strcasecmp
+#define stricmp strcasecmp
 #endif
 #ifndef strnicmp
-#define strnicmp  strncasecmp
+#define strnicmp strncasecmp
 #endif
 #ifndef strcmpi
-#define strcmpi   strcasecmp
+#define strcmpi strcasecmp
 #endif
 #ifndef _stricmp
 #define _stricmp strcasecmp
@@ -157,13 +157,13 @@ typedef unsigned int   DWORD32;
 // Wide equivalents (picolibc supplies wcscasecmp / wcsncasecmp in <wchar.h>).
 #include <wchar.h>
 #ifndef _wcsicmp
-#define _wcsicmp  wcscasecmp
+#define _wcsicmp wcscasecmp
 #endif
 #ifndef wcsicmp
-#define wcsicmp   wcscasecmp
+#define wcsicmp wcscasecmp
 #endif
 #ifndef wcsnicmp
-#define wcsnicmp  wcsncasecmp   /* _wcsnicmp is defined further down */
+#define wcsnicmp wcsncasecmp /* _wcsnicmp is defined further down */
 #endif
 #include <stdarg.h> // va_list, for the _vsnprintf/_vscprintf declarations below
 #include <stddef.h> // size_t
@@ -184,17 +184,17 @@ typedef unsigned int   DWORD32;
 extern "C" {
 #endif
 #ifndef _snprintf
-int _snprintf(char *buffer, size_t count, const char *format, ...);
+int _snprintf(char* buffer, size_t count, const char* format, ...);
 #endif
 #ifndef _vsnprintf
-int _vsnprintf(char *buffer, size_t count, const char *format, va_list ap);
+int _vsnprintf(char* buffer, size_t count, const char* format, va_list ap);
 #endif
 // MSVC's portable way to ask how long a formatted string would be.
 #ifndef _scprintf
-int _scprintf(const char *format, ...);
+int _scprintf(const char* format, ...);
 #endif
 #ifndef _vscprintf
-int _vscprintf(const char *format, va_list ap);
+int _vscprintf(const char* format, va_list ap);
 #endif
 #ifdef __cplusplus
 }
@@ -234,41 +234,53 @@ int _vscprintf(const char *format, va_list ap);
 // swprintf(buf, L"\"%S\"", name) used to put the literal text "%S" on screen. The translator
 // lives in libc (ms_printf.c) and keeps C linkage.
 #ifdef __cplusplus
-#include <wchar.h>  // vswprintf
+#include <wchar.h> // vswprintf
 #include <stdarg.h>
 #ifndef RXDK_MS_FORMAT_STACK
 #define RXDK_MS_FORMAT_STACK 256
-extern "C" const wchar_t *__rxdk_ms_wformat(const wchar_t *fmt, wchar_t *buf, size_t cap, wchar_t **heap);
-extern "C" void __rxdk_ms_format_free(void *heap);
+extern "C" const wchar_t* __rxdk_ms_wformat(const wchar_t* fmt, wchar_t* buf, size_t cap, wchar_t** heap);
+extern "C" void __rxdk_ms_format_free(void* heap);
 #endif
 #ifndef _vsnwprintf
-static inline int _vsnwprintf(wchar_t *buffer, size_t count, const wchar_t *format, va_list ap)
+static inline int
+_vsnwprintf(wchar_t* buffer, size_t count, const wchar_t* format, va_list ap)
 {
     wchar_t _stack[RXDK_MS_FORMAT_STACK], *_heap;
-    const wchar_t *_use = __rxdk_ms_wformat(format, _stack, RXDK_MS_FORMAT_STACK, &_heap);
+    const wchar_t* _use = __rxdk_ms_wformat(format, _stack, RXDK_MS_FORMAT_STACK, &_heap);
     int _r = vswprintf(buffer, count, _use, ap);
     __rxdk_ms_format_free(_heap);
     return _r;
 }
 #endif
 #ifndef _i64tow
-static inline wchar_t *_i64tow(long long value, wchar_t *str, int radix)
+static inline wchar_t*
+_i64tow(long long value, wchar_t* str, int radix)
 {
     wchar_t *p = str, *lo, *hi;
     unsigned long long uv = (radix == 10 && value < 0) ? (*p++ = L'-', (unsigned long long)(-value)) : (unsigned long long)value;
     lo = p;
-    do { unsigned d = (unsigned)(uv % (unsigned)radix); *p++ = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10); uv /= (unsigned)radix; } while (uv);
+    do {
+        unsigned d = (unsigned)(uv % (unsigned)radix);
+        *p++ = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10);
+        uv /= (unsigned)radix;
+    } while (uv);
     *p = 0;
-    for (hi = p - 1; lo < hi; ++lo, --hi) { wchar_t t = *lo; *lo = *hi; *hi = t; }
+    for (hi = p - 1; lo < hi; ++lo, --hi) {
+        wchar_t t = *lo;
+        *lo = *hi;
+        *hi = t;
+    }
     return str;
 }
 #endif
 #ifndef _snwprintf
-static inline int _snwprintf(wchar_t *buffer, size_t count, const wchar_t *format, ...)
+static inline int
+_snwprintf(wchar_t* buffer, size_t count, const wchar_t* format, ...)
 {
     wchar_t _stack[RXDK_MS_FORMAT_STACK], *_heap;
-    const wchar_t *_use = __rxdk_ms_wformat(format, _stack, RXDK_MS_FORMAT_STACK, &_heap);
-    va_list ap; int r;
+    const wchar_t* _use = __rxdk_ms_wformat(format, _stack, RXDK_MS_FORMAT_STACK, &_heap);
+    va_list ap;
+    int r;
     va_start(ap, format);
     r = vswprintf(buffer, count, _use, ap);
     va_end(ap);
@@ -277,20 +289,30 @@ static inline int _snwprintf(wchar_t *buffer, size_t count, const wchar_t *forma
 }
 #endif
 #ifndef _wtol
-static inline long _wtol(const wchar_t *str)
+static inline long
+_wtol(const wchar_t* str)
 {
-    return wcstol(str, (wchar_t **)0, 10);
+    return wcstol(str, (wchar_t**)0, 10);
 }
 #endif
 #ifndef _itow
-static inline wchar_t *_itow(int value, wchar_t *str, int radix)
+static inline wchar_t*
+_itow(int value, wchar_t* str, int radix)
 {
     wchar_t *p = str, *lo, *hi;
     unsigned int uv = (radix == 10 && value < 0) ? (*p++ = L'-', (unsigned)(-value)) : (unsigned)value;
     lo = p;
-    do { unsigned d = uv % (unsigned)radix; *p++ = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10); uv /= (unsigned)radix; } while (uv);
+    do {
+        unsigned d = uv % (unsigned)radix;
+        *p++ = (wchar_t)(d < 10 ? L'0' + d : L'a' + d - 10);
+        uv /= (unsigned)radix;
+    } while (uv);
     *p = 0;
-    for (hi = p - 1; lo < hi; ++lo, --hi) { wchar_t t = *lo; *lo = *hi; *hi = t; }
+    for (hi = p - 1; lo < hi; ++lo, --hi) {
+        wchar_t t = *lo;
+        *lo = *hi;
+        *hi = t;
+    }
     return str;
 }
 #endif
@@ -316,10 +338,11 @@ static inline wchar_t *_itow(int value, wchar_t *str, int radix)
 #ifdef __cplusplus
 #include <wchar.h>
 #include <stdarg.h>
-inline int swprintf(wchar_t *_Dst, const wchar_t *_Fmt, ...)
+inline int
+swprintf(wchar_t* _Dst, const wchar_t* _Fmt, ...)
 {
     wchar_t _stack[RXDK_MS_FORMAT_STACK], *_heap;
-    const wchar_t *_use = __rxdk_ms_wformat(_Fmt, _stack, RXDK_MS_FORMAT_STACK, &_heap);
+    const wchar_t* _use = __rxdk_ms_wformat(_Fmt, _stack, RXDK_MS_FORMAT_STACK, &_heap);
     va_list _Args;
     va_start(_Args, _Fmt);
     int _Ret = vswprintf(_Dst, (size_t)-1, _use, _Args);
@@ -353,5 +376,5 @@ extern "C" BOOL WINAPI D3DPERF_QueryRepeatFrame(void);
 // value, but it is a constant expression the compiler blesses instead of a null
 // dereference it warns about.
 #ifndef FIELD_OFFSET
-#define FIELD_OFFSET(type, field) ((LONG)__builtin_offsetof(type, field))
+#define FIELD_OFFSET(type, field) ((LONG) __builtin_offsetof(type, field))
 #endif

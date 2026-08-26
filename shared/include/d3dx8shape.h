@@ -40,12 +40,12 @@ extern "C" {
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
 HRESULT WINAPI
-    D3DXCreatePolygon(
-        LPDIRECT3DDEVICE8   pDevice,
-        FLOAT               Length,
-        UINT                Sides,
-        LPD3DXMESH*         ppMesh,
-        LPD3DXBUFFER*       ppAdjacency);
+D3DXCreatePolygon(
+    LPDIRECT3DDEVICE8 pDevice,
+    FLOAT Length,
+    UINT Sides,
+    LPD3DXMESH* ppMesh,
+    LPD3DXBUFFER* ppAdjacency);
 
 
 //-------------------------------------------------------------------------
@@ -64,13 +64,13 @@ HRESULT WINAPI
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
 HRESULT WINAPI
-    D3DXCreateBox(
-        LPDIRECT3DDEVICE8   pDevice,
-        FLOAT               Width,
-        FLOAT               Height,
-        FLOAT               Depth,
-        LPD3DXMESH*         ppMesh,
-        LPD3DXBUFFER*       ppAdjacency);
+D3DXCreateBox(
+    LPDIRECT3DDEVICE8 pDevice,
+    FLOAT Width,
+    FLOAT Height,
+    FLOAT Depth,
+    LPD3DXMESH* ppMesh,
+    LPD3DXBUFFER* ppAdjacency);
 
 
 //-------------------------------------------------------------------------
@@ -91,15 +91,15 @@ HRESULT WINAPI
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
 HRESULT WINAPI
-    D3DXCreateCylinder(
-        LPDIRECT3DDEVICE8   pDevice,
-        FLOAT               Radius1,
-        FLOAT               Radius2,
-        FLOAT               Length,
-        UINT                Slices,
-        UINT                Stacks,
-        LPD3DXMESH*         ppMesh,
-        LPD3DXBUFFER*       ppAdjacency);
+D3DXCreateCylinder(
+    LPDIRECT3DDEVICE8 pDevice,
+    FLOAT Radius1,
+    FLOAT Radius2,
+    FLOAT Length,
+    UINT Slices,
+    UINT Stacks,
+    LPD3DXMESH* ppMesh,
+    LPD3DXBUFFER* ppAdjacency);
 
 
 //-------------------------------------------------------------------------
@@ -118,13 +118,13 @@ HRESULT WINAPI
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
 HRESULT WINAPI
-    D3DXCreateSphere(
-        LPDIRECT3DDEVICE8  pDevice,
-        FLOAT              Radius,
-        UINT               Slices,
-        UINT               Stacks,
-        LPD3DXMESH*        ppMesh,
-        LPD3DXBUFFER*      ppAdjacency);
+D3DXCreateSphere(
+    LPDIRECT3DDEVICE8 pDevice,
+    FLOAT Radius,
+    UINT Slices,
+    UINT Stacks,
+    LPD3DXMESH* ppMesh,
+    LPD3DXBUFFER* ppAdjacency);
 
 
 //-------------------------------------------------------------------------
@@ -144,14 +144,14 @@ HRESULT WINAPI
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
 HRESULT WINAPI
-    D3DXCreateTorus(
-        LPDIRECT3DDEVICE8   pDevice,
-        FLOAT               InnerRadius,
-        FLOAT               OuterRadius,
-        UINT                Sides,
-        UINT                Rings,
-        LPD3DXMESH*         ppMesh,
-        LPD3DXBUFFER*       ppAdjacency);
+D3DXCreateTorus(
+    LPDIRECT3DDEVICE8 pDevice,
+    FLOAT InnerRadius,
+    FLOAT OuterRadius,
+    UINT Sides,
+    UINT Rings,
+    LPD3DXMESH* ppMesh,
+    LPD3DXBUFFER* ppAdjacency);
 
 
 //-------------------------------------------------------------------------
@@ -166,10 +166,10 @@ HRESULT WINAPI
 //  ppAdjacency Returns a buffer containing adjacency info.  Can be NULL.
 //-------------------------------------------------------------------------
 HRESULT WINAPI
-    D3DXCreateTeapot(
-        LPDIRECT3DDEVICE8   pDevice,
-        LPD3DXMESH*         ppMesh,
-        LPD3DXBUFFER*       ppAdjacency);
+D3DXCreateTeapot(
+    LPDIRECT3DDEVICE8 pDevice,
+    LPD3DXMESH* ppMesh,
+    LPD3DXBUFFER* ppAdjacency);
 
 
 #ifdef __cplusplus

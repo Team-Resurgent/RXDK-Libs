@@ -17,32 +17,30 @@
 
 #include <xactwb.h>
 
-// 
+//
 // Wave bank expanded wave format
 //
 
-typedef union _WAVEBANKUNIWAVEFORMAT
-{
-    WAVEFORMATEX        WaveFormatEx;
+typedef union _WAVEBANKUNIWAVEFORMAT {
+    WAVEFORMATEX WaveFormatEx;
     XBOXADPCMWAVEFORMAT AdpcmWaveFormat;
 } WAVEBANKUNIWAVEFORMAT, *LPWAVEBANKUNIWAVEFORMAT;
 
-typedef const WAVEBANKUNIWAVEFORMAT *LPCWAVEBANKUNIWAVEFORMAT;
+typedef const WAVEBANKUNIWAVEFORMAT* LPCWAVEBANKUNIWAVEFORMAT;
 
 //
 // Wave bank section data
 //
 
-typedef struct _WAVEBANKSECTIONDATA
-{
-    LPWAVEBANKHEADER    pHeader;            // File header
-    LPWAVEBANKDATA      pBankData;          // Bank data segment (entry count, name, alignment)
-    LPWAVEBANKENTRY     paMetaData;         // Array of entry meta-data
-    LPVOID              pvData;             // Wave data base address
-    DWORD               dwDataSize;         // Wave data size, in bytes
+typedef struct _WAVEBANKSECTIONDATA {
+    LPWAVEBANKHEADER pHeader; // File header
+    LPWAVEBANKDATA pBankData; // Bank data segment (entry count, name, alignment)
+    LPWAVEBANKENTRY paMetaData; // Array of entry meta-data
+    LPVOID pvData; // Wave data base address
+    DWORD dwDataSize; // Wave data size, in bytes
 } WAVEBANKSECTIONDATA, *LPWAVEBANKSECTIONDATA;
 
-typedef const WAVEBANKSECTIONDATA *LPCWAVEBANKSECTIONDATA;
+typedef const WAVEBANKSECTIONDATA* LPCWAVEBANKSECTIONDATA;
 
 //
 // Helper functions. Convert between the packed WAVEBANKMINIWAVEFORMAT stored in
@@ -63,15 +61,15 @@ EXTERN_C BOOL WaveBankCompressFormat(LPCWAVEBANKUNIWAVEFORMAT pwfxExpanded, LPWA
 
 class CWaveBankReader
 {
-private:
-    LPVOID                  m_pvBaseAddress;    // Bank base address
-    DWORD                   m_dwBankSize;       // Bank size, in bytes
+  private:
+    LPVOID m_pvBaseAddress; // Bank base address
+    DWORD m_dwBankSize; // Bank size, in bytes
 
-public:
+  public:
     CWaveBankReader(void);
     virtual ~CWaveBankReader(void);
 
-public:
+  public:
     // Initialization
     HRESULT Open(LPCSTR pszBankPath);
     void Flush(void);

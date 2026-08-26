@@ -25,15 +25,15 @@ extern "C" {
 #endif
 
 /* stdin: read(0, buf, count) calls this. Return bytes read, 0 = EOF, -1 = error. */
-typedef ssize_t (*rxdk_stdin_fn)(void *buf, size_t count);
+typedef ssize_t (*rxdk_stdin_fn)(void* buf, size_t count);
 void rxdk_set_stdin_handler(rxdk_stdin_fn fn);
 
 /* output: write(1/2, buf, count) calls this instead of DbgPrint. Return bytes written. */
-typedef ssize_t (*rxdk_output_fn)(int fd, const void *buf, size_t count);
+typedef ssize_t (*rxdk_output_fn)(int fd, const void* buf, size_t count);
 void rxdk_set_output_handler(rxdk_output_fn fn);
 
 /* exec: execve(path, argv, envp) calls this. Returns like execve (no return on success). */
-typedef int (*rxdk_exec_fn)(const char *path, char *const argv[], char *const envp[]);
+typedef int (*rxdk_exec_fn)(const char* path, char* const argv[], char* const envp[]);
 void rxdk_set_exec_handler(rxdk_exec_fn fn);
 
 /* Internal: the installed handlers (NULL when unset). libc reads these directly. */

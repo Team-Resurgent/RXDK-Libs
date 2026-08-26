@@ -71,12 +71,11 @@ typedef struct _HARDWARE_PTE {
     ULONG PageFrameNumber : 20;
 } HARDWARE_PTE, *PHARDWARE_PTE;
 
-typedef VOID (STDCALL *PPS_APC_ROUTINE) (
+typedef VOID(STDCALL* PPS_APC_ROUTINE)(
 
     IN PVOID ApcArgument1,
     IN PVOID ApcArgument2,
-    IN PVOID ApcArgument3
-);
+    IN PVOID ApcArgument3);
 
 /* Documents why a thread is waiting (passed to the wait routines); surfaced in
  * thread state for diagnostics. */
@@ -133,40 +132,35 @@ typedef struct _SHARE_ACCESS {
 } SHARE_ACCESS, *PSHARE_ACCESS;
 
 /* Callback run under an interrupt's lock by KeSynchronizeExecution. */
-typedef BOOLEAN (STDCALL *PKSYNCHRONIZE_ROUTINE) (
+typedef BOOLEAN(STDCALL* PKSYNCHRONIZE_ROUTINE)(
 
-    IN PVOID SynchronizeContext
-);
+    IN PVOID SynchronizeContext);
 
 /* APC callbacks: rundown (thread exiting before the APC ran), normal (the
  * delivered work), and kernel (runs first, may rewrite the normal routine). */
-typedef VOID (STDCALL *PKRUNDOWN_ROUTINE) (
+typedef VOID(STDCALL* PKRUNDOWN_ROUTINE)(
 
-    IN PKAPC Apc
-);
+    IN PKAPC Apc);
 
-typedef VOID (STDCALL *PKNORMAL_ROUTINE) (
+typedef VOID(STDCALL* PKNORMAL_ROUTINE)(
 
     IN PVOID NormalContext,
     IN PVOID SystemArgument1,
-    IN PVOID SystemArgument2
-);
+    IN PVOID SystemArgument2);
 
-typedef VOID (STDCALL *PKKERNEL_ROUTINE) (
+typedef VOID(STDCALL* PKKERNEL_ROUTINE)(
 
     IN PKAPC Apc,
-    IN OUT PKNORMAL_ROUTINE *NormalRoutine,
-    IN OUT PVOID *NormalContext,
-    IN OUT PVOID *SystemArgument1,
-    IN OUT PVOID *SystemArgument2
-);
+    IN OUT PKNORMAL_ROUTINE* NormalRoutine,
+    IN OUT PVOID* NormalContext,
+    IN OUT PVOID* SystemArgument1,
+    IN OUT PVOID* SystemArgument2);
 
 struct _HAL_SHUTDOWN_REGISTRATION;
 
-typedef VOID (STDCALL *PHAL_SHUTDOWN_NOTIFICATION) (
+typedef VOID(STDCALL* PHAL_SHUTDOWN_NOTIFICATION)(
 
-    IN struct _HAL_SHUTDOWN_REGISTRATION *ShutdownRegistration
-);
+    IN struct _HAL_SHUTDOWN_REGISTRATION* ShutdownRegistration);
 
 /* Registration record for a shutdown callback (with ordering Priority) passed to
  * HalRegisterShutdownNotification. */
@@ -178,22 +172,22 @@ typedef struct _HAL_SHUTDOWN_REGISTRATION {
 
 /* Function-pointer types for each crypto primitive, gathered into CRYPTO_VECTOR
  * below (the indirection table the Xc* routines and XcUpdateCrypto use). */
-typedef VOID (STDCALL *pfXcSHAInit) (PUCHAR pbSHAContext);
-typedef VOID (STDCALL *pfXcSHAUpdate) (PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
-typedef VOID (STDCALL *pfXcSHAFinal) (PUCHAR pbSHAContext, PUCHAR pbDigest);
-typedef VOID (STDCALL *pfXcRC4Key) (PUCHAR pbKeyStruct, ULONG dwKeyLength, PUCHAR pbKey);
-typedef VOID (STDCALL *pfXcRC4Crypt) (PUCHAR pbKeyStruct, ULONG dwInputLength, PUCHAR pbInput);
-typedef VOID (STDCALL *pfXcHMAC) (PUCHAR pbKey, ULONG dwKeyLength, PUCHAR pbInput, ULONG dwInputLength, PUCHAR pbInput2, ULONG dwInputLength2, PUCHAR pbDigest);
-typedef ULONG (STDCALL *pfXcPKEncPublic) (PUCHAR pbPubKey, PUCHAR pbInput, PUCHAR pbOutput);
-typedef ULONG (STDCALL *pfXcPKDecPrivate) (PUCHAR pbPrvKey, PUCHAR pbInput, PUCHAR pbOutput);
-typedef ULONG (STDCALL *pfXcPKGetKeyLen) (PUCHAR pbPubKey);
-typedef BOOLEAN (STDCALL *pfXcVerifyPKCS1Signature) (PUCHAR pbSig, PUCHAR pbPubKey, PUCHAR pbDigest);
-typedef ULONG (STDCALL *pfXcModExp) (PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN);
-typedef VOID (STDCALL *pfXcDESKeyParity) (PUCHAR pbKey, ULONG dwKeyLength);
-typedef VOID (STDCALL *pfXcKeyTable) (ULONG dwCipher, PUCHAR pbKeyTable, PUCHAR pbKey);
-typedef VOID (STDCALL *pfXcBlockCrypt) (ULONG dwCipher, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp);
-typedef VOID (STDCALL *pfXcBlockCryptCBC) (ULONG dwCipher, ULONG dwInputLength, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp, PUCHAR pbFeedback);
-typedef ULONG (STDCALL *pfXcCryptService) (ULONG dwOp, PVOID pArgs);
+typedef VOID(STDCALL* pfXcSHAInit)(PUCHAR pbSHAContext);
+typedef VOID(STDCALL* pfXcSHAUpdate)(PUCHAR pbSHAContext, PUCHAR pbInput, ULONG dwInputLength);
+typedef VOID(STDCALL* pfXcSHAFinal)(PUCHAR pbSHAContext, PUCHAR pbDigest);
+typedef VOID(STDCALL* pfXcRC4Key)(PUCHAR pbKeyStruct, ULONG dwKeyLength, PUCHAR pbKey);
+typedef VOID(STDCALL* pfXcRC4Crypt)(PUCHAR pbKeyStruct, ULONG dwInputLength, PUCHAR pbInput);
+typedef VOID(STDCALL* pfXcHMAC)(PUCHAR pbKey, ULONG dwKeyLength, PUCHAR pbInput, ULONG dwInputLength, PUCHAR pbInput2, ULONG dwInputLength2, PUCHAR pbDigest);
+typedef ULONG(STDCALL* pfXcPKEncPublic)(PUCHAR pbPubKey, PUCHAR pbInput, PUCHAR pbOutput);
+typedef ULONG(STDCALL* pfXcPKDecPrivate)(PUCHAR pbPrvKey, PUCHAR pbInput, PUCHAR pbOutput);
+typedef ULONG(STDCALL* pfXcPKGetKeyLen)(PUCHAR pbPubKey);
+typedef BOOLEAN(STDCALL* pfXcVerifyPKCS1Signature)(PUCHAR pbSig, PUCHAR pbPubKey, PUCHAR pbDigest);
+typedef ULONG(STDCALL* pfXcModExp)(PULONG pA, PULONG pB, PULONG pC, PULONG pD, ULONG dwN);
+typedef VOID(STDCALL* pfXcDESKeyParity)(PUCHAR pbKey, ULONG dwKeyLength);
+typedef VOID(STDCALL* pfXcKeyTable)(ULONG dwCipher, PUCHAR pbKeyTable, PUCHAR pbKey);
+typedef VOID(STDCALL* pfXcBlockCrypt)(ULONG dwCipher, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp);
+typedef VOID(STDCALL* pfXcBlockCryptCBC)(ULONG dwCipher, ULONG dwInputLength, PUCHAR pbOutput, PUCHAR pbInput, PUCHAR pbKeyTable, ULONG dwOp, PUCHAR pbFeedback);
+typedef ULONG(STDCALL* pfXcCryptService)(ULONG dwOp, PVOID pArgs);
 
 /* The kernel's table of crypto implementations; passed to/from XcUpdateCrypto. */
 typedef struct {
@@ -221,8 +215,8 @@ typedef struct _OBJECT_HANDLE_TABLE {
     LONG HandleCount;
     LONG_PTR FirstFreeTableEntry;
     HANDLE NextHandleNeedingPool;
-    PVOID **RootTable;
-    PVOID *BuiltinRootTable[8];
+    PVOID** RootTable;
+    PVOID* BuiltinRootTable[8];
 } OBJECT_HANDLE_TABLE, *POBJECT_HANDLE_TABLE;
 
 /* Memory-manager internals (physical frame bookkeeping and page-table entries).
@@ -240,8 +234,7 @@ typedef struct _MMPFNREGION {
 /* Page-table entry as the memory manager sees it: a raw ULONG, a HARDWARE_PTE,
  * or a free-list link. */
 typedef struct _MMPTE {
-    union
-    {
+    union {
         ULONG Long;
         HARDWARE_PTE Hard;
         struct
@@ -270,27 +263,26 @@ typedef enum _MMPFN_BUSY_TYPE {
     MmMaximumUsage
 } MMPFN_BUSY_TYPE;
 
-typedef PFN_NUMBER (FASTCALL *PMMREMOVE_PAGE_ROUTINE) (
+typedef PFN_NUMBER(FASTCALL* PMMREMOVE_PAGE_ROUTINE)(
 
     IN MMPFN_BUSY_TYPE BusyType,
-    IN PMMPTE TargetPte
-);
+    IN PMMPTE TargetPte);
 
 typedef struct _MMPTERANGE {
     MMPTE HeadPte;
     PMMPTE FirstCommittedPte;
     PMMPTE LastCommittedPte;
     PMMPTE LastReservedPte;
-    PFN_COUNT *AvailablePages;
+    PFN_COUNT* AvailablePages;
     PMMREMOVE_PAGE_ROUTINE RemovePageRoutine;
 } MMPTERANGE, *PMMPTERANGE;
 
 typedef struct _MMADDRESS_NODE {
     ULONG_PTR StartingVpn;
     ULONG_PTR EndingVpn;
-    struct _MMADDRESS_NODE *Parent;
-    struct _MMADDRESS_NODE *LeftChild;
-    struct _MMADDRESS_NODE *RightChild;
+    struct _MMADDRESS_NODE* Parent;
+    struct _MMADDRESS_NODE* LeftChild;
+    struct _MMADDRESS_NODE* RightChild;
 
 } MMADDRESS_NODE, *PMMADDRESS_NODE;
 
@@ -301,27 +293,26 @@ typedef struct _MMGLOBALDATA {
     PMMPFNREGION RetailPfnRegion;
     PMMPTERANGE SystemPteRange;
     PULONG AvailablePages;
-    PFN_COUNT *AllocatedPagesByUsage;
+    PFN_COUNT* AllocatedPagesByUsage;
     PRTL_CRITICAL_SECTION AddressSpaceLock;
-    PMMADDRESS_NODE *VadRoot;
-    PMMADDRESS_NODE *VadHint;
-    PMMADDRESS_NODE *VadFreeHint;
+    PMMADDRESS_NODE* VadRoot;
+    PMMADDRESS_NODE* VadHint;
+    PMMADDRESS_NODE* VadFreeHint;
 } MMGLOBALDATA, *PMMGLOBALDATA;
 
 /* Callback slots implemented by the IDE/ATAPI driver and stored in the
  * IDE_CHANNEL_OBJECT dispatch table. */
-typedef VOID (STDCALL *PIDE_INTERRUPT_ROUTINE) (void);
-typedef VOID (STDCALL *PIDE_FINISHIO_ROUTINE) (void);
-typedef BOOLEAN (STDCALL *PIDE_POLL_RESET_COMPLETE_ROUTINE) (void);
-typedef VOID (STDCALL *PIDE_TIMEOUT_EXPIRED_ROUTINE) (void);
+typedef VOID(STDCALL* PIDE_INTERRUPT_ROUTINE)(void);
+typedef VOID(STDCALL* PIDE_FINISHIO_ROUTINE)(void);
+typedef BOOLEAN(STDCALL* PIDE_POLL_RESET_COMPLETE_ROUTINE)(void);
+typedef VOID(STDCALL* PIDE_TIMEOUT_EXPIRED_ROUTINE)(void);
 
-typedef VOID (STDCALL *PIDE_START_PACKET_ROUTINE) (
+typedef VOID(STDCALL* PIDE_START_PACKET_ROUTINE)(
 
     IN PDEVICE_OBJECT DeviceObject,
-    IN PIRP Irp
-);
+    IN PIRP Irp);
 
-typedef VOID (STDCALL *PIDE_START_NEXT_PACKET_ROUTINE) (void);
+typedef VOID(STDCALL* PIDE_START_NEXT_PACKET_ROUTINE)(void);
 
 /* State of the ATA channel (exported as IdexChannelObject): its driver
  * callbacks, current request, DMA descriptor table, retry/timeout counters, and
@@ -351,17 +342,16 @@ typedef struct _IDE_CHANNEL_OBJECT {
 
 /* Optional wrapper run before a new thread's start routine (see
  * PsCreateSystemThreadEx). */
-typedef VOID (STDCALL *PKSYSTEM_ROUTINE) (
+typedef VOID(STDCALL* PKSYSTEM_ROUTINE)(
 
     IN PKSTART_ROUTINE StartRoutine OPTIONAL,
-    IN PVOID StartContext OPTIONAL
-);
+    IN PVOID StartContext OPTIONAL);
 
 /* Thread scheduling priority bounds: 0..15 are the normal band, 16..31 the
  * real-time band; MAXIMUM_PRIORITY is one past the top. */
-#define LOW_PRIORITY          0
+#define LOW_PRIORITY 0
 #define LOW_REALTIME_PRIORITY 16
-#define HIGH_PRIORITY         31
-#define MAXIMUM_PRIORITY      32
+#define HIGH_PRIORITY 31
+#define MAXIMUM_PRIORITY 32
 
 #endif

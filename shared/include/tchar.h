@@ -20,60 +20,60 @@
 
 #ifndef _TCHAR_DEFINED
 #define _TCHAR_DEFINED
-typedef char            TCHAR, _TCHAR;
-typedef char            TBYTE;
-typedef char *          PTCHAR, *PTSTR, *LPTSTR;
-typedef const char *    PCTSTR, *LPCTSTR;
+typedef char TCHAR, _TCHAR;
+typedef char TBYTE;
+typedef char *PTCHAR, *PTSTR, *LPTSTR;
+typedef const char *PCTSTR, *LPCTSTR;
 #endif
 
 #ifndef __TEXT
-#define __TEXT(q)   q
+#define __TEXT(q) q
 #endif
 #ifndef _T
-#define _T(x)       x
-#define _TEXT(x)    x
+#define _T(x) x
+#define _TEXT(x) x
 #endif
 #ifndef TEXT
-#define TEXT(x)     x
+#define TEXT(x) x
 #endif
 
 /* String routines (generic-text -> ANSI). */
-#define _tcslen     strlen
-#define _tcscpy     strcpy
-#define _tcsncpy    strncpy
-#define _tcscat     strcat
-#define _tcsncat    strncat
-#define _tcscmp     strcmp
-#define _tcsncmp    strncmp
-#define _tcsicmp    strcasecmp
-#define _tcsnicmp   strncasecmp
-#define _tcschr     strchr
-#define _tcsrchr    strrchr
-#define _tcsstr     strstr
-#define _tcstok     strtok
-#define _tcsdup     strdup
-#define _tcscpy_s(d, n, s)  strncpy((d), (s), (n))
+#define _tcslen strlen
+#define _tcscpy strcpy
+#define _tcsncpy strncpy
+#define _tcscat strcat
+#define _tcsncat strncat
+#define _tcscmp strcmp
+#define _tcsncmp strncmp
+#define _tcsicmp strcasecmp
+#define _tcsnicmp strncasecmp
+#define _tcschr strchr
+#define _tcsrchr strrchr
+#define _tcsstr strstr
+#define _tcstok strtok
+#define _tcsdup strdup
+#define _tcscpy_s(d, n, s) strncpy((d), (s), (n))
 
 /* Char classification / conversion. */
-#define _totupper   toupper
-#define _totlower   tolower
-#define _istdigit   isdigit
-#define _istalpha   isalpha
-#define _istspace   isspace
+#define _totupper toupper
+#define _totlower tolower
+#define _istdigit isdigit
+#define _istalpha isalpha
+#define _istspace isspace
 
 /* Formatted I/O. */
-#define _stprintf   sprintf
-#define _sntprintf  snprintf
-#define _vstprintf  vsprintf
+#define _stprintf sprintf
+#define _sntprintf snprintf
+#define _vstprintf vsprintf
 #define _vsntprintf vsnprintf
-#define _tprintf    printf
+#define _tprintf printf
 
 /* Numeric conversion. */
-#define _tcstol     strtol
-#define _tcstoul    strtoul
-#define _tcstod     strtod
-#define _ttoi       atoi
-#define _ttol       atol
-#define _itot(v, b, r)  itoa((v), (b), (r))
+#define _tcstol strtol
+#define _tcstoul strtoul
+#define _tcstod strtod
+#define _ttoi atoi
+#define _ttol atol
+#define _itot(v, b, r) itoa((v), (b), (r))
 
 #endif /* RXDK_TCHAR_H */

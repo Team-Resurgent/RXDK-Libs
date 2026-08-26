@@ -21,34 +21,28 @@ PVOID STDCALL AvGetSavedDataAddress(void);
 /* Sends a control option to the TV encoder. RegisterBase is the AV register
  * block; Option/Param are encoder-specific, and the encoder's reply (if any) is
  * written to *Result. */
-VOID STDCALL AvSendTVEncoderOption
-(
+VOID STDCALL AvSendTVEncoderOption(
     IN PVOID RegisterBase,
     IN ULONG Option,
     IN ULONG Param,
-    OUT PULONG Result
-);
+    OUT PULONG Result);
 
 /* Programs the display controller for a new mode. RegisterBase is the AV
  * register block, Step selects the programming phase, DisplayMode encodes the
  * resolution/refresh, SourceColorFormat the framebuffer pixel format, Pitch the
  * scanline stride in bytes, and FrameBuffer the framebuffer physical address.
  * Returns the applied mode. */
-ULONG STDCALL AvSetDisplayMode
-(
+ULONG STDCALL AvSetDisplayMode(
     IN PVOID RegisterBase,
     IN ULONG Step,
     IN ULONG DisplayMode,
     IN ULONG SourceColorFormat,
     IN ULONG Pitch,
-    IN ULONG FrameBuffer
-);
+    IN ULONG FrameBuffer);
 
 /* Records a framebuffer address to be retained across a relaunch; retrieve it
  * with AvGetSavedDataAddress. */
-VOID STDCALL AvSetSavedDataAddress
-(
-    IN PVOID Address
-);
+VOID STDCALL AvSetSavedDataAddress(
+    IN PVOID Address);
 
 #endif

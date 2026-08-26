@@ -15,47 +15,37 @@
 #define XBOXKRNL_API_DBG_H
 
 /* Executes a breakpoint trap, breaking into the attached debugger. */
-VOID STDCALL DbgBreakPoint (void);
+VOID STDCALL DbgBreakPoint(void);
 
 /* Like DbgBreakPoint, but passes Status to the debugger as the break reason. */
-VOID STDCALL DbgBreakPointWithStatus
-(
-    IN ULONG Status
-);
+VOID STDCALL DbgBreakPointWithStatus(
+    IN ULONG Status);
 
 /* Notifies the debugger that an image's symbols are available. FileName names
  * the image, ImageBase is its load address, ProcessId identifies the owner. */
-VOID STDCALL DbgLoadImageSymbols
-(
+VOID STDCALL DbgLoadImageSymbols(
     PSTRING FileName,
     PVOID ImageBase,
-    ULONG_PTR ProcessId
-);
+    ULONG_PTR ProcessId);
 
 /* printf-style output to the debug channel. Returns the number of characters
  * emitted. No-op sink when no debugger is listening. */
-ULONG CDECL DbgPrint
-(
+ULONG CDECL DbgPrint(
     PCSTR Format,
-    ...
-);
+    ...);
 
 /* Writes Prompt to the debugger and reads a reply into Response (up to
  * MaximumResponseLength bytes). Returns the number of bytes received. */
-ULONG STDCALL DbgPrompt
-(
+ULONG STDCALL DbgPrompt(
     PCH Prompt,
     PCH Response,
-    ULONG MaximumResponseLength
-);
+    ULONG MaximumResponseLength);
 
 /* Notifies the debugger that a previously loaded image's symbols are going away;
  * the inverse of DbgLoadImageSymbols. */
-VOID STDCALL DbgUnLoadImageSymbols
-(
+VOID STDCALL DbgUnLoadImageSymbols(
     PSTRING FileName,
     PVOID ImageBase,
-    ULONG_PTR ProcessId
-);
+    ULONG_PTR ProcessId);
 
 #endif

@@ -57,22 +57,22 @@ typedef struct _LAUNCH_DATA_PAGE {
 
 /* Launch data types (LDT_*) and the dashboard-launch reason codes, stored in the
  * launch header to tell the target why it was started. */
-#define LDT_TITLE                                             0
-#define LDT_LAUNCH_DASHBOARD                                  1
-#define LDT_FROM_DASHBOARD                                    2
-#define LDT_NONE                                              0xFFFFFFFF
-#define LDT_LAUNCH_DASHBOARD_REASON_NONE                      0
-#define LDT_LAUNCH_DASHBOARD_REASON_ERROR                     1
-#define LDT_LAUNCH_DASHBOARD_REASON_SAVEDATA                  2
-#define LDT_LAUNCH_DASHBOARD_REASON_SETTINGS                  3
-#define LDT_LAUNCH_DASHBOARD_REASON_MUSIC                     4
-#define LDT_LAUNCH_DASHBOARD_REASON_NETWORK                   6
-#define LDT_LAUNCH_DASHBOARD_REASON_NEW_ACCOUNT               7
-#define LDT_LAUNCH_DASHBOARD_REASON_SERVER_INFO               8
-#define LDT_LAUNCH_DASHBOARD_REASON_SHOW_POLICIES             9
-#define LDT_LAUNCH_DASHBOARD_REASON_ONLINE_MENU               10
+#define LDT_TITLE 0
+#define LDT_LAUNCH_DASHBOARD 1
+#define LDT_FROM_DASHBOARD 2
+#define LDT_NONE 0xFFFFFFFF
+#define LDT_LAUNCH_DASHBOARD_REASON_NONE 0
+#define LDT_LAUNCH_DASHBOARD_REASON_ERROR 1
+#define LDT_LAUNCH_DASHBOARD_REASON_SAVEDATA 2
+#define LDT_LAUNCH_DASHBOARD_REASON_SETTINGS 3
+#define LDT_LAUNCH_DASHBOARD_REASON_MUSIC 4
+#define LDT_LAUNCH_DASHBOARD_REASON_NETWORK 6
+#define LDT_LAUNCH_DASHBOARD_REASON_NEW_ACCOUNT 7
+#define LDT_LAUNCH_DASHBOARD_REASON_SERVER_INFO 8
+#define LDT_LAUNCH_DASHBOARD_REASON_SHOW_POLICIES 9
+#define LDT_LAUNCH_DASHBOARD_REASON_ONLINE_MENU 10
 #define LDT_LAUNCH_DASHBOARD_REASON_FORCE_ACCOUNT_NAME_CHANGE 11
-#define LDT_LAUNCH_DASHBOARD_REASON_FORCE_BILLING_CHANGE      12
+#define LDT_LAUNCH_DASHBOARD_REASON_FORCE_BILLING_CHANGE 12
 
 /* Common prefix of every waitable dispatcher object: its type, current
  * SignalState, and the list of threads waiting on it. */
@@ -146,9 +146,9 @@ struct _KTHREAD;
  * several objects has one block per object, chained by NextWaitBlock. */
 typedef struct _KWAIT_BLOCK {
     LIST_ENTRY WaitListEntry;
-    struct _KTHREAD *Thread;
+    struct _KTHREAD* Thread;
     PVOID Object;
-    struct _KWAIT_BLOCK *NextWaitBlock;
+    struct _KWAIT_BLOCK* NextWaitBlock;
     SHORT WaitKey;
     SHORT WaitType;
 } KWAIT_BLOCK, *PKWAIT_BLOCK;
@@ -159,7 +159,7 @@ typedef struct _KAPC {
     SHORT Type;
     CHAR ApcMode;
     UCHAR Inserted;
-    struct _KTHREAD *Thread;
+    struct _KTHREAD* Thread;
     LIST_ENTRY ApcListEntry;
     PVOID KernelRoutine;
     PVOID RundownRoutine;
@@ -282,11 +282,11 @@ typedef struct _OBJECT_TYPE {
 /* The bookkeeping prefix in front of every object body: reference/handle counts,
  * type, and flags. The body immediately follows. */
 typedef struct _OBJECT_HEADER {
-	LONG PointerCount;
-	LONG HandleCount;
-	POBJECT_TYPE Type;
-	ULONG Flags;
-	QUAD Body;
+    LONG PointerCount;
+    LONG HandleCount;
+    POBJECT_TYPE Type;
+    ULONG Flags;
+    QUAD Body;
 } OBJECT_HEADER, *POBJECT_HEADER;
 
 /* Recovers the OBJECT_HEADER given a pointer to the object body. */
@@ -295,13 +295,12 @@ typedef struct _OBJECT_HEADER {
 /* Callback prototypes used by the kernel: DPC deferred routine, thread start
  * routine, I/O-completion and timer APC routines, create-thread notification,
  * and interrupt service routine. */
-typedef VOID (STDCALL *PKDEFERRED_ROUTINE) (
+typedef VOID(STDCALL* PKDEFERRED_ROUTINE)(
 
     IN PKDPC Dpc,
     IN PVOID DeferredContext,
     IN PVOID SystemArgument1,
-    IN PVOID SystemArgument2
-);
+    IN PVOID SystemArgument2);
 
 /* Serializes IRPs to a device: while Busy, new requests queue on DeviceListHead
  * rather than starting immediately. */
@@ -312,10 +311,9 @@ typedef struct _KDEVICE_QUEUE {
     LIST_ENTRY DeviceListHead;
 } KDEVICE_QUEUE, *PKDEVICE_QUEUE;
 
-typedef VOID (STDCALL *PKSTART_ROUTINE) (
+typedef VOID(STDCALL* PKSTART_ROUTINE)(
 
-    IN PVOID StartContext
-);
+    IN PVOID StartContext);
 
 /* One page-aligned buffer element of a scatter/gather list for
  * NtReadFileScatter / NtWriteFileGather. */
@@ -324,12 +322,11 @@ typedef union _FILE_SEGMENT_ELEMENT {
     DWORD Alignment;
 } FILE_SEGMENT_ELEMENT, *PFILE_SEGMENT_ELEMENT;
 
-typedef VOID (STDCALL *PIO_APC_ROUTINE) (
+typedef VOID(STDCALL* PIO_APC_ROUTINE)(
 
     IN PVOID ApcContext,
     IN PIO_STATUS_BLOCK IoStatusBlock,
-    IN ULONG Reserved
-);
+    IN ULONG Reserved);
 
 /* Result structures for the NtQuery* object-state calls (semaphore, mutant, I/O
  * completion, event, timer). */
@@ -367,14 +364,12 @@ typedef struct _ETHREAD {
     LARGE_INTEGER CreateTime;
     LARGE_INTEGER ExitTime;
 
-    union
-    {
+    union {
         NTSTATUS ExitStatus;
         PVOID OfsChain;
     };
 
-    union
-    {
+    union {
         LIST_ENTRY ReaperListEntry;
         LIST_ENTRY ActiveTimerListHead;
     };
@@ -385,12 +380,11 @@ typedef struct _ETHREAD {
     PVOID DebugData;
 } ETHREAD, *PETHREAD;
 
-typedef VOID (STDCALL *PCREATE_THREAD_NOTIFY_ROUTINE) (
+typedef VOID(STDCALL* PCREATE_THREAD_NOTIFY_ROUTINE)(
 
     IN PETHREAD Thread,
     IN HANDLE ThreadId,
-    IN BOOLEAN Create
-);
+    IN BOOLEAN Create);
 
 /* Interrupt latch mode: level-sensitive (asserted while the line is active) or
  * edge-latched. */
@@ -399,23 +393,21 @@ typedef enum _KINTERRUPT_MODE {
     Latched
 } KINTERRUPT_MODE;
 
-typedef BOOLEAN (STDCALL *PKSERVICE_ROUTINE) (
+typedef BOOLEAN(STDCALL* PKSERVICE_ROUTINE)(
 
     IN PKINTERRUPT Interrupt,
-    IN PVOID ServiceContext
-);
+    IN PVOID ServiceContext);
 
 typedef struct _TIMER_BASIC_INFORMATION {
     LARGE_INTEGER RemainingTime;
     BOOLEAN TimerState;
 } TIMER_BASIC_INFORMATION, *PTIMER_BASIC_INFORMATION;
 
-typedef VOID (STDCALL *PTIMER_APC_ROUTINE) (
+typedef VOID(STDCALL* PTIMER_APC_ROUTINE)(
 
     IN PVOID TimerContext,
     IN ULONG TimerLowValue,
-    IN LONG TimerHighValue
-);
+    IN LONG TimerHighValue);
 
 /* Kernel version quad exposed as XboxKrnlVersion. */
 typedef struct _XBOX_KRNL_VERSION {
@@ -436,10 +428,10 @@ typedef struct _XBOX_HARDWARE_INFO {
 
 /* XBOX_HARDWARE_INFO.Flags bits and the per-console key length. */
 #define XBOX_HW_FLAG_INTERNAL_USB_HUB 0x00000001
-#define XBOX_HW_FLAG_DEVKIT_KERNEL    0x00000002
+#define XBOX_HW_FLAG_DEVKIT_KERNEL 0x00000002
 #define XBOX_480P_MACROVISION_ENABLED 0x00000004
-#define XBOX_HW_FLAG_ARCADE           0x00000008
-#define XBOX_KEY_LENGTH               16
+#define XBOX_HW_FLAG_ARCADE 0x00000008
+#define XBOX_KEY_LENGTH 16
 
 /* A 16-byte console cryptographic key (HD, LAN, EEPROM, signature, ...). */
 typedef UCHAR XBOX_KEY_DATA[XBOX_KEY_LENGTH];
@@ -455,7 +447,7 @@ typedef struct _GENERIC_MAPPING {
 
 /* Node of a singly-linked list (used with PushEntryList/PopEntryList). */
 typedef struct _SINGLE_LIST_ENTRY {
-    struct _SINGLE_LIST_ENTRY *Next;
+    struct _SINGLE_LIST_ENTRY* Next;
 
 } SINGLE_LIST_ENTRY, *PSINGLE_LIST_ENTRY;
 

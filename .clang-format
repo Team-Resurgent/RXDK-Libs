@@ -1,0 +1,54 @@
+# RXDK-Libs house style: minimal-churn normalization of the leak-derived tree.
+# Tuned to match the predominant existing style (K&R braces, 4-space) and to
+# AVOID reflowing lines/comments or realigning tables, so the diff stays focused
+# on genuine indentation/brace/spacing inconsistencies rather than a wholesale
+# restyle. Regions that must not be touched (aligned tables, inline asm) are
+# fenced with `// clang-format off` / `// clang-format on`.
+---
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 0
+ReflowComments: false
+SortIncludes: false
+BreakBeforeBraces: Custom
+PointerAlignment: Left
+DerivePointerAlignment: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortBlocksOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+MaxEmptyLinesToKeep: 2
+IndentCaseLabels: false
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveMacros: false
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveBitFields: false
+AlignTrailingComments: false
+AlignEscapedNewlines: DontAlign
+AlignOperands: DontAlign
+SpaceBeforeParens: ControlStatements
+Cpp11BracedListStyle: false
+BitFieldColonSpacing: Both
+IndentPPDirectives: None
+NamespaceIndentation: None
+FixNamespaceComments: false
+
+AlwaysBreakAfterReturnType: AllDefinitions
+BraceWrapping:
+  AfterFunction: true
+  AfterControlStatement: Never
+  AfterClass: true
+  AfterStruct: false
+  AfterEnum: false
+  AfterUnion: false
+  BeforeElse: false
+  BeforeCatch: false
+  SplitEmptyFunction: false
+...

@@ -76,49 +76,47 @@ extern "C" {
  * in an orderly fashion.
  */
 
-typedef HRESULT (CALLBACK *PFNXMVGETNEXTPACKET)(DWORD Context, void **ppPacket, DWORD *pOffsetToNextPacket);
-typedef HRESULT (CALLBACK *PFNXMVRELEASEPREVIOUSPACKET)(DWORD Context, LONGLONG NextReadByteOffset, DWORD NextPacketSize);
+typedef HRESULT(CALLBACK* PFNXMVGETNEXTPACKET)(DWORD Context, void** ppPacket, DWORD* pOffsetToNextPacket);
+typedef HRESULT(CALLBACK* PFNXMVRELEASEPREVIOUSPACKET)(DWORD Context, LONGLONG NextReadByteOffset, DWORD NextPacketSize);
 
 /*
  * Just use an enum for the result of XMVGetNextFrame as there are only
  * 4 posibilities.
  */
 
-typedef enum _XMVRESULT
-{
+typedef enum _XMVRESULT {
     XMV_NOFRAME,
     XMV_NEWFRAME,
     XMV_ENDOFFILE,
     XMV_FAIL,
 
     XMV_FORCELONG = 0xFFFFFFFF
-}
-XMVRESULT;
+} XMVRESULT;
 
 /*
  * Decoder creation flags.
  */
 
 // No flags.
-#define XMVFLAG_NONE                        0x00000000
+#define XMVFLAG_NONE 0x00000000
 
 // Only useful with XMVGetNextFrame, this flag causes the decoder to return
 // a frame with every call to this API regardless of timing except when
-// we're waiting for data to load.  
+// we're waiting for data to load.
 //
-#define XMVFLAG_UNSYNCHRONIZED_PLAYBACK     0x00000001
+#define XMVFLAG_UNSYNCHRONIZED_PLAYBACK 0x00000001
 
 // Can be passed to either XMVCreateDecoder* or XMVPlay to have the decoder
-// continuously loop through the entire video until XMVDecoder_TerminateLoop 
+// continuously loop through the entire video until XMVDecoder_TerminateLoop
 // or XMVDecoder_TerminatePlayback is called.
 //
-#define XMVFLAG_FULL_LOOP                   0x00000002
+#define XMVFLAG_FULL_LOOP 0x00000002
 
 // When passed to XMVCreateDecoder, this flag tells the decoder to try to
 // synchronize playback on the next vblank.  It is useful for obtaining frames
 // early so they can be prepared and displayed for the next vertical blank.
 //
-#define XMVFLAG_SYNC_ON_NEXT_VBLANK         0x00000004
+#define XMVFLAG_SYNC_ON_NEXT_VBLANK 0x00000004
 
 /* 
  * XMVAUDIO_DESC flags
@@ -127,19 +125,18 @@ XMVRESULT;
 // Indicates whether this stream belongs to a 5.1 audio stream set and
 // as which part.
 //
-#define XMVAUDIODESC_51_ADPCM                          0x00000007
-#define XMVAUDIODESC_51_ADPCM_FRONT_LEFT_RIGHT         0x00000001
-#define XMVAUDIODESC_51_ADPCM_CENTER_LOW_FREQUENCY     0x00000002
-#define XMVAUDIODESC_51_ADPCM_REAR_LEFT_RIGHT          0x00000004
+#define XMVAUDIODESC_51_ADPCM 0x00000007
+#define XMVAUDIODESC_51_ADPCM_FRONT_LEFT_RIGHT 0x00000001
+#define XMVAUDIODESC_51_ADPCM_CENTER_LOW_FREQUENCY 0x00000002
+#define XMVAUDIODESC_51_ADPCM_REAR_LEFT_RIGHT 0x00000004
 
 /*
  * Describes the general attributes of the XMV file.
  */
 
-typedef struct _XMVVIDEO_DESC
-{
+typedef struct _XMVVIDEO_DESC {
     // The geometry of the video.  The surface that each frame is rendered
-    // onto must be exactly this size.  If width and height are zero then 
+    // onto must be exactly this size.  If width and height are zero then
     // there is no video stream in this file.
     //
     DWORD Width;
@@ -150,15 +147,13 @@ typedef struct _XMVVIDEO_DESC
 
     // The number of audio streams encoded in this file.
     DWORD AudioStreamCount;
-}
-XMVVIDEO_DESC;
+} XMVVIDEO_DESC;
 
 /*
  * The audio descriptor of the XMV files.
  */
 
-typedef struct _XMVAUDIO_DESC
-{
+typedef struct _XMVAUDIO_DESC {
     // The WAVE_FORMAT tag that describes how the audio data in the stream is
     // encoded.  This can be either WAVE_FORMAT_PCM or WAVE_FORMAT_XBOX_ADPCM.
     //
@@ -170,13 +165,12 @@ typedef struct _XMVAUDIO_DESC
     // The number of samples per second (Hz) in the audio stream.
     DWORD SamplesPerSecond;
 
-    // The number of bits in each sample.  
+    // The number of bits in each sample.
     DWORD BitsPerSample;
 
     // XMVAUDIODESC flags
     DWORD Flags;
-}
-XMVAUDIO_DESC;
+} XMVAUDIO_DESC;
 
 /*
  * The XMV decoder structure.
@@ -186,34 +180,33 @@ typedef struct XMVDecoder XMVDecoder;
 
 #ifdef __cplusplus
 
-struct XMVDecoder
-{
+struct XMVDecoder {
     //
     // See the commments on the non-member functions below for a description
     // of these helper-members functions.
     //
 
-    void      CloseDecoder();
-    
-    void      GetVideoDescriptor(XMVVIDEO_DESC *pVideoDescriptor);
-    void      GetAudioDescriptor(DWORD AudioStream, XMVAUDIO_DESC *pAudioDescriptor);
+    void CloseDecoder();
 
-    HRESULT   EnableAudioStream(DWORD AudioStream, DWORD Flags, DSMIXBINS *pMixBins, IDirectSoundStream **ppStream);
-    void      DisableAudioStream(DWORD AudioStream);
-    void      GetAudioStream(DWORD AudioStream, IDirectSoundStream **ppStream);
-    DWORD     GetSynchronizationStream();
-    void      SetSynchronizationStream(DWORD AudioStream);
-  
-    void      Reset();
+    void GetVideoDescriptor(XMVVIDEO_DESC* pVideoDescriptor);
+    void GetAudioDescriptor(DWORD AudioStream, XMVAUDIO_DESC* pAudioDescriptor);
 
-    HRESULT   Play(DWORD Flags, RECT *pRect);
-    void      TerminateLoop();
-    void      TerminatePlayback();
-    void      TerminateImmediately();
+    HRESULT EnableAudioStream(DWORD AudioStream, DWORD Flags, DSMIXBINS* pMixBins, IDirectSoundStream** ppStream);
+    void DisableAudioStream(DWORD AudioStream);
+    void GetAudioStream(DWORD AudioStream, IDirectSoundStream** ppStream);
+    DWORD GetSynchronizationStream();
+    void SetSynchronizationStream(DWORD AudioStream);
 
-    HRESULT   GetNextFrame(IDirect3DSurface8 *pSurface, XMVRESULT *pResult, DWORD *pTimeOfFrame);
+    void Reset();
 
-    DWORD     GetTimeFromStart();
+    HRESULT Play(DWORD Flags, RECT* pRect);
+    void TerminateLoop();
+    void TerminatePlayback();
+    void TerminateImmediately();
+
+    HRESULT GetNextFrame(IDirect3DSurface8* pSurface, XMVRESULT* pResult, DWORD* pTimeOfFrame);
+
+    DWORD GetTimeFromStart();
 };
 
 #endif // __cplusplus
@@ -225,7 +218,7 @@ struct XMVDecoder
  * depends on the video.
  */
 
-HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName, XMVDecoder **ppDecoder);
+HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName, XMVDecoder** ppDecoder);
 
 /* 
  * Loads a movie in a packet into the decoder.  Take a pointer to the first
@@ -271,25 +264,25 @@ HRESULT __stdcall XMVDecoder_CreateDecoderForFile(DWORD Flags, LPCSTR szFileName
  * datastructures.
  */
 
-HRESULT __stdcall XMVDecoder_CreateDecoderForPackets(DWORD Flags, void *pFirst4096, DWORD Context, PFNXMVGETNEXTPACKET pfnGetNextPacket, PFNXMVRELEASEPREVIOUSPACKET pfnReleasePreviousPacket, XMVDecoder **ppDecoder);   
+HRESULT __stdcall XMVDecoder_CreateDecoderForPackets(DWORD Flags, void* pFirst4096, DWORD Context, PFNXMVGETNEXTPACKET pfnGetNextPacket, PFNXMVRELEASEPREVIOUSPACKET pfnReleasePreviousPacket, XMVDecoder** ppDecoder);
 
 /*
  * Destroy decoder, freeing all memory and closing any open input file.
  */
 
-void __stdcall XMVDecoder_CloseDecoder(XMVDecoder *pDecoder);
+void __stdcall XMVDecoder_CloseDecoder(XMVDecoder* pDecoder);
 
 /*
  * Get the general information about the file.
  */
 
-void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder *pDecoder, XMVVIDEO_DESC *pVideoDescriptor);
+void __stdcall XMVDecoder_GetVideoDescriptor(XMVDecoder* pDecoder, XMVVIDEO_DESC* pVideoDescriptor);
 
 /*
  * Get information about a specific audio stream.
  */
 
-void __stdcall XMVDecoder_GetAudioDescriptor(XMVDecoder *pDecoder, DWORD AudioStream, XMVAUDIO_DESC *pAudioDescriptor);
+void __stdcall XMVDecoder_GetAudioDescriptor(XMVDecoder* pDecoder, DWORD AudioStream, XMVAUDIO_DESC* pAudioDescriptor);
 
 /*
  * Tell the decoder to play one of the audio tracks in the XMV file.  The 
@@ -323,7 +316,7 @@ void __stdcall XMVDecoder_GetAudioDescriptor(XMVDecoder *pDecoder, DWORD AudioSt
  * individually enabled.
  */
 
-HRESULT __stdcall XMVDecoder_EnableAudioStream(XMVDecoder *pDecoder, DWORD AudioStream, DWORD Flags, DSMIXBINS *pMixBins, IDirectSoundStream **ppStream);
+HRESULT __stdcall XMVDecoder_EnableAudioStream(XMVDecoder* pDecoder, DWORD AudioStream, DWORD Flags, DSMIXBINS* pMixBins, IDirectSoundStream** ppStream);
 
 /*
  * Disables an audio stream.  
@@ -334,20 +327,20 @@ HRESULT __stdcall XMVDecoder_EnableAudioStream(XMVDecoder *pDecoder, DWORD Audio
  * stream.
  */
 
-void __stdcall XMVDecoder_DisableAudioStream(XMVDecoder *pDecoder, DWORD AudioStream);
+void __stdcall XMVDecoder_DisableAudioStream(XMVDecoder* pDecoder, DWORD AudioStream);
 
 /* 
  * Returns the audio stream or NULL if that stream is not enabled.
  */
 
-void __stdcall XMVDecoder_GetAudioStream(XMVDecoder *pDecoder, DWORD AudioStream, IDirectSoundStream **ppStream);
+void __stdcall XMVDecoder_GetAudioStream(XMVDecoder* pDecoder, DWORD AudioStream, IDirectSoundStream** ppStream);
 
 /*
  * Returns the current synchronization stream or -1 if no audio stream is being
  * use to synchronize the video.
  */
 
-DWORD __stdcall XMVDecoder_GetSynchronizationStream(XMVDecoder *pDecoder);
+DWORD __stdcall XMVDecoder_GetSynchronizationStream(XMVDecoder* pDecoder);
 
 /*
  * Synchronize the video off of a specific audio stream.  The stream must
@@ -356,7 +349,7 @@ DWORD __stdcall XMVDecoder_GetSynchronizationStream(XMVDecoder *pDecoder);
  * Passing -1 as the audio stream will disable all synchronization.
  */
 
-void __stdcall XMVDecoder_SetSynchronizationStream(XMVDecoder *pDecoder, DWORD AudioStream);
+void __stdcall XMVDecoder_SetSynchronizationStream(XMVDecoder* pDecoder, DWORD AudioStream);
 
 /*
  * Resets the movie playback back to the beginning.  This only resets the
@@ -364,7 +357,7 @@ void __stdcall XMVDecoder_SetSynchronizationStream(XMVDecoder *pDecoder, DWORD A
  * that is how we're opened.  
  */
 
-HRESULT __stdcall XMVDecoder_Reset(XMVDecoder *pDecoder);
+HRESULT __stdcall XMVDecoder_Reset(XMVDecoder* pDecoder);
 
 /*
  * Play an entire video stream, blocking until the video and audio portion
@@ -388,7 +381,7 @@ HRESULT __stdcall XMVDecoder_Reset(XMVDecoder *pDecoder);
  * D3D must have been initialized before this API is called.
  */
 
-HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect);
+HRESULT __stdcall XMVDecoder_Play(XMVDecoder* pDecoder, DWORD Flags, RECT* pRect);
 
 /*
  * Tell the decoder to exit at the end of the current loop.  This can be used 
@@ -398,7 +391,7 @@ HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect
  * the decoder is running on.
  */
 
-void __stdcall XMVDecoder_TerminateLoop(XMVDecoder *pDecoder);
+void __stdcall XMVDecoder_TerminateLoop(XMVDecoder* pDecoder);
 
 /*
  * Tell the decoder to end the playback as soon as possible.  This may not
@@ -408,7 +401,7 @@ void __stdcall XMVDecoder_TerminateLoop(XMVDecoder *pDecoder);
  * the decoder is running on.
  */
 
-void __stdcall XMVDecoder_TerminatePlayback(XMVDecoder *pDecoder);
+void __stdcall XMVDecoder_TerminatePlayback(XMVDecoder* pDecoder);
 
 /*
  * Terminate the playback of the movie immediately.  This routine must be 
@@ -416,7 +409,7 @@ void __stdcall XMVDecoder_TerminatePlayback(XMVDecoder *pDecoder);
  * cannot be used to terminate Play.
  */
 
-void __stdcall XMVDecoder_TerminateImmediately(XMVDecoder *pDecoder);
+void __stdcall XMVDecoder_TerminateImmediately(XMVDecoder* pDecoder);
 
 /*
  * Get the next frame to display.
@@ -454,13 +447,13 @@ void __stdcall XMVDecoder_TerminateImmediately(XMVDecoder *pDecoder);
  * DirectSoundDoWork must be called occasionally.
  */
 
-HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface8 *pSurface, XMVRESULT *pResult, DWORD *pTimeOfFrame);
+HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder* pDecoder, IDirect3DSurface8* pSurface, XMVRESULT* pResult, DWORD* pTimeOfFrame);
 
 /*
  * Return the number of milliseconds since the this XMV file started playing.
  */
 
-DWORD __stdcall XMVDecoder_GetTimeFromStart(XMVDecoder *pDecoder);
+DWORD __stdcall XMVDecoder_GetTimeFromStart(XMVDecoder* pDecoder);
 
 /*
  * Inlined implementation of the methods fo rthe XMVDecoder class
@@ -468,28 +461,88 @@ DWORD __stdcall XMVDecoder_GetTimeFromStart(XMVDecoder *pDecoder);
 
 #ifdef __cplusplus
 
-inline void      XMVDecoder::CloseDecoder() { XMVDecoder_CloseDecoder(this); }
+inline void
+XMVDecoder::CloseDecoder()
+{
+    XMVDecoder_CloseDecoder(this);
+}
 
-inline void      XMVDecoder::GetVideoDescriptor(XMVVIDEO_DESC *pVideoDescriptor) { XMVDecoder_GetVideoDescriptor(this, pVideoDescriptor); }
-inline void      XMVDecoder::GetAudioDescriptor(DWORD AudioStream, XMVAUDIO_DESC *pAudioDescriptor) { XMVDecoder_GetAudioDescriptor(this, AudioStream, pAudioDescriptor); }
+inline void
+XMVDecoder::GetVideoDescriptor(XMVVIDEO_DESC* pVideoDescriptor)
+{
+    XMVDecoder_GetVideoDescriptor(this, pVideoDescriptor);
+}
+inline void
+XMVDecoder::GetAudioDescriptor(DWORD AudioStream, XMVAUDIO_DESC* pAudioDescriptor)
+{
+    XMVDecoder_GetAudioDescriptor(this, AudioStream, pAudioDescriptor);
+}
 
-inline HRESULT   XMVDecoder::EnableAudioStream(DWORD AudioStream, DWORD Flags, DSMIXBINS *pMixBins, IDirectSoundStream **ppStream) { return XMVDecoder_EnableAudioStream(this, AudioStream, Flags, pMixBins, ppStream); }
-inline void      XMVDecoder::DisableAudioStream(DWORD AudioStream) { XMVDecoder_DisableAudioStream(this, AudioStream); }
-inline void      XMVDecoder::GetAudioStream(DWORD AudioStream, IDirectSoundStream **ppStream) { XMVDecoder_GetAudioStream(this, AudioStream, ppStream); }
-inline DWORD     XMVDecoder::GetSynchronizationStream() { return XMVDecoder_GetSynchronizationStream(this); }
-inline void      XMVDecoder::SetSynchronizationStream(DWORD AudioStream) { XMVDecoder_SetSynchronizationStream(this, AudioStream); }
+inline HRESULT
+XMVDecoder::EnableAudioStream(DWORD AudioStream, DWORD Flags, DSMIXBINS* pMixBins, IDirectSoundStream** ppStream)
+{
+    return XMVDecoder_EnableAudioStream(this, AudioStream, Flags, pMixBins, ppStream);
+}
+inline void
+XMVDecoder::DisableAudioStream(DWORD AudioStream)
+{
+    XMVDecoder_DisableAudioStream(this, AudioStream);
+}
+inline void
+XMVDecoder::GetAudioStream(DWORD AudioStream, IDirectSoundStream** ppStream)
+{
+    XMVDecoder_GetAudioStream(this, AudioStream, ppStream);
+}
+inline DWORD
+XMVDecoder::GetSynchronizationStream()
+{
+    return XMVDecoder_GetSynchronizationStream(this);
+}
+inline void
+XMVDecoder::SetSynchronizationStream(DWORD AudioStream)
+{
+    XMVDecoder_SetSynchronizationStream(this, AudioStream);
+}
 
-inline void      XMVDecoder::Reset() { XMVDecoder_Reset(this); }
+inline void
+XMVDecoder::Reset()
+{
+    XMVDecoder_Reset(this);
+}
 
-inline HRESULT   XMVDecoder::Play(DWORD Flags, RECT *pRect) { return XMVDecoder_Play(this, Flags, pRect); }
+inline HRESULT
+XMVDecoder::Play(DWORD Flags, RECT* pRect)
+{
+    return XMVDecoder_Play(this, Flags, pRect);
+}
 
-inline void      XMVDecoder::TerminateLoop() { XMVDecoder_TerminateLoop(this); }
-inline void      XMVDecoder::TerminatePlayback() { XMVDecoder_TerminatePlayback(this); }
-inline void      XMVDecoder::TerminateImmediately() { XMVDecoder_TerminateImmediately(this); }
+inline void
+XMVDecoder::TerminateLoop()
+{
+    XMVDecoder_TerminateLoop(this);
+}
+inline void
+XMVDecoder::TerminatePlayback()
+{
+    XMVDecoder_TerminatePlayback(this);
+}
+inline void
+XMVDecoder::TerminateImmediately()
+{
+    XMVDecoder_TerminateImmediately(this);
+}
 
-inline HRESULT   XMVDecoder::GetNextFrame(IDirect3DSurface8 *pSurface, XMVRESULT *pxr, DWORD *pTimeOfFrame) { return XMVDecoder_GetNextFrame(this, pSurface, pxr, pTimeOfFrame); }
+inline HRESULT
+XMVDecoder::GetNextFrame(IDirect3DSurface8* pSurface, XMVRESULT* pxr, DWORD* pTimeOfFrame)
+{
+    return XMVDecoder_GetNextFrame(this, pSurface, pxr, pTimeOfFrame);
+}
 
-inline DWORD     XMVDecoder::GetTimeFromStart() { return XMVDecoder_GetTimeFromStart(this); }
+inline DWORD
+XMVDecoder::GetTimeFromStart()
+{
+    return XMVDecoder_GetTimeFromStart(this);
+}
 
 #endif // __cplusplus
 

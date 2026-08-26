@@ -103,7 +103,7 @@ PVOID __stdcall RtlCreateHeap(
     SIZE_T ReserveSize,
     SIZE_T CommitSize,
     PVOID Lock,
-    struct _RTL_HEAP_PARAMETERS *Parameters);
+    struct _RTL_HEAP_PARAMETERS* Parameters);
 PVOID __stdcall RtlDestroyHeap(PVOID HeapHandle);
 PVOID __stdcall RtlAllocateHeap(PVOID HeapHandle, ULONG Flags, SIZE_T Size);
 PVOID __stdcall RtlReAllocateHeap(PVOID HeapHandle, ULONG Flags, PVOID BaseAddress, SIZE_T Size);
@@ -126,4 +126,3 @@ SIZE_T __stdcall RtlSizeHeap(PVOID HeapHandle, ULONG Flags, PVOID BaseAddress);
 #ifdef __cplusplus
 }
 #endif
-

@@ -84,7 +84,7 @@ typedef struct _XBE_FILE_HEADER {
 
 /* Fixed load address of an XBE image, and a convenience pointer to the running
  * title's own header there. */
-#define XBE_DEFAULT_BASE   (0x10000)
+#define XBE_DEFAULT_BASE (0x10000)
 #define CURRENT_XBE_HEADER ((PXBE_FILE_HEADER)XBE_DEFAULT_BASE)
 
 #endif

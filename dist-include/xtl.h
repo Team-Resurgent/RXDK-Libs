@@ -33,11 +33,11 @@
 #define NT_INCLUDED
 #endif
 
-#include <stdarg.h>   /* va_list, used by winbase.h (matches XDK XTL.h) */
+#include <stdarg.h> /* va_list, used by winbase.h (matches XDK XTL.h) */
 #include <windef.h>
 #include <winbase.h>
-#include <guiddef.h>     /* GUID/REFGUID/REFIID/DECLSPEC_SELECTANY for COM interfaces */
-#include <xdk_compat.h>  /* Win32/COM names the device public headers need (see file) */
+#include <guiddef.h> /* GUID/REFGUID/REFIID/DECLSPEC_SELECTANY for COM interfaces */
+#include <xdk_compat.h> /* Win32/COM names the device public headers need (see file) */
 #include <xbox.h>
 #include <xkbd.h>
 

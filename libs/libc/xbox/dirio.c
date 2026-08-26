@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * Directory enumeration + extended path operations for picolibc, on the Xbox
  * kernel. This is the POSIX surface <filesystem> (libc++) needs beyond the
  * basic file I/O in fileio.c: <dirent.h> (opendir/readdir/...) over

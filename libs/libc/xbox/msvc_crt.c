@@ -1,10 +1,14 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * MSVC-name CRT functions (_stricmp, _snprintf, ...).
  *
- * These live in libc, not libxapi: 5849 ships them in libc.lib/libcmt.lib, and
- * they are CRT functions by nature -- picolibc simply does not provide MSVC's
- * underscore spellings. They were in libxapi/port/compat.c, which is otherwise
- * TEB and xapi startup, so they were split out rather than moved wholesale.
+ * These belong in libc rather than libxapi: they are CRT functions by nature,
+ * and picolibc simply does not provide MSVC's underscore spellings.
  */
 
 #include <stdarg.h>

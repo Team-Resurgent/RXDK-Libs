@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * malloc family on the Xbox process heap.
  *
  * Replaces picolibc's sbrk chunk allocator (libc/stdlib/malloc.c and friends,

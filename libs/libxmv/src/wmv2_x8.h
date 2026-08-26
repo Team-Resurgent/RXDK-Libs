@@ -1,16 +1,20 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
 // wmv2_x8.h -- IntraX8 (WMV2 "J-frame" / XINTRA8) keyframe decoder, ported from
-// FFmpeg libavcodec/intrax8.c + intrax8dsp.c (LGPL) onto the leak XMV kernel's
-// bit walker and frame planes.
+// FFmpeg libavcodec/intrax8.c + intrax8dsp.c (LGPL) onto the XMV kernel's bit
+// walker and frame planes.
 //
-// Modern XMV encoders set j_type_bit in the sequence extradata, giving every
-// I-frame a 1-bit j_type flag; when that flag is 1 the keyframe is X8-coded,
-// which the leak software decoder never implemented (its XINTRA8 branch is an
-// int3 stub). This is the open-source port of that missing path: an all-intra
-// frame coded as 8x8 blocks with 12 directional spatial predictors, its own
-// DC/AC/orientation VLCs, an optional per-position quant matrix and an
-// optional in-loop deblocking filter, reconstructed with the WMV2 integer
-// IDCT.
+// When the sequence extradata sets j_type_bit, every I-frame carries a 1-bit
+// j_type flag; when that flag is 1 the keyframe is X8-coded, which the baseline
+// XMV keyframe path does not handle. This module decodes that case: an
+// all-intra frame coded as 8x8 blocks with 12 directional spatial predictors,
+// its own DC/AC/orientation VLCs, an optional per-position quant matrix and an
+// optional in-loop deblocking filter, reconstructed with the WMV2 integer IDCT.
 //------------------------------------------------------------------------------
 #ifndef RXDK_WMV2_X8_H
 #define RXDK_WMV2_X8_H

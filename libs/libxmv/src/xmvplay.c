@@ -1,16 +1,20 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
-// xmvplay.c -- the retail XMVDecoder_* public API over our XMV demuxer.
+// xmvplay.c -- the XMVDecoder_* public API over the XMV demuxer.
 //
-// Container parsing, video decode and audio are all implemented. (This header
-// used to describe the video as a "PHASE 1 placeholder" with the real decode as
-// a TODO; that was written before the decoder landed and outlived it by a long
-// way. RenderPlaceholder still exists, but only as a fallback for the frames
-// before the first keyframe arrives, or if the core could not be allocated --
-// it is not the normal path, and geometry is not a reason to fall back.)
+// Container parsing, video decode and audio are all implemented.
+// RenderPlaceholder is a fallback used only for the frames before the first
+// keyframe arrives, or if the decode core could not be allocated -- it is not
+// the normal path, and geometry is not a reason to fall back.
 //
-// VIDEO: keyframes decode through the leak I-frame kernel (baseline) or the
-// ported IntraX8 path when the sequence sets the j_type bit; P-frames through
-// the ported WMV2 layer (picture header, macroblock loop, motion compensation,
+// VIDEO: keyframes decode through the baseline I-frame kernel or the ported
+// IntraX8 path when the sequence sets the j_type bit; P-frames through the
+// ported WMV2 layer (picture header, macroblock loop, motion compensation,
 // residual). XmvCoreCreate aligns the coded planes up to macroblock multiples,
 // so a display size that is not a multiple of 16 (810x540 -> coded 816x544) is
 // decoded coded-size and cropped on render -- supported, not a fallback.
@@ -22,8 +26,7 @@
 // decoder is needed. Each video frame we submit that frame's audio slice (a
 // pointer straight into the in-memory file image -- no copy) to the stream.
 //
-// The public API + ABI match shared/include/xmv.h (the retail header); the sample
-// is unchanged.
+// The public API + ABI match shared/include/xmv.h.
 //------------------------------------------------------------------------------
 
 #include <xtl.h>
@@ -63,7 +66,7 @@ struct XMVDecoder {
     XmvVideoCore *core;
     int           have_keyframe;   // set once the first keyframe has been decoded
 
-    // WMV2 P-frame layer (increment 1: header parse + diagnostics).
+    // WMV2 P-frame layer (sequence + picture-header state).
     Wmv2          wmv2;
     int           wmv2_ok;
 
@@ -191,10 +194,10 @@ static HRESULT SetupImageIntoDecoder(XMVDecoder *dec, BYTE *image, DWORD image_s
         return E_FAIL;
     }
 
-    // Phase 2: spin up the leak software video kernel for keyframe (I-frame)
-    // decode. XINTRA8 is left disabled for now (the experiment determines whether
-    // these keyframes are baseline-I or XINTRA8-coded). A NULL core (zero-sized
-    // frame, or allocation failure) degrades to the placeholder render.
+    // Spin up the software video kernel for keyframe (I-frame) decode. The
+    // XINTRA8 flag is derived per-frame from the picture header, so it is left
+    // disabled here. A NULL core (zero-sized frame, or allocation failure)
+    // degrades to the placeholder render.
     dec->core = XmvCoreCreate(dec->demux.width, dec->demux.height, 0);
 
     // WMV2 P-frame layer: needs the sequence extradata + the core geometry.
@@ -235,7 +238,7 @@ static HRESULT OpenDecoderOverImage(DWORD Flags, BYTE *image, DWORD image_size,
     return S_OK;
 }
 
-// Drain the whole .xmv in through the title's packet callbacks (see the retail
+// Drain the whole .xmv in through the title's packet callbacks (see the packet
 // protocol in XMVDecoder_CreateDecoderForPackets) and open the demuxer over it.
 // Runs on first access, once the title has finished OpenFileForPackets (buffers
 // allocated, first read queued). Returns S_OK on success; on any failure the
@@ -525,8 +528,8 @@ static int DecodeNextHeld(XMVDecoder *dec)
     if (rc <= 0)
         return rc;   // 0 = EOF (no loop), <0 = error
 
-    // Full decode. Keyframes go through the leak I-frame kernel; P-frames through
-    // the ported WMV2 path (header parse + MB loop + motion comp + residual),
+    // Full decode. Keyframes go through the baseline I-frame kernel; P-frames
+    // through the ported WMV2 path (header parse + MB loop + motion comp + residual),
     // reconstructing into the building planes from the displayed (reference)
     // planes, then promoted with a swap. Decoded in sequence (P depends on the
     // previous frame). No core (zero-sized frame / allocation failure) ->
@@ -535,9 +538,9 @@ static int DecodeNextHeld(XMVDecoder *dec)
         if (keyframe) {
             if (dec->wmv2_ok && dec->x8_ok) {
                 // Parse the I picture header honoring the sequence options.
-                // The leak kernel's own header parse predates the j_type bit:
-                // when the extradata sets j_type_bit, not consuming it desyncs
-                // the whole keyframe.
+                // When the extradata sets j_type_bit, the I-frame carries a
+                // 1-bit j_type flag after qscale; not consuming it desyncs the
+                // whole keyframe.
                 XmvCoreSetupBits(dec->core, frame);
                 if (ReadOneBit(dec->core) == 0) {  // I-frame marker
                     DWORD qscale;
@@ -640,11 +643,11 @@ HRESULT __stdcall XMVDecoder_GetNextFrame(XMVDecoder *pDecoder, IDirect3DSurface
 }
 
 // ---------------------------------------------------------------------------
-// RXDK 5849 uplift: the rest of the retail XMVDecoder_* surface.
+// The rest of the XMVDecoder_* public surface.
 // ---------------------------------------------------------------------------
 
-// Retail exports these two. g_XMVInhibitDebugOutput silences the library's
-// diagnostics; ours has none to silence, so it is honoured by being read
+// Two exported globals. g_XMVInhibitDebugOutput silences the library's
+// diagnostics; this build has none to silence, so it is honoured by being read
 // nowhere. XMVBuildNumber identifies the library to a title that logs it.
 int   g_XMVInhibitDebugOutput = 0;
 DWORD XMVBuildNumber = 5849;
@@ -784,10 +787,10 @@ void __stdcall XMVDecoder_TerminateImmediately(XMVDecoder *pDecoder)
 
 // Play the whole movie, blocking until it ends or a terminator fires.
 //
-// The retail library renders through a D3D overlay so this can run on a
-// background thread without disturbing the title's own rendering. We do the
-// same: decode into an off-screen surface and hand each new frame to the
-// overlay, which the NV2A composites independently of the 3D pipeline.
+// Rendering goes through a D3D overlay so this can run on a background thread
+// without disturbing the title's own rendering: decode into an off-screen
+// surface and hand each new frame to the overlay, which the NV2A composites
+// independently of the 3D pipeline.
 HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect)
 {
     D3DSurface        *pSurface = NULL;

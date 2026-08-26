@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * POSIX process-model surface that has no Xbox equivalent. getentropy derives
+ * bytes from the kernel timers; fork/waitpid/kill report ENOSYS; execve routes
+ * to an app-installed exec handler when one is registered. The remaining POSIX
+ * calls (file I/O, time, signals) live in their own units, noted inline below.
+ */
+
 #include <errno.h>
 #include <fcntl.h>
 #include <math.h>

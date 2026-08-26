@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * Temporary files for picolibc, on the Xbox scratch drive Z:
  * (\Device\Harddisk0\Partition5). picolibc's tmpnam/tmpfile hardcode a bare
  * "TXXXXXX" (relative to the cwd) and ignore P_tmpdir, so we provide our own

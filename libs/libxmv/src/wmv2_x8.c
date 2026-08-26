@@ -1,7 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
 // wmv2_x8.c -- IntraX8 (WMV2 "J-frame" / XINTRA8) keyframe decoder (see
 // wmv2_x8.h). Ported from FFmpeg libavcodec/intrax8.c + intrax8dsp.c +
-// wmv2dsp.c (LGPL); bit reads go through the leak kernel's walker
+// wmv2dsp.c (LGPL); bit reads go through the XMV kernel's walker
 // (ReadBits/ReadOneBit) and VLCs through wmv2_vlc's canonical-from-lengths
 // reader (same semantics as ff_vlc_init_from_lengths). The IDCT is the WMV2
 // integer IDCT ported verbatim (identity coefficient permutation), because X8
@@ -194,7 +200,7 @@ static int x8_vlc_init_once(void)
 }
 
 // ---------------------------------------------------------------------------
-// Bits-left tracking over the leak walker.
+// Bits-left tracking over the XMV walker.
 // ---------------------------------------------------------------------------
 
 static int x8_bits_left(const Wmv2X8 *w)

@@ -1,11 +1,17 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       backend.c
- *  Content:    converts our YUV format into a bitmap.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Decoder rendering backend: converts the internal YUV 4:2:0 planes of a
+ * decoded frame into a locked D3D surface. RenderBitmap picks a converter from
+ * the target surface format -- an MMX inner loop for D3DFMT_YUY2 that packs
+ * two macroblock rows per pass, or a plain-C BT.601 path for
+ * D3DFMT_LIN_A8R8G8B8. The caller crops the coded (macroblock-aligned) frame
+ * to the display size.
+ */
 
 #include <xtl.h>
 #include <xdbg.h>
@@ -160,9 +166,8 @@ void RenderToYUY2
 /*
  * Convert our internal YUV 4:2:0 planes into linear A8R8G8B8 (D3DFMT_LIN_A8R8G8B8),
  * a full render of the coded frame (the caller crops to the display size). BT.601
- * limited-range coefficients. Plain C on purpose: titles that texture the video as
- * ARGB (e.g. PrometheOS's xmvPlayer) need this format, and the MMX RenderToYUY2 path
- * above uses inline __asm that doesn't survive the clang toolchain port.
+ * limited-range coefficients. Plain C, for titles that texture the video as ARGB
+ * rather than as a YUY2 surface.
  */
 
 static

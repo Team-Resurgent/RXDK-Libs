@@ -1,15 +1,21 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
 // wmv2_mb.c -- WMV2 P-frame macroblock loop: motion-vector prediction + decode,
-// half-pel motion compensation, and inter/intra residual (reusing the leak RL
+// half-pel motion compensation, and inter/intra residual (reusing the RL
 // coding-set tables g_Inter/IntraDecoderTables + DC huffman tables). Ported from
-// FFmpeg wmv2dec.c / msmpeg4dec.c / mpegvideo_motion.c onto the leak bit walker
-// and frame planes. Increment 2 of the WMV2 P-frame port.
+// FFmpeg wmv2dec.c / msmpeg4dec.c / mpegvideo_motion.c onto the XMV bit walker
+// and frame planes.
 //
-// Scope of this first cut: skip + inter macroblocks are fully reconstructed
-// (MC + residual). Intra-in-P macroblocks are parsed for bit-sync and roughly
-// reconstructed (spatial DC/AC prediction is a refinement, not yet applied).
-// Per-block ABT (8x4/4x8) is parsed for sync; only the normal 8x8 transform is
-// applied (abt_type 1/2 residual is skipped). Both are rare in practice.
+// Scope: skip + inter macroblocks are fully reconstructed (MC + residual).
+// Intra-in-P macroblocks are parsed for bit-sync and roughly reconstructed
+// (spatial DC/AC prediction is not applied). Per-block ABT (8x4/4x8) is parsed
+// for sync; only the normal 8x8 transform is applied (abt_type 1/2 residual is
+// skipped). Both are rare in practice.
 //------------------------------------------------------------------------------
 
 #include <xtl.h>
@@ -26,9 +32,9 @@
 // values; the caller clamps and either stores (intra) or adds (inter residual).
 // ---------------------------------------------------------------------------
 // Full 8x8 IDCT: the MPEG-reference IDCT (W1=2841..W7=565), which is exactly the
-// transform the retail Xbox XMV decoder uses for keyframes (decoder/frontend.c
-// InverseDCT: M1 = W7,W1-W7 = 565,2276). Matching it keeps the keyframe (leak)
-// and P-frame paths consistent on real hardware. (FFmpeg decodes with a different,
+// transform the baseline XMV keyframe decoder uses (decoder/frontend.c
+// InverseDCT: M1 = W7,W1-W7 = 565,2276). Matching it keeps the keyframe and
+// P-frame paths consistent on real hardware. (FFmpeg decodes with a different,
 // auto-selected IDCT, so an offline diff vs FFmpeg shows the IEEE-1180-permitted
 // +-1 -- that is FFmpeg's IDCT differing, not a bug here.)
 #define W1 2841
@@ -115,8 +121,8 @@ static const BYTE g_wmv2_scanB[64] = {
 };
 
 // Full-block WMV2 scans (ff_wmv1_scantable[0] inter, [1] intra). These are the
-// "down-first" WMV2 zigzags and differ from the standard JPEG zigzag the leak
-// hands us via g_NormalZigzag -- using the wrong one transposes the AC spectrum.
+// "down-first" WMV2 zigzags and differ from the standard JPEG zigzag provided
+// via g_NormalZigzag -- using the wrong one transposes the AC spectrum.
 // We run an identity-permutation IDCT (idctref / simple_idct), so the RAW
 // scantable maps scan position k -> blk[scan[k]] directly (no idct permute).
 static const BYTE g_wmv2_inter_scan[64] = {
@@ -409,7 +415,7 @@ static void wmv2_mspel_motion(Wmv2 *w, BYTE *Ydst, BYTE *Udst, BYTE *Vdst,
 }
 
 // ---------------------------------------------------------------------------
-// Run/level AC decode using a leak coding-set table. Mirrors the leak's
+// Run/level AC decode using a coding-set table. Mirrors the baseline
 // DecodeBaselineIFrameBlock AC loop (frontend.c) minus intra AC prediction:
 // places dequantized coefficients into blk[64] (natural order) via the normal
 // zigzag. `counter` is the starting scan position (0 inter, 1 intra-after-DC).

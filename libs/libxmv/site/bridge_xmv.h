@@ -1,16 +1,21 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_XMV_BRIDGE_H
 
 /*
- * Force-included before each libxmv translation unit. xmv.lib is the TITLE-SIDE
- * Xbox FMV decoder ported from the May-2020 leak (private/windows/xmv/decoder):
- * a software video codec that decodes XMV packets into a YUY2 D3D surface (via
- * the public d3d8 D3DSurface_* exports). It links into a title alongside libxapi,
- * libd3d8 and libdsound. Built default-__cdecl (the public XMVDecoder_* exports
- * carry explicit __stdcall in xmv.h / xdk_xmv_public_api.c).
+ * Force-included before each libxmv translation unit. xmv.lib is the title-side
+ * Xbox FMV decoder: a software video codec that decodes XMV packets into a YUY2
+ * D3D surface (via the public d3d8 D3DSurface_* exports). It links into a title
+ * alongside libxapi, libd3d8 and libdsound. Built default-__cdecl (the public
+ * XMVDecoder_* exports carry explicit __stdcall in xmv.h).
  *
- * Same shape as libxgraphics' site/bridge_xgraphics.h (a title-side helper that
- * also leans on the public d3d8 surface):
+ * Structured like libxgraphics' site/bridge_xgraphics.h (a title-side helper
+ * that also leans on the public d3d8 surface):
  *  1. Reuse libxapi compile.h for the NT/title build env (NT_INCLUDED so windef
  *     skips zig's MinGW winnt.h; XBOX=1 -- the decoder selects <xtl.h> via XBOX).
  *  2. Supply the Win32/COM macros our slimmed headers lack, then pull the umbrella

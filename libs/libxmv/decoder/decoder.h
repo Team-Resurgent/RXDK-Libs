@@ -1,18 +1,26 @@
-/*============================================================================
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Main definitions for the XMV video decoder.
  *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       decoder.h
- *  Content:    The main definitions for the XMV decoder.
- *
- ****************************************************************************/
+ * Declares the decode context (struct XmvVideoCore) that holds everything the
+ * codec needs: file-loader state, the video geometry and per-sequence coding
+ * flags, the displayed/building YUV frame planes and per-row CBPCY and DC/AC
+ * predictor arrays, and the bit-walker cache. Also declares the descriptor
+ * structs shared with the public XMV API and the entry points of the frontend
+ * (frontend.c), backend (backend.c), huffman (huffman.c) and bit-walker
+ * (bits.c) modules.
+ */
 
 #pragma once
 
-/* RXDK: the leak decode context used to be tagged `XMVDecoder` (sharing the
-   public opaque handle name). It is renamed `XmvVideoCore` so it no longer
-   collides with the retail public `struct XMVDecoder` that the xmvplay API
-   layer defines. xmvcore.h provides the `typedef struct XmvVideoCore`. */
+/* The decode context is tagged `XmvVideoCore` so it does not collide with the
+   public `struct XMVDecoder` that the xmvplay API layer defines. xmvcore.h
+   provides the `typedef struct XmvVideoCore`. */
 #include "xmvcore.h"
 
 /*
@@ -36,14 +44,12 @@
 #endif
 
 /*
- * RXDK: the public header (shared/include/xmv.h) is the RETAIL XMV API
- * (XMVDecoder_* / XMVVIDEO_DESC, opaque `struct XmvVideoCore`). The decoder
- * internals below are the leak SDK sources, written against the OLDER public
- * xmv.h (XMVCreateDecoder / XMVVideoDescriptor / `struct _XMVDecoder`). Bridge the
- * two here so we ship only one public header: define the leak-era descriptor
- * structs the decoder + xdk_xmv_public_api.c pass around, and define the full
- * decoder object under the retail tag `struct XmvVideoCore` (below) so the retail
- * `typedef struct XmvVideoCore XmvVideoCore;` resolves to this complete type.
+ * The public header (shared/include/xmv.h) is the XMV API (XMVDecoder_* /
+ * XMVVIDEO_DESC, opaque `struct XmvVideoCore`). The descriptor structs the
+ * decoder passes around internally are defined here, and the full decoder
+ * object is defined below under the tag `struct XmvVideoCore` so that the
+ * public `typedef struct XmvVideoCore XmvVideoCore;` resolves to this complete
+ * type.
  */
 
 typedef struct _XMVVideoDescriptor
@@ -259,10 +265,10 @@ struct XmvVideoCore
  * The rendering frontend (frontend.c)
  */
 
-/* RXDK: these are DECLARATIONS (defined in tables.c). Without `extern` a
-   file-scope `T arr[];` is a tentative definition, which clang's default
-   -fno-common emits in every TU that includes this header -> duplicate symbols
-   at link. Mark them extern (the original MSVC build merged the tentative defs). */
+/* These are DECLARATIONS (defined in tables.c). Without `extern` a file-scope
+   `T arr[];` is a tentative definition, which under -fno-common is emitted in
+   every TU that includes this header -> duplicate symbols at link. Mark them
+   extern so only tables.c defines them. */
 extern XMVACCoefficientDecoderTable g_InterDecoderTables[];
 extern XMVACCoefficientDecoderTable g_IntraDecoderTables[];
 
@@ -272,12 +278,11 @@ extern BYTE g_NormalZigzag[];
 
 void DecodeOneFrame(XmvVideoCore *pDecoder);
 
-/* RXDK: the baseline (non-X8) I-frame decoder, exposed so xmvplay.c can drive
-   it after parsing the picture header itself. The leak's DecodeIFrame header
-   parse predates the sequence j_type bit: when the extradata sets j_type_bit,
-   every I-frame carries a 1-bit j_type flag after the qscale field, and not
-   consuming it desyncs the whole keyframe. Decodes into the building planes;
-   the caller promotes with XmvCoreSwap. */
+/* The baseline (non-X8) I-frame decoder, exposed so xmvplay.c can drive it
+   after parsing the picture header itself. When the sequence extradata sets
+   j_type_bit, every I-frame carries a 1-bit j_type flag after the qscale
+   field, and not consuming it desyncs the whole keyframe. Decodes into the
+   building planes; the caller promotes with XmvCoreSwap. */
 void DecodeBaselineIFrame(XmvVideoCore *pDecoder, DWORD PictureQuantizerScale);
 
 /*

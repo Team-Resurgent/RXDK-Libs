@@ -1,11 +1,15 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       tables.c
- *  Content:    Holds all of the tables.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Static decode tables: the zigzag scan orders (horizontal, vertical and
+ * normal) that map the linear coefficient stream into the decoder's block
+ * layout, and the run/level AC coefficient decoder tables for the inter and
+ * intra coding sets referenced through decoder.h.
+ */
 
 #include <xtl.h>
 #include <xdbg.h>

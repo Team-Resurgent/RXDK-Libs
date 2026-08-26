@@ -1,5 +1,11 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
-// wmv2_vlc.h -- minimal prefix-code (VLC) reader over the leak bit walker.
+// wmv2_vlc.h -- minimal prefix-code (VLC) reader over the XMV bit walker.
 //
 // Replaces FFmpeg's get_vlc2 + ff_vlc_init* for the two table kinds the WMV2
 // P-frame path needs: canonical-from-lengths (motion vectors) and explicit

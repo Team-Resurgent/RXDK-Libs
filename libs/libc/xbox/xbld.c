@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * xbld.c -- the XBOXKRNL library-version record, in source.
  *
  * Every Xbox title's PE must carry a .XBLD section: a table of XBE_LIBRARY_VERSION

@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * POSIX file I/O backend for picolibc, implemented directly on the Xbox kernel
  * (Nt* / Io* / Rtl* exports). This is the storage layer picolibc stdio calls
  * down into (fopen/fread/fwrite/fseek/...). It deliberately uses ONLY the

@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Low-level libc process services on the Xbox kernel: the program break (sbrk)
+ * backed by the kernel virtual memory manager, the environment pointer, and the
+ * small process primitives _exit/getpid/kill/isatty. Kernel-only; no libxapi.
+ */
+
 #include <errno.h>
 #include <stddef.h>
 #include <sys/types.h>
@@ -39,7 +51,7 @@ static char *heap_end;    /* current program break */
 static char *heap_commit; /* end of committed pages (always >= heap_end) */
 static char *heap_limit;  /* end of the reserved window */
 
-/* write() lives in fileio.c (it now routes fd>=3 to real files). */
+/* write() lives in fileio.c (routes fd>=3 to real files). */
 
 static int heap_reserve(void)
 {

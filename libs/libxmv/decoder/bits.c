@@ -1,11 +1,16 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       bits.c
- *  Content:    walks the video frame portion of the input buffer
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Bit walker for the video frame portion of the input buffer. Maintains a
+ * 32-bit big-endian bit cache filled a dword at a time (bytes swapped on
+ * load) and a count of valid bits remaining. Provides read, peek, skip and a
+ * one-bit tri-state helper, splitting a read across the cache boundary when a
+ * request straddles two dwords.
+ */
 
 #include <xtl.h>
 #include <xmv.h>

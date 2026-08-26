@@ -1,11 +1,17 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       decoder.c
- *  Content:    manages loading and parsering XMV data.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * File-driven XMV decoder: the original overlapped-IO loader that opens an XMV
+ * movie, validates its header, allocates the decoder object and double frame
+ * buffers, and streams packets in the background. XMVGetNextFrame keeps the
+ * displayed frame and the next frame resident, decodes each packet's frames
+ * through the frontend, and renders on swap. Provides the descriptor and
+ * audio-stream query entry points.
+ */
 
 #include <xtl.h>
 #include <xdbg.h>

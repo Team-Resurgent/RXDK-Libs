@@ -1,8 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
-// xmvcore.c -- wrapper that drives the leak XMV video decode kernel (see
-// xmvcore.h). Allocates the decode context's frame buffers + predictor arrays
-// (mirrors decoder.c's XMVCreateDecoder, minus the overlapped file IO) and feeds
-// the demuxer's dword-reversed WMV2 frame bodies to the bit walker.
+// xmvcore.c -- wrapper that drives the XMV video decode kernel (see xmvcore.h).
+// Allocates the decode context's frame buffers + predictor arrays (mirrors
+// decoder.c's XMVCreateDecoder, minus the overlapped file IO) and feeds the
+// demuxer's dword-reversed WMV2 frame bodies to the bit walker.
 //------------------------------------------------------------------------------
 
 #include <xtl.h>

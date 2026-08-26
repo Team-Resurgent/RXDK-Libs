@@ -1,8 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
 // wmv2dec.c -- WMV2 sequence + picture header parse (see wmv2dec.h). Ported from
 // FFmpeg libavcodec/wmv2dec.c (decode_ext_header / wmv2_decode_picture_header /
 // ff_wmv2_decode_secondary_picture_header) and msmpeg4dec.c, retargeted onto the
-// leak XMV bit walker. Increment 1 of the WMV2 P-frame port.
+// XMV bit walker.
 //------------------------------------------------------------------------------
 
 #include <xtl.h>
@@ -145,7 +151,7 @@ int Wmv2DecodePictureHeader(Wmv2 *w)
         return -1;
 
     // NOTE: FFmpeg's optional "all-skip => FRAME_SKIPPED" peek is omitted here
-    // (it does not consume bits in the normal case); handled in increment 2.
+    // (it does not consume bits in the normal case).
     return w->pict_type;
 }
 

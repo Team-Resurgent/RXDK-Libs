@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * Emulated-TLS runtime + C++ thread_local destructor registration.
  *
  * clang -femulated-tls lowers `thread_local` to __emutls_get_address() over a

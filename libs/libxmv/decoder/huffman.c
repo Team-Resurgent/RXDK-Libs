@@ -1,11 +1,15 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       huffman.c
- *  Content:    Holds all of our huffman tables.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Huffman decoder and its tables. HuffmanDecode reads a variable-length code
+ * from the bit walker and returns the decoded symbol using the packed
+ * {symbol, length} table entries defined here (CBPCY and DC coefficient tables
+ * for the talking and high-motion coding sets).
+ */
 
 #include <xtl.h>
 #include <xdbg.h>

@@ -1,11 +1,17 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xmvformat.h
- *  Content:    Xbox FMV file format
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * On-disk XMV (Xbox FMV) file format used by the file-driven decoder.
+ * Declares the magic cookie and version, and the packed structures the loader
+ * reads: the first packet's video/audio data headers (geometry, frame rate,
+ * coding flags, buffer size and per-stream audio descriptors) and the
+ * per-packet headers (next-packet size, video-stream length + frame count,
+ * per-stream audio sizes and per-frame size prefix).
+ */
 
 #pragma once
 

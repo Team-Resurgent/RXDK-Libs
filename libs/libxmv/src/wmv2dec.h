@@ -1,10 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
-// wmv2dec.h -- WMV2 P-frame decode layer over the leak XMV video kernel.
+// wmv2dec.h -- WMV2 P-frame decode layer over the XMV video kernel.
 //
 // Holds the WMV2 sequence options (from the 4-byte extradata) and the per-frame
-// picture-header state, plus the ported MV / MB-type VLCs. Increment 1 covers
-// the sequence + picture-header parse (the MB loop + motion comp are increment 2).
-// All bit reads go through XmvVideoCore's bit walker (ReadBits/ReadOneBit/...).
+// picture-header state, plus the ported MV / MB-type VLCs. Covers the sequence
+// + picture-header parse; the MB loop and motion compensation live in
+// wmv2_mb.c. All bit reads go through XmvVideoCore's bit walker
+// (ReadBits/ReadOneBit/...).
 //------------------------------------------------------------------------------
 #ifndef RXDK_WMV2DEC_H
 #define RXDK_WMV2DEC_H

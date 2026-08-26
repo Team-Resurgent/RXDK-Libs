@@ -1,4 +1,10 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * Picolibc stdin/stdout/stderr for Xbox PE/lld.
  * Vendor posixiob_*.c uses __weak_reference for stdout et al.; lld does not
  * apply those aliases, so we provide strong FILE* globals here instead.

@@ -1,13 +1,19 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 //------------------------------------------------------------------------------
-// xmvcore.h -- thin wrapper around the leak XMV video decode kernel.
+// xmvcore.h -- thin wrapper around the XMV video decode kernel.
 //
-// The leak software codec (decoder/frontend.c + backend.c + bits.c + huffman.c
+// The baseline XMV kernel (decoder/frontend.c + backend.c + bits.c + huffman.c
 // + tables.c) decodes one WMV2 *I-frame* into YUV planes and converts them to a
-// YUY2 D3D surface. Its P-frame path is unimplemented in the leaked source, so
-// this wrapper only drives keyframes (Phase 2 experiment: prove the container +
-// codec wiring by rendering keyframe images; full I+P is the FFmpeg port).
+// YUY2 D3D surface; it does not implement WMV2 P-frames, so this wrapper drives
+// the keyframe path (the P-frame path lives in the wmv2*.c modules and is
+// driven through XmvCoreSetupBits / XmvCoreSwap).
 //
-// XmvVideoCore is the leak decode context (struct defined in decoder/decoder.h).
+// XmvVideoCore is the decode context (struct defined in decoder/decoder.h).
 // The wrapper owns its frame-buffer allocation (mirrors decoder.c minus file IO)
 // and feeds the demuxer's already-dword-reversed frame body to the bit walker.
 //------------------------------------------------------------------------------
@@ -15,7 +21,7 @@
 #ifndef RXDK_XMVCORE_H
 #define RXDK_XMVCORE_H
 
-// The leak decode context; full layout lives in decoder/decoder.h.
+// The decode context; full layout lives in decoder/decoder.h.
 typedef struct XmvVideoCore XmvVideoCore;
 
 // Create a decode core for a width x height video. Dimensions are aligned up

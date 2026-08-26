@@ -1,11 +1,18 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       frontend.c
- *  Content:    parses the on-disk format to YUV macroblocks.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Decoder frontend: turns the coded bitstream of one frame into YUV
+ * macroblocks in the building planes. DecodeOneFrame reads the picture type
+ * and dispatches to the I-frame path (DecodeIFrame -> DecodeBaselineIFrame),
+ * which walks the picture header, decodes each macroblock's CBPCY and its Y/U/V
+ * blocks (DC/AC coefficients via the huffman tables, dequantized and inverse
+ * DCT'd by InverseDCT, an MMX/SSE implementation of the MPEG-reference integer
+ * IDCT), and writes the reconstructed pixels.
+ */
 
 #include <xtl.h>
 #include <xdbg.h>

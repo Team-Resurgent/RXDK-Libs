@@ -1,11 +1,14 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       surfacetofile.cpp
- *  Content:    Utility function to dump surface contents to a .bmp file
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XGWriteSurfaceToFile -- utility that dumps the contents of a D3D surface to a
+ * .bmp file on disk, unswizzling and converting the pixel format as needed. A
+ * debugging/authoring aid rather than a runtime path.
+ */
 
 #if XBOX
     #include "xgrphseg.h"   

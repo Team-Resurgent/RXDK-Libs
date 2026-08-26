@@ -1,13 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
-//
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// D3DX core precompiled header
-//
+/*
+ * Precompiled header for the shadeasm shader assembler. Pulls in the C runtime
+ * and platform headers (xtl.h on Xbox, windows.h/d3d8-xbox.h off-target), the
+ * D3DX math types it needs, and the shadeasm library's own headers.
+ */
 
 #ifndef __PCHCORE_H__
 #define __PCHCORE_H__

@@ -1,8 +1,14 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// Microcode structures, enumerations, and macros, for the xbox vertex shader
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * NV2A vertex-shader microcode format: the MAC and ILU opcode constants,
+ * register and swizzle field definitions and the structures/macros used to pack
+ * assembled instructions into hardware microcode words.
+ */
 
 #define MAC_NOP        0x00
 #define MAC_MOV        0x01

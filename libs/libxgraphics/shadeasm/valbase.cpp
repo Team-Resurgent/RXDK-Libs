@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// valbase.cpp
-//
-// Direct3D Reference Device - PixelShader validation common infrastructure
-//
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Common infrastructure shared by the vertex- and pixel-shader validators: the
+ * source/destination parameter (DSTPARAM/SRCPARAM) and base-instruction
+ * (CBaseInstruction) types, plus the shared token-decode and error-reporting
+ * helpers the vshdrval and pshdrval validators build on.
+ */
+
 #include "pchshadeasm.h"
 
 namespace XGRAPHICS {

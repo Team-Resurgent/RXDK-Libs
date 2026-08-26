@@ -1,11 +1,17 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// vshdrval.cpp
-//
-// Direct3D Reference Device - VertexShader validation
-//
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Vertex-shader validation. Walks an assembled vs.1.1 shader and checks it
+ * against the shader-model rules -- version, instruction and constant limits,
+ * register read/write ordering, source swizzles and modifiers -- rejecting
+ * shaders the hardware cannot run. The CVSInstruction/validator machinery builds
+ * on the common CBaseInstruction infrastructure in valbase.
+ */
+
 #include "pchshadeasm.h"
 
 namespace XGRAPHICS {

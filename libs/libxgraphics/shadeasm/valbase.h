@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// valbase.hpp
-//
-// Direct3D Reference Device - Vertex/PixelShader validation common infrastructure
-//
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations of the validation infrastructure shared by the vertex- and
+ * pixel-shader validators: the DSTPARAM/SRCPARAM parameter types, the
+ * CBaseInstruction base class and the common limit constants. Implementation
+ * lives in valbase.cpp.
+ */
+
 #ifndef __VALBASE_HPP__
 #define __VALBASE_HPP__
 

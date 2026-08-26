@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XG vector and matrix math -- the XGVec2/3/4 and XGMatrix* routines that back
+ * the D3DX8 math API. Covers vector normalize/transform/Hermite/CatmullRom/
+ * BaryCentric/project, 2x2..4x4 determinant/multiply/transpose/inverse, and the
+ * full set of scaling, translation, rotation (axis/quaternion/yaw-pitch-roll),
+ * transformation, look-at, perspective, ortho and shadow matrix builders. The
+ * inverse routine deliberately writes its result to a local matrix and commits
+ * only after verifying every element is finite, so a near-singular input leaves
+ * the caller's output matrix untouched instead of filling it with INF.
+ */
+
 #if XBOX
 #define _USE_XGMATH
 #include <xtl.h>

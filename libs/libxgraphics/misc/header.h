@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Internal format tables and the EncodeFormat declaration shared by the
+ * XGSet*Header helpers. g_TextureFormat maps each D3DFMT_* to its bits-per-pixel
+ * and swizzled/linear/render-target/depth-buffer attributes (the FMT_* flags
+ * defined here); EncodeFormat turns a resource's dimensions and format into the
+ * packed format word and byte size stored in a resource header.
+ */
+
 namespace XGRAPHICS
 {
 

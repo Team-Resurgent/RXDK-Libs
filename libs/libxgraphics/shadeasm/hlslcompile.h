@@ -1,21 +1,20 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  RXDK: HLSL vertex-shader front end for XGCompileShader.
-//
-//  The retail 5849 XGCompileShader is a fork of the D3DX9 HLSL compiler that
-//  the source leak does not carry (the shadeasm tree ships only the assembler,
-//  cd3dxassembler.cpp).  This is a from-scratch reimplementation targeting the
-//  vs_1_1 shader model only -- the same model retail supports (vs.1.1/xvs.1.1/
-//  xvss.1.1; pixel-shader HLSL was never supported because a pixel "shader" is
-//  a register-combiner configuration, not a program).
-//
-//  It lowers HLSL to vs.1.1 assembly *text*, which the existing, byte-exact
-//  assembler + optimizer then turn into NV2A microcode.  So this file owns only
-//  the front end: lex, parse, semantic binding, and naive code generation.  It
-//  performs no optimization -- register pressure and pairing are the assembler
-//  optimizer's job.
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * HLSL vertex-shader front end for XGCompileShader. Targets the vs_1_1 shader
+ * model only (vs.1.1 / xvs.1.1 / xvss.1.1); pixel-shader HLSL is not supported
+ * because a pixel "shader" on this hardware is a register-combiner
+ * configuration, not a program.
+ *
+ * It lowers HLSL to vs.1.1 assembly *text*, which the assembler and optimizer
+ * then turn into NV2A microcode. This file owns only the front end: lex, parse,
+ * semantic binding and naive code generation. It performs no optimization --
+ * register pressure and instruction pairing are the assembler optimizer's job.
+ */
 
 #ifndef __HLSLCOMPILE_H__
 #define __HLSLCOMPILE_H__

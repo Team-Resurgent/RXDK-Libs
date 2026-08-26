@@ -1,11 +1,16 @@
-/*==========================================================================
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.h
- *  Content:    header file for debug helper functions
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug helpers for the XGRAPHICS namespace: the DBG_CHECK / NULL_CHECK
+ * parameter-validation macros, the DPF debug-print family, and the assertion
+ * macros (ASSERT, ASSERTMSG, DXGASSERT, DXGRIP, WARNING, UNIMPLEMENTED). On
+ * free/retail builds these all collapse to no-ops or constant FALSE so the
+ * associated code is compiled out.
+ */
 
 #pragma once
 

@@ -1,8 +1,13 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// Error codes for localization of the shader assembler error messages.
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Numeric error-code constants for the shader assembler and preprocessor
+ * diagnostics, kept separate so the messages they map to can be localized.
+ */
 
 // Preprocessor error codes
 

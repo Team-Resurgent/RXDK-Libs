@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       stacks.cpp
-//  Content:    Stacks
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of the growable stack containers used by the shader assembler
+ * (XAsmCD3DXDwStack for DWORDs, XAsmCD3DXSzStack for strings, and the related
+ * templates): the assembler's scratch storage for tokens, identifiers and
+ * intermediate values while parsing.
+ */
 
 #include "pchshadeasm.h"
 

@@ -1,11 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       api.cpp
-//  Content:    The public api functions for the shadeasm library
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Pixel-shader assembly path of the shadeasm library. Translates ps.1.x
+ * instructions (MOV, MUL, DP3, ADD, SUB, MAD, LRP, CND and the extended
+ * XMMA/XMMC/XDM/XDD/XFC ops) into the NV2A register-combiner configuration that
+ * is a D3DPIXELSHADERDEF, via a per-opcode dispatch table. Includes the combiner
+ * register mapping, swizzle-to-channel helpers, and the def-printing debug aid.
+ */
 
 #include "pchshadeasm.h"
 

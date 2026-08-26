@@ -1,11 +1,14 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       compiler.h
-//  Content:    Vertex Shader compiler
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CD3DXAssembler, the vertex-shader assembler class, and its
+ * parser state (identifier/constant stacks, instruction list, error tracking).
+ * The implementation lives in cd3dxassembler.cpp.
+ */
 
 //----------------------------------------------------------------------------
 // CD3DXAssembler

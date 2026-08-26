@@ -1,11 +1,17 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// pshdrval.cpp
-//
-// Direct3D Reference Device - PixelShader validation
-//
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Pixel-shader validation. Walks an assembled pixel shader and checks it
+ * against the ps.1.x rules -- version, instruction counts and phases, register
+ * usage, source modifiers and texture-addressing constraints -- rejecting
+ * shaders the hardware cannot express. The CPSInstruction/validator machinery
+ * builds on the common CBaseInstruction infrastructure in valbase.
+ */
+
 #include "pchshadeasm.h"
 
 namespace XGRAPHICS {

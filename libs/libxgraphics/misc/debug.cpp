@@ -1,11 +1,15 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.cpp
- *  Content:    implementation for debug stuff.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug-build implementations of the XGRAPHICS debug macros: DXGRIP (fatal
+ * error report + break), the DPF debug-print family, WARNING and ASSERTMSG.
+ * On Xbox these route through XDebugError; on Win32 they use OutputDebugString
+ * and an int 3 break. Compiled only when DBG is set.
+ */
 
 #if XBOX
 #include "xgrphseg.h"

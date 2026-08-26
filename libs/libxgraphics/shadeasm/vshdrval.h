@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// vshdrval.hpp
-//
-// Direct3D Reference Device - VertexShader validation
-//
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for vertex-shader validation: the CVSInstruction class and the
+ * vs.1.1 rule constants used to check an assembled vertex shader. Implementation
+ * lives in vshdrval.cpp.
+ */
+
 #ifndef __VSHDRVAL_HPP__
 #define __VSHDRVAL_HPP__
 

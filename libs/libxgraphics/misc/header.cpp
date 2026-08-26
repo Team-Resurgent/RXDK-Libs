@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XGSet*Header helpers: fill in the D3D resource header (the in-memory
+ * D3DSurface / D3DTexture / D3DVertexBuffer / etc. descriptor) for a resource
+ * whose pixel/vertex data the caller has already placed in memory. Handles
+ * surfaces, 2D/cube/volume textures, vertex and index buffers, palettes, push
+ * buffers and fixups, encoding the format, size and mip layout via the internal
+ * EncodeFormat / EncodeTexture routines. Used to build resources in place
+ * without going through the allocating Create* entry points.
+ */
+
 #if XBOX
 #include <xgrphseg.h>
 #include <xtl.h>

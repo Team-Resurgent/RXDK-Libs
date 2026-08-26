@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////////
-// Copyright (C) Microsoft Corporation, 2000.
-//
-// pshdrval.hpp
-//
-// Direct3D Reference Device - PixelShader validation
-//
-///////////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for pixel-shader validation: the CPSInstruction class and the
+ * ps.1.x rule constants used to check an assembled pixel shader. Implementation
+ * lives in pshdrval.cpp.
+ */
+
 #ifndef __PSHDRVAL_HPP__
 #define __PSHDRVAL_HPP__
 

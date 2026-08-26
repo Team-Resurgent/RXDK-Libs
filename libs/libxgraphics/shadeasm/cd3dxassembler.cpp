@@ -1,9 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 1999 Microsoft Corporation.  All Rights Reserved.
-//
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CD3DXAssembler -- the vertex-shader assembler. Lexes and parses vs.1.1 /
+ * xvs.1.1 assembly text (version tokens, declarations, instructions, swizzles
+ * and modifiers), resolves constants and register references, and emits the
+ * intermediate instruction stream the optimizer and microcode formatter turn
+ * into NV2A vertex-shader microcode.
+ */
 
 #include "pchshadeasm.h"
 

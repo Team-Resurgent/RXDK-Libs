@@ -1,11 +1,15 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       swizzler.cpp
- *  Content:    Xbox swizzle helper utilities
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox texture swizzle helpers. Converts image data between linear (row-major)
+ * layout and the NV2A swizzled (Morton-order) layout the GPU samples from,
+ * computing the interleaved-bit addresses for 2D and volume textures. Used to
+ * pack textures into their runtime layout and to read them back out.
+ */
 
 #if XBOX
     #include <xgrphseg.h>

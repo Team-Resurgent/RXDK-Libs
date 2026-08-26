@@ -1,12 +1,17 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       api.cpp
-//  Content:    The public api functions for the shadeasm library
-//					Includes most vertex shader code
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Public entry points of the shadeasm (shader assembler) library, mostly the
+ * vertex-shader path: assembling vs.1.1 / xvs.1.1 assembly text into NV2A
+ * microcode. Drives the preprocessor, the CD3DXAssembler parser, the shader
+ * validator and the microcode reorderer/stripper/optimizer, and formats
+ * assembler errors for the caller.
+ */
+
 #include "pchshadeasm.h"
 #include "hlslcompile.h"
 

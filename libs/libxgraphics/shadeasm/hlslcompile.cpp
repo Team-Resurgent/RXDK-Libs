@@ -1,27 +1,31 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  RXDK: HLSL vertex-shader front end for XGCompileShader (vs_1_1 only).
-//
-//  Pipeline: HLSL text -> (this) vs.1.1 assembly text -> the existing
-//  CD3DXAssembler + optimizer -> NV2A microcode.  This file is purely the
-//  front end; it emits straight-line, unoptimised assembly and leaves register
-//  pressure / instruction pairing to the assembler's optimiser.
-//
-//  Supported subset (what real vs_1_1 HLSL shaders use):
-//    * struct types with semantics; the entry function taking a struct or
-//      individual semantic parameters and returning a struct (or a single
-//      semantic-tagged value)
-//    * global uniforms (float/floatN/float3x3/float4x3/float4x4) bound to
-//      constant registers in declaration order from c0
-//    * local variables, assignment (with swizzled l-values), return
-//    * expressions: + - * / , unary -, member/swizzle, parentheses, literals,
-//      constructors floatN(...), and the intrinsics mul, dot, normalize, cross,
-//      length, saturate, min, max, abs, lerp, reflect, rsqrt, frac, pow
-//
-//  Deliberately out of scope (diagnosed, not mis-compiled): user-defined helper
-//  functions, flow control (vs_1_1 has none), arrays, and pixel shaders.
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * HLSL vertex-shader front end for XGCompileShader (vs_1_1 only).
+ *
+ * Pipeline: HLSL text -> (this) vs.1.1 assembly text -> CD3DXAssembler +
+ * optimizer -> NV2A microcode. This file is purely the front end; it emits
+ * straight-line, unoptimised assembly and leaves register pressure /
+ * instruction pairing to the assembler's optimiser.
+ *
+ * Supported subset (what real vs_1_1 HLSL shaders use):
+ *   * struct types with semantics; the entry function taking a struct or
+ *     individual semantic parameters and returning a struct (or a single
+ *     semantic-tagged value)
+ *   * global uniforms (float/floatN/float3x3/float4x3/float4x4) bound to
+ *     constant registers in declaration order from c0
+ *   * local variables, assignment (with swizzled l-values), return
+ *   * expressions: + - * / , unary -, member/swizzle, parentheses, literals,
+ *     constructors floatN(...), and the intrinsics mul, dot, normalize, cross,
+ *     length, saturate, min, max, abs, lerp, reflect, rsqrt, frac, pow
+ *
+ * Deliberately out of scope (diagnosed, not mis-compiled): user-defined helper
+ * functions, flow control (vs_1_1 has none), arrays, and pixel shaders.
+ */
 
 #include "pchshadeasm.h"
 #include "hlslcompile.h"

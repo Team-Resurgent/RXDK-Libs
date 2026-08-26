@@ -1,11 +1,16 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       pushbuffer.c
- *  Content:    push buffer compiler.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Push-buffer compiler. XGCompileDrawIndexedVertices encodes an indexed draw
+ * (a SET_BEGIN_END primitive marker plus the index list, batched into
+ * ARRAY_ELEMENT16/32 blocks) into an NV2A push buffer. Called once with a NULL
+ * buffer to size the output, then again to emit it, so a title can bake an
+ * indexed draw into a resource and replay it cheaply at runtime.
+ */
 
 #if XBOX
     #include "xtl.h"

@@ -1,9 +1,8 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
-//
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
 // Poor man's C Preprocessor, with a few extensions to support vertex shader
 // assembly language.

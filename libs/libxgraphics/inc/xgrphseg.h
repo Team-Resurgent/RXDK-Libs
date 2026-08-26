@@ -1,11 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) Microsoft Corporation.  All Rights Reserved.
-//
-//  File:       xgrphseg.h
-//  Content:    sets the sections for code and data in d3dx8.lib
-//
-///////////////////////////////////////////////////////////////////////////
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Linker section setup for xgraphics.lib. Places code, data, bss and const
+ * into the XGRPH segments, merges them into a single read/write code section,
+ * and stamps the library build-number marker (XGraphicsBuildNumber, or the
+ * debug variant) into the .XBLD$V version section.
+ */
 
 #ifndef __XGRPHSEG_H__
 #define __XGRPHSEG_H__

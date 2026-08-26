@@ -1,12 +1,15 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       writexpr.cpp
- *  Content:    Utility function to dump a single texture or surface to 
- *              a packed resource file (.xpr)
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XGWriteSurfaceOrTextureToXPR -- utility that writes a single surface or
+ * texture out to a packed resource (.xpr) file: the resource header followed by
+ * its pixel data, in the format the runtime can load back directly. A
+ * debugging/authoring aid rather than a runtime path.
+ */
 
 #if XBOX
 #include <xtl.h>

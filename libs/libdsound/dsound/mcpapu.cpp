@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpapu.cpp
- *  Content:    MCP-X audio device objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/09/01    dereks  Created based on NVidia/georgioc code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MCP-X APU device objects: the top-level audio processing unit driver.
+ */
 
 #include "dsoundi.h"
 
@@ -68,7 +65,7 @@ CMcpxAPU::CMcpxAPU
     // Initialize defaults
     //
     
-    m_dwSynchPlaybackCount = 0;     // RXDK 5849 uplift (SynchPlayback)
+    m_dwSynchPlaybackCount = 0;     // SynchPlayback arming count
 
     //
     // RXDK: the voice map was never initialized. Nothing noticed for a long
@@ -618,10 +615,9 @@ CMcpxAPU::FreeVoices
  *      point of the flag: without it, buffers started one Play() at a time
  *      drift by a few samples and flange against each other.
  *
- *      RXDK 5849 uplift. Behaviour follows the retail implementation
- *      (CMcpxAPU::SynchPlayback in the 5849 dsound.lib): collect the pending
- *      voice handles, clear their pending state, then write VOICE_PAUSE with
- *      ACTION_RESUME for each one between a VOICE_LOCK on/off pair.
+ *      Collect the pending voice handles, clear their pending state, then
+ *      write VOICE_PAUSE with ACTION_RESUME for each one between a VOICE_LOCK
+ *      on/off pair.
  *
  *  Arguments:
  *      (void)

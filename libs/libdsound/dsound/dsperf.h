@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 8/29/2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsperf.h
- *  Content:    Performance tools.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  8/29/2001   dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the DirectSound performance-measurement tools.
+ */
 
 #ifndef __DSPERF_H__
 #define __DSPERF_H__

@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpxcore.cpp
- *  Content:    MCP-X core object.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  04/24/01    dereks  Separated from APU object for kernel ROM bring-up.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MCP-X core object: the shared APU core state, separated from the APU object
+ * so it can be used during kernel ROM bring-up.
+ */
 
 #include "dsoundi.h"
 

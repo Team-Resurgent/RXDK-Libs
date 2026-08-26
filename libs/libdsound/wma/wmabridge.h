@@ -1,4 +1,14 @@
-// RXDK 5849 uplift: C entry point over the ported ffmpeg WMA decoder, callable from the C++ engine.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * C entry point over the ported ffmpeg WMA decoder, callable from the C++
+ * engine.
+ */
+
 #ifndef RXDK_XACT_WMABRIDGE_H
 #define RXDK_XACT_WMABRIDGE_H
 

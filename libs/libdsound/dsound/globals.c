@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       globals.c
- *  Content:    Externally exposed DirectSound global variables.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  08/22/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Definitions of the externally exposed DirectSound global variables, such as
+ * the debug-output levels.
+ */
 
 #include "dsoundi.h"
 

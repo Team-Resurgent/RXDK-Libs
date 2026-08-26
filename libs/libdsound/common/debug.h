@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 1995-1998 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.h
- *  Content:    Debugger helper functions.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  1/21/97     dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug-print (DPF) helper macros and the CDebug class: leveled trace output,
+ * assertions and debugger breaks, compiled out of retail builds.
+ */
 
 #ifndef __DEBUG_H__
 #define __DEBUG_H__

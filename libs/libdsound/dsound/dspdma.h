@@ -1,13 +1,12 @@
-/************************Object to do DSP memory management*****************\
-*                                                                           *
-* Module: CScratchDma.h		                                                *
-*   Object to handle pages/offsets etc for the scratch memory		        *
-*                                                                           *
-*****************************************************************************
-*                                                                           *
-* History:                                                                  *
-*                                                                           *
-\***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the APU DSP scratch-memory manager.
+ */
 
 #ifndef _CSCRATCHDMA_
 #define _CSCRATCHDMA_

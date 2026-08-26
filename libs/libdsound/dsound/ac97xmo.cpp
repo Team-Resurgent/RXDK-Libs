@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       ac97xmo.cpp
- *  Content:    AC97 direct-access media object.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  02/05/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * AC'97 direct-access media object (XMO): routes audio directly to the AC'97
+ * codec.
+ */
 
 #include "dsoundi.h"
 

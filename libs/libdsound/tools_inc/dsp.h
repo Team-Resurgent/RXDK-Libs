@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DSP effect (FX) definitions: sizes, cycle budgets and the per-effect data
+ * structures used when downloading effects to the APU GP DSP.
+ */
+
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 4096
 #endif

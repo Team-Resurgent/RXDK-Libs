@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       format.cpp
- *  Content:    WAVEFORMATEX helper functions.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  10/10/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * WAVEFORMATEX helper functions: validating, comparing and querying
+ * wave-format descriptors.
+ */
 
 #include "dscommon.h"
 

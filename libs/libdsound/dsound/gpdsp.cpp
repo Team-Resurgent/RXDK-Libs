@@ -1,17 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       gpdsp.cpp
- *  Content:    GP dsp manager.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/2001    georgioc created
- *
- ****************************************************************************/
-
+/*
+ * General-Processing (GP) DSP manager: downloads and manages effect (FX) code
+ * and scratch state on the APU GP DSP.
+ */
 
 #include "dsoundi.h"
 #include "dspdma.h"

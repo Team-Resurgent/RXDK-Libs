@@ -1,11 +1,14 @@
-/***************************************************************************
- *
- *  RXDK 5849 uplift.
- *
- *  File:       wmaxmo.cpp
- *  Content:    WMA decoder XMO.  See wmaxmo.h.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * WMA decoder XMO. Wraps the ported WMA v1/v2 decoder in wma/ as a media
+ * object, in both file-backed and in-memory shapes, so a title can play .wma
+ * streams.
+ */
 
 #include "dsoundi.h"
 #include "wmaxmo.h"
@@ -265,7 +268,7 @@ CWmaMediaObject::InitializeFile
  *      Notes what the handle we have just taken on will accept, so ReadAt can
  *      pick a read path that suits it.
  *
- *      RXDK 5849 uplift.  A title reaches this object with a handle of its own
+ *      A title reaches this object with a handle of its own
  *      choosing, and the one an XACT streamed wave bank arrives on is opened
  *      FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING.  Neither flag tolerates
  *      the plain seek-and-read below: an asynchronous handle has no file

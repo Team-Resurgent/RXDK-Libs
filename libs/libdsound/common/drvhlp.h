@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       drvhlp.h
- *  Content:    Miscelaneous NT-style driver helper functions and objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  08/07/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Miscellaneous NT-style driver helper functions and objects shared by the
+ * DirectSound components.
+ */
 
 #ifndef __DRVHLP_H__
 #define __DRVHLP_H__

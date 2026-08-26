@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       waveldr.cpp
- *  Content:    Wave file loader.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  06/08/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Wave file loader: parses RIFF/WAVE data into its format descriptor and
+ * sample data.
+ */
 
 #include "dscommon.h"
 
@@ -122,7 +120,7 @@ CStdFileStream::CStdFileStream
  *      Notes whether the handle we have just taken on was opened for
  *      asynchronous I/O.
  *
- *      RXDK 5849 uplift.  Such a handle has no file position of its own: the
+ *      Such a handle has no file position of its own: the
  *      kernel refuses a read that does not name its own offset, and a seek has
  *      nothing to move.  The two overloads below therefore carry the position
  *      in m_dwPosition and hand it to every transfer.  Titles reach this path
@@ -172,7 +170,7 @@ CStdFileStream::BindHandle
  *      Reads or writes at the position we are keeping for an asynchronous
  *      handle, waiting for the transfer to finish before returning.
  *
- *      RXDK 5849 uplift.  See BindHandle.  The wait is what makes an
+ *      See BindHandle.  The wait is what makes an
  *      asynchronous handle usable by callers written against a blocking
  *      stream; the file XMO is one of those.
  *

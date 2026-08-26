@@ -1,13 +1,18 @@
-// RXDK 5849 uplift: minimal ASF (Advanced Systems Format) reader -- enough to pull the audio
-// stream's WAVEFORMATEX, the file/content metadata, and the compressed WMA packets out of a .wma
-// file for the XMO decoders. Video, multiple audio streams, DRM and the index objects are all out
-// of scope: a .wma is one audio stream, and that is all XWmaDecoderCreateMediaObject promises.
-//
-// The reader is pull-based and does no I/O of its own -- the caller supplies bytes. That keeps the
-// XMO free to read the file however it likes (synchronously, or from a title-supplied callback as
-// WmaCreateInMemoryDecoder does) without the demuxer knowing the difference.
-//
-// Pure C, built in the minimal (picolibc) WMA slice.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Minimal ASF (Advanced Systems Format) reader: pulls the audio stream's
+ * WAVEFORMATEX, the file and content metadata, and the compressed WMA packets
+ * out of a .wma file for the XMO decoders. Video, multiple audio streams, DRM
+ * and the index objects are out of scope: a .wma is one audio stream. The
+ * reader is pull-based and does no I/O of its own -- the caller supplies
+ * bytes, so the demuxer never needs to know how the file is read. Pure C,
+ * built in the minimal (picolibc) WMA slice.
+ */
 
 #ifndef RXDK_DSOUND_ASF_H
 #define RXDK_DSOUND_ASF_H

@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpapu.h
- *  Content:    MCP-X audio device objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/09/01    dereks  Created based on NVidia/georgioc code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the MCP-X APU device objects.
+ */
 
 #ifndef __MCPAPU_H__
 #define __MCPAPU_H__
@@ -81,7 +78,7 @@ namespace DirectSound
         LIST_ENTRY                  m_lst3dVoices;                              // List of 3D voices
         CMcpxBufferSgeHeap          m_SgeHeap;                                  // Buffer scatter-gather heap object
         DWORD                       m_dwState;                                  // APU state flags
-        DWORD                       m_dwSynchPlaybackCount;                     // Voices armed for SynchPlayback (RXDK 5849 uplift)
+        DWORD                       m_dwSynchPlaybackCount;                     // Voices armed for SynchPlayback
                                                                             
     protected:                                                                  
         volatile DWORD              m_dwVoiceMapLock;                           // Voice map/list lock count
@@ -134,7 +131,7 @@ namespace DirectSound
         HRESULT AllocateVoices(CMcpxVoiceClient *pVoice);
         void FreeVoices(CMcpxVoiceClient *pVoice);
 
-        // RXDK 5849 uplift: resume every voice that a Play(DSBPLAY_SYNCHPLAYBACK)
+        // Resume every voice that a Play(DSBPLAY_SYNCHPLAYBACK)
         // left armed-but-paused, in one locked batch so they start together.
         HRESULT SynchPlayback(void);
 

@@ -1,7 +1,16 @@
-// RXDK 5849 uplift: C bridge over the ported ffmpeg WMA v1/v2 decoder. Exposes a single
-// decode-whole-entry entry point the (C++) XACT engine calls to turn a WMA wave-bank entry into
-// interleaved signed-16-bit PCM at load time ("decode on load"), so the rest of the engine only
-// ever sees PCM. Pure C, built in the minimal (picolibc) WMA slice.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * C bridge over the ported ffmpeg WMA v1/v2 decoder. Exposes a single
+ * decode-whole-entry entry point the C++ XACT engine calls to turn a WMA
+ * wave-bank entry into interleaved signed-16-bit PCM at load time, so the
+ * rest of the engine only ever sees PCM. Pure C, built in the minimal
+ * (picolibc) WMA slice.
+ */
 
 #include "wmashim.h"
 #include "wmabridge.h"

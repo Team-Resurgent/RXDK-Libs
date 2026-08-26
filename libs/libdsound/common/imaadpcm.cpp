@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       imaadpcm.cpp
- *  Content:    IMA ADPCM CODEC.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  04/29/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * IMA ADPCM codec: converts between IMA ADPCM and PCM sample data.
+ */
 
 #include "dscommon.h"
 

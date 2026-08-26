@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpvoice.cpp
- *  Content:    MCP-X audio device objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/09/01    dereks  Created based on NVidia/georgioc code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MCP-X APU voice objects: per-voice hardware control on the APU.
+ */
 
 #include "dsoundi.h"
 
@@ -1457,7 +1454,7 @@ CMcpxVoiceClient::ActivateVoice
             dwVoiceOn = MCPX_SET_REG_VALUE(m_RegCache.VoiceOn, m_ahVoices[i], NV1BA0_PIO_VOICE_ON_HANDLE);
         
             //
-            // RXDK 5849 uplift: a voice armed for SynchPlayback is configured
+            // A voice armed for SynchPlayback is configured
             // and turned on here, but held paused -- CMcpxAPU::SynchPlayback
             // resumes every such voice in one locked batch so that they all
             // begin on the same sample.
@@ -1506,7 +1503,7 @@ CMcpxVoiceClient::ActivateVoice
         m_bVoiceList = bVoiceList;
 
         //
-        // RXDK 5849 uplift: remember that this voice is waiting on
+        // Remember that this voice is waiting on
         // SynchPlayback, and count it on the APU so SynchPlayback can skip
         // the whole walk when nothing is pending.
         //
@@ -3037,10 +3034,8 @@ CMcpxVoiceClient::SetFilter
  *  Description:
  *      Gets a snapshot of the voice's current hardware properties.
  *
- *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib (the
- *      function does not exist in the leaked source).  Reads the CURrent
- *      (ramped) hardware volumes of the first hardware voice, not the
- *      cached TARget values.
+ *      Reads the CURrent (ramped) hardware volumes of the first hardware
+ *      voice, not the cached TARget values.
  *
  *  Arguments:
  *      LPDSVOICEPROPS [out]: voice properties.

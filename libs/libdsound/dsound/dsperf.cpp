@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 8/29/2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsperf.cpp
- *  Content:    Performance tools.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  8/29/2001   dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Performance-measurement tools for the DirectSound mixer and DSP paths.
+ */
 
 #include "dsoundi.h"
 

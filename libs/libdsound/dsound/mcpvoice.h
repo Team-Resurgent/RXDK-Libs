@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpvoice.h
- *  Content:    MCP-X audio device objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/09/01    dereks  Created based on NVidia/georgioc code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the MCP-X APU voice objects.
+ */
 
 #ifndef __MCPVOICE_H__
 #define __MCPVOICE_H__
@@ -40,7 +37,7 @@
 #define MCPX_VOICESTATUS_DISCONTINUITY      0x0800
 
 //
-// RXDK 5849 uplift: the voice was activated by a Play(DSBPLAY_SYNCHPLAYBACK)
+// The voice was activated by a Play(DSBPLAY_SYNCHPLAYBACK)
 // and is sitting on the hardware fully configured but paused, waiting for
 // IDirectSound::SynchPlayback to resume every such voice together.
 //

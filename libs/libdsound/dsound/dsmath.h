@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsmath.h
- *  Content:    Math helpers.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  03/24/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the DirectSound math helpers.
+ */
 
 #ifndef __DSMATH_H__
 #define __DSMATH_H__

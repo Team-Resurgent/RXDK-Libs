@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpbuf.h
- *  Content:    MCP-X audio device objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  03/16/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the MCP-X APU buffer objects.
+ */
 
 #ifndef __MCPBUF_H__
 #define __MCPBUF_H__

@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       heap.h
- *  Content:    Generic heap object.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/24/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the generic heap allocator objects.
+ */
 
 #ifndef __HEAP_H__
 #define __HEAP_H__

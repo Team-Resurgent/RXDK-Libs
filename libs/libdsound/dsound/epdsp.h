@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Encode-Processing (EP) DSP definitions: the P-RAM offsets for the cached
+ * peak and RMS output levels that are read directly from DSP memory.
+ */
 
 #if !defined _EPDSP_H_
 #define _EPDSP_H_

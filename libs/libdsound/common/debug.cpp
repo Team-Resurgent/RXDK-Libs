@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 1995-1998 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.cpp
- *  Content:    Debugger helper object.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  05/23/00    dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of the CDebug debug-print helper: the debug-output level,
+ * break level and break flag used by the DPF logging macros.
+ */
 
 #include "dscommon.h"
 

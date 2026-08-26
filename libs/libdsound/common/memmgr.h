@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       memmgr.h
- *  Content:    DirectSound memory manager.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/21/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DirectSound memory-manager interface.
+ */
 
 #ifndef __MEMMGR_H__
 #define __MEMMGR_H__

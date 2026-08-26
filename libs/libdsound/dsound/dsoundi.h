@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 1997-1999 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsoundi.h
- *  Content:    DirectSound master internal header file.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  07/28/00    dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Master internal header for the DirectSound implementation: pulls in the
+ * kernel and DirectSound headers and the shared internal declarations.
+ */
 
 #ifndef __DSOUNDI_H__
 #define __DSOUNDI_H__

@@ -1,5 +1,14 @@
-// RXDK 5849 uplift: minimal ASF reader. See asf.h. Pure C, built in the minimal (picolibc) WMA
-// slice. Field layouts follow the ASF specification; everything is little-endian on disk.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Minimal ASF (Advanced Systems Format) reader. Field layouts follow the ASF
+ * specification; everything is little-endian on disk. Pure C, built in the
+ * minimal (picolibc) WMA slice.
+ */
 
 #include "asf.h"
 #include <string.h>

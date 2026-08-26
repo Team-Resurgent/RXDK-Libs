@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * XAudio cipher implementation: the LFSR-based encode/decode and key
+ * generation used to obfuscate DSP microcode.
+ */
 
 #ifndef _XBOX
 #include "stdafx.h"

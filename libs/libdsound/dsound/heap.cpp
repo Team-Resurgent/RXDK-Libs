@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       heap.cpp
- *  Content:    Heap implementation objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/24/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Generic heap allocator objects used for APU and host audio memory
+ * management.
+ */
 
 // #define MCPX_NO_SGE_SHARING
 

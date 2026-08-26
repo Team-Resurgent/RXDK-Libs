@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       I3DL2.cpp
- *  Content:    I3DL2 reverb and filter calculations.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  05/30/01    dereks  Created based on Sensaura tables.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * I3DL2 reverb and filter coefficient calculations.
+ */
 
 #include "dsoundi.h"
 

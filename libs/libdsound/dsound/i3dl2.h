@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       i3dl2.h
- *  Content:    I3dl2 reverb and filter calculations.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  05/30/01    dereks  Created based on Sensaura tables.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface and tables for the I3DL2 reverb and filter calculations.
+ */
 
 #ifndef __I3DL2_H__
 #define __I3DL2_H__
@@ -96,7 +93,7 @@ namespace DirectSound
         void Initialize(void);
         void CalculateI3dl2(void);
 
-        // RXDK 5849 uplift: XAudioSetEffectData runs the listener calculation
+        // XAudioSetEffectData runs the listener calculation
         // against a live effect image fetched from the DSP, so it needs the
         // parameter block the calculation reads (delay-line layout in) and
         // writes (tuning out).

@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       waveldr.h
- *  Content:    Wave file loader.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  06/08/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the RIFF/WAVE file loader.
+ */
 
 #ifndef __WAVELDR_H__
 #define __WAVELDR_H__

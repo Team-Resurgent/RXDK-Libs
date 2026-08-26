@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       format.h
- *  Content:    Wave format helper functions.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  10/10/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the WAVEFORMATEX wave-format helper functions.
+ */
 
 #ifndef __FORMAT_H__
 #define __FORMAT_H__

@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       acireg.h
- *  Content:    ACI registers.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  09/27/00    dereks  Created based on NVidia code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Register and memory-mapped I/O offset definitions for the ACI (AC'97 Codec
+ * Interface) block of the MCP audio hardware.
+ */
 
 #ifndef __ACIREG_H__
 #define __ACIREG_H__

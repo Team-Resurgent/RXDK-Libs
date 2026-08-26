@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 1997-2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dscommon.cpp
- *  Content:    DirectSound common source file.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/10/01    dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Common DirectSound support code shared across the library (aggregates the
+ * shared implementation translation units).
+ */
 
 #include "dscommon.h"
 #include "debug.cpp"

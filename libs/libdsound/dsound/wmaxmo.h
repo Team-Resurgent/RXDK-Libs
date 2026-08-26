@@ -1,27 +1,14 @@
-/***************************************************************************
- *
- *  RXDK 5849 uplift.
- *
- *  File:       wmaxmo.h
- *  Content:    WMA decoder XMO.
- *
- *  The May-2020 leak ships DirectSound without any WMA support -- the
- *  codecs/ tree it would have lived in is absent -- but 5849 titles get a
- *  WMA decoder as an XMO, so this supplies one over the ported ffmpeg WMA
- *  v1/v2 decoder in wma/.
- *
- *  Two shapes, matching the 5849 factories:
- *
- *    - file-backed  (XWmaDecoderCreateMediaObject, WmaCreateDecoder[Ex]).
- *      Creation does no I/O; the ASF header is read on the first DoWork and
- *      GetStatus withholds XMO_STATUSF_ACCEPT_OUTPUT_DATA until it lands, so
- *      a title can start a stream without blocking on the disk.
- *
- *    - callback-backed  (WmaCreateInMemoryDecoder[Ex]).  The title already
- *      holds the whole file, so the callback hands back pointers into it and
- *      creation parses the header on the spot.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the WMA decoder XMO. DirectSound gets its WMA support from
+ * the ported ffmpeg WMA v1/v2 decoder in wma/, exposed here as a media object
+ * in file-backed and in-memory forms.
+ */
 
 #ifndef __WMAXMO_H__
 #define __WMAXMO_H__

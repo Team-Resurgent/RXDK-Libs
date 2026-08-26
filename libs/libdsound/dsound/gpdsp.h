@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * General-Processing (GP) DSP manager definitions: the command and data
+ * structures used to download effect code and state to the APU GP DSP.
+ */
 
 #if !defined _GPDSPMANAGER_
 #define _GPDSPMANAGER_

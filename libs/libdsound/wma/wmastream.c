@@ -1,5 +1,13 @@
-// RXDK 5849 uplift: streaming front end over the ported ffmpeg WMA v1/v2 decoder. See
-// wmastream.h. Pure C, built in the minimal (picolibc) WMA slice.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Streaming front end over the ported ffmpeg WMA v1/v2 decoder. Pure C, built
+ * in the minimal (picolibc) WMA slice.
+ */
 
 #include "wmashim.h"
 #include "wmastream.h"

@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsapi.cpp
- *  Content:    DirectSound API objects and entry points.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/06/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DirectSound API objects and entry points: the IDirectSound /
+ * IDirectSoundBuffer implementation exposed to titles.
+ */
 
 #include "dsoundi.h"
 
@@ -137,7 +135,7 @@ STDAPI IDirectSound_GetCaps(LPDIRECTSOUND pDirectSound, LPDSCAPS pdsc)
     return ((CDirectSound *)pDirectSound)->GetCaps(pdsc);
 }
 
-// RXDK 5849 uplift: start every buffer/stream played with DSBPLAY_SYNCHPLAYBACK.
+// Start every buffer/stream played with DSBPLAY_SYNCHPLAYBACK.
 STDAPI IDirectSound_SynchPlayback(LPDIRECTSOUND pDirectSound)
 {
     return ((CDirectSound *)pDirectSound)->SynchPlayback();
@@ -2255,9 +2253,6 @@ XAudioDownloadEffectsImage
  *      Converts a high-level effect description into raw DSP state and
  *      applies it to the running effects image.
  *
- *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib (absent from
- *      the leaked source).
- *
  *  Arguments:
  *      DWORD [in]: effect index within the downloaded image.
  *      LPCDSFX_HIGH_LEVEL_EFFECT_DESCRIPTION [in]: high-level parameters.
@@ -2728,7 +2723,7 @@ XFileCreateMediaObjectEx
  *  Description:
  *      Creates and initializes a File XMO whose reads do not block the caller.
  *
- *      RXDK 5849 uplift.  CFileMediaObject reads synchronously, so this hands
+ *      CFileMediaObject reads synchronously, so this hands
  *      back the same object Ex does: each packet is accepted and completed
  *      inside Process, and DoWork has nothing left to do.  To a caller that is
  *      the "the read already finished" case, which is what the asynchronous
@@ -3368,7 +3363,7 @@ CDirectSound::GetCaps
  *      Starts every buffer and stream that was played with
  *      DSBPLAY_SYNCHPLAYBACK, together.
  *
- *      RXDK 5849 uplift: those Play calls left their voices configured and
+ *      Those Play calls left their voices configured and
  *      turned on but paused; this resumes them in one batch so they begin on
  *      the same sample instead of drifting apart by however long the Play
  *      calls took.
@@ -4972,7 +4967,7 @@ CDirectSoundVoiceSettings::Initialize
             m_p3dParams->dwParameterMask = DS3DPARAM_BUFFER_MASK;
 
             //
-            // RXDK 5849 uplift: DSBCAPS_MUTE3DATMAXDISTANCE is a creation-time
+            // DSBCAPS_MUTE3DATMAXDISTANCE is a creation-time
             // property, so latch it here rather than re-reading it per frame.
             //
 
@@ -6412,8 +6407,6 @@ CDirectSoundVoice::SetMixBinVolumes
  *
  *  Description:
  *      Gets a snapshot of the voice's current hardware properties.
- *
- *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib.
  *
  *  Arguments:
  *      LPDSVOICEPROPS [out]: voice properties.
@@ -9202,8 +9195,6 @@ CDirectSoundBuffer::SetNotificationPositions
  *  Description:
  *      Gets a snapshot of the buffer's current hardware voice properties.
  *
- *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib.
- *
  *  Arguments:
  *      LPDSVOICEPROPS [out]: voice properties.
  *
@@ -10027,8 +10018,6 @@ CDirectSoundStream::FlushEx
  *
  *  Description:
  *      Gets a snapshot of the stream's current hardware voice properties.
- *
- *      RXDK 5849 uplift: recovered from the XDK-5849 dsound.lib.
  *
  *  Arguments:
  *      LPDSVOICEPROPS [out]: voice properties.

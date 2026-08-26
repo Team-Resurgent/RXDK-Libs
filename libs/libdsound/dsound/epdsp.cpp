@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Encode-Processing (EP) DSP support: assembles the AC-3 output DSP image
+ * from the microcode tables and manages the EP DSP on the APU.
+ */
 
 #include "dsoundi.h"
 #include "dspdma.h"

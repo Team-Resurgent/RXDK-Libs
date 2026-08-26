@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       ac97xmo.h
- *  Content:    AC97 direct-access media object.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  02/05/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the AC'97 direct-access media object (XMO).
+ */
 
 #ifndef __AC97XMO_H__
 #define __AC97XMO_H__

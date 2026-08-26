@@ -1,10 +1,13 @@
-/************************Object to do DSP memory management*****************\
-*                                                                           *
-* History:                                                                  *
-* 12/21/2000 georgioc(MSFT) - redid page table management, integrated with 
-* xbox apu driver
-*                                                                           *
-\***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DSP scratch-memory manager (CMcpxDspScratchDma): page-table management for
+ * the APU DSP scratch memory, integrated with the Xbox APU driver.
+ */
 
 #include "dsoundi.h"
 #include "dspdma.h"

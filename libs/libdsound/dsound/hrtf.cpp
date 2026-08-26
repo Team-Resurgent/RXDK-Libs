@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       HRTF.cpp
- *  Content:    HRTF 3D objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  08/13/01    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * HRTF 3D-audio objects: head-related transfer function processing for
+ * positional audio.
+ */
 
 #include "dsoundi.h"
 #include "xgmath.h"
@@ -622,7 +620,7 @@ CFullHrtfSource::CalcDistanceVolume
     if(flMagPos > flMinDistance)
     {
         //
-        // RXDK 5849 uplift: DSBCAPS_MUTE3DATMAXDISTANCE silences the source
+        // DSBCAPS_MUTE3DATMAXDISTANCE silences the source
         // once it reaches MaxDistance instead of holding it at the floored
         // attenuation.
         //

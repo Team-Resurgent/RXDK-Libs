@@ -1,16 +1,13 @@
-//depot/xbox/private/windows/directx/dsound/dsound/dsapi.cpp#72 - edit change 20916 (text)
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsapi.cpp
- *  Content:    DirectSound API objects and entry points.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/06/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Archived earlier revision of the DirectSound API objects and entry points.
+ * See dsapi.cpp for the current implementation.
+ */
 
 #include "dsoundi.h"
 

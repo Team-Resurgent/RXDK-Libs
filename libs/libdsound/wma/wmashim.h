@@ -1,11 +1,17 @@
 /*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
  * wmashim.h - minimal replacement for ffmpeg's avcodec.h / common.h /
  *             dsputil.h / bswap.h, providing ONLY what wmadec.c, fft.c and
  *             mdct.c actually reference.
  *
- * Self-contained: depends only on the C standard library.  This is stage 1 of
- * porting ffmpeg's WMA v1/v2 decoder into a dependency-free C decoder for
- * later integration into an Xbox audio library (libxact).
+ * Self-contained: depends only on the C standard library.  It is the
+ * dependency-free C port of ffmpeg's WMA v1/v2 decoder used by the Xbox
+ * audio library.
  */
 #ifndef WMASHIM_H
 #define WMASHIM_H

@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mcpbuf.cpp
- *  Content:    MCP-X audio device objects.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  01/09/01    dereks  Created based on NVidia/georgioc code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MCP-X APU buffer objects: hardware audio buffer management on the APU.
+ */
 
 #include "dsoundi.h"
 
@@ -1378,11 +1375,11 @@ CMcpxBuffer::Stop
  *  Description:
  *      Pauses or resumes the buffer's voice.
  *
- *      5849 gives a buffer its own Pause. The leak-era header exposed pause only
- *      on streams, so callers written against it stop the buffer and restore the
- *      play cursor by hand -- which is a retrigger with extra steps, and loses
- *      any sub-sample position. The primitive was always there: PauseVoice lives
- *      on CMcpxVoiceClient, which buffers and streams both derive from.
+ *      Pause is available on buffers as well as streams. It preserves the exact
+ *      play position, unlike stopping the buffer and restoring the play cursor
+ *      by hand (a retrigger that loses any sub-sample position). The primitive
+ *      is PauseVoice on CMcpxVoiceClient, which buffers and streams both derive
+ *      from.
  *
  *  Arguments:
  *      DWORD [in]: pause state.

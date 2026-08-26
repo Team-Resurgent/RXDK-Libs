@@ -1,15 +1,13 @@
-/***************************************************************************
- *
- *  Copyright (C) 1997-1999 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dscommon.h
- *  Content:    DirectSound common header file.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/10/01    dereks  Created.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Common DirectSound header shared across the library: shared types, macros
+ * and forward declarations.
+ */
 
 #ifndef __DSCOMMON_H__
 #define __DSCOMMON_H__

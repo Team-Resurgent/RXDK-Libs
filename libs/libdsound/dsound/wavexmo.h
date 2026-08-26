@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 12/10/2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       wavexmo.cpp
- *  Content:    Wave file XMO wrappers.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/10/2001   dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Interface for the PCM wave XMO wrappers.
+ */
 
 #ifndef __WAVEXMO_H__
 #define __WAVEXMO_H__
@@ -51,7 +48,7 @@ namespace DirectSound
         // XFileMediaObject methods
         virtual HRESULT STDMETHODCALLTYPE Seek(LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute);
         virtual HRESULT STDMETHODCALLTYPE GetLength(LPDWORD pdwLength);
-        virtual VOID STDMETHODCALLTYPE DoWork(void);   // RXDK 5849 uplift
+        virtual VOID STDMETHODCALLTYPE DoWork(void);
 
         // XWaveFileMediaObject methods
         virtual HRESULT STDMETHODCALLTYPE GetFormat(LPCWAVEFORMATEX *ppwfxFormat);
@@ -89,7 +86,7 @@ namespace DirectSound
         return S_OK;
     }
 
-    // RXDK 5849 uplift: this XMO's reads are synchronous, so there is never deferred work.
+    // This XMO's reads are synchronous, so there is never deferred work.
     __inline VOID CWaveFileMediaObject::DoWork(void)
     {
     }
@@ -147,7 +144,7 @@ namespace DirectSound
         // XFileMediaObject methods
         virtual HRESULT STDMETHODCALLTYPE Seek(LONG lOffset, DWORD dwOrigin, LPDWORD pdwAbsolute);
         virtual HRESULT STDMETHODCALLTYPE GetLength(LPDWORD pdwLength);
-        virtual VOID STDMETHODCALLTYPE DoWork(void);   // RXDK 5849 uplift
+        virtual VOID STDMETHODCALLTYPE DoWork(void);
     };
 
     __inline ULONG CFileMediaObject::AddRef(void)
@@ -182,7 +179,7 @@ namespace DirectSound
         return S_OK;
     }
 
-    // RXDK 5849 uplift: this XMO's reads are synchronous, so there is never deferred work.
+    // This XMO's reads are synchronous, so there is never deferred work.
     __inline VOID CFileMediaObject::DoWork(void)
     {
     }

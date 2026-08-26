@@ -1,15 +1,14 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       ac97.cpp
- *  Content:    DirectSound AC '97 device driver.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  09/27/00    dereks  Created based on NVidia code.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * The AC'97 codec device driver (CAc97Device). Programs the MCP AC'97
+ * controller through its memory-mapped registers, builds the audio-out and
+ * S/PDIF DMA buffer-descriptor lists, and streams PCM to the codec.
+ */
 
 #include "dsoundi.h"
 

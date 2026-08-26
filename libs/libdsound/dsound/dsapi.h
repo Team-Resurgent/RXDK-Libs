@@ -1,15 +1,12 @@
-/***************************************************************************
- *
- *  Copyright (C) 2000 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dsapi.h
- *  Content:    DirectSound API objects and entry points.
- *  History:
- *   Date       By      Reason
- *   ====       ==      ======
- *  12/06/00    dereks  Created.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the DirectSound API objects and entry points.
+ */
 
 #ifndef __DSAPI_H__
 #define __DSAPI_H__
@@ -295,7 +292,7 @@ namespace DirectSound
         HRESULT STDMETHODCALLTYPE EnableHeadphones(BOOL fEnable);
         HRESULT STDMETHODCALLTYPE SetMixBinHeadroom(DWORD dwMixBin, DWORD dwHeadroom);
         HRESULT STDMETHODCALLTYPE GetOutputLevels(DSOUTPUTLEVELS *pOutputLevels, BOOL bReset);
-        HRESULT STDMETHODCALLTYPE SynchPlayback(void);   // RXDK 5849 uplift
+        HRESULT STDMETHODCALLTYPE SynchPlayback(void);
 
         // IDirectSound3dListener methods
         HRESULT STDMETHODCALLTYPE SetAllParameters(LPCDS3DLISTENER pds3dl, DWORD dwFlags);

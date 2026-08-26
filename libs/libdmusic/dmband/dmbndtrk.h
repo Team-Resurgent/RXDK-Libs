@@ -1,11 +1,16 @@
 /*
-   dmbndtrk.h
-   
-   Copyright (c) 1997-1998 Microsoft Corporation. All rights reserved.
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-   Note: Contains private interfaces support by objects contained within 
-		 dmband.dll. Originally written by Robert K. Amenn 
-*/
+/*
+ * Private interfaces and I/O structures for the dmband objects.
+ *
+ * Declares the IDirectMusicBandTrk interface and the on-disk band structures
+ * (such as DMUS_IO_PATCH_ITEM) used internally by the band and band-track
+ * objects. Not part of the public DirectMusic API.
+ */
 
 #ifndef DMBNDTRK_H
 #define DMBNDTRK_H

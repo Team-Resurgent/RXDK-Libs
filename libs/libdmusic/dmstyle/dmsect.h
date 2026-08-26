@@ -1,14 +1,15 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       dmsect.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// DMSection.h : Declaration of the CDMSection
+/*
+ * Declaration of CDMSection, the DirectMusic style section class.
+ *
+ * Declares the section object and the I/O structures it uses to group the
+ * parts and references belonging to one portion of a style.
+ */
 
 #ifndef __DMSECTION_H_
 #define __DMSECTION_H_

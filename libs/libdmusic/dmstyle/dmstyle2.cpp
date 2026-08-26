@@ -1,11 +1,17 @@
-// DMStyle2.cpp : Further Implementation of CDMStyle
-//
-// Copyright (c) 1999-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Additional CDMStyle methods -- the DX8 style extensions.
+ *
+ * Continues the CDMStyle implementation with the IDirectMusicStyle8 features:
+ * composing sequence and melody segments from a style and template (using the
+ * melody-generation, chord and signpost tracks) and the related pattern and
+ * motif enumeration helpers.
+ */
 
 #include "DMStyle.h"
 #include "debug.h"

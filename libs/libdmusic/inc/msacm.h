@@ -1,15 +1,13 @@
-//==========================================================================;
-//
-//  msacm.h
-//
-//  Copyright (c) 1992-1999 Microsoft Corporation.  All Rights Reserved.
-//
-//  Description:
-//      Audio Compression Manager Public Header File
-//
-//  History:
-//
-//==========================================================================;
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * msacm.h -- the Audio Compression Manager public header. Declares the ACM
+ * driver, stream and format interfaces used to convert between wave formats.
+ */
 
 #ifndef _INC_ACM
 #define _INC_ACM        /* #defined if msacm.h has been included */

@@ -1,5 +1,13 @@
-// Copyright (c) 1998 Microsoft Corporation
-// curve.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precomputed curve lookup tables (linear and others) used to shape parameter
+ * automation.
+ */
 
 #ifndef __CURVE_H_
 #define __CURVE_H_

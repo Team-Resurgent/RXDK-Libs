@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // RXDK: interface IIDs the DirectMusic QueryInterface paths reference that
 // nothing else in the tree defines -- the Active Scripting / OLE-Automation
 // extension set. Compiled in the dmguids slice with -DINITGUID, so DEFINE_GUID

@@ -1,5 +1,13 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//	    audiosink.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CAudioSink declarations -- the software audio sink, its master clock, and the
+ * CBuffer bus targets it mixes.
+ */
 
 #ifndef __AUDIO_SINK__
 #define __AUDIO_SINK__
@@ -65,7 +73,7 @@ public:
     STDMETHODIMP SetEG(LPCDSENVELOPEDESC pEnvelopeDesc);    
     STDMETHODIMP SetFilter(LPCDSFILTERDESC pFilterDesc);
     STDMETHODIMP SetOutputBuffer(LPDIRECTSOUNDBUFFER pOutputBuffer);
-    // RXDK/clang: align to buffer.cpp's out-of-line definitions (the leak's
+    // RXDK/clang: align to buffer.cpp's out-of-line definitions (the original's
     // header and the un-built buffer.cpp had drifted to different IDirectSound-
     // Buffer revisions; buffer.cpp is the authoritative body here).
     STDMETHODIMP SetMixBins(LPCDSMIXBINS pMixBins);

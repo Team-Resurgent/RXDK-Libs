@@ -1,8 +1,14 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Base classes that implement aspects of a standard DirectMusic track.
-// Implementations for CBasicTrack.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * trackhelp.cpp -- CBasicTrack implementation. Provides the shared base-class
+ * behavior (reference counting, locking and the default no-op track methods)
+ * that concrete DirectMusic track types build on.
+ */
 
 #include "trackhelp.h"
 #include "validate.h"

@@ -1,8 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// Loader.h : Declaration of CLoader
-//
-// @doc EXTERNAL
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CLoader, the DirectMusic loader object, along with the
+ * bookkeeping types it uses to track search paths and the cache of loaded
+ * objects.
+ */
 
 #ifndef __CDMLOADER_H_
 #define __CDMLOADER_H_

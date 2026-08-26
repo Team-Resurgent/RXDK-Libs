@@ -1,15 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       iostru.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// ioStructs.h
-//
+/*
+ * On-disk (RIFF) structures for the DirectMusic style file format.
+ *
+ * Defines the packed I/O structures and their FOURCC chunk ids for bands,
+ * patterns, parts, notes, curves and related style data, matching the byte
+ * layout stored in STYL files. Uses pragma pack(2) to keep the fields aligned
+ * to the file format.
+ */
 
 #ifndef __IOSTRUCTS_H__
 #define __IOSTRUCTS_H__

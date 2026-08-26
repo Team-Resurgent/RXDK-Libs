@@ -1,16 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (C) Microsoft Corporation, 1996 - 1999
-
-Module Name:
-
-    ksguid.h
-
-Abstract:
-
-    Define guids for non-C++.
-
---*/
+/*
+ * GUID storage for the Kernel Streaming headers: defines INITGUID and the
+ * DEFINE_GUIDEX machinery so the KS GUIDs get real storage in the translation
+ * unit that includes this.
+ */
 
 #define INITGUID
 #include <guiddef.h>

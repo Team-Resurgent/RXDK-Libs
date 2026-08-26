@@ -1,8 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//
-//      CSynth.h
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Declarations for the core synthesizer classes - CSynth and its companion
+ * CClock reference clock - along with the voice/channel-group limits that
+ * bound the synth's allocation.
+ */
 #ifndef __CSYNTH_H__
 #define __CSYNTH_H__
 

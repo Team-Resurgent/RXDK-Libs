@@ -1,6 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-//////////////////////////////////////////////////////////////////////
-// TrkList.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CTrack and the track-list container threaded through a
+ * segment.
+ */
 
 #include "alist.h"
 #include "dmusicip.h"

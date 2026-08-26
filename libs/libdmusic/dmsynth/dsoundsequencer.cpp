@@ -1,4 +1,14 @@
-// Copyright Microsoft, Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * IDirectSoundSequencer implementation - the sequencing layer over DirectSound
+ * buffers that time-stamps and schedules playback events, drives the mix, and
+ * exposes the sequencer buffer/stream objects the synth feeds audio through.
+ */
 
 #ifdef XMIX
 #ifndef DPF_LIBRARY

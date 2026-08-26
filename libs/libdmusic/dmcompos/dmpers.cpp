@@ -1,11 +1,14 @@
-// DMPers.cpp : Implementation of CDMPers
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of CDMPers, the DirectMusic chord map (personality) object
+ * (IDirectMusicChordMap). Holds the chord palette, cadence and signpost data
+ * that drives composition, and loads/saves it from RIFF streams.
+ */
 
 #include "pchcompos.h"
 
@@ -16,7 +19,7 @@ V_INAME(DMCompose)
 // ReadMBSfromWCS
 
 // RXDK: static. dmstyle.cpp has its own ReadMBSfromWCS with a different
-// signature; the leak built these components as separate libraries so the two
+// signature; these components were built as separate libraries so the two
 // never met, but RXDK packs them into one libdmusic.lib and they collide.
 // Neither is used outside its own translation unit.
 static void ReadMBSfromWCS( IStream* pIStream, DWORD dwSize, String& pstrText )

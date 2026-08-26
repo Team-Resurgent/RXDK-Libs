@@ -1,7 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
-// IMA.h : Declaration of private interface for IMA legacy mode.
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private interface declaration for the loader's IMA (Interactive Music
+ * Architecture) legacy mode, which loads content authored for the older
+ * DirectMusic object model.
+ */
 
 #ifndef __IMA_H_
 #define __IMA_H_

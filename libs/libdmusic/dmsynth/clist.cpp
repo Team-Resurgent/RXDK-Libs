@@ -1,8 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//
-//      clist.cpp
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Singly-linked list primitives (CListItem / CList) used throughout the
+ * synthesizer for chaining voices, instruments and other intrusive lists.
+ * Implements count, membership, concatenation and removal over the node chain.
+ */
 
 #ifdef DMSYNTH_MINIPORT
 #include "common.h"

@@ -1,14 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       dmtempl.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// DMTempl.h : Declaration of the CDMTempl
+/*
+ * Declaration of the composition template structures used by the composer to
+ * lay out intro, groove and ending sections before chords are chosen.
+ */
 
 #ifndef __DMTEMPL_H_
 #define __DMTEMPL_H_

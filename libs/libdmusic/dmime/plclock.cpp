@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// phoneds.cpp : Implementation of CPhoneyDSound
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CPhaseLockClock -- a phase-locked clock that slaves one time base to another,
+ * smoothly tracking a master clock for synchronized playback.
+ */
 
 #include "pchime.h"
 /*

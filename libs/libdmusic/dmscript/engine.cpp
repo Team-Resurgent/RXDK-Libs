@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of CAudioVBScriptEngine.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CAudioVBScriptEngine, the built-in ActiveX scripting
+// engine for a compact subset of VBScript.
 
 /*#include "stdinc.h"
 #include "dll.h"

@@ -1,16 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       aariff.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// aariff.h
-//
+/*
+ * IAARIFFStream -- the RIFF chunk reader/writer interface used by dmstyle.
+ *
+ * Declares the interface and its GUID for the "authoring" RIFF stream wrapper
+ * that walks RIFF/LIST chunks when loading and saving DirectMusic style data,
+ * along with the descend/ascend chunk cursor structures.
+ */
 
 #ifndef __AARIFF__
 #define __AARIFF__

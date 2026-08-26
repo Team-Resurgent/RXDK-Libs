@@ -1,11 +1,14 @@
-// Dx8Comp.cpp : Further Implementation of CDMCompos
-//
-// Copyright (c) 1999-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Additional CDMCompos methods, split out from dmcompos.cpp -- notably the
+ * chord-connection search that walks a chord map to compose a chord list for a
+ * requested span (beat/chord budgeting, cadences and template application).
+ */
 
 #include "pchcompos.h"
 

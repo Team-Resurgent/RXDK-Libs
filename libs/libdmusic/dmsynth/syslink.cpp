@@ -1,7 +1,13 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-// syslink.cpp
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSysLink - the system reference-clock link. Implements the IReferenceClock
+ * object the synth uses as its timing source in the kernel-mode build.
+ */
 #include "common.h"
 #include <mmsystem.h>
 

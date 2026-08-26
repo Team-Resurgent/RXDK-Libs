@@ -1,6 +1,14 @@
-//      Mixc.cpp
-//      Copyright (c) Microsoft Corporation	1996-1999
-//      C version of the Mix Engine
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Portable C implementation of the mix engine (CDigitalAudio::Mix16 and
+ * friends) - resamples and accumulates voices with per-sample volume ramps.
+ * Used where the hand-tuned assembly mix path is unavailable.
+ */
 
 #include "simple.h"
 #include <mmsystem.h>

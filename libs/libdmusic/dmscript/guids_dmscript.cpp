@@ -1,5 +1,11 @@
-// Allows us to compile the source code in guids.cpp to product an object file guids_dmscript.obj
-// (Which avoids an error when linking dmusic.lib.)
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Compiles the source in guids.cpp into a distinctly named object file
+// (guids_dmscript.obj), avoiding a name clash when linking dmusic.lib.
 
 //#define INITGUID
 /*#include "dmusicip.h"

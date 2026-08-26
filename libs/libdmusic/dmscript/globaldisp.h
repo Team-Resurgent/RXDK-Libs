@@ -1,9 +1,12 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Implements a script's global dispatch object.
 // Calls are delegated to the performance, constants, or contained content held on the parent CDirectMusicScript object.
 // AddRef/Release are ignored, because it is completely contained within the lifetime of CDirectMusicScript.
-//
 
 #pragma once
 #include "dmscript.h"

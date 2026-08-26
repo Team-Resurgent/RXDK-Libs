@@ -1,7 +1,12 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of CSegTriggerTrack.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CSegTriggerTrack.
+ */
 
 // This track type holds events that cause other segments to be cued at
 // specific points during playback of a segment.

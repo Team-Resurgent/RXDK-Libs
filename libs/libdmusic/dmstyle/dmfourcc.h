@@ -1,12 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       dmfourcc.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * FOURCC chunk identifiers for the DirectMusic style file format.
+ *
+ * Defines the RIFF form and chunk four-character codes (style header, UI,
+ * GUID, category, pattern, part and related chunks) used when reading and
+ * writing STYL files.
+ */
 
 #ifndef __DMFOURCC_H__
 #define __DMFOURCC_H__

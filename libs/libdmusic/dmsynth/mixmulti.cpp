@@ -1,6 +1,13 @@
-//      Mix.cpp
-//      Copyright (c) Microsoft Corporation	1996, 1998
-//      Mix engines for MSSynth
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Multichannel mix engine - the mix path that renders voices into a
+ * multi-channel (surround) output layout rather than plain stereo.
+ */
 
 #ifdef DMSYNTH_MINIPORT
 #include "common.h"

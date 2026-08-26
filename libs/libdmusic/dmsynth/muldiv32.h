@@ -1,26 +1,15 @@
-//==========================================================================;
-//
-//  THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
-//  KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-//  IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
-//  PURPOSE.
-//
-//  Copyright (c) 1992-1998 Microsoft Corporation
-//
-//--------------------------------------------------------------------------;
-//
-//  muldiv32.h
-//
-//  Description:
-//      math routines for 32 bit signed and unsiged numbers.
-//
-//      MulDiv32(a,b,c) = (a * b) / c         (round down, signed)
-//
-//      MulDivRD(a,b,c) = (a * b) / c         (round down, unsigned)
-//      MulDivRN(a,b,c) = (a * b + c/2) / c   (round nearest, unsigned)
-//      MulDivRU(a,b,c) = (a * b + c-1) / c   (round up, unsigned)
-//
-//==========================================================================;
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * 32-bit fixed-point multiply-then-divide helpers for signed and unsigned
+ * numbers. MulDiv32 computes a times b divided by c with signed round-down;
+ * the MulDivRD/RN/RU variants do the unsigned computation with round-down,
+ * round-nearest and round-up respectively.
+ */
 
 #ifndef _INC_MULDIV32
 #define _INC_MULDIV32

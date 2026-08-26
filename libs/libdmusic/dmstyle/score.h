@@ -1,12 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       score.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Score-level constants for the style engine.
+ *
+ * Defines the fixed limits and timing resolution shared by the style code:
+ * band-member count, pulses-per-quarter-note and its derived subdivisions, and
+ * related score dimensions.
+ */
 
 #ifndef __SCORE_H__
 #define __SCORE_H__

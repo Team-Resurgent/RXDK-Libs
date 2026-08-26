@@ -1,9 +1,17 @@
-//
-// dmbandp.h
-// 
-// Copyright (c) 1997-2000 Microsoft Corporation
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private declarations shared across the dmband implementation.
+ *
+ * Declares the CBand class together with the MIDI constants (program/control
+ * change, bank-select) and reference-time conversion helpers used when a band
+ * is applied, and pulls in the private DirectMusic and shared stream/validate
+ * headers the band code depends on.
+ */
 
 #ifndef DMBANDP_H
 #define DMBANDP_H

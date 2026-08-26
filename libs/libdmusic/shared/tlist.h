@@ -1,16 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       tlist.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// tlist.h --- template version of AList
-//
+/*
+ * tlist.h -- a type-safe template linked list (TListItem / TList), the template
+ * version of the AList collection.
+ */
 #ifndef __TLIST_H__
 #define __TLIST_H__
 

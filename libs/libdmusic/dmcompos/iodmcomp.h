@@ -1,12 +1,14 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       iodmcomp.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * On-disk RIFF layout for chord maps (personalities): the FOURCC chunk and list
+ * IDs and the packed I/O structures that the load/save code reads and writes for
+ * chord entries, subchords, next-chord sequences, signposts and cadences.
+ */
 
 #ifndef PERSONALITYRIFF_H
 #define PERSONALITYRIFF_H

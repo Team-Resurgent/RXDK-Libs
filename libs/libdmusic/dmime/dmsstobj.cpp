@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// dmsstobj.cpp : Implementation of CSegState
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSegState -- the play-time state of a segment, including the controlling-track
+ * management that enables and disables tracks during playback.
+ */
 
 #include "pchime.h"
 /*

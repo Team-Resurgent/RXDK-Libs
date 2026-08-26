@@ -1,14 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       ptrntrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// PtrnTrk.cpp : Implementation of the Pattern Track info and state structs
+/*
+ * Pattern-track shared info and state.
+ *
+ * Implements PatternTrackInfo and the associated state structures that the
+ * style, motif and audition tracks all build on: the common pattern selection,
+ * variation and play-state bookkeeping used to turn a chosen pattern into
+ * scheduled notes.
+ */
 
 #include "PtrnTrk.h"
 #include "..\shared\miscutil.h"

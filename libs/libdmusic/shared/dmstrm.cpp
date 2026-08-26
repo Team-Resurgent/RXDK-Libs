@@ -1,8 +1,14 @@
-//
-// dmstrm.cpp
-// 
-// Copyright (c) 1995-2000 Microsoft Corporation
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmstrm.cpp -- the IDMStream implementation. Provides AllocDirectMusicStream
+ * and the stream object that adapts an IStream into the IDMStream the loader
+ * and content objects read RIFF data through.
+ */
 
 #include "debug.h"
 #include "dmusicc.h"

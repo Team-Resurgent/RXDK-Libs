@@ -1,8 +1,11 @@
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Code that needs to be shared between the script track (CDirectMusicScriptTrack) and
 // the script object (CDirectMusicScript, etc.).
-//
 
 /*#include "stdinc.h"
 #include "trackshared.h"

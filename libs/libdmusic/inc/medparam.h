@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * medparam.h -- MIDL-generated interface definitions for the media-parameter
+ * automation surface (IMediaParams, IMediaParamInfo and the curve/parameter
+ * value types) used to expose time-varying, curve-controlled parameters.
+ */
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
 
@@ -21,7 +32,7 @@
 #define __REQUIRED_RPCNDR_H_VERSION__ 475
 #endif
 
-/* RXDK: the leak's <medparam.h> is a MIDL stub that pulls the whole rpc/rpcndr/
+/* RXDK: the standard <medparam.h> is a MIDL stub that pulls the whole rpc/rpcndr/
    windows/ole2/oaidl/ocidl/strmif chain (which drags in zig's MinGW rpc headers
    and DirectShow). Xbox DirectMusic only needs the IMediaParams* interface + the
    MP_* value types below, all built on the base COM surface -- so resolve those

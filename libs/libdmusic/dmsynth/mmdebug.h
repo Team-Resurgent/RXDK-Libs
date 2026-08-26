@@ -1,9 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
 /*
- * johnkn's debug logging and assert macros
- *
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
- 
+
+/*
+ * Debug logging and assertion macros (the DPF family) used by the multimedia
+ * modules. Compiled to no-ops in retail builds.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

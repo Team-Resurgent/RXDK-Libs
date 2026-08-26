@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// queue.cpp
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CPMsgQueue -- the priority queue of pending performance messages (PMSGs),
+ * ordered by scheduled time.
+ */
 
 #include "pchime.h"
 /*

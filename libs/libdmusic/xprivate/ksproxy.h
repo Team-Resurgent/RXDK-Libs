@@ -1,16 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (C) Microsoft Corporation, 1996 - 1999
-
-Module Name:
-
-    ksproxy.h
-
-Abstract:
-
-    Interface definitions for WDM-CSA proxy filters.
-
---*/
+/*
+ * Interface definitions for Kernel Streaming proxy filters -- the COM
+ * interfaces that expose KS pins and filters to user-mode DirectShow/DirectMusic
+ * code.
+ */
 
 #ifndef __KSPROXY__
 #define __KSPROXY__

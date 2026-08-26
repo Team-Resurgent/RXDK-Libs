@@ -1,5 +1,14 @@
-// dswave.h
-// (c) 1999-2000 Microsoft Corp.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of the DirectMusic wave object (CDirectSoundWave / dswave): loads
+ * an authored wave file and exposes it through IDirectSoundWave and
+ * IDirectSoundSource so it can play back through DirectSound.
+ */
 
 #ifndef _DSWAVE_H_
 #define _DSWAVE_H_

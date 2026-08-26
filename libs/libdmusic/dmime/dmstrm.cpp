@@ -1,8 +1,13 @@
-//
-// dmstrm.cpp
-// 
-// Copyright (c) 1995-2000 Microsoft Corporation
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * AllocDirectMusicStream and the IDMStream wrapper -- adapts an IStream into
+ * the stream interface DirectMusic loaders consume.
+ */
 #include "pchime.h"
 /*
 #include "debug.h"

@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       cmmdtrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CCommandTrack -- the DirectMusic command track implementation.
+ *
+ * A command track carries the groove-level commands (groove level, embellishment
+ * type such as intro/fill/break/end) that select which pattern a style plays.
+ * This file implements the IDirectMusicTrack8 and IPersistStream methods that
+ * load the command list and report the active command to the performance.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

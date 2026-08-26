@@ -1,16 +1,15 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       oledll.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-//
-//
+/*
+ * Prototypes for the standard OLE server registration helpers
+ * (RegisterServer/UnregisterServer and their registry-key utilities) used by
+ * the composer DLL's self-registration entry points.
+ */
+
 #ifndef _OLEDLL_
 #define _OLEDLL_
 

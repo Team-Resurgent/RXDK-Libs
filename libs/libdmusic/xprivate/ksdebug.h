@@ -1,16 +1,13 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (C) Microsoft Corporation, 1996 - 1999
-
-Module Name:
-
-    ksdebug.h
-
-Abstract:
-
-    Debug header.
-
---*/
+/*
+ * Debug macros for the Kernel Streaming headers (trace levels and assertion
+ * helpers used only in debug builds).
+ */
 
 #if !defined(_KSDEBUG_)
 #define _KSDEBUG_

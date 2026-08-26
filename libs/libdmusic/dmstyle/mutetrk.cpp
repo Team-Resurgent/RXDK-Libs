@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       mutetrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CMuteTrack -- the DirectMusic mute track implementation.
+ *
+ * A mute track carries time-stamped mappings that mute or remap performance
+ * channels, letting a segment silence or reassign instruments over time. This
+ * file implements the IDirectMusicTrack8 and IPersistStream methods that load
+ * those mappings and apply them via the performance's channel-mute data.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

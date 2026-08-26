@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// DMSStObj.h : Declaration of the CSegState
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the audio-path objects (CAudioPath and friends) that route a
+ * segment's output to DirectSound buffers.
+ */
 
 #ifndef __AUDIOPATH_H_
 #define __AUDIOPATH_H_

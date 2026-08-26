@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// dmperf.cpp 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CPerformance and the channel-block bookkeeping -- the core DirectMusic
+ * performance engine that schedules and dispatches timed music messages.
+ */
 
 #include "pchime.h"
 #include <xboxverp.h>

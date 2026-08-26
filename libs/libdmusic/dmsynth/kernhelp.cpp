@@ -1,9 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-// KernHelp.cpp
-//
-// Wrappers for kernel functions to make synth core cross compilable
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Kernel-mode helper wrappers that let the shared synth core compile in a
+ * driver. Maps the Win32 critical-section calls onto a kernel KMUTEX so the
+ * same locking code works in both user and kernel builds.
+ */
 
 extern "C" {
 #include <ntddk.h>

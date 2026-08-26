@@ -1,5 +1,14 @@
-// Copyright Microsoft, Inc. All Rights Reserved.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Public interface for the DirectSound sequencer: the IDirectSoundSequencer /
+ * buffer / stream COM interface declarations, the sequence-number type and the
+ * buffer/stream status flags used to drive time-stamped playback.
+ */
 #ifndef __DSOUNDSEQUENCER_INCLUDED__
 #define __DSOUNDSEQUENCER_INCLUDED__
 

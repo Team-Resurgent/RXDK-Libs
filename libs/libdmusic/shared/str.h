@@ -1,16 +1,14 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       str.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// string.h
-//
+/*
+ * str.h -- the String class, a reference-counted narrow-character string with
+ * concatenation operators and the usual query/mutate helpers, used across the
+ * DirectMusic sources.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

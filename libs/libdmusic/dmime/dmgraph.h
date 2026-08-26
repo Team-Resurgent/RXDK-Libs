@@ -1,5 +1,12 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// DMGraph.h : Declaration of the CGraph
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CGraph, the DirectMusic tool graph, and its CToolRef entries.
+ */
 
 #ifndef __DMGRAPH_H_
 #define __DMGRAPH_H_

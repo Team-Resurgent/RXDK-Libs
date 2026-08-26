@@ -1,11 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   dmplugin.h -- This module contains the API for plugins for the      *
-*                 DirectMusic performance layer                         *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation                       *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmplugin.h -- the plug-in API for the DirectMusic performance layer. Declares
+ * the tool, track and object interfaces that third-party plug-ins implement and
+ * the performance uses to host them.
+ */
 
 #ifndef _DMPLUGIN_
 #define _DMPLUGIN_

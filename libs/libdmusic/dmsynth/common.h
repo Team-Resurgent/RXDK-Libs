@@ -1,4 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Common precompiled include set for the kernel-mode (miniport) build of the
+ * DirectMusic software synthesizer. Pulls in the PortCls, KS and DLS headers
+ * plus the synth's own core headers, and sets the default debug verbosity.
+ */
 #ifndef _COMMON_H_
 #define _COMMON_H_
 

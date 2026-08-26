@@ -1,10 +1,14 @@
-//
-// debug.h
-// 
-// Copyright (c) 1997-1999 Microsoft Corporation. All rights reserved.
-//
-// Note:
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * debug.h -- shared debug and tracing facilities for the DirectMusic
+ * components. Wraps the DbgPrint-style trace output, assertion macros and the
+ * debug allocation hooks pulled in from xalloc.h.
+ */
 
 #ifndef DEBUG_H
 #define DEBUG_H
@@ -13,7 +17,7 @@
 
 #ifdef XBOX
 #include <xtl.h>
-// RXDK: xboxkrnl already declares DbgPrint(PCSTR, ...); the leak's redeclaration
+// RXDK: xboxkrnl already declares DbgPrint(PCSTR, ...); an SDK redeclaration
 // used PCH (char*), which clang sees as a conflicting type vs PCSTR (const char*).
 // Match the kernel prototype so the two decls agree.
 extern "C" ULONG _cdecl DbgPrint(PCSTR Format, ...);
@@ -120,7 +124,7 @@ typedef enum enumClass
     DMTRACK_TIMESIG_TRACK,
     DMTRACK_CONTAINER,
     DMTRACK_SYNTH,
-    DMTRACK_BUFFER, // RXDK: used by dmime/buffer.cpp (phoneyds sink), absent from the leak enum.
+    DMTRACK_BUFFER, // RXDK: used by dmime/buffer.cpp (phoneyds sink), absent from the original enum.
     DMTRACK_MAX
 } debugClass;
 

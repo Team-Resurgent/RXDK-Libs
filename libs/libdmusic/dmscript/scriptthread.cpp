@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of CSingleThreadedActiveScriptManager.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CSingleThreadedActiveScriptManager: funnels calls from
+// multiple scripts onto the single worker thread that owns the script engine.
 
 #include "stdinc.h"
 #include "scriptthread.h"

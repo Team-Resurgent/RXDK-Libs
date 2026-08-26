@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of CAutDirectMusicSegmentState.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CAutDirectMusicSegmentState: the automation (IDispatch)
+// wrapper that exposes an IDirectMusicSegmentState to scripts.
 
 /*#include "stdinc.h"
 #include "autsegmentstate.h"

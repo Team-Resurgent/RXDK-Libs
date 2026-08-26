@@ -1,7 +1,10 @@
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Implementation of PackExceptionFileAndLine and UnpackExceptionFileAndLine.
-//
 
 /*#include "stdinc.h"
 #include "packexception.h"

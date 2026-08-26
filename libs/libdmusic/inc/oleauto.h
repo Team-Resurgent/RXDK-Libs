@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #ifndef _RXDK_DMUSIC_OLEAUTO_H_
 #define _RXDK_DMUSIC_OLEAUTO_H_
 /*
@@ -11,7 +17,7 @@
  */
 #include <objbase.h>
 
-/* Base automation scalar aliases the leak's wtypes.h would supply. */
+/* Base automation scalar aliases the standard wtypes.h would supply. */
 #ifndef _RXDK_OLE_BASE_TYPES_
 #define _RXDK_OLE_BASE_TYPES_
 #ifndef _SCODE_DEFINED

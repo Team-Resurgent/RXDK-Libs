@@ -1,8 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// oledll.cpp
-//
-// Handle standard stuff for OLE server DLL
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * oledll.cpp -- standard OLE in-process server DLL plumbing: class registration
+ * and the self-registration entry points. Compiled only for the desktop build;
+ * the Xbox build excludes it.
+ */
 #ifndef _XBOX_
 #include <objbase.h>
 #include <iostream.h>

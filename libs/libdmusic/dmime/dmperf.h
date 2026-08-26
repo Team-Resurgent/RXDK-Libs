@@ -1,6 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// dmperf.h
-// @doc EXTERNAL
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CPerformance and the MIDI/performance constants for the
+ * DirectMusic engine.
+ */
 
 #ifndef _DMPERF_H_ 
 #define _DMPERF_H_

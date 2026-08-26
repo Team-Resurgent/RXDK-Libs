@@ -1,8 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Templated base class CAutBaseImp for constructing automation interfaces.
-// Implements aggregation and IDispatched based on a table of method information.
-//
+// Implements aggregation and IDispatch based on a table of method information.
 
 #pragma once
 #include "authelper.h"

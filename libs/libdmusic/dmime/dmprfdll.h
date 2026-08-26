@@ -1,8 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// dmprfdll.h
-//
-// Class factory
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CClassFactory, the class factory for DirectMusic performance
+ * objects.
+ */
 
 #ifndef __DMPRFDLL_H_
 #define __DMPRFDLL_H_

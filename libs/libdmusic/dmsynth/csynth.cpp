@@ -1,4 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSynth - the core software synthesizer object. Owns the voice pool, channel
+ * groups and reference clock, and drives note allocation, DLS instrument
+ * download and the render loop that turns MIDI events into PCM.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //
@@ -18,9 +28,6 @@
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //
 #pragma warning(disable:4530)
-//      CSynth.cpp
-//      Copyright (c) Microsoft Corporation 1996, 1997, 1998
-//
 
 #include "simple.h"
 #include <mmsystem.h>

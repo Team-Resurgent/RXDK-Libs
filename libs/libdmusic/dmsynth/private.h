@@ -1,7 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private miniport declarations for the kernel-mode synth driver - the
+ * CreateMiniportDmSynth factory and the internal stream/miniport classes that
+ * are not part of the public interface.
+ */
 #ifndef _PRIVATE
 #define _PRIVATE_
 

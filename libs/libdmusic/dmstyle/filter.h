@@ -1,16 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1999-1999 Microsoft Corporation
-//
-//  File:       filter.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// filter.h
-//
+/*
+ * Declaration of PatternDispatcher, the style pattern-filtering helper.
+ *
+ * Declares the dispatcher that tests a style's patterns against the current
+ * groove level, embellishment and chord to choose which pattern the style
+ * track plays.
+ */
+
 #ifndef __FILTER_H__
 #define __FILTER_H__
 

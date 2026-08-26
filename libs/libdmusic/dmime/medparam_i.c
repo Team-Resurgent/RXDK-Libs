@@ -1,7 +1,13 @@
-/* this file contains the actual definitions of */
-/* the IIDs and CLSIDs */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/* link this file in with the server and any clients */
+/*
+ * MIDL-generated definitions of the medium-parameter (medparam) interface IIDs
+ * and CLSIDs. Link this file into the server and any clients.
+ */
 
 
 /* File created by MIDL compiler version 5.01.0164 */

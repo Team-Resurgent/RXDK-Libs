@@ -1,8 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// stdafx.h : include file for standard system include files,
-//      or project specific include files that are used frequently,
-//      but are changed infrequently
+/*
+ * Precompiled-header include file - the frequently used, rarely changed system
+ * and ATL headers plus the project-wide build switches (STRICT, _WIN32_WINNT,
+ * apartment-threaded ATL) shared across the module.
+ */
 
 #if !defined(AFX_STDAFX_H__58C2B4C5_46E7_11D1_89AC_00A0C9054129__INCLUDED_)
 #define AFX_STDAFX_H__58C2B4C5_46E7_11D1_89AC_00A0C9054129__INCLUDED_

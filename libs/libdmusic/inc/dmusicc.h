@@ -1,10 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   dmusicc.h -- This module defines the DirectMusic core API's         *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusicc.h -- the DirectMusic core API. Declares the low-level music
+ * interfaces (IDirectMusic, port, buffer, download and synth-sink objects) that
+ * sit beneath the performance layer.
+ */
 
 #ifndef _DMUSICC_
 #define _DMUSICC_

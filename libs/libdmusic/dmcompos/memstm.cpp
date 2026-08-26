@@ -1,6 +1,14 @@
-//
-//  Based on source from Win2k ole32.dll
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * In-memory IStream implementation (the HGLOBAL-backed memory stream), derived
+ * from the ole32 memory-stream code, so the composer can persist chord maps and
+ * templates to and from memory without the platform's OLE32.
+ */
 
 #include "pchcompos.h"
 

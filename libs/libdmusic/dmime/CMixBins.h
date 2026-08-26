@@ -1,12 +1,13 @@
-//
-// CMIXBINS.H
-// 
-// Copyright (c) 2001 Microsoft Corporation
-//
-// Created by danhaff 9/24/01
-//
-// Class representation of a DSMIXBINS struct.  Has lots of checks in 
-// debug mode to prevent screw-ups.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CMIXBINS -- class wrapper around a DSMIXBINS structure, with debug-build
+ * validation of mixbin assignments.
+ */
 
 
 #pragma once

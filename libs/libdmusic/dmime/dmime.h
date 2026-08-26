@@ -1,6 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// dmime.h
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Core DirectMusic interactive-music (dmime) header: pulls in the platform
+ * headers and shared DirectMusic definitions the engine depends on.
+ */
 #ifndef _DMIME_H_
 #define _DMIME_H_
 

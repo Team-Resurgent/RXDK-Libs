@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       chordtrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CChordTrack -- the DirectMusic chord track implementation.
+ *
+ * A chord track carries the time-ordered chord progression that drives
+ * transposition of patterns during composition and playback. This file
+ * implements the IDirectMusicTrack8 and IPersistStream methods that load the
+ * chord list and supply the active chord to the performance at each play point.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

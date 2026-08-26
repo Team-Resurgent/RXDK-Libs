@@ -1,7 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-// DirectMusic Software Synthesizer
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * PortCls miniport for the DirectMusic software synthesizer. Implements the
+ * KS property handlers (synth caps, port parameters and so on) and the
+ * miniport object that bridges the KS/PortCls driver model to the synth core.
+ */
 #include "common.h"
 #include "private.h"
 #include "dmusicks.h"

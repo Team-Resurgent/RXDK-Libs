@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precompiled-header aggregate for the DirectMusic loader component: brings in
+ * the platform headers, the shared DirectMusic private headers and the loader's
+ * own includes that every translation unit in this slice needs.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

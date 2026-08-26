@@ -1,11 +1,14 @@
-/***************************************************************************
-*                                                                          *
-*   DMusBuff.h -- This module defines the buffer format for DirectMusic    *
-*                 Shared file between user mode and kernel mode components *
-*                                                                          *
-*   Copyright (c) 1998, Microsoft Corp. All rights reserved.               *
-*                                                                          *
-***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DMusBuff.h -- the buffer format for DirectMusic events. Defines the per-event
+ * header (delta time, position and length) that precedes each event payload in
+ * a message buffer. Shared between the user-mode and kernel-mode components.
+ */
 
 #ifndef _DMusBuff_
 #define _DMusBuff_

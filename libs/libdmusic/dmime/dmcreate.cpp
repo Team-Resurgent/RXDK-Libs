@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Object-creation support for the DirectMusic library: the global API critical
+ * section and GUID/interface debug-printing helpers.
+ */
+
 #include "pchime.h"
 #include <xdbg.h>
 

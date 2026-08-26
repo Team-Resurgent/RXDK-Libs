@@ -1,12 +1,15 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Declaration of CSingleThreadedScriptManager.
 // Wraps CActiveScriptManager to accept calls from multiple scripts and behind the
 //    scenes farms them out to a single worker thread that actually talks to the script engine.
 //
 // The virtual base class ScriptManager can be used to talk to either
 //    CActiveScriptManager or CSingleThreadedActiveScriptManager.
-//
 
 #pragma once
 

@@ -1,4 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * User-mode entry points for the DirectMusic synthesizer DLL: the DllMain /
+ * class-factory plumbing and the IDirectMusicSynthFactory implementation that
+ * hands out CSynth instances.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

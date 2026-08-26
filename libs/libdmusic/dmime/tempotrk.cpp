@@ -1,4 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CTempoTrack -- track that supplies tempo changes over the course of a
+ * segment.
+ */
+
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //
 // 4530: C++ exception handler used, but unwind semantics are not enabled. Specify -GX

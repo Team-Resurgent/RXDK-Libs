@@ -1,11 +1,16 @@
-//
-// DMStyleP.H
-//
-// Private include for DMStyle.DLL
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private declarations shared across the dmstyle component.
+ *
+ * Declares the class factory, the component object count and the subchord
+ * constants used internally by the style objects; not part of the public
+ * DirectMusic API.
+ */
 
 #ifndef _DMSTYLEP_
 #define _DMSTYLEP_

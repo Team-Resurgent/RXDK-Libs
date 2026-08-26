@@ -1,18 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright 1991-1998 Microsoft Corporation
-
-Module Name:
-
-    mmreg.h
-
-Abstract:
-
-    Multimedia Registration
-
-Revision History:
-
---*/
+/*
+ * Multimedia registration definitions: the waveform-audio format tags
+ * (WAVE_FORMAT_*) and the extended WAVEFORMATEX-derived structures for the codecs
+ * DirectMusic and the wave loader recognize.
+ */
 
 // Define the following to skip definitions
 //

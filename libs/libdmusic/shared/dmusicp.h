@@ -1,9 +1,14 @@
-//
-// dmusicp.h
-//
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
-// Private interfaces
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusicp.h -- private DirectMusic performance interfaces. Declares the
+ * internal performance-layer GUIDs and interfaces (such as the script-track
+ * event) used within the implementation but not published to titles.
+ */
 
 #ifndef _DMUSICP_DOT_H_
 #define _DMUSICP_DOT_H_

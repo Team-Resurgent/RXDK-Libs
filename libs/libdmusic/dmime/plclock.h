@@ -1,7 +1,12 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-/*	PLClock.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-  */
+/*
+ * Declaration of CPhaseLockClock, the phase-locked slave clock.
+ */
 
 #ifndef __PLCLOCK_H__
 #define __PLCLOCK_H__

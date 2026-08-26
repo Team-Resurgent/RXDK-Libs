@@ -1,16 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       tlist.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// tlist.h --- template version of AList
-//
+/*
+ * TList -- a template (typed) version of the AList linked list.
+ *
+ * Declares TListItem and TList, a generic singly-linked list used to hold
+ * time-ordered event items (notes, curves, commands) throughout the style
+ * engine, with insertion, ordered insertion and traversal helpers.
+ */
+
 #ifndef __TLIST_H__
 #define __TLIST_H__
 

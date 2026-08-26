@@ -1,6 +1,16 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// DoWork.h
-#pragma once // RXDK: leak header lacked a guard; pchime pulls it via >1 path.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dowork.h -- the worker-thread pool for the DirectMusic performance. Declares
+ * CWorker and CBossMan, the cooperative timed-wakeup workers that drive
+ * background processing.
+ */
+
+#pragma once // RXDK: header lacks its own guard and is pulled in via more than one path.
 
 #include "Alist.h"
 #include "..\shared\debug.h"

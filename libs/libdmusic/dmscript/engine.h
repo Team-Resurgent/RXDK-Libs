@@ -1,8 +1,10 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of CAudioVBScriptEngine.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+// Declaration of CAudioVBScriptEngine.
 // CAudioVBScriptEngine is an ActiveX scripting engine that supports a carefully chosen subset of the VBScript language.
 // It's goal in life is to be as small and fast as possible and to run on every platform that ports DirectMusic.
 

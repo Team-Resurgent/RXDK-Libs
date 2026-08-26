@@ -1,8 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//
-//      clist.h
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Declarations for the intrusive singly-linked list primitives CListItem and
+ * CList used across the synthesizer to chain voices, instruments and similar
+ * objects.
+ */
 #ifndef __CLIST_H__
 #define __CLIST_H__
 

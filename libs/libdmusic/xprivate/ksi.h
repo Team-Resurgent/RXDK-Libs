@@ -1,17 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (C) Microsoft Corporation, 1996 - 1999
-
-Module Name:
-
-    ksi.h
-
-Abstract:
-
-    Windows Driver Model/Connection and Streaming Architecture (WDM-CSA)
-    core internal definitions.
-
---*/
+/*
+ * Internal Kernel Streaming (WDM-CSA) definitions -- the private structures and
+ * helpers that complement the public ks.h and are not part of its exposed
+ * surface.
+ */
 
 #if !defined(_KSI_)
 #define _KSI_

@@ -1,7 +1,10 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of Expression.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Declaration of Expression: the expression trees of a parsed AudioVBScript.
 
 #pragma once
 

@@ -1,13 +1,16 @@
-//
-// dmbdll.cpp
-// 
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// Note: Dll entry points as well IDirectMusicBandFactory & 
-// IDirectMusicBandTrkFactory implementations.
-// Originally written by Robert K. Amenn with significant parts
-// stolen from code written by Jim Geist
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DLL entry points and class factories for the dmband component.
+ *
+ * Implements IDirectMusicBandFactory and IDirectMusicBandTrkFactory, which
+ * create CBand and CBandTrk instances respectively, plus the standard class
+ * object plumbing (DllGetClassObject / DllCanUnloadNow) for the band objects.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

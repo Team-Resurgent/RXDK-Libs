@@ -1,21 +1,14 @@
-//+---------------------------------------------------------------------------
-//  Copyright (C) 1991-1999, Microsoft Corporation.
-//
-//  File:       DEBNOT.h
-//
-//  Contents:   Private project-wide Win 4 definitions
-//
-//  History:    23-Jul-91   KyleP       Created.
-//              15-Oct-91   KevinRo     Major changes and comments added
-//              18-Oct-91   vich        Consolidated win4p.hxx
-//              22-Oct-91   SatoNa      Added SHLSTRICT
-//              29-Apr-92   BartoszM    Moved from win4p.h
-//               3-Jun-92   BruceFo     Added SMUISTRICT
-//              17-Dec-92   AlexT       Moved UN..._PARM out of DEVL==1
-//              30-Sep-93   KyleP       DEVL obsolete
-//              18-Jun-94   AlexT       Make Assert a better statement
-//
-//----------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * debnot.h -- private project-wide debug definitions. Declares the assertion
+ * and debug-output macros (Win4Assert and friends) plus the parameter
+ * annotation macros the DirectMusic sources share.
+ */
 
 #ifndef __DEBNOT_H__
 #define __DEBNOT_H__

@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * activscp.h -- MIDL-generated interface definitions for Active Scripting
+ * (IActiveScript, IActiveScriptSite, IActiveScriptParse and friends), the OLE
+ * scripting-host surface the DirectMusic script engine builds on.
+ */
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
 

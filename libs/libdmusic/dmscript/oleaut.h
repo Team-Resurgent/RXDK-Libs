@@ -1,6 +1,10 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Helper routines that wrap called to functions in oleaut32.  This enables us to
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Helper routines that wrap calls to functions in oleaut32.  This enables us to
 // compile free from any dependency on oleaut32.dll.  Each function takes a bool as
 // its first argument, which is true if the oleaut32 function is to be called.  When
 // false, our own implementation of the function is used.  In this case, some

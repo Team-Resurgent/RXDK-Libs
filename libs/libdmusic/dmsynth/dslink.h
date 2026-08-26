@@ -1,6 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//	DSLink.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * CDSLink - the DirectSound sink that links the synthesizer's rendered output
+ * to a DirectSound buffer. Declares the property-handler dispatch table
+ * (SINKPROPERTY) and the sink property flags used to expose synth properties.
+ */
 #ifndef __DS_LINK__
 #define __DS_LINK__
 

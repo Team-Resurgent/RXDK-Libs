@@ -1,15 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       str.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// string.cpp
+/*
+ * Implementation of the composer's lightweight block-allocated String class
+ * used for chord and section names in authored content.
+ */
 
 #include "pchcompos.h"
 

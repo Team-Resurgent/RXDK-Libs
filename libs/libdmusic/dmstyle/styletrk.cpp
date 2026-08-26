@@ -1,12 +1,18 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       styletrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CStyleTrack -- the DirectMusic style track implementation.
+ *
+ * The style track is the heart of style playback: it references one or more
+ * styles and, using the current groove, embellishment and chord, selects and
+ * schedules the matching patterns into notes. This file implements the
+ * IDirectMusicTrack8 and IPersistStream methods that load the style references
+ * and drive that pattern selection and note generation each play cycle.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

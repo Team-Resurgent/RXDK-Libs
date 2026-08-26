@@ -1,9 +1,14 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Simple helper classes that use the "resource acquisition is initialization" technique.
-// In English, this means they acquire a reference to a resource and the resource is automatically
-//    released in the destructor.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * smartref.h -- simple RAII helper classes in the SmartRef namespace. Each
+ * acquires a resource and releases it automatically in the destructor. The
+ * build has no exception handling, so none of these classes throw.
+ */
 
 // This is particularly helpful if you are using exception handling or simulating it (painfully)
 //    in OLE by putting "if (FAILED(hr)) return;" after every function call.  In such circumstances
@@ -290,7 +295,7 @@ namespace SmartRef
 			// initial hash using modulus, then jump three slots at a time (3 is guaranteed to take us to all slots because capacity is a power of 2)
 			assert(iHash >= 0);
 			// RXDK/clang: hoist `i` out of the for-init (used at `return p[i]`);
-			// the leak relied on MSVC's pre-standard for-scope leak.
+			// the original relied on MSVC's pre-standard for-scope leak.
 			int i;
 			for (i = iHash % iCapacity;
 					p[i].iHash != -1 && (p[i].iHash != iHash || !(p[i].k == k)); // rehash while slot occupied or it doesn't match

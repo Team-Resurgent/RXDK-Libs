@@ -1,14 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       timesig.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// TimeSig.h : time signature stuff
+/*
+ * Time-signature helpers and music-time conversions for the style engine.
+ *
+ * Declares the DirectMusicTimeSig structure and the routines that convert
+ * between music time (measures/beats/grids) and clock/reference time using the
+ * score's pulses-per-quarter-note resolution.
+ */
+
 #ifndef __TIME_CONVERT__
 #define __TIME_CONVERT__
 #include "dmusicip.h"

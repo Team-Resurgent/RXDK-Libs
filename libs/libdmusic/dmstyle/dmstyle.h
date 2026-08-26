@@ -1,10 +1,16 @@
-// DMStyle.h : Declaration of the CDMStyle
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CDMStyle and the style file I/O structures.
+ *
+ * Declares the top-level style object that implements the IDirectMusicStyle
+ * interfaces, together with the on-disk part/pattern structures and helper
+ * lists it uses to hold the tempo, band and patterns loaded from a STYL file.
+ */
 
 #ifndef __DMSTYLE_H_
 #define __DMSTYLE_H_

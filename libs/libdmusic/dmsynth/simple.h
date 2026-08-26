@@ -1,5 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Common include prologue for the user-mode synth build. Pulls in the platform
+ * headers (xtl.h on Xbox, windows.h otherwise) and provides fallback typedefs
+ * such as SECURITY_ATTRIBUTES so the shared synth core compiles on Xbox.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

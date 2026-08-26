@@ -1,11 +1,14 @@
-//
-// DMCompP.H
-//
-// Private include for DMCompos.DLL
-//
-// Copyright (c) 1997-1998 Microsoft Corporation
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private declarations for the DirectMusic composer component: the composer's
+ * class factory (CDirectMusicPersonalityFactory) and the component's shared
+ * globals and constants.
+ */
 
 #ifndef _DMCOMPP_
 #define _DMCOMPP_

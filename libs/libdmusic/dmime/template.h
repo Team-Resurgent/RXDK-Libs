@@ -1,5 +1,13 @@
-// Copyright (c) 1998 Microsoft Corporation
-// templates.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Small list-manipulation function templates (List_Cat and friends) shared
+ * across the tracks.
+ */
 
 #ifndef __TEMPLATES_H__
 #define __TEMPLATES_H__

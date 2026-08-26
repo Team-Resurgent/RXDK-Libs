@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * toolprops_i.h -- MIDL-generated IID and CLSID definitions for the DirectMusic
+ * tool-properties interfaces (from toolprops.idl). Linked into the components
+ * that need real storage for those GUIDs.
+ */
 
 #pragma warning( disable: 4049 )  /* more than 64k source lines */
 

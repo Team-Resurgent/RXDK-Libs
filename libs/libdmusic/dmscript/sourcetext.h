@@ -1,7 +1,10 @@
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Declaration of CSourceText.
-//
 // This is a DirectMusic object whose sole purpose is to load a plain text file and return the text.
 // It is used by the CDirectMusicScript object to read its source code from a separate non-riff text file.
 
@@ -17,9 +20,9 @@ extern const GUID IID_IDirectMusicSourceText;
 #define INTERFACE IDirectMusicSourceText
 DECLARE_INTERFACE_(IDirectMusicSourceText, IUnknown)
 {
-	// RXDK/clang: the leak omitted PURE here; without it these are non-pure
-	// virtual declarations with no definition, so the interface's own vtable
-	// (_ZTV22IDirectMusicSourceText) is referenced during CSourceText
+	// RXDK/clang: these methods must be declared PURE; without it they are
+	// non-pure virtual declarations with no definition, so the interface's own
+	// vtable (_ZTV22IDirectMusicSourceText) is referenced during CSourceText
 	// construction but never emitted. A COM interface's methods are pure.
 	STDMETHOD_(void, GetTextLength)(THIS_ DWORD *pcwchRequiredBufferSize) PURE; // size of buffer to allocate (includes a space for the terminator)
 	STDMETHOD_(void, GetText)(THIS_ WCHAR *pwszText) PURE; // buffer must be of size from GetTextLength
@@ -28,7 +31,7 @@ DECLARE_INTERFACE_(IDirectMusicSourceText, IUnknown)
 //////////////////////////////////////////////////////////////////////
 // The object iteself
 
-// �� Does this object need a critical section?  GetObject should serialize access and nobody but the
+// TODO: Does this object need a critical section?  GetObject should serialize access and nobody but the
 // script can hold onto it.
 
 class CSourceText

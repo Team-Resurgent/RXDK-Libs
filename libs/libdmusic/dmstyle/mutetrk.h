@@ -1,14 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       mutetrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// MuteTrk.h : Declaration of the CMuteTrack
+/*
+ * Declaration of CMuteTrack, the DirectMusic mute track class.
+ *
+ * Declares the track object (implementing IDirectMusicTrack8 and
+ * IPersistStream) and its lists of time-stamped MuteData mappings that mute or
+ * remap performance channels over the course of a segment.
+ */
 
 #ifndef __MUTETRACK_H_
 #define __MUTETRACK_H_

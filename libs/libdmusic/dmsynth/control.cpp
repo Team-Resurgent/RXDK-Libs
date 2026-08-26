@@ -1,6 +1,15 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//      CControlLogic.cpp
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MIDI channel control logic. Implements CPart and the surrounding control
+ * layer that tracks per-channel controllers, RPN/NRPN state and the global
+ * critical section guarding the shared CMIDIRecorder data touched from
+ * DllMain.
+ */
 
 #ifdef DMSYNTH_MINIPORT
 #include "common.h"

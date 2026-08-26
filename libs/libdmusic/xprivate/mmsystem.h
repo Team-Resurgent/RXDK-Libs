@@ -1,28 +1,25 @@
-/*==========================================================================
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Multimedia API include file -- the waveform, MIDI, timer, mixer and
+ * multimedia file I/O (MMIO) declarations DirectMusic uses. Each subsystem can
+ * be excluded by defining the matching guard before inclusion:
  *
- *  mmsystem.h -- Include file for Multimedia API's
- *
- *  Version 4.00
- *
- *  Copyright 1992 - 1998 Microsoft Corporation.  All Rights Reserved.
- *
- *--------------------------------------------------------------------------
- *
- *  Define:         Prevent inclusion of:
- *  --------------  --------------------------------------------------------
- *  MMNODRV         Installable driver support
- *  MMNOSOUND       Sound support
- *  MMNOWAVE        Waveform support
- *  MMNOMIDI        MIDI support
- *  MMNOAUX         Auxiliary audio support
- *  MMNOMIXER       Mixer support
- *  MMNOTIMER       Timer support
- *  MMNOJOY         Joystick support
- *  MMNOMCI         MCI support
- *  MMNOMMIO        Multimedia file I/O support
- *  MMNOMMSYSTEM    General MMSYSTEM functions
- *
- *==========================================================================
+ *  MMNODRV       Installable driver support
+ *  MMNOSOUND     Sound support
+ *  MMNOWAVE      Waveform support
+ *  MMNOMIDI      MIDI support
+ *  MMNOAUX       Auxiliary audio support
+ *  MMNOMIXER     Mixer support
+ *  MMNOTIMER     Timer support
+ *  MMNOJOY       Joystick support
+ *  MMNOMCI       MCI support
+ *  MMNOMMIO      Multimedia file I/O support
+ *  MMNOMMSYSTEM  General MMSYSTEM functions
  */
 
 #ifndef _INC_MMSYSTEM

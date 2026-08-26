@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of Executor.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of Executor: runs a parsed AudioVBScript, interpreting its
+// routines and managing its variables.
 
 /*#include "stdinc.h"
 #include "enginc.h"
@@ -344,7 +348,7 @@ Executor::ExecStatements(Statements::index istmt, EXCEPINFO *pExcepInfo, UINT iL
 
 	for (Statements::index istmtCur = istmt; /* ever */; ++istmtCur)
 	{
-		// �� Check if this generates fast retail code.  If not, walk a pointer instead of using the index.
+		// TODO: Check if this generates fast retail code.  If not, walk a pointer instead of using the index.
 
 		Statement s = m_script.statements[istmtCur];
 		switch (s.k)
@@ -458,9 +462,9 @@ HRESULT Executor::ExecCall(Calls::index icall, bool fPushResult, EXCEPINFO *pExc
 	// This is a wrapper for ExecCallInternal, which actually does the work.  Here, we just want
 	// to catch a potential stack overflow and return it as an error instead of GPF-ing.
 	HRESULT hr = E_FAIL;
-	// RXDK/clang: the leak wrapped this call in SEH __try/__except to convert a
-	// stack overflow into a returned error. SEH (__try/__except) is unsupported on
-	// the x86-windows-gnu target -- it emits unresolved __ehtable$ /
+	// RXDK/clang: the retail engine wrapped this call in SEH __try/__except to
+	// convert a stack overflow into a returned error. SEH (__try/__except) is
+	// unsupported on the x86-windows-gnu target -- it emits unresolved __ehtable$ /
 	// $parent_frame_offset assembler labels -- and Xbox has no script runtime, so
 	// call ExecCallInternal directly without the stack-overflow trap.
 	{

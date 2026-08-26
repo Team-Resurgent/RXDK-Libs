@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusver.h -- embeds the DirectMusic build-number stamp into the .XBLD version
+ * segment. Selects the debug, profile or retail variant of the build string
+ * from the shared xboxverp.h version macros.
+ */
+
 #include <xboxverp.h>
 
 #ifdef __cplusplus

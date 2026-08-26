@@ -1,8 +1,15 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// oledll.cpp
-//
-// Handle standard stuff for OLE server DLL
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Standard OLE in-process server registration for the loader DLL: writes and
+ * removes the CLSID / InProcServer32 registry entries via RegisterServer and
+ * UnregisterServer.
+ */
+
 #include <objbase.h>
 #include "debug.h"
 #include <iostream.h>

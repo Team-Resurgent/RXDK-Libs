@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Instantiates the ActiveX-scripting-related GUIDs the dmscript module needs
+// (via INITGUID), plus a local shim so urlmon.h/activscp.h compile here.
 #define INITGUID
 #include <debug.h>
 #include <guiddef.h>

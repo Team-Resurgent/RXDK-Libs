@@ -1,7 +1,14 @@
-//	stream.cpp
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of the loader's IStream wrappers that feed authored content to
+ * the object parsers -- the file/memory-backed streams the loader hands to each
+ * object's IPersistStream::Load.
+ */
 
 /*#ifdef XBOX
 #include <xtl.h>

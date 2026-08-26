@@ -1,4 +1,14 @@
-/* Copyright (c) 1998 Microsoft Corporation */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Minimal C runtime helpers for the freestanding synthesizer build - a debug
+ * _assert stub and optional intrinsic replacements (memcmp and friends) that
+ * stand in when the platform CRT is unavailable.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

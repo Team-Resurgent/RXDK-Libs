@@ -1,11 +1,14 @@
-/************************************************************************
-*                                    ~~                                   *
-*   dmusici.h -- This module contains the API for the                   *
-*                DirectMusic performance layer                          *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusicip.h -- the private DirectMusic performance-layer API. Carries the same
+ * interface surface as dmusici.h plus the internal-only interfaces, structures
+ * and constants the implementation uses but does not publish to titles.
+ */
 
 #ifndef _DMUSICI_
 #define _DMUSICI_

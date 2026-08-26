@@ -1,12 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-//
-// midifile.cpp
-//
-// original author: Dave Miller
-// orignal project: AudioActive
-// modified by: Mark Burton
-// project: DirectMusic
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CreateSegmentFromMIDIStream -- imports a Standard MIDI File stream into a
+ * DirectMusic segment (sequence and tempo tracks).
+ */
 
 
 #ifdef XBOX

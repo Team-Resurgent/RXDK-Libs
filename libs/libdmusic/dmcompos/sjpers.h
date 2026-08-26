@@ -1,14 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       sjpers.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// SJPers.h  #defines and structs from SuperJam!  Used for loading personalities.
+/*
+ * SuperJam! defines and structures used when loading legacy personalities
+ * (chord maps) authored in that format.
+ */
 
 #define CM_DEFAULT  2               // Prsonality.dwflags & CM_DEFAULT
 

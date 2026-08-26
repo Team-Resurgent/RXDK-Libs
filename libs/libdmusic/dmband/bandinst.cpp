@@ -1,8 +1,18 @@
-//
-// bandinst.cpp
-// 
-// Copyright (c) 1997-1998 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Band instrument objects for the DirectMusic band track.
+ *
+ * CBandInstrument holds the MIDI patch/bank, pan, volume and channel-priority
+ * settings for one instrument within a band, and knows how to load its DLS
+ * instrument onto a port. CDownloadedInstrument tracks an instrument that has
+ * been downloaded to a port so it can be unloaded again when the band is torn
+ * down.
+ */
 
 #include "pchdmband.h"
 

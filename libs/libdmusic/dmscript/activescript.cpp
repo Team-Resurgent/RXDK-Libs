@@ -1,7 +1,14 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of CActiveScriptManager.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CActiveScriptManager: the bridge between a DirectMusic
+// script object and an ActiveX scripting engine (VBScript, or the built-in
+// AudioVBScript engine). It initializes an IActiveScript, feeds it source
+// code, exposes the script's routines and variables, and gets/sets their
+// values. Used by CDirectMusicScript.
 
 /*#include "stdinc.h"
 #include "activescript.h"

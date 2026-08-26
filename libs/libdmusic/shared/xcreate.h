@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xcreate.h -- factory-entry prototypes for the DirectMusic track and object
+ * creators (DirectMusicChordTrackCreate and friends) that the loader calls to
+ * instantiate content objects by class GUID.
+ */
+
 #pragma once
 
 STDAPI DirectMusicChordTrackCreate( REFIID iid, void ** ppDMT );

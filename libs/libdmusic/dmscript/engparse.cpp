@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of Parser.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of Parser: turns the lexer's token stream into the routine,
+// expression, and control structures the Executor runs.
 
 //#define LIMITEDVBSCRIPT_LOGPARSER // §§
 

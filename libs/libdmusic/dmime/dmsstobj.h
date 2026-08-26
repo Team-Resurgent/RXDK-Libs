@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// DMSStObj.h : Declaration of the CSegState
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CSegState, the segment play-state object, plus the
+ * controlling-track control flags.
+ */
 
 #ifndef __DIRECTMUSICSEGMENTSTATEOBJECT_H_
 #define __DIRECTMUSICSEGMENTSTATEOBJECT_H_

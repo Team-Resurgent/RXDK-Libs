@@ -1,5 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// Object.cpp : Implementations of CObject and CClass
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementations of CObject and CClass, the loader's internal records for a
+ * single loadable object and for a class of loadable objects. They track each
+ * object's identity (GUID, name, file) and its cached instance for the loader.
+ */
 
 /*#ifdef XBOX
 #include <xtl.h>

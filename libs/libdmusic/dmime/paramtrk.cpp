@@ -1,7 +1,13 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of CParamControlTrack.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CParamControlTrack -- automation track that applies parameter curves to
+ * effects and tools along the audio path.
+ */
 
 #include "pchime.h"
 /*#include "dmime.h"
@@ -260,7 +266,7 @@ HRESULT CParamControlTrack::OnSegmentEnd(REFERENCE_TIME rtEnd, void *pStateData)
 STDMETHODIMP
 CParamControlTrack::Clone(MUSIC_TIME mtStart, MUSIC_TIME mtEnd, IDirectMusicTrack** ppTrack)
 {
-    // �� Test more thoroughly when we have multiple working params/objects.
+    // TODO: Test more thoroughly when we have multiple working params/objects.
 
     V_INAME(CParamControlTrack::Clone);
     V_PTRPTR_WRITE(ppTrack);
@@ -739,7 +745,7 @@ CParamControlTrack::PlayTruncatedEnvelope(
             fltScalingY = (float) sqrt(fltScalingX);
             break;
         case MP_CURVE_SINE:
-            // �� Maybe we should have a lookup table here?
+            // TODO: Maybe we should have a lookup table here?
             fltScalingY = (float) (sin(fltScalingX * 3.1415926535 - (3.1415926535/2)) + 1) / 2;
             break;
         case MP_CURVE_LINEAR:

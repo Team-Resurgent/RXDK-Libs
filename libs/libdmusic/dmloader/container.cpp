@@ -1,8 +1,15 @@
-// Container.cpp : Implementation of CContainer
-//
-// Copyright (c) 1999-1999 Microsoft Corporation
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of CContainer, the DirectMusic container object
+ * (IDirectMusicContainer). A container bundles several authored objects (bands,
+ * styles, waves, DLS collections and so on) into one loadable RIFF file; this
+ * code enumerates those items and hands them to the loader.
+ */
 
 /*#include "dmusicc.h" 
 #include "dmusicip.h" 

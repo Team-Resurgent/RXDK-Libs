@@ -1,14 +1,14 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       dmtempl.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// DMTempl.cpp : Implementation of CDMTempl
+/*
+ * Implementation of the composition template (TemplateStruct/CDMTempl): builds
+ * the intro, groove and ending chord sequences that the composer fills in with
+ * chords drawn from a chord map.
+ */
 #include "pchcompos.h"
 
 void TemplateStruct::AddIntro(TList<PlayChord>& PlayList, int nIntroLength)

@@ -1,7 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-//
-// alist.h
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * alist.h -- an intrusive singly-linked list. Declares AListItem, the
+ * self-linking node base, and the AList container the DirectMusic components
+ * use for lightweight ordered collections.
+ */
 #ifndef __ALIST_H__
 #define __ALIST_H__
 

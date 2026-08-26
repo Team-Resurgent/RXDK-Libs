@@ -1,10 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   dmusics.h -- Definitions for created a DirectMusic software synth   *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusics.h -- definitions for building a DirectMusic software synthesizer.
+ * Declares IDirectMusicSynth and IDirectMusicSynthSink, the interfaces a synth
+ * plug-in implements to render voices and feed the audio sink.
+ */
 
 #ifndef _DMUSICS_
 #define _DMUSICS_

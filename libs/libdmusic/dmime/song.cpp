@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// song.cpp : Implementation of CSong
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CSong and CTrack -- a song groups multiple virtual segments; CTrack is the
+ * per-track record threaded into a segment's track list.
+ */
 #include "pchime.h"
 /*
 #include "dmime.h"

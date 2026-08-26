@@ -1,16 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       tlist.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// tlist.cpp
-//
+/*
+ * tlist.cpp -- out-of-line member definitions for the TList template, the
+ * type-safe intrusive linked list declared in tlist.h.
+ */
 
 //#include "stdafx.h"
 #include "tlist.h"

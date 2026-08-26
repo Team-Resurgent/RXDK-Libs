@@ -1,11 +1,15 @@
-// DMCompos.cpp : Implementation of CDMCompos
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of CDMCompos, the DirectMusic composer object
+ * (IDirectMusicComposer). Composes segments from templates, chord maps and
+ * styles, transposes and re-chords existing segments, and creates transition
+ * segments between pieces of music.
+ */
 
 #include "pchcompos.h"
 

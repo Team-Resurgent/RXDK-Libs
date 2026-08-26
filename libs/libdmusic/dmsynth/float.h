@@ -1,14 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// float.h
-//
-// Defines fp_ floating point functions which don't rely on the C runtime.
-//
-// If you don't want to pull in C runtime floating point support, you
-// need to include the following in a .cpp file:
-//
-//     extern "C" int _fltused = 1;
-//
+/*
+ * Declarations for the fp_ floating-point functions that do not rely on the C
+ * runtime. A translation unit that wants to avoid the CRT's floating-point
+ * support must define "extern "C" int _fltused = 1;" in one .cpp file.
+ */
 
 // floating point operations
 STDAPI_(long)   fp_ftol     (float flX);

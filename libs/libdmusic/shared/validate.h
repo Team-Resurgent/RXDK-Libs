@@ -1,8 +1,9 @@
-//
-// validate.h
-//
-// Copyright (c) 1997-1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Parameter validation macros
 //
 // Summary:

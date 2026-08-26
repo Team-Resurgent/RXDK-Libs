@@ -1,9 +1,13 @@
-// Copyright (c) 1999 Microsoft Corporation
-// OpNew.cpp
-//
-// Override operator new[] so that we ignore the new_handler mechanism.
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Overrides operator new[] / delete[] for the loader so allocation bypasses the
+ * new_handler mechanism and simply returns NULL on failure.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

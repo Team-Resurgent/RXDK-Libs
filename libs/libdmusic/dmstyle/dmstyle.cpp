@@ -1,11 +1,18 @@
-// DMStyle.cpp : Implementation of CDMStyle
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CDMStyle -- implementation of the DirectMusic style object.
+ *
+ * A style is the top-level container loaded from a STYL file: its tempo, time
+ * signature, embedded band, and the set of patterns/parts that the style and
+ * pattern tracks draw on. This file implements the object's load, descriptor
+ * and enumeration methods and the composition helpers that select patterns for
+ * a given groove level and embellishment.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

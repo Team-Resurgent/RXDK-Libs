@@ -1,8 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-// Misc.h
-//
-// functions used in multiple DLL's
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Miscellaneous shared declarations used across more than one of the
+ * DirectMusic modules - small helper prototypes and optional debug-memory
+ * hooks.
+ */
 #ifndef __MISC_H__
 #define __MISC_H__
 

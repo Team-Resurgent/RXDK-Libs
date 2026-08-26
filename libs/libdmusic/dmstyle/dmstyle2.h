@@ -1,10 +1,16 @@
-// Dx8Style.h : New for DX8
-//
-// Copyright (c) 1999-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of the IDirectMusicStyle8 interface (new for DX8).
+ *
+ * Extends IDirectMusicStyle with the DX8 composition entry points, including
+ * ComposeMelodyFromTemplate for building a sequence segment from a style and a
+ * melody template.
+ */
 
 #ifndef __DX8STYLE_H_
 #define __DX8STYLE_H_

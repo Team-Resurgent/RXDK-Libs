@@ -1,12 +1,15 @@
-//      Synth.h
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/*  For internal representation, volume is stored in Volume Cents, 
-    where each increment represents 1/100 of a dB.
-    Pitch is stored in Pitch Cents, where each increment
-    represents 1/100 of a semitone.
-*/ 
+/*
+ * Core internal declarations for the software synthesizer - the voice,
+ * articulation, digital-audio and mix classes shared across the module.
+ * Internally volume is stored in Volume Cents (each step 1/100 of a dB) and
+ * pitch in Pitch Cents (each step 1/100 of a semitone).
+ */
 
 #ifndef __SYNTH_H__
 #define __SYNTH_H__

@@ -1,10 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-// TPool.h
-//
-// Template pool memory manager. Efficiently manage requests for many of the same (small) object.
-// Named after t'Pool, the Vulcan programmer who invented the technique.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * tpool.h -- a template pool memory manager (CPool). Efficiently satisfies many
+ * allocations of the same small fixed-size object by carving them from larger
+ * pre-allocated blocks.
+ */
 #ifndef _TPOOL_H_
 #define _TPOOL_H_
 

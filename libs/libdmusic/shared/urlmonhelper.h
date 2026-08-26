@@ -1,4 +1,14 @@
-// Needed to get urlmon.h to compile
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * urlmonhelper.h -- the minimal declarations needed to get urlmon.h to compile
+ * on Xbox. Supplies the SECURITY_ATTRIBUTES definition and related types the
+ * platform headers otherwise omit.
+ */
 
 #pragma once
 

@@ -1,10 +1,13 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Helper utilities for implementing automation interfaces.
 // Note that autbaseimp.h makes use of these utilities.  If you inherit from
-//    CAutBaseImp then this is all implementated for you and you probably won't
+//    CAutBaseImp then this is all implemented for you and you probably won't
 //    need to use this file directly.
-//
 
 #pragma once
 

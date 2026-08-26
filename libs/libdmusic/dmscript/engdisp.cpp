@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of EngineDispatch.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of EngineDispatch: the IDispatch surface that exposes an
+// AudioVBScript script's routines, variables, and type information.
 
 /*#include "stdinc.h"
 #include "enginc.h"

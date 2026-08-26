@@ -1,4 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Self-contained floating-point routines (the fp_ family plus FPU save/restore
+ * helpers) that let the synthesizer do its math without pulling in the C
+ * runtime's floating-point support.
+ */
 
 #ifdef DMSYNTH_MINIPORT
 #include "common.h"

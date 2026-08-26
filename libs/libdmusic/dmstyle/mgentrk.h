@@ -1,15 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1999-1999 Microsoft Corporation
-//
-//  File:       mgentrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/////////////////////////////////////////////////////////////////////////////
-// MelodyFragment
+/*
+ * Declaration of the melody-generation track and its data.
+ *
+ * Declares MelodyFragment and the CMelodyGenTrack object (implementing
+ * IDirectMusicTrack8 and IPersistStream) that stores the melody fragments used
+ * by DX8 melody composition.
+ */
 
 #ifndef __MELGENTRK_H_
 #define __MELGENTRK_H_

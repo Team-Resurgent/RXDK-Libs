@@ -1,7 +1,13 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-//
-// 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for CSysLink and its IReferenceClock interface - the system
+ * clock link that provides the synth's timing source.
+ */
 #ifndef _SYSLINK_
 #define _SYSLINK_
 

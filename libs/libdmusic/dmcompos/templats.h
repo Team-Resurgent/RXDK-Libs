@@ -1,14 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       templats.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// templates.h
+/*
+ * Small generic singly-linked-list helper templates (concatenate, length and
+ * related list operations) used throughout the composer.
+ */
 
 #ifndef __TEMPLATES_H__
 #define __TEMPLATES_H__

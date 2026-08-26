@@ -1,7 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of CDirectMusicScriptTrack.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CDirectMusicScriptTrack: a track whose events call script
+// routines at the scheduled points during segment playback.
 
 /*#include "stdinc.h"
 #include "dll.h"

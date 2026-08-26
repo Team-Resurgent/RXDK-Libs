@@ -1,12 +1,15 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       sjdefs.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Score-editor constants for the style engine.
+ *
+ * Defines the counts and limits used across the style code: number of
+ * variations, displayed instruments and MIDI-out device limits.
+ */
 
 #ifndef __SJ_DEFINES_H__
 #define __SJ_DEFINES_H__

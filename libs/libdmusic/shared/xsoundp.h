@@ -1,9 +1,14 @@
-//
-// xsoundp.h
-//
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
-// Private interfaces
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xsoundp.h -- private DirectSound interface shims for the Xbox DirectMusic
+ * build. Maps the DirectSound8 names onto the Xbox IDirectSound surface the
+ * synth uses for wave playback.
+ */
 
 #ifndef _XSOUNDP_DOT_H_
 #define _XSOUNDP_DOT_H_

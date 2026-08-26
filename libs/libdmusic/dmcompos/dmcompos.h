@@ -1,10 +1,14 @@
-// DMCompos.h : Declaration of the CDMCompos
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CDMCompos, the DirectMusic composer object, plus the internal
+ * data structures the composition search uses (chord entries, cadences, play
+ * chords and search state).
+ */
 
 #ifndef __DMCOMPOS_H_
 #define __DMCOMPOS_H_

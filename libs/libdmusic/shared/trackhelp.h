@@ -1,5 +1,9 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Base classes that implement aspects of a standard DirectMusic track.
 // Unless you're doing something pretty unusual, you should be able to inherit from one
 //    of these classes and reduce the work needed to implement a new track type.

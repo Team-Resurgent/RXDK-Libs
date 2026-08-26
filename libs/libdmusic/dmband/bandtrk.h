@@ -1,8 +1,17 @@
-//
-// bandtrk.h
-// 
-// Copyright (c) 1997-2000 Microsoft Corporation
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CBandTrk, the DirectMusic band track class.
+ *
+ * Declares the track object that implements IDirectMusicTrack8,
+ * IDirectMusicBandTrk and IPersistStream, along with its list of timed band
+ * events and the state it needs for play, seek, clone and (under DXAPI)
+ * instrument auto-download.
+ */
 
 #ifndef BANDTRK_H
 #define BANDTRK_H

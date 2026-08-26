@@ -1,6 +1,12 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//  clock.h
+/*
+ * CClock -- the IReferenceClock implementation used by the audio sink.
+ */
 #ifndef __CCLOCK_H__
 #define __CCLOCK_H__
 

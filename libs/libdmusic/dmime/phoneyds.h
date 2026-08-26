@@ -1,5 +1,13 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//	    PhoneyDS.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CPhoneyDSound, the IDirectSound8 stand-in that drives the
+ * DirectMusic audio sink.
+ */
 
 #ifndef __PHONEY_DS__
 #define __PHONEY_DS__

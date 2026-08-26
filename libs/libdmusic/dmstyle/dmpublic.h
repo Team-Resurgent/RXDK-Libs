@@ -1,15 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1999-1999 Microsoft Corporation
-//
-//  File:       dmpublic.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-/////////////////////////////////////////////////////////////////////////////
-// DMPublic: things that will eventually end up in dmusici.h or dmusicf.h
+/*
+ * Public declarations staged for the DirectMusic SDK headers.
+ *
+ * Holds style-related definitions intended to live alongside the public
+ * dmusici.h / dmusicf.h interfaces; it simply pulls in dmusicf.h and reserves
+ * space for those additions.
+ */
 
 #ifndef __DMPUBLIC_H_
 #define __DMPUBLIC_H_

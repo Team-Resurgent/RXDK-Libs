@@ -1,8 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Declaration of CActiveScriptManager.
 //
-
 // CActiveScriptManager handles interfacing with VBScript or any activeX scripting
 // language.  It intializes an IActiveScript object, sends it code, and sets and gets
 // the values of variables.  Used by CDirectMusicScript.

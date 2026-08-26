@@ -1,6 +1,14 @@
-//      Copyright (c) 1996-2001 Microsoft Corporation
-//      dls.cpp
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DLS (Downloadable Sounds) collection support. Implements CCollection - the
+ * IDirectMusicCollection object that parses a DLS file's instrument and wave
+ * chunks and hands the resulting instruments to the synth for download.
+ */
 
 #include "simple.h"
 #include <mmsystem.h>

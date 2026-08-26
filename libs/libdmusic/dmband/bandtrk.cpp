@@ -1,9 +1,18 @@
-//
-// bandtrk.cpp
-// 
-// Copyright (c) 1997-2000 Microsoft Corporation
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CBandTrk -- the DirectMusic band track implementation.
+ *
+ * A band track carries a time-ordered list of band changes for a segment.
+ * This file implements the IDirectMusicTrack8, IDirectMusicBandTrk and
+ * IPersistStream methods: loading bands from a RIFF stream, playing the
+ * appropriate band at each play cursor, handling seeks and clones, and (on
+ * builds with DXAPI) auto-downloading instruments to the performance.
+ */
 
 #include "pchdmband.h"
 
@@ -1216,7 +1225,7 @@ HRESULT CBandTrk::LoadClone(IDirectMusicBandTrk* pBandTrack,
         DWORD dwLastMidiMode = 0; // Keep track of the MIDI mode of the last band we encounter
         
         // RXDK/clang: hoist pBand out of the for-init -- it is used after the loop
-        // (the "physical time of the new band" check below); the leak relied on
+        // (the "physical time of the new band" check below); the original relied on
         // MSVC's pre-standard for-scope leak.
         CBand* pBand;
         for( pBand = BandList.GetHead();

@@ -1,8 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Functions that implement the automation interfaces for the DirectMusic constants.
 // This is a table of names and integer values that are implemented as read-only properties.
-//
 
 #pragma once
 

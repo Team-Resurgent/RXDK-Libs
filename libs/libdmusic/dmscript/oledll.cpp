@@ -1,8 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation
-// oledll.cpp
-//
-// Handle standard crap for OLE server DLL
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Standard boilerplate for an OLE server DLL (module ref counting and the
+// exported DllGetClassObject/DllCanUnloadNow entry points).
 #include <objbase.h>
 #include <iostream.h>
 

@@ -1,14 +1,15 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       composin.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// ComposIn.h --- include file for the composition engine
+/*
+ * Umbrella include for the DirectMusic composition engine. Pulls in the
+ * DirectMusic interfaces and file formats plus this component's own helpers
+ * (string, template list, RIFF stream, template structures and the SuperJam
+ * personality definitions) so translation units get one header to include.
+ */
 
 #ifndef __COMPOSINH__
 #define __COMPOSINH__

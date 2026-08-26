@@ -1,9 +1,14 @@
-//
-// dmusiccp.h
-//
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
-// Private interfaces
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusiccp.h -- private DirectMusic core interfaces. Declares the internal
+ * core-layer interfaces and hooks (voice, wave and DirectSound-wave plumbing)
+ * that are not exposed in the public dmusicc.h.
+ */
 
 #ifndef _DMUSICCP_DOT_H_
 #define _DMUSICCP_DOT_H_

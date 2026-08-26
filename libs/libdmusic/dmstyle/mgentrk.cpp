@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1999-1999 Microsoft Corporation
-//
-//  File:       mgentrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CMelodyGenTrack -- the DirectMusic melody-generation track implementation.
+ *
+ * A melody-generation track holds the melody fragments and rules that DX8
+ * melody composition draws on when generating a tune from a template. This
+ * file implements the IDirectMusicTrack8 and IPersistStream methods that load
+ * those fragments and supply them to the composition engine.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

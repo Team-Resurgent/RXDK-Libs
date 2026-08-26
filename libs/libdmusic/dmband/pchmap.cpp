@@ -1,5 +1,18 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-/* This is a class to manage tracking mutes for the SeqTrack and BandTrack. */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CPChMap -- program-change/mute tracking for the sequence and band tracks.
+ *
+ * Maintains a per-performance-channel map of the current program-change
+ * mapping and mute state, refreshing itself from the performance's mute track
+ * on demand and resetting on invalidation or seek so band playback stays in
+ * sync with the controlling segment.
+ */
+
 #include "pchdmband.h"
 
 CPChMap::CPChMap()

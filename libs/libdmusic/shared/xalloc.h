@@ -1,6 +1,15 @@
-//
-// Copyright (C) Microsoft Corporation. All Rights Reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * xalloc.h -- the DirectMusic allocator hooks. Declares DirectMusicAllocI /
+ * DirectMusicFreeI and their physical-memory variants, and (unless suppressed)
+ * overrides the global operator new/delete to route allocations through them.
+ */
+
 #pragma once
 
 extern void* DirectMusicAllocI(size_t cb);

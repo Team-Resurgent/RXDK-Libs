@@ -1,7 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-/*	CPhaseLockClock
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-  */
+/*
+ * CPhaseLockClock - a phase-locked clock that slaves the synth's timing to an
+ * external reference (such as the DirectSound playback cursor), smoothing out
+ * drift so rendered audio stays aligned with the master clock.
+ */
 
 
 #ifdef XBOX

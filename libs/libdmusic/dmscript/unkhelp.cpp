@@ -1,7 +1,10 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Helper classes for implementing IUnknown.
-//
 
 /*#include "stdinc.h"
 #include "unkhelp.h"

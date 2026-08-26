@@ -1,11 +1,14 @@
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
-// Hack: There's no room in the EXCEPINFO for a filename and line number.  This is a problem when scripts
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// There's no room in the EXCEPINFO for a filename and line number.  This is a problem when scripts
 // call each other because the filename/line need to percolate with the error so that the eventual
-// error message displays the filename/line of the script where the error orgiginated.
-//    We'll just pack the error in with the description and then unpack it when the IDirectMusicScript
+// error message displays the filename/line of the script where the error originated.
+//    We pack the error in with the description and then unpack it when the IDirectMusicScript
 // interface returns its DMUS_SCRIPT_ERRORINFO, which does have a filename.
-//
 
 #pragma once
 

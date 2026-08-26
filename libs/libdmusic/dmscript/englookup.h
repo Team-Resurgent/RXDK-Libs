@@ -1,7 +1,10 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Declaration of Strings, Slots, and Hash.
-//
 
 // Strings holds a collection of strings in one big chunk of memory.
 // Slots is just a collection that can be appended to and accessed

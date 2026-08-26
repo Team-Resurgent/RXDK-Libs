@@ -1,6 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//  clock.h
+/*
+ * CClock - the synthesizer's IReferenceClock implementation. Exposes the
+ * master timing source (GetTime, AdviseTime, AdvisePeriodic and friends) that
+ * the sequencer and voices use to schedule and render audio.
+ */
 #ifndef __CCLOCK_H__
 #define __CCLOCK_H__
 

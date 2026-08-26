@@ -1,6 +1,14 @@
-//      Copyright (c) 1996-2001 Microsoft Corporation
-//      dls.cpp
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DLS wave (sample) handling. Parses the wave chunks of a DLS collection and
+ * builds the PCM sample objects - with their loop points and format info -
+ * that instrument regions reference and voices play back.
+ */
 
 #include "simple.h"
 #include <mmsystem.h>

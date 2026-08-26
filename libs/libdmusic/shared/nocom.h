@@ -1,3 +1,15 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * nocom.h -- COM-less object-creation helpers for the Xbox build. Provides
+ * CreateInstance shims that load a component module and call its class-factory
+ * entry point directly, bypassing the full COM runtime the Xbox lacks.
+ */
+
 #ifndef __NOCOM_H__
 #define __NOCOM_H__
 

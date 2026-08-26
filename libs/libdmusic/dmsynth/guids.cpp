@@ -1,4 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * GUID definition unit for the synthesizer. Includes initguid.h and the
+ * DirectMusic/DirectSound headers so the class and interface IDs used by the
+ * synth are emitted into this single object file.
+ */
 
 #ifdef XBOX
 #include <xtl.h>

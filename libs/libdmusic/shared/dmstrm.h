@@ -1,8 +1,14 @@
-//
-// dmstrm.h
-// 
-// Copyright (c) 1995-1998 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmstrm.h -- the IDMStream interface. A stream abstraction the loader and
+ * content objects use to read RIFF data, wrapping an IStream with the
+ * DirectMusic-specific seek and clone helpers.
+ */
 
 
 #ifndef DMSTRM_H

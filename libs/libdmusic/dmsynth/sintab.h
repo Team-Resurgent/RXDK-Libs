@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precomputed quarter-period sine lookup table (sSin16) in 16-bit fixed point,
+ * used by the synthesizer's LFO and oscillator math to avoid runtime trig.
+ */
+
 static short sSin16[51] =
 {
     0,

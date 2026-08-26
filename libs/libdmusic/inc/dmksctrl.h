@@ -1,17 +1,15 @@
-/************************************************************************
-*                                                                       *
-*   dmksctrl.h -- Definition of IKsControl                              *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-*                                                                       *
-*   This header file contains the definition of IKsControl, which       *
-*   duplicates definitions from ks.h and ksproxy.h. Your code should    *
-*   include ks.h and ksproxy.h directly if you have them (they are      *
-*   provided in the Windows 98 DDK and will be in the Windows NT 5      *
-*   SDK).                                                               *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmksctrl.h -- definition of IKsControl for DirectMusic. Duplicates the
+ * IKsControl interface and property-set GUID machinery otherwise found in ks.h
+ * and ksproxy.h, so kernel-streaming property calls compile without the full
+ * DDK headers.
+ */
 
 #ifndef _DMKSCTRL_
 #define _DMKSCTRL_

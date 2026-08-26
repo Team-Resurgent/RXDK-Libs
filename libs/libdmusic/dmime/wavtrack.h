@@ -1,5 +1,12 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// WavTrack.h : Declaration of the CWavTrack
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CWavTrack and the IPrivateWaveTrack interface.
+ */
 
 #ifndef __WAVTRACK_H_
 #define __WAVTRACK_H_

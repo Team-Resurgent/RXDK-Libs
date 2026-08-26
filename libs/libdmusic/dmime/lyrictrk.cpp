@@ -1,7 +1,13 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of CLyricsTrack.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CLyricsTrack -- the track that emits DMUS_LYRIC_PMSG notifications at scripted
+ * points during segment playback, including RIFF load support.
+ */
 #include "pchime.h"
 /*#include "dmime.h"
 #include "lyrictrk.h"

@@ -1,14 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       chordtrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// ChordTrack.h : Declaration of the CChordTrack
+/*
+ * Declaration of CChordTrack, the DirectMusic chord track class.
+ *
+ * Declares the track object that implements IDirectMusicTrack8 and
+ * IPersistStream over a time-ordered chord progression, including its clone and
+ * play state used to hand the current chord to the performance.
+ */
 
 #ifndef __CHORDTRACK_H_
 #define __CHORDTRACK_H_

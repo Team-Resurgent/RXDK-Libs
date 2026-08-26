@@ -1,6 +1,13 @@
-/* Copyright (c) 1998-1999 Microsoft Corporation */
-/* this file contains the actual definitions of */
-/* the IIDs and CLSIDs */
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MIDL-generated definitions of the DirectMusic interface (IID) and class
+ * (CLSID) GUIDs. Link this file into the server and any clients.
+ */
 
 /* link this file in with the server and any clients */
 #ifdef __cplusplus

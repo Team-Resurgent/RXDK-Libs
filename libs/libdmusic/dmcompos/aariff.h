@@ -1,16 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       aariff.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// aariff.h
-//
+/*
+ * IAARIFFStream -- the RIFF chunk reader/writer interface used by DirectMusic's
+ * composition and personality (chordmap) code to walk authored RIFF data.
+ * Declares the COM interface for descending into and ascending out of chunks,
+ * reading and writing chunk data, plus its IID; the implementation lives
+ * elsewhere in the tree.
+ */
 
 #ifndef __AARIFF__
 #define __AARIFF__

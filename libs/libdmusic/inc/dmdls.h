@@ -1,10 +1,15 @@
-/************************************************************************
-*                                                                       *
-*   dmdls.h -- DLS download definitions for DirectMusic API's           *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation                       *
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmdls.h -- DLS download definitions for the DirectMusic APIs. Declares the
+ * wire structures and enumerations the synth uses to download DLS instrument
+ * collections (articulation, region, wave-link and connection blocks) along
+ * with the pitch/gain/time cent scalar typedefs.
+ */
 
 #ifndef _DMDLS_
 #define _DMDLS_

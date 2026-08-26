@@ -1,5 +1,12 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// DMSegObj.h : Declaration of the CSegment
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CSegment, the DirectMusic segment object.
+ */
 
 #ifndef __DIRECTMUSICSEGMENTOBJECT_H_
 #define __DIRECTMUSICSEGMENTOBJECT_H_

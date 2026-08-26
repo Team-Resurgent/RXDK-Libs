@@ -1,10 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   dmusicf.h -- This module defines the DirectMusic file formats       *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmusicf.h -- the DirectMusic file formats. Defines the RIFF chunk layouts and
+ * structures for the on-disk content the loader parses: segments, styles, chord
+ * maps, bands, wave and reference lists.
+ */
 
 #ifndef _DMUSICF_
 #define _DMUSICF_

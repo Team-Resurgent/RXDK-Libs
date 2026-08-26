@@ -1,7 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the kernel-mode critical-section shims. Defines
+ * CRITICAL_SECTION as a kernel KMUTEX and the Enter/Leave/Initialize wrappers
+ * so the shared synth core's locking compiles in a driver build.
+ */
 #ifndef _KernHelp_
 #define _KernHelp_
 

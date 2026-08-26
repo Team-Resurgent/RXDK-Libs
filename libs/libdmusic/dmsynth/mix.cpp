@@ -1,6 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//      Mix.cpp
-//      Mix engines for MSSynth
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Mix engines for the synthesizer - the routines that sum and resample the
+ * active voices into the output buffer. This is the primary (non-XMIX) mix
+ * path selected when the assembly/MMX variants are not in use.
+ */
 
 #ifdef DMSYNTH_MINIPORT
 #include "common.h"

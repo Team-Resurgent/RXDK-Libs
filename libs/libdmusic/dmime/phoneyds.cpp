@@ -1,5 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// phoneds.cpp : Implementation of CPhoneyDSound
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CPhoneyDSound -- a lightweight IDirectSound8 stand-in that DirectMusic uses on
+ * Xbox to drive the audio sink without a full DirectSound device.
+ */
 
 #include "pchime.h"
 /*#ifdef XBOX

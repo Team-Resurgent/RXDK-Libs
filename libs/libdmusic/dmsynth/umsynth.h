@@ -1,6 +1,13 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-// UMSynth.h : Declaration of CUserModeSynth
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
+/*
+ * Declaration of CUserModeSynth, the user-mode wrapper that exposes the shared
+ * synth core through the DirectMusic and KS proxy interfaces.
+ */
 #ifndef __UMSYNTH_H_
 #define __UMSYNTH_H_
 

@@ -1,12 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1999-1999 Microsoft Corporation
-//
-//  File:       filter.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * PatternDispatcher -- pattern selection/filtering for the style track.
+ *
+ * Implements the logic that narrows a style's pattern set down to those valid
+ * for the current groove level, embellishment type and chord, so the style
+ * track can pick the pattern to play at each point in the segment.
+ */
 
 #include "dmstyle.h"
 #include "styletrk.h"

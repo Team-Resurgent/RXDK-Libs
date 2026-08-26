@@ -1,14 +1,13 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       spsttrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// SPstTrk.h : Declaration of the CSPstTrk
+/*
+ * Declaration of CSPstTrk, the DirectMusic signpost track that tells the
+ * composer which chord-map groups to draw from at each point in a segment.
+ */
 
 #ifndef __SPSTTRK_H_
 #define __SPSTTRK_H_

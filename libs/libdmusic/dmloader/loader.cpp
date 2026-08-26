@@ -1,11 +1,16 @@
-// Loader.cpp : Implementation of CLoader
-//
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// @doc EXTERNAL
-//
-// 
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of CLoader, the DirectMusic loader object
+ * (IDirectMusicLoader). Resolves object references, loads authored content
+ * (segments, styles, bands, chord maps, DLS collections, waves) from files or
+ * memory, and caches loaded objects so shared references resolve to one
+ * instance.
+ */
 
 /*#ifdef XBOX
 #include <xtl.h>

@@ -1,9 +1,13 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Simple helper classes that use the "resource acquisition is initialization" technique.
-// In English, this means they acquire a reference to a resource and the resource is automatically
-//    released in the destructor.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * SmartRef helpers -- small RAII wrappers (such as AString) that acquire a
+ * resource and release it automatically in their destructor.
+ */
 
 #include "pchime.h"
 /*

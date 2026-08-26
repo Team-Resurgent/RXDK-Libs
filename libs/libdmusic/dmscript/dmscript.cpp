@@ -1,7 +1,12 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Implementation of CDirectMusicScript.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CDirectMusicScript, the DirectMusic script object. It
+// loads script source from a file, hosts it in a scripting engine, and lets
+// the application call the script's routines and get/set its variables.
 
 /*#include "stdinc.h"
 #include "dll.h"

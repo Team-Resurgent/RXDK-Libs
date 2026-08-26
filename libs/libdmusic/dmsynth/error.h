@@ -1,5 +1,14 @@
-// Copyright (c) 1998 Microsoft Corporation
-//      Error.h
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private HRESULT error codes for the synthesizer's DLS/wave loader - bad
+ * wave, region, articulation and collection chunks, missing loader, lock
+ * failures and similar - all based off the RA_E_FIRST facility offset.
+ */
 
 #define RA_E_FIRST				(OLE_E_FIRST + 5000)
 

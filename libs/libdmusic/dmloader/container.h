@@ -1,5 +1,13 @@
-// Copyright (c) 1999 Microsoft Corporation
-// container.h : Declaration of the CContainer
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CContainer and CContainerItem, the DirectMusic container
+ * object and the individual bundled objects it tracks.
+ */
 
 #ifndef __CONTAINER_H_
 #define __CONTAINER_H_

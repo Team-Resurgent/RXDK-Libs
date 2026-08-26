@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 #pragma once
 #define RXDK_DMUSIC_BRIDGE_H
 
@@ -152,7 +158,7 @@ DECLARE_HANDLE(HICON);
 #ifndef ASSERT
 #define ASSERT(x)   ((void)0)
 #endif
-/* variadic: the leak's ASSERTMSG is ASSERTMSG(msg, expr). */
+/* variadic: the standard ASSERTMSG is ASSERTMSG(msg, expr). */
 #ifndef ASSERTMSG
 #define ASSERTMSG(...) ((void)0)
 #endif

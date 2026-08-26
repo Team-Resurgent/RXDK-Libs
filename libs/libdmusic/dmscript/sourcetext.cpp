@@ -1,7 +1,12 @@
-// Copyright (c) 2000 Microsoft Corporation. All rights reserved.
-//
-// Implementation of CSourceText.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Implementation of CSourceText: a DirectMusic object that loads a plain-text
+// file and returns its contents (used to read script source from a separate
+// non-RIFF text file).
 
 /*#include "stdinc.h"
 #include "dll.h"

@@ -1,7 +1,14 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Misc tiny helper functions.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * miscutil.h -- small template and macro helpers shared by the DirectMusic
+ * sources: SafeRelease, the compile-time ARRAY_SIZE, the typed Zero and similar
+ * one-liners.
+ */
 
 #pragma once
 

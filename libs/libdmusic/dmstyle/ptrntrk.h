@@ -1,14 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       ptrntrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// PtrnTrk.h : Declaration of the Pattern Track info and state structs
+/*
+ * Declaration of PatternTrackInfo and the pattern-track state structs.
+ *
+ * Declares the base info/state that the style, motif and audition tracks
+ * derive from, including the pattern selection, variation and play-cursor
+ * bookkeeping and the MAX_END track-time constant.
+ */
 
 #ifndef __PATTERNTRACK_H_
 #define __PATTERNTRACK_H_

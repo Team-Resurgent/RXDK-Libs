@@ -1,9 +1,15 @@
-/***
-*dmrand.c - random number generator
-* Based on rand.c from C run-time
-*
-*	Copyright (c) Microsoft Corporation. All rights reserved.
-*/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private random number generator for DirectMusic (dm_srand / dm_rand),
+ * modelled on the C run-time rand. Uses InterlockedExchange /
+ * InterlockedCompareExchange on the seed so it needs no critical section;
+ * repeatable per-thread sequences are deliberately not a goal.
+ */
 
 // We don't care about multiple threads having independent sequences of random numbers.
 // (Because dmusic's use of srand is always called with the current time, so we are never

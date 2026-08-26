@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Precompiled-header aggregate for the dmscript module: pulls in the common
+// engine, OLE, and shared DirectMusic headers used across these sources.
 
 #include "stdinc.h"
 #include <objbase.h> // Need IClassFactory

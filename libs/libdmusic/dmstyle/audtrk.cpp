@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       audtrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CAuditionTrack -- the DirectMusic audition track implementation.
+ *
+ * An audition track lets an authoring host preview a single pattern in the
+ * context of the current chord and groove. This file implements the
+ * IDirectMusicTrack8 and IPersistStream methods that load the audition
+ * settings and play the selected pattern and variations.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

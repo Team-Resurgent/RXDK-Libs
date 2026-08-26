@@ -1,4 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * User-mode synthesizer implementation (CUserModeSynth). Wraps the shared
+ * CSynth core behind the DirectMusic/KS interfaces so the synth runs as a
+ * user-mode component rather than a kernel miniport.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

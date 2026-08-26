@@ -1,7 +1,16 @@
-// Copyright (c) 1998 Microsoft Corporation
-//
-// Kernel mode DirectMusic DLS level 1 Software Synthesizer
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * PortCls miniport adapter for the kernel-mode DirectMusic DLS Level 1
+ * software synthesizer. This is the driver entry glue: AddDevice and
+ * StartDevice hand the class driver a port/miniport pair and bind the
+ * synth miniport to its hardware resources so the rest of the synthesizer
+ * can run.
+ */
 
 //
 // All the GUIDS for all the miniports end up in this object.

@@ -1,10 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   dmerror.h -- Error code returned by DirectMusic API's               *
-*                                                                       *
-*   Copyright (c) 1998-1999 Microsoft Corporation
-*                                                                       *
-************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dmerror.h -- HRESULT error and success codes returned by the DirectMusic
+ * APIs. Defines the DirectMusic facility and error base plus the DMUS_S_* and
+ * DMUS_E_* result codes.
+ */
 
 #ifdef DXAPI
 #ifndef _DMERROR_

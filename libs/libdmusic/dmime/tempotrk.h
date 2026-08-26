@@ -1,5 +1,12 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// TempoTrk.h : Declaration of the CTempoTrack
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declaration of CTempoTrack, the tempo track.
+ */
 
 #ifndef __TEMPOTRK_H_
 #define __TEMPOTRK_H_

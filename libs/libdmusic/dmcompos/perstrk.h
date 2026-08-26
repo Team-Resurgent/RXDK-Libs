@@ -1,14 +1,14 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       perstrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// PersTrk.h : Declaration of the CPersonalityTrack
+/*
+ * Declaration of CPersonalityTrack and its time-stamped chord map reference
+ * (StampedPersonality) -- the track that changes the active chord map over the
+ * course of a segment.
+ */
 
 #ifndef __PERSONALITYTRACK_H_
 #define __PERSONALITYTRACK_H_

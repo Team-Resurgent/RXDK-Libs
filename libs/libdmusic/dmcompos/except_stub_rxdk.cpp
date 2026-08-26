@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // RXDK-added: minimal in-lib stub for the OLE32 per-thread exception-context
 // accessor. except.hxx (pulled via sem.hxx/memstm by pchcompos, force-included
 // by the dmcompos slice) declares `_ExceptionContext()` and its CTry/CException

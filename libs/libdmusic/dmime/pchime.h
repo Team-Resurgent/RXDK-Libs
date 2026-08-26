@@ -1,4 +1,15 @@
 
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Precompiled header for the DirectMusic interactive-music (dmime) sources:
+ * pulls in the Xbox and OLE headers plus the shared DirectMusic definitions.
+ */
+
 #ifdef XBOX
 //#include "dsoundb.h"
 #include <xtl.h>

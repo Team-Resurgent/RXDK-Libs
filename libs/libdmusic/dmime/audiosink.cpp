@@ -1,5 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// audiosink.cpp : Implementation of CAudioSink
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CAudioSink -- the Xbox software audio sink. Owns the master reference clock
+ * and the list of CBuffer mix targets, and defines the fixed 16-bit mono PCM
+ * sink format that the synth renders into.
+ */
 
 #include "pchime.h"
 

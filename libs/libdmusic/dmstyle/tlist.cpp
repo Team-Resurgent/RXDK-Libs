@@ -1,16 +1,15 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       tlist.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// tlist.cpp
-//
+/*
+ * Out-of-line members of the TList template linked list.
+ *
+ * Provides the template method bodies (such as TListItem's destructor) for the
+ * typed singly-linked list used to hold timed events throughout the style code.
+ */
 
 //#include "stdafx.h"
 #include "tlist.h"

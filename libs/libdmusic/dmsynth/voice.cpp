@@ -1,6 +1,14 @@
-//      Voice.cpp
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Per-voice synthesis. Implements the voice object that plays a single note -
+ * running its pitch/volume envelopes and LFOs, tracking the sample playback
+ * position, and feeding the mix engine one active voice at a time.
+ */
 
 #ifdef DMSYNTH_MINIPORT
 #include "common.h"

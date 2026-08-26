@@ -1,7 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-//
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * oledll.h -- declarations for the OLE server DLL registration helpers
+ * (RegisterServer / UnregisterServer). Desktop-only; the Xbox build compiles
+ * none of it.
+ */
 #ifndef _OLEDLL_
 #define _OLEDLL_
 #ifndef _XBOX_

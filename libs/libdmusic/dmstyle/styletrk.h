@@ -1,14 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       styletrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// StyleTrack.h : Declaration of the CStyleTrack
+/*
+ * Declaration of CStyleTrack and its StyleTrackInfo state.
+ *
+ * StyleTrackInfo (derived from PatternTrackInfo) holds the referenced style and
+ * the current selection state; CStyleTrack is the track object (implementing
+ * IDirectMusicTrack8 and IPersistStream) that plays a style by selecting and
+ * scheduling its patterns.
+ */
 
 #ifndef __STYLETRACK_H_
 #define __STYLETRACK_H_

@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       dmsect.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CDMSection -- implementation of a DirectMusic style section object.
+ *
+ * A section groups the parts and reference streams that make up a portion of a
+ * style. This file implements the section's object-descriptor, load and
+ * reference-resolution methods, including the Xbox stream-on-HGLOBAL shim used
+ * when parsing embedded data.
+ */
 
 // DMSection.cpp : Implementation of CDMSection
 #include "DMSect.h"

@@ -1,12 +1,15 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Helper routines that wrap called to functions in oleaut32.  This enables us to
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// Helper routines that wrap calls to functions in oleaut32.  This enables us to
 // compile free from any dependency on oleaut32.dll.  In this case, some functionality
 // is lost.  For example, only certain types of VARIANT variables are handled correctly
-// in the abscence of oleaut32.
+// in the absence of oleaut32.
 //
 // Defining DMS_USE_OLEAUT allows oleaut32 to be used.
-//
 
 /*#include "stdinc.h"
 #include "oleaut.h"*/

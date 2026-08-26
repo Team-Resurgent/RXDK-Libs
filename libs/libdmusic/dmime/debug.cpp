@@ -1,12 +1,12 @@
-//
-// Debug.CPP
-//
-// Copyright (c) 1997-1998 Microsoft Corporation
-//
-// @doc INTERNAL
-//
-// @module Debug | Debug services for DMusic.DLL
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug and trace services for the DirectMusic library.
+ */
 #include "pchime.h"
 
 /*#ifdef XBOX

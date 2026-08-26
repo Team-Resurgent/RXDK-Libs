@@ -1,16 +1,14 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1998 Microsoft Corporation
-//
-//  File:       tlist.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-//
-// tlist.h --- template version of AList
-//
+/*
+ * Templated version of the composer's AList: TList<T> and TListItem<T> give a
+ * type-safe intrusive linked list used throughout the composition code.
+ */
+
 #ifndef __TLIST_H__
 #define __TLIST_H__
 

@@ -1,14 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       motiftrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// MotifTrk.h : Declaration of the CMotifTrack
+/*
+ * Declaration of CMotifTrack and its MotifTrackInfo state.
+ *
+ * MotifTrackInfo (derived from PatternTrackInfo) records the motif reference
+ * and part being played; CMotifTrack is the track object (implementing
+ * IDirectMusicTrack8 and IPersistStream) that schedules and plays motifs.
+ */
 
 #ifndef __MOTIFTRACK_H_
 #define __MOTIFTRACK_H_

@@ -1,7 +1,13 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-//
-// alist.cpp
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * AListItem / AList -- a minimal singly linked list used throughout DirectMusic
+ * for tracks, tools, notifications and other intrusive lists.
+ */
 #include "pchime.h"
 
 LONG AListItem::GetCount(void) const

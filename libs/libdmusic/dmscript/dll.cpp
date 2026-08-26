@@ -1,10 +1,10 @@
-//
-// dll.cpp
-// 
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Note: Dll entry points as well as class factory implementations.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+// DLL entry points and class-factory implementations for the dmscript module.
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

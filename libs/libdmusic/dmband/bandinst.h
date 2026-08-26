@@ -1,10 +1,17 @@
-//
-// bandinst.h
-// 
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// Note: Originally written by Robert K. Amenn
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Declarations for the band instrument classes.
+ *
+ * CBandInstrument (an AListItem) describes one instrument's patch, bank, pan,
+ * volume and channel settings within a band; CDownloadedInstrument records a
+ * DLS instrument that has been downloaded to a port so it can later be
+ * unloaded. CBandInstrumentList holds the collection of instruments for a band.
+ */
 
 #ifndef BANDINST_H
 #define BANDINST_H

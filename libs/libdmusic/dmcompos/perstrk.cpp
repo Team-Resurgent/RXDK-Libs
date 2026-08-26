@@ -1,33 +1,22 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       perstrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
-// 4530: C++ exception handler used, but unwind semantics are not enabled. Specify -GX
-//
-// We disable this because we use exceptions and do *not* specify -GX (USE_NATIVE_EH in
-// sources).
-//
-// The one place we use exceptions is around construction of objects that call 
-// INITIALIZE_CRITICAL_SECTION. We guarantee that it is safe to use in this case with
-// the restriction given by not using -GX (automatic objects in the call chain between
-// throw and handler are not destructed). Turning on -GX buys us nothing but +10% to code
-// size because of the unwind code.
-//
-// Any other use of exceptions must follow these restrictions or -GX must be turned on.
-//
-// READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//
+/*
+ * Implementation of CPersonalityTrack, the DirectMusic track that carries
+ * time-stamped chord map (personality) references within a segment, so the
+ * chord map can change over the course of playback. Handles play, load and
+ * save (RIFF) of those references.
+ *
+ * Exceptions are used narrowly here, only around constructing objects that
+ * initialize a critical section, without full stack-unwind semantics: automatic
+ * objects between the throw and its handler are not destructed, and any other
+ * exception use must respect that constraint.
+ */
 #pragma warning(disable:4530)
 
-// PersTrk.cpp : Implementation of CPersonalityTrack
 #include "pchcompos.h"
 
 /////////////////////////////////////////////////////////////////////////////

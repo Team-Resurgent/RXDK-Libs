@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * critsec.h -- critical-section and DLL object-count helper macros shared by
+ * the DirectMusic components. Maps the ENTER/LEAVE critical-section macros and
+ * the component lock/unlock counters onto the Xbox primitives, collapsing to
+ * no-ops where the platform does not need them.
+ */
+
 #ifdef XBOX
 extern long g_cComponent;
 #define IncrementDLLCount() 

@@ -1,14 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       audtrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// AudTrk.h : Declaration of the CAuditionTrack
+/*
+ * Declaration of CAuditionTrack and its AuditionTrackInfo state.
+ *
+ * AuditionTrackInfo (derived from PatternTrackInfo) records the pattern,
+ * variations and part selected for audition; CAuditionTrack is the track
+ * object that plays that preview through the IDirectMusicTrack8 interface.
+ */
 
 #ifndef __AUDITIONTRACK_H_
 #define __AUDITIONTRACK_H_

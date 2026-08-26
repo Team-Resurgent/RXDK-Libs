@@ -1,5 +1,14 @@
-// Copyright (c) 1998-1999 Microsoft Corporation
-// audpath.cpp : Implementation of CAudioPath
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CAudioPath and CBufferNode -- routing objects that connect a segment's
+ * output to DirectSound buffers, tracking activation counts and mixbin
+ * assignments.
+ */
 
 #include "pchime.h"
 

@@ -1,15 +1,14 @@
 /*
- 
- 	dls2.h
- 	
- 	Description:
- 
- 	Interface defines and structures for the DLS2 extensions of DLS.
- 
- 
-     Written by Microsoft 1998.  Released for public use.
- 
-*/
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * dls2.h -- interface defines and structures for the DLS2 extensions to the
+ * Downloadable Sounds format. Adds the level-2 articulation, conditional-chunk
+ * and waveform additions layered on top of the DLS1 collection form.
+ */
  
 #ifndef _INC_DLS2
 #define _INC_DLS2

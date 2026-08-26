@@ -1,16 +1,14 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (C) Microsoft Corporation, 1996 - 1999
-
-Module Name:
-
-    ksmedia.h
-
-Abstract:
-
-    WDM-CSA Multimedia Definitions.
-
---*/
+/*
+ * Kernel Streaming multimedia definitions: the audio/MIDI/DirectMusic data
+ * ranges, format GUIDs and property sets built on top of ks.h that describe
+ * synth and audio pins.
+ */
 
 #if !defined(_KS_)
 #error KS.H must be included before KSMEDIA.H

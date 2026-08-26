@@ -1,10 +1,16 @@
-//
-// dmstydll.cpp
-// 
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
-// Note: Dll entry points as well as Class Factory implementations.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DLL entry points and class factories for the dmstyle component.
+ *
+ * Provides the class-object plumbing (DllGetClassObject / DllCanUnloadNow) and
+ * the factories that create the style and track objects (style, chord, command,
+ * mute, motif, audition and related tracks) exposed by this component.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

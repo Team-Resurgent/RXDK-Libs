@@ -1,17 +1,15 @@
-/*++
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-Copyright (C) Microsoft Corporation, 1996 - 1999
-
-Module Name:
-
-    ks.h
-
-Abstract:
-
-    Windows Driver Model/Connection and Streaming Architecture (WDM-CSA)
-    core definitions.
-
---*/
+/*
+ * Kernel Streaming (WDM Connection and Streaming Architecture) core definitions:
+ * the property/method/event set structures, pin and filter descriptors and
+ * related GUIDs. DirectMusic references these when describing synth pins and
+ * audio format types.
+ */
 
 #if !defined(_KS_)
 #define _KS_

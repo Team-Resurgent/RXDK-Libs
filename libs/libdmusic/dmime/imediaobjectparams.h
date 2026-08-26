@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * MIDL-generated declarations for the media-object parameter interfaces.
+ */
+
 /* this ALWAYS GENERATED file contains the definitions for the interfaces */
 
 

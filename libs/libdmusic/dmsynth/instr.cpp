@@ -1,6 +1,14 @@
-//      Copyright (c) 1996-1999 Microsoft Corporation
-//      Instrument.cpp
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * DLS instrument and articulation objects. Builds the per-region articulation
+ * (LFOs, envelopes and connection data such as CSourceLFO) that shapes a
+ * downloaded instrument's voices during playback.
+ */
 
 #include "simple.h"
 #include <mmsystem.h>

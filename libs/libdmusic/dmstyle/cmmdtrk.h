@@ -1,14 +1,16 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       cmmdtrk.h
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// CommandTrack.h : Declaration of the CCommandTrack
+/*
+ * Declaration of CCommandTrack, the DirectMusic command track class.
+ *
+ * Declares the track object that implements IDirectMusicTrack8 and
+ * IPersistStream over the time-ordered groove/embellishment command list that
+ * governs style pattern selection.
+ */
 
 #ifndef __COMMANDTRACK_H_
 #define __COMMANDTRACK_H_

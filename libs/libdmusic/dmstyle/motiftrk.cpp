@@ -1,12 +1,17 @@
-//+-------------------------------------------------------------------------
-//
-//  Microsoft Windows
-//
-//  Copyright (c) 1998-1999 Microsoft Corporation
-//
-//  File:       motiftrk.cpp
-//
-//--------------------------------------------------------------------------
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CMotifTrack -- the DirectMusic motif track implementation.
+ *
+ * A motif track plays named motifs (short reusable patterns) from a style at
+ * scheduled times. This file implements the IDirectMusicTrack8 and
+ * IPersistStream methods that load the motif references and trigger the
+ * matching patterns during playback.
+ */
 
 // READ THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

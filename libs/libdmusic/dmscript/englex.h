@@ -1,9 +1,11 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
-// Declaration of Lexer.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
 
-// Lexical analyzer for AudioVBScript.  Breaks down the characters of source code into a stream tokens.
+// Declaration of Lexer.
+// Lexical analyzer for AudioVBScript.  Breaks down the characters of source code into a stream of tokens.
 
 #pragma once
 

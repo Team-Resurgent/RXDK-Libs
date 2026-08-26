@@ -1,8 +1,19 @@
-//
-// dmband.cpp
-// 
-// Copyright (c) 1997-1999 Microsoft Corporation
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * CBand -- the DirectMusic band object.
+ *
+ * A band is a snapshot of instrument assignments across MIDI channels: the set
+ * of CBandInstrument entries plus their timing and group bits. This file
+ * implements the IDirectMusicBand and IPersistStream methods for loading a band
+ * from a RIFF stream, downloading and unloading its instruments on a
+ * performance or audio path, and sending the program/bank/volume/pan changes
+ * that put the band into effect.
+ */
 
 #include "pchdmband.h"
 

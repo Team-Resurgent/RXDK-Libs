@@ -1,7 +1,10 @@
-// Copyright (c) 1999 Microsoft Corporation. All rights reserved.
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
 // Declaration of CDirectMusicScript.
-//
 
 // CDirectMusicScript is the script object.  A script object is loaded from a script file
 // using the loader's GetObject method.  A script file contains source code in VBScript

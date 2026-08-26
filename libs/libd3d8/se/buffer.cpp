@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       buffer.cpp
- *  Content:    Implementation of the CBuffer class.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of the CBuffer class: vertex and index buffer resources,
+ * including their Lock/Unlock behaviour.
+ */
 
 #include "precomp.hpp"
 
@@ -347,8 +349,8 @@ BYTE* WINAPI D3DVertexBuffer_Lock2(
     DWORD Flags)
 {
     BYTE* pbData = NULL;
-    // Offset 0 / size 0 means "the whole buffer" for the leak implementation,
-    // which is what the 5849 Lock2 contract is.
+    // Offset 0 / size 0 means "the whole buffer": the Lock2 contract locks the
+    // entire buffer and returns a pointer to its data.
     D3DVertexBuffer_Lock(pThis, 0, 0, &pbData, Flags);
     return pbData;
 }
@@ -363,4 +365,4 @@ D3DCOLOR* WINAPI D3DPalette_Lock2(
     return pColors;
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

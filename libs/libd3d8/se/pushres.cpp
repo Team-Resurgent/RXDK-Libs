@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       pushres.cpp
- *  Content:    Contains all functionality for handling push-buffer resources.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Contains all functionality for handling push-buffer resources: recording,
+ * running and fixing up the callable push-buffer objects titles can build.
+ */
  
 #include "precomp.hpp"
 
@@ -2082,4 +2084,4 @@ void WINAPI D3DPushBuffer_CopyRects(
     pPush[1] = pDestinationSurface->Data;
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

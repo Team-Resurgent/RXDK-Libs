@@ -1,12 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dumper.cpp
- *  Content:    Debug help functions for dumping and viewing the push buffer 
- *              contents and current chip state.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug helper functions for dumping and viewing the push-buffer contents and
+ * the current NV2A chip state.
+ */
  
 #include "precomp.hpp"
 
@@ -97,7 +98,7 @@ VOID ParseMethodWrite(
 
     if (Method == PUSHER_METHOD(SUBCH_3D, NV097_NO_OPERATION, 0))
     {
-        // For now, we don't parse called push-buffers.  The 5849 push-buffer
+        // For now, we don't parse called push-buffers.  The push-buffer
         // software methods pack the method into the low bits of the NO_OP
         // parameter as (data << NVX_METHOD_BITS) | method.
 

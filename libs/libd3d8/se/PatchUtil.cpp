@@ -1,11 +1,14 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       PatchUtil.cpp
- *  Content:    High order surface implementation.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * High-order-surface utility routines: basis conversion, forward-difference
+ * matrix setup and caching, and the binomial-coefficient tables that support
+ * patch tessellation.
+ */
 
 #include "precomp.hpp"
 

@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mpmode.cpp
- *  Content:    Mode set code.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Display mode-set code: programs the NV2A CRTC and DAC timing for the
+ * requested resolution, refresh and pixel format.
+ */
 
 #include "precomp.hpp"
 

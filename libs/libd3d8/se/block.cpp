@@ -1,19 +1,20 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       block.cpp
- *  Content:    State block implementation.
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * State block implementation.
  *
  * The whole goal of the Xbox state block implementation is to add as little
- * overhead to non-state-block functionality as is possible.  Specifically, 
- * we have gone out of our way to avoid adding any run-time checks for 
+ * overhead to non-state-block functionality as is possible.  Specifically,
+ * we have gone out of our way to avoid adding any run-time checks for
  * 'record' mode to any of our state-setting routines such as SetRenderState.
  *
  * DOC: Need note about how Registered objects are not referenced properly
  *      by state blocks
- *
- ****************************************************************************/
+ */
 
 #include "precomp.hpp"
  

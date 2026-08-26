@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2002 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       xmetal.h
- *  Content:    Xbox low-level graphics helpers
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox low-level ("metal") graphics helpers: debug and direct hardware access
+ * utilities layered under the Direct3D driver.
+ */
 
 #ifndef _XMETAL_H_
 #define _XMETAL_H_

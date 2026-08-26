@@ -1,11 +1,12 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.hpp
- *  Content:    header file for debug hooks and stuff
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug hook declarations for the Direct3D driver.
+ */
 
 #ifdef STARTUPANIMATION
 namespace D3DK

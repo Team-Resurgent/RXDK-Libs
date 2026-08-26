@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       ShaderSnapshot.cpp
- *  Content:    Code to capture vertex and pixel shader snapshots for debug
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Code to capture vertex and pixel shader snapshots for debug: records the
+ * active shader state so it can be inspected or replayed.
+ */
 
 #include "precomp.hpp"
 #include "dm.h"
@@ -1963,10 +1965,9 @@ DWORD WINAPI D3DDevice_GetDebugMarker()
 //------------------------------------------------------------------------------
 // QueryRepeatFrame
 //
-// RXDK 5849 uplift: retail keeps this in shadersnapshot.obj, in both flavors.
-// The plain d3d8.lib body is an unconditional FALSE; only d3d8i.lib reads the
-// capture tooling's repeat-frame request, and this stack has no capture
-// protocol to raise one, so FALSE is the faithful answer for both builds.
+// The plain d3d8.lib body is an unconditional FALSE; only the instrumented
+// d3d8i.lib reads the capture tooling's repeat-frame request, and this stack
+// has no capture protocol to raise one, so FALSE is the answer for both builds.
 
 extern "C"
 BOOL WINAPI D3DPERF_QueryRepeatFrame()

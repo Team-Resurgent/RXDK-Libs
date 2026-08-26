@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       pusher.cpp
- *  Content:    Handles access to the hardware's push buffer
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Handles access to the hardware's push buffer: reserving space, flushing to
+ * the NV2A FIFO, and the push-buffer-resource fix-up bookkeeping.
+ */
 
 #include "precomp.hpp"
 
@@ -121,7 +123,7 @@ HRESULT CDevice::InitializePushBuffer()
     *m_pGpuTime = (1 << PUSHER_TIME_SHIFT) | PUSHER_TIME_VALID_FLAG;
     m_LastRunPushBufferTime = (1 << PUSHER_TIME_SHIFT) | PUSHER_TIME_VALID_FLAG;
 
-    // 5849 push-buffer-resource fix-up state starts empty: no static-array slot
+    // Push-buffer-resource fix-up state starts empty: no static-array slot
     // is consumed, no run is pending, and there is no tail node to splice onto.
 
     ZeroMemory(m_StaticFixup, sizeof(m_StaticFixup));
@@ -1406,8 +1408,8 @@ VOID WINAPI D3DDevice_InsertCallback(
     PPUSH g_pEndPush;
 #endif
 
-// RXDK 5849 uplift: BeginPush now RETURNS the push pointer (the leak filled an
-// out-parameter). Same reservation semantics.
+// BeginPush RETURNS the push pointer to the reserved space (rather than filling
+// an out-parameter). Same reservation semantics.
 extern "C"
 DWORD* WINAPI D3DDevice_BeginPush(
     DWORD Count)
@@ -2085,4 +2087,4 @@ void WINAPI D3DDevice_EndStateParameterCheck(
     }
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

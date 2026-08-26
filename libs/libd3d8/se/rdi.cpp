@@ -1,11 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       rdi.cpp
- *  Content:    implementation for gpu ram data access
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation for GPU RAM data-instance (RDI) access: reads back NV2A
+ * engine context state from instance memory for debugging and validation.
+ */
 
 #include "precomp.hpp"
 #include "dm.h"

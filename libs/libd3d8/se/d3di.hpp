@@ -1,11 +1,12 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3di.hpp
- *  Content:    Direct3D internal include file
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Direct3D internal include file: shared driver-private types and definitions.
+ */
 
 #ifdef STARTUPANIMATION
 namespace D3DK

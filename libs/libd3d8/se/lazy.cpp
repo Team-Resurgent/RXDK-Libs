@@ -1,12 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       lazy.cpp
- *  Content:    Whacks the hardware for state changes that we handle
- *              lazily
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Flushes deferred state to the hardware: applies the render/texture state
+ * changes that are marked dirty and handled lazily at draw time.
+ */
 
 #include "precomp.hpp"
 

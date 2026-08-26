@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       drawprim.cpp
- *  Content:    Handles the invocation of rendering commands.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Handles the invocation of rendering commands: the DrawPrimitive family that
+ * emits vertex/index data into the push buffer.
+ */
  
 #include "precomp.hpp"
 #include <string.h>   // RXDK: memcpy, replacing the MSVC rep-movsd __asm loops below

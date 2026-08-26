@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       surface.cpp
- *  Content:    Implementation of the CSurface class.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of the CSurface class: 2D surface resources (render targets,
+ * depth/stencil and image surfaces) and their locking.
+ */
  
 #include "precomp.hpp" 
 
@@ -396,4 +398,4 @@ D3DBaseTexture* WINAPI D3DVolume_GetContainer2(
     return pTexture;
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

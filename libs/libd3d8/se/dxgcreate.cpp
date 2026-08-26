@@ -1,11 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       dxgcreate.cpp
- *  Content     Creates the DirectX graphics device object
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Creates the DirectX graphics device object and holds the default
+ * render-state table used to initialise a new device.
+ */
  
 #include "precomp.hpp"
 #include "dm.h"
@@ -247,7 +249,7 @@ D3DCONST DWORD g_InitialRenderStates[] =
     FALSE,                      // D3DRS_POINTOFFSETENABLE         
     FALSE,                      // D3DRS_WIREFRAMEOFFSETENABLE     
     FALSE,                      // D3DRS_SOLIDOFFSETENABLE         
-    D3DDCC_CULLPRIMITIVE,       // D3DRS_DEPTHCLIPCONTROL (RXDK 5849 uplift)
+    D3DDCC_CULLPRIMITIVE,       // D3DRS_DEPTHCLIPCONTROL
     FALSE,                      // D3DRS_STIPPLEENABLE
     0,                          // D3DRS_SIMPLE_UNUSED8
     0,                          // D3DRS_SIMPLE_UNUSED7
@@ -292,7 +294,7 @@ D3DCONST DWORD g_InitialRenderStates[] =
     D3DPATCHEDGE_DISCRETE,      // D3DRS_PATCHEDGESTYLE            
     F_ONE,                      // D3DRS_PATCHSEGMENTS             
     0xdeadbeef,                 // D3DRS_SWAPFILTER (already set)
-    D3DPRESENT_INTERVAL_DEFAULT,// D3DRS_PRESENTATIONINTERVAL (RXDK 5849 uplift)
+    D3DPRESENT_INTERVAL_DEFAULT,// D3DRS_PRESENTATIONINTERVAL
     0,                          // D3DRS_DEFERRED_UNUSED8
     0,                          // D3DRS_DEFERRED_UNUSED7
     0,                          // D3DRS_DEFERRED_UNUSED6
@@ -323,7 +325,7 @@ D3DCONST DWORD g_InitialRenderStates[] =
     D3DMULTISAMPLEMODE_1X,      // D3DRS_MULTISAMPLEMODERENDERTARGETS
     D3DCMP_NEVER,               // D3DRS_SHADOWFUNC                
     F_ONE,                      // D3DRS_LINEWIDTH                 
-    0,                          // D3DRS_SAMPLEALPHA (RXDK 5849 uplift)
+    0,                          // D3DRS_SAMPLEALPHA
     TRUE,                       // D3DRS_DXT1NOISEENABLE
     FALSE,                      // D3DRS_YUVENABLE
     TRUE,                       // D3DRS_OCCLUSIONCULLENABLE

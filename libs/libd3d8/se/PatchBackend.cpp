@@ -1,11 +1,14 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       PatchBackend.cpp
- *  Content:    High order surface implementation.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * High-order-surface (patch) back end: emits the NV2A push-buffer commands
+ * that drive the hardware tessellator -- guard curves and the Begin-Patch
+ * control words for both integer and fractional tessellations.
+ */
 
 #include "precomp.hpp"
 

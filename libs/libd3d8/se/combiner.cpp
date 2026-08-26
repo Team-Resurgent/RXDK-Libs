@@ -1,12 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       combiner.cpp
- *  Content:    Handles the setting of the combiner registers for the
- *              D3D fixed function pipeline
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Handles the setting of the NV2A register-combiner registers for the D3D
+ * fixed-function pipeline (texture stage and colour/alpha blend state).
+ */
  
 #include "precomp.hpp"
 

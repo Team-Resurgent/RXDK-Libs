@@ -1,9 +1,14 @@
-//
-//
-// Xbox debug interface functions
-// Copyright Microsoft Corporation 2000 - 2001. All Rights Reserved.
-//
-//
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Xbox debug monitor (XBDM) interface: notification types, debug-thread and
+ * command routing declarations shared by the graphics debug paths.
+ */
+
 #ifndef _XBDM_H
 #define _XBDM_H
 

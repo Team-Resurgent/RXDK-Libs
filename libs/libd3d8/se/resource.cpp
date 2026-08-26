@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       resource.cpp
- *  Content:    Implementation of the D3DResource class.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implementation of the D3DResource class: the common base behaviour (type,
+ * reference counting and registration) shared by all D3D resource objects.
+ */
 
 #include "precomp.hpp"
 

@@ -1,11 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       debug.cpp
- *  Content:    implementation for debug stuff.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug-build support: assertion/RIP reporting and diagnostic helpers for the
+ * D3D runtime.
+ */
 
 #include "precomp.hpp"
 

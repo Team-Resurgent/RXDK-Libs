@@ -1,11 +1,14 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       PatchConst.cpp
- *  Content:    High order surface implementation.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * High-order-surface constant tables: the precomputed basis matrices (Bezier,
+ * B-spline, Catmull-Rom and their inverses) and forward-difference conversion
+ * matrices used by the patch tessellation math.
+ */
 
 #include "precomp.hpp"
 

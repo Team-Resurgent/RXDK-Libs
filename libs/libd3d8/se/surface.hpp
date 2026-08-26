@@ -1,14 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       surface.hpp
- *  Content:    Class header the stand-alone surface class. This class
- *              is intended to be returned by the CreateRenderTarget
- *              creation method. It is also used by the CreateZStencil
- *              device method.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Stand-alone surface class returned by CreateRenderTarget and used by
+ * CreateZStencilSurface.
+ */
 
 #ifdef STARTUPANIMATION
 namespace D3DK

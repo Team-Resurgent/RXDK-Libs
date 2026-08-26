@@ -1,11 +1,14 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       patch.cpp
- *  Content:    High order surface implementation.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * High-order-surface (patch) front end: the D3D-facing DrawRectPatch /
+ * DrawTriPatch entry points that set up patch descriptions and drive the
+ * tessellation back end.
+ */
  
 #include "precomp.hpp"
 

@@ -1,12 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       enum.cpp
- *  Content     Handles all of the enum functions for determing what device
- *              you want before you go there.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Handles all of the enumeration functions for determining device
+ * capabilities and supported formats before a device is created.
+ */
  
 #include "precomp.hpp"
 

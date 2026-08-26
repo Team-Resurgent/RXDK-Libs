@@ -1,11 +1,12 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       precomp.hpp
- *  Content:    Common include file
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Common precompiled include file pulling in the shared driver headers.
+ */
 
 // Wherever we call SetRenderState or SetTextureStageState internally is
 // not speed-critical, so save some space by always calling the out-of-

@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       mpintr.cpp
- *  Content:    interrupt service related functions
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * NV2A interrupt service routines: fields the graphics interrupts, dispatches
+ * software methods (flip, etc.) and drives the vblank/swap callbacks.
+ */
 
 #include "precomp.hpp"
 
@@ -930,11 +932,11 @@ CMiniport::ServiceVideoInterrupt()
 // called.  We also provide a general mechanism for doing per-call fix-ups
 // for Transform data and the like.
 
-// This is the 5849 free-function form: it walks the linked list of nodes via
-// 'Next', patches each node's return-count dword with count+1, and applies each
-// node's user record stream.  It does NOT itself write the FIFO subroutine
-// register or the run bookkeeping (the 4400 member did) - the pusher owns the
-// jump, and the FIFO/run bookkeeping now lives in the SoftwareMethod dispatch.
+// This walks the linked list of nodes via 'Next', patches each node's
+// return-count dword with count+1, and applies each node's user record stream.
+// It does NOT itself write the FIFO subroutine register or the run bookkeeping
+// - the pusher owns the jump, and the FIFO/run bookkeeping lives in the
+// SoftwareMethod dispatch.
 // WARNING: nodes may live in write-combined memory.
 
 VOID
@@ -1002,7 +1004,7 @@ CMiniport::SoftwareMethod(
 {
     BYTE* RegisterBase = (BYTE*)m_RegisterBase;
 
-    // 5849 packed software-method ABI: the low bits are the method, the rest is
+    // Packed software-method ABI: the low bits are the method, the rest is
     // the method's data.  Register-carried methods ignore Data and read their
     // pointer/value from the ZSTENCIL/COLOR shadow registers.
     ULONG Method = Arg & NVX_METHOD_MASK;
@@ -1012,7 +1014,7 @@ CMiniport::SoftwareMethod(
     {
     case NVX_FLIP:
         {
-            // Packed flip (5849): the video offset, the immediate (no-vsync)
+            // Packed flip: the video offset, the immediate (no-vsync)
             // flag and the swap interval are all folded into Data.
             DWORD Offset    = Data & NVX_FLIP_OFFSET_MASK;
             BOOL  Immediate = (Data & NVX_FLIP_IMMEDIATE) != 0;

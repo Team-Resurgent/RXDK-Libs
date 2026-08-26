@@ -1,11 +1,14 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       pshader.cpp
- *  Content:    Pixel shader implementation.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Pixel shader implementation: creation, validation and binding of pixel
+ * shaders, translating the D3D pixel-shader definition into NV2A combiner and
+ * shader-stage register state.
+ */
  
 #include "precomp.hpp"
 
@@ -295,8 +298,8 @@ namespace D3D
 //------------------------------------------------------------------------------
 // D3DDevice_CreatePixelShader
 
-// RXDK 5849 uplift: the 5849 header declares this void (errors RIP in debug;
-// retail out-of-memory leaves *pHandle untouched, exactly like the retail lib).
+// This entry point returns void: errors RIP in debug, and an out-of-memory
+// failure leaves *pHandle untouched.
 extern "C"
 VOID WINAPI D3DDevice_CreatePixelShader(
     CONST D3DPIXELSHADERDEF *pPSDef,

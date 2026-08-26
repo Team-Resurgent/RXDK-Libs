@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       present.cpp
- *  Content:    Support for handling the Present and Swap APIs
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Support for handling the Present and Swap APIs: queues the buffer flip as an
+ * NV2A software method and manages the swap interval and vblank timing.
+ */
 
 #include "precomp.hpp"
 #include "dm.h"
@@ -21,11 +23,11 @@ namespace D3D
 // EncodeFlip
 //
 // Pack the flip video-offset and flags into the NVX_FLIP software-method
-// parameter (5849 ABI).  The video offset is 16-byte aligned, so the low nibble
+// parameter.  The video offset is 16-byte aligned, so the low nibble
 // of the packed data carries the immediate flag (bit 3) and the swap interval
 // (bits 0-2); the miniport's SoftwareMethod unpacks it as
-// method = arg & NVX_METHOD_MASK, data = arg >> NVX_METHOD_BITS.  Unlike the
-// 4400 code, the offset is NOT stashed in NV097_SET_ZSTENCIL_CLEAR_VALUE.
+// method = arg & NVX_METHOD_MASK, data = arg >> NVX_METHOD_BITS.  The offset
+// is NOT stashed in NV097_SET_ZSTENCIL_CLEAR_VALUE.
 
 static __inline DWORD EncodeFlip(CDevice* pDevice, DWORD flipAddress)
 {
@@ -561,7 +563,7 @@ static VOID SwapCopy(
             // change, and doing the INCREMENT_READ_3D at the next Vblank.
 
             // The flip video-offset + flags are packed into the NVX_FLIP
-            // software-method parameter (5849 ABI); no ZSTENCIL side channel.
+            // software-method parameter; no ZSTENCIL side channel.
 
             DWORD flipAddress = pDevice->m_pFrameBuffer[1]->Data;
 
@@ -645,7 +647,7 @@ static VOID SwapCopy(
             // beneficial side-effect of handling any posted gamma ramp 
             // changes.
         
-            // The flip video-offset + flags are packed into NVX_FLIP (5849);
+            // The flip video-offset + flags are packed into NVX_FLIP;
             // no ZSTENCIL side channel.
 
             Push1(pPush, NV097_NO_OPERATION, EncodeFlip(pDevice, flipAddress));
@@ -727,7 +729,7 @@ static VOID SwapFlip(
 
     Push1(pPush, NV097_WAIT_FOR_IDLE, 0);
 
-    // The flip video-offset + flags are packed into NVX_FLIP (5849); no
+    // The flip video-offset + flags are packed into NVX_FLIP; no
     // ZSTENCIL side channel.
 
     Push1(pPush + 2,

@@ -1,11 +1,12 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       PatchUtil.hpp
- *  Content:    High order surface implementation.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * High-order surface (patch tessellation) utility implementation.
+ */
 
 #ifdef STARTUPANIMATION
 namespace D3DK

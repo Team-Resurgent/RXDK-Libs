@@ -1,18 +1,18 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       state.cpp
- *  Content:    Handles any state-changing APIs, either by whacking the
- *              hardware immediately or marking them as dirty for
- *              later lazy setting.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Handles the state-changing APIs, either by whacking the hardware immediately
+ * or marking the state dirty for later lazy setting.
+ */
  
 #include "precomp.hpp"
 
-// RXDK 5849 uplift: the 5849 public header removed D3DTSS_TCI_SPHERE from the
-// title-facing surface; the driver keeps handling the legacy value.
+// The public header no longer exposes D3DTSS_TCI_SPHERE to titles; the driver
+// still handles the legacy value, so define it here if it is absent.
 #ifndef D3DTSS_TCI_SPHERE
 #define D3DTSS_TCI_SPHERE 0x00050000
 #endif
@@ -73,7 +73,7 @@ D3DCONST SetComplexRenderStateFunction g_ComplexRenderStateFunctionTable[] =
     D3DDevice_SetRenderState_MultiSampleRenderTargetMode,
     D3DDevice_SetRenderState_ShadowFunc,
     D3DDevice_SetRenderState_LineWidth,
-    D3DDevice_SetRenderState_SampleAlpha,   // RXDK 5849 uplift: D3DRS_SAMPLEALPHA
+    D3DDevice_SetRenderState_SampleAlpha,   // D3DRS_SAMPLEALPHA
     D3DDevice_SetRenderState_Dxt1NoiseEnable,
     D3DDevice_SetRenderState_YuvEnable,
     D3DDevice_SetRenderState_OcclusionCullEnable,
@@ -198,9 +198,9 @@ D3DCONST DWORD g_RenderStateEncodings[] =
     E(NV097_SET_POLY_OFFSET_LINE_ENABLE),      D3DRS_WIREFRAMEOFFSETENABLE,
     E(NV097_SET_POLY_OFFSET_FILL_ENABLE),      D3DRS_SOLIDOFFSETENABLE,
 
-    // RXDK 5849 uplift: the simple section grew by ten states.  The unused
-    // slots use NV097_SET_COLOR_CLEAR_VALUE as the parameterized NOP, same as
-    // the reserved slot above (and byte-identical to the 5849 header table).
+    // The simple section carries ten additional states.  The unused slots use
+    // NV097_SET_COLOR_CLEAR_VALUE as the parameterized NOP, same as the
+    // reserved slot above.
     E(NV097_SET_ZMIN_MAX_CONTROL),             D3DRS_DEPTHCLIPCONTROL,
     E(NV097_SET_STIPPLE_CONTROL),              D3DRS_STIPPLEENABLE,
     E(NV097_SET_COLOR_CLEAR_VALUE),            D3DRS_SIMPLE_UNUSED8,
@@ -627,7 +627,7 @@ VOID WINAPI D3DDevice_SetRenderState_Dxt1NoiseEnable(
         Push1(pPush, NV097_WAIT_FOR_IDLE, 0);
 
         // NVX_DXT1_NOISE_ENABLE data (the dither-enable flag) is packed into the
-        // NVX software-method parameter (5849 ABI).
+        // NVX software-method parameter.
 
         Push1(pPush + 2,
               NV097_NO_OPERATION,
@@ -2725,4 +2725,4 @@ void WINAPI D3DDevice_GetViewportOffsetAndScale(
     pScale->w = 0.0f;
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

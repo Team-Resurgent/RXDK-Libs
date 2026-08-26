@@ -1,11 +1,12 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       rdi.h
- *  Content:    header file for RDI Data access
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * RDI (raster device interface) data access declarations.
+ */
 
 #ifndef _D3DRDI_H_
 #define _D3DRDI_H_

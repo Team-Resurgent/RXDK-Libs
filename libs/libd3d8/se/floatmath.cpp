@@ -1,11 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       floatmath.cpp
- *  Content:    Private impementation of floating-point math routines.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Private implementation of the floating-point math routines used by the
+ * per-vertex transform path (x87 transcendentals and SSE helpers).
+ */
 
 #include "precomp.hpp"
 #include <math.h>

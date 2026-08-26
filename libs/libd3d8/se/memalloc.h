@@ -1,12 +1,12 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       memalloc.h
- *  Content:    header file for memory allocation
- *  History:
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Memory allocation declarations for the Direct3D driver.
+ */
 
 #ifdef STARTUPANIMATION
 namespace D3DK

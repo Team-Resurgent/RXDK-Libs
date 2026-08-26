@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) 2000 - 2001 Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3d8perf.h
- *  Content:    Xbox Direct3D debug library API
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * X-macro list of Direct3D performance counters. The including translation
+ * unit defines DEFINE_PERF to expand each counter as needed.
+ */
 
 #ifdef DEFINE_PERF
 

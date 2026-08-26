@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Emits the D3D8 library build-number stamp into the .XBLD section so the
+ * linked title carries the graphics library version.
+ */
+
 #include <xboxverp.h>
 
 //

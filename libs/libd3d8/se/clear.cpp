@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       clear.cpp
- *  Content:    Handles wacking the hardware for the Clear command
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Implements the Clear command: programs the NV2A to clear the colour, depth
+ * and stencil buffers over the requested rectangles.
+ */
  
 #include "precomp.hpp"
 

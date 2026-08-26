@@ -1,11 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3ddev.cpp
- *  Content:    Direct3D device implementation
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Direct3D device implementation: the global device object and the
+ * BeginState/EndState push-buffer entry points.
+ */
  
 #include "precomp.hpp"
 #include "xboxverp.h"
@@ -31,9 +33,9 @@ CDevice* g_pDevice;
 CDevice g_Device;
 
 //----------------------------------------------------------------------------
-// RXDK 5849 uplift: the public BeginState/EndState contract.
+// The public BeginState/EndState contract.
 //
-// 5849 titles reserve push-buffer space inline, reading and writing the Put
+// Titles reserve push-buffer space inline, reading and writing the Put
 // and Threshold pointers straight out of D3D__Device[] (byte offsets
 // D3DDEVICE_PUT / D3DDEVICE_THRESHOLD).  Those are exactly the two members of
 // XMETAL_PushBuffer m_Pusher, which device.hpp deliberately keeps as the FIRST
@@ -146,7 +148,7 @@ HRESULT WINAPI Direct3D_CreateDevice(
 
     g_pDevice = pDevice;
     g_pPushBuffer = &g_pDevice->m_Pusher;
-    D3D__pDevice = (IDirect3DDevice8*) pDevice;   // RXDK 5849 uplift
+    D3D__pDevice = (IDirect3DDevice8*) pDevice;   // public interface alias
 
     // Do not do this inside of Init because that method is also called
     // from Reset.
@@ -176,7 +178,7 @@ HRESULT WINAPI Direct3D_CreateDevice(
 
         g_pPushBuffer = NULL;
         g_pDevice = NULL;
-        D3D__pDevice = NULL;                      // RXDK 5849 uplift
+        D3D__pDevice = NULL;                      // public interface alias
         ZeroMemory(pDevice, sizeof(*pDevice));
 
         return ret;

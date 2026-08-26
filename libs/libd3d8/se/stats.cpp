@@ -1,11 +1,13 @@
-/*==========================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       stats.cpp
- *  Content:    implementation for debug-only statistics gathering
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Debug-only statistics gathering, plus the PIX-style event/marker entry
+ * points used by profiling tools.
+ */
 
 #include "precomp.hpp"
 #include "dm.h"
@@ -1148,20 +1150,19 @@ BYTE * WINAPI D3DPERF_GetRegisterBase()
 
 
 
-// RXDK 5849 uplift: PIX-style event markers (moved from se/uplift5849.cpp)
 //------------------------------------------------------------------------------
 // PIX-style event markers.
 //
-// Retail d3d8.lib exports these three, unlike the profiling counters
+// The plain d3d8.lib exports these three, unlike the profiling counters
 // (D3DPERF_Reset/GetStatistics/...), which exist only in d3d8d.lib and
 // d3d8i.lib. Titles use them to bracket and label regions of a frame -- Fur
 // wraps FrameMove in BeginEvent/EndEvent.
 //
-// On retail hardware they fed the analysis tools that consumed the annotation
-// stream. RXDK has no such consumer, so they keep the nesting depth (which is
-// what BeginEvent/EndEvent are specified to return) and otherwise do nothing.
-// That is the honest behaviour: a title's control flow and return values are
-// unchanged, and no annotation is silently claimed to have been recorded.
+// They exist to feed analysis tools that consume the annotation stream. With
+// no such consumer present, they keep the nesting depth (which is what
+// BeginEvent/EndEvent are specified to return) and otherwise do nothing:
+// a title's control flow and return values are unchanged, and no annotation is
+// silently claimed to have been recorded.
 //------------------------------------------------------------------------------
 
 // extern "C": these are C entry points that titles reach through d3d8perf.h's

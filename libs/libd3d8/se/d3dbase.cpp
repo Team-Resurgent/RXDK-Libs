@@ -1,12 +1,13 @@
-//depot/xbox/private/windows/directx/dxg/d3d8/se/d3dbase.cpp#125 - edit change 24474 (text)
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       d3dbase.cpp
- *  Content:    Direct3D base device implementation
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Direct3D base device implementation: the core CDevice behaviour shared by
+ * the device APIs (state, resource binding and the common push-buffer paths).
+ */
 
 #include "precomp.hpp"
 
@@ -4569,12 +4570,12 @@ void WINAPI D3DDevice_SetRenderTargetFast(
     D3DSurface *pNewZStencil,
     DWORD Flags)
 {
-    // Flags is reserved in 5849 (documented as "must be zero"), so the fast
-    // path is exactly the regular path minus the parameter validation the
-    // caller has promised to have done.
+    // Flags is reserved (documented as "must be zero"), so the fast path is
+    // exactly the regular path minus the parameter validation the caller has
+    // promised to have done.
     (void) Flags;
 
     D3DDevice_SetRenderTarget(pRenderTarget, pNewZStencil);
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

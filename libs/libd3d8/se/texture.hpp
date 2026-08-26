@@ -1,12 +1,13 @@
-/*==========================================================================;
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       texture.hpp
- *  Content:    Base class for all texture objects. Texture management is
- *              done at this level.
- *
- ***************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Base class for all texture objects; texture management is handled at this
+ * level.
+ */
 
 #ifdef STARTUPANIMATION
 namespace D3DK

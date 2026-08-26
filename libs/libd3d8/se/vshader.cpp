@@ -1,11 +1,13 @@
-/*============================================================================
- *
- *  Copyright (C) Microsoft Corporation.  All Rights Reserved.
- *
- *  File:       vshader.cpp
- *  Content:    Contains all of the vertex shader and stream logic.
- *
- ****************************************************************************/
+/*
+ * Copyright (C) 2026 Team-Resurgent
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ */
+
+/*
+ * Contains all of the vertex shader and stream logic: shader creation and
+ * binding, vertex stream sources and the input-layout state feeding the NV2A.
+ */
  
 #include "precomp.hpp"
 
@@ -2944,4 +2946,4 @@ void D3DFASTCALL D3DDevice_SetVertexShaderConstantNotInlineFast(
     SetVertexShaderConstantWorker(Register, pConstantData, ConstantCount, FALSE);
 }
 
-}   // namespace  (RXDK 5849 uplift, moved from se/uplift5849.cpp)
+}   // namespace

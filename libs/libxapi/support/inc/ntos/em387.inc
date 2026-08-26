@@ -3,11 +3,9 @@
 ;***
 ;em387.inc - Emulator Internal Format and Macros
 ;
-;	 Microsoft Confidential
-;
-;	 Copyright (c) Microsoft Corporation 1987, 1992
-;
-;	 All Rights Reserved
+;	 Copyright (C) 2026 Team-Resurgent
+;	 SPDX-License-Identifier: GPL-3.0-or-later
+;	 Part of RXDK - see LICENSE.md for the full GNU GPL v3.
 ;
 ;Purpose:
 ;	Emulator Internal Format and Macros

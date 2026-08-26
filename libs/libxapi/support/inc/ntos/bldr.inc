@@ -1,16 +1,10 @@
-;++
 ;
-;  Copyright (c) 2000-2001  Microsoft Corporation
+; Copyright (C) 2026 Team-Resurgent
+; SPDX-License-Identifier: GPL-3.0-or-later
+; Part of RXDK - see LICENSE.md for the full GNU GPL v3.
 ;
-;  Module Name:
+; bldr.inc -- shared constants for the various boot loaders.
 ;
-;     bldr.inc
-;
-;  Abstract:
-;
-;     This module contains shared constants for the various boot loaders.
-;
-;--
 
 ;
 ; Define the starting physical address where the ROM decrypts the boot loader

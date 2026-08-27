@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <threads.h>
+#include <time.h>
 
 #include "xbox/kernel.h"
 
@@ -225,6 +226,29 @@ void thrd_yield(void)
     KeDelayExecutionThread(0, FALSE, &zero);
 }
 
+/* Convert an absolute C11 deadline (TIME_UTC, as passed to mtx_timedlock /
+   cnd_timedwait) into a relative kernel timeout: negative 100ns ticks, the form
+   KeWaitForSingleObject / KeDelayExecutionThread expect. Returns 0 when the deadline
+   has already passed (or no clock is available), so callers time out promptly rather
+   than blocking forever. */
+static int rxdk_reltimeout(const struct timespec *abs_ts, PLARGE_INTEGER out)
+{
+    struct timespec now;
+    long long rel_ns;
+    if (timespec_get(&now, TIME_UTC) != TIME_UTC) {
+        out->QuadPart = 0;
+        return 0;
+    }
+    rel_ns = ((long long)abs_ts->tv_sec - (long long)now.tv_sec) * 1000000000LL
+             + ((long long)abs_ts->tv_nsec - (long long)now.tv_nsec);
+    if (rel_ns <= 0) {
+        out->QuadPart = 0;
+        return 0;
+    }
+    out->QuadPart = -(rel_ns / 100LL); /* relative 100ns ticks are negative */
+    return 1;
+}
+
 /* ---- lazy first-use init --------------------------------------------------- */
 /*
  * C11 has no static initializer for mtx_t/cnd_t, yet libc++'s C11 thread
@@ -309,8 +333,23 @@ int mtx_trylock(mtx_t *mtx)
 
 int mtx_timedlock(mtx_t *restrict mtx, const struct timespec *restrict ts)
 {
-    (void)ts; /* timeout not yet honored; block */
-    return mtx_lock(mtx);
+    if (!mtx)
+        return thrd_error;
+    mtx_ensure(mtx);
+    if (!ts)
+        return mtx_lock(mtx);
+    /* RTL critical sections have no timed acquire, so poll try-enter with a short
+       back-off until the deadline. Recursive acquisition still works (try-enter on
+       an already-owned section succeeds immediately). */
+    for (;;) {
+        LARGE_INTEGER nap;
+        if (RtlTryEnterCriticalSection((PRTL_CRITICAL_SECTION)mtx))
+            return thrd_success;
+        if (!rxdk_reltimeout(ts, &nap))
+            return thrd_timedout;
+        nap.QuadPart = -10000LL; /* back off 1 ms (100ns ticks) before retrying */
+        KeDelayExecutionThread(0, FALSE, &nap);
+    }
 }
 
 int mtx_unlock(mtx_t *mtx)
@@ -366,8 +405,24 @@ int cnd_wait(cnd_t *cond, mtx_t *mtx)
 int cnd_timedwait(cnd_t *restrict cond, mtx_t *restrict mtx,
                   const struct timespec *restrict ts)
 {
-    (void)ts; /* timeout not yet honored */
-    return cnd_wait(cond, mtx);
+    struct rxdk_cnd *c = (struct rxdk_cnd *)cond;
+    LARGE_INTEGER timeout;
+    NTSTATUS st;
+    if (!c || !mtx)
+        return thrd_error;
+    if (!ts)
+        return cnd_wait(cond, mtx);
+    cnd_ensure(cond);
+    /* Compute the timeout while still holding mtx; if the deadline has already
+       passed, return timed-out with mtx still held (as C11 requires). */
+    if (!rxdk_reltimeout(ts, &timeout))
+        return thrd_timedout;
+    c->waiters++; /* caller holds mtx */
+    mtx_unlock(mtx);
+    st = KeWaitForSingleObject(&c->ev, 0, 0, FALSE, &timeout);
+    mtx_lock(mtx);
+    c->waiters--;
+    return st == (NTSTATUS)STATUS_TIMEOUT ? thrd_timedout : thrd_success;
 }
 
 int cnd_signal(cnd_t *cond)

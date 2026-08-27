@@ -849,6 +849,16 @@ HRESULT __stdcall XMVDecoder_Play(XMVDecoder *pDecoder, DWORD Flags, RECT *pRect
         if (FAILED(hr))
             break;
 
+        // Service the audio stream we own so queued packets complete and their
+        // ring slots recycle. A title using this blocking path (e.g. SimpleXMV)
+        // never calls DirectSoundDoWork itself -- the decoder owns audio in the
+        // ppStream==NULL model -- so without this the XMV_AUDIO_PACKETS ring fills
+        // after a couple of seconds, PumpAudio starts dropping slices, and audio
+        // stops even though the movie plays on. Gated on audio_enabled: the stream
+        // exists (DirectSoundCreateStream succeeded) so the audio system is up.
+        if (pDecoder->audio_enabled)
+            DirectSoundDoWork();
+
         if (result == XMV_NEWFRAME) {
             D3DDevice_UpdateOverlay(pSurface, &srcRect, &dstRect, FALSE, 0);
             continue;

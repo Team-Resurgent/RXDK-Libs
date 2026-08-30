@@ -393,4 +393,21 @@ IUsbInit::Process()
     //  count is not included, ever.  Isoch endpoints are allocated differently.
     //
     m_HcdResources.EndpointCount += ulInterruptEndpoints;
+
+    //
+    //  RXDK: reserve a baseline isochronous-endpoint pool.
+    //
+    //  The stock class-driver table (rxdk_usb_class_pointers) declares no iso
+    //  resources, and RXDK does not walk app-provided XPP class drivers (the
+    //  USBD_*ClassDescriptionTable brackets are stubbed), so a title that drives an
+    //  iso device directly -- e.g. the original Xbox Video Camera / Communicator,
+    //  claimed by hand via URB_FUNCTION_ISOCH_OPEN_ENDPOINT -- would otherwise find
+    //  an empty iso pool and fail every open with USBD_STATUS_NO_MEMORY. Reserve a
+    //  small pool (enough for a camera's 8-packet iso buffer, with margin) so iso
+    //  peripherals work without a registered class driver. Cost is a few hundred
+    //  bytes of HCD pool when unused.
+    //
+    if(m_HcdResources.IsochEndpointCount < 2)
+        m_HcdResources.IsochEndpointCount = 2;
+    SetToMax(m_HcdResources.IsochMaxBuffers, 16);
 }

@@ -1,68 +1,62 @@
 # RXDK-Libs tests
 
-Small RXDK titles that verify library findings on real hardware / xemu — the
-place to turn a claim ("does X actually work?") into a runnable PASS/FAIL check.
-Each test is a normal RXDK project (`.vcxproj` + `rxdk.project.json`) that builds
-an `.xbe`, prints results with `DbgPrint`, and parks. Open `RxdkTests.sln` in
-Visual Studio (with the RXDK extension) or open a test folder in VS Code.
+`RxdkTests` is one RXDK title that runs every library check and prints a
+`PASS`/`FAIL` line per check — so a single boot on xemu or real hardware verifies
+the lot. It's the place to turn a claim ("does X actually work?") into a runnable
+result. Open `RxdkTests.sln` in Visual Studio (with the RXDK extension) or open
+the `RxdkTests/` folder in VS Code.
 
-## Running a test
+## What it checks
 
-1. **Build the libs the test links against, and stage them into the SDK** the
-   project resolves (`C:\ProgramData\RXDK\sdk\lib\{debug,release}`), so the test
-   exercises *current* source rather than the last-published SDK:
+| Section | Verifies |
+|---------|----------|
+| C11 thread timeouts | `mtx_timedlock` / `cnd_timedwait` honor their deadline (`thrd_timedout`) instead of blocking forever. |
+| Relative paths | default cwd is `D:\` (title dir), and relative `fopen`/`stat` resolve there (a deployed `probe.dat`). |
+| MSVC string format | `%S`/`%C`/`%I64d` are translated through the bounded `snprintf`/`vsnprintf` (SDL's `SDL_vsnprintf` path). |
+| C++ exceptions | throw across a frame, destructor on unwind, catch-by-type, `what()`, rethrow. Needs `"exceptions": true`. |
 
-   ```bash
-   ./build.ps1                 # from the repo root: builds dist\lib + dist\include
-   # then copy dist\lib\{debug,release}\*.lib and dist\include\* into
-   # C:\ProgramData\RXDK\sdk\  (or use the extension's "Fetch Latest RXDK-SDK"
-   # once a change is published)
-   ```
+## Running it
 
-2. **Build + deploy + run** the test: open `RxdkTests.sln`, pick `Debug|Xbox`,
-   build, then Deploy to your Xbox / launch in xemu. Or from VS Code, open the
-   test folder and use RXDK: Build / Deploy / Run.
+**Build the libs it links, and stage them into the SDK** the project resolves
+(`C:\ProgramData\RXDK\sdk\lib\{debug,release}`), so the test exercises *current*
+source. For a single lib: `zig build libc -Doptimize=Debug` then copy
+`zig-out\lib\libc.lib` over the SDK's; for a full refresh, `build.ps1` +
+`scripts\publish-sdk.ps1`.
 
-3. **Read the results** on the debug monitor (xbWatson) — each test prints
-   `PASS`/`FAIL` lines and a `pass=N fail=N` summary.
+**In VS / VS Code:** build `RxdkTests`, then Deploy to your Xbox / Launch in
+xemu, and read the `DbgPrint` output on xbWatson.
 
-## Tests
+**On xemu from the command line** (devkit build, so `DbgPrint` reaches the
+serial port): point the DVD at the ISO and route serial to stdout —
 
-| Project | Finding under test |
-|---------|--------------------|
-| `ThreadTimeouts` | C11 `<threads.h>` timed primitives: `mtx_timedlock` and `cnd_timedwait` actually honor their deadline (return `thrd_timedout`) instead of blocking forever. |
-| `Exceptions` | C++ DWARF/Itanium exceptions: throw across a frame, destructor runs during unwind, catch by type, `what()`, rethrow. Requires `"exceptions": true` (see below). |
-| `RelativePaths` | Plain `fopen`/`stat` with a *relative* path resolve against the title directory (`D:\`), and follow `chdir`. |
-| `StringFormat` | MSVC `%S`/`%C`/`%I64d` are translated through the bounded `snprintf`/`vsnprintf` too (not just `sprintf`/`_snprintf`), so SDL's `SDL_vsnprintf` path works. |
+```bash
+# from the xemu working dir (portable config with relative rom paths):
+#   set dvd_path in xemu.toml to <...>\RxdkTests\out\Debug\XISO\RxdkTests.iso
+./xemu.exe -device lpc47m157 -serial stdio
+```
+
+The `-device lpc47m157 -serial stdio` pair is what surfaces `DbgPrint`; without
+it the debug output only shows in xemu's own debug view.
 
 ## Findings so far
 
-- **MSVC `%S` works through `snprintf`/`vsnprintf` now.** RXDK translated
-  MSVC's `%S`/`%C`/`%I64` for `sprintf` and the `_snprintf` family, but the
-  standard `snprintf`/`vsnprintf` were picolibc's untranslated versions -- so a
-  bare `snprintf("%S", L"...")` (SDL's `SDL_vsnprintf` with `HAVE_VSNPRINTF`)
-  emitted the literal `%S`. libc now provides translating `snprintf`/`vsnprintf`
-  over the same `vfprintf` engine, closing the gap for all ported code.
-- **Relative paths resolve at the title directory.** Portable code (SDL's
-  `RWopsSetUp`, its bitmap tests, ported games) calls `fopen`/`stat` with a
-  relative path expecting the app directory. libc's default cwd is now `D:\`
-  (the title's home, where `default.xbe` lives), so those calls just work; a
-  title can `chdir()` to a writable data drive if it wants a different base.
-- **C++ exceptions are opt-in, not broken.** Titles build `-fno-exceptions` by
-  default (correct for a 64 MB console), so `try`/`throw` won't even compile
-  unless the project sets `"exceptions": true` in `rxdk.project.json`
-  (`<RxdkExceptions>true</RxdkExceptions>` in the `.vcxproj`) → `-fexceptions`.
-  The EH runtime (libunwind + `.eh_frame` markers) is linked either way, so with
-  the flag on, EH code compiles and links cleanly. The `Exceptions` test then
-  confirms it at runtime on hardware.
-- The title compile line also confirms `-march=pentium3` (MMX/SSE1, no SSE2) and
-  `-fno-builtin` — both real, both by design.
+- **Relative `fopen`/`stat` now resolve against the title dir.** `fopen`/`stat`
+  go through libc's `nt_open` (fileio.c), which used to skip the cwd entirely, so
+  a relative path became `\??\<name>` with no drive and failed — independent of
+  the cwd default. `nt_open` now shares `__rxdk_norm_path` (dirio.c), so
+  `fopen("data/x.dat")` reaches `D:\data\x.dat`. Verified on xemu.
+- **C++ exceptions compile and link but do NOT work at runtime.** An uncaught
+  throw terminates the title (`libc++abi: terminating due to uncaught exception`)
+  even with `"exceptions": true` and the EH runtime linked — the unwinder never
+  reaches the landing pad. So `exceptions: true` is *not* yet usable; treat EH as
+  broken until this is fixed. (This is exactly the "test it on hardware" caution.)
+- **Verified working:** the C11 timed primitives, the `D:\` cwd default, and the
+  MSVC `%S`/`%C`/`%I64` translation through `snprintf`/`vsnprintf` — all PASS on
+  xemu. The title compile also confirms `-march=pentium3` (no SSE2) and
+  `-fno-builtin`.
 
-## Adding a test
+## Adding a check
 
-Copy `ThreadTimeouts/` to a new folder, rename the three files, give the
-`.vcxproj`/`.sln` a fresh `ProjectGuid`, pick a unique `RxdkTestId`, write the
-check in `main.c` (report with `DbgPrint`, park with an infinite sleep at the
-end), and add the project to `RxdkTests.sln`. Keep tests dependency-light — link
-only the libraries the finding needs (`libxbdm` gives you the debug-monitor
-connection for xbWatson).
+Add a `section_*()` to `RxdkTests/main.cpp`, call it from `main()`, and report
+with `check(cond, "name")`. Keep the exceptions section last — if EH is broken an
+uncaught throw ends the process, so everything else must report first.

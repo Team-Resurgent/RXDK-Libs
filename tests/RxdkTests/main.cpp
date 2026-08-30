@@ -182,6 +182,44 @@ static void section_relative_paths()
     check(chdir("D:\\") == 0, "chdir(\"D:\\\") succeeds");
 }
 
+/* ---- unwind diagnostic: does libunwind find FDEs and walk the stack? ------- */
+
+extern "C" {
+struct _Unwind_Context;
+typedef int (*_rxdk_trace_fn)(struct _Unwind_Context *, void *);
+/* _Unwind_Backtrace (libunwind gcc-ext): calls back per frame it can unwind. */
+int _Unwind_Backtrace(_rxdk_trace_fn, void *);
+}
+
+static int g_frames = 0;
+static int trace_cb(struct _Unwind_Context *ctx, void *arg)
+{
+    (void)ctx;
+    (void)arg;
+    g_frames++;
+    return 0; /* _URC_NO_REASON: keep going */
+}
+
+/* The linker-provided .eh_frame bracket libunwind reads (i386 COFF adds a
+   leading underscore, so C __eh_frame_start == asm ___eh_frame_start). */
+extern "C" {
+extern char __eh_frame_start;
+extern char __eh_frame_end;
+}
+
+static void section_unwind_diag()
+{
+    long len = (long)(&__eh_frame_end - &__eh_frame_start);
+    DbgPrint("  eh_frame: start=%p end=%p len=%ld\n",
+             (void *)&__eh_frame_start, (void *)&__eh_frame_end, len);
+    check(len > 0, ".eh_frame markers bracket a non-empty section");
+
+    g_frames = 0;
+    _Unwind_Backtrace(trace_cb, 0);
+    DbgPrint("  _Unwind_Backtrace walked %d frame(s)\n", g_frames);
+    check(g_frames > 1, "libunwind walks more than one stack frame");
+}
+
 /* ---- MSVC printf conversions through bounded snprintf/vsnprintf ------------ */
 
 static void vfmt(char *buf, size_t n, const char *fmt, ...)
@@ -226,6 +264,10 @@ int main()
     section_relative_paths();
     DbgPrint("-- MSVC string format --\n");
     section_string_format();
+
+    /* Diagnostic: can the unwinder even walk the stack? (discovery + FDE scan) */
+    DbgPrint("-- unwind diagnostic --\n");
+    section_unwind_diag();
 
     /* Exceptions last: if EH is non-functional an uncaught throw terminates the
        process, so run it after everything else has already reported. */

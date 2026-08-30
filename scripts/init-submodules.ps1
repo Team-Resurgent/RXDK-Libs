@@ -47,6 +47,24 @@ $pin = ((git ls-tree HEAD $llvm) -split '\s+')[2]
 git -C $llvm @lp checkout -f $pin
 git -C $llvm clean -ffdq | Out-Null
 
+# Apply RXDK's tracked patches to the pinned vendor tree. Must run after the checkout -f +
+# clean above (they reset the tree). Idempotent: skips a patch that is already applied, so
+# re-running init doesn't fail. See patches/README.md.
+$patchDir = Join-Path $RepoRoot 'patches'
+if (Test-Path $patchDir) {
+    Get-ChildItem $patchDir -Filter '*.patch' | Sort-Object Name | ForEach-Object {
+        git -C $llvm apply --reverse --check $_.FullName 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  patch already applied: $($_.Name)"
+        }
+        else {
+            git -C $llvm apply $_.FullName
+            if ($LASTEXITCODE -ne 0) { throw "failed to apply patch $($_.Name)" }
+            Write-Host "  applied patch: $($_.Name)"
+        }
+    }
+}
+
 Write-Host 'Submodule status:'
 git submodule status
 

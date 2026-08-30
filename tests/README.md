@@ -32,9 +32,15 @@ Visual Studio (with the RXDK extension) or open a test folder in VS Code.
 |---------|--------------------|
 | `ThreadTimeouts` | C11 `<threads.h>` timed primitives: `mtx_timedlock` and `cnd_timedwait` actually honor their deadline (return `thrd_timedout`) instead of blocking forever. |
 | `Exceptions` | C++ DWARF/Itanium exceptions: throw across a frame, destructor runs during unwind, catch by type, `what()`, rethrow. Requires `"exceptions": true` (see below). |
+| `RelativePaths` | Plain `fopen`/`stat` with a *relative* path resolve against the title directory (`D:\`), and follow `chdir`. |
 
 ## Findings so far
 
+- **Relative paths resolve at the title directory.** Portable code (SDL's
+  `RWopsSetUp`, its bitmap tests, ported games) calls `fopen`/`stat` with a
+  relative path expecting the app directory. libc's default cwd is now `D:\`
+  (the title's home, where `default.xbe` lives), so those calls just work; a
+  title can `chdir()` to a writable data drive if it wants a different base.
 - **C++ exceptions are opt-in, not broken.** Titles build `-fno-exceptions` by
   default (correct for a 64 MB console), so `try`/`throw` won't even compile
   unless the project sets `"exceptions": true` in `rxdk.project.json`

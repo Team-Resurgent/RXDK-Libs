@@ -82,8 +82,11 @@ extern int __rxdk_fd_install_path(HANDLE h, const char *path);
 extern const char *__rxdk_fd_path(int fd);
 
 /* Current working directory (no per-process cwd on Xbox; libc tracks one).
-   Defaults to the harness data drive. */
-static char g_cwd[PATH_MAX] = "E:\\";
+   Defaults to D:\ -- the title's own home directory (where default.xbe and its
+   bundled files live), which is what portable code calling fopen("assets/x") /
+   stat() with a relative path expects. A title can chdir() elsewhere (e.g. a
+   writable data partition) if it wants a different base. */
+static char g_cwd[PATH_MAX] = "D:\\";
 
 static void to_backslash(char *s)
 {

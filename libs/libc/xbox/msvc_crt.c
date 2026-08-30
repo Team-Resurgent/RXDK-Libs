@@ -111,7 +111,7 @@ int __cdecl _vscprintf(const char *fmt, va_list ap)
     char stack[RXDK_MS_FORMAT_STACK];
     char *heap;
     const char *use = __rxdk_ms_format(fmt, stack, sizeof(stack), &heap);
-    int r = vsnprintf(NULL, 0, use, ap);
+    int r = __rxdk_vsnprintf_core(NULL, 0, use, ap);
 
     __rxdk_ms_format_free(heap);
     return r;
@@ -139,13 +139,13 @@ int __cdecl _vsnprintf(char *buf, size_t n, const char *fmt, va_list ap)
     int r;
 
     if (!buf || n == 0) {
-        r = vsnprintf(NULL, 0, use, ap);
+        r = __rxdk_vsnprintf_core(NULL, 0, use, ap);
         __rxdk_ms_format_free(heap);
         return r;
     }
 
     va_copy(measure, ap);
-    needed = vsnprintf(NULL, 0, use, measure);
+    needed = __rxdk_vsnprintf_core(NULL, 0, use, measure);
     va_end(measure);
 
     if (needed < 0) {
@@ -156,7 +156,7 @@ int __cdecl _vsnprintf(char *buf, size_t n, const char *fmt, va_list ap)
 
     if ((size_t)needed < n) {
         /* Fits with room for the terminator: C99 behaviour is what MSVC does. */
-        r = vsnprintf(buf, n, use, ap);
+        r = __rxdk_vsnprintf_core(buf, n, use, ap);
         __rxdk_ms_format_free(heap);
         return r;
     }
@@ -170,12 +170,12 @@ int __cdecl _vsnprintf(char *buf, size_t n, const char *fmt, va_list ap)
         char *scratch = (char *)malloc((size_t)needed + 1);
 
         if (scratch) {
-            vsnprintf(scratch, (size_t)needed + 1, use, ap);
+            __rxdk_vsnprintf_core(scratch, (size_t)needed + 1, use, ap);
             memcpy(buf, scratch, n);
             free(scratch);
         } else {
             /* Out of memory: a short-by-one result beats leaving buf untouched. */
-            vsnprintf(buf, n, use, ap);
+            __rxdk_vsnprintf_core(buf, n, use, ap);
         }
     }
 

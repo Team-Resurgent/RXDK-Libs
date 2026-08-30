@@ -33,9 +33,16 @@ Visual Studio (with the RXDK extension) or open a test folder in VS Code.
 | `ThreadTimeouts` | C11 `<threads.h>` timed primitives: `mtx_timedlock` and `cnd_timedwait` actually honor their deadline (return `thrd_timedout`) instead of blocking forever. |
 | `Exceptions` | C++ DWARF/Itanium exceptions: throw across a frame, destructor runs during unwind, catch by type, `what()`, rethrow. Requires `"exceptions": true` (see below). |
 | `RelativePaths` | Plain `fopen`/`stat` with a *relative* path resolve against the title directory (`D:\`), and follow `chdir`. |
+| `StringFormat` | MSVC `%S`/`%C`/`%I64d` are translated through the bounded `snprintf`/`vsnprintf` too (not just `sprintf`/`_snprintf`), so SDL's `SDL_vsnprintf` path works. |
 
 ## Findings so far
 
+- **MSVC `%S` works through `snprintf`/`vsnprintf` now.** RXDK translated
+  MSVC's `%S`/`%C`/`%I64` for `sprintf` and the `_snprintf` family, but the
+  standard `snprintf`/`vsnprintf` were picolibc's untranslated versions -- so a
+  bare `snprintf("%S", L"...")` (SDL's `SDL_vsnprintf` with `HAVE_VSNPRINTF`)
+  emitted the literal `%S`. libc now provides translating `snprintf`/`vsnprintf`
+  over the same `vfprintf` engine, closing the gap for all ported code.
 - **Relative paths resolve at the title directory.** Portable code (SDL's
   `RWopsSetUp`, its bitmap tests, ported games) calls `fopen`/`stat` with a
   relative path expecting the app directory. libc's default cwd is now `D:\`

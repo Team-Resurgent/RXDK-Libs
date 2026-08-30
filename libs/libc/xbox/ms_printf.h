@@ -11,6 +11,7 @@
 #ifndef RXDK_MS_PRINTF_H
 #define RXDK_MS_PRINTF_H
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <wchar.h>
 
@@ -25,6 +26,15 @@ const char *__rxdk_ms_format(const char *fmt, char *buf, size_t cap, char **heap
 const wchar_t *__rxdk_ms_wformat(const wchar_t *fmt, wchar_t *buf, size_t cap, wchar_t **heap);
 
 void __rxdk_ms_format_free(void *heap);
+
+/*
+ * Non-translating bounded formatter: picolibc's vsnprintf body (C99 semantics --
+ * writes at most n-1 chars + NUL, returns the length it would have needed). The
+ * public snprintf/vsnprintf translate the MSVC format and then call this; the
+ * MSVC-spelled _vsnprintf/_vscprintf call it directly on their already-translated
+ * format, so nothing formats the same string twice.
+ */
+int __rxdk_vsnprintf_core(char *s, size_t n, const char *fmt, va_list ap);
 
 /* Comfortably larger than any format string in the SDK or its samples, so the
  * heap path is effectively unused. */

@@ -35,6 +35,7 @@
 #include <wchar.h>
 
 #include "ms_printf.h"
+#include "local-stdio.h" /* __file_str + FDEV_SETUP_STRING_WRITE: the bounded core */
 
 #ifndef __cdecl
 #define __cdecl
@@ -260,4 +261,45 @@ int __cdecl swprintf(wchar_t *s, size_t n, const wchar_t *fmt, ...)
 
     __rxdk_ms_format_free(heap);
     return r;
+}
+
+/*
+ * The bounded narrow printf family. picolibc's snprintf/vsnprintf are excluded
+ * from the build (libs/libc/build.zig) in favour of these so that a bare
+ * snprintf(buf, n, "%S", L"...") -- which is exactly what SDL's SDL_vsnprintf
+ * reaches when HAVE_VSNPRINTF is set, and what any ported MSVC code expects --
+ * gets the same %S/%C/%I64 translation that sprintf already applies. The engine
+ * is picolibc's own: format into a bounded string FILE via vfprintf.
+ */
+int __rxdk_vsnprintf_core(char *s, size_t n, const char *fmt, va_list ap)
+{
+    struct __file_str f = FDEV_SETUP_STRING_WRITE(s, FDEV_STRING_WRITE_END(s, n));
+    int i = vfprintf(&f.file, fmt, ap);
+
+    if (n) {
+        *f.pos = '\0';
+    }
+    return i;
+}
+
+int __cdecl vsnprintf(char *s, size_t n, const char *fmt, va_list ap)
+{
+    char stack[RXDK_MS_FORMAT_STACK];
+    char *heap;
+    const char *use = __rxdk_ms_format(fmt, stack, sizeof(stack), &heap);
+    int i = __rxdk_vsnprintf_core(s, n, use, ap);
+
+    __rxdk_ms_format_free(heap);
+    return i;
+}
+
+int __cdecl snprintf(char *s, size_t n, const char *fmt, ...)
+{
+    va_list ap;
+    int i;
+
+    va_start(ap, fmt);
+    i = vsnprintf(s, n, fmt, ap); /* translation happens once, in vsnprintf */
+    va_end(ap);
+    return i;
 }

@@ -67,11 +67,15 @@ const picolibc_exclude = [_][]const u8{
     "malloc-error.c",
     "mallinfo.c",
     // Replaced by libs/libc/xbox/ms_printf.c, which translates MSVC's %S/%C (and
-    // MSVC's reading of %s/%c in the wide functions) before formatting. These
-    // two are the variadic entry points titles reach; the v* forms they call
-    // are picolibc's, so the engine itself stays untouched.
+    // MSVC's reading of %s/%c in the wide functions) before formatting. sprintf/
+    // swprintf call picolibc's unbounded v* forms; snprintf/vsnprintf are here too
+    // so bounded formatting (what SDL's SDL_vsnprintf reaches with HAVE_VSNPRINTF)
+    // also translates %S -- ms_printf.c reimplements their tiny bodies over the
+    // same vfprintf engine, so the engine itself stays untouched.
     "sprintf.c",
     "swprintf.c",
+    "snprintf.c",
+    "vsnprintf.c",
     "remove.c", // picolibc's is unlink-only; dirio.c provides a POSIX remove (rmdir for dirs)
     "tmpnam.c", // picolibc's ignore P_tmpdir; tmpio.c targets the Z: scratch drive
     "tmpfile.c",

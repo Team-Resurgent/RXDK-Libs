@@ -25,6 +25,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <wchar.h>
+#include <xbox/libc_hooks.h>
 
 extern "C" void DbgPrint(const char *format, ...);
 
@@ -254,6 +255,41 @@ static void section_string_format()
     check(need == 2, "snprintf returns C99 length");
 }
 
+/* ---- stderr line-buffering: one write() per line, not one per char --------- */
+/* stderr was unbuffered (a 1-byte FILE buffer), so fprintf(stderr,"...\n") flushed
+   every character as its own write(2,&c,1) -> one DbgPrint / debug-notification per
+   char -> the debug monitor and VS "Xbox Title" pane showed one character per row.
+   With stderr line-buffered, the whole line is emitted in a single write(). We prove
+   the granularity via the libc output callback, which intercepts write() for fd 1/2. */
+static int g_out_calls = 0;
+static int g_out_bytes = 0;
+
+static ssize_t counting_output_hook(int fd, const void *buf, size_t count)
+{
+    (void)fd; (void)buf;
+    g_out_calls++;
+    g_out_bytes += (int)count;
+    return (ssize_t)count; /* swallow while measuring; forwarded result is the length */
+}
+
+static void section_stderr_buffering(void)
+{
+    char tmp[128];
+    int expect = snprintf(tmp, sizeof tmp, "%s: %s\n", "STDERRTEST", "one whole line");
+
+    g_out_calls = 0;
+    g_out_bytes = 0;
+    rxdk_set_output_handler(counting_output_hook);
+    fprintf(stderr, "%s: %s\n", "STDERRTEST", "one whole line");
+    fflush(stderr);
+    rxdk_set_output_handler(NULL);
+
+    DbgPrint("  stderr fprintf -> write() calls=%d bytes=%d (line len=%d)\n",
+             g_out_calls, g_out_bytes, expect);
+    check(g_out_calls == 1, "fprintf(stderr) emits one write() per line (line-buffered)");
+    check(g_out_bytes == expect, "the whole line reaches write() intact");
+}
+
 int main()
 {
     DbgPrint("========== RXDK-Libs test suite ==========\n");
@@ -264,6 +300,8 @@ int main()
     section_relative_paths();
     DbgPrint("-- MSVC string format --\n");
     section_string_format();
+    DbgPrint("-- stderr line buffering --\n");
+    section_stderr_buffering();
 
     /* Diagnostic: can the unwinder even walk the stack? (discovery + FDE scan) */
     DbgPrint("-- unwind diagnostic --\n");

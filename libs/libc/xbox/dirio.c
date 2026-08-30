@@ -101,7 +101,7 @@ static void to_backslash(char *s)
  * it may hand us '/' separators; drive-absolute paths are taken as-is, rooted
  * paths inherit the cwd drive, and relative paths are resolved against cwd.
  */
-static const char *norm_path(const char *in, char *out, size_t outsz)
+const char *__rxdk_norm_path(const char *in, char *out, size_t outsz)
 {
     if (!in) {
         errno = EINVAL;
@@ -116,7 +116,14 @@ static const char *norm_path(const char *in, char *out, size_t outsz)
         out[2] = '\0';
         strncat(out, in, outsz - 3);
     } else { /* relative */
-        snprintf(out, outsz, "%s\\%s", g_cwd, in);
+        size_t cl = strlen(g_cwd);
+        /* Don't double the separator when the cwd already ends with one (the
+           drive root is "D:\\"); NT's object manager won't collapse "D:\\\\x". */
+        if (cl > 0 && (g_cwd[cl - 1] == '\\' || g_cwd[cl - 1] == '/')) {
+            snprintf(out, outsz, "%s%s", g_cwd, in);
+        } else {
+            snprintf(out, outsz, "%s\\%s", g_cwd, in);
+        }
     }
     to_backslash(out);
     return out;
@@ -171,7 +178,7 @@ DIR *opendir(const char *path)
     DIR *d;
     int fd;
 
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return NULL;
     s = path_open(ObDosDevicesDirectory(), np,
                   NT_GENERIC_READ | NT_FILE_LIST_DIRECTORY, NT_FILE_OPEN,
@@ -302,7 +309,7 @@ int remove(const char *path)
     char np[PATH_MAX];
     struct stat st;
 
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return -1;
     if (stat(np, &st) == 0 && S_ISDIR(st.st_mode))
         return rmdir(np);
@@ -318,7 +325,7 @@ int rename(const char *oldp, const char *newp)
     FILE_RENAME_INFORMATION ri;
     NTSTATUS s;
 
-    if (!norm_path(oldp, no, sizeof no) || !norm_path(newp, nn, sizeof nn))
+    if (!__rxdk_norm_path(oldp, no, sizeof no) || !__rxdk_norm_path(newp, nn, sizeof nn))
         return -1;
     s = path_open(ObDosDevicesDirectory(), no, NT_DELETE, NT_FILE_OPEN, 0, &h);
     if (!NT_SUCCESS(s)) {
@@ -368,7 +375,7 @@ int truncate(const char *path, off_t length)
     FILE_END_OF_FILE_INFORMATION eof;
     NTSTATUS s;
 
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return -1;
     s = path_open(ObDosDevicesDirectory(), np, NT_GENERIC_WRITE, NT_FILE_OPEN,
                   NT_FILE_NON_DIRECTORY_FILE, &h);
@@ -409,7 +416,7 @@ int chdir(const char *path)
     char np[PATH_MAX];
     struct stat st;
 
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return -1;
     if (stat(np, &st) != 0)
         return -1; /* errno from stat */
@@ -427,7 +434,7 @@ int chdir(const char *path)
 int lstat(const char *path, struct stat *st)
 {
     char np[PATH_MAX]; /* no symlinks on FATX -> lstat == stat */
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return -1;
     return stat(np, st);
 }
@@ -437,7 +444,7 @@ char *realpath(const char *path, char *resolved)
     char np[PATH_MAX];
     char *out = resolved;
 
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return NULL;
     if (!out) {
         out = (char *)malloc(PATH_MAX);
@@ -462,7 +469,7 @@ int statvfs(const char *path, struct statvfs *buf)
     NTSTATUS s;
     unsigned long unit;
 
-    if (!buf || !norm_path(path, np, sizeof np)) {
+    if (!buf || !__rxdk_norm_path(path, np, sizeof np)) {
         errno = EINVAL;
         return -1;
     }
@@ -535,7 +542,7 @@ int utimes(const char *path, const struct timeval times[2])
     FILE_BASIC_INFORMATION bi;
     NTSTATUS s;
 
-    if (!norm_path(path, np, sizeof np))
+    if (!__rxdk_norm_path(path, np, sizeof np))
         return -1;
     s = path_open(ObDosDevicesDirectory(), np,
                   NT_FILE_READ_ATTRS | NT_FILE_WRITE_ATTRS, NT_FILE_OPEN, 0, &h);
@@ -635,7 +642,7 @@ int fchmodat(int dirfd, const char *path, mode_t mode, int flag)
 static int resolve_at(int dirfd, const char *path, char *out, size_t outsz)
 {
     if (dirfd == AT_FDCWD || (path[0] && path[1] == ':')) {
-        return norm_path(path, out, outsz) ? 0 : -1;
+        return __rxdk_norm_path(path, out, outsz) ? 0 : -1;
     } else {
         const char *dp = __rxdk_fd_path(dirfd);
         if (!dp) {

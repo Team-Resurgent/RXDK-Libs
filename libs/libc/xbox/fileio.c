@@ -264,13 +264,15 @@ static void pipe_detach(rxdk_ofd *o)
    libc++ <filesystem>, which joins paths with '/') hand us forward slashes.
    Normalize into a caller buffer before building the object name. */
 #define RXDK_PATH_BUF 1024
+/* Path normalization lives in dirio.c (it owns the cwd). Resolve a relative path
+   against the cwd and fix separators, so fopen/open/stat reach the title dir the
+   same way the dirent/rename ops do -- not just \??\<name> with no drive. */
+extern const char *__rxdk_norm_path(const char *in, char *out, size_t outsz);
+
 static const char *fix_seps(const char *in, char *out, size_t n)
 {
-    size_t i = 0;
-    for (; in[i] && i + 1 < n; ++i)
-        out[i] = (in[i] == '/') ? '\\' : in[i];
-    out[i] = '\0';
-    return out;
+    const char *r = __rxdk_norm_path(in, out, n);
+    return r ? r : in;
 }
 
 /* Open `path` (a DOS-style name like "E:\\dir\\file") under \??\. */

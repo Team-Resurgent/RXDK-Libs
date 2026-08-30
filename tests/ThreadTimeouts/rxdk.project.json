@@ -1,0 +1,53 @@
+{
+  "name": "ThreadTimeouts",
+  "defaultConfiguration": "Debug",
+  "configurations": {
+    "Debug": {
+      "configuration": "debug",
+      "sources": [
+        "main.c"
+      ],
+      "libraries": [
+        "libxbdm",
+        "libxapi",
+        "libkernel",
+        "libc",
+        "libcpp"
+      ],
+      "imageBuild": {
+        "stackSize": 65536,
+        "debug": true,
+        "noLogo": true,
+        "noLibWarn": true,
+        "dontMountUtilityDrive": true,
+        "testId": "0xffff2001",
+        "testName": "ThreadTimeouts",
+        "testVersion": "4096"
+      },
+      "outputDir": "out\\Debug"
+    },
+    "Release": {
+      "configuration": "release",
+      "sources": [
+        "main.c"
+      ],
+      "libraries": [
+        "libxapi",
+        "libkernel",
+        "libc",
+        "libcpp"
+      ],
+      "imageBuild": {
+        "stackSize": 65536,
+        "debug": true,
+        "noLogo": true,
+        "noLibWarn": true,
+        "dontMountUtilityDrive": true,
+        "testId": "0xffff2001",
+        "testName": "ThreadTimeouts",
+        "testVersion": "4096"
+      },
+      "outputDir": "out\\Release"
+    }
+  }
+}

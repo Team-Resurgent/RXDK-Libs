@@ -57,12 +57,16 @@ extern USB_CLASS_DRIVER_DESCRIPTION XID_Description;
 extern USB_CLASS_DRIVER_DESCRIPTION XID_1Description;
 extern USB_CLASS_DRIVER_DESCRIPTION MU_Description;
 extern USB_CLASS_DRIVER_DESCRIPTION USBHUB_Description;
+extern USB_CLASS_DRIVER_DESCRIPTION HawkDescription;
+extern USB_CLASS_DRIVER_DESCRIPTION Hawk1Description;
 
 static PUSB_CLASS_DRIVER_DESCRIPTION rxdk_usb_class_pointers[] = {
     &XID_Description,
     &XID_1Description,
     &MU_Description,
     &USBHUB_Description,
+    &HawkDescription,
+    &Hawk1Description,
     NULL,
 };
 #endif

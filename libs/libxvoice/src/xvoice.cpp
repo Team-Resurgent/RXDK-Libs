@@ -4,61 +4,29 @@
  * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
  */
 
-// The low-level voice API (xvoice.h / xvoice.lib) + the XDEVICE_TYPE_VOICE_*
-// device tables.
+// The low-level voice API (xvoice.h / xvoice.lib): SC03 codec + queue XMOs.
 //
-// The low-level surface is two things RXDK cannot make real:
-//  - XVoiceCreateMediaObject[Ex]: an XMO over the voice communicator's USB
-//    microphone/headphone endpoints. With no USB audio class driver, no
-//    communicator device can exist; the retail lib fails this call when no
-//    communicator is inserted at the given port, and that is the failure we
-//    reproduce.
-//  - the SC03 voice encoder/decoder XMO factories: the codec ships only as
-//    binaries in the retail lib. Absent a codec, the factories fail cleanly
-//    (E_FAIL, *ppMediaObject = NULL) so titles degrade the same way they would
-//    on codec-init failure.
-// The queue XMOs sit between the two (pure software jitter buffers), but with
-// neither capture nor codec they can never be fed, so they fail alike rather
-// than hand the title a working object whose neighbors are absent.
+// The communicator itself is REAL now: XVoiceCreateMediaObject[Ex] and the
+// XDEVICE_TYPE_VOICE_* device tables live in the Hawk USB class driver ported
+// into libxapi (libs/libxapi/usb/hawk/hawk2.cpp — retail ships that driver in
+// xvoice.lib, RXDK keeps it with the other class drivers because the class
+// list is a static table in usbd.cpp). Raw PCM capture/playback through a
+// communicator works end to end.
 //
-// This is a CAPABILITY BOUNDARY, not unfinished work (see the note at the top
-// of xhv.cpp): the USB audio driver and the SC03 codec ship only as binaries
-// in the retail libs.
+// What remains stubbed here is the SC03 voice codec and the queue XMOs:
+//  - the SC03 encoder/decoder ships only as binaries in the retail lib.
+//    Absent a codec, the factories fail cleanly (E_FAIL, *ppMediaObject =
+//    NULL) so titles degrade the same way they would on codec-init failure.
+//  - the queue XMOs are pure software jitter buffers between capture and
+//    codec; without the codec they fail alike rather than hand the title a
+//    working object whose neighbors are absent.
+//
+// The codec stubs are a CAPABILITY BOUNDARY, not unfinished work (see the
+// note at the top of xhv.cpp): SC03 ships only as binaries in the retail libs.
 
 #include <xvoice.h>
 
 extern "C" {
-
-// The voice communicator XPP device tables (exported by the retail xvoice.lib,
-// declared in Xbox.h). Zero-initialized like every DECLARE_XPP_TYPE table in
-// libxapi's USB stack; with no voice USB class driver to register devices they
-// stay empty, so XGetDevices() reports no communicators on any port.
-XPP_DEVICE_TYPE XDEVICE_TYPE_VOICE_MICROPHONE_TABLE = { { 0, 0, 0 } };
-XPP_DEVICE_TYPE XDEVICE_TYPE_VOICE_HEADPHONE_TABLE  = { { 0, 0, 0 } };
-
-XBOXAPI HRESULT WINAPI XVoiceCreateMediaObject(PXPP_DEVICE_TYPE XppDeviceType, DWORD dwPort,
-                                               DWORD dwMaxAttachedPackets, LPCWAVEFORMATEX pwfx,
-                                               LPXMEDIAOBJECT *ppMediaObject)
-{
-    (void)XppDeviceType;
-    (void)dwPort;
-    (void)dwMaxAttachedPackets;
-    (void)pwfx;
-    if (!ppMediaObject)
-        return E_POINTER;
-    *ppMediaObject = NULL;
-    return E_FAIL; // no communicator device can be present (no USB audio driver)
-}
-
-XBOXAPI HRESULT WINAPI XVoiceCreateMediaObjectEx(PXPP_DEVICE_TYPE XppDeviceType, DWORD dwPort,
-                                                 DWORD dwMaxAttachedPackets, LPCWAVEFORMATEX pwfx,
-                                                 PFNXMEDIAOBJECTCALLBACK pfnCallback, PVOID pvContext,
-                                                 LPXMEDIAOBJECT *ppMediaObject)
-{
-    (void)pfnCallback;
-    (void)pvContext;
-    return XVoiceCreateMediaObject(XppDeviceType, dwPort, dwMaxAttachedPackets, pwfx, ppMediaObject);
-}
 
 static HRESULT NullOut(LPXMEDIAOBJECT *ppMediaObject)
 {

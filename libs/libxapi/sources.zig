@@ -131,6 +131,10 @@ pub const mu_sources = [_][]const u8{
     "libs/libxapi/usb/mu/mrb.cpp",
 };
 
+pub const hawk_sources = [_][]const u8{
+    "libs/libxapi/usb/hawk/hawk2.cpp",
+};
+
 pub const xid_sources = [_][]const u8{
     "libs/libxapi/usb/xid/typeinfo.cpp",
     "libs/libxapi/usb/xid/xid.cpp",
@@ -144,10 +148,10 @@ pub const xid_sources = [_][]const u8{
 // (so the build needs no per-slice -include/-D), leaving only language (C vs
 // C++) and uuid's distinct SDK include path as real differentiators.
 //   c    - k32 + dll + rtl + ohcd  (libxapi internal headers, C)
-//   cpp  - usbd + usbhub + mu + xid (C++)
+//   cpp  - usbd + usbhub + mu + hawk + xid (C++)
 //   uuid - COM/RPC IDL against the full XDK SDK headers (include/sdk)
 pub const c_sources = k32_sources ++ dll_sources ++ rtl_sources ++ ohcd_sources;
-pub const cpp_sources = usbd_sources ++ usbhub_sources ++ mu_sources ++ xid_sources;
+pub const cpp_sources = usbd_sources ++ usbhub_sources ++ mu_sources ++ hawk_sources ++ xid_sources;
 
 pub const slices = [_]Slice{
     .{ .name = "c", .is_cpp = false, .sources = &c_sources },

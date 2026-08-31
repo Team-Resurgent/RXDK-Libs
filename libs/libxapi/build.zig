@@ -21,6 +21,7 @@ pub fn includeDirs() []const []const u8 {
         XAPI ++ "/usb/usbd",
         XAPI ++ "/usb/hub",
         XAPI ++ "/usb/mu",
+        XAPI ++ "/usb/hawk",
         XAPI ++ "/usb/xid",
         XAPI ++ "/support/inc",
         XAPI ++ "/support/inc/ntos",

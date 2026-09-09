@@ -409,35 +409,23 @@ exit_input_get_caps:
     return errorCode;
 }
 
-XBOXAPI
+//
+//  Real body of XInputGetState.  Runs at DISPATCH_LEVEL - the naked wrapper
+//  below owns the IRQL raise; this helper is handed the OldIrql and lowers it.
+//  Kept as a separate stdcall so the wrapper can be hand-written assembly (see
+//  the comment on XInputGetState for why).
+//
+static
 DWORD
-__attribute__((__stdcall__))
-XInputGetState(
-    IN HANDLE hDevice,
-    OUT PXINPUT_STATE  pState
+__attribute__((__stdcall__, noinline, used))
+XInputGetStateFinish(
+    IN PXID_OPEN_DEVICE openDevice,
+    OUT PXINPUT_STATE   pState,
+    IN KIRQL            oldIrql
     )
-/*++
-    Routine Description:
-        Public API for retrieving the latest known state of the
-        device.  This routine does not actually perform I/O it
-        just copies the latest known state into the caller's buffer.
-
-        
-    Arguments:
-        hDevice - handle of device to get state for.
-        pState  - buffer to receive state.
-
-    Return Value:
-        ERROR_SUCCESS - on success.
-        ERROR_DEVICE_NOT_CONNECTED - device no longer connected (buffer is still copied).
---*/
 {
-    PXID_OPEN_DEVICE    openDevice = (PXID_OPEN_DEVICE) hDevice;
-    DWORD               errorCode = ERROR_SUCCESS;
-    KIRQL               oldIrql;
-    ULONG               length;
-    
-    oldIrql = KeRaiseIrqlToDpcLevel();
+    DWORD   errorCode = ERROR_SUCCESS;
+    ULONG   length;
 
     //
     //  Verify handle.
@@ -462,25 +450,84 @@ XInputGetState(
     {
         errorCode = ERROR_DEVICE_NOT_CONNECTED;
     }
-    
+
     //
     //  Copy packet number
     //
     pState->dwPacketNumber = openDevice->PacketNumber;
-    
+
     //
     //  Copy the size indicated in the capatibility table.
     //
     length = openDevice->TypeInformation->pInputReportInfoList[0].bCurrentSize;
-    
+
     //
     //  Copy the latest report (We are using GameReport, but we could
     //                          use any member of the union of report types)
     RtlCopyMemory( (PVOID)&pState->Gamepad, (PVOID)openDevice->Report, length);
-    
-    
+
     KeLowerIrql(oldIrql);
     return errorCode;
+}
+
+XBOXAPI
+__declspec(naked)
+DWORD
+__attribute__((__stdcall__))
+XInputGetState(
+    IN HANDLE hDevice,
+    OUT PXINPUT_STATE  pState
+    )
+/*++
+    Routine Description:
+        Public API for retrieving the latest known state of the
+        device.  This routine does not actually perform I/O it
+        just copies the latest known state into the caller's buffer.
+
+    IGR / in-game-reset compatibility:
+        BIOS in-game-reset hooks (Cerbios et al.) fingerprint the RETAIL XAPI
+        compilation of this function: they hook the kernel's
+        KeRaiseIrqlToDpcLevel, and when the return address lands inside
+        XInputGetState they recognise it by the exact bytes at the call's
+        return site (8B 54 24 0C = "mov edx,[esp+0Ch]", then 0xA3 at +6 from
+        "mov ecx,[edx+0A3h]"), duplicate the 2-push stdcall frame, and run
+        their combo check after the real XInputGetState returns.
+
+        Clang does not reproduce those bytes or that frame, so an
+        RXDK-built title would silently lose IGR.  We hand-write the prologue
+        to be byte-compatible with retail: exactly two dwords pushed
+        (ebx, esi) before the raise, the "mov edx,[esp+0Ch]" / "mov
+        ecx,[edx+0A3h]" pair at the return site, and "ret 8".  The real work
+        is delegated to XInputGetStateFinish.  The struct offsets the BIOS
+        walks (XidNode@0, Device@0, IUsbDevice.m_ExternalPort@0x14,
+        TypeInformation@0xA3) already match retail, so nothing else is needed.
+
+    Arguments:
+        hDevice - handle of device to get state for.
+        pState  - buffer to receive state.
+
+    Return Value:
+        ERROR_SUCCESS - on success.
+        ERROR_DEVICE_NOT_CONNECTED - device no longer connected (buffer is still copied).
+--*/
+{
+    __asm {
+        push    ebx                     ; 2-dword frame the BIOS IGR trampoline duplicates
+        push    esi
+        call    KeRaiseIrqlToDpcLevel   ; al = OldIrql.  BIOS fingerprints the return site:
+        mov     edx, [esp+0Ch]          ;   8B 54 24 0C   (edx = hDevice)
+        mov     ecx, [edx+0A3h]         ;   8B 8A A3..    (0xA3 at +6; ecx = TypeInformation)
+        movzx   eax, al                 ; OldIrql -> 3rd arg
+        push    eax                     ; arg3: OldIrql
+        mov     eax, [esp+14h]          ; pState
+        push    eax                     ; arg2: pState
+        mov     eax, [esp+14h]          ; hDevice
+        push    eax                     ; arg1: hDevice (openDevice)
+        call    XInputGetStateFinish    ; stdcall(3) -> eax = errorCode, lowers IRQL
+        pop     esi
+        pop     ebx
+        ret     8
+    }
 }
 
 XBOXAPI

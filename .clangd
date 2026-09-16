@@ -29,7 +29,7 @@ If:
   PathMatch: [.*\.(cpp|cxx|cc|hpp|hh)]
 CompileFlags:
   Add:
-    - -Ishared/libcxx/include
+    - -Ivendor/llvm-project/libcxx/include
     - -Ibuild/generated/libcxx
 
 ---

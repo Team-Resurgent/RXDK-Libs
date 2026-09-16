@@ -52,7 +52,6 @@ build.zig / build/         Zig build graph (orchestration + generated headers)
 shared/include/            Public distributed headers (xt.h umbrella, xapi.h, xbox.h,
                            xkbd.h, windef/winbase, xboxkrnl/, xbox/, d3d8/dsound/xnet/…)
 shared/picolibc/           picolibc C headers (headers-only distribution)
-shared/libcxx/             LLVM libc++ headers (headers-only distribution)
 libs/libc/                 First-party libc runtime — xbox/ (HAL, crt0, kernel glue) + c23/ gap-fill (→ libc.lib)
 libs/libcpp/               libc++ build orchestration over vendored libcxx (→ libcpp.lib)
 libs/libkernel/            Xbox kernel import lib, generated from xboxkrnl.def (→ libkernel.lib)

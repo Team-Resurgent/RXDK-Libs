@@ -106,7 +106,7 @@ pub fn collectLibcxxSources(b: *std.Build, allocator: std.mem.Allocator) ![]cons
 fn includeDirs(_: *std.Build) []const []const u8 {
     return &.{
         "build/generated/libcxx",
-        "shared/libcxx/include",
+        "vendor/llvm-project/libcxx/include",
         "vendor/llvm-project/libcxx/src/include",
         "vendor/llvm-project/libcxxabi/include",
         "vendor/llvm-project/libcxx/src",
@@ -170,7 +170,7 @@ pub fn addLibcxxObjects(
 
 pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     const cxx = b.addInstallDirectory(.{
-        .source_dir = b.path("shared/libcxx/include"),
+        .source_dir = b.path("vendor/llvm-project/libcxx/include"),
         .install_dir = .prefix,
         .install_subdir = "include/c++/v1",
         // Keep build-system cruft out of the dist tree. Matches by extension, so

@@ -39,8 +39,8 @@ git @lp submodule update --init $llvm
 if ($LASTEXITCODE -ne 0) { throw "submodule update (llvm-project) failed ($LASTEXITCODE)" }
 
 # Enforce the cone (trims anything that slipped in) and pin to the recorded commit --
-# a resumed or partially-failed checkout can otherwise leave the wrong libcxx revision,
-# which then mismatches shared/libcxx/include and fails the libcpp build.
+# a resumed or partially-failed checkout can otherwise leave the wrong libcxx revision
+# checked out, and the build reads libcxx/include directly from this submodule.
 git -C $llvm sparse-checkout init --cone
 git -C $llvm sparse-checkout set @cone
 $pin = ((git ls-tree HEAD $llvm) -split '\s+')[2]

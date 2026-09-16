@@ -164,7 +164,7 @@ pub fn addIncludeTree(mod: *std.Build.Module, b: *std.Build) void {
 
 pub fn addLibcxxIncludes(mod: *std.Build.Module, b: *std.Build) void {
     addIncludeTree(mod, b);
-    mod.addIncludePath(b.path("shared/libcxx/include"));
+    mod.addIncludePath(b.path("vendor/llvm-project/libcxx/include"));
     mod.addIncludePath(b.path("vendor/llvm-project/libcxxabi/include"));
 }
 

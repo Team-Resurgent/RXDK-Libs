@@ -1,101 +1,37 @@
 const std = @import("std");
 const compile_c = @import("../../build/compile_c.zig");
 
-const picolibc_exclude = [_][]const u8{
-    "conv_flt.c",
-    "ultoa_invert.c",
-    "vfprintf_char.c",
-    "vfprintf_float.c",
-    "vfprintf_int.c",
-    "vfprintf_n.c",
-    "vfprintf_str.c",
-    "sf_gamma.c",
-    "s_gamma.c",
-    "sf_exp.c",
-    "sf_exp2.c",
-    "sf_log.c",
-    "sf_log2.c",
-    "sf_pow.c",
-    "s_exp.c",
-    "s_exp2.c",
-    "s_log.c",
-    "s_log2.c",
-    "s_pow.c",
-    "sinf.c",
-    "sincosf.c",
-    "sincosf_data.c",
-    "s_scalbn.c",
-    "cosf.c",
-    // The Ryu float<->string engines are excluded: picolibc's classic engines
-    // (dtoa_engine.c / ftoa_engine.c / atod_engine.c / atof_engine.c, all built)
-    // already provide __dtoa_engine etc., so compiling the ryu variants too would
-    // duplicate those symbols. The classic engines back the double printf variant.
-    "ftoa_ryu.c",
-    "dtoa_ryu.c",
-    "atod_ryu.c",
-    "atof_ryu.c",
-    "ryu_divpow2.c",
-    "ryu_log10.c",
-    "ryu_log2pow5.c",
-    "ryu_pow5bits.c",
-    "ryu_table.c",
-    "ryu_umul128.c",
-    "tls.c",
-    "interrupt.c",
-    "clock.c", // replaced by libs/libc/xbox/timeio.c (KeQueryPerformanceCounter)
-    "lock.c",  // replaced by libs/libc/xbox/locks.c (RTL critical sections)
-    // The whole malloc cluster is replaced by libs/libc/xbox/heapalloc.c, which
-    // allocates from the Xbox process heap. picolibc's sbrk chunk allocator only
-    // aligns to _Alignof(max_align_t) (8 here); the console's NT heap aligns to
-    // 16, which is what the XDK's SSE math code assumes. These files are one
-    // implementation sharing local-malloc.h chunk internals, so they come out as
-    // a set. mallinfo/malloc_stats go with them and are not reimplemented -- the
-    // RTL heap has no cheap equivalent, and nothing in the SDK calls them.
-    "malloc.c",
-    "free.c",
-    "realloc.c",
-    "calloc.c",
-    "memalign.c",
-    "posix-memalign.c",
-    "aligned_alloc.c",
-    "valloc.c",
-    "pvalloc.c",
-    "reallocarray.c",
-    "reallocf.c",
-    "malloc-usable-size.c",
-    "malloc-stats.c",
-    "malloc-error.c",
-    "mallinfo.c",
-    // Replaced by libs/libc/xbox/ms_printf.c, which translates MSVC's %S/%C (and
-    // MSVC's reading of %s/%c in the wide functions) before formatting. sprintf/
-    // swprintf call picolibc's unbounded v* forms; snprintf/vsnprintf are here too
-    // so bounded formatting (what SDL's SDL_vsnprintf reaches with HAVE_VSNPRINTF)
-    // also translates %S -- ms_printf.c reimplements their tiny bodies over the
-    // same vfprintf engine, so the engine itself stays untouched.
-    "sprintf.c",
-    "swprintf.c",
-    "snprintf.c",
-    "vsnprintf.c",
-    "remove.c", // picolibc's is unlink-only; dirio.c provides a POSIX remove (rmdir for dirs)
-    "tmpnam.c", // picolibc's ignore P_tmpdir; tmpio.c targets the Z: scratch drive
-    "tmpfile.c",
-    "posix_locale.c",
-    "posixiob_stdin.c",
-    "posixiob_stdout.c",
-    "posixiob_stderr.c",
-    "tcb-32.S",
-    "tcb-64.S",
-    "tcb.S",
-    // Superseded by libc/machine/x86 asm (see collectSources): the generic C
-    // versions copy a byte at a time, the i386 asm aligns and then rep movsl,
-    // which is what the retail Xbox CRT did.
-    "memchr.c",
-    "memcmp.c",
-    "memcpy.c",
-    "memmove.c",
-    "memset.c",
-    "strchr.c",
-    "strlen.c",
+// vendor/picolibc tracks Team-Resurgent/picolibc's xboxog branch (not upstream), which has had
+// every source RXDK never builds deleted outright -- profile-incompatible engine variants (full
+// stdio vs our TINY_STDIO profile, Ryu vs the classic dtoa/ftoa/atod/atof engines), anything a
+// libs/libc/xbox/*.c replacement fully supersedes (malloc cluster, clock, lock, remove/tmpnam/
+// tmpfile, the posixiob_* weak-reference shims), the generic C string routines superseded by
+// libc/machine/x86 asm, and long-double math we don't ship. So collectSources below is mostly a
+// plain directory glob per subdir.
+//
+// Two subdirs still need a small exclude list, NOT because we don't want the files -- we do, on
+// disk -- but because they're the classic fdlibm/newlib "one algorithm, multiple precisions via
+// #include" pattern: a sibling file we DO compile (and DO want as its own translation unit)
+// `#include`s them textually to get a differently-named symbol out of the same code, so they must
+// never also be compiled as their own TU (duplicate-symbol link error) but must still exist on
+// disk for that #include to resolve:
+//   - libc/stdio: vfprintf.c includes ultoa_invert.c + vfprintf_{char,float,int,n,str}.c (its
+//     per-conversion engine pieces); strtod/strtof/strtold/vfscanf include conv_flt.c;
+//     sprintf{d,f}.c/swprintf{d}.c/snprintf{d,f}.c include the bare sprintf/swprintf/snprintf/
+//     vsnprintf.c for their own symbol (RXDK's libs/libc/xbox/ms_printf.c separately provides the
+//     plain sprintf/swprintf/snprintf/vsnprintf symbols themselves, so this doesn't collide).
+//   - libm/common: libm/math/{s_,sf_}{exp,exp2,log,log2,pow}.c each `#include
+//     "../common/{exp,exp2,log,log2,pow}.c"` (or the sf_ counterpart) for the actual algorithm;
+//     libm/math/sf_{cos,sin,sincos}.c likewise include libm/common/{cosf,sinf,sincosf}.c.
+const stdio_include_only = [_][]const u8{
+    "conv_flt.c",      "ultoa_invert.c",
+    "vfprintf_char.c", "vfprintf_float.c", "vfprintf_int.c", "vfprintf_n.c", "vfprintf_str.c",
+    "sprintf.c",       "swprintf.c",       "snprintf.c",     "vsnprintf.c",
+};
+const libm_common_include_only = [_][]const u8{
+    "cosf.c",   "sinf.c",    "sincosf.c",
+    "exp.c",    "exp2.c",    "log.c",    "log2.c",   "pow.c",   "s_log2.c",
+    "sf_exp.c", "sf_exp2.c", "sf_log.c", "sf_log2.c", "sf_pow.c",
 };
 
 const picolibc_subdirs = [_][]const u8{
@@ -132,16 +68,17 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     errdefer list.deinit(allocator);
 
     for (picolibc_subdirs) |sub| {
-        try appendDirSources(b, allocator, &list, sub, ".c", &picolibc_exclude);
+        const exclude = if (std.mem.eql(u8, sub, "libc/stdio")) &stdio_include_only else &[_][]const u8{};
+        try appendDirSources(b, allocator, &list, sub, ".c", exclude);
     }
     // Full double + float math, complex, and fenv; long double stays selective.
-    try appendLibmDir(b, allocator, &list, "libm/common", &libm_common_exclude, true, false);
-    try appendLibmDir(b, allocator, &list, "libm/math", &libm_math_exclude, true, false);
-    try appendLibmDir(b, allocator, &list, "libm/complex", &libm_complex_exclude, false, false);
-    // x86 fenv: use the x87/SSE implementation (libm/machine/x86/fenv.c) and
-    // drop the generic soft-float fenv.c. The other helpers (fe_dfl_env,
-    // fegetmode, fesetmode) are arch-generic and stay.
-    try appendLibmDir(b, allocator, &list, "libm/fenv", &libm_fenv_exclude, false, false);
+    try appendLibmDir(b, allocator, &list, "libm/common", &libm_common_include_only, true, false);
+    try appendLibmDir(b, allocator, &list, "libm/math", &[_][]const u8{}, true, false);
+    try appendLibmDir(b, allocator, &list, "libm/complex", &[_][]const u8{}, false, false);
+    // x86 fenv: use the x87/SSE implementation (libm/machine/x86/fenv.c); the
+    // generic soft-float fenv.c doesn't exist on our fork. The other helpers
+    // (fe_dfl_env, fegetmode, fesetmode) are arch-generic and stay.
+    try appendLibmDir(b, allocator, &list, "libm/fenv", &[_][]const u8{}, false, false);
     try list.append(allocator, "vendor/picolibc/libm/machine/x86/fenv.c");
     for (libm_ld_sources) |src| {
         try list.append(allocator, src);
@@ -189,44 +126,10 @@ fn appendDirSources(
         for (exclude_list) |skip| {
             if (std.mem.eql(u8, entry.name, skip)) continue :dir_loop;
         }
-        for (picolibc_exclude) |skip| {
-            if (std.mem.eql(u8, entry.name, skip)) continue :dir_loop;
-        }
         const rel = try std.fmt.allocPrint(allocator, "vendor/picolibc/{s}/{s}", .{ sub, entry.name });
         try list.append(allocator, rel);
     }
 }
-
-// libm/common ships ARM optimized-routines transcendentals that collide with
-// the classic fdlibm ones in libm/math; let math own them. Only the colliding
-// implementation files are dropped (the *_data tables stay, since common-only
-// extras such as expm1/log1p/exp10 use them).
-const libm_common_exclude = [_][]const u8{
-    "cosf.c",   "sinf.c",   "sincosf.c",
-    "exp.c",    "exp2.c",   "log.c",    "log2.c",   "pow.c",
-    "sf_exp.c", "sf_exp2.c", "sf_log.c", "sf_log2.c", "sf_pow.c", "s_log2.c",
-    "exp10l.c", // long double (we ship double+float; ld is the explicit subset)
-};
-
-// libm/math ships the deprecated BSD gamma/gammaf, also provided via lgamma.
-const libm_math_exclude = [_][]const u8{
-    "s_gamma.c", "sf_gamma.c",
-};
-
-// Generic soft-float fenv.c is replaced by the x86 machine implementation.
-const libm_fenv_exclude = [_][]const u8{
-    "fenv.c",
-};
-
-// Long-double complex (need long-double elementary fns we don't ship). Listed
-// explicitly because a suffix rule would also catch creal.c.
-const libm_complex_exclude = [_][]const u8{
-    "cabsl.c",   "cacoshl.c", "cacosl.c",  "cargl.c",   "casinhl.c",
-    "casinl.c",  "catanhl.c", "catanl.c",  "ccoshl.c",  "ccosl.c",
-    "cexpl.c",   "clog10l.c", "clogl.c",   "cpowl.c",   "cprojl.c",
-    "csinhl.c",  "csinl.c",   "csqrtl.c",  "ctanhl.c",  "ctanl.c",
-    "cephes_subrl.c",
-};
 
 // Glob a libm subdir. We ship double + float; long double comes from the
 // explicit ld subset, so optionally skip long-double sources: skip_sl drops

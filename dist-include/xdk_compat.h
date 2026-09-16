@@ -215,6 +215,21 @@ int _vscprintf(const char* format, va_list ap);
 #endif
 
 // MSVC CRT spellings that alias directly onto the picolibc/POSIX equivalents.
+//
+// fcvt itself is unconditionally compiled into libc.lib (vendor/picolibc/libc/stdio/fcvt.c is
+// globbed, no build-side exclusion), but its prototype in picolibc's own <stdlib.h> is gated
+// behind "XSI Legacy option group" (#if __XSI_VISIBLE >= 4), which RXDK's build never defines --
+// so a title that only ever sees this header (not picolibc's own stdlib.h) links fine but fails
+// to compile with "use of undeclared identifier". Declare it here instead of widening XSI
+// visibility globally, matching how _vsnprintf/_scprintf above are declared directly rather than
+// pulled in from a header.
+#ifdef __cplusplus
+extern "C" {
+#endif
+char* fcvt(double value, int ndigit, int* decpt, int* sign);
+#ifdef __cplusplus
+}
+#endif
 #ifndef _fcvt
 #define _fcvt fcvt
 #endif

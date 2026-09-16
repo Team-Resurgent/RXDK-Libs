@@ -5,9 +5,11 @@
 
 .DESCRIPTION
     Builds every shippable library twice -- once Debug, once ReleaseSmall -- via
-    scripts\compile.ps1 (zig build), stages the .lib files into dist\lib\debug and
-    dist\lib\release, archives the libcompat.lib comdat-fix objects, and copies the
-    public headers into dist\include. dist\ is gitignored.
+    scripts\compile.ps1 (zig build), and stages the .lib files into one flat
+    dist\lib\ (XDK-style: Release ships as libd3d8.lib, Debug as libd3d8d.lib --
+    same folder, "d" suffix picks the variant), archives the libcompat[d].lib
+    comdat-fix objects, and copies the public headers into dist\include. dist\ is
+    gitignored.
 
 .PARAMETER Clean
     Remove the zig build cache + generated outputs first, forcing a full recompile
@@ -15,7 +17,7 @@
 
 .EXAMPLE
     .\build.ps1
-        Build the dist (Debug + ReleaseSmall) into dist\lib\{debug,release} + dist\include.
+        Build the dist (Debug + ReleaseSmall) into dist\lib (flat, "d"-suffixed Debug) + dist\include.
 
 .EXAMPLE
     .\build.ps1 -Clean
@@ -70,6 +72,7 @@ function Invoke-Clean {
 function Copy-DistCompatLib {
     param(
         [Parameter(Mandatory)] [string]$DistLib,
+        [Parameter(Mandatory)] [AllowEmptyString()] [string]$Suffix,
         [Parameter(Mandatory)] [string]$Variant
     )
     $comdatFixObjs = @{
@@ -123,11 +126,12 @@ function Copy-DistCompatLib {
         Write-Warning "expected object not found: zig-out\obj\compat\libs_libxapi_port_msvc_lldiv_c.o ($Variant)"
     }
 
-    $comdatFixLib = Join-Path $DistLib 'libcompat.lib'
+    $comdatFixName = 'libcompat{0}.lib' -f $Suffix
+    $comdatFixLib = Join-Path $DistLib $comdatFixName
     if (Test-Path -LiteralPath $comdatFixLib) { Remove-Item -LiteralPath $comdatFixLib -Force }
     & zig ar rcs $comdatFixLib @comdatFixSrcs
     if ($LASTEXITCODE -ne 0) { throw "Archiving $comdatFixLib failed (exit $LASTEXITCODE)" }
-    Write-Host ('OK  {0}  libcompat.lib ({1} objs)' -f $DistLib, $comdatFixSrcs.Count) -ForegroundColor Green
+    Write-Host ('OK  {0}  {1} ({2} objs)' -f $DistLib, $comdatFixName, $comdatFixSrcs.Count) -ForegroundColor Green
 }
 
 function Invoke-DistBuild {
@@ -160,36 +164,39 @@ function Invoke-DistBuild {
         'libuix.lib'
     )
 
-    # Two variants side by side: Debug (full symbols, -O0) and ReleaseSmall. Each
-    # variant's libs + libcompat.lib must be copied/archived out of zig-out BEFORE
-    # building the next, since zig-out\lib and zig-out\obj are fixed paths the next
-    # -Optimize build overwrites in place.
+    # One flat lib\ dir, XDK-style: Release ships the bare name (libd3d8.lib), Debug
+    # ships the same name with a "d" suffix before the extension (libd3d8d.lib) --
+    # so a consumer selects the variant via "Additional Dependencies" filename, the
+    # same $(Configuration)-conditioned d3d8$(D).lib flow the real XDK used, rather
+    # than a separate library search path per config. Each variant's libs +
+    # libcompat.lib must be copied/archived out of zig-out BEFORE building the next,
+    # since zig-out\lib and zig-out\obj are fixed paths the next -Optimize build
+    # overwrites in place.
+    New-Item -ItemType Directory -Force -Path $distLibRoot | Out-Null
     $variants = @(
-        @{ Optimize = 'Debug'; Dir = 'debug' }
-        @{ Optimize = 'ReleaseSmall'; Dir = 'release' }
+        @{ Optimize = 'Debug'; Suffix = 'd' }
+        @{ Optimize = 'ReleaseSmall'; Suffix = '' }
     )
     foreach ($variant in $variants) {
         Write-Host ('==> {0}' -f $variant.Optimize) -ForegroundColor Cyan
         & $compile -Target libs -Optimize $variant.Optimize
 
-        $distLib = Join-Path $distLibRoot $variant.Dir
-        New-Item -ItemType Directory -Force -Path $distLib | Out-Null
-
         $copied = @()
         foreach ($name in $shipLibs) {
             $src = Join-Path $root ('zig-out\lib\{0}' -f $name)
             if (Test-Path -LiteralPath $src) {
-                Copy-Item -LiteralPath $src -Destination $distLib -Force
-                $copied += $name
+                $destName = $name -replace '\.lib$', ($variant.Suffix + '.lib')
+                Copy-Item -LiteralPath $src -Destination (Join-Path $distLibRoot $destName) -Force
+                $copied += $destName
             }
             else {
                 Write-Warning "expected lib not found: zig-out\lib\$name ($($variant.Optimize))"
             }
         }
 
-        Copy-DistCompatLib -DistLib $distLib -Variant $variant.Optimize
+        Copy-DistCompatLib -DistLib $distLibRoot -Suffix $variant.Suffix -Variant $variant.Optimize
 
-        Write-Host ('OK  dist\lib\{0}  {1} libs: {2}' -f $variant.Dir, $copied.Count, ($copied -join ', ')) -ForegroundColor Green
+        Write-Host ('OK  dist\lib  {0} libs ({1}): {2}' -f $copied.Count, $variant.Optimize, ($copied -join ', ')) -ForegroundColor Green
     }
 
     # Public headers, in three layers (optimize-independent -- copied once):

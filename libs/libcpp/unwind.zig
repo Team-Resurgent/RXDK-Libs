@@ -16,8 +16,8 @@ const include_dirs = [_][]const u8{
     "vendor/llvm-project/libunwind/include",
     "vendor/llvm-project/libunwind/src",
     "build/generated",
-    "shared/picolibc/include",
-    "shared/picolibc/machine/x86",
+    "vendor/picolibc/libc/include",
+    "vendor/picolibc/libc/machine/x86",
 };
 
 const extra = [_][]const u8{

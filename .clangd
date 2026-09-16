@@ -17,8 +17,8 @@ CompileFlags:
     - -D_M_IX86=600
     - -D_XBOX
     - -Ishared/include
-    - -Ishared/picolibc/include
-    - -Ishared/picolibc/machine/x86
+    - -Ivendor/picolibc/libc/include
+    - -Ivendor/picolibc/libc/machine/x86
     - -Iinclude
     - -Ibuild/generated
 

@@ -112,8 +112,8 @@ fn includeDirs(_: *std.Build) []const []const u8 {
         "vendor/llvm-project/libcxx/src",
         "build/generated",
         "shared/include", // libc <threads.h> for the C11 thread API backend
-        "shared/picolibc/include",
-        "shared/picolibc/machine/x86",
+        "vendor/picolibc/libc/include",
+        "vendor/picolibc/libc/machine/x86",
     };
 }
 

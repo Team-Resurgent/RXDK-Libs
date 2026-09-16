@@ -166,8 +166,8 @@ fn includeDirs(_: *std.Build) []const []const u8 {
     return &.{
         "shared/include",
         "build/generated",
-        "shared/picolibc/include",
-        "shared/picolibc/machine/x86",
+        "vendor/picolibc/libc/include",
+        "vendor/picolibc/libc/machine/x86",
         "vendor/picolibc/libm/common",
         "vendor/picolibc/libm/ld",
         "vendor/picolibc/libc/locale",
@@ -239,7 +239,7 @@ const header_excludes = [_][]const u8{ ".txt", ".build", ".in", ".c", ".md", ".c
 
 pub fn stageHeaders(b: *std.Build) *std.Build.Step {
     const install = b.addInstallDirectory(.{
-        .source_dir = b.path("shared/picolibc/include"),
+        .source_dir = b.path("vendor/picolibc/libc/include"),
         .install_dir = .prefix,
         .install_subdir = "include",
         .exclude_extensions = &header_excludes,

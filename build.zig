@@ -109,7 +109,7 @@ pub fn build(b: *std.Build) void {
         }),
         .include_dirs = &.{
             "shared/include", "libs/libxapi/internal", "build/generated",
-            "shared/picolibc/include", "shared/picolibc/machine/x86",
+            "vendor/picolibc/libc/include", "vendor/picolibc/libc/machine/x86",
         },
         .opt_flag = opt_flag,
         .is_cpp = false,

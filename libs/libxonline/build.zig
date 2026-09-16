@@ -35,8 +35,8 @@ pub fn includeDirs() []const []const u8 {
         "libs/libxapi/port",
         "libs/libxapi/site",
         "build/generated",
-        "shared/picolibc/include",
-        "shared/picolibc/machine/x86",
+        "vendor/picolibc/libc/include",
+        "vendor/picolibc/libc/machine/x86",
     };
 }
 

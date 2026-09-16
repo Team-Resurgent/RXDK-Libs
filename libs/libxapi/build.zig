@@ -31,8 +31,8 @@ pub fn includeDirs() []const []const u8 {
         XAPI ++ "/port",
         "build/generated",
         XAPI ++ "/internal/shims",
-        "shared/picolibc/include",
-        "shared/picolibc/machine/x86",
+        "vendor/picolibc/libc/include",
+        "vendor/picolibc/libc/machine/x86",
         // ms_printf.h: the MSVC->C99 format translator, shared with the wide
         // Win32 formatters in k32 (wsprintfW and friends promise MSVC's
         // spelling of %s/%S/%I64, which picolibc does not implement).

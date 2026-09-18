@@ -57,12 +57,30 @@ Keep the VS20XX toolset link on zig. Only change RXDK-Libs' compiler + librarian
    (llvm-lib takes the same MSVC-style switches).
 4. Leave `build.ps1` / libcompat / picolibc vendoring untouched.
 
-### Verify
-- Build one lib (e.g. `libc`, then `libxapi`) and **byte-compare** the `.o` and `.lib` against the
-  zig output. ⚠️ Byte-identical requires the **same clang/LLVM version** zig bundles — confirm the
-  xboxog LLVM version vs zig's bundled clang; if they differ, expect functionally-equivalent but not
-  byte-identical objects (RXDK has valued byte-identical objs — decide if we re-baseline).
-- Then build all libs (`build.ps1`) and run the sample sweep on xemu/HW.
+### Verify — parity checks (do NOT assume; zig stung us on SSE2)
+
+The whole migration must be gated on parity, and the codegen/instruction-set checks matter most —
+a compiler that emits **SSE2+** faults as `STATUS_ILLEGAL_INSTRUCTION` on real HW (PIII = MMX+SSE1
+only), and **xemu often masks it** ([[rxdk-trees-fur-xemu-gap]]). So parity is checked in this order:
+
+1. **Instruction-set scan (the critical gate).** Disassemble every emitted `.o`/`.lib`
+   (`llvm-objdump -d`) and fail the build on any instruction above the PIII/SSE1 baseline
+   (any SSE2/SSE3/SSSE3/SSE4/AVX/… opcode). Build this as a scripted check that runs on both the
+   zig output (baseline) and the LLVM output and diffs the flagged-opcode set — it must be **empty**
+   for LLVM just as it is for zig. This catches the SSE2 class before HW.
+2. **Byte / functional diff of objects.** Byte-compare `.o` + `.lib` vs zig. Byte-identical only
+   holds if the xboxog LLVM version == zig's bundled clang version; otherwise expect
+   functionally-equivalent output (symbol table, section layout, relocations) — verify those match
+   and decide whether to re-baseline the "byte-identical" expectation.
+3. **ABI / symbol parity.** Same name mangling, `__cdecl`/`__stdcall` decoration, struct layout and
+   `wchar_t`/enum sizes, and predefined macros (`__GNUC__`, data layout) — the libs link against
+   MSVC-ABI title code and the leak's objects, so any drift breaks linking or corrupts calls
+   (cf. [[rxdk-notifier-fence-bug]], the `__cdecl`-under-stdcall miscompile).
+4. **compiler-rt behaviour (Phase 2).** When the title link moves to LLVM, re-check the `build.ps1`
+   hazards: no ABI-mismatched x87 `fabs`, no weak **SSE2** `memmove` sneaking in — `libcompat` must
+   still win ([[rxdk-memmove-builtin-recursion-fix.md]]).
+5. **Real-hardware sweep.** Because xemu masks the SSE2/illegal-instruction class, run the sample
+   sweep on **real HW**, not just xemu — that is the final parity gate.
 
 ## Phase 2 — apps/titles on LLVM too (the planned end state)
 

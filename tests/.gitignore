@@ -1,3 +1,4 @@
 # Build output (xbe/exe/obj/iso) produced by the RXDK engine.
 out/
 */out/
+stdlib/build/

@@ -5,6 +5,7 @@
 #define _POSIX_PRIORITY_SCHEDULING 1   /* expose <sched.h> policy declarations */
 #include "rxdk_test.h"
 #include <errno.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <time.h>
@@ -30,9 +31,15 @@
 static void afork(void) {}
 
 int main(void) {
-    /* spawn / pipes / fifo */
+    /* spawn / pipes / fifo. Unlike the 360, OG-Xbox libc has a REAL in-process
+       pipe (ring buffer over kernel events), so exercise it with a round-trip
+       instead of expecting ENOSYS. */
     int p[2];
-    errno = 0; CHECK(pipe(p) == -1 && errno == ENOSYS, "pipe -> ENOSYS");
+    char pbuf[8] = {0};
+    CHECK_EQI(pipe(p), 0, "pipe -> 0 (real in-process pipe)");
+    CHECK(write(p[1], "pipe", 4) == 4, "pipe write");
+    CHECK(read(p[0], pbuf, 4) == 4 && memcmp(pbuf, "pipe", 4) == 0, "pipe read-back");
+    close(p[0]); close(p[1]);
     errno = 0; CHECK(mkfifo("T:/nope", 0644) == -1 && errno == ENOSYS, "mkfifo -> ENOSYS");
     errno = 0; CHECK(vfork() == -1 && errno == ENOSYS, "vfork -> ENOSYS");
     CHECK_EQI(posix_spawn(0, "x", 0, 0, 0, 0), ENOSYS, "posix_spawn -> ENOSYS");

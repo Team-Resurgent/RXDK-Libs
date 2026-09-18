@@ -13,11 +13,12 @@
       ],
       "createIso": true,
       "libraries": [
-        "libxbdm",
-        "libxapi",
-        "libkernel",
-        "libc",
-        "libcpp"
+        "libxbdmd.lib",
+        "libxapid.lib",
+        "libkerneld.lib",
+        "libcd.lib",
+        "libcppd.lib",
+        "libcompatd.lib"
       ],
       "imageBuild": {
         "stackSize": 65536,
@@ -38,10 +39,11 @@
         "main.cpp"
       ],
       "libraries": [
-        "libxapi",
-        "libkernel",
-        "libc",
-        "libcpp"
+        "libxapi.lib",
+        "libkernel.lib",
+        "libc.lib",
+        "libcpp.lib",
+        "libcompat.lib"
       ],
       "imageBuild": {
         "stackSize": 65536,

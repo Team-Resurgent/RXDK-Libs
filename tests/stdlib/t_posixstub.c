@@ -45,8 +45,10 @@ int main(void) {
     int local = 0;
     CHECK(mprotect(&local, sizeof local, PROT_READ | PROT_WRITE) == 0,
           "mprotect succeeds (memory already accessible)");
+    /* Unlike the 360 (no break), OG-Xbox libc provides a real sbrk break, so
+       sbrk(0) reports the current break rather than failing. */
     errno = 0;
-    CHECK(sbrk(0) == (void *)-1, "sbrk -> (void*)-1 (no break)");
+    CHECK(sbrk(0) != (void *)-1, "sbrk(0) -> current break (OG Xbox has a real break)");
 
     /* terminal */
     struct termios t;

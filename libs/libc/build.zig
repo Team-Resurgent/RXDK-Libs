@@ -33,6 +33,16 @@ const libm_common_include_only = [_][]const u8{
     "exp.c",    "exp2.c",    "log.c",    "log2.c",   "pow.c",   "s_log2.c",
     "sf_exp.c", "sf_exp2.c", "sf_log.c", "sf_log2.c", "sf_pow.c",
 };
+// libc/posix files to leave OUT of the glob: engine.c is #included by
+// regexec.c (not a standalone TU); the four regex TUs are appended explicitly;
+// creat.c / sleep.c collide with fileio.c / threads.c.
+const posix_exclude = [_][]const u8{
+    "engine.c",
+    "regcomp.c", "regexec.c", "regerror.c", "regfree.c",
+    "creat.c", "sleep.c",
+    // fnmatch lives in xbox/posix_glob.c (bundled with glob, which calls it).
+    "fnmatch.c",
+};
 
 const picolibc_subdirs = [_][]const u8{
     "libc/ctype",
@@ -96,6 +106,12 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     try list.append(allocator, "vendor/picolibc/libc/posix/regexec.c");
     try list.append(allocator, "vendor/picolibc/libc/posix/regerror.c");
     try list.append(allocator, "vendor/picolibc/libc/posix/regfree.c");
+    // The rest of libc/posix: strfmon, fnmatch, basename/dirname, the exec*
+    // front-ends, wait(), and the passwd/group DB (getpwuid/getgrgid/...). Built
+    // as picolibc's own meson builds it -- a consistent set. Excludes: engine.c
+    // (#included by regexec.c, not a standalone TU); the 4 regex TUs appended
+    // above; and creat.c / sleep.c (defined in fileio.c / threads.c here).
+    try appendDirSources(b, allocator, &list, "libc/posix", ".c", &posix_exclude);
     // C23 <uchar.h> conversions (char8/16/32); internal uchar-local.h is same-dir
     try list.append(allocator, "vendor/picolibc/libc/uchar/mbrtoc8.c");
     try list.append(allocator, "vendor/picolibc/libc/uchar/mbrtoc16.c");
@@ -215,6 +231,10 @@ pub fn addXboxObjects(
         "libs/libc/xbox/errno_tls.c",
         "libs/libc/xbox/hooks.c",
         "libs/libc/xbox/signals.c",
+        "libs/libc/xbox/posix_ext.c",
+        "libs/libc/xbox/posix_glob.c",
+        "libs/libc/xbox/aio.c",
+        "libs/libc/xbox/syslog.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/xbld.c",
         "libs/libc/xbox/stubs.c",

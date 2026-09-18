@@ -25,8 +25,8 @@ GEN = os.path.join(HERE, "build")
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
 EXCLUDE = {
-    # missing headers (need vendoring): monetary/sendfile/poll/fnmatch/termios/syslog.h
-    "t_posix2", "t_posix5", "t_posixext", "t_posixglob", "t_posixstub", "t_syslog",
+    # t_posix5 needs a pthread layer (cancellation) + aio/sendfile; deferred (Wave 2)
+    "t_posix5",
     # ftw.h header has a syntax error; pthread_compat.h clashes with zig's copy
     "t_posix4", "t_posix3", "t_posixun", "t_pthread",
     # need async signal delivery / POSIX timers (sigaction/setitimer/timer_create)

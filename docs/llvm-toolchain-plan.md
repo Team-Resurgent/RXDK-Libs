@@ -38,7 +38,7 @@ dir, and `libcxx`/`libcxxabi`/`libunwind`/`libc` headers+src). Built with
 | Need | In release? | Action |
 |---|---|---|
 | **clang** (compile) | ✅ | use `clang --target=i686-pc-windows-gnu` |
-| **llvm-lib** (COFF librarian, replaces `zig lib`) | ❌ (only `llvm-ar` = GNU ar) | **add `llvm-lib` to the CI build target + Package step**, OR verify `llvm-ar` GNU `.a` is accepted by our lld title-link (lld reads GNU archives; but consumers expect COFF `.lib`). Prefer adding `llvm-lib`. |
+| **llvm-lib** (COFF librarian, replaces `zig lib`) | ✅ (added 2026-09-17) | `llvm-lib` is now built + packaged in both CI workflows (`teamresurgent` bfb1243) — it is a tool-symlink target of `llvm-ar` and takes the same MSVC-style switches. Use it directly. |
 | **ld.lld** (link) | ✅ | not used in Phase 1 (link stays zig) |
 | **compiler-rt builtins** (title link) | ❌ (not in ENABLE_PROJECTS) | **not needed for Phase 1** — title link stays on zig `cc`, which supplies them. Needed only for Phase 2. |
 
@@ -112,7 +112,7 @@ Work:
   VS20XX and VS Code drive one LLVM toolchain.
 
 ## Open questions / risks
-- **llvm-lib packaging** — needs a one-line CI change on the `xboxog` branch's build workflow.
+- ~~**llvm-lib packaging**~~ — DONE (2026-09-17): both `build-xboxog-clang.yml` and `build-xbox360-clang.yml` on `teamresurgent` now build + package `llvm-lib`.
 - **Version parity** — zig's clang vs xboxog LLVM; affects byte-identical reproducibility.
 - **`-target x86-windows-gnu` vs `--target=i686-pc-windows-gnu`** — confirm clang defaults (data
   layout, `__GNUC__`, wchar) match what zig cc produced; RXDK's `-nostdinc`+own headers minimise

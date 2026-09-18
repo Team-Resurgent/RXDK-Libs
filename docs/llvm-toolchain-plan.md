@@ -60,15 +60,29 @@ Keep the VS20XX toolset link on zig. Only change RXDK-Libs' compiler + librarian
   byte-identical objects (RXDK has valued byte-identical objs — decide if we re-baseline).
 - Then build all libs (`build.ps1`) and run the sample sweep on xemu/HW.
 
-## Phase 2 — remove zig entirely (later)
+## Phase 2 — apps/titles on LLVM too (the planned end state)
 
-Move the **title link** off zig too (the VS20XX toolset `ZigLd`/`ZigCompile`, RXDK-Tools):
-- Drive `clang --target=… -fuse-ld=lld` (or `ld.lld` directly) for the title link.
-- Supply **compiler-rt builtins** for `i686-windows-gnu` — add `compiler-rt` (builtins) to the
-  xboxog LLVM CI (`LLVM_ENABLE_RUNTIMES`/`PROJECTS`) cross-built for i386, packaged as
-  `libclang_rt.builtins-i386.a`; or compile the needed builtins from the vendored
+**Confirmed direction:** once the libs are built with LLVM, the **apps/titles that consume them
+also build with LLVM** — i.e. the whole toolchain drops zig, not just RXDK-Libs. This is the
+title **compile + link** path, which lives in the **RXDK-Tools** MSBuild toolset (`ZigCompile`,
+`ZigLd`, `ZigAr`, driven from `Rxdk.MsBuild`) used by VS20XX, and the equivalent CLI/VS Code path.
+
+Work:
+- Point `ZigCompile` at `clang --target=i686-pc-windows-gnu` and `ZigLd` at
+  `clang … -fuse-ld=lld` (or `ld.lld`), `ZigAr` at `llvm-ar`/`llvm-lib` — mirroring the
+  RXDK-Libs Phase-1 swap. (These tasks were just re-based on version-stable
+  `Microsoft.Build.Utilities` and build their command lines explicitly, so the exe/flag swap is
+  contained.)
+- Supply **compiler-rt builtins** for `i686-windows-gnu` — this becomes **required** here (the
+  title link is what pulls them in; zig currently auto-provides them). Add `compiler-rt`
+  (builtins) to the xboxog LLVM CI (`LLVM_ENABLE_RUNTIMES`/`PROJECTS`) cross-built for i386,
+  packaged as `libclang_rt.builtins-i386.a`; or compile the needed builtins from the vendored
   `vendor/llvm-project/compiler-rt` source (we already carry it).
-- Re-validate the libcompat override still wins over the new compiler-rt.
+- Re-validate the `libcompat` override still wins over the new compiler-rt (the ABI-mismatched
+  `fabs`/weak SSE2 `memmove` reasons in `build.ps1` still apply).
+- Ship the toolchain (clang/lld/llvm-lib/llvm-ar + builtins) the same way host tools ship today
+  (download the `xboxog-<os>-<arch>.zip` from the release into the staged tools root), so both
+  VS20XX and VS Code drive one LLVM toolchain.
 
 ## Open questions / risks
 - **llvm-lib packaging** — needs a one-line CI change on the `xboxog` branch's build workflow.

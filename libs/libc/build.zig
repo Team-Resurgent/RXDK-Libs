@@ -235,6 +235,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/posix_glob.c",
         "libs/libc/xbox/aio.c",
         "libs/libc/xbox/syslog.c",
+        "libs/libc/xbox/pthread.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/xbld.c",
         "libs/libc/xbox/stubs.c",

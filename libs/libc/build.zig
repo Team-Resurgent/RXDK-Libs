@@ -103,6 +103,10 @@ pub fn collectSources(b: *std.Build, allocator: std.mem.Allocator) ![]const []co
     try list.append(allocator, "vendor/picolibc/libc/uchar/c8rtomb.c");
     try list.append(allocator, "vendor/picolibc/libc/uchar/c16rtomb.c");
     try list.append(allocator, "vendor/picolibc/libc/uchar/c32rtomb.c");
+    // POSIX sysconf (fallback impl, weak-aliased to sysconf). libc++'s
+    // thread::hardware_concurrency() calls sysconf(_SC_NPROCESSORS_ONLN); our
+    // fork returns 1 (the OG Xbox is single-core).
+    try list.append(allocator, "vendor/picolibc/libos/fallback/sysconf.c");
 
     return try list.toOwnedSlice(allocator);
 }

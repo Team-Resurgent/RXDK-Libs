@@ -33,7 +33,7 @@ EXCLUDE = {
     #   t_args     -> __rxdk_parse_cmdline (360 crt_start.c argv parsing)
     #   t_mscompat -> _beginthreadex/ExCreateThread/NtClose (360 thread kernel),
     #                 __CxxFrameHandler (MSVC EH), std::_Lockit (MSVC STL locks)
-    "t_args", "t_mscompat", "t_fstream",
+    "t_mscompat",
 }
 
 DEBUG_LIBS = ["libxbdmd.lib", "libxapid.lib", "libkerneld.lib",
@@ -86,16 +86,21 @@ def main():
             f.write("}\n")
         for n in cpp_units:
             f.write("int %s(void);\n" % n)
-        f.write("\nstruct Section { const char *name; int (*fn)(void); };\n")
+        # A few units keep main(int, char**) (e.g. t_args); call every section
+        # through that signature with (0, NULL). The void sections ignore the
+        # extra cdecl args, and t_args gets a valid (argc=0, argv=NULL).
+        f.write("\ntypedef int (*SectFn)(int, char **);\n")
+        f.write("struct Section { const char *name; SectFn fn; };\n")
         f.write("static const Section kSections[] = {\n")
         for n, _e, _b in us:
-            f.write('    { "%s", %s },\n' % (n[2:], n))   # strip leading t_
+            f.write('    { "%s", (SectFn)%s },\n' % (n[2:], n))   # strip leading t_
         f.write("};\n\n")
         f.write("int main(void)\n{\n")
         f.write('    DbgPrint("========== RXDK-Libs stdlib suite ==========\\n");\n')
+        f.write("    static char *empty_argv[] = { 0 };  /* valid argc=0 argv (argv[0]==NULL) */\n")
         f.write("    for (const auto &s : kSections) {\n")
         f.write('        DbgPrint("[T] SECT %s\\n", s.name);\n')
-        f.write("        s.fn();\n")
+        f.write("        s.fn(0, empty_argv);\n")
         f.write("    }\n")
         f.write('    DbgPrint("[T] ALLDONE\\n");\n')
         f.write("    return 0;\n}\n")

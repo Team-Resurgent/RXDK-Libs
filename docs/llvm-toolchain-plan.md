@@ -63,11 +63,16 @@ The whole migration must be gated on parity, and the codegen/instruction-set che
 a compiler that emits **SSE2+** faults as `STATUS_ILLEGAL_INSTRUCTION` on real HW (PIII = MMX+SSE1
 only), and **xemu often masks it** ([[rxdk-trees-fur-xemu-gap]]). So parity is checked in this order:
 
-1. **Instruction-set scan (the critical gate).** Disassemble every emitted `.o`/`.lib`
-   (`llvm-objdump -d`) and fail the build on any instruction above the PIII/SSE1 baseline
-   (any SSE2/SSE3/SSSE3/SSE4/AVX/… opcode). Build this as a scripted check that runs on both the
-   zig output (baseline) and the LLVM output and diffs the flagged-opcode set — it must be **empty**
-   for LLVM just as it is for zig. This catches the SSE2 class before HW.
+1. **Instruction-set scan (the critical gate).** **Implemented: [`tools/isa-scan.py`](../tools/isa-scan.py)**
+   — parses COFF `.o`/`.lib` (archives walked member by member) and flags every instruction above the
+   PIII/SSE1 baseline, using **Capstone ISA groups** (so it can't miss an SSE2/SSE3/SSE4/AVX/BMI
+   opcode via a hand-list) plus a **mnemonic backstop** for post-PIII scalar ops Capstone leaves
+   ungrouped (`popcnt`, `movbe`, …). It correctly **excludes** the backward-compatible `tzcnt`/`lzcnt`
+   (=`rep bsf/bsr`) and `pause` (=`rep nop`), which don't fault on a PIII. Exit 1 on any violation.
+   `pip install capstone`, then `python tools/isa-scan.py dist/lib` — wire it into `build.ps1`/CI as a
+   post-build gate. **Validated:** the whole current (zig) `dist/lib` is clean (38 libs); a forced
+   `-msse2`/`-msse4.2`/`popcnt` object is flagged; a `-march=pentium3` object is clean. Run it on the
+   LLVM output and it must be equally clean.
 2. **Byte / functional diff of objects.** Byte-compare `.o` + `.lib` vs zig. Byte-identical only
    holds if the xboxog LLVM version == zig's bundled clang version; otherwise expect
    functionally-equivalent output (symbol table, section layout, relocations) — verify those match

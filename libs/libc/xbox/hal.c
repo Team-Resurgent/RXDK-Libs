@@ -120,13 +120,7 @@ int getpid(void)
     return 1;
 }
 
-int kill(int pid, int sig)
-{
-    (void)pid;
-    (void)sig;
-    errno = ENOSYS;
-    return -1;
-}
+/* kill() lives in signals.c (it delivers cooperatively to the single title). */
 
 int isatty(int fd)
 {

@@ -130,26 +130,7 @@ int    chmod(const char *path, mode_t mode)            { (void)path; (void)mode;
 int    chown(const char *path, uid_t owner, gid_t grp) { (void)path; (void)owner; (void)grp; return 0; }
 mode_t umask(mode_t mask)                              { (void)mask; return 0; }
 
-/* ---- interval timers / alarm: no async signal delivery, so a fresh query
-   reports a disarmed timer and arming is a no-op that reports "none pending".
-   The firing implementation belongs with SIGALRM delivery (t_signal). ------- */
-unsigned int alarm(unsigned int seconds) { (void)seconds; return 0; }
-
-int getitimer(int which, struct itimerval *value)
-{
-    (void)which;
-    if (!value) { errno = EINVAL; return -1; }
-    memset(value, 0, sizeof *value);
-    return 0;
-}
-
-int setitimer(int which, const struct itimerval *value, struct itimerval *old)
-{
-    (void)which; (void)value;
-    if (old)
-        memset(old, 0, sizeof *old);
-    return 0;
-}
+/* alarm/getitimer/setitimer (real ITIMER_REAL, firing SIGALRM) live in signals.c. */
 
 /* ---- file-copy helpers: sendfile / copy_file_range are a bounded read+write
    loop over the fd table (no zero-copy path on the console). libc++'s

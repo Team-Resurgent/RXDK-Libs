@@ -25,10 +25,8 @@ GEN = os.path.join(HERE, "build")
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
 EXCLUDE = {
-    # t_posixun needs posix_unsupported.c + timer.c + a pipe-semantics adaptation
+    # t_posixun needs posix_unsupported.c + ~10 stub headers + a pipe-semantics adaptation
     "t_posixun",
-    # need async signal delivery / POSIX timers (sigaction/setitimer/timer_create)
-    "t_signal", "t_timer",
     # free_sized (C23) not in picolibc
     "t_c23lang",
     # C++23 libc++ features absent from the vendored libcxx include tree

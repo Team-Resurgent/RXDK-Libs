@@ -238,6 +238,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/pthread.c",
         "libs/libc/xbox/sem.c",
         "libs/libc/xbox/ftw.c",
+        "libs/libc/xbox/timer.c",
         "libs/libc/xbox/startup.c",
         "libs/libc/xbox/xbld.c",
         "libs/libc/xbox/stubs.c",

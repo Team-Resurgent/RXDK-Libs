@@ -88,6 +88,37 @@ its resource/builtin header dir (`stddef.h` etc.), unlike `zig cc`. The xAPI bat
 so LLVM mode re-adds `<root>/lib/clang/<ver>/include` via `-isystem` (after `-I`, so RXDK headers still
 win). Discovered at configure time, no hardcoded LLVM version.
 
+### Full-lib sweep (2026-09-17) — 9/18 clean; 2 open blockers
+
+Built every lib both ways at `-Doptimize=ReleaseSmall` and compared (`isa-scan` + whole-archive
+symbol parity). Result:
+
+- **11 libs build + verify** under LLVM: `libc`, `libcpp`*, `libd3d8`, `libd3d8i`, `libkernel`,
+  `libxbdm`, `libxnet`, `libxneto`, `libxonline`, plus `libdsound`, `libuix`, `libxact`, `libxmv`
+  (unblocked by the vendored headers below). All isa-scan **PIII-clean**; ABI **identical** to zig
+  except `libcpp`* whose only diffs are libc++/libunwind **internal** ABI helpers renamed between
+  clang 18↔23 (`_LIBCPP_ABI_NAMESPACE`-versioned symbols, libunwind log/section symbols,
+  `__assert_func` satisfied by libc) — public surface matches.
+
+- **Blocker A — RXDK leaned on zig's bundled MinGW headers** (the plan's assumption was mostly but
+  not entirely true). A handful of TUs `#include <>` Windows headers zig shipped implicitly and RXDK
+  did not own. **Fixed** by vendoring RXDK-owned copies (definitions already exist in RXDK; these are
+  declarations/spec constants): `shared/include/cguid.h` (well-known COM GUID externs, from
+  `xobjbase.h`), `libs/libxapi/usb/inc/usb100.h` (USB 1.1 descriptor structs), `shared/include/initguid.h`
+  (the DEFINE_GUID→definition shim), `shared/include/windowsx.h` (3 macros: GlobalAllocPtr/FreePtr,
+  MAKEPOINTS). These make RXDK self-contained — correct regardless of toolchain.
+
+- **Blocker B — clang `-fasm-blocks` assertion (the real one).** This TR clang is an **assertions**
+  build (`+assertions`) and aborts on `Assertion failed: MaybeODRUseExprs.empty() ... SemaDecl.cpp:17139`
+  for **every** MS `__asm { }` block that references C locals — `libxgraphics` (xgmath quaternion),
+  `libd3dx8` (jpeglib IDCT/FDCT: midct8x8aan, mfdct8x8aan, …), and likely others. The code is fine
+  (all SSE1, PIII-safe); it is a clang Sema bookkeeping bug in the ms-asm path. **Fix options:** (1)
+  build the shipped xboxog/xbox360 toolchain with `LLVM_ENABLE_ASSERTIONS=OFF` (correct for a
+  distributable compiler anyway; the assert compiles out and the leftover odr-use tracking is benign
+  for locals) — one-line CI change, needs a toolchain rebuild to confirm; or (2) patch clang's Sema
+  in the TR fork to clear `MaybeODRUseExprs` after an asm block (proper upstream fix). Blocks
+  `libxgraphics`, `libd3dx8`, and `libdmusic` (dmsynth) until resolved.
+
 ### Verify — parity checks (do NOT assume; zig stung us on SSE2)
 
 The whole migration must be gated on parity, and the codegen/instruction-set checks matter most —

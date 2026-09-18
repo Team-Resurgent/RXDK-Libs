@@ -125,6 +125,7 @@ def main():
         "noLogo": true,
         "noLibWarn": true,
         "dontMountUtilityDrive": false,
+        "formatUtilityDrive": true,
         "testId": "0xffff2001",
         "testName": "RxdkStdlib",
         "testVersion": "4096"

@@ -58,9 +58,23 @@ static int rxdk__total = 0;
     } while (0)
 
 /* C-string equality */
+/* Capture `s`'s bytes into a static buffer. Passing the expression here (rather
+ * than storing its char* and using it on a later line) keeps a temporary alive
+ * through the copy -- e.g. CHECK_STR(std::format(...).c_str(), ...) would
+ * otherwise read the destroyed temporary's freed storage. */
+static char rxdk__strbuf[512];
+static const char *rxdk__capture(const char *s)
+{
+    if (!s) return 0;
+    unsigned i = 0;
+    while (s[i] && i < sizeof(rxdk__strbuf) - 1) { rxdk__strbuf[i] = s[i]; ++i; }
+    rxdk__strbuf[i] = '\0';
+    return rxdk__strbuf;
+}
+
 #define CHECK_STR(actual, expect, desc)                                    \
     do {                                                                   \
-        const char *_a = (actual), *_e = (expect);                         \
+        const char *_a = rxdk__capture(actual), *_e = (expect);            \
         int _ok = _a && _e && rxdk__streq(_a, _e);                         \
         ++rxdk__total;                                                     \
         if (_ok) {                                                         \

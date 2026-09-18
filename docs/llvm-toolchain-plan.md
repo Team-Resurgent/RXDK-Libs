@@ -88,17 +88,21 @@ its resource/builtin header dir (`stddef.h` etc.), unlike `zig cc`. The xAPI bat
 so LLVM mode re-adds `<root>/lib/clang/<ver>/include` via `-isystem` (after `-I`, so RXDK headers still
 win). Discovered at configure time, no hardcoded LLVM version.
 
-### Full-lib sweep (2026-09-17) — 9/18 clean; 2 open blockers
+### Full-lib sweep (2026-09-17) — 15/18 verified; 1 open blocker
 
 Built every lib both ways at `-Doptimize=ReleaseSmall` and compared (`isa-scan` + whole-archive
 symbol parity). Result:
 
-- **11 libs build + verify** under LLVM: `libc`, `libcpp`*, `libd3d8`, `libd3d8i`, `libkernel`,
-  `libxbdm`, `libxnet`, `libxneto`, `libxonline`, plus `libdsound`, `libuix`, `libxact`, `libxmv`
-  (unblocked by the vendored headers below). All isa-scan **PIII-clean**; ABI **identical** to zig
-  except `libcpp`* whose only diffs are libc++/libunwind **internal** ABI helpers renamed between
-  clang 18↔23 (`_LIBCPP_ABI_NAMESPACE`-versioned symbols, libunwind log/section symbols,
-  `__assert_func` satisfied by libc) — public surface matches.
+- **15 of 18 libs build** under LLVM: `libc`, `libcpp`*, `libd3d8`, `libd3d8i`, `libdsound`,
+  `libkernel`, `libuix`, `libxact`, `libxapi`, `libxbdm`, `libxmv`, `libxnet`, `libxneto`,
+  `libxonline`, `libxvoice`. **14 are isa-scan PIII-clean + ABI-identical to zig** (same defined +
+  undefined external symbol sets); `libcpp`* is isa-clean with the only diffs being libc++/libunwind
+  **internal** ABI helpers renamed between clang 18↔23 (`_LIBCPP_ABI_NAMESPACE`-versioned symbols,
+  libunwind log/section symbols, `__assert_func` satisfied by libc) — public surface matches. The
+  vendored headers below were confirmed **byte-identical** in zig mode (rebuilding libxapi + libdsound
+  with them yields bit-for-bit the same .lib — dist parity preserved).
+- **3 libs remain blocked by Blocker B only**: `libxgraphics` (+`libxfont`, which packs into it),
+  `libd3dx8`, `libdmusic`.
 
 - **Blocker A — RXDK leaned on zig's bundled MinGW headers** (the plan's assumption was mostly but
   not entirely true). A handful of TUs `#include <>` Windows headers zig shipped implicitly and RXDK

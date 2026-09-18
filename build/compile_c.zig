@@ -103,6 +103,12 @@ pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
         compile.addArg(obj_rel);
         if (!is_s) compile.addArgs(opts.flags);
         compile.addArg(opts.opt_flag);
+        // llvm mode: this clang's -nostdinc also strips its resource dir, so the
+        // builtin headers (stddef.h/stdarg.h/…) must be re-added. Searched after
+        // the -I dirs below (system category), so RXDK's own headers still win.
+        if (!tc.isZig() and tc.builtin_include.len != 0) {
+            compile.addArgs(&.{ "-isystem", tc.builtin_include });
+        }
         for (opts.include_dirs) |inc| {
             compile.addArg(b.fmt("-I{s}", .{inc}));
         }

@@ -19,6 +19,12 @@ pub const Toolchain = struct {
     /// LLVM toolchain root (contains bin/); empty in zig mode.
     root: []const u8,
     zig_exe: []const u8,
+    /// clang's builtin/resource header dir (`lib/clang/<ver>/include`, holds
+    /// stddef.h/stdarg.h/…); "" in zig mode or if not found. Re-added via
+    /// `-isystem` in llvm mode because this clang's `-nostdinc` (used by the
+    /// xAPI batches) also strips the resource dir, unlike `zig cc` which keeps
+    /// its bundled builtin headers available.
+    builtin_include: []const u8,
 
     pub fn isZig(self: Toolchain) bool {
         return self.kind == .zig;
@@ -70,8 +76,30 @@ fn exeSuffix() []const u8 {
 pub fn detect(b: *std.Build) Toolchain {
     if (b.graph.environ_map.get("RXDK_LLVM")) |r| {
         if (r.len != 0) {
-            return .{ .kind = .llvm, .root = b.dupe(r), .zig_exe = b.graph.zig_exe };
+            const root = b.dupe(r);
+            return .{
+                .kind = .llvm,
+                .root = root,
+                .zig_exe = b.graph.zig_exe,
+                .builtin_include = discoverBuiltinInclude(b, root),
+            };
         }
     }
-    return .{ .kind = .zig, .root = "", .zig_exe = b.graph.zig_exe };
+    return .{ .kind = .zig, .root = "", .zig_exe = b.graph.zig_exe, .builtin_include = "" };
+}
+
+/// Find the single versioned resource-include dir under `<root>/lib/clang/<ver>/include`
+/// without hardcoding the LLVM major version. Returns "" if the layout is unexpected.
+fn discoverBuiltinInclude(b: *std.Build, root: []const u8) []const u8 {
+    const io = b.graph.io;
+    const clang_dir = b.fmt("{s}/lib/clang", .{root});
+    var dir = std.Io.Dir.openDirAbsolute(io, clang_dir, .{ .iterate = true }) catch return "";
+    defer dir.close(io);
+    var it = dir.iterate();
+    while (it.next(io) catch null) |entry| {
+        if (entry.kind == .directory) {
+            return b.fmt("{s}/{s}/include", .{ clang_dir, entry.name });
+        }
+    }
+    return "";
 }

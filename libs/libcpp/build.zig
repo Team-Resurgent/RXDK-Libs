@@ -100,6 +100,11 @@ pub fn collectLibcxxSources(b: *std.Build, allocator: std.mem.Allocator) ![]cons
     try list.append(allocator, try allocator.dupe(u8, "libs/libcpp/charconv_fp_to_chars.cpp"));
     try list.append(allocator, try allocator.dupe(u8, "libs/libcpp/charconv_fp_from_chars.cpp"));
 
+    // First-party replaceable global operator new/delete: the base new/delete
+    // symbols do not survive libc++abi's _LIBCPP_OVERRIDABLE_FUNCTION lowering
+    // under clang 23 on this target (see the file's comment).
+    try list.append(allocator, try allocator.dupe(u8, "libs/libcpp/operator_new_delete.cpp"));
+
     return try list.toOwnedSlice(allocator);
 }
 

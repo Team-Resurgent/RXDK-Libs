@@ -29,6 +29,11 @@ EXCLUDE = {
     "t_posix5", "t_posixext", "t_posixglob", "t_posixstub", "t_posixun",
     "t_pthread", "t_signal", "t_syslog", "t_timer",
     "t_cartesian", "t_chunk_slide", "t_move_only_fn", "t_spanstream", "t_stacktrace",
+    # link-blocked on OG-runtime glue not yet ported (360-specific):
+    #   t_args     -> __rxdk_parse_cmdline (360 crt_start.c argv parsing)
+    #   t_mscompat -> _beginthreadex/ExCreateThread/NtClose (360 thread kernel),
+    #                 __CxxFrameHandler (MSVC EH), std::_Lockit (MSVC STL locks)
+    "t_args", "t_mscompat",
 }
 
 DEBUG_LIBS = ["libxbdmd.lib", "libxapid.lib", "libkerneld.lib",

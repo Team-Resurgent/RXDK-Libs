@@ -217,6 +217,7 @@ pub fn addXboxObjects(
         "libs/libc/xbox/tls_stub.c",
         "libs/libc/xbox/libm_shim.c",
         "libs/libc/xbox/msvc_crt.c",
+        "libs/libc/xbox/ms_crt_compat.c",
         "libs/libc/xbox/ms_printf.c",
         "libs/libc/c23/stdbit.c",
         "libs/libc/xbox/crt0.S",

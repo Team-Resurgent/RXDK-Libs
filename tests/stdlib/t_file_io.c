@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 int main(void) {
-    const char *path = "T:\\fileio.txt";
+    const char *path = "T:\\t_file_io.txt";
     const char *msg = "hello rxdk360\n";
 
     FILE *f = fopen(path, "wb");

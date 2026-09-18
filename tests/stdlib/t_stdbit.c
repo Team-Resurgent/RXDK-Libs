@@ -25,8 +25,8 @@ int main(void) {
     CHECK_EQI((long)stdc_leading_zeros_ui(1u), 31, "leading_zeros_ui function form");
     CHECK_EQI((long)stdc_bit_ceil_us((unsigned short)100), 128, "bit_ceil_us function form");
 
-    /* endian macros: Xbox 360 is big-endian */
-    CHECK(__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_BIG__, "native endian is big");
+    /* endian macros: the OG Xbox is little-endian (x86) */
+    CHECK(__STDC_ENDIAN_NATIVE__ == __STDC_ENDIAN_LITTLE__, "native endian is little");
     CHECK(__STDC_ENDIAN_LITTLE__ != __STDC_ENDIAN_BIG__, "little != big");
 
     CHECK_DONE("stdbit");

@@ -24,7 +24,7 @@ int main(void) {
     CHECK(near(std::numbers::e, 2.71828182845905), "numbers::e");
     CHECK(near(std::numbers::sqrt2, 1.41421356237310), "numbers::sqrt2");
 
-    CHECK(std::endian::native == std::endian::big, "endian::native is big (Xbox 360)");
+    CHECK(std::endian::native == std::endian::little, "endian::native is little (Xbox/x86)");
 
     CHECK_DONE("bit");
     return 0;

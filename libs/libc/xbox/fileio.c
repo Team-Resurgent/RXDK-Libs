@@ -682,6 +682,15 @@ int dup(int oldfd)
     return dup_from(oldfd, RXDK_FD_BASE);
 }
 
+/* dup3: like dup2 but the two fds must differ; O_CLOEXEC has no meaning without
+   exec on the console, so the flag is ignored. */
+int dup3(int oldfd, int newfd, int flags)
+{
+    (void)flags;
+    if (oldfd == newfd) { errno = EINVAL; return -1; }
+    return dup2(oldfd, newfd);
+}
+
 /* Positional read/write: use an explicit offset and leave the fd offset alone. */
 ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 {

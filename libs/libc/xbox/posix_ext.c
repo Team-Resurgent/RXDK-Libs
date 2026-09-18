@@ -18,6 +18,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <time.h>
 #include <limits.h>
 #include <signal.h>
 #include <stdint.h>
@@ -229,4 +230,116 @@ int renameat(int ofd, const char *oldp, int nfd, const char *newp)
 {
     if (ofd != AT_FDCWD || nfd != AT_FDCWD) { errno = ENOSYS; return -1; }
     return rename(oldp, newp);
+}
+
+/* ---- clock_nanosleep: relative (flags 0) forwards to nanosleep; an absolute
+   (TIMER_ABSTIME) deadline is turned into the remaining interval off the same
+   clock. Returns 0 or a positive errno directly (does NOT set errno). -------- */
+extern int nanosleep(const struct timespec *, struct timespec *);
+
+int clock_nanosleep(clockid_t clk, int flags, const struct timespec *rqtp,
+                    struct timespec *rmtp)
+{
+    if (!rqtp || rqtp->tv_nsec < 0 || rqtp->tv_nsec >= 1000000000L)
+        return EINVAL;
+    if (flags & TIMER_ABSTIME) {
+        struct timespec now, d;
+        clock_gettime(clk, &now);
+        d.tv_sec = rqtp->tv_sec - now.tv_sec;
+        d.tv_nsec = rqtp->tv_nsec - now.tv_nsec;
+        if (d.tv_nsec < 0) { d.tv_nsec += 1000000000L; d.tv_sec--; }
+        if (d.tv_sec < 0 || (d.tv_sec == 0 && d.tv_nsec <= 0))
+            return 0;                     /* deadline already passed */
+        return nanosleep(&d, NULL) == 0 ? 0 : errno;
+    }
+    return nanosleep(rqtp, rmtp) == 0 ? 0 : errno;
+}
+
+/* ---- sched_yield: hand the core to another ready thread (C11 thrd_yield). --- */
+extern void thrd_yield(void);
+int sched_yield(void) { thrd_yield(); return 0; }
+
+/* ---- getrandom: the console has no HW entropy; loop getentropy (256B cap). -- */
+extern int getentropy(void *buf, size_t len);
+ssize_t getrandom(void *buf, size_t len, unsigned int flags)
+{
+    unsigned char *p = (unsigned char *)buf;
+    size_t left = len;
+    (void)flags;
+    if (!buf && len) { errno = EFAULT; return -1; }
+    while (left) {
+        size_t chunk = left < 256 ? left : 256;
+        getentropy(p, chunk);
+        p += chunk;
+        left -= chunk;
+    }
+    return (ssize_t)len;
+}
+
+/* ---- confstr: one fixed environment; report the launch drive for _CS_PATH,
+   empty strings otherwise, returning the full length (+ NUL). --------------- */
+size_t confstr(int name, char *buf, size_t len)
+{
+    const char *val = (name == _CS_PATH) ? "D:\\" : "";
+    size_t n = strlen(val);
+    if (buf && len) {
+        size_t c = (n < len - 1) ? n : len - 1;
+        memcpy(buf, val, c);
+        buf[c] = '\0';
+    }
+    return n + 1;
+}
+
+/* ---- mkdtemp / mkostemp: fill the six trailing 'X's with random [a-z0-9] and
+   retry on collision. mkdtemp makes a directory, mkostemp an O_EXCL file. ---- */
+extern long random(void);
+
+static int rxdk_fill_template(char *tmpl)
+{
+    static const char cset[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+    size_t len = strlen(tmpl);
+    char *x;
+    int i;
+    if (len < 6) { errno = EINVAL; return -1; }
+    x = tmpl + len - 6;
+    for (i = 0; i < 6; i++)
+        if (x[i] != 'X') { errno = EINVAL; return -1; }
+    for (i = 0; i < 6; i++)
+        x[i] = cset[(unsigned long)random() % 36];
+    return 0;
+}
+
+char *mkdtemp(char *tmpl)
+{
+    int attempt;
+    if (rxdk_fill_template(tmpl) != 0)
+        return NULL;
+    for (attempt = 0; attempt < 128; attempt++) {
+        if (mkdir(tmpl, 0700) == 0)
+            return tmpl;
+        if (errno != EEXIST)
+            return NULL;
+        if (rxdk_fill_template(tmpl) != 0)
+            return NULL;
+    }
+    errno = EEXIST;
+    return NULL;
+}
+
+int mkostemp(char *tmpl, int flags)
+{
+    int attempt, fd;
+    if (rxdk_fill_template(tmpl) != 0)
+        return -1;
+    for (attempt = 0; attempt < 128; attempt++) {
+        fd = open(tmpl, O_CREAT | O_EXCL | O_RDWR | flags, 0600);
+        if (fd >= 0)
+            return fd;
+        if (errno != EEXIST)
+            return -1;
+        if (rxdk_fill_template(tmpl) != 0)
+            return -1;
+    }
+    errno = EEXIST;
+    return -1;
 }

@@ -25,8 +25,8 @@ GEN = os.path.join(HERE, "build")
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
 EXCLUDE = {
-    # ftw.h header has a syntax error; pthread_compat.h clashes with zig's copy
-    "t_posix4", "t_posix3", "t_posixun", "t_pthread",
+    # t_posixun needs posix_unsupported.c + timer.c + a pipe-semantics adaptation
+    "t_posixun",
     # need async signal delivery / POSIX timers (sigaction/setitimer/timer_create)
     "t_signal", "t_timer",
     # free_sized (C23) not in picolibc

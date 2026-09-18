@@ -255,6 +255,8 @@ DIR *opendir(const char *path)
     d->fd = fd;
     d->offset = 0;
     d->count = 0;
+    d->pos = 0;
+    d->restart = 1;
     return d;
 }
 
@@ -273,6 +275,8 @@ DIR *fdopendir(int fd)
     d->fd = fd; /* fdopendir takes ownership; closedir closes it */
     d->offset = 0;
     d->count = 0;
+    d->pos = 0;
+    d->restart = 1;
     return d;
 }
 
@@ -296,9 +300,12 @@ struct dirent *readdir(DIR *d)
     }
 
     if (d->offset >= d->count) { /* batch exhausted -> fetch the next one */
+        /* RestartScan on the first fetch after opendir/rewinddir/seekdir so the
+           kernel enumerates from the top (telldir/seekdir rely on this). */
         s = NtQueryDirectoryFile(h, NULL, NULL, NULL, &iosb, d->buf,
                                  sizeof(d->buf), FileDirectoryInformation,
-                                 NULL, FALSE);
+                                 NULL, d->restart ? TRUE : FALSE);
+        d->restart = 0;
         if (!NT_SUCCESS(s)) /* STATUS_NO_MORE_FILES or error -> end of stream */
             return NULL;
         d->count = (size_t)iosb.Information;
@@ -321,6 +328,7 @@ struct dirent *readdir(DIR *d)
         d->offset += fdi->NextEntryOffset;
     else
         d->offset = d->count; /* last in batch -> requery next call */
+    d->pos++;                 /* advance the telldir index past this entry */
     return &d->dirent;
 }
 
@@ -349,7 +357,49 @@ void rewinddir(DIR *d)
     if (d) {
         d->offset = 0;
         d->count = 0;
+        d->pos = 0;
+        d->restart = 1; /* next readdir re-enumerates from the top */
     }
+}
+
+/* telldir returns the index of the entry readdir will return next; seekdir
+   restores it by rewinding and re-reading (our enumeration has no cheaper
+   absolute seek, but this is exact). */
+long telldir(DIR *d)
+{
+    if (!d) { errno = EBADF; return -1; }
+    return d->pos;
+}
+
+void seekdir(DIR *d, long loc)
+{
+    if (!d || loc < 0)
+        return;
+    rewinddir(d);
+    while (d->pos < loc && readdir(d) != NULL)
+        ; /* readdir advances d->pos */
+}
+
+/* faccessat: only AT_FDCWD is supported (FATX has no dir-relative open); the
+   flag (AT_EACCESS) is irrelevant with no per-file permissions. */
+int faccessat(int dirfd, const char *path, int amode, int flag)
+{
+    (void)flag;
+    if (dirfd != AT_FDCWD) { errno = ENOSYS; return -1; }
+    return access(path, amode);
+}
+
+int mkdirat(int dirfd, const char *path, mode_t mode)
+{
+    if (dirfd != AT_FDCWD) { errno = ENOSYS; return -1; }
+    return mkdir(path, mode);
+}
+
+int fstatat(int dirfd, const char *path, struct stat *st, int flag)
+{
+    (void)flag;
+    if (dirfd != AT_FDCWD) { errno = ENOSYS; return -1; }
+    return stat(path, st);
 }
 
 /* ---- remove / rename (C <stdio.h>) ----------------------------------------- */

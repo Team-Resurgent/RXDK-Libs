@@ -95,6 +95,58 @@ static void to_backslash(char *s)
             *s = '\\';
 }
 
+/* Collapse '.', '..' and empty ("\\\\") segments of an absolute DOS path in
+   place (e.g. "T:\\a\\.\\b\\..\\c" -> "T:\\a\\c"). Keeps the "X:" drive prefix;
+   a fully-popped path becomes the drive root "X:\\". FATX has no notion of '.'
+   or '..' entries, so paths must be pre-collapsed before they reach the object
+   manager (which would otherwise reject or mis-open them). */
+static void collapse_dots(char *path)
+{
+    char *segs[PATH_MAX / 2];
+    int nseg = 0;
+    char *body;
+    char work[PATH_MAX];
+    char *p, *save;
+
+    if (!(path[0] && path[1] == ':'))
+        return; /* not drive-absolute; leave as-is */
+
+    body = path + 2;               /* after "X:" */
+    while (*body == '\\')
+        ++body;                    /* skip leading separators */
+
+    /* Tokenize a scratch copy so the segment pointers stay valid. */
+    strncpy(work, body, sizeof work - 1);
+    work[sizeof work - 1] = '\0';
+
+    for (p = work; ; p = NULL) {
+        char *tok = strtok_r(p, "\\", &save);
+        if (!tok)
+            break;
+        if (tok[0] == '.' && tok[1] == '\0')
+            continue;              /* '.' -> drop */
+        if (tok[0] == '.' && tok[1] == '.' && tok[2] == '\0') {
+            if (nseg > 0)
+                --nseg;            /* '..' -> pop */
+            continue;
+        }
+        if (nseg < (int)(sizeof segs / sizeof segs[0]))
+            segs[nseg++] = tok;
+    }
+
+    /* Rebuild: "X:\\seg1\\seg2..." or the drive root when empty. */
+    p = path + 2;
+    *p++ = '\\';
+    for (int i = 0; i < nseg; ++i) {
+        size_t len = strlen(segs[i]);
+        if (i > 0)
+            *p++ = '\\';
+        memcpy(p, segs[i], len);
+        p += len;
+    }
+    *p = '\0';
+}
+
 /*
  * Normalize an incoming path to a DOS-style absolute name ("E:\\dir\\file")
  * suitable for the object manager. libc++ runs in POSIX mode (no _WIN32), so
@@ -126,6 +178,7 @@ const char *__rxdk_norm_path(const char *in, char *out, size_t outsz)
         }
     }
     to_backslash(out);
+    collapse_dots(out);
     return out;
 }
 
@@ -453,8 +506,17 @@ char *realpath(const char *path, char *resolved)
             return NULL;
         }
     }
-    strncpy(out, np, PATH_MAX - 1);
-    out[PATH_MAX - 1] = '\0';
+    /* POSIX: `resolved` is a caller buffer of at least PATH_MAX bytes, but it may
+       be exactly the resolved length + 1 (t_cwd passes char[256]). Copy only the
+       string itself -- strncpy(out, np, PATH_MAX-1) would null-PAD to 1023 bytes
+       and smash a caller buffer smaller than PATH_MAX. */
+    {
+        size_t len = strlen(np);
+        if (len >= PATH_MAX)
+            len = PATH_MAX - 1;
+        memcpy(out, np, len);
+        out[len] = '\0';
+    }
     return out;
 }
 

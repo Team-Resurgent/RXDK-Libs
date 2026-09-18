@@ -25,14 +25,17 @@ GEN = os.path.join(HERE, "build")
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
 EXCLUDE = {
-    "t_c23lang", "t_cwd", "t_posix", "t_posix2", "t_posix3", "t_posix4",
-    "t_posix5", "t_posixext", "t_posixglob", "t_posixstub", "t_posixun",
-    "t_pthread", "t_signal", "t_syslog", "t_timer",
+    # missing headers (need vendoring): monetary/sendfile/poll/fnmatch/termios/syslog.h
+    "t_posix2", "t_posix5", "t_posixext", "t_posixglob", "t_posixstub", "t_syslog",
+    # ftw.h header has a syntax error; pthread_compat.h clashes with zig's copy
+    "t_posix4", "t_posix3", "t_posixun", "t_pthread",
+    # need async signal delivery / POSIX timers (sigaction/setitimer/timer_create)
+    "t_signal", "t_timer",
+    # free_sized (C23) not in picolibc
+    "t_c23lang",
+    # C++23 libc++ features absent from the vendored libcxx include tree
     "t_cartesian", "t_chunk_slide", "t_move_only_fn", "t_spanstream", "t_stacktrace",
-    # link-blocked on OG-runtime glue not yet ported (360-specific):
-    #   t_args     -> __rxdk_parse_cmdline (360 crt_start.c argv parsing)
-    #   t_mscompat -> _beginthreadex/ExCreateThread/NtClose (360 thread kernel),
-    #                 __CxxFrameHandler (MSVC EH), std::_Lockit (MSVC STL locks)
+    # 360 thread-kernel / MSVC-EH / STL-lock glue (_beginthreadex/__CxxFrameHandler/_Lockit)
     "t_mscompat",
 }
 
@@ -42,12 +45,19 @@ RELEASE_LIBS = ["libxapi.lib", "libkernel.lib", "libc.lib", "libcpp.lib", "libco
 
 
 def units():
+    # Debug aid: RXDK_SUITE_ONLY=cwd,cxx23 builds a title with just those units
+    # (bisecting a mid-suite fault). Names are given without the t_ prefix.
+    only = os.environ.get("RXDK_SUITE_ONLY", "").strip()
+    only_set = {("t_" + n.strip()) for n in only.split(",") if n.strip()} if only else None
     out = []
     for path in sorted(glob.glob(os.path.join(HERE, "t_*.c")) +
                        glob.glob(os.path.join(HERE, "t_*.cpp"))):
         base = os.path.basename(path)
         name = base[:base.rfind(".")]        # t_string_view
-        if name in EXCLUDE:
+        if only_set is not None:
+            if name not in only_set:
+                continue
+        elif name in EXCLUDE:
             continue
         ext = base[base.rfind("."):]          # .c / .cpp
         out.append((name, ext, base))
@@ -118,6 +128,7 @@ def main():
     "%s": {
       "configuration": "%s",
       "exceptions": true,
+      "defines": ["_GNU_SOURCE"],
       "sources": [
 %s
       ],

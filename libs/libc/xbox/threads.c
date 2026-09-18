@@ -16,9 +16,11 @@
  * reports thrd_error.
  */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <threads.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "xbox/kernel.h"
 
@@ -224,6 +226,41 @@ void thrd_yield(void)
     LARGE_INTEGER zero;
     zero.QuadPart = 0;
     KeDelayExecutionThread(0, FALSE, &zero);
+}
+
+/* ---- POSIX sleep family: block the calling thread on the kernel timer -------
+   All three convert to relative negative 100ns ticks (the KeDelayExecutionThread
+   form) and never wake early here, so the "remaining" outputs are always zero. */
+int nanosleep(const struct timespec *req, struct timespec *rem)
+{
+    LARGE_INTEGER interval;
+    if (!req || req->tv_nsec < 0 || req->tv_nsec >= 1000000000L) {
+        errno = EINVAL;
+        return -1;
+    }
+    if (rem) { rem->tv_sec = 0; rem->tv_nsec = 0; }
+    interval.QuadPart = -((long long)req->tv_sec * 10000000LL
+                          + (long long)req->tv_nsec / 100LL);
+    KeDelayExecutionThread(0, FALSE, &interval);
+    return 0;
+}
+
+int usleep(useconds_t usec)
+{
+    LARGE_INTEGER interval;
+    interval.QuadPart = -((long long)usec * 10LL); /* 1us = 10 * 100ns */
+    KeDelayExecutionThread(0, FALSE, &interval);
+    return 0;
+}
+
+unsigned int sleep(unsigned int seconds)
+{
+    LARGE_INTEGER interval;
+    if (seconds) {
+        interval.QuadPart = -((long long)seconds * 10000000LL);
+        KeDelayExecutionThread(0, FALSE, &interval);
+    }
+    return 0; /* uninterruptible here: always slept the full duration */
 }
 
 /* Convert an absolute C11 deadline (TIME_UTC, as passed to mtx_timedlock /

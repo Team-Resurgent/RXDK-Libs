@@ -130,6 +130,10 @@ int kill(int pid, int sig)
 
 int isatty(int fd)
 {
-    (void)fd;
-    return 1;
+    /* Only the three standard streams route to the debug console; every other
+       descriptor is a real file or pipe (fd >= 3), which is not a terminal. */
+    if (fd == 0 || fd == 1 || fd == 2)
+        return 1;
+    errno = ENOTTY;
+    return 0;
 }

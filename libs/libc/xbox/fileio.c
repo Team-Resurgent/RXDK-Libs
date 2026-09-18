@@ -18,6 +18,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -640,4 +641,116 @@ int mkdir(const char *path, mode_t mode)
     if (!NT_SUCCESS(s)) { errno = EEXIST; return -1; }
     NtClose(h);
     return 0;
+}
+
+/* ---- POSIX extras: creat / access / dup / pread / pwrite / fsync / fcntl ---- */
+
+int creat(const char *path, mode_t mode)
+{
+    (void)mode; /* FATX has no permission bits */
+    return open(path, O_CREAT | O_WRONLY | O_TRUNC);
+}
+
+int access(const char *path, int mode)
+{
+    struct stat st;
+    (void)mode; /* FATX exposes no per-file rwx bits: existence is all we test */
+    return stat(path, &st) == 0 ? 0 : -1;
+}
+
+/* Duplicate an fd: a new descriptor onto the same shared open-file description,
+   so both share the offset (POSIX dup semantics). `minfd` is the lowest slot to
+   consider (fcntl F_DUPFD); ordinary dup() passes RXDK_FD_BASE. */
+static int dup_from(int oldfd, int minfd)
+{
+    rxdk_ofd *o = get_fd(oldfd);
+    if (!o) { errno = EBADF; return -1; }
+    if (minfd < RXDK_FD_BASE) minfd = RXDK_FD_BASE;
+    for (int i = minfd; i < RXDK_FD_MAX; ++i) {
+        if (!fd_table[i]) {
+            o->refcount++;
+            fd_table[i] = o;
+            return i;
+        }
+    }
+    errno = EMFILE;
+    return -1;
+}
+
+int dup(int oldfd)
+{
+    return dup_from(oldfd, RXDK_FD_BASE);
+}
+
+/* Positional read/write: use an explicit offset and leave the fd offset alone. */
+ssize_t pread(int fd, void *buf, size_t count, off_t offset)
+{
+    rxdk_ofd *o = get_fd(fd);
+    IO_STATUS_BLOCK iosb;
+    LARGE_INTEGER off;
+    NTSTATUS st;
+
+    if (!o) { errno = EBADF; return -1; }
+    if (o->kind == RXDK_KIND_PIPE) { errno = ESPIPE; return -1; }
+    if (count == 0) return 0;
+
+    off.QuadPart = (long long)offset;
+    st = NtReadFile(o->handle, NULL, NULL, NULL, &iosb, buf, (ULONG)count, &off);
+    if (st == STATUS_END_OF_FILE)
+        return 0;
+    if (!NT_SUCCESS(st)) { errno = EIO; return -1; }
+    return (ssize_t)iosb.Information;
+}
+
+ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
+{
+    rxdk_ofd *o = get_fd(fd);
+    IO_STATUS_BLOCK iosb;
+    LARGE_INTEGER off;
+    NTSTATUS st;
+
+    if (!o) { errno = EBADF; return -1; }
+    if (o->kind == RXDK_KIND_PIPE) { errno = ESPIPE; return -1; }
+    if (!buf || count == 0) return 0;
+
+    off.QuadPart = (long long)offset;
+    st = NtWriteFile(o->handle, NULL, NULL, NULL, &iosb,
+                     (PVOID)(size_t)buf, (ULONG)count, &off);
+    if (!NT_SUCCESS(st)) { errno = EIO; return -1; }
+    return (ssize_t)iosb.Information;
+}
+
+int fsync(int fd)
+{
+    rxdk_ofd *o = get_fd(fd);
+    IO_STATUS_BLOCK iosb;
+
+    if (fd >= 0 && fd < RXDK_FD_BASE) return 0; /* console: nothing to flush */
+    if (!o) { errno = EBADF; return -1; }
+    if (o->kind == RXDK_KIND_PIPE) return 0;
+    if (!NT_SUCCESS(NtFlushBuffersFile(o->handle, &iosb))) { errno = EIO; return -1; }
+    return 0;
+}
+
+int fcntl(int fd, int cmd, ...)
+{
+    switch (cmd) {
+    case F_DUPFD: {
+        va_list ap;
+        int minfd;
+        va_start(ap, cmd);
+        minfd = va_arg(ap, int);
+        va_end(ap);
+        return dup_from(fd, minfd);
+    }
+    case F_GETFD:
+    case F_GETFL:
+        return get_fd(fd) ? 0 : (errno = EBADF, -1);
+    case F_SETFD:
+    case F_SETFL:
+        return get_fd(fd) ? 0 : (errno = EBADF, -1);
+    default:
+        errno = EINVAL;
+        return -1;
+    }
 }

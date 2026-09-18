@@ -88,7 +88,18 @@ its resource/builtin header dir (`stddef.h` etc.), unlike `zig cc`. The xAPI bat
 so LLVM mode re-adds `<root>/lib/clang/<ver>/include` via `-isystem` (after `-I`, so RXDK headers still
 win). Discovered at configure time, no hardcoded LLVM version.
 
-### Full-lib sweep (2026-09-17) — 15/18 verified; 1 open blocker
+### Full-lib sweep — 18/18 build under LLVM, all PIII-clean (2026-09-18)
+
+After the clang Sema fix (Blocker B) + vendored headers, **all 18 libs build under LLVM and are
+isa-scan PIII-clean.** ABI vs zig: **14 identical**; **4 differ only by benign clang-23-vs-18 weak-symbol
+elision** — LLVM emits strictly *fewer* symbols (never new/divergent): `libcpp` (libc++/libunwind
+internals), `libxgraphics`/`libdmusic` (unused `___udivdi3` builtin optimized away), `libd3dx8`/`libdmusic`
+(unused implicit C++ dtors/vtables/template instantiations — `XSource`, `SmartRef::ComPtr<T>` — which
+are weak/COMDAT and re-emitted wherever actually used). Final link-level validation is the sample/HW
+stage. The 3 `__asm` libs (`libxgraphics`, `libd3dx8`, `libdmusic`) were validated against the rebuilt
+clang (xboxog `81e9b86`); a local `llvm-lib` was aliased from `llvm-ar` (see llvm-lib CI note below).
+
+### Earlier snapshot (2026-09-17) — 15/18 verified; 1 open blocker
 
 Built every lib both ways at `-Doptimize=ReleaseSmall` and compared (`isa-scan` + whole-archive
 symbol parity). Result:

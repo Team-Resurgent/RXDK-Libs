@@ -33,7 +33,7 @@ EXCLUDE = {
     #   t_args     -> __rxdk_parse_cmdline (360 crt_start.c argv parsing)
     #   t_mscompat -> _beginthreadex/ExCreateThread/NtClose (360 thread kernel),
     #                 __CxxFrameHandler (MSVC EH), std::_Lockit (MSVC STL locks)
-    "t_args", "t_mscompat",
+    "t_args", "t_mscompat", "t_fstream",
 }
 
 DEBUG_LIBS = ["libxbdmd.lib", "libxapid.lib", "libkerneld.lib",

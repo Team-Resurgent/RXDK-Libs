@@ -1,10 +1,14 @@
 # RXDK-Libs on the Team-Resurgent LLVM toolchain (in place of zig)
 
-Status: **scoping / experiment** on branch `llvm-toolchain`. Goal: build the RXDK libs with
-the Team-Resurgent `xboxog` clang/lld/llvm-lib (published at
-`Team-Resurgent/llvm-project` → release **"Team Resurgent clang latest"**,
-`xboxog-<os>-<arch>.zip`) instead of the bundled `zig` compiler, so we own the exact
-LLVM version + patches and drop the zig dependency.
+Status: **scoping / experiment** on branch `llvm-toolchain`. Goal: **stop using zig entirely** and
+drive everything with the Team-Resurgent LLVM toolchain, so we own the exact LLVM version + patches.
+
+Like zig, this is **per host OS/CPU, cross-compiling to the Xbox target**: the developer/CI runs the
+native host toolchain (`xboxog-<os>-<arch>.zip` — one of win-x64, win-arm64, linux-x64, linux-arm64,
+macos-x64, macos-arm64, from the `Team-Resurgent/llvm-project` release **"Team Resurgent clang
+latest"**), and clang cross-compiles to `i686-pc-windows-gnu` (the OG Xbox). The host-zip is picked
+by the running OS/arch exactly as the host tools do today (cf. `RxdkPaths.ToolRid`
+win-x64/linux-x64/…). Same model as zig (one host toolchain, cross to Xbox), just LLVM instead of zig.
 
 ## How the build uses zig today
 

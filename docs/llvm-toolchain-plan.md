@@ -75,6 +75,19 @@ synthetic probe (`probe.c`: 64-bit int math, double/float math, mem loops, popco
 - **Size gap** (zig `.o` bigger) is entirely CodeView debug volume (`.debug$S`/`.debug$T`); TR clang
   emits tighter `.text`. No correctness impact (debug info isn't consumed in the XBE pipeline).
 
+**Whole-library validation (`RXDK_LLVM=… zig build <lib> -Doptimize=ReleaseSmall`):**
+
+| Lib | Triple | isa-scan | ABI parity vs zig (defined / undefined externals) |
+|---|---|---|---|
+| `libc` (picolibc + Xbox HAL, C + asm) | gnu | ✅ PIII-clean | ✅ identical — 1200 / 45 |
+| `libxnet` (sockets, `-fms-extensions`) | **msvc** | ✅ PIII-clean | ✅ identical — 388 / 67 |
+
+Both link identically to the zig build (same public surface, same external-dep surface); only code
+bytes differ (clang 23 vs ~18). **`-nostdinc` gotcha (fixed):** this clang's `-nostdinc` also strips
+its resource/builtin header dir (`stddef.h` etc.), unlike `zig cc`. The xAPI batches pass `-nostdinc`,
+so LLVM mode re-adds `<root>/lib/clang/<ver>/include` via `-isystem` (after `-I`, so RXDK headers still
+win). Discovered at configure time, no hardcoded LLVM version.
+
 ### Verify — parity checks (do NOT assume; zig stung us on SSE2)
 
 The whole migration must be gated on parity, and the codegen/instruction-set checks matter most —

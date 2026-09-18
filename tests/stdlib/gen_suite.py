@@ -25,8 +25,6 @@ GEN = os.path.join(HERE, "build")
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
 EXCLUDE = {
-    # free_sized (C23) not in picolibc
-    "t_c23lang",
     # C++23 libc++ features absent from the vendored libcxx include tree
     "t_cartesian", "t_chunk_slide", "t_move_only_fn", "t_spanstream", "t_stacktrace",
     # 360 thread-kernel / MSVC-EH / STL-lock glue (_beginthreadex/__CxxFrameHandler/_Lockit)

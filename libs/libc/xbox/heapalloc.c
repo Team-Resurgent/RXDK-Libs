@@ -187,6 +187,21 @@ void cfree(void *p)
     free(p);
 }
 
+/* C23 sized deallocation: the size/alignment are hints a size-class allocator
+   could use; ours recovers the block from its header, so they are ignored. */
+void free_sized(void *p, size_t size)
+{
+    (void)size;
+    free(p);
+}
+
+void free_aligned_sized(void *p, size_t alignment, size_t size)
+{
+    (void)alignment;
+    (void)size;
+    free(p);
+}
+
 void *calloc(size_t n, size_t elem)
 {
     if (n != 0 && elem > (size_t)-1 / n) {

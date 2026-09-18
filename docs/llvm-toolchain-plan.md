@@ -112,16 +112,20 @@ symbol parity). Result:
   (the DEFINE_GUID→definition shim), `shared/include/windowsx.h` (3 macros: GlobalAllocPtr/FreePtr,
   MAKEPOINTS). These make RXDK self-contained — correct regardless of toolchain.
 
-- **Blocker B — clang `-fasm-blocks` assertion (the real one).** This TR clang is an **assertions**
-  build (`+assertions`) and aborts on `Assertion failed: MaybeODRUseExprs.empty() ... SemaDecl.cpp:17139`
-  for **every** MS `__asm { }` block that references C locals — `libxgraphics` (xgmath quaternion),
-  `libd3dx8` (jpeglib IDCT/FDCT: midct8x8aan, mfdct8x8aan, …), and likely others. The code is fine
-  (all SSE1, PIII-safe); it is a clang Sema bookkeeping bug in the ms-asm path. **Fix options:** (1)
-  build the shipped xboxog/xbox360 toolchain with `LLVM_ENABLE_ASSERTIONS=OFF` (correct for a
-  distributable compiler anyway; the assert compiles out and the leftover odr-use tracking is benign
-  for locals) — one-line CI change, needs a toolchain rebuild to confirm; or (2) patch clang's Sema
-  in the TR fork to clear `MaybeODRUseExprs` after an asm block (proper upstream fix). Blocks
-  `libxgraphics`, `libd3dx8`, and `libdmusic` (dmsynth) until resolved.
+- **Blocker B — clang `-fasm-blocks` assertion (the real one). FIX PUSHED 2026-09-18.** This TR clang
+  is an **assertions** build (`+assertions`) and aborted on `Assertion failed: MaybeODRUseExprs.empty()
+  ... SemaDecl.cpp:17139` for **every** MS `__asm { }` block that references C locals — `libxgraphics`
+  (xgmath quaternion), `libd3dx8` (jpeglib IDCT/FDCT: midct8x8aan, mfdct8x8aan, …), `libdmusic`
+  (dmsynth). Root cause: `Sema::ActOnMSAsmStmt` never drained `MaybeODRUseExprs` (the operands naming
+  locals are marked for deferred odr-use during parsing), unlike the GCC path `BuildGCCAsmStmt` which
+  calls `CleanupVarDeclMarking()`; the leftovers survived to `ActOnFinishFunctionBody`. **Chose the
+  upstream fix (not assertions-off):** patched `Sema::ActOnMSAsmStmt` to call `CleanupVarDeclMarking()`,
+  mirroring the GCC path — `Team-Resurgent/llvm-project` **`xboxog`** commit `81e9b86` (pushed;
+  auto-triggered the "Original Xbox clang" toolchain rebuild). **xboxog only** — the 360 is MS-PPC and
+  has no `__asm { }` blocks, so it can't hit this. **To validate:** once the rebuilt toolchain publishes
+  to the rolling release, re-download `xboxog-windows-x64.zip`, rebuild `libxgraphics`/`libd3dx8`/
+  `libdmusic` in LLVM mode (isa-scan + ABI parity), then bump RXDK-Libs' `vendor/llvm-project` submodule
+  to `81e9b86`.
 
 ### Verify — parity checks (do NOT assume; zig stung us on SSE2)
 

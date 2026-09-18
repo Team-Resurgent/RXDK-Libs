@@ -1,4 +1,5 @@
 const std = @import("std");
+const toolchain = @import("toolchain.zig");
 
 pub const CompileBatch = struct {
     step: *std.Build.Step,
@@ -59,6 +60,8 @@ fn uniqueStem(b: *std.Build, allocator: std.mem.Allocator, src: []const u8) []co
 
 pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
     const allocator = b.allocator;
+    const tc = toolchain.detect(b);
+    const target = tc.targetTriple(opts.target);
     const out_dir = b.fmt("zig-out/obj/{s}", .{opts.out_subdir});
 
     const mkdir = addObjDir(b, out_dir);
@@ -76,36 +79,34 @@ pub fn addBatch(b: *std.Build, opts: Options) CompileBatch {
         const obj_rel = b.fmt("{s}/{s}.o", .{ out_dir, stem });
         outputs.append(allocator, b.path(obj_rel)) catch @panic("OOM");
 
-        const compile = b.addSystemCommand(&.{b.graph.zig_exe});
-        if (ext.len != 0 and std.ascii.eqlIgnoreCase(ext, ".s")) {
-            compile.addArg("cc");
-            // Xbox CPU is a Pentium III (Coppermine): MMX + SSE1, no SSE2. Pin the
-            // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
-            // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
-            compile.addArg("-march=pentium3");
-            compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
-            compile.addArg(obj_rel);
-            compile.addArg(opts.opt_flag);
-            // .S sources may #include <picolibc.h> etc., so honor include dirs.
-            for (opts.include_dirs) |inc| {
-                compile.addArg(b.fmt("-I{s}", .{inc}));
-            }
-            compile.addFileArg(b.path(src));
+        // `.s` (assembly) goes through the C driver (`cc`/clang), never `c++`,
+        // and skips the C/C++ compile flags -- but still honors include dirs
+        // (a .S may #include <picolibc.h> etc.).
+        const is_s = ext.len != 0 and std.ascii.eqlIgnoreCase(ext, ".s");
+        const use_cpp = if (is_s) false else opts.is_cpp;
+
+        const compile = b.addSystemCommand(&.{tc.compilerExe(b, use_cpp)});
+        // zig needs the `cc`/`c++` subcommand; a bare clang/clang++ exe does not.
+        if (tc.isZig()) compile.addArg(if (use_cpp) "c++" else "cc");
+        // Xbox CPU is a Pentium III (Coppermine): MMX + SSE1, no SSE2. Pin the
+        // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
+        // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
+        compile.addArg("-march=pentium3");
+        // zig spells the triple `-target x86-windows-*`; clang wants
+        // `--target=i686-pc-windows-*` (mapped by toolchain.targetTriple).
+        if (tc.isZig()) {
+            compile.addArgs(&.{ "-target", target });
         } else {
-            compile.addArg(if (opts.is_cpp) "c++" else "cc");
-            // Xbox CPU is a Pentium III (Coppermine): MMX + SSE1, no SSE2. Pin the
-            // target CPU so clang never emits SSE2 (e.g. for 64-bit integer math),
-            // which faults as STATUS_ILLEGAL_INSTRUCTION on hardware.
-            compile.addArg("-march=pentium3");
-            compile.addArgs(&.{ "-target", opts.target, "-c", "-o" });
-            compile.addArg(obj_rel);
-            compile.addArgs(opts.flags);
-            compile.addArg(opts.opt_flag);
-            for (opts.include_dirs) |inc| {
-                compile.addArg(b.fmt("-I{s}", .{inc}));
-            }
-            compile.addFileArg(b.path(src));
+            compile.addArg(b.fmt("--target={s}", .{target}));
         }
+        compile.addArgs(&.{ "-c", "-o" });
+        compile.addArg(obj_rel);
+        if (!is_s) compile.addArgs(opts.flags);
+        compile.addArg(opts.opt_flag);
+        for (opts.include_dirs) |inc| {
+            compile.addArg(b.fmt("-I{s}", .{inc}));
+        }
+        compile.addFileArg(b.path(src));
         compile.setCwd(b.path("."));
         compile.step.dependOn(mkdir);
         steps.append(allocator, &compile.step) catch @panic("OOM");

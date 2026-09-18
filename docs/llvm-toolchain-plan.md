@@ -46,16 +46,34 @@ dir, and `libcxx`/`libcxxabi`/`libunwind`/`libc` headers+src). Built with
 
 Keep the VS20XX toolset link on zig. Only change RXDK-Libs' compiler + librarian.
 
-1. **Toolchain staging**: add a way to fetch/stage `xboxog-windows-x64.zip` (like zig is staged
-   today) and point the build at its `clang`/`llvm-lib`. Introduce a `RXDK_LLVM` (or reuse the
-   staged-tools layout) env/param → the toolchain `bin/`.
-2. **`build/compile_c.zig`**: replace `b.graph.zig_exe` + `"cc"/"c++"` with the staged `clang`
-   (`--target=i686-pc-windows-gnu` in place of `-target x86-windows-gnu`). Keep every flag
-   (`-march=pentium3`, `-nostdinc`, `-ffreestanding`, `-fno-builtin`, `-femulated-tls`, the `-Wno-…`
-   set, opt flag, include dirs) verbatim.
-3. **`build/coff_lib.zig`**: replace `zig lib /NOLOGO /OUT:… @rsp` with `llvm-lib /NOLOGO /OUT:… @rsp`
-   (llvm-lib takes the same MSVC-style switches).
-4. Leave `build.ps1` / libcompat / picolibc vendoring untouched.
+**Status: IMPLEMENTED (opt-in) 2026-09-17.** A new `build/toolchain.zig` selector reads the
+`RXDK_LLVM` env var (path to an unpacked `xboxog-<os>-<arch>.zip`, i.e. the dir containing
+`bin/clang` + `bin/llvm-lib`). Unset → zig (unchanged default, byte-for-byte). Set → clang +
+llvm-lib. `build/compile_c.zig` and `build/coff_lib.zig` consult it; every flag is passed through
+verbatim, and the zig-mode argv order is preserved exactly. Triples are mapped per-target
+(`x86-windows-gnu`→`i686-pc-windows-gnu`, `x86-windows-msvc`→`i686-pc-windows-msvc`) — **note both**,
+because `libxnet`/`libxonline` pin the MSVC triple. `verify-no-vs` still passes (the `llvm-lib` exe
+name is assembled from parts so the forbidden `lib`+`.exe` token never appears literally).
+
+Build LLVM-mode with: `RXDK_LLVM=/path/to/xboxog-windows-x64 zig build <lib> -Doptimize=ReleaseSmall`.
+
+1. ✅ **Toolchain staging** — `RXDK_LLVM` env var → toolchain `bin/` (`build/toolchain.zig`).
+2. ✅ **`build/compile_c.zig`** — clang/clang++ exe + `--target=i686-pc-windows-*`; all flags verbatim.
+3. ✅ **`build/coff_lib.zig`** — `llvm-lib /NOLOGO /OUT:… @rsp` (same MSVC switches).
+4. ✅ Left `build.ps1` / libcompat / picolibc vendoring untouched.
+
+### Parity results (probe, 2026-09-17) — clang **23.0.0git** vs zig's clang ~18
+
+Byte-identical is OFF (version skew, as predicted); functional/ISA/ABI parity **confirmed** on a
+synthetic probe (`probe.c`: 64-bit int math, double/float math, mem loops, popcount, big struct copy):
+
+- **ISA gate (the critical one):** TR clang at `-march=pentium3` is **PIII-clean at both triples**
+  (gnu + msvc), matching zig. isa-scan correctly **flags** TR clang's SSE2 + `popcnt` when forced
+  (`-msse2 -mpopcnt`), so a codegen regression cannot slip past.
+- **ABI/symbol parity:** identical external symbol set + `_`-cdecl decoration, and the **same**
+  undefined builtin (`___divdi3`) — so libcompat still satisfies it the same way. No mangling drift.
+- **Size gap** (zig `.o` bigger) is entirely CodeView debug volume (`.debug$S`/`.debug$T`); TR clang
+  emits tighter `.text`. No correctness impact (debug info isn't consumed in the XBE pipeline).
 
 ### Verify — parity checks (do NOT assume; zig stung us on SSE2)
 

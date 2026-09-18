@@ -1,4 +1,5 @@
 const std = @import("std");
+const toolchain = @import("toolchain.zig");
 
 pub const PackResult = struct {
     path: std.Build.LazyPath,
@@ -35,7 +36,14 @@ pub fn pack(
     };
     write_ctx.step.makeFn = writeRsp;
 
-    const run = b.addSystemCommand(&.{ b.graph.zig_exe, "lib", "/NOLOGO" });
+    // `zig lib` and `llvm-lib` are the same MSVC COFF librarian and take the
+    // identical /NOLOGO /OUT: @rsp switches; only the exe (and, for zig, the
+    // "lib" subcommand) differs.
+    const tc = toolchain.detect(b);
+    const run = if (tc.isZig())
+        b.addSystemCommand(&.{ tc.zig_exe, "lib", "/NOLOGO" })
+    else
+        b.addSystemCommand(&.{ tc.librarianExe(b), "/NOLOGO" });
     run.addArg(b.fmt("/OUT:{s}", .{lib_path}));
     run.addArg(b.fmt("@{s}", .{rsp_path}));
     run.setCwd(b.path("."));

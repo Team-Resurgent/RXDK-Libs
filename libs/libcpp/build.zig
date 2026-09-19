@@ -15,6 +15,9 @@ const exclude = [_][]const u8{
     "support/",
     "pstl/",
     "new.cpp",
+    // std::text_encoding is C++26 (new in LLVM 24); we build libc++ at c++23, so
+    // <text_encoding> is empty here and this TU can't compile. No test needs it.
+    "text_encoding.cpp",
     // __cxa_thread_atexit (thread_local destructor registration) is provided by
     // libc (libs/libc/xbox/emutls.c) alongside the emulated-TLS runtime, so its
     // dtor list and the emutls storage share one thread-exit cleanup. libc++abi's
@@ -133,6 +136,10 @@ pub fn addLibcxxObjects(
         // -fno-exceptions (last flag wins) so the runtime's throw machinery
         // (__cxa_throw, the personality routine) is generated.
         "-fexceptions",
+        // LLVM-24 libc++ (e.g. memory_resource.cpp, <generator>) uses the sized
+        // global operator delete; enable it so the sized form is declared/called
+        // (operator_new_delete.cpp defines it). Default only in clang 19+.
+        "-fsized-deallocation",
         // Vendored libc++/libcxxabi — silence upstream warnings (e.g.
         // -Wpragma-clang-attribute), matching the picolibc/libxapi batches.
         "-Wno-everything",

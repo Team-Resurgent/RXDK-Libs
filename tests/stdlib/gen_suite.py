@@ -32,7 +32,6 @@ EXCLUDE = {
     # library support. Deferred pending the planned rebase of the xboxog LLVM
     # fork onto the same base commit as xbox360 (then bump vendor/llvm-project +
     # rebuild libc++ -> all five pass, incl. stacktrace).
-    "t_cartesian", "t_chunk_slide", "t_move_only_fn", "t_spanstream", "t_stacktrace",
     # 360 thread-kernel / MSVC-EH / STL-lock glue (_beginthreadex/__CxxFrameHandler/_Lockit)
     "t_mscompat",
 }
@@ -127,6 +126,7 @@ def main():
       "configuration": "%s",
       "exceptions": true,
       "defines": ["_GNU_SOURCE"],
+      "compileFlags": ["-fsized-deallocation"],
       "sources": [
 %s
       ],

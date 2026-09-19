@@ -19,7 +19,8 @@ int main() {
     // frames carry real return addresses in the title's code region
     CHECK(st[0].native_handle() != 0, "top frame has a native handle");
     CHECK((bool)st[0], "top frame is non-empty (operator bool)");
-    CHECK(st[0].native_handle() >= 0x82000000u, "address is in the loaded image");
+    /* OG Xbox loads the XBE at base 0x00010000 (the 360 uses 0x82000000). */
+    CHECK(st[0].native_handle() >= 0x00010000u, "address is in the loaded image");
 
     // no runtime symbolizer -> empty description/source, per the standard
     CHECK(st[0].description().empty(), "description empty (no runtime symbolizer)");

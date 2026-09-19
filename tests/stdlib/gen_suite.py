@@ -25,7 +25,13 @@ GEN = os.path.join(HERE, "build")
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
 EXCLUDE = {
-    # C++23 libc++ features absent from the vendored libcxx include tree
+    # C++23 libc++ features absent from the vendored libc++ (LLVM 23). The 4
+    # header-only ones (cartesian_product/chunk+slide views, move_only_function,
+    # <spanstream>) were verified to compile+run when their headers are pulled
+    # from the fork's xbox360 (LLVM 24) branch; <stacktrace> additionally needs
+    # library support. Deferred pending the planned rebase of the xboxog LLVM
+    # fork onto the same base commit as xbox360 (then bump vendor/llvm-project +
+    # rebuild libc++ -> all five pass, incl. stacktrace).
     "t_cartesian", "t_chunk_slide", "t_move_only_fn", "t_spanstream", "t_stacktrace",
     # 360 thread-kernel / MSVC-EH / STL-lock glue (_beginthreadex/__CxxFrameHandler/_Lockit)
     "t_mscompat",

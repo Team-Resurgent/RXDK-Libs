@@ -1,0 +1,30 @@
+{
+  "name": "libxvoice",
+  "triple": "gnu",
+  "batches": [
+    {
+      "cpp": true,
+      "outSubdir": "xvoice/xvoice-cpp",
+      "flags": [
+        "-std=c++17", "-fno-exceptions", "-fno-rtti", "-nostdinc++",
+        "-ffreestanding", "-fno-stack-protector", "-fdata-sections",
+        "-ffunction-sections", "-nostdinc", "-fms-extensions", "-fms-compatibility",
+        "-fno-sanitize=undefined", "-fno-builtin", "-Wno-everything", "-D_XAPI_",
+        "-include", "picolibc.h",
+        "-include", "libs/libxapi/site/profile.h",
+        "-include", "libs/libxvoice/site/bridge_xvoice.h"
+      ],
+      "includeDirs": [
+        "libs/libxvoice/site", "shared/include", "libs/libxapi/internal",
+        "libs/libxapi/internal/shims", "libs/libxapi/support/inc",
+        "libs/libxapi/support/inc/ntos", "libs/libxapi/nt", "libs/libxapi/rtl/inc",
+        "libs/libxapi/port", "libs/libxapi/site", "build/generated",
+        "vendor/picolibc/libc/include", "vendor/picolibc/libc/machine/x86"
+      ],
+      "sources": [
+        "libs/libxvoice/src/xvoice.cpp",
+        "libs/libxvoice/src/xhv.cpp"
+      ]
+    }
+  ]
+}

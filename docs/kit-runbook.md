@@ -1,6 +1,6 @@
 # Kit runbook — RXDK-Libs samples
 
-Build PEs in this repo with **`zig build`** only. Deploying to a devkit uses **external** host tools (`imagebld`, `xdvdfs`) under `tools/`.
+Build the libraries with the RXDK engine (`build.ps1` / `rxdk build-sdk`, which drives clang/lld/llvm-ar). Samples + tests build as titles via their `rxdk.project.json` (`rxdk build`). Deploying to a devkit uses **external** host tools (`imagebld`, `xdvdfs`) under `tools/`.
 
 The fastest path is the root menu:
 
@@ -14,10 +14,9 @@ The rest of this doc is the manual pipeline behind that menu.
 
 ```powershell
 cd D:\Git\RXDK-Libs
-zig build verify-no-vs
-zig build xapi-smoke
-zig build libc-smoke
-zig build libcpp-smoke
+.uild.ps1              # build the whole SDK dist (engine build-sdk)
+# a single lib:  rxdk build-sdk-lib --repo-root . --manifest build\sdk\libc.json --config Release
+# the test titles (tests/) build via the engine from their rxdk.project.json
 ```
 
 Host header matrix (stdtests manifest, compile-only):
@@ -100,7 +99,7 @@ tools\xdvdfs\win-x64\xdvdfs.exe tree zig-out\iso\libc-smoke.iso
 
 ## 5. Deploy to devkit
 
-Use RXDK-LibsOld deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — out of scope for `zig build`.
+Use RXDK-LibsOld deploy scripts (e.g. `Invoke-XboxDeploy.ps1`, neighborhood) — out of scope for the library build.
 
 ## 6. Expected debug output
 
@@ -120,8 +119,8 @@ Samples route stdio through `write` → `DbgPrint` (direct kernel import).
 | Disc damaged / XBE won't load | Rebuild PE+XBE; PE must have subsystem 14, one `xboxkrnl` import, `.XBLD` section (`prebuilt/xboxkrnl_xbld.obj`); run `Invoke-PeVerify.ps1` |
 | Hang at startup | Entry must be `-e start` with `crt0.S` `_start` |
 | Link undefined `_write` | HAL must export `write`, not `_write` |
-| Huge PE / many undefined at link | Use object `.rsp` from `zig-out/link/` (same as build graph) |
+| Huge PE / many undefined at link | Use object `.rsp` from the engine output (same as build graph) |
 
 ## 8. CI / non-Windows hosts
 
-`zig build` is designed to run on Linux/macOS/Windows with only Zig installed. Kit deploy steps require Windows host tools and hardware.
+The engine build (clang/lld/llvm-ar via `build-sdk`) runs on Linux/macOS/Windows. Kit deploy steps require Windows host tools and hardware.

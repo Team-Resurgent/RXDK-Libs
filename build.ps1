@@ -13,7 +13,7 @@
     gitignored.
 
 .PARAMETER Clean
-    Remove the zig build cache + generated outputs first, forcing a full recompile
+    Remove the generated build outputs first, forcing a full recompile
     (guaranteed-fresh build with no stale object leaking through).
 
 .EXAMPLE
@@ -36,12 +36,12 @@ if (-not (Test-Path -LiteralPath $compile)) {
     throw "scripts\compile.ps1 not found next to this script ($compile)."
 }
 
-# Remove the zig build cache AND all generated outputs so the next build recompiles
+# Remove all generated outputs so the next build recompiles
 # every source from scratch -- the safe hammer that guarantees no stale object (e.g.
 # an edited libxapi source that didn't get recompiled) leaks into the dist.
 function Invoke-Clean {
     Write-Host ''
-    Write-Host '==> clean: removing zig cache + generated outputs (forces full recompile)' -ForegroundColor Cyan
+    Write-Host '==> clean: removing generated outputs (forces full recompile)' -ForegroundColor Cyan
     $targets = @(
         '.zig-cache',
         'zig-out\obj', 'zig-out\lib', 'zig-out\include',

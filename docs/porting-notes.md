@@ -64,7 +64,7 @@ External titles just link the shipped `.lib` files — the two title-link object
 |-----------|--------------|
 | `libcmt.lib` / MSVC STL | `libc.lib` / `libcpp.lib` |
 | `mainCRTStartup`, XAPILIB | `_start` + direct kernel import |
-| MSBuild / `cl.exe` | `zig build` only |
+| MSBuild / `cl.exe` | the RXDK engine (clang/lld) |
 | Full libm / EH / threads | Minimal libm; no EH yet; single-thread |
 
 ## Kit validation

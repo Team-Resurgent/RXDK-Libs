@@ -1,6 +1,6 @@
 # RXDK-Libs
 
-<p align="center"><b>A from-source, MSVC-free C/C++ runtime and SDK for the original Xbox — picolibc + LLVM libc++, an xAPI, and the D3D8 / D3DX8 / DirectSound / DirectMusic / XGraphics / XMV / XNet / XACT / XOnline libraries, built with Zig</b></p>
+<p align="center"><b>A from-source, MSVC-free C/C++ runtime and SDK for the original Xbox — picolibc + LLVM libc++, an xAPI, and the D3D8 / D3DX8 / DirectSound / DirectMusic / XGraphics / XMV / XNet / XACT / XOnline libraries, built with the RXDK LLVM toolchain (clang/lld)</b></p>
 
 <p align="center">
   <a href="https://github.com/Team-Resurgent/RXDK-Libs/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3"></a>
@@ -12,15 +12,15 @@
   <a href="https://www.patreon.com/teamresurgent"><img src="https://img.shields.io/badge/Patreon-F96854?style=for-the-badge&logo=patreon&logoColor=white" alt="Patreon"></a>
 </p>
 
-Zig-built Xbox C/C++ runtime and SDK for original Xbox devkits — **picolibc** + **LLVM libc++**, an **xAPI**, and the **D3D8 / D3DX8 / DirectSound / XGraphics / XMV / XNet** subsystem libraries, ISO C23 / C++23.
+LLVM-built (clang/lld) Xbox C/C++ runtime and SDK for original Xbox devkits — **picolibc** + **LLVM libc++**, an **xAPI**, and the **D3D8 / D3DX8 / DirectSound / XGraphics / XMV / XNet** subsystem libraries, ISO C23 / C++23.
 
 No Visual Studio, MSBuild, `cl.exe`, or Windows SDK is required to build the runtime in this repo. The host-side deploy tools (`imagebld`, `xdvdfs`, Xbox Neighborhood, etc.) and the IDE integrations live in the separate [RXDK-Tools](https://github.com/Team-Resurgent/RXDK-Tools) and RXDK extension repos.
 
 ## Origins & attribution
 
-RXDK's low-level runtime (`libc`, `libc++`, `libkernel`) and the entire Zig/Clang build system are original work. The higher-level subsystem libraries — the xAPI and the D3D8, D3DX8, DirectSound, XGraphics, XMV, XNet, XACT and XOnline drivers — are **derived from Microsoft's original Xbox Development Kit source**.
+RXDK's low-level runtime (`libc`, `libc++`, `libkernel`) and the entire clang/lld build system are original work. The higher-level subsystem libraries — the xAPI and the D3D8, D3DX8, DirectSound, XGraphics, XMV, XNet, XACT and XOnline drivers — are **derived from Microsoft's original Xbox Development Kit source**.
 
-That source has been **recompiled from source against a modern, MSVC-free toolchain** (Zig + Clang, picolibc + LLVM libc++) rather than the original Microsoft compiler, and adapted extensively to build and run under it — a large amount of code had to be reworked for the new ABI, calling conventions and freestanding runtime.
+That source has been **recompiled from source against a modern, MSVC-free toolchain** (the RXDK clang/lld fork, picolibc + LLVM libc++) rather than the original Microsoft compiler, and adapted extensively to build and run under it — a large amount of code had to be reworked for the new ABI, calling conventions and freestanding runtime.
 
 Where the leaked source was incomplete, missing functionality was **recovered by decompiling and disassembling the shipped retail Xbox libraries** — reconstructing the absent functions from the prebuilt `.lib`/binary objects (via symbol recovery and decompilation) — so the libraries match the retail XDK build they target.
 
@@ -83,18 +83,16 @@ build.ps1                  Build the redistributable library distribution (Debug
 ```powershell
 cd D:\Git\RXDK-Libs
 .\build.ps1                 # build the dist (Debug + ReleaseSmall) → dist\lib\{debug,release} + dist\include
-.\build.ps1 -Clean         # clean the zig cache first, then build the dist from scratch
+.\build.ps1 -Clean         # clean generated outputs first, then build the dist from scratch
 .\scripts\compile.ps1 -Target libs   # build every library + staged headers into zig-out (no dist packaging)
 ```
 
-Or invoke `zig build` directly:
+`build.ps1` / `compile.ps1` drive the RXDK engine's `build-sdk` (RXDK-Tools). Invoke the engine
+directly (it needs `RXDK_LLVM` or the managed toolchain, and reads `build/sdk/*.json`):
 
 ```powershell
-zig build verify-no-vs    # assert build/*.zig never invokes MSVC toolchain
-zig build                 # every library + staged headers into zig-out
-zig build libkernel       # libkernel.lib (kernel import lib) only
-zig build libxapi         # libxapi.lib only
-zig build libd3d8         # a single subsystem lib (libd3d8 / libdsound / libxnet / libxact / libdmusic / …)
+rxdk build-sdk     --repo-root . --config Release                     # every library + libcompat + staged headers
+rxdk build-sdk-lib --repo-root . --manifest build\sdk\libxapi.json --config Release   # one library
 ```
 
 ### Ship artifacts
@@ -124,7 +122,7 @@ Library layering is one-way — `libxapi → libc → libkernel` and `libcpp →
 
 The malloc family is the one exception: `libs/libc/xbox/heapalloc.c` allocates from the Xbox process heap (`RtlAllocateHeap` on `XapiProcessHeap`), so it reaches up into libxapi, where RXDK implements the RTL heap. Going through that heap is what gives every allocation the 16-byte alignment the XDK's SSE math code assumes, and it keeps `malloc`, `HeapAlloc`, `LocalAlloc` and `operator new` on one heap the way the retail XDK's CRT did. A program that calls `malloc` therefore also needs `libxapi.lib`, even if it uses nothing else from xAPI.
 
-COFF archives from `zig lib` do not always resolve cleanly under `lld-link` with `--whole-archive`, so the dist also ships `libcompat.lib` — picolibc's own memcpy/math/CRT shims force-linked as loose objects — which an external title link should include alongside the staged `.lib`s.
+COFF archives from `llvm-lib` do not always resolve cleanly under `lld-link` with `--whole-archive`, so the dist also ships `libcompat.lib` — picolibc's own memcpy/math/CRT shims force-linked as loose objects — which an external title link should include alongside the staged `.lib`s.
 
 ### Target
 

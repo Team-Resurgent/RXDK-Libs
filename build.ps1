@@ -5,7 +5,8 @@
 
 .DESCRIPTION
     Builds every shippable library twice -- once Debug, once ReleaseSmall -- via
-    scripts\compile.ps1 (zig build), and stages the .lib files into one flat
+    scripts\compile.ps1 (the RXDK engine's build-sdk: clang/lld/llvm-lib), and
+    stages the .lib files into one flat
     dist\lib\ (XDK-style: Release ships as libd3d8.lib, Debug as libd3d8d.lib --
     same folder, "d" suffix picks the variant), archives the libcompat[d].lib
     comdat-fix objects, and copies the public headers into dist\include. dist\ is

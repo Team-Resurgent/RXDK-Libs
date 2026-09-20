@@ -28,8 +28,12 @@ Where the leaked source was incomplete, missing functionality was **recovered by
 
 ## Prerequisites
 
-- [Zig](https://ziglang.org/) **0.16+** (tested with 0.16.0)
-- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx` + `libcxxabi`)
+- The **RXDK LLVM toolchain** (the Team-Resurgent clang/lld/llvm-lib fork). Install it with the
+  RXDK engine (`rxdk install-llvm`), or set `RXDK_LLVM` to an unpacked `xboxog-<os>-<arch>` root.
+- The **RXDK engine** (RXDK-Tools) on `RXDK_CLI`, or a sibling `RXDK-Tools` checkout — `build.ps1`
+  drives the SDK build through the engine's `build-sdk` command.
+- Git submodules: `vendor/picolibc`, `vendor/llvm-project` (sparse checkout for `libcxx`/`libcxxabi`/
+  `libunwind` + `compiler-rt/lib/builtins`) — the picolibc + libc++ sources the toolchain compiles.
 
 ```powershell
 .\scripts\init-submodules.ps1
@@ -48,7 +52,7 @@ All library sources are committed in this repo under `libs/`. The xAPI and subsy
 ## Layout
 
 ```
-build.zig / build/         Zig build graph (orchestration + generated headers)
+build/sdk/                 SDK build manifests (sdk.json + per-lib *.json) the engine's build-sdk reads
 shared/include/            Public distributed headers (xt.h umbrella, xapi.h, xbox.h,
                            xkbd.h, windef/winbase, xboxkrnl/, xbox/, d3d8/dsound/xnet/…)
 libs/libc/                 First-party libc runtime — xbox/ (HAL, crt0, kernel glue) + c23/ gap-fill (→ libc.lib)
@@ -68,8 +72,8 @@ libs/libxvoice/            Xbox Communicator voice (→ libxvoice.lib)
 libs/libdmusic/            DirectMusic (→ libdmusic.lib)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
-zig-out/lib/               Staged .lib outputs + object response files (per `zig build`)
-zig-out/include/           Staged C / C++ / xAPI / subsystem headers (after `zig build`)
+zig-out/lib/               Staged .lib outputs + object response files (engine build-sdk output)
+zig-out/include/           Staged C / C++ / xAPI / subsystem headers (engine build-sdk output)
 dist/                      Redistributable bundle from build.ps1 — lib/{debug,release} + include/ (gitignored)
 build.ps1                  Build the redistributable library distribution (Debug + ReleaseSmall)
 ```

@@ -237,10 +237,21 @@ supplied by zig's mingw runtime. Fixed by adding compiler-rt `i386/chkstk.S` (`_
 `i386/chkstk2.S` (`_alloca`/`__chkstk`) to the builtins archive. zig remains the default; nothing
 changes unless `RXDK_LLVM` is set.
 
+**Shipping + auto-install — DONE 2026-09-19 (RXDK-Tools `1e81029`).** `LlvmInstaller` downloads the
+per-host `xboxog-<os>-<arch>.zip` from the `Team-Resurgent/llvm-project` rolling release (tag
+`latest`) into the managed root (`%LocalAppData%/RXDK/llvm` on Windows), the same way host tools
+ship. Host OS/arch selects the asset, covering all 6 variants VS Code needs (incl. `windows-arm64`);
+VS20XX is Windows-only. New CLI: `install-llvm` / `update-llvm` (`--tag`) / `llvm-status`. Crucially,
+**SELECTION is gated separately from LOCATION**: `Toolchain.ResolveAsync` picks LLVM only on opt-in
+(`RXDK_LLVM` path / `RXDK_USE_LLVM=1` / explicit override) — a managed install merely being present
+does NOT flip a build off zig, so installing the toolchain to try it is safe. Verified: staged
+toolchain + plain build → Zig; `RXDK_USE_LLVM=1` → LLVM from the managed install, no path needed.
+
 **Remaining tail (to make LLVM the default / drop zig):** (a) xboxog CI packages
 `libclang_rt.builtins-i386.a` in the toolchain zip (until then run `tools/build-rt-builtins.ps1`
-post-download); (b) broaden the sample sweep on HW; (c) ship + auto-install the LLVM toolchain the
-way host tools ship today; (d) then flip the `Toolchain.ResolveAsync` default and retire zig.
+post-download; `install-llvm` warns when it's absent) and make the `compiler-rt/lib/builtins`
+sparse-checkout durable; (b) then flip the `Toolchain.ResolveAsync` opt-in gate to make LLVM the
+default and retire zig.
 
 ## Open questions / risks
 - ~~**llvm-lib packaging**~~ — DONE (2026-09-17): both `build-xboxog-clang.yml` and `build-xbox360-clang.yml` on `teamresurgent` now build + package `llvm-lib`.

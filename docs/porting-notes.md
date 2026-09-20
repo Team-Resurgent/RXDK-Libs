@@ -19,7 +19,7 @@ LLVM libc++ + libcxxabi (freestanding, picolibc locale backend)
 | First-party Xbox glue | `libs/libc/xbox/`, `libs/libc/c23/` |
 | Third-party C | `vendor/picolibc/` |
 | Third-party C++ | `vendor/llvm-project/libcxx`, `libcxxabi` |
-| Public headers | staged to `zig-out/include/` |
+| Public headers | staged to `build-out/include/` |
 | Kernel import lib | `prebuilt/xboxkrnl.lib` (only prebuilt) |
 | Kernel headers | `shared/include/xboxkrnl/` — umbrella `xboxkrnl.h`, base `xboxdef.h`, `types/*.h`, `api/*.h`, optional `winnt/{pe,xbe}.h` |
 
@@ -52,7 +52,7 @@ Generated config: `build/generated/picolibc.h`
 
 ## Linking samples
 
-Internal smokes link picolibc + xbox + (optional) libcxx **objects** via `@zig-out/link/<sample>.rsp` plus `prebuilt/xboxkrnl.lib` and `prebuilt/xboxkrnl_xbld.obj` (`.XBLD` / kernel lib version). Do **not** use `--whole-archive` on `xboxkrnl.lib` — it duplicates import descriptors and breaks kit load.
+Internal smokes link picolibc + xbox + (optional) libcxx **objects** via `@build-out/link/<sample>.rsp` plus `prebuilt/xboxkrnl.lib` and `prebuilt/xboxkrnl_xbld.obj` (`.XBLD` / kernel lib version). Do **not** use `--whole-archive` on `xboxkrnl.lib` — it duplicates import descriptors and breaks kit load.
 
 External titles just link the shipped `.lib` files — the two title-link objects are baked into the archives so no loose objects are needed:
 - `xboxkrnl_xbld.obj` (`.XBLD` / `_XboxKrnlBuildNumber`) is packed into **libc.lib**; `libs/libc/xbox/startup.c` holds a genuine reference to `XboxKrnlBuildNumber` so the always-linked startup pulls the member (a `#pragma comment(linker,"/include:")` directive does **not** work for archive pull on the x86-windows-gnu toolchain).

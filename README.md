@@ -72,8 +72,8 @@ libs/libxvoice/            Xbox Communicator voice (→ libxvoice.lib)
 libs/libdmusic/            DirectMusic (→ libdmusic.lib)
 vendor/picolibc/           picolibc C library sources (submodule)
 vendor/llvm-project/       libc++ / libcxxabi sources (submodule, sparse)
-zig-out/lib/               Staged .lib outputs + object response files (engine build-sdk output)
-zig-out/include/           Staged C / C++ / xAPI / subsystem headers (engine build-sdk output)
+build-out/lib/               Staged .lib outputs + object response files (engine build-sdk output)
+build-out/include/           Staged C / C++ / xAPI / subsystem headers (engine build-sdk output)
 dist/                      Redistributable bundle from build.ps1 — lib/{debug,release} + include/ (gitignored)
 build.ps1                  Build the redistributable library distribution (Debug + ReleaseSmall)
 ```
@@ -84,7 +84,7 @@ build.ps1                  Build the redistributable library distribution (Debug
 cd D:\Git\RXDK-Libs
 .\build.ps1                 # build the dist (Debug + ReleaseSmall) → dist\lib\{debug,release} + dist\include
 .\build.ps1 -Clean         # clean generated outputs first, then build the dist from scratch
-.\scripts\compile.ps1 -Target libs   # build every library + staged headers into zig-out (no dist packaging)
+.\scripts\compile.ps1 -Target libs   # build every library + staged headers into build-out (no dist packaging)
 ```
 
 `build.ps1` / `compile.ps1` drive the RXDK engine's `build-sdk` (RXDK-Tools). Invoke the engine
@@ -99,22 +99,22 @@ rxdk build-sdk-lib --repo-root . --manifest build\sdk\libxapi.json --config Rele
 
 | Output | Contents |
 |--------|----------|
-| `zig-out/lib/libc.lib` | picolibc + minimal libm + `libs/libc/xbox/*` runtime |
-| `zig-out/lib/libcpp.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
-| `zig-out/lib/libkernel.lib` | Xbox kernel import library (from `libs/libkernel/xboxkrnl.def`) |
-| `zig-out/lib/libxbdm.lib` | Xbox debug monitor import library |
-| `zig-out/lib/libxapi.lib` | xAPI (k32 + dll + rtl + uuid + USB) |
-| `zig-out/lib/libd3d8.lib` / `libd3d8i.lib` | Xbox D3D8 (NV2A) graphics driver (plain / D3DPERF-instrumented) |
-| `zig-out/lib/libd3dx8.lib` | D3DX8 helper / utility library |
-| `zig-out/lib/libxgraphics.lib` | XGraphics swizzle / texture utilities + XFONT |
-| `zig-out/lib/libdsound.lib` | DirectSound (MCPX APU) audio |
-| `zig-out/lib/libxmv.lib` | XMV video decoder |
-| `zig-out/lib/libxnet.lib` / `libxneto.lib` | Xbox net stack — sockets / +ONLINE (QoS, SG) |
-| `zig-out/lib/libxact.lib` | XACT audio engine |
-| `zig-out/lib/libxonline.lib` / `libuix.lib` | Xbox Live client / UIX drop-in UI |
-| `zig-out/lib/libxvoice.lib` | Xbox Communicator voice |
-| `zig-out/lib/libdmusic.lib` | DirectMusic |
-| `zig-out/include/` | picolibc + `xbox/` + `xboxkrnl/` + `c++/v1/` + public subsystem headers (`xt.h`/`xapi.h`/`xbox.h`/`xkbd.h`/`d3d8.h`/`dsound.h`/`xnet.h`/…) |
+| `build-out/lib/libc.lib` | picolibc + minimal libm + `libs/libc/xbox/*` runtime |
+| `build-out/lib/libcpp.lib` | LLVM libc++ + libcxxabi (freestanding profile) |
+| `build-out/lib/libkernel.lib` | Xbox kernel import library (from `libs/libkernel/xboxkrnl.def`) |
+| `build-out/lib/libxbdm.lib` | Xbox debug monitor import library |
+| `build-out/lib/libxapi.lib` | xAPI (k32 + dll + rtl + uuid + USB) |
+| `build-out/lib/libd3d8.lib` / `libd3d8i.lib` | Xbox D3D8 (NV2A) graphics driver (plain / D3DPERF-instrumented) |
+| `build-out/lib/libd3dx8.lib` | D3DX8 helper / utility library |
+| `build-out/lib/libxgraphics.lib` | XGraphics swizzle / texture utilities + XFONT |
+| `build-out/lib/libdsound.lib` | DirectSound (MCPX APU) audio |
+| `build-out/lib/libxmv.lib` | XMV video decoder |
+| `build-out/lib/libxnet.lib` / `libxneto.lib` | Xbox net stack — sockets / +ONLINE (QoS, SG) |
+| `build-out/lib/libxact.lib` | XACT audio engine |
+| `build-out/lib/libxonline.lib` / `libuix.lib` | Xbox Live client / UIX drop-in UI |
+| `build-out/lib/libxvoice.lib` | Xbox Communicator voice |
+| `build-out/lib/libdmusic.lib` | DirectMusic |
+| `build-out/include/` | picolibc + `xbox/` + `xboxkrnl/` + `c++/v1/` + public subsystem headers (`xt.h`/`xapi.h`/`xbox.h`/`xkbd.h`/`d3d8.h`/`dsound.h`/`xnet.h`/…) |
 
 `build.ps1` packages the same set — plus `libcompat.lib` — into `dist\lib\{debug,release}` with the public headers in `dist\include`, ready to ship.
 

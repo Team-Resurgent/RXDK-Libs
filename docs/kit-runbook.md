@@ -36,9 +36,9 @@ Build step name == artifact folder == PE name for every sample:
 Artifacts:
 
 ```
-zig-out/samples/xapi-smoke/xapi-smoke.exe
-zig-out/samples/libc-smoke/libc-smoke.exe
-zig-out/samples/libcpp-smoke/libcpp-smoke.exe
+build-out/samples/xapi-smoke/xapi-smoke.exe
+build-out/samples/libc-smoke/libc-smoke.exe
+build-out/samples/libcpp-smoke/libcpp-smoke.exe
 ```
 
 ## 2. Install RXDK-Tools (`imagebld`)
@@ -55,16 +55,16 @@ This unpacks to `tools/rxdk-managed/win-x64/tools/imagebld.exe` (and `xbox-launc
 ## 3. Post-link — PE → XBE
 
 ```powershell
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\xapi-smoke\xapi-smoke.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\libc-smoke\libc-smoke.exe -XbeDebug -NoLibWarn
-.\scripts\Invoke-ImageBuild.ps1 -InputExe zig-out\samples\libcpp-smoke\libcpp-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe build-out\samples\xapi-smoke\xapi-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe build-out\samples\libc-smoke\libc-smoke.exe -XbeDebug -NoLibWarn
+.\scripts\Invoke-ImageBuild.ps1 -InputExe build-out\samples\libcpp-smoke\libcpp-smoke.exe -XbeDebug -NoLibWarn
 ```
 
 Or call `imagebld` directly (it coerces the subsystem to Xbox and resolves TLS, so no PE pre-patch is needed):
 
 ```powershell
 $ib = tools\rxdk-managed\win-x64\tools\imagebld.exe
-& $ib /in:zig-out\samples\libc-smoke\libc-smoke.exe /out:zig-out\xbe\libc-smoke.xbe /nologo /stack:65536 /debug /nolibwarn /INITFLAGS:24 /DONTMOUNTUD /DONTMODIFYHD
+& $ib /in:build-out\samples\libc-smoke\libc-smoke.exe /out:build-out\xbe\libc-smoke.xbe /nologo /stack:65536 /debug /nolibwarn /INITFLAGS:24 /DONTMOUNTUD /DONTMODIFYHD
 ```
 
 `xapi-smoke` targets the HDD utility drive — `compile.ps1 -Target xapi-smoke -Iso` mounts and formats it by default (`-NoHdd` for a plain boot disc).
@@ -80,7 +80,7 @@ Install [XDVDFS-TR](https://github.com/Team-Resurgent/XDVDFS-TR/releases/latest)
 Pack an XBE with `default.xbe` at the image root (required for Xbox boot from disc image):
 
 ```powershell
-.\scripts\Invoke-XbeIsoBuild.ps1 -InputXbe zig-out\xbe\libc-smoke.xbe
+.\scripts\Invoke-XbeIsoBuild.ps1 -InputXbe build-out\xbe\libc-smoke.xbe
 ```
 
 Or build PE, XBE, and ISO in one step:
@@ -89,12 +89,12 @@ Or build PE, XBE, and ISO in one step:
 .\scripts\compile.ps1 -Target libc-smoke -Iso
 ```
 
-Output: `zig-out/iso/libc-smoke.iso` containing `/default.xbe`.
+Output: `build-out/iso/libc-smoke.iso` containing `/default.xbe`.
 
 Verify contents:
 
 ```powershell
-tools\xdvdfs\win-x64\xdvdfs.exe tree zig-out\iso\libc-smoke.iso
+tools\xdvdfs\win-x64\xdvdfs.exe tree build-out\iso\libc-smoke.iso
 ```
 
 ## 5. Deploy to devkit

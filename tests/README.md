@@ -20,7 +20,7 @@ the `RxdkTests/` folder in VS Code.
 **Build the libs it links, and stage them into the SDK** the project resolves
 (`C:\ProgramData\RXDK\sdk\lib\{debug,release}`), so the test exercises *current*
 source. For a single lib: `zig build libc -Doptimize=Debug` then copy
-`zig-out\lib\libc.lib` over the SDK's; for a full refresh, `build.ps1` +
+`build-out\lib\libc.lib` over the SDK's; for a full refresh, `build.ps1` +
 `scripts\publish-sdk.ps1`.
 
 **In VS / VS Code:** build `RxdkTests`, then Deploy to your Xbox / Launch in

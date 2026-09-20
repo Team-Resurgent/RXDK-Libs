@@ -44,8 +44,8 @@ function Invoke-Clean {
     Write-Host '==> clean: removing generated outputs (forces full recompile)' -ForegroundColor Cyan
     $targets = @(
         '.zig-cache',
-        'zig-out\obj', 'zig-out\lib', 'zig-out\include',
-        'zig-out\samples', 'zig-out\link', 'zig-out\xbe', 'zig-out\iso'
+        'build-out\obj', 'build-out\lib', 'build-out\include',
+        'build-out\samples', 'build-out\link', 'build-out\xbe', 'build-out\iso'
     )
     foreach ($rel in $targets) {
         $p = Join-Path $root $rel
@@ -70,7 +70,7 @@ function Invoke-DistBuild {
     }
     New-Item -ItemType Directory -Force -Path $distInc | Out-Null
 
-    # Ship every library by name (zig-out\lib can also hold stale artifacts from
+    # Ship every library by name (build-out\lib can also hold stale artifacts from
     # earlier builds, so copy an explicit list rather than a wildcard).
     $shipLibs = @(
         'libkernel.lib', 'libxbdm.lib',
@@ -97,8 +97,8 @@ function Invoke-DistBuild {
     # so a consumer selects the variant via "Additional Dependencies" filename, the
     # same $(Configuration)-conditioned d3d8$(D).lib flow the real XDK used, rather
     # than a separate library search path per config. Each variant's libs +
-    # libcompat.lib must be copied/archived out of zig-out BEFORE building the next,
-    # since zig-out\lib and zig-out\obj are fixed paths the next -Optimize build
+    # libcompat.lib must be copied/archived out of build-out BEFORE building the next,
+    # since build-out\lib and build-out\obj are fixed paths the next -Optimize build
     # overwrites in place.
     New-Item -ItemType Directory -Force -Path $distLibRoot | Out-Null
     $variants = @(
@@ -111,14 +111,14 @@ function Invoke-DistBuild {
 
         $copied = @()
         foreach ($name in $shipLibs) {
-            $src = Join-Path $root ('zig-out\lib\{0}' -f $name)
+            $src = Join-Path $root ('build-out\lib\{0}' -f $name)
             if (Test-Path -LiteralPath $src) {
                 $destName = $name -replace '\.lib$', ($variant.Suffix + '.lib')
                 Copy-Item -LiteralPath $src -Destination (Join-Path $distLibRoot $destName) -Force
                 $copied += $destName
             }
             else {
-                Write-Warning "expected lib not found: zig-out\lib\$name ($($variant.Optimize))"
+                Write-Warning "expected lib not found: build-out\lib\$name ($($variant.Optimize))"
             }
         }
 
@@ -126,14 +126,14 @@ function Invoke-DistBuild {
     }
 
     # Public headers, in three layers (optimize-independent -- copied once):
-    #   1. zig-out\include - the staged libc/libc++/xapi set + xboxkrnl/ subdir.
+    #   1. build-out\include - the staged libc/libc++/xapi set + xboxkrnl/ subdir.
     #   2. shared\include  - the device-library public headers + the Win32 base.
     #   3. dist-include    - the distribution-only master umbrella (xtl.h) and its
     #                        shims (xdk_compat.h, guiddef.h). Kept OUT of
     #                        shared\include so a public <xtl.h> doesn't shadow
     #                        libs\libxapi\internal\xtl.h in the in-tree library builds.
     $incSources = @(
-        (Join-Path $root 'zig-out\include'),
+        (Join-Path $root 'build-out\include'),
         (Join-Path $root 'shared\include'),
         (Join-Path $root 'dist-include')
     )

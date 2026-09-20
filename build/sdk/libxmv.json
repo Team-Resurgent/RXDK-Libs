@@ -1,15 +1,12 @@
 {
-  "name": "libxvoice",
+  "name": "libxmv",
   "triple": "gnu",
   "batches": [
     {
-      "cpp": true,
-      "outSubdir": "xvoice/xvoice-cpp",
+      "cpp": false,
+      "outSubdir": "xmv/xmv",
       "flags": [
-        "-std=c++17",
-        "-fno-exceptions",
-        "-fno-rtti",
-        "-nostdinc++",
+        "-std=c17",
         "-ffreestanding",
         "-fno-stack-protector",
         "-fdata-sections",
@@ -17,6 +14,8 @@
         "-nostdinc",
         "-fms-extensions",
         "-fms-compatibility",
+        "-fasm-blocks",
+        "-fno-operator-names",
         "-fno-sanitize=undefined",
         "-fno-builtin",
         "-Wno-everything",
@@ -26,10 +25,13 @@
         "-include",
         "libs/libxapi/site/profile.h",
         "-include",
-        "libs/libxvoice/site/bridge_xvoice.h"
+        "libs/libxmv/site/bridge_xmv.h"
       ],
       "includeDirs": [
-        "libs/libxvoice/site",
+        "libs/libxmv/src",
+        "libs/libxmv/decoder",
+        "libs/libxmv/inc",
+        "libs/libxmv/site",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
@@ -44,9 +46,21 @@
         "vendor/picolibc/libc/machine/x86"
       ],
       "sources": [
-        "libs/libxvoice/src/xhv.cpp",
-        "libs/libxvoice/src/xvoice.cpp"
-      ]
+        "libs/libxmv/src/xmvdemux.c",
+        "libs/libxmv/src/xmvplay.c",
+        "libs/libxmv/src/xmvcore.c",
+        "libs/libxmv/src/wmv2_tables.c",
+        "libs/libxmv/src/wmv2_vlc.c",
+        "libs/libxmv/src/wmv2dec.c",
+        "libs/libxmv/src/wmv2_mb.c",
+        "libs/libxmv/src/wmv2_x8.c",
+        "libs/libxmv/decoder/frontend.c",
+        "libs/libxmv/decoder/backend.c",
+        "libs/libxmv/decoder/bits.c",
+        "libs/libxmv/decoder/huffman.c",
+        "libs/libxmv/decoder/tables.c"
+      ],
+      "optDebug": "-O2"
     }
   ]
 }

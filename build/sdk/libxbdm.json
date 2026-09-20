@@ -1,0 +1,4 @@
+{
+  "name": "libxbdm",
+  "import": { "def": "libs/libxbdm/xbdm.def", "machine": "x86" }
+}

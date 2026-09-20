@@ -1,0 +1,4 @@
+{
+  "name": "libkernel",
+  "import": { "def": "libs/libkernel/xboxkrnl.def", "machine": "x86" }
+}

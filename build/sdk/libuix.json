@@ -1,10 +1,10 @@
 {
-  "name": "libxvoice",
-  "triple": "gnu",
+  "name": "libuix",
+  "triple": "msvc",
   "batches": [
     {
       "cpp": true,
-      "outSubdir": "xvoice/xvoice-cpp",
+      "outSubdir": "uix",
       "flags": [
         "-std=c++17",
         "-fno-exceptions",
@@ -17,24 +17,39 @@
         "-nostdinc",
         "-fms-extensions",
         "-fms-compatibility",
+        "-fasm-blocks",
+        "-fno-operator-names",
         "-fno-sanitize=undefined",
         "-fno-builtin",
+        "-mno-stack-arg-probe",
+        "-fwrapv",
         "-Wno-everything",
         "-D_XAPI_",
+        "-Xclang",
+        "-fdefault-calling-conv=stdcall",
+        "-include",
+        "libs/libxonline/site/cdecl_libc.h",
         "-include",
         "picolibc.h",
         "-include",
         "libs/libxapi/site/profile.h",
         "-include",
-        "libs/libxvoice/site/bridge_xvoice.h"
+        "libs/libxonline/site/bridge_xonline.h"
       ],
       "includeDirs": [
-        "libs/libxvoice/site",
+        "libs/libxonline/inc",
+        "libs/libxonline/site",
+        "libs/libxnet/net",
+        "libs/libxnet/inc",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
+        "libs/libxapi/k32",
+        "libs/libxapi/k32/inc",
         "libs/libxapi/support/inc",
         "libs/libxapi/support/inc/ntos",
+        "libs/libxapi/support/crypto",
+        "libs/libxapi/support/fatx",
         "libs/libxapi/nt",
         "libs/libxapi/rtl/inc",
         "libs/libxapi/port",
@@ -44,8 +59,8 @@
         "vendor/picolibc/libc/machine/x86"
       ],
       "sources": [
-        "libs/libxvoice/src/xhv.cpp",
-        "libs/libxvoice/src/xvoice.cpp"
+        "libs/libxonline/src/uix.cpp",
+        "libs/libxonline/src/uix_skin.cpp"
       ]
     }
   ]

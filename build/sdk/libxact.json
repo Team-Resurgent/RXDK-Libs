@@ -1,10 +1,10 @@
 {
-  "name": "libxvoice",
+  "name": "libxact",
   "triple": "gnu",
   "batches": [
     {
       "cpp": true,
-      "outSubdir": "xvoice/xvoice-cpp",
+      "outSubdir": "xact/xact",
       "flags": [
         "-std=c++17",
         "-fno-exceptions",
@@ -17,19 +17,26 @@
         "-nostdinc",
         "-fms-extensions",
         "-fms-compatibility",
+        "-fasm-blocks",
+        "-fno-operator-names",
         "-fno-sanitize=undefined",
         "-fno-builtin",
         "-Wno-everything",
         "-D_XAPI_",
+        "-DDPF_LIBRARY=\"XACTENG\"",
+        "-DNAMESPACE=XACT",
+        "-DDPFLVL_DEFAULT=4",
         "-include",
         "picolibc.h",
         "-include",
         "libs/libxapi/site/profile.h",
         "-include",
-        "libs/libxvoice/site/bridge_xvoice.h"
+        "libs/libxact/site/bridge_xact.h"
       ],
       "includeDirs": [
-        "libs/libxvoice/site",
+        "libs/libxact/inc",
+        "libs/libxact/site",
+        "libs/libdsound/wma",
         "shared/include",
         "libs/libxapi/internal",
         "libs/libxapi/internal/shims",
@@ -44,8 +51,17 @@
         "vendor/picolibc/libc/machine/x86"
       ],
       "sources": [
-        "libs/libxvoice/src/xhv.cpp",
-        "libs/libxvoice/src/xvoice.cpp"
+        "libs/libxact/engine/xactapi.cpp",
+        "libs/libxact/engine/wmaplaylist.cpp",
+        "libs/libxact/engine/common.cpp",
+        "libs/libxact/engine/engine.cpp",
+        "libs/libxact/engine/soundbank.cpp",
+        "libs/libxact/engine/soundsource.cpp",
+        "libs/libxact/engine/wavebank.cpp",
+        "libs/libxact/engine/streamwave.cpp",
+        "libs/libxact/engine/cue.cpp",
+        "libs/libxact/engine/sequencer.cpp",
+        "libs/libxact/common/memmgr.cpp"
       ]
     }
   ]

@@ -19,7 +19,7 @@ git submodule update --init vendor/picolibc
 git submodule update --init vendor/llvm-project
 git submodule update --init vendor/stdtests
 git -C vendor/llvm-project sparse-checkout init --cone
-git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
+git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi libunwind compiler-rt/lib/builtins
 ```
 
 Or run `.\scripts\init-submodules.ps1` from the repo root.

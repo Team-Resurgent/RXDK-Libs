@@ -49,7 +49,8 @@ if (-not (Test-Path -LiteralPath $ar)) { $ar = Join-Path $LlvmRoot 'bin/llvm-ar'
 
 $bsrc = Join-Path $root 'vendor/llvm-project/compiler-rt/lib/builtins'
 if (-not (Test-Path -LiteralPath $bsrc)) {
-    throw "compiler-rt builtins source missing at $bsrc. The llvm-project submodule is a sparse checkout; add it with:`n" +
+    throw "compiler-rt builtins source missing at $bsrc. Run scripts/init-submodules.ps1 (its sparse " +
+          "cone includes compiler-rt/lib/builtins), or add it directly:`n" +
           "  git -C vendor/llvm-project sparse-checkout add compiler-rt/lib/builtins"
 }
 

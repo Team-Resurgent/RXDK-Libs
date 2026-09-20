@@ -40,7 +40,7 @@ Or manually:
 ```powershell
 git submodule update --init vendor/picolibc vendor/llvm-project
 git -C vendor/llvm-project sparse-checkout init --cone
-git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi
+git -C vendor/llvm-project sparse-checkout set libcxx libcxxabi libunwind compiler-rt/lib/builtins
 ```
 
 All library sources are committed in this repo under `libs/`. The xAPI and subsystem libraries (`libxapi`, `libd3d8`, `libd3dx8`, `libdsound`, `libxgraphics`, `libxmv`, `libxnet`, …) build directly from the in-tree sources — no external source checkout is required.

@@ -15,13 +15,19 @@ git @lp submodule update --init vendor/picolibc
 if ($LASTEXITCODE -ne 0) { throw "submodule update (picolibc) failed ($LASTEXITCODE)" }
 
 # llvm-project is only used to compile the C++ runtime (libcpp) from three source trees:
-# libcxx, libcxxabi and libunwind. The rest of the monorepo (clang, llvm, mlir, ...) is
-# ~100k files we never build and that can exhaust the disk. Configure the sparse cone in
-# the module store BEFORE the working tree is materialised so a full checkout never runs.
+# libcxx, libcxxabi and libunwind, plus compiler-rt/lib/builtins for the i686 builtins
+# archive (tools/build-rt-builtins.ps1 -- the dev fallback when a toolchain zip predates
+# CI-packaged builtins). The rest of the monorepo (clang, llvm, mlir, ...) is ~100k files
+# we never build and that can exhaust the disk. Configure the sparse cone in the module
+# store BEFORE the working tree is materialised so a full checkout never runs.
 $llvm = 'vendor/llvm-project'
+# Top-level cones pre-seeded before the first checkout (the big source trees).
 $cone = @('libcxx', 'libcxxabi', 'libunwind')
+# Full cone set, including the nested builtins dir (added via the proper cone-aware
+# `sparse-checkout set` below, which handles subdirectory cones the manual pre-seed cannot).
+$coneFull = $cone + @('compiler-rt/lib/builtins')
 
-Write-Host "Configuring llvm-project sparse checkout ($($cone -join ' '))..."
+Write-Host "Configuring llvm-project sparse checkout ($($coneFull -join ' '))..."
 git submodule init $llvm
 
 $moduleDir = (git rev-parse --git-path "modules/$llvm").Trim()
@@ -42,7 +48,7 @@ if ($LASTEXITCODE -ne 0) { throw "submodule update (llvm-project) failed ($LASTE
 # a resumed or partially-failed checkout can otherwise leave the wrong libcxx revision
 # checked out, and the build reads libcxx/include directly from this submodule.
 git -C $llvm sparse-checkout init --cone
-git -C $llvm sparse-checkout set @cone
+git -C $llvm sparse-checkout set @coneFull
 $pin = ((git ls-tree HEAD $llvm) -split '\s+')[2]
 git -C $llvm @lp checkout -f $pin
 git -C $llvm clean -ffdq | Out-Null

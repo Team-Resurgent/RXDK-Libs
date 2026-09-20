@@ -247,11 +247,25 @@ VS20XX is Windows-only. New CLI: `install-llvm` / `update-llvm` (`--tag`) / `llv
 does NOT flip a build off zig, so installing the toolchain to try it is safe. Verified: staged
 toolchain + plain build → Zig; `RXDK_USE_LLVM=1` → LLVM from the managed install, no path needed.
 
-**Remaining tail (to make LLVM the default / drop zig):** (a) xboxog CI packages
-`libclang_rt.builtins-i386.a` in the toolchain zip (until then run `tools/build-rt-builtins.ps1`
-post-download; `install-llvm` warns when it's absent) and make the `compiler-rt/lib/builtins`
-sparse-checkout durable; (b) then flip the `Toolchain.ResolveAsync` opt-in gate to make LLVM the
-default and retire zig.
+**CI packaging — DONE 2026-09-19 (llvm-project `xboxog` `a0da7cf7a`; build in progress).** The
+`Original Xbox clang` workflow now builds the CANONICAL compiler-rt builtins with the freshly built
+clang and ships `libclang_rt.builtins-i386.a` inside each zip at `lib/clang/<ver>/lib/windows/`,
+where the engine links it. Key details (recipe validated locally against the current xboxog clang
+before pushing): add `compiler-rt` to the checkout cone; build `llvm-nm/llvm-ranlib/llvm-objdump/
+llvm-rc`; standalone builtins build cross to `i686-pc-windows-gnu` (`CMAKE_SYSTEM_NAME=Windows` +
+`llvm-rc`; `TRY_COMPILE` static-lib; `COMPILER_RT_BAREMETAL_BUILD` + a 1-decl `stdlib.h` stub for
+`int_util.c`'s `_WIN32`-guarded include). **PIII gotcha discovered + handled:** `-march=pentium3`
+pins the generic `.c` codegen to x87, but compiler-rt still prefers its i386 `.S` asm for 6
+int→float conversions (`float{,un}di{df,sf,xf}`) whose hand-written asm uses SSE2 (`movsd xmm`)
+regardless of `-march` — so the step replaces those 6 objects with the generic `.c` compiled at
+pentium3, and an `llvm-objdump` tripwire asserts the whole archive is SSE2/AVX-free (RXDK-Libs
+`isa-scan.py` is the authoritative Capstone gate downstream). Once this publishes, `install-llvm`'s
+missing-builtins warning goes away and `tools/build-rt-builtins.ps1` becomes a dev fallback.
+
+**Remaining tail (to make LLVM the default / drop zig):** (a) confirm the CI build publishes a
+builtins-carrying zip and re-validate an `install-llvm` → LLVM build end-to-end from the shipped
+toolchain; make the `compiler-rt/lib/builtins` sparse-checkout durable for local dev; (b) then flip
+the `Toolchain.ResolveAsync` opt-in gate to make LLVM the default and retire zig.
 
 ## Open questions / risks
 - ~~**llvm-lib packaging**~~ — DONE (2026-09-17): both `build-xboxog-clang.yml` and `build-xbox360-clang.yml` on `teamresurgent` now build + package `llvm-lib`.

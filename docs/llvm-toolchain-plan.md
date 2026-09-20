@@ -262,10 +262,21 @@ pentium3, and an `llvm-objdump` tripwire asserts the whole archive is SSE2/AVX-f
 `isa-scan.py` is the authoritative Capstone gate downstream). Once this publishes, `install-llvm`'s
 missing-builtins warning goes away and `tools/build-rt-builtins.ps1` becomes a dev fallback.
 
-**Remaining tail (to make LLVM the default / drop zig):** (a) confirm the CI build publishes a
-builtins-carrying zip and re-validate an `install-llvm` → LLVM build end-to-end from the shipped
-toolchain; make the `compiler-rt/lib/builtins` sparse-checkout durable for local dev; (b) then flip
-the `Toolchain.ResolveAsync` opt-in gate to make LLVM the default and retire zig.
+**CI published + validated from the shipped zip (2026-09-20, `xboxog` `f89159038`, all 6 platforms
+green).** Two CI iterations were needed (both predicted for the cross build): (1) macОС — the builtins
+`project(C CXX ASM)` probed `clang++`, whose fresh-build-tree default triple is `unknown`; fixed by
+setting `CMAKE_CXX_COMPILER` + `CMAKE_CXX_COMPILER_TARGET`. (2) Windows — `CMAKE_RC_COMPILER`'s
+backslash path (`D:\a\…`) became an invalid `\a` escape in `CMakeRCCompiler.cmake`; fixed by passing
+all tool/`-isystem` paths to CMake with forward slashes. **Verified against the downloaded
+`xboxog-windows-x64.zip`:** it carries `lib/clang/23/lib/windows/libclang_rt.builtins-i386.a` (141
+members; `__divdi3`/`__udivdi3`/`__alloca`/`__chkstk`/`__float*` all present; isa-scan clean — the
+6-object x87 swap held in CI). Staged as the managed install, `llvm-status` resolves the builtins (no
+warning) and `RXDK_USE_LLVM=1` builds a sample end-to-end (compile + link) against the shipped clang.
+
+**Remaining tail (to make LLVM the default / drop zig):** (a) make the `compiler-rt/lib/builtins`
+sparse-checkout durable for local dev (`build-rt-builtins.ps1` is now only a fallback); broaden the
+HW sweep from the shipped toolchain when convenient; (b) then flip the `Toolchain.ResolveAsync`
+opt-in gate to make LLVM the default and retire zig.
 
 ## Open questions / risks
 - ~~**llvm-lib packaging**~~ — DONE (2026-09-17): both `build-xboxog-clang.yml` and `build-xbox360-clang.yml` on `teamresurgent` now build + package `llvm-lib`.

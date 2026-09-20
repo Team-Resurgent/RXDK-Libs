@@ -173,7 +173,13 @@ void __RPC_USER MIDL_user_free( void __RPC_FAR * );
 // PARTICULAR PURPOSE.
 //=--------------------------------------------------------------------------=
 //
-#pragma comment(lib,"uuid.lib")
+// RXDK: the stock header auto-links uuid.lib via `#pragma comment(lib,"uuid.lib")`
+// for the COM/OLE GUID definitions. RXDK is self-contained -- those GUIDs come
+// from libxapi (uuid/*.c) / libc, not a separate uuid import lib -- and the
+// auto-link directive bakes a `-luuid` (`/DEFAULTLIB:uuid`) into every object
+// that includes this header, which a -nostdlib clang title link then fails to
+// resolve (`libuuid.a: no such file`; zig's bundled mingw sysroot masked it).
+// Drop the pragma: it is a Windows-toolchain-ism that does not apply here.
 //
 // Declarations for ActiveX Scripting host applications and script engines.
 //

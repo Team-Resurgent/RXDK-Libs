@@ -192,6 +192,50 @@ Work:
   (download the `xboxog-<os>-<arch>.zip` from the release into the staged tools root), so both
   VS20XX and VS Code drive one LLVM toolchain.
 
+### Phase 2 status — engine LLVM path landed (opt-in), HW-validated (2026-09-19)
+
+The shared **.NET engine** (`Rxdk.Engine`, used by BOTH VS Code and VS20XX and the CLI — this is
+the real title compile/link path, not the older MSBuild `ZigCompile`/`ZigLd`/`ZigAr` tasks) now
+compiles, archives, and links titles with **either** backend behind a `Toolchain` abstraction:
+
+- **`Build/Toolchain.cs`** — the zig-vs-LLVM abstraction. Per-backend: executable, target triple
+  (`x86-windows-gnu` vs `i686-pc-windows-gnu`), the compile/archive/link **subcommand token** zig
+  needs and clang does not (`cc`/`c++`/`ar`), the resource-include the `-nostdinc` clang build must
+  re-add, the link runtime-lib arg (`-rtlib=compiler-rt` vs `-fuse-ld=lld`), and the compiler-rt
+  builtins archive. **LLVM is opt-in:** `Toolchain.ResolveAsync` picks LLVM when it resolves
+  (`RXDK_LLVM` env / managed install), else zig.
+- **`Bootstrap/LlvmRuntime.cs`** — locates the xboxog clang root, its `llvm-ar`, the versioned
+  resource-include dir, and `libclang_rt.builtins-i386.a`.
+- **`Build/XdkLink.cs` / `Build/XboxBuild.cs`** — thread `Toolchain` through compile / `.eh_frame`
+  brackets / archive / link. The link appends the builtins archive after the SDK libs (LLVM only).
+
+**Two self-containedness gaps closed** (both were masked by `zig cc`'s bundled MinGW headers /
+compiler-rt, exactly the Phase-1 Blocker-A/compiler-rt hazards):
+
+1. **MinGW pack headers** — the public SDK headers `#include <pshpack{1,2,4,8}.h>` / `<poppack.h>`
+   but those were never exported to `shared/include`; `zig cc` silently supplied MinGW's copies.
+   Fixed by exporting RXDK's own clean-room copies (already in `libs/libxapi/nt/`) to
+   `shared/include/` so the SDK is toolchain-independent.
+2. **compiler-rt 64-bit builtins** — `__divdi3/__udivdi3/__moddi3/__umoddi3` (+ shift/mul/cmp and
+   int↔fp conversion helpers) are referenced by libcompat's MSVC `__alldiv` shim and picolibc's
+   `__ultoa_invert`; `zig cc` auto-linked them from its compiler-rt. Built into
+   `libclang_rt.builtins-i386.a` from the vendored `compiler-rt/lib/builtins` source (subset:
+   pure integer/fp math, no OS/mem/emutls builtins that would collide with the RXDK libs) via
+   **`tools/build-rt-builtins.ps1`**, PIII-clean (isa-scan), placed at the toolchain's canonical
+   `lib/clang/<ver>/lib/windows/` where the engine finds it. libcompat's whole-archive
+   `fabs`/`memmove` still win — the builtins archive is pulled on demand, not whole-archive.
+   The llvm-project submodule sparse checkout was extended with `compiler-rt/lib/builtins`.
+
+**Validation:** engine builds clean; `Tut01_CreateDevice` (C++, links libc++ + `.eh_frame`
+brackets) compiled + linked + XBE + ISO under LLVM; new codegen + the builtins archive isa-scan
+PIII-clean; **booted on real HW (192.168.1.134)** — reached `SAMPLE: CreateDevice: render loop`,
+no `STATUS_ILLEGAL_INSTRUCTION`. zig remains the default; nothing changes unless `RXDK_LLVM` is set.
+
+**Remaining tail (to make LLVM the default / drop zig):** (a) xboxog CI packages
+`libclang_rt.builtins-i386.a` in the toolchain zip (until then run `tools/build-rt-builtins.ps1`
+post-download); (b) broaden the sample sweep on HW; (c) ship + auto-install the LLVM toolchain the
+way host tools ship today; (d) then flip the `Toolchain.ResolveAsync` default and retire zig.
+
 ## Open questions / risks
 - ~~**llvm-lib packaging**~~ — DONE (2026-09-17): both `build-xboxog-clang.yml` and `build-xbox360-clang.yml` on `teamresurgent` now build + package `llvm-lib`.
 - **Version parity** — zig's clang vs xboxog LLVM; affects byte-identical reproducibility.

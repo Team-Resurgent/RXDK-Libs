@@ -226,10 +226,16 @@ compiler-rt, exactly the Phase-1 Blocker-A/compiler-rt hazards):
    `fabs`/`memmove` still win — the builtins archive is pulled on demand, not whole-archive.
    The llvm-project submodule sparse checkout was extended with `compiler-rt/lib/builtins`.
 
-**Validation:** engine builds clean; `Tut01_CreateDevice` (C++, links libc++ + `.eh_frame`
-brackets) compiled + linked + XBE + ISO under LLVM; new codegen + the builtins archive isa-scan
-PIII-clean; **booted on real HW (192.168.1.134)** — reached `SAMPLE: CreateDevice: render loop`,
-no `STATUS_ILLEGAL_INSTRUCTION`. zig remains the default; nothing changes unless `RXDK_LLVM` is set.
+**Validation — 7 samples booted on real HW (192.168.1.134), all isa-scan PIII-clean:**
+`Tut01_CreateDevice` (C++, libc++ + `.eh_frame` brackets), `BackgroundMusic` (libdsound+libdmusic),
+`QualityOfService` (libxnet/libxneto, MSVC-triple libs), `SimpleXMV` (libxmv), `CustomSTLAllocators`
+(libc++ — allocator tests ran to completion + clean exit), `Dolphin` **Release/-Os** (libd3dx8/
+libxgraphics `__asm` libs, ~330 fps, visually confirmed), `Gamepad` (libxapi). No
+`STATUS_ILLEGAL_INSTRUCTION`. The sweep surfaced ONE gap beyond the 64-bit divide builtins: **`__alloca`**
+(the i386 stack-probe `alloca()` lowers to — the Common sample helpers use `alloca`, Tui01 didn't),
+supplied by zig's mingw runtime. Fixed by adding compiler-rt `i386/chkstk.S` (`__chkstk_ms`) +
+`i386/chkstk2.S` (`_alloca`/`__chkstk`) to the builtins archive. zig remains the default; nothing
+changes unless `RXDK_LLVM` is set.
 
 **Remaining tail (to make LLVM the default / drop zig):** (a) xboxog CI packages
 `libclang_rt.builtins-i386.a` in the toolchain zip (until then run `tools/build-rt-builtins.ps1`

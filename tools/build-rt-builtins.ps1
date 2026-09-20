@@ -73,6 +73,12 @@ $files = @(
     'mulodi4', 'muloti4', 'absvdi2', 'negvdi2'
 )
 
+# i386 stack-probe asm: _alloca (decorated __alloca -- what clang lowers alloca() to on
+# i386 mingw), __chkstk (chkstk2.S) and __chkstk_ms (chkstk.S). zig's mingw runtime supplied
+# these; a bare clang link does not. These define NEW symbols (no overlap with the generic .c
+# divide/shift builtins above), so keep both alongside the .c set.
+$asmFiles = @('i386/chkstk', 'i386/chkstk2')
+
 $tmp = Join-Path $env:TEMP ('rxdk-rt-builtins-{0}' -f ([guid]::NewGuid().ToString('N')))
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 $objs = @()
@@ -84,6 +90,14 @@ try {
         & $clang '--target=i686-pc-windows-gnu' '-march=pentium3' '-O2' '-ffreestanding' `
             '-fno-stack-protector' '-c' $src '-o' $obj
         if ($LASTEXITCODE -ne 0) { throw "compile failed: $f.c" }
+        $objs += $obj
+    }
+    foreach ($f in $asmFiles) {
+        $src = Join-Path $bsrc "$f.S"
+        if (-not (Test-Path -LiteralPath $src)) { Write-Warning "no source $f.S"; continue }
+        $obj = Join-Path $tmp (('{0}.o' -f ($f -replace '[\\/]', '_')))
+        & $clang '--target=i686-pc-windows-gnu' '-march=pentium3' '-c' $src '-o' $obj
+        if ($LASTEXITCODE -ne 0) { throw "assemble failed: $f.S" }
         $objs += $obj
     }
     $outLib = Join-Path $OutDir 'libclang_rt.builtins-i386.a'

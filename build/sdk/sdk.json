@@ -1,0 +1,36 @@
+{
+  "libs": [
+    "libc", "libcpp", "libxapi",
+    "libd3d8", "libd3d8i", "libd3dx8", "libxgraphics",
+    "libdsound", "libxnet", "libxneto", "libxmv", "libxact",
+    "libxonline", "libuix", "libxvoice", "libdmusic",
+    "libkernel", "libxbdm"
+  ],
+  "extraObjects": [
+    {
+      "cpp": false,
+      "outSubdir": "compat",
+      "flags": ["-std=c17", "-ffreestanding", "-fno-stack-protector", "-fno-sanitize=undefined"],
+      "includeDirs": [],
+      "sources": ["libs/libxapi/port/msvc_lldiv.c"]
+    }
+  ],
+  "headerExcludeExt": [".txt", ".build", ".in", ".c", ".md", ".cmake", ".am"],
+  "headers": [
+    { "dir": "vendor/picolibc/libc/include", "to": "include" },
+    { "file": "build/generated/picolibc.h", "to": "include/picolibc.h" },
+    { "file": "shared/include/threads.h", "to": "include/threads.h" },
+    { "dir": "shared/include/xbox", "to": "include/xbox" },
+    { "dir": "shared/include/xboxkrnl", "to": "include/xboxkrnl" },
+    { "dir": "libs/libc/c23", "to": "include" },
+    { "dir": "vendor/llvm-project/libcxx/include", "to": "include/c++/v1" },
+    { "file": "build/generated/libcxx/__config_site", "to": "include/c++/v1/__config_site" },
+    { "file": "build/generated/libcxx/__assertion_handler", "to": "include/c++/v1/__assertion_handler" },
+    { "file": "shared/include/xapi.h", "to": "include/xapi.h" },
+    { "file": "shared/include/xbox.h", "to": "include/xbox.h" },
+    { "file": "shared/include/xkbd.h", "to": "include/xkbd.h" },
+    { "file": "shared/include/windef.h", "to": "include/windef.h" },
+    { "file": "shared/include/winbase.h", "to": "include/winbase.h" },
+    { "file": "shared/include/winerror.h", "to": "include/winerror.h" }
+  ]
+}

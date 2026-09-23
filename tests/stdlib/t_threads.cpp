@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <atomic>
 #include <vector>
+#include <unistd.h>   // sysconf(_SC_NPROCESSORS_*)
 
 int main() {
     // join returns a computed value
@@ -46,7 +47,14 @@ int main() {
     w.join();
     CHECK(woke, "condition_variable wait/notify");
 
-    CHECK(std::thread::hardware_concurrency() >= 1, "hardware_concurrency >= 1");
+    // The original Xbox is a single-core Pentium III (no SMT). Assert the exact
+    // count (not just >= 1): hardware_concurrency() flows from
+    // sysconf(_SC_NPROCESSORS_ONLN), which the picolibc fallback returns as 1 on
+    // i386. (The 360 copy asserts 6 -- Xenon's 3 cores x 2 HW threads.)
+    CHECK_EQI((long)std::thread::hardware_concurrency(), 1,
+              "hardware_concurrency == 1 (single-core Pentium III)");
+    CHECK_EQI((long)sysconf(_SC_NPROCESSORS_ONLN), 1, "sysconf(_SC_NPROCESSORS_ONLN) == 1");
+    CHECK_EQI((long)sysconf(_SC_NPROCESSORS_CONF), 1, "sysconf(_SC_NPROCESSORS_CONF) == 1");
 
     CHECK_DONE("threads");
     return 0;

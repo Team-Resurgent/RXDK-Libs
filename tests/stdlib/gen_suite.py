@@ -24,15 +24,13 @@ GEN = os.path.join(HERE, "build")
 #  - C++23 features present in the CURRENT vendored libc++ but not the installed
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
+# The C++23 libc++ units that once needed LLVM-24 now pass by default (xbox-branch
+# adoption), so they're no longer excluded. t_mscompat stays out until the OG
+# runtime provides the symbols it links: ___CxxFrameHandler + std::_Lockit (MSVC
+# EH / STL-lock glue) and the _beginthreadex kernel chain (_ExCreateThread,
+# _NtWaitForSingleObjectEx, _NtClose, ___rxdk_run_atexit). The 360 suite runs it
+# 66/66 because RXDK-360's runtime provides those; OG's does not (yet).
 EXCLUDE = {
-    # C++23 libc++ features absent from the vendored libc++ (LLVM 23). The 4
-    # header-only ones (cartesian_product/chunk+slide views, move_only_function,
-    # <spanstream>) were verified to compile+run when their headers are pulled
-    # from the fork's xbox360 (LLVM 24) branch; <stacktrace> additionally needs
-    # library support. Deferred pending the planned rebase of the xboxog LLVM
-    # fork onto the same base commit as xbox360 (then bump vendor/llvm-project +
-    # rebuild libc++ -> all five pass, incl. stacktrace).
-    # 360 thread-kernel / MSVC-EH / STL-lock glue (_beginthreadex/__CxxFrameHandler/_Lockit)
     "t_mscompat",
 }
 

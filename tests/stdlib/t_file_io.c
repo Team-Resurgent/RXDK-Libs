@@ -62,6 +62,24 @@ int main(void) {
     CHECK(f == NULL, "removed file no longer opens");
     if (f) fclose(f);
 
+    /* tmpfile()/tmpnam(): reference them so the suite also guards their link --
+       nothing else here did, which once let 52 samples ship with an undefined
+       tmpfile. RXDK's libs/libc/xbox/tmpio.c provides both, targeting the Z: scratch
+       drive directly (they ignore the cwd, unlike stock picolibc), so no cwd swap is
+       needed. (The 360 copy chdirs to cache:/ because its picolibc tmpfile uses cwd.) */
+    FILE *tf = tmpfile();
+    CHECK(tf != NULL, "tmpfile opens a stream");
+    if (tf) {
+        CHECK(fputs("tmp\n", tf) >= 0, "write to tmpfile");
+        rewind(tf);
+        char tb[16]; memset(tb, 0, sizeof tb);
+        CHECK(fgets(tb, sizeof tb, tf) != NULL, "read back from tmpfile");
+        CHECK(strcmp(tb, "tmp\n") == 0, "tmpfile round-trip matches");
+        CHECK_EQI(fclose(tf), 0, "fclose tmpfile (auto-unlinks)");
+    }
+    char nm[L_tmpnam];
+    CHECK(tmpnam(nm) != NULL, "tmpnam returns a candidate name");
+
     CHECK_DONE("file_io");
     return 0;
 }

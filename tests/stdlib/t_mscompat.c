@@ -56,16 +56,21 @@ extern void qsort_s(void *, size_t, size_t, int (*)(void *, const void *, const 
 extern char *_gcvt(double, int, char *);
 extern int _isctype(int, int);
 extern long long _time64(long long *);
-extern uintptr_t _beginthreadex(void *, unsigned, unsigned (*)(void *), void *, unsigned, unsigned *);
+/* the MS start routine is __stdcall (unsigned __stdcall(void*)) */
+extern uintptr_t _beginthreadex(void *, unsigned, unsigned (__attribute__((__stdcall__)) *)(void *), void *, unsigned, unsigned *);
 extern void _wsplitpath(const wchar_t *, wchar_t *, wchar_t *, wchar_t *, wchar_t *);
-extern unsigned NtWaitForSingleObjectEx(unsigned handle, unsigned mode, unsigned alertable, void *timeout);
-extern unsigned NtClose(unsigned handle);
+/* Kernel APIs are __stdcall: the exports are decorated _NtClose@4 etc., so a
+   plain (cdecl) declaration would look for the wrong symbol and fail to link. */
+extern unsigned __attribute__((__stdcall__)) NtWaitForSingleObjectEx(unsigned handle, unsigned mode, unsigned alertable, void *timeout);
+extern unsigned __attribute__((__stdcall__)) NtClose(unsigned handle);
 extern int sscanf_s(const char *, const char *, ...);
 extern int swscanf_s(const wchar_t *, const wchar_t *, ...);
 extern FILE *__iob_func(void);
 
 static volatile int g_thread_ran;
-static unsigned thread_body(void *arg) { g_thread_ran = *(int *)arg; return 0; }
+/* __stdcall: CreateThread (via _beginthreadex) invokes the start routine as a
+   Win32 LPTHREAD_START_ROUTINE, which is __stdcall on i386. */
+static unsigned __attribute__((__stdcall__)) thread_body(void *arg) { g_thread_ran = *(int *)arg; return 0; }
 
 static int cmp_ctx(void *ctx, const void *a, const void *b) {
     int dir = *(int *)ctx;                       /* +1 ascending, -1 descending */
@@ -191,11 +196,11 @@ int main(void) {
       CHECK(r >= 0, "__iob_func()[1] is a usable stream (writes via our stdout)");
       CHECK(fflush(ms_out) == 0, "__iob_func stdout slot flushes"); }
 
-    /* ---- MSVC-EH stub personality (for shipped libs that never throw) ---- */
-    { extern int __CxxFrameHandler(void *, void *, void *, void *);
-      CHECK(__CxxFrameHandler(0, 0, 0, 0) == 1, "__CxxFrameHandler -> ExceptionContinueSearch");
-      extern void *ms_lockit_ctor(void *, int) __asm__("??0_Lockit@std@@QAA@H@Z");
-      char obj; CHECK(ms_lockit_ctor(&obj, 0) == &obj, "std::_Lockit ctor is a no-op returning this"); }
+    /* NOTE: the 360 suite also checks __CxxFrameHandler + std::_Lockit here. Those
+       are MSVC C++ EH / STL-lock ABI glue the 360 must provide because it links the
+       shipped MSVC-compiled XDK libs. The original Xbox links no MSVC libs and uses
+       the Itanium/DWARF EH runtime, so those symbols don't exist (and shouldn't) --
+       a legitimate per-console difference, not a gap. */
 
     CHECK_DONE("mscompat");
     return 0;

@@ -132,7 +132,14 @@ void  _RTC_Initialize(void) {}                                  /* RTC checks: n
 FILE *_fdopen(int fd, const char *mode) { return fdopen(fd, mode); }
 
 /* run atexit/static-dtor handlers without terminating (crt_start owns the array) */
-extern void __rxdk_run_atexit(void);
+/* C++ static-object dtors + atexit handlers (the MSVC _cexit teardown, run without
+   terminating). RXDK-360 defines __rxdk_run_atexit in cxxrt.cpp over its own custom
+   __cxa_atexit array; the original Xbox uses picolibc, whose exit-time teardown runs
+   the __cxa_atexit-registered destructors and atexit handlers through
+   __call_exitprocs. Provide __rxdk_run_atexit over that so the shared _cexit links
+   on OG too (the .fini_array is driven by the CRT startup, not from here). */
+extern void __call_exitprocs(int, void *);
+void __rxdk_run_atexit(void) { __call_exitprocs(0, (void *)0); }
 void _cexit(void) { __rxdk_run_atexit(); }
 
 /* the linker marker cl.exe emits into any object that uses floating point */
@@ -510,26 +517,26 @@ char *_gcvt(double v, int ndig, char *buf) { snprintf(buf, (size_t)ndig + 8, "%.
 _Noreturn void _invoke_watson(const wchar_t *e, const wchar_t *f, const wchar_t *fi, unsigned l, uintptr_t r) {
     (void)e; (void)f; (void)fi; (void)l; (void)r; abort();
 }
-/* ---- _beginthreadex over the kernel thread primitive ----
+/* ---- _beginthreadex over the Win32/XAPI thread primitive ----
    MS: uintptr_t _beginthreadex(void *security, unsigned stack,
                                 unsigned (*start)(void *), void *arg,
                                 unsigned initflag, unsigned *thrdaddr)
-   returns a thread HANDLE usable with the Wait/Close kernel calls. ExCreateThread
-   runs start(arg) directly and the thread ends when start returns (so the unused
-   _endthreadex is unnecessary). PPC has a single calling convention, so the MS
-   unsigned(*)(void*) start is ABI-compatible with the void* entry ExCreateThread
-   expects. */
-extern unsigned ExCreateThread(unsigned *handle, unsigned stack_size, unsigned *tid,
-                               unsigned xapi_startup, void *start, void *ctx,
-                               unsigned flags);
+   returns a thread HANDLE usable with WaitForSingleObject/CloseHandle (and the
+   Nt* equivalents). Forward to the original Xbox's Win32 CreateThread, which
+   spawns via PsCreateSystemThreadEx -- the kernel has no ExCreateThread (that is
+   an Xbox 360 API). The MS start `unsigned __stdcall(void *)` is ABI-compatible
+   with the DWORD __stdcall LPTHREAD_START_ROUTINE CreateThread expects (both are
+   32-bit __stdcall on i386), so the routine and handle carry across unchanged. */
+extern void *__attribute__((__stdcall__)) CreateThread(
+    void *lpThreadAttributes, unsigned dwStackSize, void *lpStartAddress,
+    void *lpParameter, unsigned dwCreationFlags, unsigned *lpThreadId);
 uintptr_t _beginthreadex(void *security, unsigned stack,
                          unsigned (*start)(void *), void *arg,
                          unsigned initflag, unsigned *thrdaddr) {
     (void)security;
-    unsigned handle = 0, tid = 0;
-    if (ExCreateThread(&handle, stack ? stack : 0x40000u, &tid, 0,
-                       (void *)start, arg, initflag) != 0)
-        return 0;
+    unsigned tid = 0;
+    void *handle = CreateThread(0, stack, (void *)start, arg, initflag, &tid);
+    if (handle == 0) return 0;
     if (thrdaddr) *thrdaddr = tid;
     return (uintptr_t)handle;
 }

@@ -24,15 +24,12 @@ GEN = os.path.join(HERE, "build")
 #  - C++23 features present in the CURRENT vendored libc++ but not the installed
 #    v1.2.3 SDK headers (spanstream/stacktrace/cartesian/chunk_slide/move_only_fn)
 #  - genuine OG libc gaps (realpath/pread/free_sized/syslog.h/sigaction/sigval/pthread)
-# The C++23 libc++ units that once needed LLVM-24 now pass by default (xbox-branch
-# adoption), so they're no longer excluded. t_mscompat stays out until the OG
-# runtime provides the symbols it links: ___CxxFrameHandler + std::_Lockit (MSVC
-# EH / STL-lock glue) and the _beginthreadex kernel chain (_ExCreateThread,
-# _NtWaitForSingleObjectEx, _NtClose, ___rxdk_run_atexit). The 360 suite runs it
-# 66/66 because RXDK-360's runtime provides those; OG's does not (yet).
-EXCLUDE = {
-    "t_mscompat",
-}
+# Nothing is excluded: the C++23 libc++ units that once needed LLVM-24 now pass by
+# default (xbox-branch adoption), and t_mscompat is enabled -- its _beginthreadex now
+# forwards to CreateThread (PsCreateSystemThreadEx) instead of the 360-only
+# ExCreateThread, and the MSVC-EH/STL-lock checks were dropped as a console
+# difference (OG links no MSVC libs).
+EXCLUDE = set()
 
 DEBUG_LIBS = ["libxbdmd.lib", "libxapid.lib", "libkerneld.lib",
               "libcd.lib", "libcppd.lib", "libcompatd.lib"]

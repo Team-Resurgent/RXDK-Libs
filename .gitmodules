@@ -1,11 +1,11 @@
 [submodule "vendor/picolibc"]
 	path = vendor/picolibc
 	url = https://github.com/Team-Resurgent/picolibc.git
-	branch = xboxog
+	branch = xbox
 [submodule "vendor/llvm-project"]
 	path = vendor/llvm-project
 	url = https://github.com/Team-Resurgent/llvm-project.git
-	branch = xboxog
+	branch = xbox
 [submodule "sdk"]
 	path = sdk
 	url = https://github.com/Team-Resurgent/RXDK-SDK.git

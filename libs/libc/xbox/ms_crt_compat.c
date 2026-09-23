@@ -70,12 +70,10 @@ static char *itoa(int v, char *buf, int radix) {
     buf[j] = '\0';
     return buf;
 }
-static char *strdup(const char *s) {
-    size_t n = strlen(s) + 1;
-    char *p = (char *)malloc(n);
-    if (p) memcpy(p, s, n);
-    return p;
-}
+/* strdup: provided by picolibc (declared in <string.h>, defined in
+   libc/string/strdup.c) as of the unified xbox picolibc; _strdup below forwards
+   to it. (The old xboxog picolibc didn't declare it, so this file used to carry
+   a private static copy.) */
 
 /* ---- case-insensitive compares (MS spelling -> POSIX) ---- */
 int _strnicmp(const char *a, const char *b, size_t n)  { return strncasecmp(a, b, n); }

@@ -258,6 +258,7 @@
         "vendor/picolibc/libc/stdio/filestrput.c",
         "vendor/picolibc/libc/stdio/filestrputalloc.c",
         "vendor/picolibc/libc/stdio/filewstrget.c",
+        "vendor/picolibc/libc/stdio/filewstrput.c",
         "vendor/picolibc/libc/stdio/flockfile.c",
         "vendor/picolibc/libc/stdio/flockfile_init.c",
         "vendor/picolibc/libc/stdio/fmemopen.c",

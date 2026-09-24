@@ -1,7 +1,9 @@
 /*
- * 2026 - Team Resurgent
+ * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
+ * Reworked / modified 2026 - Team Resurgent.
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Part of RXDK - see LICENSE.md for the full GNU GPL v3.
+ * Team Resurgent's modifications are licensed GPL-3.0-or-later (see LICENSE.md);
+ * original Microsoft-authored portions remain (c) Microsoft Corporation.
  */
 
 // ValidP.h --- An inline function to test for valid pointers

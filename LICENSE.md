@@ -1,6 +1,26 @@
 RXDK-Libs
 2026 - Team Resurgent
 
+## Provenance and licensing
+
+RXDK-Libs is derived in substantial part from Microsoft's Original Xbox XDK.
+Those portions are Copyright (c) Microsoft Corporation and remain the property of
+their respective copyright holders; they are reproduced here, reworked and heavily
+modified, for interoperability and preservation.
+
+Team Resurgent's modifications and original contributions are licensed under the
+GNU General Public License, version 3 or later (GPL-3.0-or-later), whose terms
+follow. The GPL applies to Team Resurgent's own changes; it does not, and cannot,
+relicense the underlying Microsoft-authored code.
+
+Bundled third-party components retain their own upstream licenses and copyright
+notices, unchanged, in their source files -- notably the Independent JPEG Group's
+libjpeg (`libs/libd3dx8/misc/jpeglib`), zlib (`libs/libd3dx8/misc/zlib113`), and
+libpng (`libs/libd3dx8/misc/lpng105`). Vendored dependencies under `vendor/`
+(picolibc, LLVM) are governed by their own licenses.
+
+---
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or

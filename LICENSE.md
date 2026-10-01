@@ -15,9 +15,11 @@ relicense the underlying Microsoft-authored code.
 
 Bundled third-party components retain their own upstream licenses and copyright
 notices, unchanged, in their source files -- notably the Independent JPEG Group's
-libjpeg (`libs/libd3dx8/misc/jpeglib`), zlib (`libs/libd3dx8/misc/zlib113`), and
-libpng (`libs/libd3dx8/misc/lpng105`). Vendored dependencies under `vendor/`
-(picolibc, LLVM) are governed by their own licenses.
+libjpeg (`libs/libd3dx8/misc/jpeglib`), zlib (`libs/libd3dx8/misc/zlib113`),
+libpng (`libs/libd3dx8/misc/lpng105`), and the MIT-licensed SSE1 `memcpy`
+(`libs/libc/xbox/sse1_memcpy.c`, Copyright (c) 2026 wutno and Claude/Anthropic).
+Vendored dependencies under `vendor/` (picolibc, LLVM) are governed by their own
+licenses.
 
 ---
 

@@ -816,7 +816,6 @@
         "vendor/picolibc/libc/machine/x86/setjmp.S",
         "vendor/picolibc/libc/machine/x86/memchr.S",
         "vendor/picolibc/libc/machine/x86/memcmp.S",
-        "vendor/picolibc/libc/machine/x86/memcpy.S",
         "vendor/picolibc/libc/machine/x86/memmove.S",
         "vendor/picolibc/libc/machine/x86/memset.S",
         "vendor/picolibc/libc/machine/x86/strchr.S",
@@ -958,6 +957,7 @@
         "libs/libc/xbox/ms_crt_compat.c",
         "libs/libc/xbox/cmdline.c",
         "libs/libc/xbox/ms_printf.c",
+        "libs/libc/xbox/sse1_memcpy.c",
         "libs/libc/c23/stdbit.c"
       ]
     },

@@ -25,7 +25,12 @@
 #ifdef __cplusplus
 #define D3DXINLINE inline
 #else
-#define D3DXINLINE _inline
+/* MSVC's C __inline emits a mergeable (COMDAT) definition, so the D3DX math
+   helpers could be defined in every C file that included them. Standard C
+   inline (clang) instead makes each such file emit a strong external
+   definition -- or none -- and two C files including <xtl.h> failed to link
+   with duplicate D3DXVec* symbols. static keeps each file's copy private. */
+#define D3DXINLINE static __inline
 #endif
 #endif
 

@@ -769,6 +769,41 @@ Return Value:
     return STATUS_UNSUCCESSFUL;
 }
 
+extern POBJECT_STRING XeImageFileName;
+
+//
+// The NT path of the directory holding the running XBE, e.g.
+// \Device\Harddisk0\Partition1\Games\Foo for \Device\...\Foo\default.xbe, or
+// \Device\CdRom0 for a disc title. Falls back to the CD/DVD device when the
+// image path has no directory part. Points into XeImageFileName, which lives
+// for the life of the title.
+//
+
+static POBJECT_STRING
+XapipGetImageDirectory(
+    OUT POBJECT_STRING Directory
+    )
+{
+    POBJECT_STRING Image = XeImageFileName;
+    USHORT Length = (Image && Image->Buffer) ? Image->Length : 0;
+
+    while (Length > 0 && Image->Buffer[Length - 1] != OTEXT('\\'))
+    {
+        Length--;
+    }
+
+    // Length now includes the separator; a path like "\default.xbe" has no directory.
+    if (Length <= 1)
+    {
+        return (POBJECT_STRING) &CdDevice;
+    }
+
+    Directory->Buffer = Image->Buffer;
+    Directory->Length = (USHORT)(Length - 1);
+    Directory->MaximumLength = Directory->Length;
+    return Directory;
+}
+
 
 VOID
 XapiInitProcess(
@@ -798,6 +833,7 @@ Return Value:
     USHORT CharIndex;
     DWORD dwReason = XLD_LAUNCH_DASHBOARD_MAIN_MENU;
     DWORD dwParameter1;
+    OBJECT_STRING ImageDirectory;
     DWORD dwParameter2 = 0;
     NTSTATUS status;
 
@@ -863,12 +899,15 @@ Return Value:
         RXDK_INIT_TRACE("validate disk ok");
     }
 
-    // Give the DVD/CD drive a drive letter
+    // Point D: at the directory the XBE was launched from: the disc root for a
+    // disc title, or the title's own folder when a dashboard launches it from
+    // the hard disk (the XDK always used the disc, which leaves hard-disk
+    // homebrew unable to find the files next to its default.xbe).
     if (!NT_SUCCESS(status = IoCreateSymbolicLink((POBJECT_STRING) &DDrive,
-                                                  (POBJECT_STRING) &CdDevice)))
+                                                  XapipGetImageDirectory(&ImageDirectory))))
     {
         XDBGWRN("XAPI",
-                "The D: drive is not assigned to the CD/DVD device - error 0x%08x",
+                "The D: drive is not assigned to the title's directory - error 0x%08x",
                 status);
 
         //

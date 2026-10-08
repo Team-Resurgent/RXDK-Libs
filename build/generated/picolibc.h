@@ -39,3 +39,13 @@
 #define __HAVE_POSIX_LOCALE_API 1
 #define __OBSOLETE_MATH_FLOAT 0
 #define __OBSOLETE_MATH_DOUBLE 0
+
+/* long double is the 64-bit double type on the original Xbox, as with the XDK's
+   MSVC compiler and on the Xbox 360: libc, libcpp and every SDK library are
+   built with -mlong-double-64, and an object built with clang's 80-bit
+   i686-pc-windows-gnu default would disagree with them on its size and on the
+   long double math and printf entry points. The RXDK build passes the flag;
+   other build systems must too. */
+#if defined(__SIZEOF_LONG_DOUBLE__) && __SIZEOF_LONG_DOUBLE__ != 8
+#error "RXDK: compile with -mlong-double-64 (long double is the 64-bit double type on the original Xbox)"
+#endif

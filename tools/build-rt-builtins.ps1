@@ -70,6 +70,9 @@ $files = @(
     'ashldi3', 'ashrdi3', 'lshrdi3', 'muldi3', 'negdi2', 'cmpdi2', 'ucmpdi2',
     'floatdidf', 'floatdisf', 'floatundidf', 'floatundisf',
     'fixdfdi', 'fixsfdi', 'fixunsdfdi', 'fixunssfdi',
+    # The x87 extended (xf) helpers. Titles and SDK libraries are built with
+    # -mlong-double-64, so only explicit __float80 code reaches these; compiler-rt
+    # types them as long double, so this script must NOT pass -mlong-double-64.
     'floatdixf', 'floatundixf', 'fixxfdi', 'fixunsxfdi',
     'mulodi4', 'muloti4', 'absvdi2', 'negvdi2'
 )

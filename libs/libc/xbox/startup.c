@@ -119,10 +119,22 @@ void xbox_start_main(void)
     }
 }
 
+void xbox_init_timezone(void);
+
+/*
+ * The compiler calls __main at the top of main() on this windows-gnu target, so
+ * it runs on the title thread on both startup paths, after XapiInitProcess has
+ * created the process heap. That makes it the first safe point to allocate:
+ * xbox_runtime_init() runs earlier, on the kernel's init thread, where a malloc
+ * would create a heap that XapiInitProcess then replaces.
+ */
 void __main(void)
 {
     if (xbox_ctors_done)
         return;
     xbox_ctors_done = 1;
+    /* Before the constructors, so a static initializer calling localtime()
+       already sees the console's time zone. */
+    xbox_init_timezone();
     xbox_run_global_ctors();
 }

@@ -24,7 +24,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int DbgPrint(const char *fmt, ...);
+/* Exactly the kernel's prototype (xboxkrnl/api/dbg.h: ULONG CDECL
+   DbgPrint(PCSTR, ...)), so a test may also include <xtl.h>. */
+unsigned long __cdecl DbgPrint(const char *fmt, ...);
 #ifdef __cplusplus
 }
 #endif

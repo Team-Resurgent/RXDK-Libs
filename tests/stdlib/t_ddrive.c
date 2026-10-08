@@ -11,19 +11,11 @@
 #include "rxdk_test.h"
 #include <string.h>
 #include <sys/stat.h>
-
-/* As <xboxkrnl/api/xc.h> declares it (that header's DbgPrint prototype clashes
-   with rxdk_test.h's, so it is not included). */
-typedef struct {
-    unsigned short Length;
-    unsigned short MaximumLength;
-    char          *Buffer;
-} t_ansi_string;
-extern __declspec(dllimport) t_ansi_string XeImageFileName[1];
+#include <xboxkrnl/xboxkrnl.h>
 
 int main(void)
 {
-    const t_ansi_string *image = &XeImageFileName[0];
+    const ANSI_STRING *image = &XeImageFileName[0];
     char               path[300];
     char               name[260];
     struct stat        st;

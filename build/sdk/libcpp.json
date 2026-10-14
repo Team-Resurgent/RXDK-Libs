@@ -144,7 +144,9 @@
         "-funwind-tables",
         "-Wno-everything",
         "-include",
-        "picolibc.h"
+        "picolibc.h",
+        "-include",
+        "rxdk_eh_frame_end.h"
       ],
       "includeDirs": [
         "build/generated/libunwind_stubs",

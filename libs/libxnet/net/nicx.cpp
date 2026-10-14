@@ -16,6 +16,7 @@
  */
 
 #include "xnp.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 #include "xnver.h"
 
 #ifdef XNET_FEATURE_XBOX
@@ -631,7 +632,7 @@ NTSTATUS CXnNic::NicInit(XNetInitParams * pxnip)
 
     _ulIntrVector = HalGetInterruptVector(XPCICFG_NIC_IRQ, &_irqlIntr);
 
-    KeInitializeDpc(&_dpc, NicDpc, this);
+    KeInitializeDpc(&_dpc, RXDK_FPU_SAFE_DPC(NicDpc), this);
     KeInitializeInterrupt(&s_InterruptObject, NicIsr, this, _ulIntrVector,
                           _irqlIntr, LevelSensitive, TRUE);
 

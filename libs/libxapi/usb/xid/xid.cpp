@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -392,7 +393,7 @@ XID_AddDevice(
         //
         //  Reinitialize the watchdog DPC, so that the context is our device
         //
-        KeInitializeDpc(&XID_Globals.EnumWatchdogTimerDpc, XID_WatchdogTimerProc, (PVOID)Device);
+        KeInitializeDpc(&XID_Globals.EnumWatchdogTimerDpc, RXDK_FPU_SAFE_DPC(XID_WatchdogTimerProc), (PVOID)Device);
         XID_SetEnumWatchdog();
         Device->SubmitRequest(&XID_Globals.EnumUrb);
     }

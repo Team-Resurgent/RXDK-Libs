@@ -17,6 +17,7 @@
  */
 
 #include "xnp.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 #include "xnver.h"
 
 // ---------------------------------------------------------------------------------------
@@ -1325,7 +1326,7 @@ NTSTATUS CXnBase::BaseInit(XNetInitParams * pxnip)
     RandInit(pxnip);
 
     InitializeListHead(&_leTimers);
-    KeInitializeDpc(&_dpcTimer, (PKDEFERRED_ROUTINE)TimerDpc, this);
+    KeInitializeDpc(&_dpcTimer, RXDK_FPU_SAFE_DPC(TimerDpc), this);
     KeInitializeTimer(&_timerTimer);
 
     // Start the current timer tick at one day to allow timer routines to compute times

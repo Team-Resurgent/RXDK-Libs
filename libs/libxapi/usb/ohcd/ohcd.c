@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -33,6 +34,9 @@ DEFINE_USB_DEBUG_FUNCTIONS("OHCD");
 #include <hcdi.h>       //Interface between USBD and HCD
 #include "ohcd.h"       //Private OHCD stuff
 #include "devsys.h"     //checks for development systems
+
+RXDK_FPU_SAFE_DPC_DEFINE(OHCD_IsrDpc)
+
 
 //----------------------------------------------------------------------------
 //  Spew the build settings during compile
@@ -324,7 +328,7 @@ Return Value:
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhDescriptorB.ul, HC_RH_DESCRIPTOR_B_INIT_XBOX);
     WRITE_REGISTER_ULONG(&operationalRegisters->HcRhStatus.ul, HC_RH_STATUS_INIT_XBOX);
 
-    KeInitializeDpc(&deviceExtension->IsrDpc, OHCD_IsrDpc, deviceExtension);
+    KeInitializeDpc(&deviceExtension->IsrDpc, RXDK_FPU_SAFE_DPC(OHCD_IsrDpc), deviceExtension);
     
     deviceExtension->HCCA = OHCD_PoolGetHcca(HostControllerNumber);
     

@@ -16,6 +16,7 @@
  */
 
 #include "xnp.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 #include "xnver.h"
 
 #ifdef XNET_FEATURE_WINDOWS
@@ -48,7 +49,7 @@ NTSTATUS CXnNic::NicInit(XNetInitParams * pxnip)
         return(NETERR_MEMORY);
     }
 
-    KeInitializeDpc(&_dpcRecv, DpcCallback, this);
+    KeInitializeDpc(&_dpcRecv, RXDK_FPU_SAFE_DPC(DpcCallback), this);
 
     _cxdPool   = cfgEnetTransmitQueueLength;
     _crdPool   = cfgEnetReceiveQueueLength;

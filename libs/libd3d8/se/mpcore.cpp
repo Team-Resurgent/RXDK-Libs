@@ -12,6 +12,7 @@
  */
 
 #include "precomp.hpp"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 
 #include <pci.h>
 #include <conio.h>
@@ -42,7 +43,7 @@ CMiniport::InitHardware()
     PCI_SLOT_NUMBER PCISlotNumber;
     ULONG AGPCmd;
 
-    KeInitializeDpc(&m_Dpc, CMiniport::Dpc, this);
+    KeInitializeDpc(&m_Dpc, RXDK_FPU_SAFE_DPC(CMiniport::Dpc), this);
     KeInitializeEvent(&m_BusyBlockEvent, NotificationEvent, TRUE);
     KeInitializeEvent(&m_VerticalBlankEvent, NotificationEvent, TRUE);
 

@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -497,7 +498,7 @@ MU_CreateDeviceObject(
     /* MU_MrbTimeout is NTAPI (__stdcall) to match how the kernel actually
      * invokes DPCs; the vendor PKDEFERRED_ROUTINE typedef is cdecl (it relied
      * on MSVC /Gz default-stdcall), so cast to satisfy the C++ type check. */
-    KeInitializeDpc(&deviceExtension->Mrb.TimeoutDpcObject, (PKDEFERRED_ROUTINE)MU_MrbTimeout, deviceExtension);
+    KeInitializeDpc(&deviceExtension->Mrb.TimeoutDpcObject, RXDK_FPU_SAFE_DPC(MU_MrbTimeout), deviceExtension);
     KeInitializeTimer(&deviceExtension->Mrb.Timer);
 
     //

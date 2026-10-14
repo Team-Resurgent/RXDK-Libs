@@ -151,4 +151,7 @@ function Invoke-DistBuild {
 if ($Clean) {
     Invoke-Clean
 }
+# Every DPC the libraries register must run with the FPU state saved (see the script).
+& (Join-Path $PSScriptRoot 'scripts\check-dpc-fpu.ps1')
+if ($LASTEXITCODE) { throw 'check-dpc-fpu failed' }
 Invoke-DistBuild

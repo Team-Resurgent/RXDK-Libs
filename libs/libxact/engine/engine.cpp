@@ -19,6 +19,7 @@
  */
 
 #include "xacti.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 #include "xboxdbg.h"
 #include "wmabridge.h"   // WMA bank transcode-on-load
 
@@ -159,7 +160,7 @@ CEngine::CEngine
         m_alCategoryVolume[iCat] = DSBVOLUME_MAX;
     }
     KeInitializeTimer(&m_TimerObject);
-    KeInitializeDpc(&m_DpcObject, DPCTimerCallBack, this);
+    KeInitializeDpc(&m_DpcObject, RXDK_FPU_SAFE_DPC(DPCTimerCallBack), this);
 
     // Default 3D listener (front +Z, top +Y, unit factors) + zeroed variables.
     memset(&m_ds3dListener, 0, sizeof(m_ds3dListener));

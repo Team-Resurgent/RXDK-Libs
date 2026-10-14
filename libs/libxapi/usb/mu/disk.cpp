@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -2189,7 +2190,7 @@ MUDebugInitWatchDogParameters(
     KeInitializeTimer(&DeviceExtension->DbgIrpTimer);
     KeInitializeDpc(
         &DeviceExtension->DbgIrpTimeoutDpc, 
-        (PKDEFERRED_ROUTINE)MUDebugWatchdogDpcRoutine,
+        RXDK_FPU_SAFE_DPC(MUDebugWatchdogDpcRoutine),
         (PVOID)DeviceExtension
         );
 }

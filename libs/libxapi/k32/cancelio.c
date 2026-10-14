@@ -1,4 +1,5 @@
 #include "bridge_k32.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -47,6 +48,8 @@ XapiDpcForCancelIo(
         IoCompleteRequest(Irp, IO_NO_INCREMENT);
     }
 }
+
+RXDK_FPU_SAFE_DPC_DEFINE(XapiDpcForCancelIo)
 
 BOOL
 __attribute__((__stdcall__))
@@ -133,7 +136,7 @@ Return Value:
     //
 
     if (!IsListEmpty(&CancelListHead)) {
-        KeInitializeDpc(&WorkerDpc, XapiDpcForCancelIo, &CancelListHead);
+        KeInitializeDpc(&WorkerDpc, RXDK_FPU_SAFE_DPC(XapiDpcForCancelIo), &CancelListHead);
         KeInsertQueueDpc(&WorkerDpc, NULL, NULL);
     }
 

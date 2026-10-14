@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -123,7 +124,7 @@ Return Value:
         m_Devices[nodeIndex].m_NextFree = nodeIndex+1;
     }
 
-    KeInitializeDpc(&m_EnumDpc, USBD_DeviceEnumTimerProc, NULL);
+    KeInitializeDpc(&m_EnumDpc, RXDK_FPU_SAFE_DPC(USBD_DeviceEnumTimerProc), NULL);
     KeInitializeTimer(&m_EnumTimer);
 }
 #pragma code_seg(".XPPCODE")

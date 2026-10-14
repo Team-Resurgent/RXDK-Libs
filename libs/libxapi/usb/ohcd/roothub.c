@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -57,6 +58,9 @@ OHCD_RootHubResetDpc(
     PVOID Bogus2
     );
 
+RXDK_FPU_SAFE_DPC_DEFINE(OHCD_RootHubResetDpc)
+
+
 #pragma code_seg(".XPPCINIT")
 VOID
 __attribute__((fastcall))
@@ -99,7 +103,7 @@ Return Value:
     KeInitializeTimer(&rhObject->ResetTimeoutTimer);
     KeInitializeDpc(
         &rhObject->ResetTimeoutDPC,
-        OHCD_RootHubResetDpc,
+        RXDK_FPU_SAFE_DPC(OHCD_RootHubResetDpc),
         (PVOID)DeviceExtension
         );
 

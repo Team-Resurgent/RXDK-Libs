@@ -13,6 +13,7 @@
  */
 
 #include "dsoundi.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 
 //#define DPF_AC97 DPF_ABSOLUTE
 /* RXDK: variadic no-op; clang errors on extra args to a 0-arity macro (MSVC C4002). */
@@ -266,7 +267,7 @@ CAc97Device::Initialize
 
     if(SUCCEEDED(hr) && !(m_dwFlags & AC97_OBJECTF_DIRECTISR))
     {
-        KeInitializeDpc(&m_dpc, (PKDEFERRED_ROUTINE)AciInterruptDpcHandler, this);
+        KeInitializeDpc(&m_dpc, RXDK_FPU_SAFE_DPC(AciInterruptDpcHandler), this);
     }
 
     //

@@ -17,6 +17,7 @@
  */
 
 #include "xnp.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 #include "xnver.h"
 
 // ---------------------------------------------------------------------------------------
@@ -40,7 +41,7 @@ NTSTATUS CXnEnet::EnetInit(XNetInitParams * pxnip)
 
     SetInitFlag(INITF_ENET);
 
-    KeInitializeDpc(&_dpcEnet, (PKDEFERRED_ROUTINE)&EnetDpc, this);
+    KeInitializeDpc(&_dpcEnet, RXDK_FPU_SAFE_DPC(&EnetDpc), this);
 
 #ifdef XNET_FEATURE_ARP
     _paeLast = _aae;

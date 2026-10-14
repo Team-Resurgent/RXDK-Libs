@@ -1,4 +1,5 @@
 #include "bridge_usb.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -159,7 +160,7 @@ USBHUB_AddDevice(
 				(PURB_COMPLETE_PROC)USBHUB_EnumHubStage1,
 				(PVOID)HubDevice
 				);
-        KeInitializeDpc(&GLOBAL_HubEnum.WatchdogTimerDpc, USBHUB_WatchdogTimerProc, HubDevice);
+        KeInitializeDpc(&GLOBAL_HubEnum.WatchdogTimerDpc, RXDK_FPU_SAFE_DPC(USBHUB_WatchdogTimerProc), HubDevice);
 
         USBHUB_SetEnumWatchdog(USBHUB_WATCHDOG_REASON_ENUM);
   		HubDevice->SubmitRequest(&hubNode->Urb);

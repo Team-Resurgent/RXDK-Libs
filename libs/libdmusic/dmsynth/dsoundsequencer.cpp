@@ -28,6 +28,7 @@
 #define DSOUND_NO_OVERRIDE_NEW_DELETE
 
 #include "xalloc.h" // DMusic memory allocator
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 
 /*
 #ifdef __cplusplus
@@ -1000,7 +1001,7 @@ CDirectSoundSequencer::CDirectSoundSequencer()
     m_cRef = 1;
     m_bTimerSet = false;
     KeInitializeTimer(&m_timer);
-    KeInitializeDpc(&m_dpc, DPCTimerCallBack, this);
+    KeInitializeDpc(&m_dpc, RXDK_FPU_SAFE_DPC(DPCTimerCallBack), this);
 #ifdef GATHER_STATISTICS
     m_minLatency = 0;
     m_maxLatency = 0;

@@ -11,6 +11,7 @@
  */
 
 #include "dsoundi.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 
 
 /****************************************************************************
@@ -231,9 +232,9 @@ CMcpxAPU::Initialize
     
 	if(SUCCEEDED(hr))
     {
-        KeInitializeDpc(&m_dpcInterrupt, (PKDEFERRED_ROUTINE)ApuInterruptDpcRoutine, this);
+        KeInitializeDpc(&m_dpcInterrupt, RXDK_FPU_SAFE_DPC(ApuInterruptDpcRoutine), this);
         KeInitializeTimer(&m_tmrDeferredCommandsHigh);
-        KeInitializeDpc(&m_dpcDeferredCommandsHigh, (PKDEFERRED_ROUTINE)DeferredCommandDpcRoutine, this);
+        KeInitializeDpc(&m_dpcDeferredCommandsHigh, RXDK_FPU_SAFE_DPC(DeferredCommandDpcRoutine), this);
     }
 
 	//

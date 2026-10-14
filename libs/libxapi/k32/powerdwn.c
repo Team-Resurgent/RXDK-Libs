@@ -1,4 +1,5 @@
 #include "bridge_k32.h"
+#include "rxdk_fpu_dpc.h"     /* every DPC runs with the FPU state saved */
 /*
  * Portions Copyright (c) Microsoft Corporation - Xbox XDK.
  * Reworked / modified 2026 - Team Resurgent.
@@ -37,6 +38,9 @@ XAPI_AUTOPOWERDOWN_GLOBAL XapiAutoPowerDownGlobals;
 //  Forward Declaration of Support Routines
 //---------------------------------------------------------
 VOID  XapiAutoPowerDownTimeout(PKDPC, PVOID, PVOID, PVOID); //Dpc Timeout
+
+RXDK_FPU_SAFE_DPC_DEFINE(XapiAutoPowerDownTimeout)
+
 
 #ifdef XAPILIBP
 
@@ -186,7 +190,7 @@ void XapiInitAutoPowerDown()
     //
     //  Initialize Dpc and Timer Structures
     //
-    KeInitializeDpc(&XapiAutoPowerDownGlobals.AutoPowerDownDpc, XapiAutoPowerDownTimeout, NULL);
+    KeInitializeDpc(&XapiAutoPowerDownGlobals.AutoPowerDownDpc, RXDK_FPU_SAFE_DPC(XapiAutoPowerDownTimeout), NULL);
     KeInitializeTimer(&XapiAutoPowerDownGlobals.AutoPowerDownTimer);
 
 #if DBG

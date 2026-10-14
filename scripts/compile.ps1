@@ -39,7 +39,9 @@ function Resolve-EngineCli {
     $toolsRoot = Join-Path (Split-Path $RepoRoot -Parent) 'RXDK-Tools'
     $proj = Join-Path $toolsRoot 'src\Rxdk.Cli'
     if (Test-Path -LiteralPath $proj) {
-        $dll = Get-ChildItem -LiteralPath $proj -Recurse -Filter 'Rxdk.Cli.dll' -ErrorAction SilentlyContinue |
+        # Only bin\: obj\ holds the intermediate assembly, which has no runtimeconfig/deps
+        # next to it ("hostpolicy.dll ... was not found") and is often the newest copy.
+        $dll = Get-ChildItem -LiteralPath (Join-Path $proj 'bin') -Recurse -Filter 'Rxdk.Cli.dll' -ErrorAction SilentlyContinue |
                Sort-Object LastWriteTime -Descending | Select-Object -First 1
         if ($dll) { return @{ Kind = 'dll'; Path = $dll.FullName } }
         return @{ Kind = 'project'; Path = $proj }

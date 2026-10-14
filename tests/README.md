@@ -45,11 +45,11 @@ it the debug output only shows in xemu's own debug view.
   a relative path became `\??\<name>` with no drive and failed — independent of
   the cwd default. `nt_open` now shares `__rxdk_norm_path` (dirio.c), so
   `fopen("data/x.dat")` reaches `D:\data\x.dat`. Verified on xemu.
-- **C++ exceptions compile and link but do NOT work at runtime.** An uncaught
-  throw terminates the title (`libc++abi: terminating due to uncaught exception`)
-  even with `"exceptions": true` and the EH runtime linked — the unwinder never
-  reaches the landing pad. So `exceptions: true` is *not* yet usable; treat EH as
-  broken until this is fixed. (This is exactly the "test it on hardware" caution.)
+- **C++ exceptions work** — the stdlib suite's `exceptions` section passes on
+  xemu (9/9). libunwind finds the title's FDEs only between `___eh_frame_start`
+  and `___eh_frame_end`; the link puts the end marker in `.eh_frame$z` so it
+  sorts after every contribution (archive members included), and the engine
+  fails the link if the markers do not bracket the whole section.
 - **Verified working:** the C11 timed primitives, the `D:\` cwd default, and the
   MSVC `%S`/`%C`/`%I64` translation through `snprintf`/`vsnprintf` — all PASS on
   xemu. The title compile also confirms `-march=pentium3` (no SSE2) and

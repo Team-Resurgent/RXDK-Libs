@@ -442,10 +442,43 @@ void *sse1_memcpy_nt(void *restrict dst, const void *restrict src, size_t n)
  * only wins once the read-back cost is already paid, so it is safe as the
  * general C memcpy).  sse1_memcpy / sse1_memcpy_nt stay exported for callers
  * that want to force the streaming path on write-only destinations
- * (vertex/texture uploads, framebuffers).  This wrapper tail-jumps into
- * sse1_memcpy at -O2 (no extra frame); an alias attribute is avoided because
- * it is not portable to the PE/COFF target. */
+ * (vertex/texture uploads, framebuffers).  An alias attribute is avoided
+ * because it is not portable to the PE/COFF target.
+ *
+ * Above PASSIVE_LEVEL memcpy must not touch xmm.  A DPC, interrupt service
+ * routine or kernel APC runs on top of whatever thread it interrupted, and
+ * the kernel does not save that thread's FPU/SSE state for it (the XDK's rule
+ * is no floating point at DPC time; XSaveFloatingPointStateForDpc exists for
+ * DPCs that need it).  The SDK's own DPCs call memcpy -- the USB input
+ * completion copies every gamepad report -- so an xmm path there overwrote
+ * the interrupted thread's registers, e.g. a title's SSE float math.  Those
+ * callers get rep movs instead.  The IRQL is the byte at fs:[0x24] in the
+ * processor control region, which is what KeGetCurrentIrql returns (the
+ * stdlib suite's dpc_fpu section checks the two agree). */
+static inline unsigned char current_irql(void)
+{
+    unsigned char irql;
+    __asm__ volatile("movb %%fs:0x24, %0" : "=q"(irql));
+    return irql;
+}
+
+static __attribute__((noinline))
+void *memcpy_integer(void *restrict dst, const void *restrict src, size_t n)
+{
+    void *d = dst;
+    size_t dwords = n >> 2, bytes = n & 3;
+    __asm__ volatile("rep {movsl|movsd}\n\t"
+                     "mov {%3, %%ecx|ecx, %3}\n\t"
+                     "rep movsb"
+                     : "+D"(d), "+S"(src), "+c"(dwords)
+                     : "r"(bytes)
+                     : "memory");
+    return dst;
+}
+
 void *memcpy(void *restrict dst, const void *restrict src, size_t n)
 {
+    if (__builtin_expect(current_irql() != 0, 0))     /* above PASSIVE_LEVEL */
+        return memcpy_integer(dst, src, n);
     return sse1_memcpy(dst, src, n);
 }

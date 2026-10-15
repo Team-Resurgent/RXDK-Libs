@@ -33,16 +33,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void __stdcall RxdkRunDpcFpuSafe(void *Routine, void *Dpc, void *DeferredContext,
+void __attribute__((__stdcall__)) RxdkRunDpcFpuSafe(void *Routine, void *Dpc, void *DeferredContext,
                                  void *SystemArgument1, void *SystemArgument2);
 #ifdef __cplusplus
 }
 
+/* A DPC routine must be __stdcall: the kernel and RxdkRunDpcFpuSafe both call it that
+   way and it must pop its own four arguments. A cdecl one returns with the stack 16
+   bytes off; the kernel's DPC loop happens to tolerate that, a caller in C does not
+   (it hung titles on iND-BiOS, where those DPCs fire), so it is rejected here. */
+/* The parameter types are the library's own (its KDPC may be declared in its own
+   namespace), so only the convention and the argument count are checked. */
+/* Spelled out both ways, as attributes: some libraries compile with stdcall as the
+   default convention (an unannotated function pointer is then the stdcall one), and
+   some headers #define __cdecl to nothing. */
+template <class... A> constexpr bool RxdkIsStdcallDpc(void (__attribute__((__stdcall__)) *)(A...)) { return sizeof...(A) == 4; }
+template <class... A> constexpr bool RxdkIsStdcallDpc(void (__attribute__((__cdecl__)) *)(A...)) { return false; }
+template <class T> constexpr bool RxdkIsStdcallDpc(T) { return false; }
+
 template <auto Routine>
 __attribute__((section(".text")))
-static void __stdcall RxdkFpuSafeDpc(void *Dpc, void *DeferredContext,
+static void __attribute__((__stdcall__)) RxdkFpuSafeDpc(void *Dpc, void *DeferredContext,
                                      void *SystemArgument1, void *SystemArgument2)
 {
+    static_assert(RxdkIsStdcallDpc(Routine),
+                  "RXDK_FPU_SAFE_DPC: a DPC routine must be void __stdcall (PKDPC, PVOID, PVOID, PVOID)");
     RxdkRunDpcFpuSafe((void *)Routine, Dpc, DeferredContext, SystemArgument1, SystemArgument2);
 }
 
@@ -50,9 +65,14 @@ static void __stdcall RxdkFpuSafeDpc(void *Dpc, void *DeferredContext,
 
 #else
 
+/* As in C++: the routine must be __stdcall (see above). */
 #define RXDK_FPU_SAFE_DPC_DEFINE(Routine)                                              \
+    _Static_assert(__builtin_types_compatible_p(__typeof__(&Routine),                  \
+                       void (__attribute__((__stdcall__)) *)(struct _KDPC *, void *, void *, void *)),    \
+                   "RXDK_FPU_SAFE_DPC: " #Routine " must be void __stdcall "           \
+                   "(PKDPC, PVOID, PVOID, PVOID)");                                    \
     __attribute__((section(".text")))                                                  \
-    static void __stdcall Routine##_RxdkFpuSafe(void *Dpc, void *DeferredContext,      \
+    static void __attribute__((__stdcall__)) Routine##_RxdkFpuSafe(void *Dpc, void *DeferredContext,      \
                                                 void *SystemArgument1,                 \
                                                 void *SystemArgument2)                 \
     {                                                                                  \

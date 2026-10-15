@@ -50,6 +50,7 @@ XID_GLOBALS XID_Globals;
 //  Forward declaration of locally defined functions
 //------------------------------------------------------------------------------
 VOID
+__stdcall
 XID_WatchdogTimerProc(
     PKDPC,
     PVOID,
@@ -297,7 +298,7 @@ __inline void XID_ClearEnumWatchdog()
     KeCancelTimer(&XID_Globals.EnumWatchdogTimer);
 }
 
-VOID XID_WatchdogTimerProc(PKDPC, PVOID pvDevice, PVOID, PVOID)
+VOID __stdcall XID_WatchdogTimerProc(PKDPC, PVOID pvDevice, PVOID, PVOID)
 /*++
     Routine Description:
         DPC routine called if a 5 second watchdog timer expires protecting

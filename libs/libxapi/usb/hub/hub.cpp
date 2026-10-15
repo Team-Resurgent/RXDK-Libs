@@ -72,6 +72,7 @@ EXTERNUSB VOID USBHUB_Init(IUsbInit *)
 #pragma code_seg(".XPPCODE")
 
 VOID
+__stdcall
 USBHUB_WatchdogTimerProc(PKDPC Dpc, PVOID pvHubDevice, PVOID, PVOID)
 {
     USB_DBG_WARN_PRINT(("Watchdog timer proc hit."));

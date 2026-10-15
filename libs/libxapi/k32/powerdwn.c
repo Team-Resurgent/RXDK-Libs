@@ -37,7 +37,7 @@ XAPI_AUTOPOWERDOWN_GLOBAL XapiAutoPowerDownGlobals;
 //---------------------------------------------------------
 //  Forward Declaration of Support Routines
 //---------------------------------------------------------
-VOID  XapiAutoPowerDownTimeout(PKDPC, PVOID, PVOID, PVOID); //Dpc Timeout
+VOID __stdcall XapiAutoPowerDownTimeout(PKDPC, PVOID, PVOID, PVOID); //Dpc Timeout (kernel DPC routine: stdcall)
 
 RXDK_FPU_SAFE_DPC_DEFINE(XapiAutoPowerDownTimeout)
 
@@ -311,6 +311,7 @@ ULONG XAutoPowerDownTimeRemaining()
 */
 
 VOID
+__stdcall
 XapiAutoPowerDownTimeout(
     PKDPC bogus1,
     PVOID bogus2,

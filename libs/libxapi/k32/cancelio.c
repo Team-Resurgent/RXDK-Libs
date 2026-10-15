@@ -19,6 +19,7 @@
 #include <idexchan.h>
 
 VOID
+__stdcall
 XapiDpcForCancelIo(
     IN PKDPC Dpc,
     IN PVOID DeferredContext,

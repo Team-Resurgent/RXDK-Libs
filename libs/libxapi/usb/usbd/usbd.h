@@ -518,6 +518,7 @@ USBD_FindClassDriver(
 //  the DPC for timing when to start enumeration.
 //------------------------------------------------
 void    
+__stdcall
 USBD_DeviceEnumTimerProc(
     IN PKDPC Dpc,
     IN PVOID Unused1,

@@ -320,6 +320,7 @@ __inline void USBD_ClearEnumWatchDog()
     KeCancelTimer(&g_DeviceTree.m_EnumTimer);
 }
 VOID   
+__stdcall
 USBD_DeviceEnumTimerProc(
     IN PKDPC Dpc,
     IN PVOID Unused1,

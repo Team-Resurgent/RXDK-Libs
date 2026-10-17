@@ -20,8 +20,9 @@
 // Declaring these __cdecl here, before picolibc's <string.h>/<math.h> are seen,
 // pins the correct convention (first declaration's CC wins). Mirrors libd3d8's
 // cdecl_libc.h. The set is exactly the libc/libm symbols libdsound leaves
-// undefined (mem*, abs, the double/float transcendentals); extend if a future
-// dsound path introduces more.
+// undefined (mem*, abs, the double/float transcendentals);
+// scripts/check-cdecl-libc.ps1 fails the build when a dsound path calls one
+// that is missing here.
 //------------------------------------------------------------------------------
 #ifndef RXDK_DSOUND_CDECL_LIBC_H
 #define RXDK_DSOUND_CDECL_LIBC_H
@@ -40,6 +41,9 @@ __attribute__((cdecl)) double acos(double);
 __attribute__((cdecl)) double cos(double);
 __attribute__((cdecl)) double sqrt(double);
 __attribute__((cdecl)) double log10(double);
+__attribute__((cdecl)) double pow(double, double);
+__attribute__((cdecl)) double sin(double);
+__attribute__((cdecl)) double sinh(double);
 __attribute__((cdecl)) float  fabsf(float);
 __attribute__((cdecl)) float  log10f(float);
 

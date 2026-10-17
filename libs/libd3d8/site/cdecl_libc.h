@@ -25,7 +25,9 @@
 // the size parameter matches picolibc's size_t (unsigned int on this target).
 //
 // Set covers every libc/libm symbol libd3d8 actually calls (expf, memcmp,
-// memcpy, memset); add to it if a future driver path introduces more.
+// memcpy, memset, and malloc/free in the instrumented libd3d8i);
+// scripts/check-cdecl-libc.ps1 fails the build when a driver path calls one
+// that is missing here.
 //------------------------------------------------------------------------------
 #ifndef RXDK_D3D8_CDECL_LIBC_H
 #define RXDK_D3D8_CDECL_LIBC_H
@@ -39,6 +41,8 @@ __attribute__((cdecl)) void *memmove(void *, const void *, __SIZE_TYPE__);
 __attribute__((cdecl)) void *memset(void *, int, __SIZE_TYPE__);
 __attribute__((cdecl)) int   memcmp(const void *, const void *, __SIZE_TYPE__);
 __attribute__((cdecl)) float expf(float);
+__attribute__((cdecl)) void *malloc(__SIZE_TYPE__);
+__attribute__((cdecl)) void  free(void *);
 
 #ifdef __cplusplus
 }

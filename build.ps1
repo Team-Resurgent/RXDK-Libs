@@ -155,3 +155,6 @@ if ($Clean) {
 & (Join-Path $PSScriptRoot 'scripts\check-dpc-fpu.ps1')
 if ($LASTEXITCODE) { throw 'check-dpc-fpu failed' }
 Invoke-DistBuild
+# Every libc function a stdcall-default library calls must be declared __cdecl (see the script).
+& (Join-Path $PSScriptRoot 'scripts\check-cdecl-libc.ps1')
+if ($LASTEXITCODE) { throw 'check-cdecl-libc failed' }

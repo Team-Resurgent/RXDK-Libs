@@ -457,6 +457,8 @@ XInputGetStateFinish(
     //  Copy packet number
     //
     pState->dwPacketNumber = openDevice->PacketNumber;
+    // The title has this report now; the next one starts fresh (see XID_ProcessMouseData).
+    openDevice->ReportUnread = 0;
 
     //
     //  Copy the size indicated in the capatibility table.

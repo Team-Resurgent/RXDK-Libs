@@ -674,6 +674,17 @@ XID_fOpenDevice(
     status = XID_fOpenEndpoints(openDevice, PollingParameters);
 
     //
+    //  Type-specific open (the XDK's XID_MouseOpen). It runs at passive level for its
+    //  own transfers and returns FALSE if it failed or the device went away; the XDK
+    //  reports that as USBD_STATUS_NO_MEMORY.
+    //
+    if(USBD_SUCCESS(status) && TypeInformation->pfnOpenDevice &&
+       !TypeInformation->pfnOpenDevice(openDevice))
+    {
+        status = USBD_STATUS_NO_MEMORY;
+    }
+
+    //
     //  If the endpoints were successfully opened
     //  then setup the initial state.
     //
@@ -695,77 +706,84 @@ XID_fOpenDevice(
             );
 
         //
-        //  Initialize an event for synchronization
+        //  Read the device's current report, unless the type's open step
+        //  already did (XID_BSF_NO_INITIAL_GET_REPORT).
         //
-        KEVENT   event;
-        KeInitializeEvent(&event, SynchronizationEvent, FALSE);
-    
-        //
-        //  Build a control transfer
-        //
-        WORD wReportTypeAndId = 0x0100;
-        ULONG ulBufferSize = xidNode->bMaxInputReportSize;
-        USB_BUILD_CONTROL_TRANSFER(
-            &openDevice->Urb.ControlTransfer,
-            NULL, //Default endpoint
-            openDevice->ReportForUrb,
-            ulBufferSize,
-            USB_TRANSFER_DIRECTION_IN,
-            (PURB_COMPLETE_PROC)XID_SyncComplete, //do it synchronously
-            &event,  //the context is the event.
-            TRUE,
-            (USB_DEVICE_TO_HOST | USB_CLASS_COMMAND | USB_COMMAND_TO_INTERFACE),
-            XID_COMMAND_GET_REPORT,
-            wReportTypeAndId, //Input report 0
-            xidNode->InterfaceNumber,
-            ulBufferSize
-            );
-
-        //
-        //  Submit the request
-        //
-        xidNode->Device->SubmitRequest(&openDevice->Urb);
-    
-        //
-        //  Lower IRQL, and wait for transfer to complete.
-        //  Then restore Irql to DPC level
-        //
-        KeLowerIrql(oldIrql);
-        KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
-        oldIrql = KeRaiseIrqlToDpcLevel();
-
-        //
-        //  During the transfer the device may have been removed,
-        //  if so we should check to make sure that the device is
-        //  still with us.  There are two cases here: the device is
-        //  totally gone, the device is still pending remove.
-        //
-    
-        if(NULL == openDevice->XidNode || xidNode->PendingRemove)
-        {   
-            errorCode = ERROR_DEVICE_NOT_CONNECTED;
-            goto exit_open_device;
-        } 
-
-        //
-        //  Process the GET_REPORT results, if it succeeded
-        //
-        if(USBD_SUCCESS(openDevice->Urb.Header.Status))
+        if(!(TypeInformation->ulFlags & XID_BSF_NO_INITIAL_GET_REPORT))
         {
-            TypeInformation->pfnProcessNewData(openDevice);
-        } 
+            //
+            //  Initialize an event for synchronization
+            //
+            KEVENT   event;
+            KeInitializeEvent(&event, SynchronizationEvent, FALSE);
+    
+            //
+            //  Build a control transfer
+            //
+            WORD wReportTypeAndId = 0x0100;
+            ULONG ulBufferSize = xidNode->bMaxInputReportSize;
+            USB_BUILD_CONTROL_TRANSFER(
+                &openDevice->Urb.ControlTransfer,
+                NULL, //Default endpoint
+                openDevice->ReportForUrb,
+                ulBufferSize,
+                USB_TRANSFER_DIRECTION_IN,
+                (PURB_COMPLETE_PROC)XID_SyncComplete, //do it synchronously
+                &event,  //the context is the event.
+                TRUE,
+                (USB_DEVICE_TO_HOST | USB_CLASS_COMMAND | USB_COMMAND_TO_INTERFACE),
+                XID_COMMAND_GET_REPORT,
+                wReportTypeAndId, //Input report 0
+                xidNode->InterfaceNumber,
+                ulBufferSize
+                );
+
+            //
+            //  Submit the request
+            //
+            xidNode->Device->SubmitRequest(&openDevice->Urb);
+    
+            //
+            //  Lower IRQL, and wait for transfer to complete.
+            //  Then restore Irql to DPC level
+            //
+            KeLowerIrql(oldIrql);
+            KeWaitForSingleObject(&event, Executive, KernelMode, FALSE, NULL);
+            oldIrql = KeRaiseIrqlToDpcLevel();
+
+            //
+            //  During the transfer the device may have been removed,
+            //  if so we should check to make sure that the device is
+            //  still with us.  There are two cases here: the device is
+            //  totally gone, the device is still pending remove.
+            //
+    
+            if(NULL == openDevice->XidNode || xidNode->PendingRemove)
+            {   
+                errorCode = ERROR_DEVICE_NOT_CONNECTED;
+                goto exit_open_device;
+            } 
+
+            //
+            //  Process the GET_REPORT results, if it succeeded
+            //
+            if(USBD_SUCCESS(openDevice->Urb.Header.Status))
+            {
+                TypeInformation->pfnProcessNewData(openDevice);
+            } 
 #if DBG
-        else
-        //
-        // Issue warning if GET_REPORT failed.
-        //
-	    { 
-           if(USBD_STATUS_STALL_PID == openDevice->Urb.Header.Status)
-           {
-		       USB_DBG_WARN_PRINT(("Device in port %d (0 based) does not support GET_REPORT\n", Port));
-           }
-        }
+            else
+            //
+            // Issue warning if GET_REPORT failed.
+            //
+    	    { 
+               if(USBD_STATUS_STALL_PID == openDevice->Urb.Header.Status)
+               {
+    		       USB_DBG_WARN_PRINT(("Device in port %d (0 based) does not support GET_REPORT\n", Port));
+               }
+            }
 #endif
+        }
 
         //
         // Notify keyboard services of new open device.
@@ -1172,6 +1190,9 @@ XID_NewInterruptData(
         //  Process the new data
         //
         xidNode->TypeInformation->pfnProcessNewData(OpenDevice);
+        // Set after the type's handler, which reads it to see whether the title
+        // has taken the previous report yet (the mouse accumulates until it has).
+        OpenDevice->ReportUnread = 1;
         
         OpenDevice->PacketNumber++;
         OpenDevice->OutstandingPoll = 0;
@@ -1740,23 +1761,14 @@ XID_EnumLegacy1(
     )
     {
         //
-        //  Debug USB mouse: switch to the boot protocol, then XID_EnumMouse
-        //  sets the idle rate and completes (mirrors the keyboard path).
+        //  Debug USB mouse. As the XDK does, no SET_PROTOCOL here (unlike the
+        //  keyboard): go straight to XID_EnumMouse, which sets the idle rate and
+        //  completes. XID_MouseOpen switches the mouse to boot protocol at open
+        //  if it is still sending report-protocol reports.
         //
-        USB_BUILD_CONTROL_TRANSFER(
-            &XID_Globals.EnumUrb.ControlTransfer,
-            NULL,
-            NULL,
-            0,
-            0,
-            (PURB_COMPLETE_PROC)XID_EnumMouse,
-            (PVOID)XidNode,
-            TRUE,
-            USB_HOST_TO_DEVICE | USB_CLASS_COMMAND | USB_COMMAND_TO_INTERFACE,
-            HID_SET_PROTOCOL,
-            HID_BOOT_PROTOCOL,
-            XidNode->InterfaceNumber,
-            0);
+        XID_SetEnumWatchdog();
+        XID_EnumMouse(Urb, XidNode);
+        return;
     }
 #if NEVER
     //
@@ -1957,8 +1969,9 @@ XID_EnumMouse(
     )
 /*++
   Routine Description:
-    Boot protocol was selected in XID_EnumLegacy1; now set the idle rate to
-    infinite (mirrors XID_EnumKeyboard) and complete.
+    Called straight from XID_EnumLegacy1 for a HID mouse: set the idle rate to
+    infinite (report only on change) and complete. Boot protocol is selected
+    later, by XID_MouseOpen, only if the mouse needs it.
 --*/
 {
     UNREFERENCED_PARAMETER(Urb);

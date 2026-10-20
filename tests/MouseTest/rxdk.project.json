@@ -1,0 +1,26 @@
+{
+  "name": "MouseTest",
+  "configuration": "debug",
+  "sources": [
+    "main.c"
+  ],
+  "createIso": false,
+  "libraries": [
+    "libxbdmd.lib",
+    "libxapid.lib",
+    "libkerneld.lib",
+    "libcd.lib",
+    "libcppd.lib",
+    "libcompatd.lib"
+  ],
+  "imageBuild": {
+    "stackSize": 65536,
+    "debug": true,
+    "noLogo": true,
+    "noLibWarn": true,
+    "testId": "0xffff2001",
+    "testName": "MouseTest",
+    "testVersion": "4096"
+  },
+  "outputDir": "out"
+}

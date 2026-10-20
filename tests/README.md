@@ -55,6 +55,21 @@ it the debug output only shows in xemu's own debug view.
   xemu. The title compile also confirms `-march=pentium3` (no SSE2) and
   `-fno-builtin`.
 
+## MouseTest (hands-on, real hardware)
+
+`MouseTest` checks XAPI's USB mouse support (`XDEVICE_TYPE_DEBUG_MOUSE`), which
+needs a person moving a real mouse, so it is not part of `RxdkTests`. Plug a HID
+mouse into any controller port through a port-to-USB adapter, build
+`MouseTest/`, run it on the kit, and move, click and scroll for up to five
+minutes. Its `OutputDebugStringA` lines (xbWatson, or any XBDM notification
+listener) show the ports XAPI sees devices on and one line per new report:
+`dwPacketNumber`, buttons, and the X/Y/wheel motion since the previous read.
+
+A working mouse shows the packet number climbing while it moves, buttons
+`0x01`/`0x02`/`0x04` for left/right/middle, and wheel steps. A mouse that is
+opened but never reports a packet is not being read (verified on a devkit with
+the XDK-faithful `XID_MouseOpen`, which was missing before).
+
 ## Adding a check
 
 Add a `section_*()` to `RxdkTests/main.cpp`, call it from `main()`, and report

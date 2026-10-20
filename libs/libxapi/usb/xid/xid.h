@@ -89,6 +89,7 @@ typedef struct _XINPUT_KEYBOARD_LEDS
 // Structures for the device information table
 //-----------------------------------------------------------------------
 typedef void (__attribute__((fastcall)) *PFN_PROCESS_NEWDATA)(PXID_OPEN_DEVICE OpenDevice);
+typedef BOOL (__attribute__((fastcall)) *PFN_OPEN_DEVICE)(PXID_OPEN_DEVICE OpenDevice);
 
 typedef struct _XID_REPORT_TYPE_INFO
 {
@@ -108,9 +109,13 @@ typedef struct _XID_TYPE_INFORMATION
     PXINPUT_POLLING_PARAMETERS DefaultPollingParameters;
     PFN_PROCESS_NEWDATA        pfnProcessNewData;
     ULONG                      ulFlags;
+    // Optional type-specific step of XInputOpen, run once the endpoints are open
+    // (the XDK's XID_MouseOpen); FALSE fails the open.
+    PFN_OPEN_DEVICE            pfnOpenDevice;
 } XID_TYPE_INFORMATION;
-#define XID_BSF_NO_CAPABILITIES  0x00000001
-#define XID_BSF_NO_OUTPUT_HEADER 0x00000002
+#define XID_BSF_NO_CAPABILITIES       0x00000001
+#define XID_BSF_NO_OUTPUT_HEADER      0x00000002
+#define XID_BSF_NO_INITIAL_GET_REPORT 0x00000040 // pfnOpenDevice reads the device itself
 
 extern XID_TYPE_INFORMATION * const RxdkXidTypeTable[];
 extern const ULONG RxdkXidTypeTableCount;
@@ -210,7 +215,8 @@ typedef struct _XID_OPEN_DEVICE
     UCHAR                 ControlEndpointOpen:1;
     UCHAR                 EndpointsPendingClose:1;
     UCHAR                 AutoPoll:1;
-    UCHAR                 Pad:4;
+    UCHAR                 ReportUnread:1; // a report arrived since the title's last XInputGetState
+    UCHAR                 Pad:3;
     PXID_TYPE_INFORMATION TypeInformation;
     PXID_OPEN_DEVICE      NextOpenDevice;
 } XID_OPEN_DEVICE;
@@ -329,6 +335,12 @@ XID_ProcessNewKeyboardData(
 void
 __attribute__((fastcall))
 XID_ProcessMouseData(
+    PXID_OPEN_DEVICE OpenDevice
+    );
+
+BOOL
+__attribute__((fastcall))
+XID_MouseOpen(
     PXID_OPEN_DEVICE OpenDevice
     );
 

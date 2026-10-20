@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 
 int main(void) {
     const char *path = "T:\\t_file_io.txt";
@@ -57,10 +58,53 @@ int main(void) {
         close(fd);
     }
 
+    /* C11 exclusive create: "x" after "w" fails, with EEXIST, if the file exists,
+       and must not truncate it. picolibc's mode parser once ignored the "x", so
+       "wx" silently truncated an existing file (SDL's testautomation caught it). */
+    errno = 0;
+    f = fopen(path, "wx");
+    CHECK(f == NULL, "fopen \"wx\" fails on an existing file");
+    CHECK_EQI(errno, EEXIST, "fopen \"wx\" on an existing file sets EEXIST");
+    if (f) fclose(f);
+    errno = 0;
+    f = fopen(path, "w+x");
+    CHECK(f == NULL, "fopen \"w+x\" fails on an existing file");
+    CHECK_EQI(errno, EEXIST, "fopen \"w+x\" on an existing file sets EEXIST");
+    if (f) fclose(f);
+    CHECK_EQI(stat(path, &sb), 0, "stat after refused \"wx\"");
+    CHECK(sb.st_size == total, "refused \"wx\" left the file untouched");
+
     CHECK_EQI(remove(path), 0, "remove file");
     f = fopen(path, "rb");
     CHECK(f == NULL, "removed file no longer opens");
     if (f) fclose(f);
+
+    f = fopen(path, "wbx");
+    CHECK(f != NULL, "fopen \"wbx\" creates a file that does not exist");
+    if (f) {
+        CHECK(fputs("x\n", f) >= 0, "write to the exclusively created file");
+        CHECK_EQI(fclose(f), 0, "fclose the exclusively created file");
+    }
+    CHECK_EQI(remove(path), 0, "remove the exclusively created file");
+
+    /* Why a file call failed reaches errno (it used to be ENOENT, EIO or EEXIST
+       whatever the reason). */
+    errno = 0;
+    CHECK(stat("T:\\t_file_io_missing.txt", &sb) != 0 && errno == ENOENT, "stat of a missing file: ENOENT");
+    errno = 0;
+    CHECK(unlink("T:\\t_file_io_missing.txt") != 0 && errno == ENOENT, "unlink of a missing file: ENOENT");
+    errno = 0;
+    CHECK(mkdir("T:\\t_file_io_nodir\\sub", 0777) != 0 && errno == ENOENT, "mkdir under a missing folder: ENOENT");
+    CHECK_EQI(mkdir("T:\\t_file_io_dir", 0777), 0, "mkdir");
+    errno = 0;
+    CHECK(mkdir("T:\\t_file_io_dir", 0777) != 0 && errno == EEXIST, "mkdir of an existing folder: EEXIST");
+    f = fopen("T:\\t_file_io_dir\\inner.txt", "w");
+    CHECK(f != NULL, "create a file in the folder");
+    if (f) fclose(f);
+    errno = 0;
+    CHECK(rmdir("T:\\t_file_io_dir") != 0 && errno == ENOTEMPTY, "rmdir of a non-empty folder: ENOTEMPTY");
+    CHECK_EQI(remove("T:\\t_file_io_dir\\inner.txt"), 0, "remove the inner file");
+    CHECK_EQI(rmdir("T:\\t_file_io_dir"), 0, "rmdir the emptied folder");
 
     /* tmpfile()/tmpnam(): reference them so the suite also guards their link --
        nothing else here did, which once let 52 samples ship with an undefined

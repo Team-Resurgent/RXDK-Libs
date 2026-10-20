@@ -38,6 +38,7 @@
 #include <unistd.h>
 
 #include "xbox/kernel.h"
+#include "nt_errno.h"
 
 /* --- NT ABI constants (mirrors the private set in fileio.c). */
 #define NT_GENERIC_READ        0x80000000UL
@@ -186,26 +187,6 @@ const char *__rxdk_norm_path(const char *in, char *out, size_t outsz)
 
 static int resolve_at(int dirfd, const char *path, char *out, size_t outsz);
 
-/* Map an NTSTATUS to errno. Distinguishing "doesn't exist" from other failures
-   matters: std::filesystem::remove_all keys off ENOENT vs ENOTDIR. */
-static int errno_from_status(NTSTATUS s)
-{
-    switch ((unsigned long)s) {
-    case 0xC0000034UL: /* STATUS_OBJECT_NAME_NOT_FOUND */
-    case 0xC000003AUL: /* STATUS_OBJECT_PATH_NOT_FOUND */
-        return ENOENT;
-    case 0xC0000035UL: /* STATUS_OBJECT_NAME_COLLISION */
-        return EEXIST;
-    case 0xC0000022UL: /* STATUS_ACCESS_DENIED */
-        return EACCES;
-    case 0xC0000103UL: /* STATUS_NOT_A_DIRECTORY */
-        return ENOTDIR;
-    case 0xC0000101UL: /* STATUS_DIRECTORY_NOT_EMPTY */
-        return ENOTEMPTY;
-    default:
-        return EIO;
-    }
-}
 
 static NTSTATUS path_open(HANDLE root, const char *name, ULONG access,
                           ULONG disp, ULONG options, HANDLE *out)
@@ -808,7 +789,7 @@ int openat(int dirfd, const char *path, int flags, ...)
                 return -1;
             }
         }
-        errno = errno_from_status(s);
+        errno = rxdk_errno_from_status(s);
         return -1;
     }
     /* track the absolute path so nested *at() recursion (remove_all) works */
@@ -837,7 +818,7 @@ int unlinkat(int dirfd, const char *path, int flag)
     s = path_open(ObDosDevicesDirectory(), np, NT_DELETE, NT_FILE_OPEN, options,
                   &h);
     if (!NT_SUCCESS(s)) {
-        errno = errno_from_status(s);
+        errno = rxdk_errno_from_status(s);
         return -1;
     }
     dispose.DeleteFile = TRUE;
@@ -845,7 +826,7 @@ int unlinkat(int dirfd, const char *path, int flag)
                              FileDispositionInformation);
     NtClose(h);
     if (!NT_SUCCESS(s)) {
-        errno = errno_from_status(s);
+        errno = rxdk_errno_from_status(s);
         return -1;
     }
     return 0;

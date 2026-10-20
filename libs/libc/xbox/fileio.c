@@ -29,6 +29,7 @@
 #include <unistd.h>
 
 #include "xbox/kernel.h"
+#include "nt_errno.h"
 #include "xbox/libc_hooks.h"
 
 /* --- NT ABI constants not exposed by the slim kernel headers (fixed values). */
@@ -324,7 +325,7 @@ int open(const char *path, int flags, ...)
 
     st = nt_open(path, access, disp, NT_FILE_NON_DIRECTORY_FILE, &h);
     if (!NT_SUCCESS(st)) {
-        errno = ENOENT;
+        errno = rxdk_errno_from_status(st); /* EEXIST for a refused O_EXCL */
         return -1;
     }
 
@@ -597,7 +598,7 @@ int stat(const char *path, struct stat *st)
     InitializeObjectAttributes(&obja, &name, OBJ_CASE_INSENSITIVE,
                                ObDosDevicesDirectory(), NULL);
     s = NtQueryFullAttributesFile(&obja, &info);
-    if (!NT_SUCCESS(s)) { errno = ENOENT; return -1; }
+    if (!NT_SUCCESS(s)) { errno = rxdk_errno_from_status(s); return -1; }
 
     set_stat(st, (long long)info.EndOfFile.QuadPart, info.FileAttributes);
     return 0;
@@ -613,13 +614,13 @@ static int nt_delete(const char *path, ULONG options)
     NTSTATUS s;
 
     s = nt_open(path, NT_DELETE, NT_FILE_OPEN, options, &h);
-    if (!NT_SUCCESS(s)) { errno = ENOENT; return -1; }
+    if (!NT_SUCCESS(s)) { errno = rxdk_errno_from_status(s); return -1; }
 
     dispose.DeleteFile = TRUE;
     s = NtSetInformationFile(h, &iosb, &dispose, sizeof(dispose),
                              FileDispositionInformation);
     NtClose(h);
-    if (!NT_SUCCESS(s)) { errno = EIO; return -1; }
+    if (!NT_SUCCESS(s)) { errno = rxdk_errno_from_status(s); return -1; } /* ENOTEMPTY */
     return 0;
 }
 
@@ -640,7 +641,7 @@ int mkdir(const char *path, mode_t mode)
 
     (void)mode;
     s = nt_open(path, NT_GENERIC_READ, NT_FILE_CREATE, NT_FILE_DIRECTORY_FILE, &h);
-    if (!NT_SUCCESS(s)) { errno = EEXIST; return -1; }
+    if (!NT_SUCCESS(s)) { errno = rxdk_errno_from_status(s); return -1; }
     NtClose(h);
     return 0;
 }

@@ -41,6 +41,10 @@
  *                                   0.79 cyc/B from an L2-resident source vs
  *                                   1.40 for cached stores, sfence included
  *
+ * memcpy itself is picolibc's integer x86 memcpy.S again: these use xmm, so
+ * they are for callers at PASSIVE_LEVEL that ask for them by name (a DPC or
+ * interrupt must not touch the interrupted thread's SSE state).
+ *
  * Build:  clang -m32 -march=pentium3 -O2 -c sse1_memcpy.c
  *         (any target with -msse works; -mmmx is not required)
  *
@@ -436,49 +440,14 @@ void *sse1_memcpy_nt(void *restrict dst, const void *restrict src, size_t n)
     __attribute__((musttail)) return copy_big_nt(dst, src, n);
 }
 
-/* ---- RXDK libc entry point ---------------------------------------------
- * memcpy() IS the auto variant: cached stores that switch to non-temporal
- * block-prefetch streaming at SSE1_MEMCPY_NT_THRESHOLD (tuned so the NT path
- * only wins once the read-back cost is already paid, so it is safe as the
- * general C memcpy).  sse1_memcpy / sse1_memcpy_nt stay exported for callers
- * that want to force the streaming path on write-only destinations
- * (vertex/texture uploads, framebuffers).  An alias attribute is avoided
- * because it is not portable to the PE/COFF target.
- *
- * Above PASSIVE_LEVEL memcpy must not touch xmm.  A DPC, interrupt service
- * routine or kernel APC runs on top of whatever thread it interrupted, and
- * the kernel does not save that thread's FPU/SSE state for it (the XDK's rule
- * is no floating point at DPC time; XSaveFloatingPointStateForDpc exists for
- * DPCs that need it).  The SDK's own DPCs call memcpy -- the USB input
- * completion copies every gamepad report -- so an xmm path there overwrote
- * the interrupted thread's registers, e.g. a title's SSE float math.  Those
- * callers get rep movs instead.  The IRQL is the byte at fs:[0x24] in the
- * processor control region, which is what KeGetCurrentIrql returns (the
- * stdlib suite's dpc_fpu section checks the two agree). */
-static inline unsigned char current_irql(void)
+/* ---- RXDK entry points (xbox/memcpy_fast.h) ----------------------------
+ * The names titles use. SSE: PASSIVE_LEVEL only (see the header). */
+void *memcpy_fast(void *restrict dst, const void *restrict src, size_t n)
 {
-    unsigned char irql;
-    __asm__ volatile("movb %%fs:0x24, %0" : "=q"(irql));
-    return irql;
+    __attribute__((musttail)) return sse1_memcpy(dst, src, n);
 }
 
-static __attribute__((noinline))
-void *memcpy_integer(void *restrict dst, const void *restrict src, size_t n)
+void *memcpy_fast_nt(void *restrict dst, const void *restrict src, size_t n)
 {
-    void *d = dst;
-    size_t dwords = n >> 2, bytes = n & 3;
-    __asm__ volatile("rep {movsl|movsd}\n\t"
-                     "mov {%3, %%ecx|ecx, %3}\n\t"
-                     "rep movsb"
-                     : "+D"(d), "+S"(src), "+c"(dwords)
-                     : "r"(bytes)
-                     : "memory");
-    return dst;
-}
-
-void *memcpy(void *restrict dst, const void *restrict src, size_t n)
-{
-    if (__builtin_expect(current_irql() != 0, 0))     /* above PASSIVE_LEVEL */
-        return memcpy_integer(dst, src, n);
-    return sse1_memcpy(dst, src, n);
+    __attribute__((musttail)) return sse1_memcpy_nt(dst, src, n);
 }

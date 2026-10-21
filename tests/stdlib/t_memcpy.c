@@ -1,5 +1,5 @@
-/* t_memcpy.c -- correctness sweep for the SSE1 memcpy (libs/libc/xbox/
- * sse1_memcpy.c). That implementation branches heavily by size (<=16, <=32,
+/* t_memcpy.c -- correctness sweep for the SSE1 copies (libs/libc/xbox/
+ * sse1_memcpy.c: sse1_memcpy and sse1_memcpy_nt; memcpy is picolibc's). That implementation branches heavily by size (<=16, <=32,
  * <=64, >64 head-align + 64B blocks + tail) and by store path (movaps loop,
  * rep movsd from REP_MIN=512, non-temporal block-prefetch from NT_THRESHOLD=
  * 128K), so a regression can hide in one class/alignment while the trivial
@@ -18,6 +18,7 @@
 
 /* libc entry points under test. memcpy is the auto (cached/NT-by-size) variant;
  * sse1_memcpy_nt forces the non-temporal streaming path for every n > 64. */
+extern void *sse1_memcpy(void *, const void *, size_t);
 extern void *sse1_memcpy_nt(void *, const void *, size_t);
 
 #define GUARD 32u
@@ -41,7 +42,7 @@ static int one(size_t n, unsigned so, unsigned dof, int nt)
     memset(d - GUARD, POISON, n + 2 * GUARD);       /* poison dst + both guards */
     for (size_t k = 0; k < n; k++) s[k] = patt(k);  /* source pattern           */
 
-    void *r = nt ? sse1_memcpy_nt(d, s, n) : memcpy(d, s, n);
+    void *r = nt ? sse1_memcpy_nt(d, s, n) : sse1_memcpy(d, s, n);
 
     if (r != d)                                    { f_why = 1; goto fail; }
     for (size_t k = 0; k < n; k++) if (d[k] != patt(k)) { f_why = 2; goto fail; }
